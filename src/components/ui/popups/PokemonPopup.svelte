@@ -3,6 +3,7 @@
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import { timestampToLocalTime } from '@/lib/utils';
 	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
+	import PopupImage from '@/components/ui/popups/PopupImage.svelte';
 
 	let {data} : {data: PokemonData} = $props()
 </script>
@@ -23,11 +24,11 @@
 
 <BasePopup lat={data.lat} lon={data.lon} heightExp="188">
 	{#snippet image()}
-		<img
+		<PopupImage
 			alt={data.pokemon_id.toString()}
 			src="https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/pokemon/{data.pokemon_id}.png"
-			class="h-12 w-12"
-		>
+			class="w-12 h-12"
+		/>
 	{/snippet}
 
 	{#snippet title()}

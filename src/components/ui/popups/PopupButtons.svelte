@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div class="flex mt-2 gap-1.5 absolute bottom-4">
+<div class="flex mt-2 px-6 gap-1.5 absolute bottom-4 w-full">
 	<Button size="default" onclick={togglePopupExpanded}>
 		{#if isPopupExpanded()}
 			<EyeClosed size="20"/>

@@ -37,8 +37,8 @@
 	})
 </script>
 
-<Card class="mx-2 transition-all relative overflow-hidden" style={cardStyle}>
-	<div class="flex w-full items-center justify-between gap-4 mb-2">
+<Card class="transition-all relative overflow-hidden py-4 mx-2" style={cardStyle}>
+	<div class="flex px-6 w-full items-center justify-between gap-4 mb-2">
 		{@render image()}
 		<div class="w-full h-fit">
 			{@render title()}
@@ -53,7 +53,9 @@
 	</div>
 
 	{#if isPopupExpanded()}
-		{@render content?.()}
+		<div class="px-6">
+			{@render content?.()}
+		</div>
 	{/if}
 
 	<PopupButtons {lat} {lon} />

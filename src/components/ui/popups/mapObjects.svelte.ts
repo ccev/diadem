@@ -58,7 +58,6 @@ export function clickMapHandler(event: MapMouseEvent) {
 }
 
 export function clickFeatureHandler(event: LayerClickInfo<Feature>) {
-	console.log(event)
 	if (event.features) {
 		const props = event.features[0].properties
 		openPopup(mapObjectsState[props.id], props.type)
