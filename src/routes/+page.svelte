@@ -3,6 +3,7 @@
 	import PokemonPopup from '@/components/ui/popups/PokemonPopup.svelte';
 	import PokestopPopup from '@/components/ui/popups/PokestopPopup.svelte';
 	import {
+		closePopup,
 		getCurrentSelectedData,
 		getCurrentSelectedObjType,
 		OBJ_TYPE_POKEMON,
@@ -25,37 +26,13 @@
 		inputElement?.focus()
 	})
 
-	let card: HTMLDivElement | undefined = $state(undefined)
-
-	let cardStyle = $state("")
-	$effect(() => {
-		if (!card) return
-		// if (isPopupExpanded()) {
-		// 	cardStyle = `min-height: ${heightExp}px`
-		// } else {
-		// 	cardStyle = `min-height: ${heightCol}px`
-		// }
-
-
-
-		console.log("max height")
-		console.log(card.scrollHeight)
-
-		const height = card.scrollHeight + 1
-		card.style.maxHeight = height + 'px';
-
-		// if (isPopupExpanded()) {
-		// 	card.style.height = "auto"
-		// } else {
-		// 	card.style.height = height + "px"
-		// }
-		// if (isPopupExpanded()) {
-		// 	cardStyle = `max-height: 600px`
-		// } else {
-		// 	cardStyle = `max-height: 150px`
-		// }
-	})
-
+	function resetMap() {
+		closePopup()
+		map?.easeTo({
+			bearing: 0,
+			pitch: 0
+		})
+	}
 </script>
 
 {#if isModalOpen()}
@@ -105,7 +82,7 @@
 		</div>
 	{/if}
 
-	<BottomNav page="/" />
+	<BottomNav page="/" onmapclick={resetMap} />
 </div>
 
 <Map bind:map />

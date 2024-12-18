@@ -20,10 +20,10 @@
 	}
 
 	const sizes = {
-		default: "h-10 px-4 py-2",
+		default: "h-10 px-4 py-2 rounded-md",
 		sm: "h-9 rounded-md px-3",
 		lg: "h-11 rounded-md px-8",
-		icon: "h-10 w-10",
+		icon: "h-10 w-10 rounded-md",
 	}
 
 	class_ = variants[variant] + " " + sizes[size] + " " + class_
@@ -31,7 +31,7 @@
 
 <svelte:element
 	this={tag}
-	class="cursor-pointer ring-offset-background focus-visible:ring-ring inline-flex items-center gap-1.5 justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {class_}"
+	class="cursor-pointer ring-offset-background focus-visible:ring-ring inline-flex items-center gap-1.5 justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {class_}"
 	{...rest}
 >
 	{@render children?.()}

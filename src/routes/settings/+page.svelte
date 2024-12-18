@@ -56,7 +56,7 @@
 		<Button
 			variant="ghost"
 			size=""
-			class="py-3 px-4 w-full flex justify-between items-center text-left"
+			class="py-3 px-4 w-full flex justify-between items-center text-left rounded-md"
 			onclick={() => {getUserSettings().isLeftHanded = !getUserSettings().isLeftHanded}}
 		>
 			<div>
@@ -70,6 +70,8 @@
 
 			<Switch
 				checked={getUserSettings().isLeftHanded}
+				aria-hidden="true"
+				tabindex="-1"
 			/>
 		</Button>
 		<div class="py-3 px-4 w-full flex flex-col gap-2">

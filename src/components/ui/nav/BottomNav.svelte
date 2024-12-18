@@ -3,9 +3,11 @@
 	import Button from '@/components/ui/Button.svelte';
 
 	let {
-		page
+		page,
+		onmapclick = undefined
 	}: {
 		page: string
+		onmapclick?: () => any
 	} = $props()
 
 	function isSelected(path: string) {
@@ -16,17 +18,20 @@
 		{
 			text: "Map",
 			icon: Map,
-			href: "/"
+			href: "/",
+			onclick: onmapclick
 		},
 		{
 			text: "Filters",
 			icon: Settings2,
-			href: "/filters"
+			href: "/filters",
+			onclick: undefined
 		},
 		{
 			text: "Settings",
 			icon: Settings,
-			href: "/settings"
+			href: "/settings",
+			onclick: undefined
 		}
 	]
 </script>
@@ -37,9 +42,13 @@
 >
 	{#each buttons as btn}
 	{@const Icon = btn.icon}
-		<a
+		<Button
+			tag={btn.onclick ? "button" : "a"}
+			variant="ghost"
+			size=""
 			class="flex justify-center items-center flex-col text-sm bg-background hover:bg-accent hover:text-accent-foreground first:rounded-l-lg last:rounded-r-lg"
 			href={btn.href}
+			onclick={btn.onclick}
 		>
 			<Icon size="20" />
 			<span
@@ -48,6 +57,6 @@
 			>
 				{btn.text}
 			</span>
-		</a>
+		</Button>
 	{/each}
 </div>
