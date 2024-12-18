@@ -11,7 +11,7 @@
 	import maplibre from 'maplibre-gl';
 	import { tick, untrack } from 'svelte';
 	import type { FeatureCollection } from 'geojson';
-	import { getIconPokemon, getIconPokestop } from '@/lib/uicons.svelte';
+	import { getCurrentUiconSetDetails, getIconPokemon, getIconPokestop } from '@/lib/uicons.svelte';
 
 	let {
 		map = $bindable()
@@ -108,7 +108,7 @@
 			layout={{
 			"icon-image": ["get", "imageUrl"],
 			"icon-overlap": "always",
-			"icon-size": 0.25,
+			"icon-size": getCurrentUiconSetDetails()?.scale ?? 0.25,
 			"icon-allow-overlap": true
 		}}
 			eventsIfTopMost={true}

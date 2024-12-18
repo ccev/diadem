@@ -11,6 +11,6 @@
 	} = $props()
 </script>
 
-<div class="rounded-lg border bg-card text-card-foreground shadow-lg {class_}" {...rest}>
+<div class="rounded-lg border bg-card text-card-foreground shadow-md {class_}" {...rest}>
 	{@render children?.()}
 </div>
