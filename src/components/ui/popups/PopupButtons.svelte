@@ -30,14 +30,14 @@
 	}
 </script>
 
-<div class="flex mt-2 px-6 gap-1.5 absolute bottom-4 w-full">
+<div class="flex px-4 gap-1.5 absolute bottom-4 w-full">
 	<Button size="default" onclick={togglePopupExpanded}>
 		{#if isPopupExpanded()}
 			<EyeClosed size="20"/>
-			<span>Hide details</span>
+			<span class="max-[304px]:hidden">Hide details</span>
 		{:else}
 			<Eye size="20"/>
-			<span>Show details</span>
+			<span class="max-[304px]:hidden">Show details</span>
 		{/if}
 	</Button>
 	<Button
@@ -48,7 +48,7 @@
 		target="_blank"
 	>
 		<Map size="20"/>
-		<span>Navigate</span>
+		<span class="max-[364px]:hidden">Navigate</span>
 	</Button>
 
 	{#if hasNativeShare() || hasClipboardWrite()}
@@ -58,7 +58,7 @@
 			onclick={shareCurrentUrl}
 		>
 			<Share2 size="20"/>
-			<span>Share</span>
+			<span class="max-[406px]:hidden">Share</span>
 		</Button>
 	{/if}
 	<!--		<Button size="default" variant="outline">-->

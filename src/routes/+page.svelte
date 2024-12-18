@@ -1,61 +1,23 @@
 <script lang="ts">
-	import { GeoJSON, GeolocateControl, MapLibre, Marker, SymbolLayer } from 'svelte-maplibre';
 	import { fade, slide } from 'svelte/transition';
 	import PokemonPopup from '@/components/ui/popups/PokemonPopup.svelte';
 	import PokestopPopup from '@/components/ui/popups/PokestopPopup.svelte';
 	import {
-		addMapObject, clickFeatureHandler,
-		clickMapHandler,
-		delMapObject,
 		getCurrentSelectedData,
 		getCurrentSelectedObjType,
-		getMapObjects,
 		OBJ_TYPE_POKEMON,
 		OBJ_TYPE_POKESTOP
-	} from '@/components/ui/popups/mapObjects.svelte';
+	} from '@/lib/mapObjects/mapObjects.svelte.js';
 	import SearchFab from '@/components/ui/fab/SearchFab.svelte';
 	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
 	import BottomNav from '@/components/ui/nav/BottomNav.svelte';
 	import { closeModal, isModalOpen } from '@/lib/modal.svelte';
 	import Card from '@/components/ui/Card.svelte';
-	import {getUserSettings} from '@/lib/userSettings.svelte';
+	import { getUserSettings } from '@/lib/userSettings.svelte';
+	import Map from '@/components/map/Map.svelte';
 	import maplibre from 'maplibre-gl';
 
-	const style = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-	let map: maplibregl.Map | undefined = $state()
-
-	const uicons = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
-
-	let mapObjectsGeoJson: maplibre.GeoJSONSource["_data"] = {
-		 type: "FeatureCollection",
-		 features: []
-	 }
-
-	async function updatePokemon() {
-		const bounds = map?.getBounds()
-		if (!bounds) return
-
-		const body = {
-			minLat: bounds.getSouth(),
-			minLon: bounds.getWest(),
-			maxLat: bounds.getNorth(),
-			maxLon: bounds.getEast()
-		}
-		fetch("/pokemon", { method: "POST",  body: JSON.stringify(body)})
-			.then(r => {
-				r.json()
-					.then(pokemonList => {
-						for (const key in getMapObjects()) {
-							if (key.startsWith("pokemon-")) {
-								delMapObject(key)
-							}
-						}
-						for (const pokemon of pokemonList) {
-							addMapObject("pokemon-" + pokemon.id, pokemon)
-						}
-					})
-			})
-	}
+	let map: maplibre.Map | undefined = $state()
 
 	let inputElement: HTMLInputElement | undefined = $state()
 	$effect(() => {
@@ -63,93 +25,34 @@
 		inputElement?.focus()
 	})
 
-	let loadedImages: string[] = []
+	let card: HTMLDivElement | undefined = $state(undefined)
 
-	async function addMapImage(id: string, url: string) {
-		if (!map) return
-		if (loadedImages.includes(id)) return
-		loadedImages.push(id)
-
-		const image = await map.loadImage(url)
-		map.addImage(id, image.data)
-	}
-
-	async function onMapLoad(map: maplibre.Map) {
-		map.addSource("mapObjects", {
-			type: "geojson",
-			data: mapObjectsGeoJson
-		})
-		await updatePokemon()
-	}
-
+	let cardStyle = $state("")
 	$effect(() => {
-		getMapObjects
+		if (!card) return
+		// if (isPopupExpanded()) {
+		// 	cardStyle = `min-height: ${heightExp}px`
+		// } else {
+		// 	cardStyle = `min-height: ${heightCol}px`
+		// }
 
-		mapObjectsGeoJson.features = Object.values(getMapObjects()).map(obj => {
-			return {
-				type: "Feature",
-				geometry: {
-					type: "Point",
-					coordinates: [obj.lon, obj.lat]
-				},
-				properties: {
-					image: obj?.pokemon_id ?? "0",
-					id: "pokemon-" + obj.id,
-					type: "pokemon"
-					// image: "cat",
-				},
-				id: "pokemon-" + obj.id
-			}
-		})
 
-		// addMapImage("cat", "https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png").then(() => {
-		// 	map?.getSource("mapObjects")?.setData(mapObjectsGeoJson)
-		// })
 
-		// addMapImage(mapObjectsGeoJson.features[1].properties.pokemon_id, mapObjectsGeoJson.features[1].properties.image)
-		// 	.then(map?.getSource("mapObjects")?.setData(mapObjectsGeoJson))
+		console.log("max height")
+		console.log(card.scrollHeight)
 
-		Promise.all(mapObjectsGeoJson.features.map(f => {
-			return addMapImage(f.properties?.image, uicons + "pokemon/" + f.properties?.image + ".png")
-		})).then(() => {
-			map?.getSource("mapObjects")?.setData(mapObjectsGeoJson)
-		})
+		const height = card.scrollHeight + 1
+		card.style.maxHeight = height + 'px';
 
-		// try {
-		// 	map?.loadImage('https://upload.wikimedia.org/wikipedia/commons/7/7c/201408_cat.png').then(im => {
-		// 		if (!map?.hasImage("cat")) map?.addImage("cat", im.data)
-		// 	})
-		//
-		//
-		//
-		// 	 if (!map?.getSource("mapObjects")) {
-		// 		 map?.addSource("mapObjects", {
-		// 			 type: "geojson",
-		// 			 data: {
-		// 				 type: "FeatureCollection",
-		// 				 features: [
-		// 					 {
-		// 						 type: "Feature",
-		// 						 geometry: {
-		// 							 type: "Point",
-		// 							 coordinates: [10.684622, 53.870822]
-		// 						 },
-		// 						 properties: {
-		// 							 image: "test",
-		// 						 }
-		// 					 }
-		// 				 ]
-		// 			 }
-		// 		 })
-		// 	 }
-		//
-		// 	map?.getSource("mapObjects")?.setData({
-		// 		type: "FeatureCollection",
-		// 		features
-		// 	})
-		// 	console.log(map?.getSource("mapObjects"))
-		// } catch (e) {
-		// 	console.error(e)
+		// if (isPopupExpanded()) {
+		// 	card.style.height = "auto"
+		// } else {
+		// 	card.style.height = height + "px"
+		// }
+		// if (isPopupExpanded()) {
+		// 	cardStyle = `max-height: 600px`
+		// } else {
+		// 	cardStyle = `max-height: 150px`
 		// }
 	})
 
@@ -190,7 +93,7 @@
 
 	{#if getCurrentSelectedObjType()}
 		<div
-			class="w-full max-w-[32rem] mb-2 z-10"
+			class="w-full max-w-[30rem] mb-2 z-10"
 			style="pointer-events: all"
 			transition:slide={{duration: 50}}
 		>
@@ -205,55 +108,5 @@
 	<BottomNav page="/" />
 </div>
 
-<MapLibre
-	bind:map
-	center={[10.686771743624869, 53.867700846809676]}
-	zoom={15}
-	class="h-screen overflow-hidden"
-	style={style}
-	onclick={clickMapHandler}
-	attributionControl={false}
-	onmoveend={() => updatePokemon()}
-	onload={onMapLoad}
->
-	<SymbolLayer
-		id="mapObjects"
-		source="mapObjects"
-		hoverCursor="pointer"
-		layout={{
-			'icon-image': ["get", "image"],
-			'icon-size': 0.25,
-			"icon-overlap": "always",
-			"icon-allow-overlap": true
-		}}
-		onclick={clickFeatureHandler}
-	/>
-
-	<Marker
-		lngLat={[10.683876260911497, 53.86879553625915]}
-	>
-		<button
-			class="h-6 w-6 cursor-pointer bg-cover"
-			style="background-image: url({uicons}/pokestop/0.png)"
-			data-object-type="pokestop"
-			data-object-id="pokestop-0"
-			aria-label="Pokestop"
-		></button>
-	</Marker>
-
-	<!--{#each Object.values(getMapObjects()) as pokemon (pokemon.id)}-->
-	<!--	<Marker-->
-	<!--		lngLat={[pokemon.lon, pokemon.lat]}-->
-	<!--	>-->
-	<!--		<button-->
-	<!--			class="h-6 w-6 hover:scale-125 transition-transform cursor-pointer bg-cover"-->
-	<!--			style="background-image: url({uicons}pokemon/{pokemon.pokemon_id}.png)"-->
-	<!--			data-object-type={OBJ_TYPE_POKEMON}-->
-	<!--			data-object-id="pokemon-{pokemon.id}"-->
-	<!--			aria-label="Pokemon {pokemon.id}"-->
-	<!--		></button>-->
-	<!--	</Marker>-->
-	<!--{/each}-->
-</MapLibre>
-
+<Map bind:map />
 

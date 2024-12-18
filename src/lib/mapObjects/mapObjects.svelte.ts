@@ -1,8 +1,9 @@
 import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
-import type { MapLayerMouseEvent, MapMouseEvent } from 'maplibre-gl';
+import type { LngLatBounds, MapLayerMouseEvent, MapMouseEvent } from 'maplibre-gl';
 import type { LayerClickInfo } from 'svelte-maplibre';
 import type {Feature} from "geojson"
+import { updatePokemon } from '@/lib/mapObjects/pokemon.svelte';
 
 export const OBJ_TYPE_POKEMON = "pokemon"
 export const OBJ_TYPE_POKESTOP = "pokestop"
@@ -19,6 +20,9 @@ let mapObjectsState: {
 // temp
 mapObjectsState["pokestop-0"] = {id: "0", name: "Pokestop Name", lat: 0, lon: 0}
 
+export async function updateAllMapObjects(bounds: LngLatBounds) {
+	await updatePokemon(bounds)
+}
 
 export function getCurrentSelectedObjType() {
 	return currentSelectedObjType
@@ -48,6 +52,7 @@ export function getCurrentPath() {
 }
 
 export function clickMapHandler(event: MapMouseEvent) {
+	if (event._defaultPrevented) return
 	// @ts-ignore
 	if (event.originalEvent.target?.dataset.objectType) {
 		// @ts-ignore
@@ -58,6 +63,7 @@ export function clickMapHandler(event: MapMouseEvent) {
 }
 
 export function clickFeatureHandler(event: LayerClickInfo<Feature>) {
+	event.event.preventDefault()
 	if (event.features) {
 		const props = event.features[0].properties
 		openPopup(mapObjectsState[props.id], props.type)

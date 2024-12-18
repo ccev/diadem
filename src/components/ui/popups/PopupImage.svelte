@@ -14,7 +14,6 @@
 
 	$effect(() => {
 		src
-		console.log(img)
 		if (!img) return
 
 		const timeout = setTimeout(() => {

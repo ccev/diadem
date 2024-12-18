@@ -1,52 +1,62 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
+
 	let {
 		expireTime,
 		showHours = false
 	}: {
-		expireTime: number,
+		expireTime: number | null,
 		showHours?: boolean
 	} = $props()
+
+	if (!expireTime) {
+		expireTime = 0
+	}
 
 	let formattedTime: string = $state("")
 	let remainingTime: number = expireTime - Math.floor(Date.now() / 1000)
 	let interval: NodeJS.Timeout | undefined
 
 	function updateCountdown() {
-		if (remainingTime <= 0) {
-			if (showHours) {
-				formattedTime = "0h 0m 0s"
-			} else {
-				formattedTime = "0m 0s"
-			}
+		const isPast = remainingTime < 0
+		const absRemainingTime = Math.abs(remainingTime)
 
-			if (interval) clearInterval(interval)
-			return
-		}
-
-		const seconds = remainingTime % 60
+		const seconds = absRemainingTime % 60
 		let minutes: number
 		let prefix = ""
 		const nbsp = "\u00A0"
 
 		if (showHours) {
-			const hours = Math.floor(remainingTime / 3600)
-			minutes = Math.floor((remainingTime % 3600) / 60)
+			const hours = Math.floor(absRemainingTime / 3600)
+			minutes = Math.floor((absRemainingTime % 3600) / 60)
 			prefix = `${hours}h${nbsp}`
 		} else {
-			minutes = Math.floor(remainingTime / 60)
+			minutes = Math.floor(absRemainingTime / 60)
 		}
 
+		console.log("time update")
+
 		formattedTime = `${prefix}${minutes}m${nbsp}${seconds}s`
+		if (isPast) {
+			formattedTime += `${nbsp}ago`
+		}
+
 		remainingTime -= 1
 	}
 
 	$effect(() => {
-		if (interval) clearInterval(interval)
-		remainingTime = expireTime - Math.floor(Date.now() / 1000)
-		updateCountdown()
-		interval = setInterval(updateCountdown, 1000)
-	})
+		expireTime
 
+		untrack(() => {
+			remainingTime = expireTime - Math.floor(Date.now() / 1000)
+			updateCountdown()
+		})
+		interval = setInterval(updateCountdown, 1000)
+
+		return () => {
+			if (interval) clearInterval(interval)
+		}
+	})
 </script>
 
 {formattedTime}

@@ -29,7 +29,7 @@ export type PokemonData = {
 	expire_timestamp_verified: boolean;
 	display_pokemon_id: number | null;
 	is_ditto: boolean;
-	seen_type: string | null;
+	seen_type: 'wild' | 'encounter' | 'nearby_stop'| 'nearby_cell' | 'lure_wild' | 'lure_encounter' | null;
 	shiny: boolean | null;
 	username: string | null;
 	capture1: number | null;
@@ -37,4 +37,7 @@ export type PokemonData = {
 	capture3: number | null;
 	// pvp: Record<string, Array<PokemonEntry>>
 	is_event: number;
+	temp_evolution_id?: number;
+	alignment?: number;
+	bread_mode?: number;
 };
