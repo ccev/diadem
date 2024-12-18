@@ -12,7 +12,7 @@
 <ToggleGroupPrimitive.Item
 	{value}
 	class=
-		"bg-card ring-accent ring-2 p-4 w-20 h-fit text-sm font-medium rounded-lg flex
+		"bg-card ring-accent ring-2 w-20 h-fit text-sm font-medium rounded-lg flex
 		flex-col items-center gap-1 ring-offset-background focus-visible:ring-ring
 		hover:bg-muted data-[state=on]:ring-ring data-[state=on]:ring-2
 		transition-colors focus-visible:outline-none focus-visible:ring-2

@@ -83,15 +83,15 @@
 				value={"" + getUserSettings().isDarkMode}
 				onValueChange={onThemeChange}
 			>
-				<SelectGroupItem value="false">
+				<SelectGroupItem class="p-4" value="false">
 					<Sun size="20" />
 					Light
 				</SelectGroupItem>
-				<SelectGroupItem value="null">
+				<SelectGroupItem class="p-4" value="null">
 					<Cloud size="20" />
 					System
 				</SelectGroupItem>
-				<SelectGroupItem value="true">
+				<SelectGroupItem class="p-4" value="true">
 					<Moon size="20" />
 					Dark
 				</SelectGroupItem>
@@ -109,7 +109,7 @@
 				onValueChange={onMapStyleChange}
 			>
 				{#each getConfig().mapStyles as mapStyle (mapStyle.id)}
-					<SelectGroupItem class="p-0 overflow-hidden" value={mapStyle.id}>
+					<SelectGroupItem class="overflow-hidden" value={mapStyle.id}>
 						<MapLibre
 							center={[9.979, 53.563]}
 							zoom={12}
@@ -148,7 +148,7 @@
 				onValueChange={(value) => onIconChange(value, "pokemon")}
 			>
 				{#each getConfig().uiconSets as iconSet (iconSet.id)}
-					<SelectGroupItem value={iconSet.id}>
+					<SelectGroupItem class="p-4" value={iconSet.id}>
 						<img
 							class="w-5"
 							src={getIconPokemon({pokemon_id: 25}, iconSet.id)}
@@ -173,7 +173,7 @@
 				onValueChange={(value) => onIconChange(value, "pokemon")}
 			>
 				{#each getConfig().uiconSets as iconSet (iconSet.id)}
-					<SelectGroupItem value={iconSet.id}>
+					<SelectGroupItem class="p-4" value={iconSet.id}>
 						<img
 							class="w-5"
 							src={getIconPokestop({}, iconSet.id)}
