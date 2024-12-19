@@ -9,13 +9,7 @@ export async function readConfig() {
 	let rawToml: string = '';
 	let configFile
 
-	try {
-		configFile = await import('./server/config.toml?raw')
-	} catch(e) {
-		console.error('Please copy config.example.toml to config.toml! Starting with default config')
-		configFile = await import('./server/config.example.toml?raw')
-	}
-
+	configFile = await import('./server/config.toml?raw')
 	rawToml = configFile.default
 
 	config = parse(rawToml);
