@@ -27,21 +27,21 @@ url = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 id = "pogoOutline"
 name = "Default"
 url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
-use = ["pokemon", "pokestop"]
+use = ["pokemon", "pokestop", "gym"]
 scale = 0.25
 
 [[client.uiconSets]]
 id = "home"
 name = "Home"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS_OS_128/"
-use = ["pokemon", "pokestop"]
+use = ["pokemon", "pokestop", "gym"]
 scale = 0.25
 
 [[client.uiconSets]]
 id = "shuffle"
 name = "Shuffle"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
-use = ["pokemon"]
+use = ["pokemon", "gym"]
 scale = 0.25
 
 [[client.uiconSets]]
@@ -57,3 +57,22 @@ scale = 0.25
 # url = "https://raw.githubusercontent.com/RagingRectangle/CageMons/main"
 #use = ["pokemon"]
 # scale = 0.035
+
+
+### Areas
+
+
+[[client.areas]]
+name = "Lübeck"
+center = [53.868391033082354, 10.687845930088276]
+zoom = 15
+
+[[client.areas]]
+name = "Münster"
+center = [51.96191081318417, 7.625340506086133]
+zoom = 15
+
+[[client.areas]]
+name = "Kiel"
+center = [54.321495035055726, 10.1268103435357827]
+zoom = 14
