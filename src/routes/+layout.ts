@@ -1,6 +1,6 @@
 import { initAllIconSets } from '@/lib/uicons.svelte';
 import { loadMasterFile } from '@/lib/masterfile';
-import { setUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
+import { getDefaultUserSettings, setUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 import { browser } from '$app/environment';
 import { setConfig } from '@/lib/config';
 
@@ -17,6 +17,7 @@ export const load = async ({fetch}) => {
 		console.log(rawUserSettings)
 		if (rawUserSettings) setUserSettings(JSON.parse(rawUserSettings))
 
+		setUserSettings(getDefaultUserSettings())
 		updateUserSettings()
 	}
 }

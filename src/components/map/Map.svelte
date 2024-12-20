@@ -13,6 +13,7 @@
 	import type { FeatureCollection } from 'geojson';
 	import { getCurrentUiconSetDetails, getIconPokemon, getIconPokestop, getIcon } from '@/lib/uicons.svelte';
 	import {getLoadedImages} from '@/lib/utils.svelte';
+	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
 
 	let {
 		map = $bindable()
@@ -108,7 +109,34 @@
 		await loadMapObjects()
 
 		await tick()
-		map?.on("click", clickMapHandler)
+		if (!map) return
+		map.on("click", clickMapHandler)
+		map.on("touchstart", onTouchStart)
+		map.on("touchend", onTouchEnd)
+		map.on("touchmove", onTouchMove)
+	}
+
+	let pressTimer: undefined | NodeJS.Timeout;
+	const longPressDuration = 500;
+	let div: HTMLDivElement
+	let isContextMenuOpen: boolean = $state(false)
+	let contextMenuPos: {x: number, y: number} = $state({x: 0, y: 0})
+
+	function onContextMenu(event: maplibre.MapTouchEvent | maplibre.MapMouseEvent) {
+		isContextMenuOpen = true
+		contextMenuPos = event.point
+	}
+
+	function onTouchStart(e: maplibre.MapTouchEvent) {
+		pressTimer = setTimeout(() => onContextMenu(e), longPressDuration);
+	}
+
+	function onTouchEnd() {
+		clearTimeout(pressTimer);
+	}
+
+	function onTouchMove() {
+		clearTimeout(pressTimer);
 	}
 </script>
 
@@ -123,6 +151,7 @@
 	onmoveend={onMapMoveEnd}
 	onmovestart={onMapMoveStart}
 	onload={onMapLoad}
+	oncontextmenu={onContextMenu}
 >
 	<GeoJSON
 		id="mapObjects"

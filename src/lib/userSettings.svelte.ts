@@ -29,7 +29,7 @@ type UserSettings = {
 	loadMapObjectsPadding: number
 }
 
-function getDefaultUserSettings() {
+export function getDefaultUserSettings() {
 	const defaultIconSet = {
 		id: getConfig().uiconSets[0].id,
 		url: getConfig().uiconSets[0].url,
@@ -64,7 +64,7 @@ let userSettings: UserSettings = $state({})
 
 export function setUserSettings(newUserSettings: UserSettings) {
 	// @ts-ignore
-	userSettings =  deepMerge(getDefaultUserSettings(), newUserSettings)
+	userSettings = deepMerge(getDefaultUserSettings(), newUserSettings)
 	console.log(userSettings)
 }
 
