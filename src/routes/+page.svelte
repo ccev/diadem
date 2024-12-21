@@ -45,20 +45,20 @@
 {#if isModalOpen()}
 	<div
 		transition:slide={{duration: 50}}
-		class="absolute z-30 top-2 w-full"
+		class="fixed z-30 top-2 w-full"
 	>
 		<Search onjump={flyTo} />
 	</div>
 	<button
 		transition:fade={{duration: 50}}
-		class="absolute z-20 top-0 h-full w-full backdrop-blur-[1px] backdrop-brightness-95"
+		class="fixed z-20 top-0 h-full w-full backdrop-blur-[1px] backdrop-brightness-95"
 		onclick={() => closeModal()}
 		aria-label="Close Modal"
 	></button>
 {/if}
 
 <div
-	class="absolute z-10 bottom-2 w-full flex flex-col pointer-events-none"
+	class="fixed z-10 bottom-2 w-full flex flex-col pointer-events-none"
 	class:items-end={!getUserSettings().isLeftHanded}
 >
 	<div

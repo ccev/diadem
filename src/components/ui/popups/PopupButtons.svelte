@@ -2,6 +2,7 @@
 	import { isPopupExpanded, togglePopupExpanded } from '@/components/ui/popups/isPopupExpanded.svelte.js';
 	import { Eye, EyeClosed, Map, Share2, SquareArrowOutUpRight, Navigation } from 'lucide-svelte';
 	import Button from '@/components/ui/Button.svelte';
+	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 
 	let {
 		lat,
@@ -25,7 +26,7 @@
 			navigator.share(shareData)
 		} else if (hasClipboardWrite()) {
 			navigator.clipboard.writeText(window.location.toString())
-			// TODO: Toasts
+			openToast("Copied to clipboard")
 		}
 	}
 </script>

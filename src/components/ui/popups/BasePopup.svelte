@@ -45,7 +45,7 @@
 				</div>
 			{/if}
 		</div>
-		<Button variant="ghost" size="" class="self-start ml-0.5 rounded-sm -mt-2 p-2 -m-3" onclick={() => closePopup()}>
+		<Button variant="ghost" size="" class="self-start ml-0.5 rounded-sm -mt-2 p-2 -mr-4" onclick={() => closePopup()}>
 			<X />
 		</Button>
 	</div>
