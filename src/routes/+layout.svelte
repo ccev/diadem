@@ -47,7 +47,7 @@
 <dialog
 	bind:this={dialog}
 	style="width: calc(100% - 1rem);"
-	class="shadow-md rounded-md appearance-none bg-transparent max-w-full backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
+	class="shadow-md rounded-md appearance-none bg-transparent max-w-[30rem] backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
 	onclose={() => closeModal()}
 	onclick={() => closeModal()}
 	class:my-auto={getModalOptions().vertical === "center"}

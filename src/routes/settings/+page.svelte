@@ -35,15 +35,15 @@
 	}
 	const languages: Language[] = [
 		{
-			label: "Auto",
+			label: m.language_auto(),
 			value: "auto"
 		},
 		{
-			label: "English",
+			label: m.language_english(),
 			value: "en"
 		},
 		{
-			label: "German",
+			label: m.language_german(),
 			value: "de"
 		}
 	]
@@ -109,7 +109,7 @@
 		{/snippet}
 
 		<SettingsSelect
-			title="Language"
+			title={m.settings_language()}
 			description=""
 			value={getUserSettings().languageTag}
 			onselect={(tag) => getUserSettings().languageTag = tag}

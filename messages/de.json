@@ -16,5 +16,9 @@
     "settings_load_map_objects_while_moving_title": "Aggressive Map Updates",
     "settings_load_map_objects_while_moving_description": "Lade Daten während die Map bewegt wird",
     "settings_load_map_objects_padding_title": "Map Update Größe",
-    "settings_load_map_objects_padding_description": "Extra Pixel, die um die Map geladen werden"
+    "settings_load_map_objects_padding_description": "Extra Pixel, die um die Map geladen werden",
+    "settings_language": "Sprache",
+    "language_auto": "Auto",
+    "language_english": "Englisch",
+    "language_german": "Deutsch"
 }
