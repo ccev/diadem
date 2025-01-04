@@ -26,7 +26,8 @@ type UserSettings = {
 	isLeftHanded: boolean,
 	isDarkMode: boolean | null,
 	loadMapObjectsWhileMoving: boolean
-	loadMapObjectsPadding: number
+	loadMapObjectsPadding: number,
+	languageTag: string | "auto",
 }
 
 export function getDefaultUserSettings() {
@@ -55,7 +56,8 @@ export function getDefaultUserSettings() {
 		isLeftHanded: false,
 		isDarkMode: false,
 		loadMapObjectsWhileMoving: false,
-		loadMapObjectsPadding: 20
+		loadMapObjectsPadding: 20,
+		languageTag: "auto"
 	}
 }
 

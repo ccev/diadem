@@ -1,0 +1,20 @@
+{
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+    "theme_light": "Tag",
+    "theme_system": "System",
+    "theme_dark": "Nacht",
+    "settings_appearance": "Aussehen",
+    "settings_left_handed_mode_title": "Linkshänder-Modus",
+    "settings_left_handed_mode_description": "UI-Elemente sind auf der linken Seite",
+    "settings_theme": "Design",
+    "settings_map_style": "Map-Stil",
+    "settings_icons": "Icons",
+    "pogo_pokemon": "Pokémon",
+    "pogo_pokestops": "Pokéstops",
+    "pogo_gyms": "Arenen",
+    "settings_advanced": "Erweitert",
+    "settings_load_map_objects_while_moving_title": "Aggressive Map Updates",
+    "settings_load_map_objects_while_moving_description": "Lade Daten während die Map bewegt wird",
+    "settings_load_map_objects_padding_title": "Map Update Größe",
+    "settings_load_map_objects_padding_description": "Extra Pixel, die um die Map geladen werden"
+}

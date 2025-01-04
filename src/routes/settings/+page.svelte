@@ -19,11 +19,34 @@
 	import SettingsNumber from '@/components/ui/settings/SettingsNumber.svelte';
 	import SettingsSettingTitle from '@/components/ui/settings/SettingsSettingTitle.svelte';
 	import SettingsGeneric from '@/components/ui/settings/SettingsGeneric.svelte';
+	import * as m from "@/lib/paraglide/messages"
+	import {availableLanguageTags} from '@/lib/paraglide/runtime';
+	import SettingsSelect from '@/components/ui/settings/SettingsSelect.svelte';
 
 	$effect(() => {
 		getUserSettings()
 		updateUserSettings()
 	})
+
+	type Language = {
+		label: string
+		shortLabel?: string
+		value: string
+	}
+	const languages: Language[] = [
+		{
+			label: "Auto",
+			value: "auto"
+		},
+		{
+			label: "English",
+			value: "en"
+		},
+		{
+			label: "German",
+			value: "de"
+		}
+	]
 
 	function onThemeChange(value: string) {
 		if (value === "true") {
@@ -62,6 +85,7 @@
 			childCount={getUiconSets(type).length}
 			value={getUserSettings().uiconSet[type].id}
 			onValueChange={(value) => onIconChange(value, type)}
+			evenColumns={false}
 		>
 			{#each getUiconSets(type) as iconSet (iconSet.id)}
 				<SelectGroupItem class="p-4" value={iconSet.id}>
@@ -81,17 +105,25 @@
 	<SettingsCard>
 		{#snippet title()}
 			<Paintbrush size="18" />
-			Appearance
+			{m.settings_appearance()}
 		{/snippet}
 
+		<SettingsSelect
+			title="Language"
+			description=""
+			value={getUserSettings().languageTag}
+			onselect={(tag) => getUserSettings().languageTag = tag}
+			options={languages}
+		/>
+
 		<SettingsToggle
-			title="Left-handed Mode"
-			description="Place UI elements on the left"
+			title={m.settings_left_handed_mode_title()}
+			description={m.settings_left_handed_mode_description()}
 			onclick={() => {getUserSettings().isLeftHanded = !getUserSettings().isLeftHanded}}
 			value={getUserSettings().isLeftHanded}
 		/>
 
-		<SettingsGeneric title="Theme">
+		<SettingsGeneric title={m.settings_theme()}>
 			<SelectGroup
 				value={"" + getUserSettings().isDarkMode}
 				onValueChange={onThemeChange}
@@ -99,20 +131,20 @@
 			>
 				<SelectGroupItem class="p-4" value="false">
 					<Sun size="20" />
-					Light
+					{m.theme_light()}
 				</SelectGroupItem>
 				<SelectGroupItem class="p-4" value="null">
 					<Cloud size="20" />
-					System
+					{m.theme_system()}
 				</SelectGroupItem>
 				<SelectGroupItem class="p-4" value="true">
 					<Moon size="20" />
-					Dark
+					{m.theme_dark()}
 				</SelectGroupItem>
 			</SelectGroup>
 		</SettingsGeneric>
 
-		<SettingsGeneric title="Map Style">
+		<SettingsGeneric title={m.settings_map_style()}>
 			<SelectGroup
 				childCount={getConfig().mapStyles.length}
 				value={getUserSettings().mapStyle.id}
@@ -128,6 +160,7 @@
 							style={mapStyle.url}
 							attributionControl={false}
 							interactive={false}
+							zoomOnDoubleClick={false}
 						/>
 						<span class="pb-1">
 							{mapStyle.name}
@@ -142,30 +175,30 @@
 	<SettingsCard>
 		{#snippet title()}
 			<Image size="18" />
-			Icons
+			{m.settings_icons()}
 		{/snippet}
 
-		{@render iconSelect("Pokemon", "pokemon", getIconPokemon, {pokemon_id: 25})}
-		{@render iconSelect("Pokestops", "pokestop", getIconPokestop, {})}
-		{@render iconSelect("Gyms", "gym", getIconGym, {})}
+		{@render iconSelect(m.pogo_pokemon(), "pokemon", getIconPokemon, {pokemon_id: 25})}
+		{@render iconSelect(m.pogo_pokestops(), "pokestop", getIconPokestop, {})}
+		{@render iconSelect(m.pogo_gyms(), "gym", getIconGym, {})}
 	</SettingsCard>
 
 	<SettingsCard>
 		{#snippet title()}
 			<Code size="18" />
-			Advanced
+			{m.settings_advanced()}
 		{/snippet}
 
 		<SettingsToggle
-			title="Aggressive Map Updates"
-			description="Fetch data while moving the map"
+			title={m.settings_load_map_objects_while_moving_title()}
+			description={m.settings_load_map_objects_while_moving_description()}
 			onclick={() => {getUserSettings().loadMapObjectsWhileMoving = !getUserSettings().loadMapObjectsWhileMoving}}
 			value={getUserSettings().loadMapObjectsWhileMoving}
 		/>
 
 		<SettingsNumber
-			title="Map Update Size"
-			description="Additional pixels to fetch around the map's bounding box"
+			title={m.settings_load_map_objects_padding_title()}
+			description={m.settings_load_map_objects_padding_description()}
 			value={getUserSettings().loadMapObjectsPadding}
 			onchange={e => getUserSettings().loadMapObjectsPadding = parseFloat(e.target.value) || 0}
 			min="0"

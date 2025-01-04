@@ -23,8 +23,8 @@
 		mapsUrl = getMapsUrl(event.lngLat.lat, event.lngLat.lng)
 
 		const { innerWidth, innerHeight } = window;
-		const offsetWidth = div.getBoundingClientRect().width + 16
-		const offsetHeight = div.getBoundingClientRect().height + 16
+		const offsetWidth = div.getBoundingClientRect().width + 4
+		const offsetHeight = div.getBoundingClientRect().height + 4
 		let x = event.point.x
 		let y = event.point.y
 
@@ -44,7 +44,7 @@
 
 <div
 	bind:this={div}
-	class="absolute flex flex-col z-50 bg-popover text-popover-foreground min-w-[8rem] rounded-md border p-1 shadow-md focus:outline-none"
+	class="absolute py-2 flex flex-col z-50 bg-popover text-popover-foreground min-w-[8rem] rounded-md border p-1 shadow-md focus:outline-none"
 	style={style}
 >
 	{#if hasClipboardWrite()}

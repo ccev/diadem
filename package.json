@@ -24,7 +24,8 @@
 		"svelte-check": "^4.0.0",
 		"tailwindcss": "^3.4.15",
 		"typescript": "^5.0.0",
-		"vite": "^5.0.3"
+		"vite": "^5.0.3",
+		"@inlang/paraglide-js": "1.11.3"
 	},
 	"dependencies": {
 		"@sveltejs/adapter-cloudflare": "^4.9.0",
@@ -39,6 +40,7 @@
 		"tailwind-merge": "^2.5.5",
 		"tailwindcss-animate": "^1.0.7",
 		"toml": "^3.0.0",
-		"uicons.js": "^2.0.2"
+		"uicons.js": "^2.0.2",
+		"@inlang/paraglide-sveltekit": "0.15.0"
 	}
 }

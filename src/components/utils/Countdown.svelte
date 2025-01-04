@@ -34,8 +34,6 @@
 			minutes = Math.floor(absRemainingTime / 60)
 		}
 
-		console.log("time update")
-
 		formattedTime = `${prefix}${minutes}m${nbsp}${seconds}s`
 		if (isPast) {
 			formattedTime += `${nbsp}ago`

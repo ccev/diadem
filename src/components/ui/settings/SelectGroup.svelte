@@ -6,13 +6,19 @@
 		class: class_ = "",
 		value = "",
 		children = null,
+		evenColumns = true,
 		...rest
 	} = $props()
 
-	let step0Cols = childCount === 5 ? 3 : 4
-	let step1Cols = childCount === 4 ? 2 : 3
+	let step0Cols = 4
+	let step1Cols = 3
 	let step2Cols = 2
 	let step3Cols = 1
+
+	if (evenColumns) {
+		step0Cols = childCount === 5 ? 3 : 4
+		step1Cols = childCount === 4 ? 2 : 3
+	}
 </script>
 
 <ToggleGroupPrimitive.Root
