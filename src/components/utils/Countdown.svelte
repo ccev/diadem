@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import * as m from "@/lib/paraglide/messages"
+
 
 	let {
 		expireTime,
@@ -23,21 +25,29 @@
 
 		const seconds = absRemainingTime % 60
 		let minutes: number
-		let prefix = ""
-		const nbsp = "\u00A0"
 
 		if (showHours) {
 			const hours = Math.floor(absRemainingTime / 3600)
 			minutes = Math.floor((absRemainingTime % 3600) / 60)
-			prefix = `${hours}h${nbsp}`
+
+			if (isPast) {
+				formattedTime = m.time_format_h_m_s_ago({h: hours, m: minutes, s: seconds})
+			} else {
+				formattedTime = m.time_format_h_m_s({h: hours, m: minutes, s: seconds})
+
+			}
 		} else {
 			minutes = Math.floor(absRemainingTime / 60)
+
+			if (isPast) {
+				formattedTime = m.time_format_m_s_ago({m: minutes, s: seconds})
+			} else {
+				formattedTime = m.time_format_m_s({m: minutes, s: seconds})
+
+			}
 		}
 
-		formattedTime = `${prefix}${minutes}m${nbsp}${seconds}s`
-		if (isPast) {
-			formattedTime += `${nbsp}ago`
-		}
+		formattedTime = formattedTime.replaceAll(" ", "\u00A0")
 
 		remainingTime -= 1
 	}

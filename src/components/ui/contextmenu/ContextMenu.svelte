@@ -9,11 +9,14 @@
 	import ContextMenuItem from '@/components/ui/contextmenu/ContextMenuItem.svelte';
 	import { canNativeShare, copyToClipboard, getMapsUrl, hasClipboardWrite } from '@/lib/utils.svelte';
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
+	import { getUserSettings } from '@/lib/userSettings.svelte';
 
 	let div: HTMLDivElement | undefined = $state()
 	let style: string = $state("")
 	let event: maplibre.MapTouchEvent | maplibre.MapMouseEvent
 	let mapsUrl: string = $state("")
+
+	const spacing = 4
 
 	$effect(() => {
 		if (!div) return
@@ -23,16 +26,22 @@
 		mapsUrl = getMapsUrl(event.lngLat.lat, event.lngLat.lng)
 
 		const { innerWidth, innerHeight } = window;
-		const offsetWidth = div.getBoundingClientRect().width + 4
-		const offsetHeight = div.getBoundingClientRect().height + 4
+		const offsetWidth = div.getBoundingClientRect().width
+		const offsetHeight = div.getBoundingClientRect().height
 		let x = event.point.x
 		let y = event.point.y
 
-		if (x + offsetWidth > innerWidth) {
-			x = innerWidth - offsetWidth;
+		if (!getUserSettings().isLeftHanded) {
+			x -= offsetWidth
 		}
-		if (y + offsetHeight > innerHeight) {
-			y = innerHeight - offsetHeight;
+		if (x <= spacing) {
+			x = spacing
+		}
+		if (x + offsetWidth > innerWidth + spacing) {
+			x = innerWidth - offsetWidth - spacing;
+		}
+		if (y + offsetHeight > innerHeight + spacing) {
+			y = innerHeight - offsetHeight - spacing;
 		}
 		style = `top: ${y}px; left: ${x}px;`
 	})

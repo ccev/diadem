@@ -5,6 +5,7 @@
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 	import { tick } from 'svelte';
 	import { setIsContxtMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
+	import * as m from "@/lib/paraglide/messages"
 
 	let {
 		map
@@ -12,10 +13,10 @@
 		map: maplibre.Map | undefined
 	} = $props()
 
-	const errorReasonSupport = "Your browser doesn't have location support"
-	const errorReasonPerms = "Location permissions denied"
-	const errorReasonTimeout = "Timed out while fetching your location"
-	const errorReasonUnknown = "An error occured while fetching your location"
+	const errorReasonSupport = m.locate_error_support()
+	const errorReasonPerms = m.locate_error_perms()
+	const errorReasonTimeout = m.locate_error_timeout()
+	const errorReasonUnknown = m.locate_error_unknown()
 
 	let geolocationEnabled: boolean = $state(false)
 	let isFetchingLocation: boolean = $state(false)

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {Map, Settings2, Settings} from 'lucide-svelte';
 	import Button from '@/components/ui/Button.svelte';
+	import * as m from "@/lib/paraglide/messages"
 
 	let {
 		page,
@@ -16,19 +17,19 @@
 
 	const buttons = [
 		{
-			text: "Map",
+			text: m.nav_map(),
 			icon: Map,
 			href: "/",
 			onclick: onmapclick
 		},
 		{
-			text: "Filters",
+			text: m.nav_filters(),
 			icon: Settings2,
 			href: "/filters",
 			onclick: undefined
 		},
 		{
-			text: "Settings",
+			text: m.nav_settings(),
 			icon: Settings,
 			href: "/settings",
 			onclick: undefined

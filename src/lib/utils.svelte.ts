@@ -1,5 +1,6 @@
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import { openToast } from '@/components/ui/toast/toastUtils.svelte';
+import * as m from "@/lib/paraglide/messages"
 
 export function timestampToLocalTime(timestamp: number | null) {
 	if (!timestamp) return '';
@@ -33,8 +34,8 @@ export function hasClipboardWrite() {
 
 export function copyToClipboard(content: string) {
 	navigator.clipboard.writeText(content)
-		.then(() => openToast("Copied to clipboard"))
-		.catch(e => openToast("Couldn't copy to clipboard"))
+		.then(() => openToast(m.clipboard_copied()))
+		.catch(e => openToast(m.clipboard_error()))
 }
 
 export function getMapsUrl(lat: number, lon: number) {

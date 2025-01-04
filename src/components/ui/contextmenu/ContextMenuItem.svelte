@@ -24,7 +24,7 @@
 	{tag}
 	variant="ghost"
 	size=""
-	class="pr-4 pl-2 gap-2 py-2 w-full rounded-sm !justify-start"
+	class="pr-6 pl-4 gap-4 py-3 w-full rounded-sm !justify-start"
 	onclick={onClick}
 	{...rest}
 >

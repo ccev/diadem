@@ -4,6 +4,7 @@
 	import Button from '@/components/ui/Button.svelte';
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 	import { hasClipboardWrite, canNativeShare, copyToClipboard, getMapsUrl } from '@/lib/utils.svelte';
+	import * as m from "@/lib/paraglide/messages"
 
 	let {
 		lat,
@@ -27,10 +28,14 @@
 	<Button size="default" onclick={togglePopupExpanded}>
 		{#if isPopupExpanded()}
 			<EyeClosed size="18"/>
-			<span class="max-[304px]:hidden">Hide details</span>
+			<span class="max-[304px]:hidden">
+				{m.popup_hide_details()}
+			</span>
 		{:else}
 			<Eye size="18"/>
-			<span class="max-[304px]:hidden">Show details</span>
+			<span class="max-[304px]:hidden">
+				{m.popup_show_details()}
+			</span>
 		{/if}
 	</Button>
 	<Button
@@ -41,7 +46,9 @@
 		target="_blank"
 	>
 		<Navigation size="18"/>
-		<span class="max-[364px]:hidden">Navigate</span>
+		<span class="max-[364px]:hidden">
+			{m.popup_navigate()}
+		</span>
 	</Button>
 
 	{#if canNativeShare() || hasClipboardWrite()}
@@ -51,10 +58,9 @@
 			onclick={shareCurrentUrl}
 		>
 			<Share2 size="18"/>
-			<span class="max-[406px]:hidden">Share</span>
+			<span class="max-[406px]:hidden">
+				{m.popup_share()}
+			</span>
 		</Button>
 	{/if}
-	<!--		<Button size="default" variant="outline">-->
-	<!--			Hide-->
-	<!--		</Button>-->
 </div>

@@ -10,6 +10,7 @@
 	import {getMasterPokemon, defaultProp} from '@/lib/masterfile';
 	import type { MasterPokemon } from '@/lib/types/masterfile';
 	import TextSeparator from '@/components/utils/TextSeparator.svelte';
+	import * as m from "@/lib/paraglide/messages"
 
 	let {data} : {data: PokemonData} = $props()
 
@@ -78,14 +79,15 @@
 			{/snippet}
 			{#snippet value()}
 				{#if data.cp !== null}
-					<span class="font-semibold">{data.cp} CP</span>
+					<span class="font-semibold">
+						{m.pogo_cp({cp: data.cp})}
+					</span>
 				{/if}
 				{#if data.cp !== null && data.level !== null}
 					<TextSeparator />
 				{/if}
 				{#if data.level !== null}
-					<span>Level</span>
-					<span>{data.level}</span>
+					{m.pogo_level({level: data.level})}
 				{/if}
 			{/snippet}
 		</IconValue>
