@@ -30,7 +30,6 @@
 
 <svelte:head>
 	<title>{getTitle()}</title>
-	<meta property="og:description" content="Test description. {masterPokemon?.name}" />
 </svelte:head>
 
 {#snippet timer()}

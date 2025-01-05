@@ -15,6 +15,7 @@
 	import maplibre from 'maplibre-gl';
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
 	import { getIsContxtMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
+	import { getConfig } from '@/lib/config';
 
 	let map: maplibre.Map | undefined = $state()
 
@@ -27,6 +28,10 @@
 		})
 	}
 </script>
+
+<svelte:head>
+	<title>{getConfig().general.mapName}</title>
+</svelte:head>
 
 {#if getIsContxtMenuOpen()}
 	<ContextMenu />

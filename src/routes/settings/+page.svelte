@@ -79,6 +79,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{getConfig().general.mapName} | {m.nav_settings()}</title>
+</svelte:head>
+
 {#snippet iconSelect(title, type, getIconFunc, getIconParams)}
 	<SettingsGeneric {title}>
 		<SelectGroup

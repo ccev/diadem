@@ -10,6 +10,7 @@
 	import { canNativeShare, copyToClipboard, getMapsUrl, hasClipboardWrite } from '@/lib/utils.svelte';
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 	import { getUserSettings } from '@/lib/userSettings.svelte';
+	import * as m from "@/lib/paraglide/messages"
 
 	let div: HTMLDivElement | undefined = $state()
 	let style: string = $state("")
@@ -59,17 +60,17 @@
 	{#if hasClipboardWrite()}
 		<ContextMenuItem onclick={copyCoords}>
 			<Clipboard size="14"/>
-			<span>Copy coordinates</span>
+			<span>{m.context_menu_copy_coordinates()}</span>
 		</ContextMenuItem>
 	{/if}
 
 	<ContextMenuItem tag="a" href={mapsUrl} target="_blank">
 		<Navigation size="14"/>
-		<span>Navigate here</span>
+		<span>{m.context_menu_navigate_here()}</span>
 	</ContextMenuItem>
 
 	<ContextMenuItem onclick={() => openToast("This will work eventually")}>
 		<Binoculars size="14"/>
-		<span>Scout location</span>
+		<span>{m.context_menu_scout_location()}</span>
 	</ContextMenuItem>
 </div>
