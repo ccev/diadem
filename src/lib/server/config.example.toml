@@ -51,8 +51,8 @@ scale = 0.25
 id = "shuffle"
 name = "Shuffle"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
-use = ["pokemon", "gym"]
-scale = 0.25
+use = ["pokemon", "pokestop", "gym", "station"]
+scale = { base = 0.09, pokemon = 0.25 }
 
 [[client.uiconSets]]
 id = "shuffleShiny"

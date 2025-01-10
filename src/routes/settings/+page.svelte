@@ -8,7 +8,13 @@
 	import SelectGroup from '@/components/ui/settings/SelectGroup.svelte';
 	import SelectGroupItem from '@/components/ui/settings/SelectGroupItem.svelte';
 	import SettingsCard from '@/components/ui/settings/SettingsCard.svelte';
-	import { getIconGym, getIconPokemon, getIconPokestop, getUiconSetDetails } from '@/lib/uicons.svelte';
+	import {
+		getIconGym,
+		getIconPokemon,
+		getIconPokestop,
+		getIconStation,
+		getUiconSetDetails
+	} from '@/lib/uicons.svelte';
 	import {getConfig} from '@/lib/config';
 	import { isModalOpen } from '@/lib/modal.svelte';
 	import { MapLibre } from 'svelte-maplibre';
@@ -185,6 +191,7 @@
 		{@render iconSelect(m.pogo_pokemon(), "pokemon", getIconPokemon, {pokemon_id: 25})}
 		{@render iconSelect(m.pogo_pokestops(), "pokestop", getIconPokestop, {})}
 		{@render iconSelect(m.pogo_gyms(), "gym", getIconGym, {})}
+		{@render iconSelect(m.pogo_stations(), "station", getIconStation, {})}
 	</SettingsCard>
 
 	<SettingsCard>

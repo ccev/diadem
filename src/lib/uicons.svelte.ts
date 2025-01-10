@@ -5,6 +5,8 @@ import type {PokemonData} from '@/lib/types/mapObjectData/pokemon';
 import type { UiconSet } from '@/lib/types/config';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
+import type { StationData } from '@/lib/types/mapObjectData/station';
+import type { GymData } from '@/lib/types/mapObjectData/gym';
 
 const iconSets: {[key: string]: UICONS} = {}
 
@@ -34,6 +36,8 @@ export function getIcon(data: Partial<MapData>): string {
 		return getIconPokestop(data)
 	} else if (data.type === "gym") {
 		return getIconGym(data)
+	} else if (data.type === "station") {
+		return getIconStation(data)
 	}
 	console.error("Unknown icon type: " + data.type)
 	return ""
@@ -75,6 +79,17 @@ export function getIconPokestop(data: Partial<PokestopData>, iconSet: string = g
 	)
 }
 
-export function getIconGym(data: Partial<PokemonData>, iconSet: string = getUserSettings().uiconSet.gym.id) {
-	return iconSets[iconSet].gym()
+export function getIconGym(data: Partial<GymData>, iconSet: string = getUserSettings().uiconSet.gym.id) {
+	return iconSets[iconSet].gym(
+		data.team_id,
+		data.available_slots ? 6 - data.available_slots : 0,
+		Boolean(data.in_battle),
+		Boolean(data.ex_raid_eligible),
+		Boolean(data.ar_scan_eligible),
+		data.power_up_level
+	)
+}
+
+export function getIconStation(data: Partial<StationData>, iconSet: string = getUserSettings().uiconSet.station.id) {
+	return iconSets[iconSet].station(!data.is_inactive)
 }

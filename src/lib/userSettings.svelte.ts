@@ -18,11 +18,7 @@ type UserSettings = {
 		id: string
 		url: string
 	}
-	uiconSet: {
-		pokemon: UiconSet
-		pokestop: UiconSet
-		gym: UiconSet
-	}
+	uiconSet: {[key in MapObjectType]: UiconSet}
 	isLeftHanded: boolean,
 	isDarkMode: boolean | null,
 	loadMapObjectsWhileMoving: boolean
@@ -51,7 +47,8 @@ export function getDefaultUserSettings() {
 		uiconSet: {
 			pokemon: defaultIconSet,
 			pokestop: defaultIconSet,
-			gym: defaultIconSet
+			gym: defaultIconSet,
+			station: defaultIconSet
 		},
 		isLeftHanded: false,
 		isDarkMode: false,

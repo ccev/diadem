@@ -3,7 +3,7 @@
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import { timestampToLocalTime } from '@/lib/utils.svelte';
 	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import PopupImage from '@/components/ui/popups/PopupImage.svelte';
+	import ImagePopup from '@/components/ui/popups/ImagePopup.svelte';
 	import { getIconPokemon } from '@/lib/uicons.svelte';
 	import { Clock, ClockAlert, SearchX, MapPinX, DraftingCompass, ChartBar, Ruler } from 'lucide-svelte';
 	import IconValue from '@/components/ui/popups/IconValue.svelte';
@@ -107,7 +107,7 @@
 
 <BasePopup lat={data.lat} lon={data.lon}>
 	{#snippet image()}
-		<PopupImage
+		<ImagePopup
 			alt={data.pokemon_id.toString()}
 			src={getIconPokemon(data)}
 			class="w-12 h-12"

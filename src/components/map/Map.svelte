@@ -199,17 +199,6 @@
 		/>
 	</GeoJSON>
 
-	<Marker
-		lngLat={[10.683876260911497, 53.86879553625915]}
-	>
-		<button
-			class="h-6 w-6 cursor-pointer bg-cover"
-			style="background-image: url({getIconPokestop({})}/)"
-			data-object-type="pokestop"
-			data-object-id="pokestop-0"
-			aria-label="Pokestop"
-		></button>
-	</Marker>
 
 	<!--{#each Object.values(getMapObjects()) as pokemon (pokemon.id)}-->
 	<!--	<Marker-->

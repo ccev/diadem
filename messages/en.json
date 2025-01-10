@@ -49,5 +49,8 @@
     "context_menu_copy_coordinates": "Copy coordinates",
     "context_menu_navigate_here": "Navigate here",
     "context_menu_scout_location": "Scout location",
-    "unknown_pokestop": "Unknown Pokéstop"
+    "unknown_pokestop": "Unknown Pokéstop",
+    "pogo_station": "Power Spot",
+    "pogo_stations": "Power Spots",
+    "unknown_gym": "Unknown Gym"
 }

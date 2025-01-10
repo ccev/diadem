@@ -1,33 +1,30 @@
 <script lang="ts">
-	import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
+	import type { StationData } from '@/lib/types/mapObjectData/station';
 	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import { getIconPokestop } from '@/lib/uicons.svelte';
+	import { getIconStation, getIconPokestop } from '@/lib/uicons.svelte';
 	import ImagePopup from '@/components/ui/popups/ImagePopup.svelte';
 	import * as m from "@/lib/paraglide/messages"
 	import ImageFort from '@/components/ui/popups/ImageFort.svelte';
 
 
-	let {data} : {data: PokestopData} = $props()
+	let {data} : {data: StationData} = $props()
 
 </script>
 
 <BasePopup lat={data.lat} lon={data.lon}>
 	{#snippet image()}
-		<ImageFort
-			alt={data.name ?? m.pogo_pokestop()}
-			fortUrl={data.url}
-			fortIcon={getIconPokestop(data)}
+		<ImagePopup
+			alt={m.pogo_station()}
+			src={getIconStation(data)}
+			class="w-12 h-12"
+			w="12"
 		/>
 	{/snippet}
 
 	{#snippet title()}
 		<div class="text-lg font-semibold tracking-tight">
 			<span>
-				{#if data.name}
-					{data.name}
-				{:else}
-					{m.unknown_pokestop()}
-				{/if}
+				{data.name}
 			</span>
 		</div>
 	{/snippet}

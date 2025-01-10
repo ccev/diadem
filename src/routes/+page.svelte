@@ -16,6 +16,8 @@
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
 	import { getIsContxtMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 	import { getConfig } from '@/lib/config';
+	import GymPopup from '@/components/ui/popups/GymPopup.svelte';
+	import StationPopup from '@/components/ui/popups/StationPopup.svelte';
 
 	let map: maplibre.Map | undefined = $state()
 
@@ -38,7 +40,7 @@
 {/if}
 
 <div
-	class="fixed z-10 bottom-2 w-full flex flex-col pointer-events-none"
+	class="fixed z-10 bottom-2 w-full flex flex-col pointer-events-none items-start"
 	class:items-end={!getUserSettings().isLeftHanded}
 >
 	<div
@@ -59,6 +61,10 @@
 				<PokemonPopup data={getCurrentSelectedData()} />
 			{:else if getCurrentSelectedData().type === "pokestop"}
 				<PokestopPopup data={getCurrentSelectedData()} />
+			{:else if getCurrentSelectedData().type === "gym"}
+				<GymPopup data={getCurrentSelectedData()} />
+			{:else if getCurrentSelectedData().type === "station"}
+				<StationPopup data={getCurrentSelectedData()} />
 			{/if}
 		</div>
 	{/if}

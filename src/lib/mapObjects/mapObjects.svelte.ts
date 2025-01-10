@@ -13,10 +13,12 @@ let currentSelectedData: MapData | null = $state(null);
 let mapObjectsState: {
 	[key: string]: MapData;
 } = $state({});
+const allMapTypes: MapObjectType[] = ["pokemon", "pokestop", "gym", "station"]
 
 export async function updateAllMapObjects(map: maplibre.Map, removeOld: boolean = true) {
-	await updateMapObject(map, "pokemon", removeOld)
-	await updateMapObject(map, "pokestop", removeOld)
+	await Promise.all(allMapTypes.map(type => {
+		updateMapObject(map, type, removeOld)
+	}))
 
 	const directLinkData = getDirectLinkObject()
 	if (directLinkData) {

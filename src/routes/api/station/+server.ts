@@ -4,8 +4,7 @@ import { query } from '@/lib/db.server';
 export async function POST({ request }) {
 	const reqBody = await request.json()
 	const result = await query(
-		"SELECT * FROM pokestop " +
-		"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
+		"SELECT * FROM station " +
 		"WHERE lat BETWEEN ? AND ? " +
 		"AND lon BETWEEN ? AND ?" +
 		"LIMIT 10000",
