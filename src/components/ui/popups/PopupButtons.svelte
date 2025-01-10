@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { isPopupExpanded, togglePopupExpanded } from '@/components/ui/popups/isPopupExpanded.svelte.js';
-	import { Eye, EyeClosed, Map, Share2, SquareArrowOutUpRight, Navigation } from 'lucide-svelte';
+	import { Eye, EyeClosed, Navigation, Share2 } from 'lucide-svelte';
 	import Button from '@/components/ui/Button.svelte';
-	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
-	import { hasClipboardWrite, canNativeShare, copyToClipboard, getMapsUrl } from '@/lib/utils.svelte';
-	import * as m from "@/lib/paraglide/messages"
+	import { canNativeShare, copyToClipboard, getMapsUrl, hasClipboardWrite } from '@/lib/utils.svelte';
+	import * as m from '@/lib/paraglide/messages';
 	import { getCurrentPath } from '@/lib/mapObjects/mapObjects.svelte';
 
 	let {

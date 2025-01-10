@@ -4,5 +4,71 @@ export type PokestopData = {
 	type: "pokestop"
 	lat: number
 	lon: number
-	name: string | null
+	incident: Incident[]
+	name?: string
+	url?: string
+	lure_expire_timestamp?: number
+	last_modified_timestamp?: number
+	updated: number
+	enabled?: number
+	quest_type?: number
+	quest_timestamp?: number
+	quest_target?: number
+	quest_conditions?: string
+	quest_rewards?: string
+	quest_template?: string
+	quest_title?: string
+	cell_id?: bigint
+	deleted: number
+	lure_id?: number
+	first_seen_timestamp: number
+	sponsor_id?: number
+	partner_id?: string
+	ar_scan_eligible?: number
+	power_up_level?: number
+	power_up_points?: number
+	power_up_end_timestamp?: number
+	alternative_quest_type?: number
+	alternative_quest_timestamp?: number
+	alternative_quest_target?: number
+	alternative_quest_conditions?: string
+	alternative_quest_rewards?: string
+	alternative_quest_template?: string
+	alternative_quest_title?: string
+	quest_expiry?: number
+	alternative_quest_expiry?: number
+	description?: string
+	quest_reward_type?: number
+	quest_item_id?: number
+	quest_reward_amount?: number
+	quest_pokemon_id?: number
+	alternative_quest_pokemon_id?: number
+	alternative_quest_reward_type?: number
+	alternative_quest_item_id?: number
+	alternative_quest_reward_amount?: number
+	showcase_pokemon_id?: number
+	showcase_pokemon_form_id?: number
+	showcase_pokemon_type_id?: number
+	showcase_ranking_standard?: number
+	showcase_expiry?: number
+	showcase_rankings?: string
 }
+
+export type Incident = {
+	id: string
+	pokestop_id: string
+	start: number
+	expiration: number
+	display_type: number
+	style: number
+	character: number
+	updated: number
+	confirmed: boolean
+	slot_1_pokemon_id?: number
+	slot_1_form?: number
+	slot_2_pokemon_id?: number
+	slot_2_form?: number
+	slot_3_pokemon_id?: number
+	slot_3_form?: number
+}
+

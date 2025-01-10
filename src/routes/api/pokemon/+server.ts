@@ -37,5 +37,5 @@ export async function POST({ request }) {
 		}
 	)
 	const results = await response.json()
-	return json(results, { status: 201 });
+	return json({result: results, error: undefined});
 }

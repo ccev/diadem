@@ -111,6 +111,7 @@
 			alt={data.pokemon_id.toString()}
 			src={getIconPokemon(data)}
 			class="w-12 h-12"
+			w="12"
 		/>
 	{/snippet}
 

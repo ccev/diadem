@@ -2,6 +2,12 @@
 url = ""
 auth = ""
 
+[server.db]
+host = "127.0.0.1"
+port = 3306
+database = "golbat"
+user = ""
+password = ""
 
 [client.general]
 mapName = "Maltemap"
@@ -32,7 +38,7 @@ id = "pogoOutline"
 name = "Default"
 url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
 use = ["pokemon", "pokestop", "gym"]
-scale = 0.25
+scale = { base = 0.25, pokestop = 0.35 }
 
 [[client.uiconSets]]
 id = "home"

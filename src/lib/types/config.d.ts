@@ -5,7 +5,7 @@ export type UiconSet = {
 	name: string
 	url: string
 	use: MapObjectType[]
-	scale: number
+	scale: {[key in MapObjectType | "base"]: number} | number
 }
 
 export type Area = {
@@ -33,6 +33,13 @@ export type ServerConfig = {
 	golbat: {
 		url: string
 		auth: string
+	}
+	db?: {
+		host: string
+		port: number
+		database: string
+		user: string
+		password: string
 	}
 }
 

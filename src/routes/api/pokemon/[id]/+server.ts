@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import {env} from '$env/dynamic/private'
 import { getServerConfig } from '@/lib/config.server';
 
-export async function GET({ request, params }) {
+export async function GET({ params }) {
 	let url = getServerConfig().golbat.url || env.GOLBAT_BACKEND_URL
 	url += "/api/pokemon/id/" + params.id
 
@@ -16,5 +16,10 @@ export async function GET({ request, params }) {
 		}
 	)
 
-	return json(await response.json(), { status: 201 });
+	const data = await response.json()
+
+	return json({
+		result: [data],
+		error: null
+	}, { status: 201 });
 }

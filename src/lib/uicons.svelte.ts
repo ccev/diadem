@@ -53,7 +53,26 @@ export function getIconPokemon(data: Partial<PokemonData>, iconSet: string = get
 }
 
 export function getIconPokestop(data: Partial<PokestopData>, iconSet: string = getUserSettings().uiconSet.pokestop.id) {
-	return iconSets[iconSet].pokestop()
+	let lureId = 0
+	if (data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > Date.now() / 1000) {
+		lureId = data.lure_id
+	}
+
+	let displayType: boolean | number = false
+	for (const incident of data.incident ?? []) {
+		if (incident.display_type) {
+			displayType = incident.display_type
+			break
+		}
+	}
+
+	return iconSets[iconSet].pokestop(
+		lureId,
+		displayType,
+		false,  // quest active
+		Boolean(data.ar_scan_eligible),
+		data.power_up_level
+	)
 }
 
 export function getIconGym(data: Partial<PokemonData>, iconSet: string = getUserSettings().uiconSet.gym.id) {

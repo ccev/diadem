@@ -1,24 +1,22 @@
 import maplibre, { type LngLatBounds, type MapMouseEvent } from 'maplibre-gl';
 import type { LayerClickInfo } from 'svelte-maplibre';
 import type { Feature } from 'geojson';
-import { updatePokemon } from '@/lib/mapObjects/pokemon.svelte';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import { getDirectLinkObject, setDirectLinkObject } from '@/lib/directLinks.svelte';
 import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 import * as m from "@/lib/paraglide/messages"
 import { getConfig } from '@/lib/config';
 import { setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
+import { updateMapObject } from '@/lib/mapObjects/updateMapObject';
 
 let currentSelectedData: MapData | null = $state(null);
 let mapObjectsState: {
 	[key: string]: MapData;
 } = $state({});
 
-// temp
-mapObjectsState['pokestop-0'] = { id: '0', mapId: "pokestop-0", type: "pokestop", name: 'Pokestop Name', lat: 0, lon: 0 };
-
 export async function updateAllMapObjects(map: maplibre.Map, removeOld: boolean = true) {
-	await updatePokemon(map, removeOld);
+	await updateMapObject(map, "pokemon", removeOld)
+	await updateMapObject(map, "pokestop", removeOld)
 
 	const directLinkData = getDirectLinkObject()
 	if (directLinkData) {

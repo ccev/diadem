@@ -2,10 +2,12 @@
 	let {
 		src,
 		alt,
+		w,
 		class: class_
 	}: {
 		src: string,
 		alt: string,
+		w: string,
 		class: string
 	} = $props()
 
@@ -29,11 +31,11 @@
 	})
 </script>
 
-<div class="shrink-0 text-sm {class_}">
+<div class="shrink-0 text-sm w-{w}">
 	<img
 		bind:this={img}
 		{alt}
-		class="aspect-square"
+		class="aspect-square {class_}"
 		class:hidden={isLoading}
 	>
 </div>

@@ -48,5 +48,6 @@
     "direct_link_not_found": "{type} either disappeared or isn't in filter list",
     "context_menu_copy_coordinates": "Copy coordinates",
     "context_menu_navigate_here": "Navigate here",
-    "context_menu_scout_location": "Scout location"
+    "context_menu_scout_location": "Scout location",
+    "unknown_pokestop": "Unknown Pokéstop"
 }

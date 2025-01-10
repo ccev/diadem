@@ -16,6 +16,7 @@
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
 	import { setContextMenuEvent, setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
+	import type { UiconSet } from '@/lib/types/config';
 
 	let {
 		map = $bindable(),
@@ -28,6 +29,11 @@
 	let mapObjectsGeoJson: FeatureCollection = $derived({
 		type: "FeatureCollection",
 		features: Object.values(getMapObjects()).map(obj => {
+			let scale = getCurrentUiconSetDetails(obj.type)?.scale
+			if (typeof scale === "object") {
+				scale = scale[obj.type] ?? scale["base"] ?? 0.25
+			}
+
 			return {
 				type: "Feature",
 				geometry: {
@@ -37,7 +43,8 @@
 				properties: {
 					imageUrl: getIcon(obj),
 					id: obj.mapId,
-					type: obj.type
+					type: obj.type,
+					imageSize: scale
 				},
 				id: obj.mapId
 			}
@@ -117,10 +124,23 @@
 
 			// tick so feature handler registers first
 			tick().then(() => map.on("click", clickMapHandler))
+
+			const data = getDirectLinkCoordinates()
+			if (data && data.lat && data.lon) {
+				getUserSettings().mapPosition.center.lat = data.lat
+				getUserSettings().mapPosition.center.lng = data.lon
+				getUserSettings().mapPosition.zoom = 18
+				updateUserSettings()
+
+				map.setCenter({lat: data.lat, lng: data.lon})
+				map.setZoom(18)
+
+				setDirectLinkCoordinates(undefined)
+			}
 		}
 
 
-		await loadMapObjects()
+		await loadMapObjects(false)
 	}
 
 	let pressTimer: undefined | NodeJS.Timeout;
@@ -145,15 +165,6 @@
 
 	onMount(() => {
 		updateCurrentPath()
-		const data = getDirectLinkCoordinates()
-		if (data) {
-			if (data.lat) getUserSettings().mapPosition.center.lat = data.lat
-			if (data.lon) getUserSettings().mapPosition.center.lng = data.lon
-			getUserSettings().mapPosition.zoom = 18
-			updateUserSettings()
-
-			setDirectLinkCoordinates(undefined)
-		}
 	})
 </script>
 
@@ -180,7 +191,7 @@
 			layout={{
 				"icon-image": ["get", "imageUrl"],
 				"icon-overlap": "always",
-				"icon-size": getCurrentUiconSetDetails("pokemon")?.scale ?? 0.25,
+				"icon-size": ["get", "imageSize"],
 				"icon-allow-overlap": true
 			}}
 			eventsIfTopMost={true}
