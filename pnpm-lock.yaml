@@ -14,9 +14,6 @@ importers:
       '@sveltejs/adapter-cloudflare':
         specifier: ^4.9.0
         version: 4.9.0(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))(wrangler@3.99.0(@cloudflare/workers-types@4.20241230.0))
-      '@sveltejs/adapter-node':
-        specifier: ^5.2.11
-        version: 5.2.11(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))
       '@types/geojson':
         specifier: ^7946.0.15
         version: 7946.0.15
@@ -60,6 +57,9 @@ importers:
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
         version: 3.3.1(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))
+      '@sveltejs/adapter-node':
+        specifier: ^5.2.11
+        version: 5.2.11(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))
       '@sveltejs/kit':
         specifier: ^2.0.0
         version: 2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.1)(vite@5.4.11(@types/node@22.10.5))
