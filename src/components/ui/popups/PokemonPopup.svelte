@@ -107,12 +107,13 @@
 
 <BasePopup lat={data.lat} lon={data.lon}>
 	{#snippet image()}
-		<ImagePopup
-			alt={data.pokemon_id.toString()}
-			src={getIconPokemon(data)}
-			class="w-12 h-12"
-			w="12"
-		/>
+		<div class="w-12 shrink-0">
+			<ImagePopup
+				alt={data.pokemon_id.toString()}
+				src={getIconPokemon(data)}
+				class="w-12 h-12"
+			/>
+		</div>
 	{/snippet}
 
 	{#snippet title()}

@@ -33,6 +33,7 @@
 
 {#snippet selectModal()}
 	<div
+		style="width: calc(100vw - 1rem);"
 		class="py-4 px-3 flex flex-col gap-0.5 bg-popover text-popover-foreground border rounded-md"
 	>
 		{#each options as option}

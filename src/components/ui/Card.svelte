@@ -6,8 +6,8 @@
 		children = null,
 		...rest
 	}: {
-		class: string,
-		children: Snippet | null,
+		class?: string,
+		children?: Snippet | null,
 	} = $props()
 </script>
 

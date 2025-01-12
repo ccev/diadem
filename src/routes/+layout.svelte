@@ -51,8 +51,8 @@
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <dialog
 	bind:this={dialog}
-	style="width: calc(100% - 1rem);"
-	class="shadow-md rounded-md appearance-none bg-transparent max-w-[30rem] backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
+	style="max-width: calc(100vw - 1rem);"
+	class="shadow-md w-fit rounded-md appearance-none bg-transparent max-w-[30rem] backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
 	onclose={() => closeModal()}
 	onclick={() => closeModal()}
 	class:my-auto={getModalOptions().vertical === "center"}
@@ -64,6 +64,7 @@
 	</div>
 </dialog>
 
+
 {#if getIsToastOpen()}
 	<Toast />
 {/if}
@@ -71,3 +72,28 @@
 {@render children?.()}
 
 </ParaglideJS>
+
+<style lang="postcss">
+    @keyframes come-down {
+        0% {
+			@apply -translate-y-full opacity-0;
+        }
+        100% {
+            @apply translate-y-0 opacity-100;
+        }
+    }
+
+	@keyframes scale-up {
+		0% {
+			@apply scale-75 opacity-75;
+		}
+		100% {
+			@apply scale-100 opacity-100
+		}
+	}
+
+	/* TODO: come-down if modal is top-aligned */
+	dialog[open] {
+        animation: scale-up 100ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>

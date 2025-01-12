@@ -17,6 +17,7 @@
 			alt={data.name ?? m.pogo_gym()}
 			fortUrl={data.url}
 			fortIcon={getIconGym(data)}
+			fortName={data.name}
 		/>
 	{/snippet}
 

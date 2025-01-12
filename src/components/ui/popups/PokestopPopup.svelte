@@ -17,6 +17,7 @@
 			alt={data.name ?? m.pogo_pokestop()}
 			fortUrl={data.url}
 			fortIcon={getIconPokestop(data)}
+			fortName={data.name}
 		/>
 	{/snippet}
 
