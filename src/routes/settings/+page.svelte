@@ -2,7 +2,7 @@
 	import BottomNavWrapper from '@/components/ui/nav/BottomNavWrapper.svelte';
 	import BottomNavSpacing from '@/components/ui/nav/BottomNavSpacing.svelte';
 	import Button from '@/components/ui/Button.svelte';
-	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
+	import { getDefaultIconSet, getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 	import { Cloud, Moon, Paintbrush, Sun, Image, Code } from 'lucide-svelte';
 	import Switch from '@/components/ui/settings/Switch.svelte';
 	import SelectGroup from '@/components/ui/settings/SelectGroup.svelte';
@@ -73,7 +73,17 @@
 	}
 
 	function getUiconSets(type: MapObjectType) {
-		return getConfig().uiconSets.filter(s => s.use.includes(type))
+		const allSets = getConfig().uiconSets.filter(s => s[type])
+		const defaultSetId = getDefaultIconSet(type)
+		const index = allSets.findIndex(s => s.id === defaultSetId.id)
+		if (index > 0) {
+			const [defaultSet] = allSets.splice(index, 1)
+			allSets.unshift(defaultSet)
+		}
+		return allSets.map(s => {return {
+			value: s.id,
+			label: s.id === defaultSetId.id ? "Default" : (s[type]?.name ?? s.name)
+		}})
 	}
 
 	function onMapStyleChange(mapStyleId) {
@@ -97,14 +107,14 @@
 			onValueChange={(value) => onIconChange(value, type)}
 			evenColumns={false}
 		>
-			{#each getUiconSets(type) as iconSet (iconSet.id)}
-				<SelectGroupItem class="p-4" value={iconSet.id}>
+			{#each getUiconSets(type) as iconSet (iconSet.value)}
+				<SelectGroupItem class="p-4" value={iconSet.value}>
 					<img
 						class="w-5"
-						src={getIconFunc(getIconParams, iconSet.id)}
-						alt="{title} (Style: {iconSet.name})"
+						src={getIconFunc(getIconParams, iconSet.value)}
+						alt="{title} (Style: {iconSet.label})"
 					>
-					{iconSet.name}
+					{iconSet.label}
 				</SelectGroupItem>
 			{/each}
 		</SelectGroup>

@@ -8,6 +8,7 @@
 	import { slide } from 'svelte/transition';
 	import { cubicIn, cubicOut } from 'svelte/easing';
 	import Button from '@/components/ui/Button.svelte';
+	import CloseButton from '@/components/ui/CloseButton.svelte';
 
 	let {
 		lat,
@@ -45,9 +46,10 @@
 				</div>
 			{/if}
 		</div>
-		<Button variant="ghost" size="" class="self-start ml-0.5 rounded-sm -mt-2 p-2 -mr-4" onclick={() => closePopup()}>
-			<X />
-		</Button>
+		<CloseButton
+			class="self-start ml-0.5 -mt-2 -mr-4"
+			onclick={closePopup}
+		/>
 	</div>
 
 	{#if isPopupExpanded()}

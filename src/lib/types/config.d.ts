@@ -1,11 +1,20 @@
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 
+type UiconSetModifiers = {
+	default: boolean,
+	scale?: number,
+	offsetX?: number,
+	offsetY?: number,
+	name?: string,
+}
+
 export type UiconSet = {
 	id: string
 	name: string
 	url: string
-	use: MapObjectType[]
-	scale: {[key in MapObjectType | "base"]: number} | number
+	base: UiconSetModifiers | undefined
+} & {
+	[key in MapObjectType]: UiconSetModifiers | boolean | undefined
 }
 
 export type Area = {

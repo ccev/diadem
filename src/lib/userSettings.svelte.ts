@@ -1,7 +1,7 @@
 import { getConfig } from '@/lib/config';
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 
-type UiconSet = {
+type UiconSetUS = {
 	id: string
 	url: string
 }
@@ -18,7 +18,7 @@ type UserSettings = {
 		id: string
 		url: string
 	}
-	uiconSet: {[key in MapObjectType]: UiconSet}
+	uiconSet: {[key in MapObjectType]: UiconSetUS}
 	isLeftHanded: boolean,
 	isDarkMode: boolean | null,
 	loadMapObjectsWhileMoving: boolean
@@ -26,12 +26,23 @@ type UserSettings = {
 	languageTag: string | "auto",
 }
 
-export function getDefaultUserSettings() {
-	const defaultIconSet = {
-		id: getConfig().uiconSets[0].id,
-		url: getConfig().uiconSets[0].url,
+export function getDefaultIconSet(type: MapObjectType) {
+	let iconSet = getConfig().uiconSets.find(s => s[type]?.default)
+
+	if (!iconSet) {
+		iconSet = getConfig().uiconSets.find(s => s.base?.default)
+	}
+	if (!iconSet) {
+		iconSet = getConfig().uiconSets[0]
 	}
 
+	return {
+		id: iconSet.id,
+		url: iconSet.url
+	}
+}
+
+export function getDefaultUserSettings() {
 	return {
 		mapPosition: {
 			center: {
@@ -45,10 +56,10 @@ export function getDefaultUserSettings() {
 			url: getConfig().mapStyles[0].url,
 		},
 		uiconSet: {
-			pokemon: defaultIconSet,
-			pokestop: defaultIconSet,
-			gym: defaultIconSet,
-			station: defaultIconSet
+			pokemon: getDefaultIconSet("pokemon"),
+			pokestop: getDefaultIconSet("pokestop"),
+			gym: getDefaultIconSet("gym"),
+			station: getDefaultIconSet("station")
 		},
 		isLeftHanded: false,
 		isDarkMode: false,

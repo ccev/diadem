@@ -35,38 +35,41 @@ url = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
 [[client.uiconSets]]
 id = "pogoOutline"
-name = "Default"
+name = "GO"
 url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
-use = ["pokemon", "pokestop", "gym"]
-scale = { base = 0.25, pokestop = 0.35 }
+
+base = { scale = 0.25 }
+pokemon = { default = true }
+gym = { default = true }
 
 [[client.uiconSets]]
 id = "home"
 name = "Home"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS_OS_128/"
-use = ["pokemon", "pokestop", "gym"]
-scale = 0.25
+
+base = { scale = 0.25 }
+pokemon = true
+pokestop = true
+gym = true
 
 [[client.uiconSets]]
 id = "shuffle"
 name = "Shuffle"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
-use = ["pokemon", "pokestop", "gym", "station"]
-scale = { base = 0.09, pokemon = 0.25 }
+
+base = { scale = 0.09 }
+pokemon = { scale = 0.25 }
+pokestop = { default = true, offsetY = 20 }
+gym = true
+station = { default = true }
 
 [[client.uiconSets]]
 id = "shuffleShiny"
 name = "Shiny"
 url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Half_Shiny_128/"
-use = ["pokemon"]
-scale = 0.25
 
-# [[client.uiconSets]]
-# id = "cage"
-# name = "Cage"
-# url = "https://raw.githubusercontent.com/RagingRectangle/CageMons/main"
-#use = ["pokemon"]
-# scale = 0.035
+base = { scale = 0.25 }
+pokemon = true
 
 
 ### Areas

@@ -1,9 +1,10 @@
 <script lang="ts">
 	import ImagePopup from '@/components/ui/popups/ImagePopup.svelte';
-	import { openModal } from '@/lib/modal.svelte';
+	import { closeModal, openModal } from '@/lib/modal.svelte';
 	import Button from '@/components/ui/Button.svelte';
 	import Card from '@/components/ui/Card.svelte';
 	import * as m from "@/lib/paraglide/messages"
+	import CloseButton from '@/components/ui/CloseButton.svelte';
 
 
 	let {
@@ -29,6 +30,12 @@
 			{alt}
 			bind:clientWidth={photoWidth}
 		>
+
+		<CloseButton
+			class="absolute right-2 top-2 hover:bg-transparent backdrop-brightness-90 backdrop-blur-[2px] hover:backdrop-brightness-75"
+			onclick={closeModal}
+		/>
+
 <!--		TODO add neutral fort icon-->
 		{#if fortName}
 			<span
@@ -39,8 +46,6 @@
 			</span>
 		{/if}
 	</Card>
-
-
 {/snippet}
 
 {#if fortUrl}
