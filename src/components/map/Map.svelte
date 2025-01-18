@@ -108,14 +108,6 @@
 		}
 	}
 
-	async function onMapMoveStart() {
-		clearTimeout(pressTimer);
-		setIsContextMenuOpen(false)
-		if (getUserSettings().loadMapObjectsWhileMoving) {
-			loadMapObjectInterval = setInterval(runLoadMapObjects, 200)
-		}
-	}
-
 	$effect(() => {
 		mapObjectsGeoJson
 		untrack(() => {
@@ -130,11 +122,13 @@
 	async function onMapLoad() {
 		if (map) {
 			map.on("touchstart", onTouchStart)
-			map.on("touchend", onTouchEnd)
-			map.on("touchmove", onTouchMove)
+			map.on("touchend", clearPressTimer)
+			map.on("touchmove", clearPressTimer)
+			map.on("touchcancel", clearPressTimer)
+			map.on("movestart", onMapMoveStart)
 
 			// tick so feature handler registers first
-			tick().then(() => map.on("click", clickMapHandler))
+			tick().then(() => map?.on("click", clickMapHandler))
 
 			const data = getDirectLinkCoordinates()
 			if (data && data.lat && data.lon) {
@@ -150,11 +144,10 @@
 			}
 		}
 
-
 		await loadMapObjects(false)
 	}
 
-	let pressTimer: undefined | NodeJS.Timeout;
+	let pressTimer: NodeJS.Timeout[] = [];
 	const longPressDuration = 500;
 
 	function onContextMenu(event: maplibre.MapTouchEvent | maplibre.MapMouseEvent) {
@@ -162,16 +155,22 @@
 		setIsContextMenuOpen(true)
 	}
 
+	function clearPressTimer() {
+		pressTimer.forEach(t => clearTimeout(t))
+		pressTimer = []
+	}
+
 	function onTouchStart(e: maplibre.MapTouchEvent) {
-		pressTimer = setTimeout(() => onContextMenu(e), longPressDuration);
+		pressTimer.push(setTimeout(() => onContextMenu(e), longPressDuration));
 	}
 
-	function onTouchEnd() {
-		clearTimeout(pressTimer);
-	}
+	async function onMapMoveStart() {
+		clearPressTimer()
 
-	function onTouchMove() {
-		clearTimeout(pressTimer);
+		setIsContextMenuOpen(false)
+		if (getUserSettings().loadMapObjectsWhileMoving) {
+			loadMapObjectInterval = setInterval(runLoadMapObjects, 200)
+		}
 	}
 
 	onMount(() => {
@@ -188,7 +187,6 @@
 	attributionControl={false}
 	interactive={!isModalOpen()}
 	onmoveend={onMapMoveEnd}
-	onmovestart={onMapMoveStart}
 	onload={onMapLoad}
 	oncontextmenu={onContextMenu}
 >

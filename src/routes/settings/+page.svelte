@@ -82,7 +82,7 @@
 		}
 		return allSets.map(s => {return {
 			value: s.id,
-			label: s.id === defaultSetId.id ? "Default" : (s[type]?.name ?? s.name)
+			label: s.id === defaultSetId.id ? m.default_() : (s[type]?.name ?? s.name)
 		}})
 	}
 

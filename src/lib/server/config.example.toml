@@ -1,6 +1,11 @@
 [server.golbat]
-url = ""
+url = "http://127.0.0.1:9001"
 auth = ""
+
+[server.koji]
+url = "http://127.0.0.1:8080"
+secret = "secret"
+projectName = "maltemap"
 
 [server.db]
 host = "127.0.0.1"
@@ -70,22 +75,3 @@ url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Hal
 
 base = { scale = 0.25 }
 pokemon = true
-
-
-### Areas
-
-
-[[client.areas]]
-name = "Lübeck"
-center = [53.868391033082354, 10.687845930088276]
-zoom = 15
-
-[[client.areas]]
-name = "Münster"
-center = [51.96191081318417, 7.625340506086133]
-zoom = 15
-
-[[client.areas]]
-name = "Kiel"
-center = [54.321495035055726, 10.1268103435357827]
-zoom = 14

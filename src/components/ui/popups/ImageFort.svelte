@@ -31,10 +31,10 @@
 			bind:clientWidth={photoWidth}
 		>
 
-		<CloseButton
-			class="absolute right-2 top-2 hover:bg-transparent backdrop-brightness-90 backdrop-blur-[2px] hover:backdrop-brightness-75"
-			onclick={closeModal}
-		/>
+<!--		<CloseButton-->
+<!--			class="absolute right-2 top-2 hover:bg-transparent backdrop-brightness-105 dark:backdrop-brightness-95 backdrop-blur-[2px] hover:backdrop-brightness-90 dark:hover:backdrop-brightness-75"-->
+<!--			onclick={closeModal}-->
+<!--		/>-->
 
 <!--		TODO add neutral fort icon-->
 		{#if fortName}

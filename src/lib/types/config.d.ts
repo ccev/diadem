@@ -17,12 +17,6 @@ export type UiconSet = {
 	[key in MapObjectType]: UiconSetModifiers | boolean | undefined
 }
 
-export type Area = {
-	name: string
-	center: number[]
-	zoom: number
-}
-
 type General = {
 	mapName: string
 }
@@ -34,7 +28,6 @@ export type ClientConfig = {
 		url: string
 	}[]
 	uiconSets: UiconSet[]
-	areas: Area[]
 	general: General
 }
 
@@ -49,6 +42,11 @@ export type ServerConfig = {
 		database: string
 		user: string
 		password: string
+	}
+	koji?: {
+		url: string
+		secret: string
+		projectName: string
 	}
 }
 
