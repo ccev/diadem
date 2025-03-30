@@ -1,7 +1,8 @@
-import { addMapObject, delMapObject, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
+import { addMapObject, clearMapObjects, delMapObject, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
 import type maplibre from 'maplibre-gl';
 import { getNormalizedBounds } from '@/lib/mapObjects/utils';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import { getUserSettings } from '@/lib/userSettings.svelte';
 
 export function makeMapObject(data: MapData, type: MapObjectType) {
 	data.type = type;
@@ -33,7 +34,27 @@ export async function updateMapObject(
 	type: MapObjectType,
 	removeOld: boolean = true
 ) {
-	const body = getNormalizedBounds(map);
+	let filter = {}
+
+	if (type === "pokemon") {
+		filter = getUserSettings().filters.pokemonMajor
+	} else if (type === "pokestop") {
+		filter = getUserSettings().filters.pokestopPlain
+	} else if (type === "gym") {
+		filter = getUserSettings().filters.gymPlain
+	} else if (type === "station") {
+		filter = getUserSettings().filters.stationMajor
+	}
+
+	if (filter.type === "none") {
+		clearMapObjects(type)
+		return
+	}
+
+	const body = {
+		...getNormalizedBounds(map),
+		filter
+	}
 	const response = await fetch('/api/' + type, { method: 'POST', body: JSON.stringify(body) });
 	const data = await response.json();
 
@@ -44,11 +65,7 @@ export async function updateMapObject(
 	}
 
 	if (removeOld) {
-		for (const key in getMapObjects()) {
-			if (key.startsWith(type + '-')) {
-				delMapObject(key);
-			}
-		}
+		clearMapObjects(type)
 	}
 
 	if (!data.result) {

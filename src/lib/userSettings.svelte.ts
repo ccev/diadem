@@ -1,5 +1,12 @@
 import { getConfig } from '@/lib/config';
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import type {
+	FilterCategory,
+	FilterContest, FilterGymMajor, FilterGymPlain,
+	FilterInvasion, FilterLure,
+	FilterPokemon,
+	FilterPokestopMajor, FilterPokestopPlain, FilterQuest, FilterRaid, FilterStationMajor
+} from '@/lib/filters/filters';
 
 type UiconSetUS = {
 	id: string
@@ -24,6 +31,19 @@ type UserSettings = {
 	loadMapObjectsWhileMoving: boolean
 	loadMapObjectsPadding: number,
 	languageTag: string | "auto",
+	filters: {
+		pokemonMajor: FilterPokemon
+		pokestopMajor: FilterPokestopMajor
+		pokestopPlain: FilterPokestopPlain
+		quest: FilterQuest
+		invasion: FilterInvasion
+		contest: FilterContest
+		lure: FilterLure
+		gymMajor: FilterGymMajor
+		gymPlain: FilterGymPlain
+		raid: FilterRaid
+		stationMajor: FilterStationMajor
+	}
 }
 
 export function getDefaultIconSet(type: MapObjectType) {
@@ -42,7 +62,7 @@ export function getDefaultIconSet(type: MapObjectType) {
 	}
 }
 
-export function getDefaultUserSettings() {
+export function getDefaultUserSettings(): UserSettings {
 	return {
 		mapPosition: {
 			center: {
@@ -65,7 +85,20 @@ export function getDefaultUserSettings() {
 		isDarkMode: false,
 		loadMapObjectsWhileMoving: false,
 		loadMapObjectsPadding: 20,
-		languageTag: "auto"
+		languageTag: "auto",
+		filters: {
+			pokemonMajor: { category: "pokemonMajor", type: "all" },
+			pokestopMajor: { category: "pokestopMajor", type: "all" },
+			pokestopPlain: { category: "pokestopPlain", type: "all" },
+			quest: { category: "quest", type: "all" },
+			invasion: { category: "invasion", type: "all" },
+			contest: { category: "contest", type: "all" },
+			lure: { category: "lure", type: "all" },
+			gymMajor: { category: "gymMajor", type: "all" },
+			gymPlain: { category: "gymPlain", type: "all" },
+			raid: { category: "raid", type: "all" },
+			stationMajor: { category: "stationMajor", type: "all" },
+		}
 	}
 }
 

@@ -1,9 +1,29 @@
 import { json } from '@sveltejs/kit';
 import {env} from '$env/dynamic/private'
 import { getServerConfig } from '@/lib/config.server';
+import type { AllFilters } from '@/lib/filters/filters';
 
 export async function POST({ request }) {
 	const reqBody = await request.json()
+	const filter: AllFilters = reqBody.filter
+
+	let golbatFilters = [
+		{
+			pokemon: [
+
+			]
+		}
+	]
+
+	if (filter.type === "filtered") {
+		golbatFilters = [
+			{
+				pokemon: [],
+				iv: { min: 100, max: 100 }
+			}
+		]
+	}
+
 	const body = {
 		min: {
 			latitude: reqBody.minLat,
@@ -14,13 +34,7 @@ export async function POST({ request }) {
 			longitude: reqBody.maxLon,
 		},
 		limit: 500000,
-		filters: [
-			{
-				pokemon: [
-
-				]
-			}
-		]
+		filters: golbatFilters
 	}
 
 	let url = getServerConfig().golbat.url || env.GOLBAT_BACKEND_URL

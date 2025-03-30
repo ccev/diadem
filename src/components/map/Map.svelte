@@ -11,7 +11,7 @@
 	import maplibre, { GeoJSONSource } from 'maplibre-gl';
 	import { onMount, tick, untrack } from 'svelte';
 	import type { FeatureCollection } from 'geojson';
-	import { getCurrentUiconSetDetails, getIconPokemon, getIconPokestop, getIcon } from '@/lib/uicons.svelte';
+	import { getCurrentUiconSetDetails, getIconPokemon, getIconPokestop, getIconForMap } from '@/lib/uicons.svelte';
 	import {getLoadedImages} from '@/lib/utils.svelte';
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
 	import { setContextMenuEvent, setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
@@ -51,7 +51,7 @@
 					coordinates: [obj.lon, obj.lat]
 				},
 				properties: {
-					imageUrl: getIcon(obj),
+					imageUrl: getIconForMap(obj),
 					id: obj.mapId,
 					type: obj.type,
 					imageSize: scale,

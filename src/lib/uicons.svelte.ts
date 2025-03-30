@@ -29,7 +29,7 @@ export function getCurrentUiconSetDetails(type: MapObjectType): UiconSet | undef
 	return getUiconSetDetails(getUserSettings().uiconSet[type].id)
 }
 
-export function getIcon(data: Partial<MapData>): string {
+export function getIconForMap(data: Partial<MapData>): string {
 	if (data.type === "pokemon") {
 		return getIconPokemon(data)
 	} else if (data.type === "pokestop") {

@@ -100,3 +100,11 @@ export function addMapObject(key: string, data: MapData) {
 export function delMapObject(key: string) {
 	delete mapObjectsState[key];
 }
+
+export function clearMapObjects(type: MapObjectType) {
+	for (const key in getMapObjects()) {
+		if (key.startsWith(type + '-')) {
+			delMapObject(key);
+		}
+	}
+}
