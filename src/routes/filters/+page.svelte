@@ -5,10 +5,11 @@
 	import * as m from '@/lib/paraglide/messages';
 	import Card from '@/components/ui/Card.svelte';
 	import { getUserSettings } from '@/lib/userSettings.svelte';
-	import { Cloud, Eye, EyeOff, Filter, Moon, Sun } from 'lucide-svelte';
+	import { Cloud, Eye, EyeOff, Filter, Moon, Pen, Pencil, Plus, Sun, X } from 'lucide-svelte';
 	import SelectGroupItem from '@/components/ui/settings/SelectGroupItem.svelte';
 	import SelectGroup from '@/components/ui/settings/SelectGroup.svelte';
 	import SettingsGeneric from '@/components/ui/settings/SettingsGeneric.svelte';
+	import Button from '@/components/ui/Button.svelte';
 </script>
 
 <svelte:head>
@@ -40,6 +41,26 @@
 	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 		<SettingsGeneric title="Pokémon">
 			{@render showWhat()}
+
+			<span>Filters</span>
+			<div class="w-full border-2 border-border px-2 py-2 rounded-md flex gap-2">
+				<span>💯</span>
+				<span>100% IV</span>
+				<Button variant="ghost" size="" class="ml-auto">
+					<Pencil size="16" />
+				</Button>
+			</div>
+			<div class="w-full border-2 border-border px-2 py-2 rounded-md flex gap-2">
+				<span>🔍</span>
+				<span>Unown, Mesprit, Azelf, Tyranit...</span>
+				<Button variant="ghost" size="" class="ml-auto">
+					<Pencil size="16" />
+				</Button>
+			</div>
+			<Button variant="secondary">
+				<Plus size="16" />
+				<span>Add Filterset</span>
+			</Button>
 		</SettingsGeneric>
 	</Card>
 	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
