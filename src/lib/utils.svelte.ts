@@ -9,6 +9,10 @@ export function timestampToLocalTime(timestamp: number | null) {
 	return date.toLocaleTimeString();
 }
 
+export function currentTimestamp() {
+	return Math.floor(Date.now() / 1000)
+}
+
 export function updateDarkMode() {
 	function isDark() {
 		if (getUserSettings().isDarkMode == null)

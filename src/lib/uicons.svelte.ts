@@ -4,9 +4,10 @@ import {getConfig} from '@/lib/config';
 import type {PokemonData} from '@/lib/types/mapObjectData/pokemon';
 import type { UiconSet } from '@/lib/types/config';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
-import type { Incident, PokestopData } from '@/lib/types/mapObjectData/pokestop';
+import type { Incident, PokestopData, QuestReward } from '@/lib/types/mapObjectData/pokestop';
 import type { StationData } from '@/lib/types/mapObjectData/station';
 import type { GymData } from '@/lib/types/mapObjectData/gym';
+import { currentTimestamp } from '@/lib/utils.svelte';
 
 export const DEFAULT_UICONS = "_internal_default"
 const DEFAULT_URL = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
@@ -66,13 +67,13 @@ export function getIconPokemon(data: Partial<PokemonData>, iconSet: string = get
 
 export function getIconPokestop(data: Partial<PokestopData>, iconSet: string = getUserSettings().uiconSet.pokestop.id) {
 	let lureId = 0
-	if (data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > Date.now() / 1000) {
+	if (data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > currentTimestamp()) {
 		lureId = data.lure_id
 	}
 
 	let displayType: boolean | number = false
 	for (const incident of data.incident ?? []) {
-		if (incident.display_type) {
+		if (incident.display_type && incident.expiration > currentTimestamp()) {
 			displayType = incident.display_type
 			break
 		}
@@ -102,6 +103,62 @@ export function getIconStation(data: Partial<StationData>, iconSet: string = get
 	return iconSets[iconSet].station(!data.is_inactive)
 }
 
-export function getIconInvasion(incident: Incident) {
-	return iconSets[DEFAULT_UICONS].invasion(incident.character, Boolean(incident.confirmed))
+export function getIconInvasion(data: Incident) {
+	return iconSets[DEFAULT_UICONS].invasion(data.character, Boolean(data.confirmed))
+}
+
+export function getIconReward(data: QuestReward) {
+	let rewardType = ""
+	let id = 0
+	switch (data.type) {
+		case 1:
+			rewardType = "experience"
+			break
+		case 2:
+			rewardType = "item"
+			id = data.info.item_id
+			break
+		case 3:
+			rewardType = "stardust"
+			break
+		case 4:
+			rewardType = "candy"
+			id = data.info.pokemon_id
+			break
+		case 5:
+			rewardType = "avatar_clothing"
+			break
+		case 6:
+			rewardType = "quest"
+			break
+		case 7:
+			return getIconPokemon(data.info)
+		case 8:
+			rewardType = "pokecoin"
+			break
+		case 9:
+			rewardType = "xl_candy"
+			id = data.info.pokemon_id
+			break
+		case 10:
+			rewardType = "level_cap"
+			break
+		case 11:
+			rewardType = "sticker"
+			break
+		case 12:
+			rewardType = "mega_resource"
+			id = data.info.pokemon_id
+			break
+		case 13:
+			rewardType = "incident"
+			break
+		case 14:
+			rewardType = "player_attribute"
+			break
+		default:
+			rewardType = ""
+	}
+
+	return iconSets[DEFAULT_UICONS].reward(rewardType, id, data.info?.amount ?? 0)
 }

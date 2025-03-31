@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import * as m from "@/lib/paraglide/messages"
+	import { currentTimestamp } from '@/lib/utils.svelte';
 
 
 	let {
@@ -16,7 +17,7 @@
 	}
 
 	let formattedTime: string = $state("")
-	let remainingTime: number = expireTime - Math.floor(Date.now() / 1000)
+	let remainingTime: number = expireTime - currentTimestamp()
 	let interval: NodeJS.Timeout | undefined
 
 	function updateCountdown() {
@@ -56,7 +57,7 @@
 		expireTime
 
 		untrack(() => {
-			remainingTime = expireTime - Math.floor(Date.now() / 1000)
+			remainingTime = expireTime - currentTimestamp()
 			updateCountdown()
 		})
 		interval = setInterval(updateCountdown, 1000)

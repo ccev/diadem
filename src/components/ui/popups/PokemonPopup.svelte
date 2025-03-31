@@ -13,6 +13,7 @@
 	import * as m from "@/lib/paraglide/messages"
 	import { getConfig } from '@/lib/config';
 	import { ingame } from '@/lib/ingameLocale';
+	import TimeWithCountdown from '@/components/ui/popups/TimeWithCountdown.svelte';
 
 	let {data} : {data: PokemonData} = $props()
 
@@ -48,13 +49,9 @@
 				<span>{m.popup_found()}</span>
 			{/if}
 
-			<span class="font-semibold">
-				{timestampToLocalTime(hasTimer() ? data.expire_timestamp : data.first_seen_timestamp)}
-			</span>
-
-			<span class="ml-0.5">
-				(<Countdown expireTime={hasTimer() ? data.expire_timestamp : data.first_seen_timestamp} />)
-			</span>
+			<TimeWithCountdown
+				expireTime={hasTimer() ? data.expire_timestamp : data.first_seen_timestamp}
+			/>
 		{/snippet}
 	</IconValue>
 {/snippet}

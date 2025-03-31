@@ -31,10 +31,17 @@
 </script>
 
 <Card class="h-full relative overflow-hidden py-4 mx-2">
-	<div class="flex px-6 w-full items-center justify-between mb-2">
+	<div class="flex px-6 w-full items-center mb-2">
 		{@render image()}
 		<div class="w-full h-fit ml-4">
-			{@render title()}
+			<div class="flex justify-between">
+				{@render title()}
+				<CloseButton
+					class="self-start ml-0.5 -mt-2 -mr-4"
+					onclick={closePopup}
+				/>
+			</div>
+
 
 			{#if !isPopupExpanded()}
 				<div
@@ -46,10 +53,6 @@
 				</div>
 			{/if}
 		</div>
-		<CloseButton
-			class="self-start ml-0.5 -mt-2 -mr-4"
-			onclick={closePopup}
-		/>
 	</div>
 
 	{#if isPopupExpanded()}

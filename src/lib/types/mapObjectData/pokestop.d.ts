@@ -74,11 +74,100 @@ export type Incident = {
 	slot_3_form?: number
 }
 
-export type QuestReward = QuestRewardPokemon
+export type QuestReward = QuestRewardExperience
+	| QuestRewardItem
+	| QuestRewardStardust
+	| QuestRewardCandy
+	| QuestRewardAvatarClothing
+	| QuestRewardQuest
+	| QuestRewardPokemon
+	| QuestRewardPokecoin
+	| QuestRewardXlCandy
+	| QuestRewardLevelCap
+	| QuestRewardSticker
+	| QuestRewardMegaResource
+	| QuestRewardIncident
+	| QuestRewardPlayerAttribute
+	| QuestRewardEventBadge
+	| QuestRewardPokemonEgg
+
+export type QuestRewardExperience = {
+	type: 1
+	info: { amount: number }
+}
+
+export type QuestRewardItem = {
+	type: 2
+	info: { item_id: number, amount: number }
+}
+
+export type QuestRewardStardust = {
+	type: 3
+	info: { amount: number }
+}
+
+export type QuestRewardCandy = {
+	type: 4
+	info: { amount: number, pokemon_id: number }
+}
+
+export type QuestRewardAvatarClothing = {
+	type: 5
+	info: {}
+}
+
+export type QuestRewardQuest = {
+	type: 6
+	info: {}
+}
 
 export type QuestRewardPokemon = {
 	type: 7
 	info: Partial<PokemonData>
 }
 
+export type QuestRewardPokecoin = {
+	type: 8
+	info: { amount: number }
+}
+
+export type QuestRewardXlCandy = {
+	type: 9
+	info: { amount: number, pokemon_id: number }
+}
+
+export type QuestRewardLevelCap = {
+	type: 10
+	info: {}
+}
+
+export type QuestRewardSticker = {
+	type: 11
+	info: {}
+}
+
+export type QuestRewardMegaResource = {
+	type: 12
+	info: { amount: number, pokemon_id: number }
+}
+
+export type QuestRewardIncident = {
+	type: 13
+	info: {}
+}
+
+export type QuestRewardPlayerAttribute = {
+	type: 14
+	info: {}
+}
+
+export type QuestRewardEventBadge = {
+	type: 15
+	info: {}
+}
+
+export type QuestRewardPokemonEgg = {
+	type: 16
+	info: {}
+}
 
