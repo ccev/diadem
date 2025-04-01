@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PokestopData, QuestReward } from '@/lib/types/mapObjectData/pokestop';
 	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import { getIconInvasion, getIconPokemon, getIconPokestop, getIconReward } from '@/lib/uicons.svelte';
+	import { getIconInvasion, getIconItem, getIconPokemon, getIconPokestop, getIconReward } from '@/lib/uicons.svelte';
 	import ImagePopup from '@/components/ui/popups/ImagePopup.svelte';
 	import * as m from "@/lib/paraglide/messages"
 	import ImageFort from '@/components/ui/popups/ImageFort.svelte';
@@ -17,8 +17,6 @@
 
 		return getIconPokemon({ pokemon_id: 0 })
 	}
-
-	$inspect(data)
 </script>
 
 {#snippet questSection(questTitle: string, questRewards: string, quest_target: number, isAr: boolean)}
@@ -69,6 +67,28 @@
 
 	{#snippet description()}
 		<div class="divide-border divide-y">
+			{#if data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > currentTimestamp()}
+				<div class="py-2 flex items-center gap-2">
+					<div class="w-7 h-7 flex-shrink-0">
+						<ImagePopup
+							src={getIconItem(data.lure_id)}
+							alt="TBD"
+							class="w-7"
+						/>
+					</div>
+					<div>
+						<span>
+							{ingame("item_" + data.lure_id)}
+						</span>
+						<TimeWithCountdown
+							expireTime={data.lure_expire_timestamp}
+							showHours={false}
+						/>
+						<!--TODO: show verified lure time-->
+					</div>
+				</div>
+			{/if}
+
 			{#if data.quest_target}
 				{@render questSection(data.quest_title ?? "", data.quest_rewards ?? "[]", data.quest_target ?? 0, true)}
 			{/if}
@@ -101,7 +121,7 @@
 								<TimeWithCountdown
 									expireTime={incident.expiration}
 									showHours={incident.display_type !== 1}
-									/>
+								/>
 							</div>
 						</div>
 					{:else if incident.display_type === 8}

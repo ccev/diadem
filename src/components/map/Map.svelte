@@ -17,6 +17,7 @@
 	import { setContextMenuEvent, setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
 	import type { UiconSet } from '@/lib/types/config';
+	import { getMapFeatures } from '@/lib/mapSprites';
 
 	let {
 		map = $bindable(),
@@ -28,38 +29,7 @@
 
 	let mapObjectsGeoJson: FeatureCollection = $derived({
 		type: "FeatureCollection",
-		features: Object.values(getMapObjects()).map(obj => {
-			const userIconSet = getCurrentUiconSetDetails(obj.type)
-			let scale: number = 0.25
-			let offsetY: number = 0
-			let offsetX: number = 0
-
-			if (userIconSet) {
-				const modifier = userIconSet[obj.type]
-				const baseModifier = userIconSet.base
-				if (modifier && typeof modifier === "object") {
-					scale = modifier?.scale ?? baseModifier?.scale ?? scale
-					offsetY = modifier?.offsetY ?? baseModifier?.offsetY ?? offsetY
-					offsetX = modifier?.offsetX ?? baseModifier?.offsetX ?? offsetX
-				}
-			}
-
-			return {
-				type: "Feature",
-				geometry: {
-					type: "Point",
-					coordinates: [obj.lon, obj.lat]
-				},
-				properties: {
-					imageUrl: getIconForMap(obj),
-					id: obj.mapId,
-					type: obj.type,
-					imageSize: scale,
-					// imageOffset: [offsetX, offsetY]
-				},
-				id: obj.mapId
-			}
-		})
+		features: getMapFeatures(getMapObjects())
 	})
 
 	const sessionImageUrls: string[] = []
@@ -235,6 +205,7 @@
 				"icon-overlap": "always",
 				"icon-size": ["get", "imageSize"],
 				"icon-allow-overlap": true,
+				"icon-offset": ["get", "imageOffset"]
 			}}
 			eventsIfTopMost={true}
 			onclick={clickFeatureHandler}

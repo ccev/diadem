@@ -9,10 +9,12 @@ import { getConfig } from '@/lib/config';
 import { setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 import { updateMapObject } from '@/lib/mapObjects/updateMapObject';
 
-let currentSelectedData: MapData | null = $state(null);
-let mapObjectsState: {
+export type MapObjectsStateType = {
 	[key: string]: MapData;
-} = $state({});
+}
+
+let currentSelectedData: MapData | null = $state(null);
+let mapObjectsState: MapObjectsStateType = $state({});
 const allMapTypes: MapObjectType[] = ["pokemon", "pokestop", "gym", "station"]
 
 export async function updateAllMapObjects(map: maplibre.Map, removeOld: boolean = true) {

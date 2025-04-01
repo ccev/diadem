@@ -162,3 +162,7 @@ export function getIconReward(data: QuestReward) {
 
 	return iconSets[DEFAULT_UICONS].reward(rewardType, id, data.info?.amount ?? 0)
 }
+
+export function getIconItem(itemId: number, amount: number = 0) {
+	return iconSets[DEFAULT_UICONS].reward("item", itemId, amount)
+}
