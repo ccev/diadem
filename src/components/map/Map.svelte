@@ -18,6 +18,11 @@
 	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
 	import type { UiconSet } from '@/lib/types/config';
 	import { getMapFeatures } from '@/lib/mapSprites';
+	import {
+		AGGRESSIVE_UPDATE_TIME,
+		UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM,
+		UPDATE_MAP_OBJECT_INTERVAL_TIME
+	} from '@/lib/constants';
 
 	let {
 		map = $bindable(),
@@ -143,7 +148,7 @@
 
 		setIsContextMenuOpen(false)
 		if (getUserSettings().loadMapObjectsWhileMoving) {
-			loadMapObjectInterval = setInterval(runLoadMapObjects, 200)
+			loadMapObjectInterval = setInterval(runLoadMapObjects, AGGRESSIVE_UPDATE_TIME)
 		}
 	}
 
@@ -156,8 +161,9 @@
 
 	function resetUpdateMapObjectsInterval() {
 		if (!map) return
+		if (map.getZoom() < UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM) return
 		clearUpdateMapObjectsInterval()
-		updateMapObjectsInterval = setInterval(() => updateAllMapObjects(map), 5000)
+		updateMapObjectsInterval = setInterval(() => updateAllMapObjects(map), UPDATE_MAP_OBJECT_INTERVAL_TIME)
 	}
 
 	function onWindowFocus() {

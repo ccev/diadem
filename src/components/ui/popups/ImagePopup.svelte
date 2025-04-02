@@ -32,6 +32,6 @@
 <img
 	bind:this={img}
 	{alt}
-	class="text-sm aspect-square {class_}"
+	class="text-sm {class_}"
 	class:hidden={isLoading}
 >

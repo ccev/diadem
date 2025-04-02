@@ -6,7 +6,8 @@ export async function POST({ request }) {
 	const result = await query(
 		"SELECT * FROM gym " +
 		"WHERE lat BETWEEN ? AND ? " +
-		"AND lon BETWEEN ? AND ?" +
+		"AND lon BETWEEN ? AND ? " +
+		"AND deleted = 0 " +
 		"LIMIT 10000",
 		[reqBody.minLat, reqBody.maxLat, reqBody.minLon, reqBody.maxLon]
 	)

@@ -45,7 +45,7 @@ url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/
 
 base = { scale = 0.25 }
 pokemon = { default = true }
-gym = { default = true }
+gym = { default = true, offsetY = -37, offsetX = -19 }
 
 [[client.uiconSets]]
 id = "home"

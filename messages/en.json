@@ -54,5 +54,6 @@
     "pogo_stations": "Power Spots",
     "unknown_gym": "Unknown Gym",
     "view_full_image": "View full image",
-    "default_": "Default"
+    "default_": "Default",
+    "unknown_pokemon": "Unknown Pokémon"
 }

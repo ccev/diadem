@@ -1,7 +1,7 @@
 export type StationData = {
 	id: string
 	mapId: string
-	type: "gym"
+	type: "station"
 	lat: number
 	lon: number
 	name: string

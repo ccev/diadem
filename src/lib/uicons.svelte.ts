@@ -166,3 +166,7 @@ export function getIconReward(data: QuestReward) {
 export function getIconItem(itemId: number, amount: number = 0) {
 	return iconSets[DEFAULT_UICONS].reward("item", itemId, amount)
 }
+
+export function getIconRaidEgg(level: number) {
+	return iconSets[DEFAULT_UICONS].raidEgg(level)
+}

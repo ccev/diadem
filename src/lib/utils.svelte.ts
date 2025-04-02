@@ -2,7 +2,7 @@ import { getUserSettings } from '@/lib/userSettings.svelte';
 import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 import * as m from "@/lib/paraglide/messages"
 
-export function timestampToLocalTime(timestamp: number | null) {
+export function timestampToLocalTime(timestamp: number | null | undefined) {
 	if (!timestamp) return '';
 
 	const date = new Date(timestamp * 1000);

@@ -5,9 +5,10 @@
 	import ImagePopup from '@/components/ui/popups/ImagePopup.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import ImageFort from '@/components/ui/popups/ImageFort.svelte';
-	import { ingame } from '@/lib/ingameLocale';
+	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import { currentTimestamp } from '@/lib/utils.svelte';
 	import TimeWithCountdown from '@/components/ui/popups/TimeWithCountdown.svelte';
+	import { isIncidentContest, isIncidentInvasion, isIncidentKecleon } from '@/lib/pogoUtils';
 
 	let {data} : {data: PokestopData} = $props()
 </script>
@@ -91,8 +92,7 @@
 
 			{#each data.incident as incident}
 				{#if incident.id && incident.expiration > currentTimestamp()}
-					{#if [1, 2, 3].includes(incident.display_type)}
-						<!--Team Rocket-->
+					{#if isIncidentInvasion(incident)}
 						<div class="py-2 flex items-center gap-2">
 							<div class="w-7 h-7 flex-shrink-0">
 								<ImagePopup
@@ -117,19 +117,18 @@
 								/>
 							</div>
 						</div>
-					{:else if incident.display_type === 8}
-						<!--Kecleon-->
+					{:else if isIncidentKecleon(incident)}
 						<div class="py-2 flex items-center gap-2">
 							<div class="w-7 h-7 flex-shrink-0">
 								<ImagePopup
 									src={getIconPokemon({ pokemon_id: 352 })}
-									alt={ingame("poke_352")}
+									alt={pokemonName(352)}
 									class="w-7"
 								/>
 							</div>
 							<div>
 								<span class="mr-1">
-									{ingame("poke_352")}
+									{pokemonName(352)}
 								</span>
 								<TimeWithCountdown
 									expireTime={incident.expiration}
@@ -137,8 +136,7 @@
 								/>
 							</div>
 						</div>
-					{:else if incident.display_type === 9}
-						<!--Contest -->
+					{:else if isIncidentContest(incident)}
 						<div class="py-2 flex items-center gap-2">
 							Contest
 							<TimeWithCountdown
@@ -153,9 +151,15 @@
 	{/snippet}
 
 	{#snippet content()}
-		{#if data.power_up_points > 0}
+		{#if (data.power_up_points ?? 0) > 0}
 			<div>
-				Power-Up Level: {data.power_up_level} ({data.power_up_points} points)
+				Power-Up Level: {data.power_up_level ?? 0} ({data.power_up_points ?? 0} points)
+				{#if (data.power_up_level ?? 0) > 0 && data.power_up_end_timestamp}
+					<TimeWithCountdown
+						expireTime={data.power_up_end_timestamp ?? 0}
+						showHours={false}
+					/>
+				{/if}
 			</div>
 		{/if}
 

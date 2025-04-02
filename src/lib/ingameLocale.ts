@@ -1,5 +1,6 @@
 import type { MasterFile } from '@/lib/types/masterfile';
 import { getUserSettings } from '@/lib/userSettings.svelte';
+import * as m from "@/lib/paraglide/messages"
 
 const url = "https://raw.githubusercontent.com/WatWowMap/pogo-translations/refs/heads/master/static/locales/{}.json"
 
@@ -28,4 +29,12 @@ export function ingame(key: string): string {
 	}
 
 	return locale[key] ?? ""
+}
+
+export function pokemonName(pokemonId?: number, megaId?: number = undefined) {
+	if (!pokemonId) return m.unknown_pokemon()
+
+	let key = "poke_" + pokemonId
+	if (megaId) key += "_e" + megaId
+	return (ingame(key) || m.unknown_pokemon())
 }

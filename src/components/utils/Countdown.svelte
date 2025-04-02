@@ -8,7 +8,7 @@
 		expireTime,
 		showHours = false
 	}: {
-		expireTime: number | null,
+		expireTime: number | null | undefined,
 		showHours?: boolean
 	} = $props()
 
@@ -17,7 +17,7 @@
 	}
 
 	let formattedTime: string = $state("")
-	let remainingTime: number = expireTime - currentTimestamp()
+	let remainingTime: number = (expireTime ?? 0) - currentTimestamp()
 	let interval: NodeJS.Timeout | undefined
 
 	function updateCountdown() {

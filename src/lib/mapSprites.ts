@@ -1,8 +1,18 @@
 import type { Feature } from 'geojson';
-import { getCurrentUiconSetDetails, getIconForMap, getIconInvasion, getIconReward } from '@/lib/uicons.svelte';
+import {
+	getCurrentUiconSetDetails,
+	getIconForMap,
+	getIconGym,
+	getIconInvasion, getIconPokemon, getIconRaidEgg,
+	getIconReward
+} from '@/lib/uicons.svelte';
 import { getMapObjects, type MapObjectsStateType } from '@/lib/mapObjects/mapObjects.svelte';
 import { currentTimestamp } from '@/lib/utils.svelte';
 import { getUserSettings } from '@/lib/userSettings.svelte';
+import { GYM_OUTDATED_SECONDS } from '@/lib/constants';
+import { getRaidPokemon, isIncidentInvasion } from '@/lib/pogoUtils';
+import type { UiconSet } from '@/lib/types/config';
+import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 
 type IconProperties = {
 	imageUrl: string
@@ -23,24 +33,31 @@ function getFeature(id: string, coordinates: number[], properties: IconPropertie
 	}
 }
 
+function getModifiers(iconSet: UiconSet | undefined, type: MapObjectType) {
+	let scale: number = 0.25
+	let offsetY: number = 0
+	let offsetX: number = 0
+
+	if (iconSet) {
+		const modifier = iconSet[type]
+		const baseModifier = iconSet.base
+		if (modifier && typeof modifier === "object") {
+			scale = modifier?.scale ?? baseModifier?.scale ?? scale
+			offsetY = modifier?.offsetY ?? baseModifier?.offsetY ?? offsetY
+			offsetX = modifier?.offsetX ?? baseModifier?.offsetX ?? offsetX
+		}
+	}
+
+	return { scale, offsetY, offsetX }
+}
+
 export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 	const features: Feature[] = []
 
 	for (const obj of Object.values(mapObjects)) {
 		const userIconSet = getCurrentUiconSetDetails(obj.type)
-		let scale: number = 0.25
-		let offsetY: number = 0
-		let offsetX: number = 0
-
-		if (userIconSet) {
-			const modifier = userIconSet[obj.type]
-			const baseModifier = userIconSet.base
-			if (modifier && typeof modifier === "object") {
-				scale = modifier?.scale ?? baseModifier?.scale ?? scale
-				offsetY = modifier?.offsetY ?? baseModifier?.offsetY ?? offsetY
-				offsetX = modifier?.offsetX ?? baseModifier?.offsetX ?? offsetX
-			}
-		}
+		let overwriteIcon: string | undefined = undefined
+		const modifiers = getModifiers(userIconSet, obj.type)
 
 		if (obj.type === "pokestop") {
 			if (getUserSettings().filters.quest.type !== "none") {
@@ -54,7 +71,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						{
 							imageUrl: getIconReward(reward),
 							imageSize: questSize,
-							imageOffset: [questOffsetX, offsetY + 35],
+							imageOffset: [questOffsetX, modifiers.offsetY + 35],
 							id: obj.mapId
 						}
 					))
@@ -67,18 +84,19 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						{
 							imageUrl: getIconReward(reward),
 							imageSize: questSize,
-							imageOffset: [questOffsetX, offsetY + -85],
+							imageOffset: [questOffsetX, modifiers.offsetY + -85],
 							id: obj.mapId
 						}
 					))
 				}
 			}
 
+			let index = 0
 			if (getUserSettings().filters.invasion.type !== "none") {
-				for (const [index, incident] of obj.incident.entries()) {
+				for (const incident of obj.incident) {
 					if (
 						!incident.id
-						|| ![1, 2, 3].includes(incident.display_type)
+						|| !isIncidentInvasion(incident)
 						|| incident.expiration < currentTimestamp()
 					) {
 						continue
@@ -89,7 +107,39 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						{
 							imageUrl: getIconInvasion(incident),
 							imageSize: 0.11,
-							imageOffset: [70, offsetY + -85 + (index * 130)],
+							imageOffset: [70, modifiers.offsetY + -85 + (index * 130)],
+							id: obj.mapId
+						}
+					))
+					index += 1
+				}
+			}
+		} else if (obj.type === "gym") {
+			// TODO: minor optimizatin: move as much out of the loop as possible
+			const oneDayAgo = currentTimestamp() - GYM_OUTDATED_SECONDS
+			if ((obj.last_modified_timestamp ?? 0) < oneDayAgo) {
+				overwriteIcon = getIconGym({ team_id: 0 })
+			}
+			if ((obj.raid_end_timestamp ?? 0) > currentTimestamp()) {
+				if (obj.raid_pokemon_id) {
+					features.push(getFeature(
+						obj.mapId + "-raidpokemon-" + obj.raid_pokemon_id,
+						[obj.lon, obj.lat],
+						{
+							imageUrl: getIconPokemon(getRaidPokemon(obj)),
+							imageSize: getModifiers(userIconSet, "pokemon").scale * 0.8,
+							imageOffset: [-30, modifiers.offsetY - 30],
+							id: obj.mapId
+						}
+					))
+				} else {
+					features.push(getFeature(
+						obj.mapId + "-raidegg-" + obj.raid_level,
+						[obj.lon, obj.lat],
+						{
+							imageUrl: getIconRaidEgg(obj.raid_level ?? 0),
+							imageSize: 0.12,
+							imageOffset: [-60, modifiers.offsetY - 80],
 							id: obj.mapId
 						}
 					))
@@ -97,18 +147,18 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 			}
 		}
 
+		features.push(getFeature(obj.mapId, [obj.lon, obj.lat], {
+			imageUrl: overwriteIcon ?? getIconForMap(obj),
+			id: obj.mapId,
+			imageSize: modifiers.scale,
+			imageOffset: [modifiers.offsetX, modifiers.offsetY]
+		}))
+
 		// features.push(getFeature("debug-red-dot", [obj.lon, obj.lat], {
 		// 	imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
 		// 	id: obj.mapId,
 		// 	imageSize: 0.1
 		// }))
-
-		features.push(getFeature(obj.mapId, [obj.lon, obj.lat], {
-			imageUrl: getIconForMap(obj),
-			id: obj.mapId,
-			imageSize: scale,
-			imageOffset: [offsetX, offsetY]
-		}))
 	}
 
 	return features

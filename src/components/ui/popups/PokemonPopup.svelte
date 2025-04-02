@@ -12,7 +12,7 @@
 	import TextSeparator from '@/components/utils/TextSeparator.svelte';
 	import * as m from "@/lib/paraglide/messages"
 	import { getConfig } from '@/lib/config';
-	import { ingame } from '@/lib/ingameLocale';
+	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/TimeWithCountdown.svelte';
 
 	let {data} : {data: PokemonData} = $props()
@@ -129,9 +129,9 @@
 					</span>
 			{/if}
 			<span>
-				{ingame("poke_" + data.pokemon_id) || m.pogo_pokemon()}
+				{pokemonName(data.pokemon_id)}
 				{#if data.display_pokemon_id}
-					{ingame("poke_" + data.display_pokemon_id) || m.pogo_pokemon()}
+					{pokemonName(data.display_pokemon_id)}
 				{/if}
 			</span>
 		</div>
