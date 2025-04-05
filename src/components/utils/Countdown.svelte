@@ -25,17 +25,26 @@
 		const absRemainingTime = Math.abs(remainingTime)
 
 		const seconds = absRemainingTime % 60
-		let minutes: number
+		let minutes = Math.floor((absRemainingTime % 3600) / 60)
 
-		if (showHours) {
+		// TODO: dynamic days
+
+		if (absRemainingTime >= 60 * 60 * 24) {
+			const days = Math.floor(absRemainingTime / (3600 * 24))
+			const hours = Math.floor((absRemainingTime % (3600 * 24) ) / 3600)
+
+			if (isPast) {
+				formattedTime = m.time_format_d_h_m_ago({d: days, h: hours, m: minutes})
+			} else {
+				formattedTime = m.time_format_d_h_m({d: days, h: hours, m: minutes})
+			}
+		} else if (showHours || absRemainingTime >= 60 * 60) {
 			const hours = Math.floor(absRemainingTime / 3600)
-			minutes = Math.floor((absRemainingTime % 3600) / 60)
 
 			if (isPast) {
 				formattedTime = m.time_format_h_m_s_ago({h: hours, m: minutes, s: seconds})
 			} else {
 				formattedTime = m.time_format_h_m_s({h: hours, m: minutes, s: seconds})
-
 			}
 		} else {
 			minutes = Math.floor(absRemainingTime / 60)

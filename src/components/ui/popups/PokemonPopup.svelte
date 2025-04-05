@@ -14,8 +14,10 @@
 	import { getConfig } from '@/lib/config';
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/TimeWithCountdown.svelte';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
 
-	let {data} : {data: PokemonData} = $props()
+	let { mapId } : { mapId: string } = $props()
+	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData)
 
 	let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 
@@ -25,7 +27,11 @@
 
 	function getTitle() {
 		let title = getConfig().general.mapName
-		if (masterPokemon) title += " | " + masterPokemon.name
+		if (masterPokemon) {
+			title += " | " + masterPokemon.name
+		} else {
+			title += " | " + m.pogo_pokemon()
+		}
 		return title
 	}
 </script>
@@ -35,24 +41,14 @@
 </svelte:head>
 
 {#snippet timer()}
-	<IconValue>
-		{#snippet icon()}
-			{#if hasTimer()}
-				<Clock size="16" />
-			{:else}
-				<ClockAlert size="16" />
-			{/if}
-		{/snippet}
+	<IconValue Icon={hasTimer() ? Clock : ClockAlert}>
+		{#if !hasTimer()}
+			<span>{m.popup_found()}</span>
+		{/if}
 
-		{#snippet value()}
-			{#if !hasTimer()}
-				<span>{m.popup_found()}</span>
-			{/if}
-
-			<TimeWithCountdown
-				expireTime={hasTimer() ? data.expire_timestamp : data.first_seen_timestamp}
-			/>
-		{/snippet}
+		<TimeWithCountdown
+			expireTime={hasTimer() ? data.expire_timestamp : data.first_seen_timestamp}
+		/>
 	</IconValue>
 {/snippet}
 
@@ -60,45 +56,30 @@
 	{@render timer()}
 
 	{#if data.seen_type?.includes("nearby")}
-		<IconValue>
-			{#snippet icon()}
-				<MapPinX size="16"/>
-			{/snippet}
-			{#snippet value()}
-				{m.popup_estimated_location()}
-			{/snippet}
+		<IconValue Icon={MapPinX}>
+			{m.popup_estimated_location()}
 		</IconValue>
 	{/if}
 
 	{#if data.iv === null}
-		<IconValue>
-			{#snippet icon()}
-				<SearchX size="16"/>
-			{/snippet}
-			{#snippet value()}
-				{m.popup_no_iv_scanned()}
-			{/snippet}
+		<IconValue Icon={SearchX}>
+			{m.popup_no_iv_scanned()}
 		</IconValue>
 	{/if}
 
 	{#if data.cp !== null || data.level !== null}
-		<IconValue>
-			{#snippet icon()}
-				<ChartBar size="16"/>
-			{/snippet}
-			{#snippet value()}
-				{#if data.cp !== null}
-					<span class="font-semibold">
-						{m.pogo_cp({cp: data.cp})}
-					</span>
-				{/if}
-				{#if data.cp !== null && data.level !== null}
-					<TextSeparator />
-				{/if}
-				{#if data.level !== null}
-					{m.pogo_level({level: data.level})}
-				{/if}
-			{/snippet}
+		<IconValue Icon={ChartBar}>
+			{#if data.cp !== null}
+				<span class="font-semibold">
+					{m.pogo_cp({cp: data.cp})}
+				</span>
+			{/if}
+			{#if data.cp !== null && data.level !== null}
+				<TextSeparator />
+			{/if}
+			{#if data.level !== null}
+				{m.pogo_level({level: data.level})}
+			{/if}
 		</IconValue>
 	{/if}
 {/snippet}
@@ -147,15 +128,10 @@
 		</div>
 
 		{#if data.size !== null}
-			<IconValue>
-				{#snippet icon()}
-					<Ruler size="16"/>
-				{/snippet}
-				{#snippet value()}
-					<span>
-						Size M
-					</span>
-				{/snippet}
+			<IconValue Icon={Ruler}>
+				<span>
+					Size M
+				</span>
 			</IconValue>
 		{/if}
 

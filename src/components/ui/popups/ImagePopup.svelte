@@ -11,9 +11,12 @@
 
 	let img: HTMLImageElement | undefined = $state(undefined)
 	let isLoading: boolean = $state(true)
+	let lastSrc: string = ""
 
 	$effect(() => {
-		src
+		if (lastSrc === src) return
+		lastSrc = src
+
 		if (!img) return
 
 		const timeout = setTimeout(() => {

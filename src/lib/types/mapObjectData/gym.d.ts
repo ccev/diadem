@@ -14,7 +14,6 @@ export type GymData = {
 	raid_pokemon_id?: number
 	guarding_pokemon_id?: number
 	guarding_pokemon_display?: string
-	available_slots?: number
 	availble_slots?: number
 	team_id?: number
 	raid_level?: number

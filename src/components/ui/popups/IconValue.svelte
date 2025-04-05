@@ -1,23 +1,20 @@
 <script lang="ts">
-	import { timestampToLocalTime } from '@/lib/utils.svelte';
-	import { Clock } from 'lucide-svelte';
-	import Countdown from '@/components/utils/Countdown.svelte';
-	import type {IconProps} from 'lucide-svelte';
-	import type { Snippet, SvelteComponent } from 'svelte';
+	import type { IconProps } from 'lucide-svelte';
+	import type { Component, Snippet } from 'svelte';
 
 	let {
-		icon,
-		value
+		Icon,
+		children,
 	}: {
-		icon: Snippet,
-		value: Snippet
+		Icon: Component<IconProps>,
+		children: Snippet,
 	} = $props()
 </script>
 
 <div class="flex items-center">
-	{@render icon()}
+	<Icon size="16" />
 
 	<div class="ml-1.5">
-		{@render value()}
+		{@render children()}
 	</div>
 </div>

@@ -55,5 +55,22 @@
     "unknown_gym": "Unknown Gym",
     "view_full_image": "View full image",
     "default_": "Default",
-    "unknown_pokemon": "Unknown Pokémon"
+    "unknown_pokemon": "Unknown Pokémon",
+    "time_format_d_h_m": "{d}d {h}h {m}m",
+    "time_format_d_h_m_ago": "{d}d {h}h {m}m ago",
+    "ar_scannable": "Can be AR-scanned",
+    "ex_gym": "EX Gym",
+    "gym_members": "Defenders",
+    "gym_power": "Total CP",
+    "raid_ends": "Ends",
+    "raid_starts": "Starts",
+    "quest_ar_tag": "AR",
+    "quest_noar_tag": "No AR",
+    "confirmed": "confirmed",
+    "power_up_level": "Power-Up Level",
+    "outdated": "outdated",
+    "last_seen": "Last Seen",
+    "last_updated": "Last Updated",
+    "first_seen": "First Seen",
+    "outdated_message": "Hasn't been updated in a while"
 }

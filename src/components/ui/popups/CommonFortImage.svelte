@@ -12,11 +12,13 @@
 		fortUrl,
 		fortIcon,
 		fortName = "",
+		fortDescription = ""
 	}: {
 		alt: string,
 		fortUrl?: string,
 		fortIcon: string,
 		fortName?: string,
+		fortDescription?: string
 	} = $props()
 
 	let photoWidth: number = $state(0)
@@ -37,13 +39,22 @@
 <!--		/>-->
 
 <!--		TODO add neutral fort icon-->
-		{#if fortName}
-			<span
-				class="mx-6 my-3 text-center"
+		{#if fortName || fortDescription}
+			<div
+				class="my-3 flex flex-col justify-center text-center mx-6"
 				style="max-width: calc({photoWidth}px - 3rem)"
 			>
-				{fortName}
-			</span>
+				{#if fortName}
+					<span class="font-semibold text-lg">
+						{fortName}
+					</span>
+					{/if}
+					{#if fortDescription}
+					<span>
+						{fortDescription}
+					</span>
+				{/if}
+			</div>
 		{/if}
 	</Card>
 {/snippet}

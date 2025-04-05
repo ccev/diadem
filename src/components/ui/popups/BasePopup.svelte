@@ -35,7 +35,7 @@
 		class="absolute right-2 top-2"
 		onclick={closePopup}
 	/>
-	<div class="flex px-6 w-full items-center mb-2">
+	<div class="flex pl-6 pr-3 w-full items-center mb-2">
 		{@render image()}
 		<div class="w-full h-fit ml-4 max-h-full">
 			<div class="pr-5">

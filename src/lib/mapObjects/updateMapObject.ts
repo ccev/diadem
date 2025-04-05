@@ -64,6 +64,8 @@ export async function updateMapObject(
 		return;
 	}
 
+	// TODO: we shouldn't clear stuff that's still kept after. svelte will
+	// run effects in-between clearing and adding
 	if (removeOld) {
 		clearMapObjects(type)
 	}

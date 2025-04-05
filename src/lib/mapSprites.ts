@@ -10,7 +10,7 @@ import { getMapObjects, type MapObjectsStateType } from '@/lib/mapObjects/mapObj
 import { currentTimestamp } from '@/lib/utils.svelte';
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import { GYM_OUTDATED_SECONDS } from '@/lib/constants';
-import { getRaidPokemon, isIncidentInvasion } from '@/lib/pogoUtils';
+import { getRaidPokemon, isFortOutdated, isIncidentInvasion } from '@/lib/pogoUtils';
 import type { UiconSet } from '@/lib/types/config';
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 
@@ -116,8 +116,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 			}
 		} else if (obj.type === "gym") {
 			// TODO: minor optimizatin: move as much out of the loop as possible
-			const oneDayAgo = currentTimestamp() - GYM_OUTDATED_SECONDS
-			if ((obj.last_modified_timestamp ?? 0) < oneDayAgo) {
+			if (isFortOutdated(obj.updated)) {
 				overwriteIcon = getIconGym({ team_id: 0 })
 			}
 			if ((obj.raid_end_timestamp ?? 0) > currentTimestamp()) {

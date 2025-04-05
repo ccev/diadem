@@ -58,13 +58,13 @@
 			transition:slide={{duration: 50}}
 		>
 			{#if getCurrentSelectedData().type === "pokemon"}
-				<PokemonPopup data={getCurrentSelectedData()} />
+				<PokemonPopup mapId={getCurrentSelectedData().mapId} />
 			{:else if getCurrentSelectedData().type === "pokestop"}
-				<PokestopPopup data={getCurrentSelectedData()} />
+				<PokestopPopup mapId={getCurrentSelectedData().mapId} />
 			{:else if getCurrentSelectedData().type === "gym"}
-				<GymPopup data={getCurrentSelectedData()} />
+				<GymPopup mapId={getCurrentSelectedData().mapId} />
 			{:else if getCurrentSelectedData().type === "station"}
-				<StationPopup data={getCurrentSelectedData()} />
+				<StationPopup mapId={getCurrentSelectedData().mapId} />
 			{/if}
 		</div>
 	{/if}

@@ -8,6 +8,7 @@ import type { Incident, PokestopData, QuestReward } from '@/lib/types/mapObjectD
 import type { StationData } from '@/lib/types/mapObjectData/station';
 import type { GymData } from '@/lib/types/mapObjectData/gym';
 import { currentTimestamp } from '@/lib/utils.svelte';
+import { GYM_SLOTS, hasFortActiveLure, isFortOutdated } from '@/lib/pogoUtils';
 
 export const DEFAULT_UICONS = "_internal_default"
 const DEFAULT_URL = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
@@ -66,9 +67,10 @@ export function getIconPokemon(data: Partial<PokemonData>, iconSet: string = get
 }
 
 export function getIconPokestop(data: Partial<PokestopData>, iconSet: string = getUserSettings().uiconSet.pokestop.id) {
+	// maybe this is not the right location for these modifations. can be moved later
 	let lureId = 0
-	if (data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > currentTimestamp()) {
-		lureId = data.lure_id
+	if (hasFortActiveLure(data)) {
+		lureId = data.lure_id ?? 0
 	}
 
 	let displayType: boolean | number = false
@@ -79,23 +81,30 @@ export function getIconPokestop(data: Partial<PokestopData>, iconSet: string = g
 		}
 	}
 
+	const powerUp = isFortOutdated(data.updated) ? 0 : data.power_up_level
+
 	return iconSets[iconSet].pokestop(
 		lureId,
 		displayType,
 		false,  // quest active
 		Boolean(data.ar_scan_eligible),
-		data.power_up_level
+		powerUp
 	)
 }
 
 export function getIconGym(data: Partial<GymData>, iconSet: string = getUserSettings().uiconSet.gym.id) {
+	// maybe this is not the right location for these modifations. can be moved later
+	const powerUp = isFortOutdated(data.updated) ? 0 : data.power_up_level
+	let availableSlots = data.availble_slots ? GYM_SLOTS - data.availble_slots : GYM_SLOTS
+	if (isFortOutdated(data.updated)) availableSlots = GYM_SLOTS
+
 	return iconSets[iconSet].gym(
 		data.team_id,
-		data.available_slots ? 6 - data.available_slots : 0,
+		availableSlots,
 		Boolean(data.in_battle),
 		Boolean(data.ex_raid_eligible),
 		Boolean(data.ar_scan_eligible),
-		data.power_up_level
+		powerUp
 	)
 }
 

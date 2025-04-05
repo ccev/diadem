@@ -11,9 +11,9 @@
 	} = $props()
 </script>
 
-<span class="font-semibold">
+<b>
 	{timestampToLocalTime(expireTime)}
-</span>
+</b>
 <span class="ml-0.5">
 	(<Countdown {expireTime} {showHours} />)
 </span>
