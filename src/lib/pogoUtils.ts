@@ -40,3 +40,13 @@ export function isFortOutdated(updated?: number) {
 export function hasFortActiveLure(data: Partial<PokestopData>) {
 	return data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > currentTimestamp()
 }
+
+export function getPokemonSize(size: number) {
+	return {
+		1: "XXS",
+		2: "XS",
+		3: "M",
+		4: "XL",
+		5: "XXL"
+	}[size] ?? "?"
+}

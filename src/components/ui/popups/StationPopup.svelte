@@ -6,10 +6,11 @@
 	import * as m from "@/lib/paraglide/messages"
 	import CommonFortImage from '@/components/ui/popups/CommonFortImage.svelte';
 	import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
+	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
+	import type { GymData } from '@/lib/types/mapObjectData/gym';
 
 	let { mapId } : { mapId: string } = $props()
-	let data: StationData = $derived(getMapObjects()[mapId] as StationData)
+	let data: StationData = $derived(getMapObjects()[mapId] as StationData ?? getCurrentSelectedData() as StationData)
 </script>
 
 <BasePopup lat={data.lat} lon={data.lon}>

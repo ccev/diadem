@@ -16,15 +16,16 @@
 		isIncidentKecleon
 	} from '@/lib/pogoUtils';
 	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
+	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
 	import CommonUpdatedTimes from '@/components/ui/popups/CommonUpdatedTimes.svelte';
 	import CommonFortPowerUp from '@/components/ui/popups/CommonFortPowerUp.svelte';
 	import { getConfig } from '@/lib/config';
 	import { ClockAlert, Smartphone } from 'lucide-svelte';
 	import IconValue from '@/components/ui/popups/IconValue.svelte';
+	import type { GymData } from '@/lib/types/mapObjectData/gym';
 
 	let { mapId } : { mapId: string } = $props()
-	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData)
+	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData ?? getCurrentSelectedData() as PokestopData)
 
 	function getTitle() {
 		let title = getConfig().general.mapName

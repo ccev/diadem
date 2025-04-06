@@ -12,7 +12,7 @@ import { getUserSettings } from '@/lib/userSettings.svelte';
 import { GYM_OUTDATED_SECONDS } from '@/lib/constants';
 import { getRaidPokemon, isFortOutdated, isIncidentInvasion } from '@/lib/pogoUtils';
 import type { UiconSet } from '@/lib/types/config';
-import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 
 type IconProperties = {
 	imageUrl: string
@@ -51,13 +51,16 @@ function getModifiers(iconSet: UiconSet | undefined, type: MapObjectType) {
 	return { scale, offsetY, offsetX }
 }
 
-export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
+export function getMapFeatures(mapObjects: MapObjectsStateType, currentSelected: MapData | null): Feature[] {
 	const features: Feature[] = []
 
 	for (const obj of Object.values(mapObjects)) {
 		const userIconSet = getCurrentUiconSetDetails(obj.type)
 		let overwriteIcon: string | undefined = undefined
 		const modifiers = getModifiers(userIconSet, obj.type)
+		let selectedScale = 1
+
+		if (obj.mapId === currentSelected?.mapId) selectedScale = 2
 
 		if (obj.type === "pokestop") {
 			if (getUserSettings().filters.quest.type !== "none") {
@@ -70,7 +73,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						[obj.lon, obj.lat],
 						{
 							imageUrl: getIconReward(reward),
-							imageSize: questSize,
+							imageSize: questSize * selectedScale,
 							imageOffset: [questOffsetX, modifiers.offsetY + 35],
 							id: obj.mapId
 						}
@@ -83,7 +86,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						[obj.lon, obj.lat],
 						{
 							imageUrl: getIconReward(reward),
-							imageSize: questSize,
+							imageSize: questSize * selectedScale,
 							imageOffset: [questOffsetX, modifiers.offsetY + -85],
 							id: obj.mapId
 						}
@@ -106,7 +109,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						[obj.lon, obj.lat],
 						{
 							imageUrl: getIconInvasion(incident),
-							imageSize: 0.11,
+							imageSize: 0.11 * selectedScale,
 							imageOffset: [70, modifiers.offsetY + -85 + (index * 130)],
 							id: obj.mapId
 						}
@@ -126,7 +129,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						[obj.lon, obj.lat],
 						{
 							imageUrl: getIconPokemon(getRaidPokemon(obj)),
-							imageSize: getModifiers(userIconSet, "pokemon").scale * 0.8,
+							imageSize: getModifiers(userIconSet, "pokemon").scale * 0.8 * selectedScale,
 							imageOffset: [-30, modifiers.offsetY - 30],
 							id: obj.mapId
 						}
@@ -137,7 +140,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 						[obj.lon, obj.lat],
 						{
 							imageUrl: getIconRaidEgg(obj.raid_level ?? 0),
-							imageSize: 0.12,
+							imageSize: 0.12 * selectedScale,
 							imageOffset: [-60, modifiers.offsetY - 80],
 							id: obj.mapId
 						}
@@ -149,7 +152,7 @@ export function getMapFeatures(mapObjects: MapObjectsStateType): Feature[] {
 		features.push(getFeature(obj.mapId, [obj.lon, obj.lat], {
 			imageUrl: overwriteIcon ?? getIconForMap(obj),
 			id: obj.mapId,
-			imageSize: modifiers.scale,
+			imageSize: modifiers.scale * selectedScale,
 			imageOffset: [modifiers.offsetX, modifiers.offsetY]
 		}))
 

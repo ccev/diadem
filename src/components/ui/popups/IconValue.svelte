@@ -12,7 +12,7 @@
 </script>
 
 <div class="flex items-center">
-	<Icon size="16" />
+	<Icon size="16" class="flex-shrink-0" />
 
 	<div class="ml-1.5">
 		{@render children()}

@@ -9,7 +9,7 @@
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import { getRaidPokemon, GYM_SLOTS, isFortOutdated } from '@/lib/pogoUtils';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
+	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
 	import TimeWithCountdown from '@/components/ui/popups/TimeWithCountdown.svelte';
 	import {
 		CircleFadingArrowUp,
@@ -25,9 +25,11 @@
 	import CommonUpdatedTimes from '@/components/ui/popups/CommonUpdatedTimes.svelte';
 	import CommonFortPowerUp from '@/components/ui/popups/CommonFortPowerUp.svelte';
 	import { getConfig } from '@/lib/config';
+	import Button from '@/components/ui/Button.svelte';
+	import GymDefenderOverview from '@/components/ui/popups/GymDefenderOverview.svelte';
 
 	let { mapId } : { mapId: string } = $props()
-	let data: GymData = $derived(getMapObjects()[mapId] as GymData)
+	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData)
 
 	function getTitle() {
 		let title = getConfig().general.mapName
@@ -44,7 +46,7 @@
 	<title>{getTitle()}</title>
 </svelte:head>
 
-{#snippet raidDisplay()}
+{#snippet raidDisplay(expanded: boolean)}
 {#if (data.raid_end_timestamp ?? 0) > currentTimestamp()}
 	<div
 		class="flex gap-2 items-center border-border border-b pb-2 mb-2"
@@ -70,16 +72,20 @@
 
 		<div>
 			<div class="flex gap-1 items-center">
-			<span class="font-semibold whitespace-nowrap">
-				{ingame("raid_" + data.raid_level) || "Raid"}
-			</span>
+				<span
+					class="font-semibold whitespace-nowrap"
+					class:font-semibold={!data.raid_pokemon_id}
+				>
+					{ingame("raid_" + data.raid_level) || "Raid"}
+				</span>
 
 				{#if data.raid_pokemon_id}
-				<span class="whitespace-nowrap">
-					· {pokemonName(data.raid_pokemon_id, data.raid_pokemon_evolution)}
-				</span>
+					<b class="whitespace-nowrap">
+						· {pokemonName(data.raid_pokemon_id, data.raid_pokemon_evolution)}
+					</b>
 				{/if}
 			</div>
+
 			<div>
 			<span class="whitespace-nowrap">
 				{#if (data.raid_battle_timestamp ?? 0) < currentTimestamp()}
@@ -100,6 +106,15 @@
 					{timestampToLocalTime(data.raid_end_timestamp)})
 			</span>
 			</div>
+
+			{#if expanded && data.raid_pokemon_id}
+				<div>
+					{m.pogo_cp({ cp: data.raid_pokemon_cp })}
+					({ingame("move_" + data.raid_pokemon_move_1)}
+					/
+					{ingame("move_" + data.raid_pokemon_move_2)})
+				</div>
+			{/if}
 		</div>
 
 	</div>
@@ -111,7 +126,7 @@
 		<IconValue Icon={UsersRound}>
 			{m.gym_members()}:
 			<b>{GYM_SLOTS - (data.availble_slots ?? 0)}/{GYM_SLOTS}</b>
-			({m.gym_power()}: {data.total_cp})
+<!--			({m.gym_power()}: {data.total_cp})-->
 		</IconValue>
 	{/if}
 {/snippet}
@@ -140,7 +155,7 @@
 	{/snippet}
 
 	{#snippet description()}
-		{@render raidDisplay()}
+		{@render raidDisplay(false)}
 		{@render memberOverview()}
 
 		{#if isFortOutdated(data.updated)}
@@ -152,8 +167,11 @@
 
 	{#snippet content()}
 		<div class="[&>*:last-child]:mb-3">
-			{@render raidDisplay()}
+			{@render raidDisplay(true)}
 			{@render memberOverview()}
+			{#if !isFortOutdated(data.updated)}
+				<GymDefenderOverview defenders={JSON.parse(data.defenders)} />
+			{/if}
 
 			{#if data.ar_scan_eligible}
 				<IconValue Icon={Smartphone}>

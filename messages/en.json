@@ -69,8 +69,8 @@
     "confirmed": "confirmed",
     "power_up_level": "Power-Up Level",
     "outdated": "outdated",
-    "last_seen": "Last Seen",
-    "last_updated": "Last Updated",
-    "first_seen": "First Seen",
+    "last_seen": "Last seen",
+    "last_updated": "Last updated",
+    "first_seen": "First seen",
     "outdated_message": "Hasn't been updated in a while"
 }

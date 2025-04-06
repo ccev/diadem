@@ -1,5 +1,5 @@
 <script lang="ts">
-	let {class: class_ = "mx-1.5"}: {class?: string} = $props()
+	let {class: class_ = "mx-1"}: {class?: string} = $props()
 </script>
 
-<span class="bg-card-foreground w-px h-[0.8em] inline-block {class_}"></span>
+<span class="border-card-foreground border-l h-[0.8em] inline-block {class_}"></span>

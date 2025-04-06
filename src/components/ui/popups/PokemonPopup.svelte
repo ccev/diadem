@@ -14,11 +14,14 @@
 	import { getConfig } from '@/lib/config';
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/TimeWithCountdown.svelte';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
+	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte';
+	import { getPokemonSize } from '@/lib/pogoUtils';
+	import type { GymData } from '@/lib/types/mapObjectData/gym';
 
 	let { mapId } : { mapId: string } = $props()
-	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData)
+	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData)
 
+	$inspect(data)
 	let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 
 	function hasTimer() {
@@ -112,7 +115,7 @@
 			<span>
 				{pokemonName(data.pokemon_id)}
 				{#if data.display_pokemon_id}
-					{pokemonName(data.display_pokemon_id)}
+					({pokemonName(data.display_pokemon_id)})
 				{/if}
 			</span>
 		</div>
@@ -127,10 +130,20 @@
 			{@render basicInfo()}
 		</div>
 
+		first seen: {timestampToLocalTime(data.first_seen_timestamp)} <br/>
+		updated {timestampToLocalTime(data.updated)} <br/>
+		move1: {ingame("move_" + data.move_1)} / move2: {ingame("move_" + data.move_2)} <br/>
+		gender: {data.gender} <br/>
+		weather: {ingame("weather_" + data.weather)} <br/>
+
+		little rank: {data.pvp?.little?.[0]?.rank ?? 0}
+		great rank: {data.pvp?.great?.[0]?.rank ?? 0}
+		ultra rank: {data.pvp?.ultra?.[0]?.rank ?? 0}
+
 		{#if data.size !== null}
 			<IconValue Icon={Ruler}>
 				<span>
-					Size M
+					Size {getPokemonSize(data.size)}
 				</span>
 			</IconValue>
 		{/if}

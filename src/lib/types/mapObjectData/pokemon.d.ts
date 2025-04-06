@@ -1,3 +1,14 @@
+export type PvpStats = {
+	cap: number
+	cp: number
+	form: number
+	level: number
+	percentage: number
+	pokemon: number
+	rank: number
+	value: number
+}
+
 export type PokemonData = {
 	id: string;
 	type: "pokemon"
@@ -12,13 +23,13 @@ export type PokemonData = {
 	expire_timestamp: number | null;
 	updated: number | null;
 	pokemon_id: number;
-	move1: number | null;
-	move2: number | null;
+	move_1: number | null;
+	move_2: number | null;
 	gender: number | null;
 	cp: number | null;
-	atkIv: number | null;
-	defIv: number | null;
-	staIv: number | null;
+	atk_iv: number | null;
+	def_iv: number | null;
+	sta_iv: number | null;
 	iv: number | null;
 	form: number | null;
 	level: number | null;
@@ -37,7 +48,11 @@ export type PokemonData = {
 	capture1: number | null;
 	capture2: number | null;
 	capture3: number | null;
-	// pvp: Record<string, Array<PokemonEntry>>
+	pvp: {
+		little?: PvpStats[]
+		great?: PvpStats[]
+		ultra?: PvpStats[]
+	}
 	is_event: number;
 	temp_evolution_id?: number;
 	alignment?: number;

@@ -1,4 +1,10 @@
-import { addMapObject, clearMapObjects, delMapObject, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
+import {
+	addMapObject,
+	clearMapObjects,
+	delMapObject,
+	getMapObjects, getMapObjectsSnapshot,
+	setMapObjectState
+} from '@/lib/mapObjects/mapObjects.svelte.js';
 import type maplibre from 'maplibre-gl';
 import { getNormalizedBounds } from '@/lib/mapObjects/utils';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
@@ -7,7 +13,7 @@ import { getUserSettings } from '@/lib/userSettings.svelte';
 export function makeMapObject(data: MapData, type: MapObjectType) {
 	data.type = type;
 	data.mapId = type + '-' + data.id;
-	addMapObject(data.mapId, data);
+	addMapObject(data);
 }
 
 export async function getOneMapObject(
@@ -64,10 +70,17 @@ export async function updateMapObject(
 		return;
 	}
 
+	const mapObjects = getMapObjectsSnapshot()
+
 	// TODO: we shouldn't clear stuff that's still kept after. svelte will
 	// run effects in-between clearing and adding
 	if (removeOld) {
-		clearMapObjects(type)
+		for (const key of Object.keys(mapObjects)) {
+			if (key.startsWith(type + '-')) {
+				delete mapObjects[key];
+			}
+		}
+		// clearMapObjects(type)
 	}
 
 	if (!data.result) {
@@ -76,8 +89,13 @@ export async function updateMapObject(
 
 	try {
 		for (const mapObject of data.result) {
-			makeMapObject(mapObject, type);
+			mapObject.type = type;
+			mapObject.mapId = type + '-' + mapObject.id;
+			mapObjects[mapObject.mapId] = mapObject
+			// makeMapObject(mapObject, type);
 		}
+		setMapObjectState(mapObjects)
+
 	} catch (e) {
 		console.log(data);
 		console.error(e);

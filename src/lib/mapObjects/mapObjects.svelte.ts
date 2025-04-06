@@ -38,6 +38,10 @@ export function getCurrentSelectedData() {
 	return currentSelectedData;
 }
 
+export function getCurrentSelectedMapId() {
+	return $state.snapshot(currentSelectedData?.mapId) || ""
+}
+
 export function closePopup() {
 	currentSelectedData = null;
 	setCurrentPath()
@@ -46,7 +50,7 @@ export function closePopup() {
 	if (title) title.innerText = getConfig().general.mapName
 }
 
-function openPopup(data: MapData) {
+export function openPopup(data: MapData) {
 	currentSelectedData = data;
 	setCurrentPath()
 }
@@ -95,12 +99,20 @@ export function getMapObjects() {
 	return mapObjectsState;
 }
 
-export function addMapObject(key: string, data: MapData) {
-	mapObjectsState[key] = data;
+export function getMapObjectsSnapshot(){
+	return $state.snapshot(mapObjectsState)
+}
+
+export function addMapObject(data: MapData) {
+	mapObjectsState[data.mapId] = data;
 }
 
 export function delMapObject(key: string) {
 	delete mapObjectsState[key];
+}
+
+export function setMapObjectState(newState: MapObjectsStateType) {
+	mapObjectsState = newState
 }
 
 export function clearMapObjects(type: MapObjectType) {

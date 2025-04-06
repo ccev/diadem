@@ -4,16 +4,18 @@
 
 	let {
 		expireTime,
-		showHours = false
+		showHours = false,
+		nowrap = false
 	}: {
-		expireTime: number | null,
+		expireTime: number | null
 		showHours?: boolean
+		nowrap?: boolean
 	} = $props()
 </script>
 
-<b>
-	{timestampToLocalTime(expireTime)}
-</b>
-<span class="ml-0.5">
+<span class:whitespace-nowrap={nowrap}>
+	<b>
+		{timestampToLocalTime(expireTime)}
+	</b>
 	(<Countdown {expireTime} {showHours} />)
 </span>

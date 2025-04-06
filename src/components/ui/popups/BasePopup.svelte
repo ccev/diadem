@@ -38,7 +38,7 @@
 	<div class="flex pl-6 pr-3 w-full items-center mb-2">
 		{@render image()}
 		<div class="w-full h-fit ml-4 max-h-full">
-			<div class="pr-5">
+			<div class="mr-9">
 				{@render title()}
 			</div>
 

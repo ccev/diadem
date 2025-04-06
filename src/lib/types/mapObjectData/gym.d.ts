@@ -1,3 +1,17 @@
+export type GymDefender = {
+	pokemon_id: number
+	form: number
+	gender: number
+	deployed_ms: number
+	deployed_time: number
+	battles_won: number
+	battles_lost: number
+	times_fed: number
+	motivation_now: number
+	cp_now: number
+	cp_when_deployed: number
+}
+
 export type GymData = {
 	id: string
 	mapId: string
@@ -40,4 +54,5 @@ export type GymData = {
 	power_up_end_timestamp?: number
 	description?: string
 	raid_pokemon_alignment?: number
+	defenders?: string
 }

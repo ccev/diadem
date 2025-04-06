@@ -2,15 +2,15 @@
 	import { isModalOpen } from '@/lib/modal.svelte.js';
 	import {
 		clickFeatureHandler,
-		clickMapHandler,
-		getMapObjects,
+		clickMapHandler, getCurrentSelectedData,
+		getMapObjects, getMapObjectsSnapshot, openPopup,
 		updateAllMapObjects, updateCurrentPath
 	} from '@/lib/mapObjects/mapObjects.svelte.js';
-	import { GeoJSON, Layer, MapLibre, Marker, SymbolLayer } from 'svelte-maplibre';
+	import { GeoJSON, Layer, type LayerClickInfo, MapLibre, Marker, SymbolLayer } from 'svelte-maplibre';
 	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 	import maplibre, { GeoJSONSource } from 'maplibre-gl';
 	import { onDestroy, onMount, tick, untrack } from 'svelte';
-	import type { FeatureCollection } from 'geojson';
+	import type { Feature, FeatureCollection } from 'geojson';
 	import { getCurrentUiconSetDetails, getIconPokemon, getIconPokestop, getIconForMap } from '@/lib/uicons.svelte';
 	import {getLoadedImages} from '@/lib/utils.svelte';
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
@@ -34,8 +34,9 @@
 
 	let mapObjectsGeoJson: FeatureCollection = $derived({
 		type: "FeatureCollection",
-		features: getMapFeatures(getMapObjects())
+		features: getMapFeatures(getMapObjects(), getCurrentSelectedData())
 	})
+	// TODO performance: when currentSelected is updated, only update what's needed and not the whole array
 
 	const sessionImageUrls: string[] = []
 	async function addMapImage(url: string) {
@@ -217,7 +218,6 @@
 			onclick={clickFeatureHandler}
 		/>
 	</GeoJSON>
-
 
 	<!--{#each Object.values(getMapObjects()) as pokemon (pokemon.id)}-->
 	<!--	<Marker-->

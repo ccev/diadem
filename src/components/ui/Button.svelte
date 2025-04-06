@@ -26,12 +26,12 @@
 		icon: "h-10 w-10 rounded-md",
 	}
 
-	class_ = variants[variant] + " " + sizes[size] + " " + class_
+	let className = variants[variant] + " " + sizes[size]
 </script>
 
 <svelte:element
 	this={tag}
-	class="cursor-pointer ring-offset-background focus-visible:ring-ring inline-flex items-center gap-1.5 justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {class_}"
+	class="cursor-pointer ring-offset-background focus-visible:ring-ring inline-flex items-center gap-1.5 justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {className} {class_}"
 	{...rest}
 >
 	{@render children?.()}

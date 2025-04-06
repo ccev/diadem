@@ -4,7 +4,7 @@
 	import PokestopPopup from '@/components/ui/popups/PokestopPopup.svelte';
 	import {
 		closePopup,
-		getCurrentSelectedData,
+		getCurrentSelectedData, getCurrentSelectedMapId
 	} from '@/lib/mapObjects/mapObjects.svelte.js';
 	import SearchFab from '@/components/ui/fab/SearchFab.svelte';
 	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
@@ -58,13 +58,13 @@
 			transition:slide={{duration: 50}}
 		>
 			{#if getCurrentSelectedData().type === "pokemon"}
-				<PokemonPopup mapId={getCurrentSelectedData().mapId} />
+				<PokemonPopup mapId={getCurrentSelectedMapId()} />
 			{:else if getCurrentSelectedData().type === "pokestop"}
-				<PokestopPopup mapId={getCurrentSelectedData().mapId} />
+				<PokestopPopup mapId={getCurrentSelectedMapId()} />
 			{:else if getCurrentSelectedData().type === "gym"}
-				<GymPopup mapId={getCurrentSelectedData().mapId} />
+				<GymPopup mapId={getCurrentSelectedMapId()} />
 			{:else if getCurrentSelectedData().type === "station"}
-				<StationPopup mapId={getCurrentSelectedData().mapId} />
+				<StationPopup mapId={getCurrentSelectedMapId()} />
 			{/if}
 		</div>
 	{/if}
