@@ -80,7 +80,11 @@
 <!--	</SelectGroup>-->
 <!--{/snippet}-->
 
-<div class="mt-2 mx-auto max-w-[30rem]">
+<div class="w-full pointer-events-none flex justify-end">
+<div
+	class="pointer-events-auto mx-2 max-w-[30rem] z-10 absolute bottom-0 h-[66vh] overflow-y-auto bg-background pt-2 rounded-t-lg border border-border"
+	transition:slide
+>
 	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 		<SettingsGeneric title="Pokémon">
 			<FilterTypeSelect category="pokemonMajor" />
@@ -160,7 +164,7 @@
 		</SettingsGeneric>
 	</Card>
 </div>
+</div>
 
-<BottomNavSpacing />
+<!--<BottomNavSpacing />-->
 <BottomNavWrapper page="/filters" />
-
