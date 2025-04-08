@@ -77,5 +77,18 @@
     "time_format_h_m_ago": "{h}h {m}m ago",
     "yesterday_time": "yesterday, {time}",
     "today_time": "today, {time}",
-    "tomorrow_time": "tomorrow, {time}"
+    "tomorrow_time": "tomorrow, {time}",
+    "contest_smallest": "Smallest {name}",
+    "contest_biggest": "Biggest {name}",
+    "contest_buddy_min_level": "Buddy (Level {level}+)",
+    "pokemon_class_1": "Legendary",
+    "pokemon_class_2": "Mythic",
+    "pokemon_class_3": "Ultra Beast",
+    "contest_pokemon_family": "{pokemon} (Evolution line)",
+    "contest_hatched": "Hatched Pokémon",
+    "contest_not_hatched": "Not-hatched Pokémon",
+    "contest_mega_evolution": "Mega Evolution",
+    "contest_not_mega_evolution": "Non-Mega Evolution",
+    "contest_shiny": "Shiny",
+    "contest_not_shiny": "Non-Shiny"
 }

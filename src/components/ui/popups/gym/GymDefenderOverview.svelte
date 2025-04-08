@@ -17,6 +17,11 @@
 	let selectedDefender: GymDefender | undefined = $state(undefined)
 
 	$effect(() => {
+		if (!defenders) {
+			selectedDefender = undefined
+			return
+		}
+
 		if (!defenders.map(d => getDefenderId(d)).includes(getDefenderId(selectedDefender))) {
 			selectedDefender = undefined
 		}

@@ -7,7 +7,7 @@
 		showHours = false,
 		nowrap = false
 	}: {
-		expireTime: number | null
+		expireTime: number | null | undefined
 		showHours?: boolean
 		nowrap?: boolean
 	} = $props()

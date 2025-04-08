@@ -33,16 +33,12 @@
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import type { GymData } from '@/lib/types/mapObjectData/gym';
 	import Button from '@/components/ui/Button.svelte';
+	import QuestDisplay from '@/components/ui/popups/pokestop/QuestDisplay.svelte';
+	import PokestopSection from '@/components/ui/popups/pokestop/PokestopSection.svelte';
+	import ContestDisplay from '@/components/ui/popups/pokestop/ContestDisplay.svelte';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData ?? getCurrentSelectedData() as PokestopData)
-
-	const defaultContestRankings: ContestRankings = {
-		total_entries: 0,
-		last_update: 0,
-		contest_entries: []
-	}
-	const contestRankings: ContestRankings = $derived(data?.showcase_rankings ? JSON.parse(data.showcase_rankings) : defaultContestRankings)
 
 	function getTitle() {
 		let title = getConfig().general.mapName
@@ -53,73 +49,15 @@
 		}
 		return title
 	}
-
-	function getContestImage() {
-		if (data.showcase_pokemon_id) {
-			return getIconPokemon({ pokemon_id: data.showcase_pokemon_id, form: data.showcase_pokemon_form_id })
-		} else if (data.showcase_pokemon_type_id) {
-			return getIconType(data.showcase_pokemon_type_id)
-		}
-		getIconContest()
-	}
-
-	function getContestName() {
-		let name = ""
-		if (data.showcase_ranking_standard === 1) {
-			name += "Smallest "
-		} else {
-			name += "Biggest "
-		}
-
-		if (data.showcase_pokemon_id) {
-			name += pokemonName({ pokemon_id: data.showcase_pokemon_id, form: data.showcase_pokemon_form_id })
-		} else if (data.showcase_pokemon_type_id) {
-			name += ingame("poke_type_" + data.showcase_pokemon_type_id)
-		}
-
-		return name
-	}
 </script>
 
 <svelte:head>
 	<title>{getTitle()}</title>
 </svelte:head>
 
-{#snippet questSection(expanded: boolean, questTitle: string, questRewards: string, quest_target: number, questTimestamp: number, isAr: boolean)}
-	{@const reward = JSON.parse(questRewards)[0]}
-
-	<div class="py-2 flex items-center gap-2 border-border border-b group-last:mb-2">
-		<div class="w-7 h-7 flex-shrink-0">
-			<ImagePopup
-				src={getIconReward(reward)}
-				alt="TBD"
-				class="w-7 h-7"
-			/>
-		</div>
-		<div>
-			<span class="text-sm font-semibold border-border border rounded-full px-3 mr-1 py-1 whitespace-nowrap">
-				{#if isAr}
-					{m.quest_ar_tag()}
-				{:else}
-					{m.quest_noar_tag()}
-				{/if}
-			</span>
-			<span>
-				{ingame("quest_title_" + questTitle).replaceAll("%{amount_0}", quest_target)}
-			</span>
-			{#if expanded}
-				<div>
-					Found <b>{timestampToLocalTime(questTimestamp, true)}</b>
-				</div>
-			{/if}
-		</div>
-
-	</div>
-{/snippet}
-
 {#snippet lureSection()}
 	{#if hasFortActiveLure(data)}
-		<div class="py-2 flex items-center gap-2 border-border border-b group-last:mb-2">
+		<PokestopSection>
 			<div class="w-7 h-7 flex-shrink-0">
 				<ImagePopup
 					src={getIconItem(data.lure_id)}
@@ -137,7 +75,7 @@
 				/>
 				<!--TODO: show verified lure time-->
 			</div>
-		</div>
+		</PokestopSection>
 	{/if}
 {/snippet}
 
@@ -145,7 +83,7 @@
 	{#each data.incident as incident}
 		{#if incident.id && incident.expiration > currentTimestamp()}
 			{#if isIncidentInvasion(incident)}
-				<div class="py-2 flex items-center gap-2 border-border border-b">
+				<PokestopSection>
 					<div class="w-7 h-7 flex-shrink-0">
 						<ImagePopup
 							src={getIconInvasion(incident)}
@@ -168,9 +106,9 @@
 							showHours={incident.display_type !== 1}
 						/>
 					</div>
-				</div>
+				</PokestopSection>
 			{:else if isIncidentKecleon(incident)}
-				<div class="py-2 flex items-center gap-2 border-border border-b group-last:mb-2">
+				<PokestopSection>
 					<div class="w-7 h-7 flex-shrink-0">
 						<ImagePopup
 							src={getIconPokemon({ pokemon_id: 352 })}
@@ -187,59 +125,12 @@
 							showHours={false}
 						/>
 					</div>
-				</div>
+				</PokestopSection>
 			{:else if isIncidentContest(incident)}
-				<div class="py-2 border-border border-b group-last:mb-2">
-				<div class="flex items-center gap-2">
-					<div class="w-7 h-7 flex-shrink-0">
-						<ImagePopup
-							src={getContestImage()}
-							alt={getContestName()}
-							class="w-7"
-						/>
-					</div>
-					<div>
-						<div>
-							Showcase:
-							<b>{getContestName()}</b>
-						</div>
-
-						<div>
-							Ends
-							<TimeWithCountdown
-								expireTime={data.showcase_expiry}
-								showHours={true}
-							/>
-						</div>
-					</div>
-				</div>
-
-				{#if expanded}
-					<div class="mt-2">
-						<IconValue Icon={UsersRound}>
-							Entries: <b>{contestRankings.total_entries}</b>/{CONTEST_SLOTS}
-						</IconValue>
-					</div>
-					{#each contestRankings.contest_entries as entry}
-						<div class="flex gap-1 items-center">
-							<div class="rounded-full w-4 h-4  flex items-center justify-center">
-								<span>{entry.rank}.</span>
-							</div>
-							<div class="w-5 flex-shrink-0">
-								<ImagePopup
-									src={getIconPokemon(entry)}
-									alt={pokemonName(entry)}
-									class="w-5"
-								/>
-							</div>
-							<div>
-								<b>{pokemonName(entry)}</b>
-								(Score: {entry.score.toFixed(0)})
-							</div>
-						</div>
-					{/each}
-				{/if}
-				</div>
+				<ContestDisplay
+					{expanded}
+					{data}
+				/>
 			{/if}
 		{/if}
 	{/each}
@@ -270,12 +161,22 @@
 
 	{#snippet description()}
 		<div class="[&>*:last-child]:border-none [&>*:last-child]:pb-0">
-			{#if data.quest_target}
-				{@render questSection(false, data.quest_title ?? "", data.quest_rewards ?? "[]", data.quest_target ?? 0, data.quest_timestamp ?? 0, true)}
-			{/if}
-			{#if data.alternative_quest_target}
-				{@render questSection(false, data.alternative_quest_title ?? "", data.alternative_quest_rewards ?? "[]", data.alternative_quest_target ?? 0, data.alternative_quest_timestamp ?? 0, false)}
-			{/if}
+			<QuestDisplay
+				expanded={false}
+				isAr={true}
+				questRewards={data.quest_rewards}
+				questTitle={data.quest_title}
+				questTarget={data.quest_target}
+				questTimestamp={data.quest_timestamp}
+			/>
+			<QuestDisplay
+				expanded={false}
+				isAr={false}
+				questRewards={data.alternative_quest_rewards}
+				questTitle={data.alternative_quest_title}
+				questTarget={data.alternative_quest_target}
+				questTimestamp={data.alternative_quest_timestamp}
+			/>
 
 			{@render lureSection()}
 			{@render incidentSection(false)}
@@ -290,12 +191,22 @@
 
 	{#snippet content()}
 		<div class="[&>*:last-child]:mb-2">
-			{#if data.quest_target}
-				{@render questSection(true, data.quest_title ?? "", data.quest_rewards ?? "[]", data.quest_target ?? 0, data.quest_timestamp ?? 0, true)}
-			{/if}
-			{#if data.alternative_quest_target}
-				{@render questSection(true, data.alternative_quest_title ?? "", data.alternative_quest_rewards ?? "[]", data.alternative_quest_target ?? 0, data.alternative_quest_timestamp ?? 0, false)}
-			{/if}
+			<QuestDisplay
+				expanded={true}
+				isAr={true}
+				questRewards={data.quest_rewards}
+				questTitle={data.quest_title}
+				questTarget={data.quest_target}
+				questTimestamp={data.quest_timestamp}
+			/>
+			<QuestDisplay
+				expanded={true}
+				isAr={false}
+				questRewards={data.alternative_quest_rewards}
+				questTitle={data.alternative_quest_title}
+				questTarget={data.alternative_quest_target}
+				questTimestamp={data.alternative_quest_timestamp}
+			/>
 
 			{@render lureSection()}
 			{@render incidentSection(true)}

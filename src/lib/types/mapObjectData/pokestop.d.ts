@@ -96,6 +96,70 @@ export type ContestRankings = {
 	contest_entries: ContestEntry[]
 }
 
+export type ContestFocus = ContestFocusPokemon
+	| ContestFocusType
+	| ContestFocusAlignment
+	| ContestFocusClass
+	| ContestFocusFamily
+	| ContestFocusBuddy
+	| ContestFocusGeneration
+	| ContestFocusHatched
+	| ContestFocusTempEvo
+	| ContestFocusShiny
+
+export type ContestFocusPokemon = {
+	type: "pokemon"
+	pokemon_id: number
+	pokemon_form?: number
+}
+
+export type ContestFocusType = {
+	type: "type"
+	pokemon_type_1: number
+	pokemon_type_2?: number
+}
+
+export type ContestFocusAlignment = {
+	type: "alignment"
+	pokemon_alignment: number
+}
+
+export type ContestFocusClass = {
+	type: "class"
+	pokemon_class: number
+}
+
+export type ContestFocusFamily = {
+	type: "family"
+	pokemon_family: number
+}
+
+export type ContestFocusBuddy = {
+	type: "buddy"
+	min_level: number
+}
+
+export type ContestFocusGeneration = {
+	type: "generation"
+	generation: number
+}
+
+export type ContestFocusHatched = {
+	type: "hatched"
+	hatched: boolean
+}
+
+export type ContestFocusTempEvo = {
+	type: "mega"
+	temp_evolution: number
+	restriction: number
+}
+
+export type ContestFocusShiny = {
+	type: "shiny"
+	shiny: boolean
+}
+
 export type QuestReward = QuestRewardExperience
 	| QuestRewardItem
 	| QuestRewardStardust
