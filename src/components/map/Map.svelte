@@ -1,28 +1,25 @@
 <script lang="ts">
 	import { isModalOpen } from '@/lib/modal.svelte.js';
 	import {
-		clickFeatureHandler,
-		clickMapHandler, getCurrentSelectedData,
-		getMapObjects, getMapObjectsSnapshot, openPopup,
-		updateAllMapObjects, updateCurrentPath
-	} from '@/lib/mapObjects/mapObjects.svelte.js';
-	import { GeoJSON, Layer, type LayerClickInfo, MapLibre, Marker, SymbolLayer } from 'svelte-maplibre';
+		getMapObjects
+	} from '@/lib/mapObjects/mapObjectsState.svelte.js';
+	import { GeoJSON, MapLibre, SymbolLayer } from 'svelte-maplibre';
 	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
-	import maplibre, { GeoJSONSource } from 'maplibre-gl';
+	import maplibre from 'maplibre-gl';
 	import { onDestroy, onMount, tick, untrack } from 'svelte';
-	import type { Feature, FeatureCollection } from 'geojson';
-	import { getCurrentUiconSetDetails, getIconPokemon, getIconPokestop, getIconForMap } from '@/lib/uicons.svelte';
-	import {getLoadedImages} from '@/lib/utils.svelte';
-	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
+	import type { FeatureCollection, Point } from 'geojson';
+	import { getLoadedImages } from '@/lib/utils.svelte';
 	import { setContextMenuEvent, setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
-	import type { UiconSet } from '@/lib/types/config';
-	import { getMapFeatures } from '@/lib/mapSprites';
+	import { getFlattenedFeatures, type IconProperties, updateFeatures, updateSelected } from '@/lib/mapObjects/mapFeaturesGen.svelte.js';
 	import {
 		AGGRESSIVE_UPDATE_TIME,
 		UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM,
 		UPDATE_MAP_OBJECT_INTERVAL_TIME
 	} from '@/lib/constants';
+	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import { clickFeatureHandler, clickMapHandler, updateCurrentPath } from '@/lib/mapObjects/interact';
+	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 
 	let {
 		map = $bindable(),
@@ -32,14 +29,25 @@
 
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition))
 
-	let mapObjectsGeoJson: FeatureCollection = $derived({
-		type: "FeatureCollection",
-		features: getMapFeatures(getMapObjects(), getCurrentSelectedData())
+	// let mapObjectsGeoJson: FeatureCollection = $derived({ type: "FeatureCollection", features: getMapFeatures(getMapObjects()) })
+	let mapObjectsGeoJson: FeatureCollection<Point, IconProperties> = $state({ type: "FeatureCollection", features: [] })
+	// let mapObjectsGeoJson: FeatureCollection = $derived.by(() => {
+	// 	console.log("geojson derive")
+	// 	getCurrentSelectedData()
+	// 	getMapObjects()
+	// 	return { type: "FeatureCollection", features: getFlattenedFeatures() }
+	// })
+	$effect(() => {
+		updateSelected(getCurrentSelectedData())
+		mapObjectsGeoJson = { type: "FeatureCollection", features: getFlattenedFeatures() }
+	})
+	$effect(() => {
+		updateFeatures(getMapObjects())
+		mapObjectsGeoJson = { type: "FeatureCollection", features: getFlattenedFeatures() }
 	})
 
 	const sessionImageUrls: string[] = []
 	async function addMapImage(url: string) {
-		// TODO come up with a system to update the icon scale evrytime the iconset changes
 		if (!map) return
 		if (sessionImageUrls.includes(url)) return
 		sessionImageUrls.push(url)
@@ -209,7 +217,7 @@
 			layout={{
 				"icon-image": ["get", "imageUrl"],
 				"icon-overlap": "always",
-				"icon-size": ["get", "imageSize"],
+				"icon-size": ["*", ["get", "imageSize"],  ["get", "imageSelectedScale"]],
 				"icon-allow-overlap": true,
 				"icon-offset": ["get", "imageOffset"]
 			}}

@@ -2,10 +2,6 @@
 	import { slide } from 'svelte/transition';
 	import PokemonPopup from '@/components/ui/popups/pokemon/PokemonPopup.svelte';
 	import PokestopPopup from '@/components/ui/popups/pokestop/PokestopPopup.svelte';
-	import {
-		closePopup,
-		getCurrentSelectedData, getCurrentSelectedMapId
-	} from '@/lib/mapObjects/mapObjects.svelte.js';
 	import SearchFab from '@/components/ui/fab/SearchFab.svelte';
 	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
 	import BottomNav from '@/components/ui/nav/BottomNav.svelte';
@@ -18,6 +14,8 @@
 	import { getConfig } from '@/lib/config';
 	import GymPopup from '@/components/ui/popups/gym/GymPopup.svelte';
 	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import { closePopup } from '@/lib/mapObjects/interact';
 
 	let map: maplibre.Map | undefined = $state()
 

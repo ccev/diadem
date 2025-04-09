@@ -9,7 +9,7 @@ import type { StationData } from '@/lib/types/mapObjectData/station';
 import type { GymData } from '@/lib/types/mapObjectData/gym';
 import { currentTimestamp } from '@/lib/utils.svelte';
 import { GYM_SLOTS, hasFortActiveLure, isFortOutdated } from '@/lib/pogoUtils';
-import { allMapTypes } from '@/lib/mapObjects/mapObjects.svelte';
+import { allMapTypes } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 
 export const DEFAULT_UICONS = "_internal_default"
 const DEFAULT_URL = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"

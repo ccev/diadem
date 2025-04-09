@@ -25,7 +25,7 @@
 		isIncidentKecleon
 	} from '@/lib/pogoUtils';
 	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
-	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
 	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
 	import { getConfig } from '@/lib/config';
@@ -36,6 +36,7 @@
 	import QuestDisplay from '@/components/ui/popups/pokestop/QuestDisplay.svelte';
 	import PokestopSection from '@/components/ui/popups/pokestop/PokestopSection.svelte';
 	import ContestDisplay from '@/components/ui/popups/pokestop/ContestDisplay.svelte';
+	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData ?? getCurrentSelectedData() as PokestopData)

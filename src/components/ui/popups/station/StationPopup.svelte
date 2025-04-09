@@ -6,12 +6,13 @@
 	import * as m from "@/lib/paraglide/messages"
 	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
 	import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
-	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import type { GymData } from '@/lib/types/mapObjectData/gym';
 	import { timestampToLocalTime } from '@/lib/utils.svelte';
 	import { getRaidPokemon } from '@/lib/pogoUtils';
 	import { pokemonName } from '@/lib/ingameLocale';
 	import { getStationPokemon } from '@/lib/pogoUtils.js';
+	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: StationData = $derived(getMapObjects()[mapId] as StationData ?? getCurrentSelectedData() as StationData)

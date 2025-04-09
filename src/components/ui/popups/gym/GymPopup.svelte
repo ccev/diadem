@@ -9,7 +9,7 @@
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import { getRaidPokemon, GYM_SLOTS, isFortOutdated } from '@/lib/pogoUtils';
-	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import {
 		CircleFadingArrowUp,
@@ -27,6 +27,7 @@
 	import { getConfig } from '@/lib/config';
 	import Button from '@/components/ui/Button.svelte';
 	import GymDefenderOverview from '@/components/ui/popups/gym/GymDefenderOverview.svelte';
+	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData)

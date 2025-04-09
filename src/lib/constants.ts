@@ -22,3 +22,8 @@ export const GYM_OUTDATED_SECONDS = 24 * 60 * 60
  * Always show PVP ranks > X in Pokemon Popups
  */
 export const POKEMON_MIN_RANK = 15
+
+/**
+ * How much to increase the map icon's size when it's selected
+ */
+export const SELECTED_MAP_OBJECT_SCALE = 2
