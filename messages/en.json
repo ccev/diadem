@@ -109,5 +109,8 @@
     "x_type": "{type}-Type",
     "connected_and": "{1}- and {2}",
     "pogo_dynamax_pokemon": "Dynamax {pokemon}",
-    "pogo_gigantamax_pokemon": "Gigantamax {pokemon}"
+    "pogo_gigantamax_pokemon": "Gigantamax {pokemon}",
+    "start": "Start",
+    "end": "End",
+    "x_start_max_battle": "{level}-Star Max Battle"
 }

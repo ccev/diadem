@@ -16,7 +16,7 @@ import {
 import { currentTimestamp } from '@/lib/utils.svelte.js';
 import { getUserSettings } from '@/lib/userSettings.svelte.js';
 import { GYM_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from '@/lib/constants';
-import { getRaidPokemon, isFortOutdated, isIncidentInvasion } from '@/lib/pogoUtils';
+import { getRaidPokemon, getStationPokemon, isFortOutdated, isIncidentInvasion } from '@/lib/pogoUtils';
 import type { UiconSet } from '@/lib/types/config';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import type { Coordinates } from 'maplibre-gl';
@@ -139,6 +139,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		let overwriteIcon: string | undefined = undefined;
 		const modifiers = getModifiers(userIconSet, obj.type);
 		let selectedScale = 1;
+		let expires = null
 
 		const subFeatures: Feature[] = [];
 
@@ -237,7 +238,32 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			}
 		} else if (obj.type === "pokemon") {
 			if (obj.expire_timestamp && obj.expire_timestamp < currentTimestamp()) continue
+			expires = obj.expire_timestamp
+		} else if (obj.type === "station") {
+			expires = obj.end_time
+			if (obj.battle_pokemon_id) {
+				const mapId = obj.mapId + '-battle-' + obj.battle_pokemon_id;
+
+				subFeatures.push(
+					getFeature(mapId, [obj.lon, obj.lat], {
+						imageUrl: getIconPokemon(getStationPokemon(obj)),
+						imageSize: getModifiers(userIconSet, 'pokemon').scale * 0.8,
+						imageSelectedScale: selectedScale,
+						imageOffset: [0, modifiers.offsetY - 15],
+						id: obj.mapId,
+						expires: obj.end_time ?? null
+					})
+				);
+			}
 		}
+
+		// subFeatures.push(getFeature("debug-red-dot", [obj.lon, obj.lat], {
+		// 	imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
+		// 	id: obj.mapId,
+		// 	imageSize: 0.05,
+		// 	expires: null,
+		// 	imageSelectedScale: 1
+		// }))
 
 		subFeatures.push(
 			getFeature(obj.mapId, [obj.lon, obj.lat], {
@@ -246,17 +272,12 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				imageSize: modifiers.scale,
 				imageSelectedScale: selectedScale,
 				imageOffset: [modifiers.offsetX, modifiers.offsetY],
-				expires: obj.type === "pokemon" ? obj.expire_timestamp : null
+				expires
 			})
 		);
+
 		features[obj.type][obj.mapId] = subFeatures;
 		if (obj.mapId === selectedMapId) selectedFeatures = [...selectedFeatures, ...subFeatures]
-
-		// features.push(getFeature("debug-red-dot", [obj.lon, obj.lat], {
-		// 	imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
-		// 	id: obj.mapId,
-		// 	imageSize: 0.1
-		// }))
 	}
 
 	console.debug('feature: loop took ' + (performance.now() - loopTime) + 'ms');

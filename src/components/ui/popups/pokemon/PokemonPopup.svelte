@@ -114,7 +114,7 @@
 {#snippet basicInfo()}
 	{@render timer()}
 
-	{#if data.changed - data.first_seen_timestamp > 30}
+	{#if Math.abs(data.changed - (data.updated ?? data.changed)) > 10}
 		<IconValue Icon={ArrowLeftRight}>
 			{m.popup_species_changed()}
 		</IconValue>

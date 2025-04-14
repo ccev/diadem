@@ -8,6 +8,7 @@ import type { StationData } from '@/lib/types/mapObjectData/station';
 
 export const GYM_SLOTS = 6
 export const CONTEST_SLOTS = 200
+export const STATION_SLOTS = 40
 
 export function isIncidentInvasion(incident: Incident) {
 	return [1, 2, 3].includes(incident.display_type)
