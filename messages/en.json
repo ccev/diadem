@@ -112,5 +112,7 @@
     "pogo_gigantamax_pokemon": "Gigantamax {pokemon}",
     "start": "Start",
     "end": "End",
-    "x_start_max_battle": "{level}-Star Max Battle"
+    "x_start_max_battle": "{level}-Star Max Battle",
+    "webgl_disabled_error": "WebGL is required to use the map, but seems to be disabled in your browser. Please enable it or try to restart your browser.",
+    "webgl_unsupported_error": "WebGL is required to use the map. Please use a modern device and browser."
 }

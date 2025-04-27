@@ -20,6 +20,8 @@
 	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 	import { clickFeatureHandler, clickMapHandler, updateCurrentPath } from '@/lib/mapObjects/interact';
 	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+	import Card from '@/components/ui/Card.svelte';
+	import * as m from "@/lib/paraglide/messages"
 
 	let {
 		map = $bindable(),
@@ -180,6 +182,21 @@
 		resetUpdateMapObjectsInterval()
 	}
 
+	function isWebglSupported() {
+		if (window.WebGLRenderingContext) {
+			const canvas = document.createElement('canvas');
+			try {
+				const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
+				if (context && typeof context.getParameter == 'function') {
+					return true;
+				}
+			} catch (e) {
+			}
+			return null;
+		}
+		return false;
+	}
+
 	onMount(() => {
 		updateCurrentPath()
 	})
@@ -195,6 +212,7 @@
 	onblur={clearUpdateMapObjectsInterval}
 ></svelte:window>
 
+{#if isWebglSupported()}
 <MapLibre
 	bind:map
 	center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
@@ -240,3 +258,14 @@
 	<!--	</Marker>-->
 	<!--{/each}-->
 </MapLibre>
+{:else}
+	<div class="mx-auto w-fit">
+		<Card class="m-4 p-4 w-fit">
+			{#if isWebglSupported() === null}
+				{m.webgl_disabled_error()}
+			{:else}
+				{m.webgl_unsupported_error()}
+			{/if}
+		</Card>
+	</div>
+{/if}
