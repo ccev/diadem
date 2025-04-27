@@ -14,10 +14,8 @@
 	import { slide } from 'svelte/transition';
 	import PokemonPopup from '@/components/ui/popups/pokemon/PokemonPopup.svelte';
 	import PokestopPopup from '@/components/ui/popups/pokestop/PokestopPopup.svelte';
-	import {
-		closePopup,
-		getCurrentSelectedData, getCurrentSelectedMapId
-	} from '@/lib/mapObjects/mapObjects.svelte.js';
+	import {closePopup} from '@/lib/mapObjects/interact';
+	import {getCurrentSelectedData, getCurrentSelectedMapId} from '@/lib/mapObjects/currentSelectedState.svelte';
 	import SearchFab from '@/components/ui/fab/SearchFab.svelte';
 	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
 	import BottomNav from '@/components/ui/nav/BottomNav.svelte';
