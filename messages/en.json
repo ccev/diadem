@@ -98,7 +98,7 @@
     "pokemon_gender_neutral": "Neutral",
     "pokemon_gender": "Gender",
     "weather_boost": "Weather Boost",
-    "no_weather_boost": "Not weather boosted",
+    "no_weather_boost": "No Weather Boost",
     "popup_pokemon_is_strong": "Is a Strong Pokémon",
     "popup_despawns": "Despawns",
     "little_league": "Little League",
@@ -109,5 +109,10 @@
     "x_type": "{type}-Type",
     "connected_and": "{1}- and {2}",
     "pogo_dynamax_pokemon": "Dynamax {pokemon}",
-    "pogo_gigantamax_pokemon": "Gigantamax {pokemon}"
+    "pogo_gigantamax_pokemon": "Gigantamax {pokemon}",
+    "start": "Start",
+    "end": "End",
+    "x_start_max_battle": "{level}-Star Max Battle",
+    "webgl_disabled_error": "WebGL is required to use the map, but seems to be disabled in your browser. Please enable it or try to restart your browser.",
+    "webgl_unsupported_error": "WebGL is required to use the map. Please use a modern device and browser."
 }

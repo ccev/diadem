@@ -28,7 +28,7 @@
 
 {#if questTarget}
 <PokestopSection>
-	<div class="w-7 h-7 flex-shrink-0">
+	<div class="w-7 h-7 shrink-0">
 		{#if reward}
 			<ImagePopup
 				src={getIconReward(reward)}

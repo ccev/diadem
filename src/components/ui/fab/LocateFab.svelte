@@ -101,7 +101,7 @@
 <style lang="postcss">
     @keyframes pulse {
         50% {
-            @apply text-muted-foreground;
+			color: var(--muted-foreground);
         }
     }
     :global(.fetching-location) {

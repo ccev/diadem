@@ -61,7 +61,7 @@
 
 {#if fortUrl}
 	<button
-		class="group relative h-14 w-14 shrink-0 focus-visible:ring-ring rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
+		class="group relative h-14 w-14 shrink-0 focus-visible:ring-ring rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-4 cursor-pointer"
 		onclick={() => openModal(fullImage)}
 		title={m.view_full_image()}
 	>

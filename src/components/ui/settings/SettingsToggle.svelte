@@ -20,7 +20,7 @@
 <Button
 	variant="ghost"
 	size=""
-	class="py-3 px-4 w-full flex justify-between items-center text-left rounded-md"
+	class="py-3 px-4 w-full flex justify-between! items-center text-left rounded-md"
 	onclick={onclick}
 >
 	<SettingsSettingTitle {title} {description} />

@@ -1,9 +1,10 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
+@import 'tailwindcss';
 @import 'tailwindcss/utilities';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+@config '../tailwind.config.ts';
+
+/*TODO: switch to tailwind v4 config*/
+
 @layer base {
     :root {
         --background: 0 0% 100%;

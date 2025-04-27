@@ -83,7 +83,7 @@
 
 <div class="py-2 border-border border-b group-last:mb-2">
 	<div class="flex items-center gap-2">
-		<div class="w-7 h-7 flex-shrink-0">
+		<div class="w-7 h-7 shrink-0">
 			<ImagePopup
 				src={image}
 				alt={name}
@@ -117,7 +117,7 @@
 				<div class="rounded-full w-4 h-4  flex items-center justify-center">
 					<span>{entry.rank}.</span>
 				</div>
-				<div class="w-5 flex-shrink-0">
+				<div class="w-5 shrink-0">
 					<ImagePopup
 						src={getIconPokemon(entry)}
 						alt={pokemonName(entry)}

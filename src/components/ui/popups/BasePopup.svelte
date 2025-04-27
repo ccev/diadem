@@ -4,11 +4,11 @@
 	import Card from '@/components/ui/Card.svelte';
 	import { X } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
-	import { closePopup } from '@/lib/mapObjects/mapObjects.svelte.js';
 	import { slide } from 'svelte/transition';
 	import { cubicIn, cubicOut } from 'svelte/easing';
 	import Button from '@/components/ui/Button.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
+	import { closePopup } from '@/lib/mapObjects/interact';
 
 	let {
 		lat,

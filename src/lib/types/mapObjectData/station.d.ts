@@ -27,4 +27,3 @@ export type StationData = {
 	total_stationed_gmax?: number
 	stationed_pokemon?: string
 }
-

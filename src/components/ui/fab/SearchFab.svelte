@@ -4,7 +4,8 @@
 	import { Search as SearchIcon } from 'lucide-svelte';
 	import { closeModal, openModal } from '@/lib/modal.svelte';
 	import maplibre from 'maplibre-gl';
-	import { closePopup } from '@/lib/mapObjects/mapObjects.svelte';
+
+	import { closePopup } from '@/lib/mapObjects/interact';
 
 	let {
 		map

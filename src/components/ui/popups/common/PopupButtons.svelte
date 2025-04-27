@@ -4,7 +4,8 @@
 	import Button from '@/components/ui/Button.svelte';
 	import { canNativeShare, copyToClipboard, getMapsUrl, hasClipboardWrite } from '@/lib/utils.svelte.js';
 	import * as m from '@/lib/paraglide/messages';
-	import { getCurrentPath } from '@/lib/mapObjects/mapObjects.svelte.js';
+
+	import { getCurrentPath } from '@/lib/mapObjects/interact';
 
 	let {
 		lat,

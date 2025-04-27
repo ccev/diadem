@@ -9,7 +9,7 @@
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import { getRaidPokemon, GYM_SLOTS, isFortOutdated } from '@/lib/pogoUtils';
-	import { getCurrentSelectedData, getMapObjects } from '@/lib/mapObjects/mapObjects.svelte.js';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import {
 		CircleFadingArrowUp,
@@ -27,6 +27,7 @@
 	import { getConfig } from '@/lib/config';
 	import Button from '@/components/ui/Button.svelte';
 	import GymDefenderOverview from '@/components/ui/popups/gym/GymDefenderOverview.svelte';
+	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData)
@@ -52,7 +53,7 @@
 		class="flex gap-2 items-center border-border border-b pb-2 mb-2"
 	>
 		{#if data.raid_pokemon_id}
-			<div class="w-8 flex-shrink-0">
+			<div class="w-8 shrink-0">
 				<ImagePopup
 					src={getIconPokemon(getRaidPokemon(data))}
 					alt={pokemonName(getRaidPokemon(data))}
@@ -60,7 +61,7 @@
 				/>
 			</div>
 		{:else}
-			<div class="w-6 mx-1 flex-shrink-0">
+			<div class="w-6 mx-1 shrink-0">
 				<ImagePopup
 					src={getIconRaidEgg(data.raid_level ?? 0)}
 					alt={ingame("raid_" + data.raid_level)}

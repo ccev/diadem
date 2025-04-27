@@ -26,7 +26,7 @@
 </script>
 
 <div class="flex gap-2 items-center">
-	<div class="w-6 flex-shrink-0">
+	<div class="w-6 shrink-0">
 		<ImagePopup
 			src={getIconPokemon(pokemon)}
 			alt={pokemonName(pokemon)}

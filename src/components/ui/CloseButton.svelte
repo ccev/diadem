@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { closePopup } from '@/lib/mapObjects/mapObjects.svelte.js';
 	import { X } from 'lucide-svelte';
 	import Button from '@/components/ui/Button.svelte';
+	import { closePopup } from '@/lib/mapObjects/interact';
 
 	let {
 		onclick,

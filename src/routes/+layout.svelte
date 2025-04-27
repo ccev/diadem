@@ -72,7 +72,7 @@
 <dialog
 	bind:this={dialog}
 	style="max-width: calc(100vw - 1rem);"
-	class="shadow-md overflow-hidden w-fit rounded-md appearance-none bg-transparent max-w-[30rem] backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
+	class="shadow-md mx-auto overflow-hidden w-fit rounded-md appearance-none bg-transparent backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
 	onclose={() => closeModal()}
 	onclick={() => closeModal()}
 	class:my-auto={getModalOptions().vertical === "center"}
@@ -138,19 +138,23 @@
 <style lang="postcss">
     @keyframes come-down {
         0% {
-			@apply -translate-y-full opacity-0;
+			opacity: 0;
+			transform: translateY(100%);
         }
         100% {
-            @apply translate-y-0 opacity-100;
+            opacity: 100%;
+            transform: translateY(0);
         }
     }
 
 	@keyframes scale-up {
 		0% {
-			@apply scale-75 opacity-75;
+			scale: 75%;
+			opacity: 75%;
 		}
 		100% {
-			@apply scale-100 opacity-100
+            scale: 100%;
+            opacity: 100%;
 		}
 	}
 
