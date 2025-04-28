@@ -274,13 +274,13 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			}
 		}
 
-		subFeatures.push(getFeature("debug-red-dot", [obj.lon, obj.lat], {
-			imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
-			id: obj.mapId,
-			imageSize: 0.05,
-			expires: null,
-			imageSelectedScale: 1
-		}))
+		// subFeatures.push(getFeature("debug-red-dot", [obj.lon, obj.lat], {
+		// 	imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
+		// 	id: obj.mapId,
+		// 	imageSize: 0.05,
+		// 	expires: null,
+		// 	imageSelectedScale: 1
+		// }))
 
 		subFeatures.push(
 			getFeature(obj.mapId, [obj.lon, obj.lat], {

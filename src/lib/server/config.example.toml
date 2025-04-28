@@ -46,8 +46,8 @@ url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/
 base = { scale = 0.25 }
 pokemon = { default = true }
 gym = { default = true, offsetY = -37, offsetX = -19 }
-raid_pokemon = { scale = 0.8, offsetX = -30, offsetY = -30 }
-raid_egg = { scale = 0.12, offsetX = -60, offsetY = -80 }
+raid_pokemon = { scale = 0.8, offsetX = -11, offsetY = -30 }
+raid_egg = { scale = 0.12, offsetX = -41, offsetY = -80 }
 
 [[client.uiconSets]]
 id = "wwmUicons"
