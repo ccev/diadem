@@ -45,10 +45,10 @@
 
 				setDirectLinkCoordinates(undefined)
 			}
-		}
 
-		await updateAllMapObjects(false)
-		resetUpdateMapObjectsInterval()
+			await updateAllMapObjects(false)
+			resetUpdateMapObjectsInterval()
+		}
 	}
 
 	onMount(() => {
@@ -67,51 +67,51 @@
 ></svelte:window>
 
 {#if isWebglSupported()}
-<MapLibre
-	bind:map
-	center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
-	zoom={initialMapPosition.zoom}
-	class="h-screen overflow-hidden"
-	style={getUserSettings().mapStyle.url}
-	attributionControl={false}
-	interactive={!isModalOpen()}
-	onmoveend={onMapMoveEnd}
-	onload={onMapLoad}
-	oncontextmenu={onContextMenu}
->
-	<GeoJSON
-		id="mapObjects"
-		data={getMapObjectsGeoJson()}
+	<MapLibre
+		bind:map
+		center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
+		zoom={initialMapPosition.zoom}
+		class="h-screen overflow-hidden"
+		style={getUserSettings().mapStyle.url}
+		attributionControl={false}
+		interactive={!isModalOpen()}
+		onmoveend={onMapMoveEnd}
+		onload={onMapLoad}
+		oncontextmenu={onContextMenu}
 	>
-		<SymbolLayer
-			id="mapObjectsLayer"
-			hoverCursor="pointer"
-			layout={{
-				"icon-image": ["get", "imageUrl"],
-				"icon-overlap": "always",
-				"icon-size": ["*", ["get", "imageSize"],  ["get", "imageSelectedScale"]],
-				"icon-allow-overlap": true,
-				"icon-offset": ["get", "imageOffset"]
-			}}
-			eventsIfTopMost={true}
-			onclick={clickFeatureHandler}
-		/>
-	</GeoJSON>
+		<GeoJSON
+			id="mapObjects"
+			data={getMapObjectsGeoJson()}
+		>
+			<SymbolLayer
+				id="mapObjectsLayer"
+				hoverCursor="pointer"
+				layout={{
+					"icon-image": ["get", "imageUrl"],
+					"icon-overlap": "always",
+					"icon-size": ["*", ["get", "imageSize"],  ["get", "imageSelectedScale"]],
+					"icon-allow-overlap": true,
+					"icon-offset": ["get", "imageOffset"]
+				}}
+				eventsIfTopMost={true}
+				onclick={clickFeatureHandler}
+			/>
+		</GeoJSON>
 
-	<!--{#each Object.values(getMapObjects()) as pokemon (pokemon.id)}-->
-	<!--	<Marker-->
-	<!--		lngLat={[pokemon.lon, pokemon.lat]}-->
-	<!--	>-->
-	<!--		<button-->
-	<!--			class="h-6 w-6 hover:scale-125 transition-transform cursor-pointer bg-cover"-->
-	<!--			style="background-image: url({uicons}pokemon/{pokemon.pokemon_id}.png)"-->
-	<!--			data-object-type={OBJ_TYPE_POKEMON}-->
-	<!--			data-object-id="pokemon-{pokemon.id}"-->
-	<!--			aria-label="Pokemon {pokemon.id}"-->
-	<!--		></button>-->
-	<!--	</Marker>-->
-	<!--{/each}-->
-</MapLibre>
+		<!--{#each Object.values(getMapObjects()) as pokemon (pokemon.id)}-->
+		<!--	<Marker-->
+		<!--		lngLat={[pokemon.lon, pokemon.lat]}-->
+		<!--	>-->
+		<!--		<button-->
+		<!--			class="h-6 w-6 hover:scale-125 transition-transform cursor-pointer bg-cover"-->
+		<!--			style="background-image: url({uicons}pokemon/{pokemon.pokemon_id}.png)"-->
+		<!--			data-object-type={OBJ_TYPE_POKEMON}-->
+		<!--			data-object-id="pokemon-{pokemon.id}"-->
+		<!--			aria-label="Pokemon {pokemon.id}"-->
+		<!--		></button>-->
+		<!--	</Marker>-->
+		<!--{/each}-->
+	</MapLibre>
 {:else}
 	<div class="mx-auto w-fit">
 		<Card class="m-4 p-4 w-fit">
