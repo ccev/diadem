@@ -30,7 +30,9 @@
 
 </script>
 
-<Card class="h-full relative overflow-hidden py-4 mx-2">
+<div
+	class="rounded-lg border bg-card text-card-foreground shadow-md h-full relative overflow-hidden py-4 mx-2"
+>
 	<CloseButton
 		class="absolute right-2 top-2"
 		onclick={closePopup}
@@ -67,4 +69,4 @@
 
 	<div class="h-12"></div>
 	<PopupButtons {lat} {lon} />
-</Card>
+</div>

@@ -15,6 +15,18 @@
 	import { availableLanguageTags } from '@/lib/paraglide/runtime';
 	import { getConfig } from '@/lib/config';
 	import { loadRemoteLocale } from '@/lib/ingameLocale';
+	import { getIsContxtMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
+	import { getMap, resetMap } from '@/lib/map/map.svelte';
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import SearchFab from '@/components/ui/fab/SearchFab.svelte';
+	import Map from '@/components/map/Map.svelte';
+	import PokemonPopup from '@/components/ui/popups/pokemon/PokemonPopup.svelte';
+	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
+	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
+	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
+	import GymPopup from '@/components/ui/popups/gym/GymPopup.svelte';
+	import PokestopPopup from '@/components/ui/popups/pokestop/PokestopPopup.svelte';
+	import BottomNav from '@/components/ui/nav/BottomNav.svelte';
 
 	let { children } = $props();
 
@@ -66,7 +78,13 @@
 	<Toast />
 {/if}
 
+{#if getIsContxtMenuOpen()}
+	<ContextMenu />
+{/if}
+
 {@render children?.()}
+
+<Map />
 
 </ParaglideJS>
 

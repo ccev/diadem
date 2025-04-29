@@ -1,6 +1,8 @@
 import type { MapData } from '@/lib/types/mapObjectData/mapObjects';
 import { updateSelected } from '@/lib/map/featuresGen.svelte';
 import { updateMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
+import { goto } from '$app/navigation';
+import { getCurrentPath } from '@/lib/mapObjects/interact';
 
 let currentSelectedData: MapData | null = $state(null);
 

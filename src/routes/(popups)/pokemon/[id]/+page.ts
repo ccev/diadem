@@ -4,9 +4,11 @@ import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 import { browser } from '$app/environment';
 import { setDirectLinkCoordinates, setDirectLinkObject } from '@/lib/directLinks.svelte';
 import { getOneMapObject } from '@/lib/mapObjects/updateMapObject';
+import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 export const load: PageLoad = async ({ params, fetch }) => {
 	if (!browser) return
+
 	const data = await getOneMapObject("pokemon", params.id)
 
 	setDirectLinkCoordinates({
