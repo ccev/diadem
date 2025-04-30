@@ -14,7 +14,6 @@
 	import Switch from '@/components/ui/settings/Switch.svelte';
 	import Map from '@/components/map/Map.svelte';
 	import FilterTypeSelect from '@/components/ui/filters/FilterTypeSelect.svelte';
-
 	import { slide, fly } from 'svelte/transition';
 
 	let test: boolean = $state(false)
@@ -80,7 +79,9 @@
 <!--	</SelectGroup>-->
 <!--{/snippet}-->
 
-<div class="mt-2 mx-auto max-w-[30rem]">
+<div
+	class="max-w-[30rem] h-screen bg-background py-2 border-r shadow-lg overflow-y-auto"
+>
 	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 		<SettingsGeneric title="Pokémon">
 			<FilterTypeSelect category="pokemonMajor" />
@@ -159,8 +160,8 @@
 			<FilterTypeSelect category="stationMajor" />
 		</SettingsGeneric>
 	</Card>
+	<BottomNavSpacing />
 </div>
 
-<BottomNavSpacing />
 <BottomNavWrapper page="/filters" />
 

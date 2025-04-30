@@ -29,6 +29,7 @@
 	import {availableLanguageTags} from '@/lib/paraglide/runtime';
 	import SettingsSelect from '@/components/ui/settings/SettingsSelect.svelte';
 	import { deleteAllFeaturesOfType } from '@/lib/map/featuresGen.svelte.js';
+	import { doSidebarSettings } from '@/lib/deviceCheck';
 
 	$effect(() => {
 		getUserSettings()
@@ -125,7 +126,7 @@
 	{/if}
 {/snippet}
 
-<div class="mt-2 mx-auto max-w-[30rem] space-y-4">
+<div class="mt-2 max-w-[30rem] space-y-4">
 	<SettingsCard>
 		{#snippet title()}
 			<Paintbrush size="18" />
@@ -140,12 +141,14 @@
 			options={languages}
 		/>
 
-		<SettingsToggle
-			title={m.settings_left_handed_mode_title()}
-			description={m.settings_left_handed_mode_description()}
-			onclick={() => {getUserSettings().isLeftHanded = !getUserSettings().isLeftHanded}}
-			value={getUserSettings().isLeftHanded}
-		/>
+		{#if !doSidebarSettings()}
+			<SettingsToggle
+				title={m.settings_left_handed_mode_title()}
+				description={m.settings_left_handed_mode_description()}
+				onclick={() => {getUserSettings().isLeftHanded = !getUserSettings().isLeftHanded}}
+				value={getUserSettings().isLeftHanded}
+			/>
+		{/if}
 
 		<SettingsGeneric title={m.settings_theme()}>
 			<SelectGroup

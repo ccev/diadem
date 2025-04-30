@@ -11,6 +11,7 @@
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 	import { getUserSettings } from '@/lib/userSettings.svelte';
 	import * as m from "@/lib/paraglide/messages"
+	import { isUiLeft } from '@/lib/deviceCheck';
 
 	let div: HTMLDivElement | undefined = $state()
 	let style: string = $state("")
@@ -32,7 +33,7 @@
 		let x = event.point.x
 		let y = event.point.y
 
-		if (!getUserSettings().isLeftHanded) {
+		if (!isUiLeft()) {
 			x -= offsetWidth
 		}
 		if (x <= spacing) {

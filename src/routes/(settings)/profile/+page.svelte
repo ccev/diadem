@@ -12,7 +12,7 @@
 	<title>{getConfig().general.mapName} | Profile</title>
 </svelte:head>
 
-<div class="mt-2 mx-auto max-w-[30rem] space-y-4">
+<div class="mt-2 max-w-[30rem] space-y-4">
 	<Card class="py-4 px-4 mx-2">
 		<div class="flex items-center justify-start gap-4 w-full">
 			<div class="bg-slate-200 rounded-full w-14 h-14 shrink-0"></div>

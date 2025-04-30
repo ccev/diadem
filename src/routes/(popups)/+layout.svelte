@@ -10,14 +10,15 @@
 	import PokestopPopup from '@/components/ui/popups/pokestop/PokestopPopup.svelte';
 	import GymPopup from '@/components/ui/popups/gym/GymPopup.svelte';
 	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
+	import { isUiLeft } from '@/lib/deviceCheck';
 
 	let { data, children } = $props();
 </script>
 
 <div
 	class="fixed z-10 bottom-2 w-full flex flex-col gap-2 pointer-events-none"
-	class:items-end={!getUserSettings().isLeftHanded}
-	class:items-start={getUserSettings().isLeftHanded}
+	class:items-end={!isUiLeft()}
+	class:items-start={isUiLeft()}
 >
 	{#if getMap()}
 		<SearchFab />
