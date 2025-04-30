@@ -80,7 +80,7 @@
 <!--{/snippet}-->
 
 <div
-	class="max-w-[30rem] h-screen bg-background py-2 border-r shadow-lg overflow-y-auto"
+	class="max-w-[26rem] h-fit bg-background/80 py-2 rounded-br-xl border-r shadow-lg overflow-y-auto max-h-[calc(100vh-5rem)]"
 >
 	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 		<SettingsGeneric title="Pokémon">
@@ -160,7 +160,7 @@
 			<FilterTypeSelect category="stationMajor" />
 		</SettingsGeneric>
 	</Card>
-	<BottomNavSpacing />
+<!--	<BottomNavSpacing />-->
 </div>
 
 <BottomNavWrapper page="/filters" />
