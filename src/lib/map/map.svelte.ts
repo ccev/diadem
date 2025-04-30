@@ -8,7 +8,7 @@ export function getMap() {
 	return map;
 }
 
-export function setMap(newMap: maplibre.Map) {
+export function setMap(newMap: maplibre.Map | undefined) {
 	map = newMap;
 }
 

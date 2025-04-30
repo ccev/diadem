@@ -307,5 +307,4 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			Object.values(mapObjects).length
 	);
 	updateMapObjectsGeoJson(getFlattenedFeatures())
-
 }

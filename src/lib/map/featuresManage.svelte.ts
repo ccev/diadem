@@ -7,17 +7,21 @@ let mapObjectsGeoJson: FeatureCollection<Point, IconProperties> = $state({
 	type: 'FeatureCollection',
 	features: []
 });
-const sessionImageUrls: string[] = [];
+let sessionImageUrls: string[] = [];
 
 export function updateMapObjectsGeoJson(features: Feature[]) {
 	mapObjectsGeoJson = { type: 'FeatureCollection', features };
 	// @ts-ignore
-	getMap()?.getSource('mapObjects')?.setData(mapObjectsGeoJson);
+	// getMap()?.getSource('mapObjects')?.setData(mapObjectsGeoJson);
 	Promise.all(
 		mapObjectsGeoJson.features.map((f) => {
 			return addMapImage(f.properties?.imageUrl);
 		})
 	).then();
+}
+
+export function clearSessionImageUrls() {
+	sessionImageUrls = []
 }
 
 export function getMapObjectsGeoJson() {
