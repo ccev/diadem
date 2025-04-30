@@ -12,7 +12,7 @@
 	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from '@/lib/map/mapObjectsInterval';
 	import { setMap } from '@/lib/map/map.svelte';
 	import { clearPressTimer, onContextMenu } from '@/lib/map/contextmenu';
-	import { getMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
+	import { clearSessionImageUrls, getMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 	import { loadMapObjectInterval } from '@/lib/map/loadMapObjects';
 	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from '@/lib/map/events';
 	import maplibre from 'maplibre-gl';
@@ -52,6 +52,8 @@
 	}
 
 	onMount(() => {
+		setMap(undefined)
+		clearSessionImageUrls()
 		updateCurrentPath()
 	})
 
