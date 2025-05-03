@@ -80,9 +80,9 @@
 <!--{/snippet}-->
 
 <div
-	class="max-w-[26rem] h-fit bg-background/80 py-2 rounded-br-xl border-r shadow-lg overflow-y-auto max-h-[calc(100vh-5rem)]"
+	class="max-w-[26rem] h-fit bg-background/50 border border-border/20 py-2 ml-2 mt-2 rounded-xl overflow-y-auto max-h-[calc(100vh-5.5rem)]"
 >
-	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
+	<Card class="pt-4 pb-2 px-2 mx-2 mb-2">
 		<SettingsGeneric title="Pokémon">
 			<FilterTypeSelect category="pokemonMajor" />
 
@@ -116,7 +116,7 @@
 			{/if}
 		</SettingsGeneric>
 	</Card>
-	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
+	<Card class="pt-4 pb-2 px-2 mx-2 mb-2">
 		<SettingsGeneric title="Plain Pokéstops">
 			<FilterTypeSelect category="pokestopPlain" />
 		</SettingsGeneric>
@@ -147,7 +147,7 @@
 
 		</Button>
 	</Card>
-	<Card class="pt-4 pb-2 px-2 mx-2">
+	<Card class="pt-4 pb-2 px-2 mx-2 mb-2">
 		<SettingsGeneric title="Plain Gyms">
 			<FilterTypeSelect category="gymPlain" />
 		</SettingsGeneric>
