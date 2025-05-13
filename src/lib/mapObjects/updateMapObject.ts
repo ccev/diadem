@@ -2,13 +2,19 @@ import {
 	addMapObject,
 	addMapObjects,
 	allMapTypes,
-	clearMapObjects, getMapObjects
+	allMinorMapTypes,
+	clearMapObjects,
+	getMapObjects
 } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 import maplibre from 'maplibre-gl';
-import { getNormalizedBounds } from '@/lib/mapObjects/normalizedBounds';
-import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import { type Bounds, getNormalizedBounds } from '@/lib/mapObjects/normalizedBounds';
+import type {
+	MapData,
+	MapObjectType,
+	MinorMapObjectType
+} from '@/lib/types/mapObjectData/mapObjects';
 import { getUserSettings } from '@/lib/userSettings.svelte';
-import type { AllFilters } from '@/lib/filters/filters';
+import type { AllFilters, FilterS2Cell } from '@/lib/filters/filters';
 import { getDirectLinkObject, setDirectLinkObject } from '@/lib/directLinks.svelte';
 import { openPopup } from '@/lib/mapObjects/interact';
 import { openToast } from '@/components/ui/toast/toastUtils.svelte';
@@ -16,6 +22,7 @@ import * as m from '@/lib/paraglide/messages';
 import { getMap } from '@/lib/map/map.svelte';
 import { updateFeatures } from '@/lib/map/featuresGen.svelte';
 import { updateMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
+import { updateCoveringS2Cells } from '@/lib/s2cells.svelte';
 
 export function makeMapObject(data: MapData, type: MapObjectType) {
 	data.type = type;
@@ -23,7 +30,10 @@ export function makeMapObject(data: MapData, type: MapObjectType) {
 	addMapObject(data);
 }
 
-export async function getOneMapObject(type: MapObjectType, id: string): Promise<Partial<MapData> | undefined> {
+export async function getOneMapObject(
+	type: MapObjectType,
+	id: string
+): Promise<Partial<MapData> | undefined> {
 	const response = await fetch('/api/' + type + '/' + id);
 	const data = await response.json();
 
@@ -40,7 +50,7 @@ export async function getOneMapObject(type: MapObjectType, id: string): Promise<
 }
 
 export async function updateMapObject(
-	type: MapObjectType,
+	type: MapObjectType | MinorMapObjectType,
 	removeOld: boolean = true
 ) {
 	const startTime = performance.now();
@@ -54,9 +64,11 @@ export async function updateMapObject(
 		filter = getUserSettings().filters.gymPlain;
 	} else if (type === 'station') {
 		filter = getUserSettings().filters.stationMajor;
+	} else if (type === 's2cell') {
+		filter = getUserSettings().filters.s2cell
 	}
 
-	if (!filter || filter.type === 'none') {
+	if ((!filter || filter.type === 'none') && type !== "s2cell") {
 		clearMapObjects(type);
 		return;
 	}
@@ -65,6 +77,12 @@ export async function updateMapObject(
 		...getNormalizedBounds(),
 		filter
 	};
+
+	if (type === 's2cell') {
+		updateCoveringS2Cells(body as { filter: FilterS2Cell } & Bounds);
+		return;
+	}
+
 	const fetchStart = performance.now();
 	const response = await fetch('/api/' + type, { method: 'POST', body: JSON.stringify(body) });
 	const data = await response.json();
@@ -90,7 +108,9 @@ export async function updateMapObject(
 		// 	}
 		// }
 		clearMapObjects(type);
-		console.debug('updateMapObject | clearMapObject took ' + (performance.now() - removeStart) + 'ms');
+		console.debug(
+			'updateMapObject | clearMapObject took ' + (performance.now() - removeStart) + 'ms'
+		);
 	}
 
 	if (!data.result) {
@@ -116,15 +136,18 @@ export async function updateMapObject(
 	console.debug(
 		'updateMapObject | type ' + type + ' took ' + (performance.now() - startTime) + 'ms'
 	);
-	updateFeatures(getMapObjects())
+	updateFeatures(getMapObjects());
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true) {
-	await Promise.all(
-		allMapTypes.map((type) => {
+	await Promise.all([
+		...allMapTypes.map((type) => {
+			updateMapObject(type, removeOld);
+		}),
+		...allMinorMapTypes.map((type) => {
 			updateMapObject(type, removeOld);
 		})
-	);
+	]);
 
 	const directLinkData = getDirectLinkObject();
 	if (directLinkData) {

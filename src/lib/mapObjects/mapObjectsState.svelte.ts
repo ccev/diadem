@@ -1,4 +1,4 @@
-import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import type { MapData, MapObjectType, MinorMapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import { updateFeatures } from '@/lib/map/featuresGen.svelte';
 
 export type MapObjectsStateType = {
@@ -7,6 +7,7 @@ export type MapObjectsStateType = {
 
 let mapObjectsState: MapObjectsStateType = $state({});
 export const allMapTypes: MapObjectType[] = ['pokemon', 'pokestop', 'gym', 'station'];
+export const allMinorMapTypes: MinorMapObjectType[] = ['s2cell']
 
 export function getMapObjects() {
 	return mapObjectsState;

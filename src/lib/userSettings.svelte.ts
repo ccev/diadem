@@ -5,7 +5,7 @@ import type {
 	FilterContest, FilterGymMajor, FilterGymPlain,
 	FilterInvasion, FilterLure,
 	FilterPokemon,
-	FilterPokestopMajor, FilterPokestopPlain, FilterQuest, FilterRaid, FilterStationMajor
+	FilterPokestopMajor, FilterPokestopPlain, FilterQuest, FilterRaid, FilterS2Cell, FilterStationMajor
 } from '@/lib/filters/filters';
 
 type UiconSetUS = {
@@ -43,6 +43,7 @@ type UserSettings = {
 		gymPlain: FilterGymPlain
 		raid: FilterRaid
 		stationMajor: FilterStationMajor
+		s2cell: FilterS2Cell
 	}
 }
 
@@ -98,6 +99,7 @@ export function getDefaultUserSettings(): UserSettings {
 			gymPlain: { category: "gymPlain", type: "all" },
 			raid: { category: "raid", type: "all" },
 			stationMajor: { category: "stationMajor", type: "all" },
+			s2cell: { category: "s2cell", type: "none", filters: { levels: [15] } }
 		}
 	}
 }

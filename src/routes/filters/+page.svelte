@@ -16,8 +16,14 @@
 	import FilterTypeSelect from '@/components/ui/filters/FilterTypeSelect.svelte';
 
 	import { slide, fly } from 'svelte/transition';
+	import SettingsSelect from '@/components/ui/settings/SettingsSelect.svelte';
 
 	let test: boolean = $state(false)
+
+	function onS2CellChange(value) {
+		getUserSettings().filters.s2cell.filters.levels = [value]
+		updateUserSettings()
+	}
 </script>
 
 <svelte:head>
@@ -27,20 +33,20 @@
 {#snippet showWhat()}
 	<FilterTypeSelect category="pokestopMajor">
 	</FilterTypeSelect>
-<!--	<div class="grid grid-cols-3 gap-2">-->
-<!--		<Button variant="outline">-->
-<!--			<Eye size="16" />-->
-<!--			<span>All</span>-->
-<!--		</Button>-->
-<!--		<Button variant="outline">-->
-<!--			<EyeOff size="16" />-->
-<!--			<span>None</span>-->
-<!--		</Button>-->
-<!--		<Button variant="outline">-->
-<!--			<Filter size="16" />-->
-<!--			<span>Filtered</span>-->
-<!--		</Button>-->
-<!--	</div>-->
+	<!--	<div class="grid grid-cols-3 gap-2">-->
+	<!--		<Button variant="outline">-->
+	<!--			<Eye size="16" />-->
+	<!--			<span>All</span>-->
+	<!--		</Button>-->
+	<!--		<Button variant="outline">-->
+	<!--			<EyeOff size="16" />-->
+	<!--			<span>None</span>-->
+	<!--		</Button>-->
+	<!--		<Button variant="outline">-->
+	<!--			<Filter size="16" />-->
+	<!--			<span>Filtered</span>-->
+	<!--		</Button>-->
+	<!--	</div>-->
 {/snippet}
 
 {#snippet showWhat2()}
@@ -120,20 +126,20 @@
 			<FilterTypeSelect category="pokestopPlain" />
 		</SettingsGeneric>
 		{#if test}
-		<div transition:slide={{ duration: 80 }}>
-			<SettingsGeneric title="Quests">
-				<FilterTypeSelect category="quest" />
-			</SettingsGeneric>
-			<SettingsGeneric title="Team Rocket">
-				<FilterTypeSelect category="invasion" />
-			</SettingsGeneric>
-			<SettingsGeneric title="Showcases">
-				<FilterTypeSelect category="contest" />
-			</SettingsGeneric>
-			<SettingsGeneric title="Lures">
-				<FilterTypeSelect category="lure" />
-			</SettingsGeneric>
-		</div>
+			<div transition:slide={{ duration: 80 }}>
+				<SettingsGeneric title="Quests">
+					<FilterTypeSelect category="quest" />
+				</SettingsGeneric>
+				<SettingsGeneric title="Team Rocket">
+					<FilterTypeSelect category="invasion" />
+				</SettingsGeneric>
+				<SettingsGeneric title="Showcases">
+					<FilterTypeSelect category="contest" />
+				</SettingsGeneric>
+				<SettingsGeneric title="Lures">
+					<FilterTypeSelect category="lure" />
+				</SettingsGeneric>
+			</div>
 		{/if}
 		<Button class="w-full" variant="ghost" onclick={() => test = !test}>
 			{#if test}
@@ -146,7 +152,7 @@
 
 		</Button>
 	</Card>
-	<Card class="pt-4 pb-2 px-2 mx-2">
+	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 		<SettingsGeneric title="Plain Gyms">
 			<FilterTypeSelect category="gymPlain" />
 		</SettingsGeneric>
@@ -154,9 +160,28 @@
 			{@render showWhat()}
 		</SettingsGeneric>
 	</Card>
-	<Card class="pt-4 pb-2 px-2 mx-2">
+	<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 		<SettingsGeneric title="Plain Power Spots">
 			<FilterTypeSelect category="stationMajor" />
+		</SettingsGeneric>
+	</Card>
+	<Card class="pt-4 pb-2 px-2 mx-2">
+		<SettingsGeneric title="S2 Cells">
+			<FilterTypeSelect category="s2cell" />
+
+			{#if getUserSettings().filters.s2cell.type === "all"}
+				<SettingsSelect
+					onselect={onS2CellChange}
+					value={getUserSettings().filters.s2cell.filters.levels[0]}
+					title="Level"
+					options={[
+						{ value: 15, label: "Level 15" },
+						{ value: 16, label: "Level 16" },
+						{ value: 17, label: "Level 17" },
+						{ value: 18, label: "Level 18" },
+					]}
+				/>
+			{/if}
 		</SettingsGeneric>
 	</Card>
 </div>

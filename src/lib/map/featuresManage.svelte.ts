@@ -1,12 +1,14 @@
-import type { FeatureCollection, Point } from 'geojson';
+import type { FeatureCollection, Point, Polygon } from 'geojson';
 import { type Feature, type IconProperties } from '@/lib/map/featuresGen.svelte';
 import { getMap } from '@/lib/map/map.svelte';
 import { getLoadedImages } from '@/lib/utils.svelte';
+import type { S2CellFeature, S2CellProperties } from '@/lib/s2cells.svelte';
 
 let mapObjectsGeoJson: FeatureCollection<Point, IconProperties> = $state({
 	type: 'FeatureCollection',
 	features: []
 });
+
 let sessionImageUrls: string[] = [];
 
 export function updateMapObjectsGeoJson(features: Feature[]) {

@@ -5,3 +5,4 @@ import type { StationData } from '@/lib/types/mapObjectData/station';
 
 export type MapData = PokemonData | PokestopData | GymData | StationData
 export type MapObjectType = "pokemon" | "pokestop" | "gym" | "station"
+export type MinorMapObjectType = "s2cell"

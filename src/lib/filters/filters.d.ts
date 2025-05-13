@@ -9,6 +9,7 @@ export type FilterCategory = "pokemonMajor"
 	| "gymPlain"
 	| "raid"
 	| "stationMajor"
+	| "s2cell"
 
 export type AllFilters = FilterPokemon
 	| FilterPokestopMajor
@@ -21,6 +22,7 @@ export type AllFilters = FilterPokemon
 	| FilterGymPlain
 	| FilterRaid
 	| FilterStationMajor
+	| FilterS2Cell
 
 export type FilterTypeBool = "all" | "none"
 export type FilerType = "all" | "none" | "filtered"
@@ -116,4 +118,12 @@ export type FilterRaid = {
 export type FilterStationMajor = {
 	category: "stationMajor"
 	type: FilterTypeBool
+}
+
+export type FilterS2Cell = {
+	category: "s2cell"
+	type: FilterTypeBool
+	filters?: {
+		levels: number[]
+	}
 }
