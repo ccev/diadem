@@ -17,6 +17,7 @@
 	import { getIconType } from '@/lib/uicons.svelte';
 	import { watch } from 'runed';
 	import type { WeatherData } from '@/lib/types/mapObjectData/weather';
+	import { getUserSettings } from '@/lib/userSettings.svelte';
 
 	let ignoreWatch = false
 	let isClicked: boolean = $state(false)
@@ -67,46 +68,52 @@
 </script>
 
 {#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather())}
-	<Button
-		variant="ghost"
-		size=""
-		class="fixed z-10 top-2 left-2 px-4 py-3 text-sm bg-card flex-col! items-start! border rounded-lg shadow-lg hover:bg-accent hover:text-accent-foreground pointer-events-auto disabled:pointer-events-none"
-		onclick={onClick}
+	<div
+		class="pointer-events-none fixed top-2 z-10 mx-2 "
+		class:right-2={!getUserSettings().isLeftHanded}
+		class:left-2={getUserSettings().isLeftHanded}
 	>
-		<div>
-			<IconValue Icon={getWeatherIcon(getCurrentWeather()?.gameplay_condition)}>
-				{ingame("weather_" + getCurrentWeather()?.gameplay_condition)}
-			</IconValue>
-		</div>
-
-		{#if isClicked}
-			<div class="mt-2" transition:slide={{ duration: 70 }}>
-				<IconValue Icon={ArrowBigUpDash}>
-					{m.boosted()}:
+		<Button
+			variant="ghost"
+			size=""
+			class="pointer-events-auto px-4 py-3 text-sm bg-card flex-col! items-start! border rounded-lg shadow-lg hover:bg-accent hover:text-accent-foreground pointer-events-auto disabled:pointer-events-none"
+			onclick={onClick}
+		>
+			<div>
+				<IconValue Icon={getWeatherIcon(getCurrentWeather()?.gameplay_condition)}>
+					{ingame("weather_" + getCurrentWeather()?.gameplay_condition)}
 				</IconValue>
-				{#each boostedTypes as typeId}
-					<div class="flex gap-2 mt-1 items-center">
-						<div class="w-4 h-4 shrink-0">
-							<ImagePopup
-								alt={ingame("poke_type_" + typeId)}
-								src={getIconType(typeId)}
-								class="w-4 h-4"
-							/>
-						</div>
+			</div>
 
-						<span>
+			{#if isClicked}
+				<div class="mt-2" transition:slide={{ duration: 70 }}>
+					<IconValue Icon={ArrowBigUpDash}>
+						{m.boosted()}:
+					</IconValue>
+					{#each boostedTypes as typeId}
+						<div class="flex gap-2 mt-1 items-center">
+							<div class="w-4 h-4 shrink-0">
+								<ImagePopup
+									alt={ingame("poke_type_" + typeId)}
+									src={getIconType(typeId)}
+									class="w-4 h-4"
+								/>
+							</div>
+
+							<span>
 							{ingame("poke_type_" + typeId)}
 						</span>
-					</div>
-				{/each}
+						</div>
+					{/each}
 
-				<div class="h-3"></div>
+					<div class="h-3"></div>
 
-				<IconValue Icon={Clock}>
-					{m.last_changed()}: <b>{timestampToLocalTime(getCurrentWeather()?.updated)}</b>
-				</IconValue>
+					<IconValue Icon={Clock}>
+						{m.last_changed()}: <b>{timestampToLocalTime(getCurrentWeather()?.updated)}</b>
+					</IconValue>
 
-			</div>
-		{/if}
-	</Button>
+				</div>
+			{/if}
+		</Button>
+	</div>
 {/if}
