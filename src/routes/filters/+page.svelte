@@ -175,6 +175,7 @@
 					value={getUserSettings().filters.s2cell.filters.levels[0]}
 					title="Level"
 					options={[
+						{ value: 10, label: "Level 10" },
 						{ value: 15, label: "Level 15" },
 						{ value: 16, label: "Level 16" },
 						{ value: 17, label: "Level 17" },

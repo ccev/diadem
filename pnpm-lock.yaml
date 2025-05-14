@@ -11,6 +11,9 @@ importers:
       '@inlang/paraglide-sveltekit':
         specifier: 0.15.0
         version: 0.15.0(@sveltejs/kit@2.21.0(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.28.6)(vite@5.4.11(@types/node@22.10.5)(lightningcss@1.29.2)))(svelte@5.28.6)(vite@5.4.11(@types/node@22.10.5)(lightningcss@1.29.2)))
+      '@isaacs/ttlcache':
+        specifier: ^1.4.1
+        version: 1.4.1
       '@sveltejs/adapter-cloudflare':
         specifier: ^4.9.0
         version: 4.9.0(@sveltejs/kit@2.21.0(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.28.6)(vite@5.4.11(@types/node@22.10.5)(lightningcss@1.29.2)))(svelte@5.28.6)(vite@5.4.11(@types/node@22.10.5)(lightningcss@1.29.2)))(wrangler@3.99.0(@cloudflare/workers-types@4.20241230.0))
@@ -661,6 +664,10 @@ packages:
 
   '@internationalized/date@3.6.0':
     resolution: {integrity: sha512-+z6ti+CcJnRlLHok/emGEsWQhe7kfSmEW+/6qCzvKY67YPh7YOBfvc7+/+NXq+zJlbArg30tYpqLjNgcAYv2YQ==}
+
+  '@isaacs/ttlcache@1.4.1':
+    resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
+    engines: {node: '>=12'}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -2940,6 +2947,8 @@ snapshots:
   '@internationalized/date@3.6.0':
     dependencies:
       '@swc/helpers': 0.5.15
+
+  '@isaacs/ttlcache@1.4.1': {}
 
   '@jridgewell/gen-mapping@0.3.8':
     dependencies:

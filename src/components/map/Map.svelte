@@ -17,7 +17,9 @@
 	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from '@/lib/map/events';
 	import maplibre from 'maplibre-gl';
 	import FrameRateControl from '@/components/map/framerate';
-	import { getS2CellGeojson } from '@/lib/s2cells.svelte';
+	import { getS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
+	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
+	import { getSelectedWeatherS2Cells } from '@/lib/mapObjects/weather.svelte';
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
@@ -25,7 +27,7 @@
 	async function onMapLoad() {
 		if (map) {
 			setMap(map);
-			map.addControl(new FrameRateControl());
+			map.addControl(new FrameRateControl({}));
 
 			map.on('touchstart', onTouchStart);
 			map.on('touchend', clearPressTimer);
@@ -84,22 +86,9 @@
 		onload={onMapLoad}
 		oncontextmenu={onContextMenu}
 	>
-		<GeoJSON
-			id="s2cells"
-			data={getS2CellGeojson()}
-		>
-			<FillLayer
-				paint={{
-				  'fill-color': ["get", "fillColor"],
-				  'fill-opacity': 0.5,
-				}}
-			/>
-			<LineLayer
-				layout={{ 'line-cap': 'round', 'line-join': 'round' }}
-				paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 2 }}
-			/>
+		<S2CellLayer id="s2cells" data={getS2CellGeojson()} />
+		<S2CellLayer id="selectedWeatherLayer" data={getSelectedWeatherS2Cells()} />
 
-		</GeoJSON>
 
 		<GeoJSON
 			id="mapObjects"

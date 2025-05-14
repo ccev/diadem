@@ -2,7 +2,7 @@ import type { Incident, PokestopData } from '@/lib/types/mapObjectData/pokestop'
 import type { GymData } from '@/lib/types/mapObjectData/gym';
 import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 import { currentTimestamp } from '@/lib/utils.svelte';
-import { GYM_OUTDATED_SECONDS } from '@/lib/constants';
+import { FORT_OUTDATED_SECONDS } from '@/lib/constants';
 import { getIconGym } from '@/lib/uicons.svelte';
 import type { StationData } from '@/lib/types/mapObjectData/station';
 
@@ -50,7 +50,7 @@ export function getStationPokemon(data: StationData): Partial<PokemonData> {
 }
 
 export function isFortOutdated(updated?: number) {
-	return (updated ?? 0) < (currentTimestamp() - GYM_OUTDATED_SECONDS)
+	return (updated ?? 0) < (currentTimestamp() - FORT_OUTDATED_SECONDS)
 }
 
 export function hasFortActiveLure(data: Partial<PokestopData>) {

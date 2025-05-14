@@ -15,6 +15,13 @@
 	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
 	import { getCurrentSelectedData, getCurrentSelectedMapId } from '@/lib/mapObjects/currentSelectedState.svelte';
 	import { resetMap, getMap } from '@/lib/map/map.svelte';
+	import { getCurrentWeather } from '@/lib/mapObjects/weather.svelte';
+	import { ingame } from '@/lib/ingameLocale';
+	import Card from '@/components/ui/Card.svelte';
+	import { currentTimestamp } from '@/lib/utils.svelte';
+	import { WEATHER_OUTDATED_SECONDS } from '@/lib/constants';
+	import Button from '@/components/ui/Button.svelte';
+	import WeatherOverview from '@/components/map/WeatherOverview.svelte';
 	</script>
 
 <svelte:head>
@@ -24,6 +31,8 @@
 {#if getIsContxtMenuOpen()}
 	<ContextMenu />
 {/if}
+
+<WeatherOverview />
 
 <div
 	class="fixed z-10 bottom-2 w-full flex flex-col pointer-events-none"

@@ -1,4 +1,4 @@
-import type { Map, LngLatBounds, LngLatLike } from 'maplibre-gl';
+import { type Map, type LngLatBounds, type LngLatLike, LngLat } from 'maplibre-gl';
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import { getMap } from '@/lib/map/map.svelte';
 
@@ -27,7 +27,7 @@ function applyPadding(map: Map, coordinates: LngLatLike, method: "sub"|"add") {
 	return map.unproject([x, y])
 }
 
-export function getNormalizedBounds(): Bounds {
+export function getBounds(normalized: boolean = true): Bounds {
 	const map = getMap()
 
 	if (!map) {
@@ -41,9 +41,16 @@ export function getNormalizedBounds(): Bounds {
 
 	const bounds = map.getBounds()
 
-	const minCoords = applyPadding(map, bounds.getSouthWest(), "sub")
-	const maxCoords = applyPadding(map, bounds.getNorthEast(), "add")
+	let minCoords: LngLat
+	let maxCoords: LngLat
 
+	if (normalized) {
+		minCoords = applyPadding(map, bounds.getSouthWest(), "sub")
+		maxCoords = applyPadding(map, bounds.getNorthEast(), "add")
+	} else {
+		minCoords = bounds.getSouthWest()
+		maxCoords = bounds.getNorthEast()
+	}
 
 	return {
 		minLat: minCoords.lat,

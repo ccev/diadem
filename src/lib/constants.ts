@@ -14,9 +14,14 @@ export const UPDATE_MAP_OBJECT_INTERVAL_TIME = 5000
 export const AGGRESSIVE_UPDATE_TIME = 200
 
 /**
- * A gym is considered outdated if not updated within this timeframe (seconds)
+ * A fort is considered outdated if not updated within this timeframe (seconds)
  */
-export const GYM_OUTDATED_SECONDS = 24 * 60 * 60
+export const FORT_OUTDATED_SECONDS = 24 * 60 * 60
+
+/**
+ * Weather is considered outdated if not updated within this timeframe (seconds)
+ */
+export const WEATHER_OUTDATED_SECONDS = 60 * 60 * 6
 
 /**
  * Always show PVP ranks > X in Pokemon Popups

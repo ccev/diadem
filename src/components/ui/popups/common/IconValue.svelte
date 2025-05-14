@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { IconProps } from 'lucide-svelte';
 	import type { Component, Snippet } from 'svelte';
+	import type { LucideIcon } from '@/lib/types/misc';
 
 	let {
 		Icon,
 		children,
 	}: {
-		Icon: Component<IconProps>,
+		Icon: LucideIcon,
 		children: Snippet,
 	} = $props()
 </script>

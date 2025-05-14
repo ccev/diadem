@@ -1,4 +1,4 @@
-import type { MasterFile, MasterPokemon } from '@/lib/types/masterfile';
+import type { MasterFile, MasterPokemon, MasterWeather } from '@/lib/types/masterfile';
 
 const url = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/refs/heads/master/master-latest-react-map.json"
 let masterFile: MasterFile
@@ -17,6 +17,12 @@ export function getMasterFile() {
 	return masterFile
 }
 
-export function getMasterPokemon(pokemonId: string | number) : MasterPokemon | undefined {
+export function getMasterPokemon(pokemonId: string | number): MasterPokemon | undefined {
 	return masterFile.pokemon["" + pokemonId]
+}
+
+export function getMasterWeather(weatherId: string | number | undefined): MasterWeather | undefined {
+	if (weatherId === undefined) return undefined
+
+	return masterFile.weather["" + weatherId]
 }

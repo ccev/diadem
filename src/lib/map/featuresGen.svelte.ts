@@ -15,7 +15,7 @@ import {
 } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 import { currentTimestamp } from '@/lib/utils.svelte.js';
 import { getUserSettings } from '@/lib/userSettings.svelte.js';
-import { GYM_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from '@/lib/constants';
+import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from '@/lib/constants';
 import { getRaidPokemon, getStationPokemon, isFortOutdated, isIncidentInvasion } from '@/lib/pogoUtils';
 import type { UiconSet, UiconSetModifierType } from '@/lib/types/config';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
@@ -211,7 +211,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 			}
 		} else if (obj.type === 'gym') {
-			if ((obj.updated ?? 0) < timestamp - GYM_OUTDATED_SECONDS) {
+			if ((obj.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
 				overwriteIcon = getIconGym({ team_id: 0 });
 			} else {
 				if ((obj.raid_end_timestamp ?? 0) > timestamp) {

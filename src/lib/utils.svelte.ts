@@ -1,6 +1,8 @@
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 import * as m from "@/lib/paraglide/messages"
+import { CloudOff, CloudSun, Cloudy, Snowflake, Sun, Umbrella, Waves, Wind } from 'lucide-svelte';
+import type { LucideIcon } from '@/lib/types/misc';
 
 function isDaySame(date1: Date, date2: Date) {
 	return (
@@ -73,4 +75,18 @@ export function copyToClipboard(content: string) {
 
 export function getMapsUrl(lat: number, lon: number) {
 	return `https://maps.google.com?q=${lat},${lon}`
+}
+
+const weatherIcons: {[key: number]: LucideIcon} = {
+	1: Sun,
+	2: Umbrella,
+	3: CloudSun,
+	4: Cloudy,
+	5: Wind,
+	6: Snowflake,
+	7: Waves
+}
+
+export function getWeatherIcon(weatherId: number | undefined | null) {
+	return weatherIcons[weatherId] ?? CloudOff
 }

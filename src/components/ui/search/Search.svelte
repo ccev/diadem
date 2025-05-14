@@ -1,20 +1,13 @@
 <script lang="ts">
-	import { getConfig } from '@/lib/config.js';
 	import Card from '@/components/ui/Card.svelte';
-	import { isModalOpen } from '@/lib/modal.svelte';
 	import { onMount } from 'svelte';
 	import Button from '@/components/ui/Button.svelte';
-	import { centerOfMass, centroid, polygon } from '@turf/turf';
+	import { centerOfMass, centroid } from '@turf/turf';
 	import { getKojiGeofences } from '@/lib/koji';
 	import type { Feature } from 'geojson';
-	import { Globe, Search } from 'lucide-svelte';
+	import { Search } from 'lucide-svelte';
 	import LucideIcon from '@/components/utils/LucideIcon.svelte';
-
-	let {
-		onjump
-	}: {
-		onjump: (center: number[], zoom: number) => void
-	} = $props()
+	import { flyTo } from '@/lib/map/utils';
 
 	let inputText: string = $state("")
 	let areas: Feature[] = $derived(
@@ -58,7 +51,7 @@
 				variant="ghost"
 				size=""
 				class="py-1.5 px-2 rounded-sm"
-				onclick={() => onjump(getPolygonCenter(feature), 14)}
+				onclick={() => flyTo(getPolygonCenter(feature), 14)}
 				style="width: min(calc(100vw - 1.5rem), 31.5rem);"
 			>
 				<div class="w-full flex gap-2 items-center text-start">

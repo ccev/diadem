@@ -7,7 +7,7 @@ import {
 	getMapObjects
 } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 import maplibre from 'maplibre-gl';
-import { type Bounds, getNormalizedBounds } from '@/lib/mapObjects/normalizedBounds';
+import { type Bounds, getBounds } from '@/lib/mapObjects/mapBounds';
 import type {
 	MapData,
 	MapObjectType,
@@ -22,7 +22,8 @@ import * as m from '@/lib/paraglide/messages';
 import { getMap } from '@/lib/map/map.svelte';
 import { updateFeatures } from '@/lib/map/featuresGen.svelte';
 import { updateMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
-import { updateCoveringS2Cells } from '@/lib/s2cells.svelte';
+import { updateS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
+import { updateWeather } from '@/lib/mapObjects/weather.svelte';
 
 export function makeMapObject(data: MapData, type: MapObjectType) {
 	data.type = type;
@@ -74,12 +75,12 @@ export async function updateMapObject(
 	}
 
 	const body = {
-		...getNormalizedBounds(),
+		...getBounds(),
 		filter
 	};
 
 	if (type === 's2cell') {
-		updateCoveringS2Cells(body as { filter: FilterS2Cell } & Bounds);
+		updateS2CellGeojson(body as { filter: FilterS2Cell } & Bounds);
 		return;
 	}
 
@@ -146,7 +147,8 @@ export async function updateAllMapObjects(removeOld: boolean = true) {
 		}),
 		...allMinorMapTypes.map((type) => {
 			updateMapObject(type, removeOld);
-		})
+		}),
+		updateWeather()
 	]);
 
 	const directLinkData = getDirectLinkObject();

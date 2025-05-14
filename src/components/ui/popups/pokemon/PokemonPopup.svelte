@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 	import Countdown from '@/components/utils/Countdown.svelte';
-	import { timestampToLocalTime } from '@/lib/utils.svelte.js';
+	import { getWeatherIcon, timestampToLocalTime } from '@/lib/utils.svelte.js';
 	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import { getIconPokemon } from '@/lib/uicons.svelte.js';
@@ -48,17 +48,7 @@
 	let { mapId } : { mapId: string } = $props()
 	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData)
 
-	let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
-
-	const weatherIcons = {
-		1: Sun,
-		2: Umbrella,
-		3: CloudSun,
-		4: Cloudy,
-		5: Wind,
-		6: Snowflake,
-		7: Waves
-	}
+	// let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 
 	function hasTimer() {
 		return data.expire_timestamp && data.expire_timestamp_verified
@@ -66,11 +56,7 @@
 
 	function getTitle() {
 		let title = getConfig().general.mapName
-		if (masterPokemon) {
-			title += " | " + masterPokemon.name
-		} else {
-			title += " | " + m.pogo_pokemon()
-		}
+		title += " | " + pokemonName(data)
 		return title
 	}
 
@@ -246,7 +232,7 @@
 		{/if}
 
 		<IconValue
-			Icon={weatherIcons[data.weather] ?? CloudOff}
+			Icon={getWeatherIcon(data.weather)}
 		>
 			{#if data.weather}
 				{m.weather_boost()}:

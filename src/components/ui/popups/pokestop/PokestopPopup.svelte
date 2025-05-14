@@ -1,38 +1,26 @@
 <script lang="ts">
-	import type { ContestRankings, PokestopData } from '@/lib/types/mapObjectData/pokestop';
+	import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
 	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import {
-		getIconContest,
-		getIconInvasion,
-		getIconItem,
-		getIconPokemon,
-		getIconPokestop,
-		getIconReward,
-		getIconType
-	} from '@/lib/uicons.svelte.js';
+	import { getIconInvasion, getIconItem, getIconPokemon, getIconPokestop } from '@/lib/uicons.svelte.js';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
-	import { currentTimestamp, timestampToLocalTime } from '@/lib/utils.svelte.js';
+	import { currentTimestamp } from '@/lib/utils.svelte.js';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import {
-		CONTEST_SLOTS,
 		hasFortActiveLure,
 		isFortOutdated,
 		isIncidentContest,
 		isIncidentInvasion,
 		isIncidentKecleon
 	} from '@/lib/pogoUtils';
-	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
 	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
 	import { getConfig } from '@/lib/config';
-	import { ClockAlert, Smartphone, UsersRound } from 'lucide-svelte';
+	import { ClockAlert, Smartphone } from 'lucide-svelte';
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
-	import type { GymData } from '@/lib/types/mapObjectData/gym';
-	import Button from '@/components/ui/Button.svelte';
 	import QuestDisplay from '@/components/ui/popups/pokestop/QuestDisplay.svelte';
 	import PokestopSection from '@/components/ui/popups/pokestop/PokestopSection.svelte';
 	import ContestDisplay from '@/components/ui/popups/pokestop/ContestDisplay.svelte';
