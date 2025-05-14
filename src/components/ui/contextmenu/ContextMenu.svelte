@@ -3,7 +3,6 @@
 	import { fly } from "svelte/transition"
 	import maplibre from 'maplibre-gl';
 	import { onMount } from 'svelte';
-	import { getContextMenuEvent } from '@/components/ui/contextmenu/utils.svelte';
 	import { Binoculars, Clipboard, Navigation } from 'lucide-svelte';
 	import Button from '@/components/ui/Button.svelte';
 	import ContextMenuItem from '@/components/ui/contextmenu/ContextMenuItem.svelte';
@@ -12,12 +11,17 @@
 	import { getUserSettings } from '@/lib/userSettings.svelte';
 	import * as m from "@/lib/paraglide/messages"
 
-	let div: HTMLDivElement | undefined = $state()
+	import { getContextMenuEvent, getIsContextMenuOpen, setIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
+	import { onClickOutside } from 'runed';
+
+	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
 	let event: maplibre.MapTouchEvent | maplibre.MapMouseEvent
 	let mapsUrl: string = $state("")
 
 	const spacing = 4
+
+	onClickOutside(() => div, () => setIsContextMenuOpen(false))
 
 	$effect(() => {
 		if (!div) return
@@ -52,25 +56,27 @@
 	}
 </script>
 
-<div
-	bind:this={div}
-	class="absolute py-2 flex flex-col z-50 bg-popover text-popover-foreground min-w-[8rem] rounded-md border p-1 shadow-md focus:outline-hidden"
-	style={style}
->
-	{#if hasClipboardWrite()}
-		<ContextMenuItem onclick={copyCoords}>
-			<Clipboard size="14"/>
-			<span>{m.context_menu_copy_coordinates()}</span>
+{#if getIsContextMenuOpen()}
+	<div
+		bind:this={div}
+		class="absolute py-2 flex flex-col z-50 bg-popover text-popover-foreground min-w-[8rem] rounded-md border p-1 shadow-md focus:outline-hidden"
+		style={style}
+	>
+		{#if hasClipboardWrite()}
+			<ContextMenuItem onclick={copyCoords}>
+				<Clipboard size="14"/>
+				<span>{m.context_menu_copy_coordinates()}</span>
+			</ContextMenuItem>
+		{/if}
+
+		<ContextMenuItem tag="a" href={mapsUrl} target="_blank">
+			<Navigation size="14"/>
+			<span>{m.context_menu_navigate_here()}</span>
 		</ContextMenuItem>
-	{/if}
 
-	<ContextMenuItem tag="a" href={mapsUrl} target="_blank">
-		<Navigation size="14"/>
-		<span>{m.context_menu_navigate_here()}</span>
-	</ContextMenuItem>
-
-	<ContextMenuItem onclick={() => openToast("This will work eventually")}>
-		<Binoculars size="14"/>
-		<span>{m.context_menu_scout_location()}</span>
-	</ContextMenuItem>
-</div>
+		<ContextMenuItem onclick={() => openToast("This will work eventually")}>
+			<Binoculars size="14"/>
+			<span>{m.context_menu_scout_location()}</span>
+		</ContextMenuItem>
+	</div>
+{/if}

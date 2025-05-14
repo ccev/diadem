@@ -9,7 +9,6 @@
 	import Map from '@/components/map/Map.svelte';
 	import maplibre from 'maplibre-gl';
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
-	import { getIsContxtMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 	import { getConfig } from '@/lib/config';
 	import GymPopup from '@/components/ui/popups/gym/GymPopup.svelte';
 	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
@@ -22,16 +21,15 @@
 	import { WEATHER_OUTDATED_SECONDS } from '@/lib/constants';
 	import Button from '@/components/ui/Button.svelte';
 	import WeatherOverview from '@/components/map/WeatherOverview.svelte';
+
+	import { getIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
 	</script>
 
 <svelte:head>
 	<title>{getConfig().general.mapName}</title>
 </svelte:head>
 
-{#if getIsContxtMenuOpen()}
-	<ContextMenu />
-{/if}
-
+<ContextMenu />
 <WeatherOverview />
 
 <div

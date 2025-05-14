@@ -41,6 +41,9 @@ importers:
       mysql2:
         specifier: ^3.12.0
         version: 3.12.0
+      runed:
+        specifier: ^0.27.0
+        version: 0.27.0(svelte@5.28.6)
       s2js:
         specifier: ^1.43.6
         version: 1.43.6
@@ -2259,6 +2262,11 @@ packages:
     resolution: {integrity: sha512-RaJ45M/kmJUzSWDs1Nnd5DdV4eerC98idtUOVr6FfKcgxqvjwHmxc5upLF9qZU9EpsVzzhleFahrT3shLuJzIw==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  runed@0.27.0:
+    resolution: {integrity: sha512-Iwn06Yj7tOnN8UKaSYxY1m7lqig03ZUOlZnZJJ6jDvBgcaxSlrDoWL2v/14yvoE8xFdI9ljdut3DwvzpZbz3/w==}
+    peerDependencies:
+      svelte: ^5.7.0
 
   rusha@0.8.14:
     resolution: {integrity: sha512-cLgakCUf6PedEu15t8kbsjnwIFFR2D4RfL+W3iWFJ4iac7z4B0ZI8fxy4R3J956kAI68HclCFGL8MPoUVC3qVA==}
@@ -5353,6 +5361,11 @@ snapshots:
       '@rollup/rollup-win32-ia32-msvc': 4.29.1
       '@rollup/rollup-win32-x64-msvc': 4.29.1
       fsevents: 2.3.3
+
+  runed@0.27.0(svelte@5.28.6):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.28.6
 
   rusha@0.8.14: {}
 

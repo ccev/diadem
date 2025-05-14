@@ -4,9 +4,10 @@
 	import maplibre from 'maplibre-gl';
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 	import { tick } from 'svelte';
-	import { setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 	import * as m from "@/lib/paraglide/messages"
 	import { getMap } from '@/lib/map/map.svelte';
+
+	import { setIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
 
 	const errorReasonSupport = m.locate_error_support()
 	const errorReasonPerms = m.locate_error_perms()
@@ -49,7 +50,6 @@
 	}
 
 	function onClick() {
-		setIsContextMenuOpen(false)
 		isFetchingLocation = true
 		navigator?.geolocation?.getCurrentPosition(
 			(s) => {

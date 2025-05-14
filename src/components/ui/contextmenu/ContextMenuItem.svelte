@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Button from '@/components/ui/Button.svelte';
 	import type { Snippet } from 'svelte';
-	import { setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
+
+
+	import { setIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
 
 	let {
 		tag = "button",

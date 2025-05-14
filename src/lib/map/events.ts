@@ -3,8 +3,8 @@ import {
 	clearPressTimer,
 	longPressDuration,
 	onContextMenu,
-	pressTimer
-} from '@/lib/map/contextmenu';
+	pressTimer, setIsContextMenuOpen
+} from '@/lib/map/contextmenu.svelte';
 import { clearLoadMapObjectsInterval, resetLoadMapObjects } from '@/lib/map/loadMapObjects';
 import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 import {
@@ -12,7 +12,6 @@ import {
 	resetUpdateMapObjectsInterval
 } from '@/lib/map/mapObjectsInterval';
 import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
-import { setIsContextMenuOpen } from '@/components/ui/contextmenu/utils.svelte';
 import { getMap } from '@/lib/map/map.svelte';
 
 export async function onMapMoveEnd() {
@@ -37,7 +36,6 @@ export async function onMapMoveStart() {
 	clearPressTimer();
 	clearUpdateMapObjectsInterval();
 
-	setIsContextMenuOpen(false);
 	resetLoadMapObjects();
 }
 
