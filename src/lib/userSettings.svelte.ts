@@ -30,6 +30,7 @@ type UserSettings = {
 	isDarkMode: boolean | null,
 	loadMapObjectsWhileMoving: boolean
 	loadMapObjectsPadding: number,
+	showDebugMenu: boolean,
 	languageTag: string | "auto",
 	filters: {
 		pokemonMajor: FilterPokemon

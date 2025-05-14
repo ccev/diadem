@@ -20,14 +20,22 @@
 	import { getS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
 	import { getSelectedWeatherS2Cells } from '@/lib/mapObjects/weather.svelte';
+	import DebugMenu from '@/components/map/DebugMenu.svelte';
 
 	let map: maplibre.Map | undefined = $state(undefined);
+	let debugRerender: boolean = $state(true)
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
 	async function onMapLoad() {
 		if (map) {
 			setMap(map);
-			map.addControl(new FrameRateControl({}));
+			if (getUserSettings().showDebugMenu) {
+				map.addControl(new FrameRateControl({}));
+				map.on("moveend", () => {
+					debugRerender = false
+					tick().then(() => debugRerender = true)
+				})
+			}
 
 			map.on('touchstart', onTouchStart);
 			map.on('touchend', clearPressTimer);
@@ -72,6 +80,10 @@
 	onfocus={onWindowFocus}
 	onblur={clearUpdateMapObjectsInterval}
 ></svelte:window>
+
+{#if getUserSettings().showDebugMenu}
+	<DebugMenu rerender={debugRerender} />
+{/if}
 
 {#if isWebglSupported()}
 	<MapLibre

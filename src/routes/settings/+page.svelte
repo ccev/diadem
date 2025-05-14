@@ -215,6 +215,13 @@
 		{/snippet}
 
 		<SettingsToggle
+			title={m.settings_show_debug_title()}
+			description={m.settings_show_debug_description()}
+			onclick={() => {getUserSettings().showDebugMenu = !getUserSettings().showDebugMenu}}
+			value={getUserSettings().showDebugMenu}
+		/>
+
+		<SettingsToggle
 			title={m.settings_load_map_objects_while_moving_title()}
 			description={m.settings_load_map_objects_while_moving_description()}
 			onclick={() => {getUserSettings().loadMapObjectsWhileMoving = !getUserSettings().loadMapObjectsWhileMoving}}
@@ -229,7 +236,6 @@
 			min="0"
 			step="10"
 		/>
-
 	</SettingsCard>
 </div>
 

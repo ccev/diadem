@@ -23,6 +23,7 @@
 	import WeatherOverview from '@/components/map/WeatherOverview.svelte';
 
 	import { getIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
+	import DebugMenu from '@/components/map/DebugMenu.svelte';
 	</script>
 
 <svelte:head>

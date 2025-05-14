@@ -14,7 +14,7 @@
     "pogo_gyms": "Gyms",
     "settings_advanced": "Advanced",
     "settings_load_map_objects_while_moving_title": "Aggressive Map Updates",
-    "settings_load_map_objects_while_moving_description": "Fetch data while moving the map",
+    "settings_load_map_objects_while_moving_description": "⚠ Major performance impact! Fetch data while moving the map",
     "settings_load_map_objects_padding_title": "Map Update Size",
     "settings_load_map_objects_padding_description": "Additional pixels to fetch around the map's bounding box",
     "settings_language": "Language",
@@ -116,5 +116,7 @@
     "webgl_disabled_error": "WebGL is required to use the map, but seems to be disabled in your browser. Please enable it or try to restart your browser.",
     "webgl_unsupported_error": "WebGL is required to use the map. Please use a modern device and browser.",
     "last_changed": "Last changed",
-    "boosted": "Boosted"
+    "boosted": "Boosted",
+    "settings_show_debug_title": "Show Map Debug Menu",
+    "settings_show_debug_description": "Display in-depth information about the app"
 }
