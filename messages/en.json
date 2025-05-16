@@ -118,5 +118,11 @@
     "last_changed": "Last changed",
     "boosted": "Boosted",
     "settings_show_debug_title": "Show Map Debug Menu",
-    "settings_show_debug_description": "Display in-depth information about the app"
+    "settings_show_debug_description": "Display in-depth information about the app",
+    "search_address_loading": "Loading...",
+    "search_address_no_place_found": "Found nothing",
+    "search_area_no_areas_found": "No areas found",
+    "search_area_title": "Areas",
+    "search_place_title": "Places",
+    "search_placeholder": "Search..."
 }

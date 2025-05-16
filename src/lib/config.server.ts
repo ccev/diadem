@@ -9,6 +9,10 @@ export async function readConfig() {
 	return config.client;
 }
 
+export function isConfigInitialized() {
+	return Boolean(config)
+}
+
 export function getServerConfig() {
 	return config.server;
 }

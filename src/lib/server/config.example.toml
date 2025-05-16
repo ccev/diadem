@@ -7,6 +7,10 @@ url = "http://127.0.0.1:8080"
 secret = "secret"
 projectName = "maltemap"
 
+[server.nominatim]
+url = "http://127.0.0.1:500"
+basicAuth = ""
+
 [server.db]
 host = "127.0.0.1"
 port = 3306

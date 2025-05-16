@@ -1,6 +1,12 @@
-import type { Feature } from 'geojson';
+import type { Feature, Polygon } from 'geojson';
 
-let geofences: Feature[] = []
+type KojiProperties = {
+	name: string
+	lucideIcon?: string
+	group?: string
+}
+
+let geofences: Feature<Polygon, KojiProperties>[] = []
 
 export async function loadKojiGeofences() {
 	const result = await fetch("/api/koji")

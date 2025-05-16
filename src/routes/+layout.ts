@@ -11,25 +11,31 @@ import { setConfig } from '@/lib/config';
 import { loadKojiGeofences } from '@/lib/koji';
 import { loadRemoteLocale } from '@/lib/ingameLocale';
 import { resolveLanguageTag } from '@/lib/i18n';
+import { updateSupportedFeatures } from '@/lib/enabledFeatures';
 
-export const ssr = false
+export const ssr = false;
 
-export const load = async ({fetch}) => {
-	const configResponse = await fetch("/api/config")
-	setConfig(await configResponse.json())
+export const load = async ({ fetch }) => {
+	const configResponse = await fetch('/api/config');
+	setConfig(await configResponse.json());
 
-	await Promise.all([initAllIconSets(), loadMasterFile(), loadKojiGeofences()])
+	await Promise.all([
+		initAllIconSets(),
+		loadMasterFile(),
+		loadKojiGeofences(),
+		updateSupportedFeatures()
+	]);
 
 	if (browser) {
-		const rawUserSettings = localStorage.getItem('userSettings')
+		const rawUserSettings = localStorage.getItem('userSettings');
 
 		if (rawUserSettings) {
-			setUserSettings(JSON.parse(rawUserSettings))
+			setUserSettings(JSON.parse(rawUserSettings));
 		} else {
-			setUserSettings(getDefaultUserSettings())
-			updateUserSettings()
+			setUserSettings(getDefaultUserSettings());
+			updateUserSettings();
 		}
 
-		await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag))
+		await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
 	}
-}
+};

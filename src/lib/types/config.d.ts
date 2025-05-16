@@ -57,6 +57,10 @@ export type ServerConfig = {
 		secret: string
 		projectName: string
 	}
+	nominatim?: {
+		url: string
+		basicAuth?: string
+	}
 }
 
 export type Config = {
