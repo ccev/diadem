@@ -32,7 +32,7 @@
 	let { mapId }: { mapId: string } = $props();
 	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData);
 	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? '[]'));
-	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? '[{"timeslot":1747387840273,"going_count":7,"maybe_count":2},{"timeslot":1747387841273,"going_count":1,"maybe_count":1}]'));
+	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? '[]'));
 
 	function getTitle() {
 		let title = getConfig().general.mapName;
