@@ -1,4 +1,4 @@
-import { getConfig } from '@/lib/config';
+import { getConfig } from '@/lib/config/config';
 import type { MapMouseEvent } from 'maplibre-gl';
 import type { LayerClickInfo } from 'svelte-maplibre';
 import type { Feature } from '@/lib/map/featuresGen.svelte.js';

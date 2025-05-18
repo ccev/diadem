@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getServerConfig } from '@/lib/config.server';
+import { getServerConfig } from '@/lib/config/config.server';
 import type { FeatureCollection, Point } from 'geojson';
 
 type NominatimProps = {

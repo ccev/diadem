@@ -6,6 +6,8 @@ import { s2 } from 's2js';
 import type { WeatherData } from '@/lib/types/mapObjectData/weather';
 import TTLCache from '@isaacs/ttlcache';
 import type { FeatureCollection, Polygon } from 'geojson';
+import { checkPermsFeatures } from '@/lib/user/checkPerm';
+import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
 const WEATHER_CELL_LEVEL = 10;
 const UPDATE_INTERVAL = 5 * 60 * 1000
@@ -36,6 +38,8 @@ export function updateCurrentWeatherFeatures(push: boolean) {
 }
 
 export async function updateWeather() {
+	if (!checkPermsFeatures(getUserDetails().permissions, "weather")) return
+
 	// TODO: update more often after full hour
 	const map = getMap();
 	if (!map) return;

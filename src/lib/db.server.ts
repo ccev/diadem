@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise';
-import { getDbUri, getServerConfig } from '@/lib/config.server';
+import { getServerConfig } from '@/lib/config/config.server';
+import { getDbUri } from '@/lib/config/dbUri.server';
 
 const connection = mysql.createPool(getDbUri(getServerConfig().db));
 

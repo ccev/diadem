@@ -1,9 +1,13 @@
 import { json } from '@sveltejs/kit';
 import {env} from '$env/dynamic/private'
-import { getServerConfig } from '@/lib/config.server';
+import { getServerConfig } from '@/lib/config/config.server';
 import type { AllFilters } from '@/lib/filters/filters';
+import { checkPermsFeatures, noPermResult } from '@/lib/user/checkPerm';
 
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
+	console.log(locals.perms)
+	if (!checkPermsFeatures(locals.perms, "pokemon")) return json(noPermResult)
+
 	const reqBody = await request.json()
 	const filter: AllFilters = reqBody.filter
 

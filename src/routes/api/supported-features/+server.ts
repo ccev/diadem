@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getServerConfig } from '@/lib/config.server';
+import { getServerConfig, isAuthRequired } from '@/lib/config/config.server';
 import type { SupportedFeatures } from '@/lib/enabledFeatures';
 
 export async function GET() {
@@ -7,6 +7,8 @@ export async function GET() {
 
 	return json({
 		koji: !!config.koji && !!config.koji.url,
-		geocoding: !!config.nominatim && !!config.nominatim.url
+		geocoding: !!config.nominatim && !!config.nominatim.url,
+		auth: !!config.auth?.enabled,
+		authRequired: isAuthRequired()
 	});
 }

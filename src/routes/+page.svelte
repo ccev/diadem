@@ -7,7 +7,7 @@
 	import { getUserSettings } from '@/lib/userSettings.svelte';
 	import Map from '@/components/map/Map.svelte';
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
-	import { getConfig } from '@/lib/config';
+	import { getConfig } from '@/lib/config/config';
 	import GymPopup from '@/components/ui/popups/gym/GymPopup.svelte';
 	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
 	import { getCurrentSelectedData, getCurrentSelectedMapId } from '@/lib/mapObjects/currentSelectedState.svelte';

@@ -1,8 +1,8 @@
 import { UICONS } from "uicons.js"
 import {getUserSettings} from '@/lib/userSettings.svelte';
-import {getConfig} from '@/lib/config';
+import {getConfig} from '@/lib/config/config';
 import type {PokemonData} from '@/lib/types/mapObjectData/pokemon';
-import type { UiconSet } from '@/lib/types/config';
+import type { UiconSet } from '@/lib/config/config.d';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import type { Incident, PokestopData, QuestReward } from '@/lib/types/mapObjectData/pokestop';
 import type { StationData } from '@/lib/types/mapObjectData/station';

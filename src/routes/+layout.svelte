@@ -13,7 +13,7 @@
 	import { closeModal, getModalOptions, isModalOpen } from '@/lib/modal.svelte';
 	import {fade, slide} from 'svelte/transition';
 	import { availableLanguageTags } from '@/lib/paraglide/runtime';
-	import { getConfig } from '@/lib/config';
+	import { getConfig } from '@/lib/config/config';
 	import { loadRemoteLocale } from '@/lib/ingameLocale';
 
 	let { children } = $props();

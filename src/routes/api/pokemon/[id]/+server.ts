@@ -1,8 +1,11 @@
 import { json } from '@sveltejs/kit';
 import {env} from '$env/dynamic/private'
-import { getServerConfig } from '@/lib/config.server';
+import { getServerConfig } from '@/lib/config/config.server';
+import { checkPermsFeatures, noPermResult } from '@/lib/user/checkPerm';
 
-export async function GET({ params }) {
+export async function GET({ params, locals }) {
+	if (!checkPermsFeatures(locals.perms, "pokemon")) return json(noPermResult)
+
 	let url = getServerConfig().golbat.url || env.GOLBAT_BACKEND_URL
 	url += "/api/pokemon/id/" + params.id
 

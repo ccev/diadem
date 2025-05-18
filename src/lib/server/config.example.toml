@@ -11,12 +11,44 @@ projectName = "maltemap"
 url = "http://127.0.0.1:500"
 basicAuth = ""
 
+[server.auth]
+enabled = true
+optional = true
+
+[server.auth.discord]
+clientId = ""
+clientSecret = ""
+redirectUri = "http://yourmap.com/login/discord/callback"
+serverLink = ""
+
+[[server.permissions]]
+everyone = true
+areas = ["New York"]
+features = ["gym", "pokestop"]
+
+[[server.permissions]]
+loggedIn = true
+features = ["station"]
+
+[[server.permissions]]
+guildId = "1359028304128245934"
+roleId = "1483326963558653982"
+areas = ["*"]
+features = ["*"]
+
 [server.db]
 host = "127.0.0.1"
 port = 3306
 database = "golbat"
 user = ""
 password = ""
+
+[server.internalDb]
+host = "135.181.239.132"
+port = 3306
+database = "maltemap_dev"
+user = "golbat_ext"
+password = "XgwmleVgzYcp8q2kwELFzhBixeK7DGv2GffQJQNinwihAdSV5AWBr"
 
 [client.general]
 mapName = "Maltemap"

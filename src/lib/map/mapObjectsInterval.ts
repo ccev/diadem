@@ -13,7 +13,7 @@ export function clearUpdateMapObjectsInterval() {
 }
 
 export function resetUpdateMapObjectsInterval() {
-	const map = getMap()
+	const map = getMap();
 	if (map) return;
 	if (map.getZoom() < UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM) return;
 	clearUpdateMapObjectsInterval();

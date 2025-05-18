@@ -34,7 +34,7 @@
 	import type { MasterPokemon } from '@/lib/types/masterfile';
 	import TextSeparator from '@/components/utils/TextSeparator.svelte';
 	import * as m from "@/lib/paraglide/messages"
-	import { getConfig } from '@/lib/config';
+	import { getConfig } from '@/lib/config/config';
 	import { ingame, pokemonName } from '@/lib/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';

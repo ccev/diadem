@@ -3,7 +3,7 @@
 	import BottomNavSpacing from '@/components/ui/nav/BottomNavSpacing.svelte';
 	import Button from '@/components/ui/basic/Button.svelte';
 	import { Code, Image, Paintbrush } from 'lucide-svelte';
-	import { getConfig } from '@/lib/config';
+	import { getConfig } from '@/lib/config/config';
 	import * as m from '@/lib/paraglide/messages';
 	import Card from '@/components/ui/basic/Card.svelte';
 </script>

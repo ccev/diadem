@@ -18,7 +18,7 @@
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
 	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
-	import { getConfig } from '@/lib/config';
+	import { getConfig } from '@/lib/config/config';
 	import { ClockAlert, Smartphone } from 'lucide-svelte';
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import QuestDisplay from '@/components/ui/popups/pokestop/QuestDisplay.svelte';

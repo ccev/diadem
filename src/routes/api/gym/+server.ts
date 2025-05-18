@@ -1,7 +1,10 @@
 import { json } from '@sveltejs/kit';
 import { query } from '@/lib/db.server';
+import { checkPermsFeatures, noPermResult } from '@/lib/user/checkPerm';
 
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
+	if (!checkPermsFeatures(locals.perms, "gym")) return json(noPermResult)
+
 	const reqBody = await request.json()
 	const result = await query(
 		"SELECT * FROM gym " +

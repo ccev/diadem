@@ -11,7 +11,7 @@
 		getIconStation,
 		getUiconSetDetails
 	} from '@/lib/uicons.svelte';
-	import { getConfig } from '@/lib/config';
+	import { getConfig } from '@/lib/config/config';
 	import { MapLibre } from 'svelte-maplibre';
 	import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 	import SettingsToggle from '@/components/ui/settings/SettingsToggle.svelte';
@@ -22,6 +22,10 @@
 	import { deleteAllFeaturesOfType } from '@/lib/map/featuresGen.svelte.js';
 	import RadioGroup from '@/components/ui/basic/RadioGroup.svelte';
 	import SettingsRadioGroupItem from '@/components/ui/settings/SettingsRadioGroupItem.svelte';
+  import { getUserDetails } from '@/lib/user/userDetails.svelte';
+  import type { PageProps } from './$types';
+	import ProfileCard from '@/components/ui/settings/ProfileCard.svelte';
+	import { isSupportedFeature } from '@/lib/enabledFeatures';
 
 	$effect(() => {
 		getUserSettings()
@@ -119,6 +123,10 @@
 {/snippet}
 
 <div class="mt-2 mx-auto max-w-[30rem] space-y-4">
+	{#if isSupportedFeature("auth")}
+		<ProfileCard />
+	{/if}
+
 	<SettingsCard>
 		{#snippet title()}
 			<Paintbrush size="18" />

@@ -9,7 +9,10 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check ."
+		"lint": "prettier --check .",
+		"db:push": "drizzle-kit push",
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
 		"@inlang/paraglide-js": "1.11.3",
@@ -18,7 +21,8 @@
 		"@sveltejs/kit": "^2.21.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@tailwindcss/postcss": "^4.1.3",
-		"@types/node": "^22.10.5",
+		"@types/node": "^18",
+		"drizzle-kit": "^0.30.2",
 		"postcss": "^8.4.49",
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
@@ -31,12 +35,17 @@
 	"dependencies": {
 		"@inlang/paraglide-sveltekit": "0.15.0",
 		"@isaacs/ttlcache": "^1.4.1",
+		"@node-rs/argon2": "^2.0.2",
+		"@oslojs/crypto": "^1.0.1",
+		"@oslojs/encoding": "^1.1.0",
 		"@sveltejs/adapter-cloudflare": "^4.9.0",
 		"@turf/turf": "^7.2.0",
 		"@types/geojson": "^7946.0.15",
+		"arctic": "^3.6.1",
 		"bits-ui": "^1.4.8",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"drizzle-orm": "^0.40.0",
 		"lucide-svelte": "^0.487.0",
 		"maplibre-gl": "^5.3.1",
 		"mysql2": "^3.12.0",
@@ -47,5 +56,13 @@
 		"tailwindcss-animate": "^1.0.7",
 		"toml": "^3.0.0",
 		"uicons.js": "^2.0.2"
+	},
+	"engines": {
+		"node": "^22"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	}
 }

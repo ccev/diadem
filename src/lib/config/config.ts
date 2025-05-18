@@ -1,9 +1,8 @@
-import type { ClientConfig } from '@/lib/types/config';
+import type { ClientConfig } from '@/lib/config/config.d';
 
 let config: ClientConfig
 
 export function setConfig(newConfig: ClientConfig) {
-	console.log(newConfig)
 	config = newConfig
 }
 

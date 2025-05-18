@@ -1,4 +1,5 @@
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import type { FeaturesKey } from '@/lib/server/auth/permissions';
 
 type UiconSetModifiers = {
 	default: boolean,
@@ -38,6 +39,28 @@ export type DbCreds = {
 	password: string
 }
 
+type Auth = {
+	enabled: boolean
+	optional: boolean
+	discord?: AuthDiscord
+}
+
+type AuthDiscord = {
+	clientId: string
+	clientSecret: string
+	redirectUri: string
+	serverLink: string
+}
+
+type Permissions = {
+	everyone?: boolean
+	loggedIn?: boolean
+	guildId?: string
+	roleId?: string
+	areas?: string[]
+	features?: FeaturesKey[]
+}
+
 export type ClientConfig = {
 	mapStyles: {
 		id: string
@@ -64,6 +87,8 @@ export type ServerConfig = {
 		basicAuth?: string
 	}
 	internalDb: DbCreds
+	auth: Auth
+	permissions?: Permissions[]
 }
 
 export type Config = {

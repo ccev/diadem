@@ -1,4 +1,4 @@
-import { getConfig } from '@/lib/config';
+import { getConfig } from '@/lib/config/config';
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import type {
 	FilterCategory,
