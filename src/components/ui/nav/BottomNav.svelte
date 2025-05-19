@@ -1,7 +1,9 @@
 <script lang="ts">
-	import {Map, Settings2, Settings} from 'lucide-svelte';
+	import { CircleUserRound, Map, Settings2 } from 'lucide-svelte';
 	import Button from '@/components/ui/basic/Button.svelte';
-	import * as m from "@/lib/paraglide/messages"
+	import * as m from '@/lib/paraglide/messages';
+	import { Avatar } from 'bits-ui';
+	import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
 	let {
 		page,
@@ -9,32 +11,32 @@
 	}: {
 		page: string
 		onmapclick?: () => any
-	} = $props()
+	} = $props();
 
 	function isSelected(path: string) {
-		return path === page
+		return path === page;
 	}
 
 	const buttons = [
 		{
 			text: m.nav_map(),
 			icon: Map,
-			href: "/",
+			href: '/',
 			onclick: onmapclick
 		},
 		{
 			text: m.nav_filters(),
 			icon: Settings2,
-			href: "/filters",
+			href: '/filters',
 			onclick: undefined
 		},
 		{
-			text: m.nav_settings(),
-			icon: Settings,
-			href: "/settings",
+			text: m.nav_profile(),
+			icon: CircleUserRound,
+			href: '/profile',
 			onclick: undefined
 		}
-	]
+	];
 </script>
 
 <div
@@ -42,7 +44,7 @@
 	style="pointer-events: all"
 >
 	{#each buttons as btn}
-	{@const Icon = btn.icon}
+		{@const Icon = btn.icon}
 		<Button
 			tag={btn.onclick ? "button" : "a"}
 			variant="ghost"
@@ -51,7 +53,21 @@
 			href={btn.href}
 			onclick={btn.onclick}
 		>
-			<Icon size="20" />
+			{#if btn.href === "/profile"}
+				<Avatar.Root>
+					<Avatar.Image
+						class="border-2 border-foreground rounded-full h-6 w-6 -mb-1"
+						src={getUserDetails()?.details?.avatarUrl}
+						alt={getUserDetails()?.details?.displayName}
+					/>
+					<Avatar.Fallback>
+						<Icon size="20" />
+					</Avatar.Fallback>
+				</Avatar.Root>
+			{:else}
+				<Icon size="20" />
+			{/if}
+
 			<span
 				class:font-semibold={isSelected(btn.href)}
 				class:tracking-light={isSelected(btn.href)}

@@ -133,5 +133,10 @@
 	"quest_xl_candy": "{count} {pokemon} Candy XL",
 	"quest_mega_resource": "{count} {pokemon} Mega Energy",
 	"quest_ar_notice": "You must hold an AR-Scan task while spinning",
-	"quest_noar_notice": "You can't hold an AR-Scan task while spinning"
+	"quest_noar_notice": "You can't hold an AR-Scan task while spinning",
+	"signin_toast_error": "Error while signing in, please try again",
+	"signin_toast_success": "Signed in as {name}",
+	"signin": "Sign In",
+	"signout": "Sign Out",
+	"nav_profile": "Profile"
 }

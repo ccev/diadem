@@ -1,29 +1,19 @@
 <script lang="ts">
-	import Card from '@/components/ui/basic/Card.svelte';
 	import Button from '@/components/ui/basic/Button.svelte';
-	import { getUserDetails, updateUserDetails } from '@/lib/user/userDetails.svelte';
-	import { Avatar } from 'bits-ui';
+	import { getUserDetails } from '@/lib/user/userDetails.svelte.js';
 	import { getLoginLink } from '@/lib/user/login';
-	import { isSupportedFeature } from '@/lib/enabledFeatures';
-	import { redirect } from '@sveltejs/kit';
-	import { goto } from '$app/navigation';
-	import { clearMap } from '@/lib/mapObjects/updateMapObject';
+	import * as m from '@/lib/paraglide/messages';
+	import LogOutButton from '@/components/ui/user/LogOutButton.svelte';
+	import { Avatar } from 'bits-ui';
 
 	let details = $derived(getUserDetails().details);
-
-	async function logout() {
-		await fetch('/logout');
-		clearMap()
-
-		if (isSupportedFeature("authRequired")) {
-			goto(getLoginLink())
-		} else {
-			await updateUserDetails();
-		}
-	}
+	let isLoggingOut = $state(false)
 </script>
 
-<Card class="py-4 px-4 mx-2">
+<div
+	class="py-4 px-4 mx-2 rounded-lg border bg-card text-card-foreground shadow-md"
+	class:animate-pulse={isLoggingOut}
+>
 	{#if details}
 		<div class="flex items-center justify-start gap-4 w-full">
 			<Avatar.Root
@@ -49,9 +39,9 @@
 			</span>
 			</p>
 			<div class="flex-1 flex justify-end">
-				<Button class="" variant="secondary" onclick={logout}>
-					Sign out
-				</Button>
+				<LogOutButton class="" variant="secondary" bind:isLoggingOut>
+					{m.signout()}
+				</LogOutButton>
 			</div>
 
 		</div>
@@ -61,7 +51,7 @@
 			tag="a"
 			href={getLoginLink()}
 		>
-			Sign In
+			{m.signin()}
 		</Button>
 	{/if}
-</Card>
+</div>

@@ -1,15 +1,11 @@
-import type { RequestEvent } from '@sveltejs/kit';
-import type { OAuth2Tokens } from 'arctic';
-import {
-	createSession, createUserFromDiscordId,
-	generateSessionToken,
-	getUserFromDiscordId, makeNewSession,
-	setSessionTokenCookie
-} from '@/lib/server/auth/auth';
+import type { PageServerLoad } from './$types';
 import { getDiscordAuth } from '@/lib/server/auth/discord';
+import type { OAuth2Tokens } from 'arctic';
 import { getUserInfo } from '@/lib/server/auth/discordDetails';
+import { createUserFromDiscordId, getUserFromDiscordId, makeNewSession } from '@/lib/server/auth/auth';
+import { redirect } from '@sveltejs/kit';
 
-export async function GET(event: RequestEvent): Promise<Response> {
+export const load: PageServerLoad = async (event) => {
 	const discord = getDiscordAuth();
 	if (!discord) return new Response(null, { status: 404 });
 
@@ -17,37 +13,36 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const state = event.url.searchParams.get('state');
 	const storedState = event.cookies.get('discord_state') ?? null;
 	const codeVerifier = event.cookies.get('discord_code_verifier') ?? null;
-	const redirect = event.cookies.get('login_redirect') ?? "/";
+	const redirectLink = event.cookies.get('login_redirect') ?? "/";
+
+	const respone: { error: string | undefined, redir: string, name: string } = {
+		error: undefined,
+		redir: redirectLink,
+		name: ""
+	}
+
 	if (code === null || state === null || storedState === null || codeVerifier === null) {
-		console.warn("Discord Login: No Code or state found")
-		return new Response(null, {
-			status: 400
-		});
+		respone.error = "Discord Login: No Code or state found"
+		return respone
 	}
 	if (state !== storedState) {
-		console.warn("Discord Login: State didn't match")
-		return new Response(null, {
-			status: 400
-		});
+		respone.error = "Discord Login: State didn't match"
+		return respone
 	}
 
 	let tokens: OAuth2Tokens;
 	try {
 		tokens = await discord.validateAuthorizationCode(code, codeVerifier);
 	} catch (e) {
-		console.warn("Discord Login: Invalid code, credentials or redirect URI")
-		return new Response(null, {
-			status: 400
-		});
+		respone.error = "Discord Login: Invalid code, credentials or redirect URI"
+		return respone
 	}
 
 	const userInfo = await getUserInfo(tokens.accessToken())
 
 	if (!userInfo.id) {
-		console.warn("Discord Login: Discord didn't return user info")
-		return new Response(null, {
-			status: 400
-		});
+		respone.error = "Discord Login: Discord didn't return user info"
+		return respone
 	}
 
 	const existingUser = await getUserFromDiscordId(userInfo.id);
@@ -61,11 +56,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	await makeNewSession(event, userId, tokens.accessToken())
 
-	return new Response(null, {
-		status: 302,
-		headers: {
-			Location: redirect
-		}
-	});
-
-}
+	respone.name = userInfo.displayName
+	return respone
+};
