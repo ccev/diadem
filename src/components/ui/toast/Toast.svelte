@@ -5,7 +5,7 @@
 	import { X } from 'lucide-svelte';
 </script>
 
-<div class="top-2 flex w-full justify-center px-2 pointer-events-none fixed z-10">
+<div class="top-2 flex w-full justify-center px-2 pointer-events-none fixed z-50">
 	<div
 		transition:slide={{duration: 70}}
 		class="bg-background text-foreground border-border pointer-events-auto flex items-center justify-between gap-4 overflow-hidden rounded-md border pl-6 pr-2 py-2 shadow-lg transition-all"

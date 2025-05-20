@@ -5,6 +5,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import LogOutButton from '@/components/ui/user/LogOutButton.svelte';
 	import { Avatar } from 'bits-ui';
+	import DiscordIcon from '@/components/icons/DiscordIcon.svelte';
 
 	let details = $derived(getUserDetails().details);
 	let isLoggingOut = $state(false)
@@ -46,12 +47,29 @@
 
 		</div>
 	{:else}
-		<Button
-			variant="default"
-			tag="a"
-			href={getLoginLink()}
-		>
-			{m.signin()}
-		</Button>
+		<div class="flex gap-4">
+
+			<Button
+				class="w-full"
+				variant="default"
+				tag="a"
+				href={getLoginLink()}
+			>
+				<DiscordIcon class="w-4 fill-primary-foreground" />
+				<span>
+					Link with Discord
+				</span>
+			</Button>
+			<Button
+				class="w-full"
+				variant="secondary"
+				tag="a"
+				href=""
+			>
+				<span>
+					Join Server
+				</span>
+			</Button>
+		</div>
 	{/if}
 </div>

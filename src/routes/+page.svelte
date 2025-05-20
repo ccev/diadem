@@ -17,6 +17,9 @@
 	import Search from '@/components/ui/search/Search.svelte';
 	import { openModal } from '@/lib/modal.svelte';
 	import BaseFab from '@/components/ui/fab/BaseFab.svelte';
+	import { isSupportedFeature } from '@/lib/enabledFeatures';
+	import { getUserDetails } from '@/lib/user/userDetails.svelte.js';
+	import SignInButton from '@/lib/user/SignInButton.svelte';
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -37,6 +40,13 @@
 {/snippet}
 
 <ContextMenu />
+
+{#if isSupportedFeature("auth") && !getUserDetails().details}
+	<div class="fixed top-2 z-10 left-1/2 -translate-x-1/2">
+		<SignInButton />
+	</div>
+{/if}
+
 <WeatherOverview />
 
 <div

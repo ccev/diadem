@@ -1,3 +1,7 @@
 export function getLoginLink() {
-	return "/login/discord?redir=" + encodeURIComponent(window.location.pathname)
+	let extra = ""
+	if (window.location.pathname !== "/") {
+		extra = "?redir=" + encodeURIComponent(window.location.pathname)
+	}
+	return "/login/discord" + extra
 }
