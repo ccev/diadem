@@ -57,22 +57,6 @@ type UserSettings = {
 	};
 };
 
-export function getDefaultIconSet(type: MapObjectType) {
-	let iconSet = getConfig().uiconSets.find((s) => s[type]?.default);
-
-	if (!iconSet) {
-		iconSet = getConfig().uiconSets.find((s) => s.base?.default);
-	}
-	if (!iconSet) {
-		iconSet = getConfig().uiconSets[0];
-	}
-
-	return {
-		id: iconSet.id,
-		url: iconSet.url
-	};
-}
-
 export function getDefaultUserSettings(): UserSettings {
 	return {
 		mapPosition: {
@@ -115,6 +99,22 @@ export function getDefaultUserSettings(): UserSettings {
 	};
 }
 
+export function getDefaultIconSet(type: MapObjectType) {
+	let iconSet = getConfig().uiconSets.find((s) => s[type]?.default);
+
+	if (!iconSet) {
+		iconSet = getConfig().uiconSets.find((s) => s.base?.default);
+	}
+	if (!iconSet) {
+		iconSet = getConfig().uiconSets[0];
+	}
+
+	return {
+		id: iconSet.id,
+		url: iconSet.url
+	};
+}
+
 // @ts-ignore
 let userSettings: UserSettings = $state({});
 
@@ -122,6 +122,7 @@ export async function getUserSettingsFromServer() {
 	const response = await fetch("/api/user/settings");
 	const dbUserSettings: { error?: string; result: UserSettings } = await response.json();
 
+	// User has existing user settings, merge with defaults, then update
 	if (!dbUserSettings.error && Object.keys(dbUserSettings.result).length > 0) {
 		setUserSettings(dbUserSettings.result);
 		updateUserSettings();

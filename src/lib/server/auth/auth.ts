@@ -26,7 +26,7 @@ export async function createUserFromDiscordId(discordId: string) {
 	const defaultPerms: Perms = { areas: [], features: [] };
 	const r = await db
 		.insert(table.user)
-		.values({ id: userId, discordId, permissions: JSON.stringify(defaultPerms), userSettings: '{}' });
+		.values({ id: userId, discordId, permissions: defaultPerms, userSettings: {} });
 	return userId;
 }
 

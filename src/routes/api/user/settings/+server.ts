@@ -13,6 +13,6 @@ export async function GET({ locals }) {
 	const userSettings = await getUserSettings(locals.user.id);
 
 	if (!userSettings) return json({ error: 'No data', result: {} });
-
+	
 	return json({ result: JSON.parse(userSettings) });
 }
