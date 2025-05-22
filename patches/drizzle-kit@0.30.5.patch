@@ -1,0 +1,51 @@
+diff --git a/api.js b/api.js
+index 44ccfaa28b23166c174db6aa8f82c204d5983518..e8fafc5a318ecdf75b48af6adf499c2000d2b2c1 100644
+--- a/api.js
++++ b/api.js
+@@ -40950,9 +40950,9 @@ AND
+         progressCallback("checks", checksCount, "fetching");
+       }
+       for (const checkConstraintRow of checkConstraints) {
+-        const constraintName = checkConstraintRow["CONSTRAINT_NAME"];
+-        const constraintValue = checkConstraintRow["CHECK_CLAUSE"];
+-        const tableName = checkConstraintRow["TABLE_NAME"];
++        const constraintName = checkConstraintRow["CONSTRAINT_NAME"] ?? checkConstraintRow["constraint_name"];
++        const constraintValue = checkConstraintRow["CHECK_CLAUSE"] ?? checkConstraintRow["check_clause"];
++        const tableName = checkConstraintRow["TABLE_NAME"] ?? checkConstraintRow["table_name"];
+         const tableInResult = result[tableName];
+         tableInResult.checkConstraint[constraintName] = {
+           name: constraintName,
+diff --git a/api.mjs b/api.mjs
+index d52ed68b1a8da7e334b1d2e08b4298cd3a9597df..ccc947a32e5ba6e638a0de024f7992b841bebc8e 100644
+--- a/api.mjs
++++ b/api.mjs
+@@ -40955,9 +40955,9 @@ AND
+         progressCallback("checks", checksCount, "fetching");
+       }
+       for (const checkConstraintRow of checkConstraints) {
+-        const constraintName = checkConstraintRow["CONSTRAINT_NAME"];
+-        const constraintValue = checkConstraintRow["CHECK_CLAUSE"];
+-        const tableName = checkConstraintRow["TABLE_NAME"];
++        const constraintName = checkConstraintRow["CONSTRAINT_NAME"] ?? checkConstraintRow["constraint_name"];
++        const constraintValue = checkConstraintRow["CHECK_CLAUSE"] ?? checkConstraintRow["check_clause"];
++        const tableName = checkConstraintRow["TABLE_NAME"] ?? checkConstraintRow["table_name"];
+         const tableInResult = result[tableName];
+         tableInResult.checkConstraint[constraintName] = {
+           name: constraintName,
+diff --git a/bin.cjs b/bin.cjs
+index 70941f2a5aec6dcd1218e8a699fb5aafb4025f35..cb0eda41aafa397a51f4d75e5f5df9a1142dd4c4 100755
+--- a/bin.cjs
++++ b/bin.cjs
+@@ -18240,9 +18240,9 @@ AND
+         progressCallback("checks", checksCount, "fetching");
+       }
+       for (const checkConstraintRow of checkConstraints) {
+-        const constraintName = checkConstraintRow["CONSTRAINT_NAME"];
+-        const constraintValue = checkConstraintRow["CHECK_CLAUSE"];
+-        const tableName = checkConstraintRow["TABLE_NAME"];
++        const constraintName = checkConstraintRow["CONSTRAINT_NAME"] ?? checkConstraintRow["constraint_name"];
++        const constraintValue = checkConstraintRow["CHECK_CLAUSE"] ?? checkConstraintRow["check_clause"];
++        const tableName = checkConstraintRow["TABLE_NAME"] ?? checkConstraintRow["table_name"];
+         const tableInResult = result[tableName];
+         tableInResult.checkConstraint[constraintName] = {
+           name: constraintName,

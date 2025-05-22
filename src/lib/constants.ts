@@ -32,3 +32,8 @@ export const POKEMON_MIN_RANK = 15
  * How much to increase the map icon's size when it's selected
  */
 export const SELECTED_MAP_OBJECT_SCALE = 2
+
+/**
+ * Interval to refresh Discord Auth (seconds)
+ */
+export const DISCORD_REFRESH_INTERVAL = 60 * 60 * 24

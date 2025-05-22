@@ -1,4 +1,5 @@
 <script lang="ts">
+	// noinspection ES6UnusedImports
 	import { Command } from 'bits-ui';
 	import { onMount } from 'svelte';
 	import { Search, X } from 'lucide-svelte';
@@ -7,7 +8,6 @@
 	import { isSupportedFeature } from '@/lib/enabledFeatures';
 	import { getKojiGeofences } from '@/lib/koji';
 	import * as m from '@/lib/paraglide/messages';
-	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import { closeModal } from '@/lib/modal.svelte';
 	import Button from '@/components/ui/basic/Button.svelte';
 

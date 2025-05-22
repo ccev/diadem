@@ -1,68 +1,76 @@
-import { getConfig } from '@/lib/config/config';
-import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import { getConfig } from "@/lib/config/config";
+import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import type {
 	FilterCategory,
-	FilterContest, FilterGymMajor, FilterGymPlain,
-	FilterInvasion, FilterLure,
+	FilterContest,
+	FilterGymMajor,
+	FilterGymPlain,
+	FilterInvasion,
+	FilterLure,
 	FilterPokemon,
-	FilterPokestopMajor, FilterPokestopPlain, FilterQuest, FilterRaid, FilterS2Cell, FilterStationMajor
-} from '@/lib/filters/filters';
-import { getUserDetails } from '@/lib/user/userDetails.svelte';
+	FilterPokestopMajor,
+	FilterPokestopPlain,
+	FilterQuest,
+	FilterRaid,
+	FilterS2Cell,
+	FilterStationMajor
+} from "@/lib/filters/filters";
+import { getUserDetails } from "@/lib/user/userDetails.svelte";
 
 type UiconSetUS = {
-	id: string
-	url: string
-}
+	id: string;
+	url: string;
+};
 
 type UserSettings = {
 	mapPosition: {
 		center: {
-			lat: number
-			lng: number
-		}
-		zoom: number
-	}
+			lat: number;
+			lng: number;
+		};
+		zoom: number;
+	};
 	mapStyle: {
-		id: string
-		url: string
-	}
-	uiconSet: {[key in MapObjectType]: UiconSetUS}
-	isLeftHanded: boolean,
-	isDarkMode: boolean | null,
-	loadMapObjectsWhileMoving: boolean
-	loadMapObjectsPadding: number,
-	showDebugMenu: boolean,
-	languageTag: string | "auto",
+		id: string;
+		url: string;
+	};
+	uiconSet: { [key in MapObjectType]: UiconSetUS };
+	isLeftHanded: boolean;
+	isDarkMode: boolean | null;
+	loadMapObjectsWhileMoving: boolean;
+	loadMapObjectsPadding: number;
+	showDebugMenu: boolean;
+	languageTag: string | "auto";
 	filters: {
-		pokemonMajor: FilterPokemon
-		pokestopMajor: FilterPokestopMajor
-		pokestopPlain: FilterPokestopPlain
-		quest: FilterQuest
-		invasion: FilterInvasion
-		contest: FilterContest
-		lure: FilterLure
-		gymMajor: FilterGymMajor
-		gymPlain: FilterGymPlain
-		raid: FilterRaid
-		stationMajor: FilterStationMajor
-		s2cell: FilterS2Cell
-	}
-}
+		pokemonMajor: FilterPokemon;
+		pokestopMajor: FilterPokestopMajor;
+		pokestopPlain: FilterPokestopPlain;
+		quest: FilterQuest;
+		invasion: FilterInvasion;
+		contest: FilterContest;
+		lure: FilterLure;
+		gymMajor: FilterGymMajor;
+		gymPlain: FilterGymPlain;
+		raid: FilterRaid;
+		stationMajor: FilterStationMajor;
+		s2cell: FilterS2Cell;
+	};
+};
 
 export function getDefaultIconSet(type: MapObjectType) {
-	let iconSet = getConfig().uiconSets.find(s => s[type]?.default)
+	let iconSet = getConfig().uiconSets.find((s) => s[type]?.default);
 
 	if (!iconSet) {
-		iconSet = getConfig().uiconSets.find(s => s.base?.default)
+		iconSet = getConfig().uiconSets.find((s) => s.base?.default);
 	}
 	if (!iconSet) {
-		iconSet = getConfig().uiconSets[0]
+		iconSet = getConfig().uiconSets[0];
 	}
 
 	return {
 		id: iconSet.id,
 		url: iconSet.url
-	}
+	};
 }
 
 export function getDefaultUserSettings(): UserSettings {
@@ -70,13 +78,13 @@ export function getDefaultUserSettings(): UserSettings {
 		mapPosition: {
 			center: {
 				lat: 53.86762990550971,
-				lng: 10.687758976519007,
+				lng: 10.687758976519007
 			},
 			zoom: 15
 		},
 		mapStyle: {
 			id: getConfig().mapStyles[0].id,
-			url: getConfig().mapStyles[0].url,
+			url: getConfig().mapStyles[0].url
 		},
 		uiconSet: {
 			pokemon: getDefaultIconSet("pokemon"),
@@ -104,54 +112,50 @@ export function getDefaultUserSettings(): UserSettings {
 			stationMajor: { category: "stationMajor", type: "all" },
 			s2cell: { category: "s2cell", type: "none", filters: { levels: [15] } }
 		}
-	}
+	};
 }
 
 // @ts-ignore
-let userSettings: UserSettings = $state({})
+let userSettings: UserSettings = $state({});
 
 export async function getUserSettingsFromServer() {
-	const response = await fetch("/api/user/settings")
-	const dbUserSettings: { error?: string, result: UserSettings } = await response.json()
+	const response = await fetch("/api/user/settings");
+	const dbUserSettings: { error?: string; result: UserSettings } = await response.json();
 
 	if (!dbUserSettings.error && Object.keys(dbUserSettings.result).length > 0) {
-		setUserSettings(dbUserSettings.result)
-		updateUserSettings()
-		return true
+		setUserSettings(dbUserSettings.result);
+		updateUserSettings();
+		return true;
 	}
 
-	return false
+	return false;
 }
 
 export function setUserSettings(newUserSettings: UserSettings) {
 	// @ts-ignore
-	userSettings = deepMerge(getDefaultUserSettings(), newUserSettings)
+	userSettings = deepMerge(getDefaultUserSettings(), newUserSettings);
 }
 
 export function getUserSettings() {
-	return userSettings
+	return userSettings;
 }
 
 export function updateUserSettings() {
-	const serializedUserSettings = JSON.stringify(userSettings)
-	localStorage.setItem("userSettings", serializedUserSettings)
+	const serializedUserSettings = JSON.stringify(userSettings);
+	localStorage.setItem("userSettings", serializedUserSettings);
 
 	if (getUserDetails().details) {
-		fetch("/api/user/settings", { method: "POST", body: serializedUserSettings }).then()
+		fetch("/api/user/settings", { method: "POST", body: serializedUserSettings }).then();
 	}
 }
 
-function deepMerge(defaultObj: {[key: string]: any}, newObj: {[key: string]: any}) {
+function deepMerge(defaultObj: { [key: string]: any }, newObj: { [key: string]: any }) {
 	const result = { ...defaultObj };
 	for (const key in newObj) {
-		if (
-			newObj[key] instanceof Object
-			&& !(newObj[key] instanceof Array)
-			&& key in defaultObj
-		) {
+		if (newObj[key] instanceof Object && !(newObj[key] instanceof Array) && key in defaultObj) {
 			result[key] = deepMerge(defaultObj[key], newObj[key]);
 		} else {
-			result[key] = newObj[key]
+			result[key] = newObj[key];
 		}
 	}
 	return result;

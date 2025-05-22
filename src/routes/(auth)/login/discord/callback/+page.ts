@@ -7,7 +7,7 @@ export const load: PageLoad = (event) => {
 	if (event.data.error) {
 		openToast(m.signin_toast_error(), 10000);
 	} else {
-		openToast(m.signin_toast_success({ name: event.data.name }), 10000);
+		openToast(m.signin_toast_success({ name: event.data.name ?? "" }), 10000);
 	}
 
 	return redirect(302, event.data.redir ?? '/');

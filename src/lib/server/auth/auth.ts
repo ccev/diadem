@@ -30,9 +30,10 @@ export async function createUserFromDiscordId(discordId: string) {
 	return userId;
 }
 
-export async function makeNewSession(event: RequestEvent, userId: string, accessToken: string) {
+export async function makeNewSession(event: RequestEvent, userId: string, accessToken: string, refreshToken: string, expiresAt: Date) {
 	const sessionToken = generateSessionToken();
-	const session = await createSession(sessionToken, userId, accessToken);
+
+	const session = await createSession(sessionToken, userId, accessToken, refreshToken, expiresAt);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
 }
 
@@ -41,13 +42,15 @@ export function generateSessionToken() {
 	return encodeBase64url(bytes);
 }
 
-export async function createSession(token: string, userId: string, accessToken: string) {
+export async function createSession(token: string, userId: string, accessToken: string, refreshToken: string, expiresAt: Date) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const session: table.Session = {
 		id: sessionId,
 		userId,
-		expiresAt: new Date(Date.now() + DAY_IN_MS * 30),
-		discordToken: accessToken
+		expiresAt,
+		discordToken: accessToken,
+		discordRefreshToken: refreshToken,
+		discordLastRefresh: new Date(Date.now()),
 	};
 	await db.insert(table.session).values(session);
 	return session;
