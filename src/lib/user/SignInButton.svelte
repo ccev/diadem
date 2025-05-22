@@ -6,15 +6,19 @@
 </script>
 
 <Button
-	class="rounded-lg! border-slate-200 border-1 gap-2 pointer-events-autos mx-2"
-	variant="secondary"
+	class="gap-3! items-center w-full bg-card"
+	variant="ghost"
 	size="sm"
 	tag="a"
 	href={getLoginLink()}
 >
-	<DiscordIcon class="w-3 fill-foreground" />
-	<span>
-		Link with Discord to unlock more features
-	</span>
-	<X size="18" />
+	<DiscordIcon class="w-4 fill-foreground shrink-0" />
+	<p class="text-sm">
+		To unlock more features,
+		<a href={getLoginLink()} class="underline text-accent-foreground font-semibold">link your Discord account</a>
+	</p>
 </Button>
+
+<!--<div class="flex gap-3 items-center">-->
+
+<!--</div>-->

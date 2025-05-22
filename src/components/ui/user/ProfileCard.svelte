@@ -6,6 +6,8 @@
 	import LogOutButton from '@/components/ui/user/LogOutButton.svelte';
 	import { Avatar } from 'bits-ui';
 	import DiscordIcon from '@/components/icons/DiscordIcon.svelte';
+	import { Link2Off, LogOut } from 'lucide-svelte';
+	import { getConfig } from '@/lib/config/config';
 
 	let details = $derived(getUserDetails().details);
 	let isLoggingOut = $state(false)
@@ -40,36 +42,76 @@
 			</span>
 			</p>
 			<div class="flex-1 flex justify-end">
-				<LogOutButton class="" variant="secondary" bind:isLoggingOut>
-					{m.signout()}
+				{#if !getUserDetails().isGuildMember}
+					<Button
+						tag="a"
+						href={getConfig().discord.serverLink}
+						class="mr-2"
+					>
+						Join Server
+					</Button>
+				{/if}
+				<LogOutButton class="" size="icon" variant="outline" title={m.signout()} bind:isLoggingOut>
+					<!--{m.signout()}-->
+					<Link2Off size="16" />
 				</LogOutButton>
 			</div>
 
 		</div>
+<!--		<Button-->
+<!--			class="gap-3! items-center w-full"-->
+<!--			variant="ghost"-->
+<!--			tag="a"-->
+<!--			href={getLoginLink()}-->
+<!--			size="sm"-->
+<!--		>-->
+<!--			<DiscordIcon class="w-4 fill-foreground shrink-0" />-->
+<!--			<p>-->
+<!--				To unlock more features,-->
+<!--				<b class="underline text-accent-foreground">join the Discord server</b>-->
+<!--			</p>-->
+<!--		</Button>-->
 	{:else}
-		<div class="flex gap-4">
+<!--		<div class="text-center w-full text-sm mb-2">Unlock more features</div>-->
+<!--		<div class="flex-col gap-4">-->
 
-			<Button
-				class="w-full"
-				variant="default"
-				tag="a"
-				href={getLoginLink()}
-			>
-				<DiscordIcon class="w-4 fill-primary-foreground" />
-				<span>
-					Link with Discord
-				</span>
-			</Button>
-			<Button
-				class="w-full"
-				variant="secondary"
-				tag="a"
-				href=""
-			>
-				<span>
-					Join Server
-				</span>
-			</Button>
-		</div>
+<!--			<Button-->
+<!--				class="w-full"-->
+<!--				variant="default"-->
+<!--				tag="a"-->
+<!--				href={getLoginLink()}-->
+<!--			>-->
+<!--				<DiscordIcon class="w-4 fill-primary-foreground" />-->
+<!--				<span>-->
+<!--					Link your Discord account-->
+<!--				</span>-->
+<!--			</Button>-->
+<!--			<Button-->
+<!--				class="w-full"-->
+<!--				variant="link"-->
+<!--				tag="a"-->
+<!--				href=""-->
+<!--			>-->
+<!--				<span>-->
+<!--					or join the Discord server-->
+<!--				</span>-->
+<!--			</Button>-->
+<!--		</div>-->
+		<Button
+			class="gap-3! items-center w-full"
+			variant="ghost"
+			tag="a"
+			href={getLoginLink()}
+			size="sm"
+		>
+			<DiscordIcon class="w-4 fill-foreground shrink-0" />
+			<p>
+				To unlock more features,
+				<b class="underline text-accent-foreground">link your Discord account</b>
+			</p>
+		</Button>
+
+
+<!--		and <a href="https://discord.com" class="underline">join the Discord server</a>-->
 	{/if}
 </div>

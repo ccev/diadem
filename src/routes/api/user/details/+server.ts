@@ -1,9 +1,10 @@
 import { json } from '@sveltejs/kit';
-import { getUserInfo } from '@/lib/server/auth/discordDetails';
+import { getUserInfo, isGuildMember } from '@/lib/server/auth/discordDetails';
 import type { UserData } from '@/lib/user/userDetails.svelte';
 import { DISCORD_REFRESH_INTERVAL } from '@/lib/constants';
 import { invalidateSession, makeNewSession } from '@/lib/server/auth/auth';
 import { getDiscordAuth } from '@/lib/server/auth/discord';
+import { getClientConfig, getServerConfig } from '@/lib/config/config.server';
 
 export async function GET(event) {
 	const user = event.locals.user
@@ -11,6 +12,7 @@ export async function GET(event) {
 	if (!user) return json({});
 
 	const data = await getUserInfo(session.discordToken);
+	const isMember = await isGuildMember(getClientConfig().discord.serverId, session.discordToken)
 
 	// Refresh Discord Auth if necessary
 	const discord = getDiscordAuth()
@@ -24,6 +26,7 @@ export async function GET(event) {
 
 	return json({
 		details: data,
-		permissions: user.permissions
+		permissions: user.permissions,
+		isGuildMember: isMember
 	} as UserData);
 }

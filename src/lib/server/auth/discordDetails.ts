@@ -43,3 +43,8 @@ export async function getGuildMemberInfo(guildId: string, accessToken: string) {
 	const guildMember: DiscordGuildData = await response.json();
 	return guildMember
 }
+
+export async function isGuildMember(guildId: string, accessToken: string) {
+	const guildMember = await getGuildMemberInfo(guildId, accessToken)
+	return !!guildMember.user
+}

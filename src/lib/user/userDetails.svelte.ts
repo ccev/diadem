@@ -4,6 +4,7 @@ import type { Perms } from '@/lib/server/auth/permissions';
 export type UserData = {
 	details?: DiscordUser;
 	permissions: Perms;
+	isGuildMember?: boolean;
 }
 
 let userDetails: UserData = $state({

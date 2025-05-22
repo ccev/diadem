@@ -49,7 +49,11 @@ type AuthDiscord = {
 	clientId: string
 	clientSecret: string
 	redirectUri: string
+}
+
+type ClientDiscord = {
 	serverLink: string
+	serverId: string
 }
 
 type Permissions = {
@@ -68,7 +72,8 @@ export type ClientConfig = {
 		url: string
 	}[]
 	uiconSets: UiconSet[]
-	general: General
+	general: General,
+	discord: ClientDiscord
 }
 
 export type ServerConfig = {
