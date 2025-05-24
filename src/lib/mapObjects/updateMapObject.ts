@@ -24,7 +24,7 @@ import { updateFeatures } from '@/lib/map/featuresGen.svelte';
 import { updateMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 import { clearS2Cells, updateS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 import { updateWeather } from '@/lib/mapObjects/weather.svelte';
-import { checkPermsFeatures } from '@/lib/user/checkPerm';
+import { hasFeatureAnywhere } from '@/lib/user/checkPerm';
 import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
 export function makeMapObject(data: MapData, type: MapObjectType) {
@@ -63,7 +63,7 @@ export async function updateMapObject(
 	type: MapObjectType | MinorMapObjectType,
 	removeOld: boolean = true
 ) {
-	if (!checkPermsFeatures(getUserDetails().permissions, type)) return
+	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return
 
 	const startTime = performance.now();
 	let filter: AllFilters | undefined = undefined;

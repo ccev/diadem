@@ -56,7 +56,7 @@ type ClientDiscord = {
 	serverId: string
 }
 
-type Permissions = {
+export type Permissions = {
 	everyone?: boolean
 	loggedIn?: boolean
 	guildId?: string

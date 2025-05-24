@@ -1,13 +1,21 @@
-import type { FeaturesKey, Perms } from '@/lib/server/auth/permissions';
+import type { FeaturesKey, Perms } from "@/lib/server/auth/permissions";
 
 export const noPermResult = {
-	error: 'Missing permissions',
+	error: "Missing permissions",
 	result: []
 };
 
-export function checkPermsFeatures(perms: Perms, feature: FeaturesKey) {
-	if (perms.features === undefined) return true;
-	if (perms.features.includes('*')) return true;
+function isFeatureInFeatureList(featureList: FeaturesKey[], feature: FeaturesKey) {
+	return featureList.includes("*") || featureList.includes(feature)
+}
 
-	return perms.features.includes(feature);
+export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
+	if (isFeatureInFeatureList(perms.everywhere, feature)) return true;
+
+	for (const area of perms.areas) {
+		if (isFeatureInFeatureList(area.features, feature)) {
+			return true
+		}
+	}
+	return false
 }

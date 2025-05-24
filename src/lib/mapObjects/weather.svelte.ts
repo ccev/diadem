@@ -6,7 +6,7 @@ import { s2 } from 's2js';
 import type { WeatherData } from '@/lib/types/mapObjectData/weather';
 import TTLCache from '@isaacs/ttlcache';
 import type { FeatureCollection, Polygon } from 'geojson';
-import { checkPermsFeatures } from '@/lib/user/checkPerm';
+import { hasFeatureAnywhere } from '@/lib/user/checkPerm';
 import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
 const WEATHER_CELL_LEVEL = 10;
@@ -38,7 +38,7 @@ export function updateCurrentWeatherFeatures(push: boolean) {
 }
 
 export async function updateWeather() {
-	if (!checkPermsFeatures(getUserDetails().permissions, "weather")) {
+	if (!hasFeatureAnywhere(getUserDetails().permissions, "weather")) {
 		currentWeather = false
 		updateCurrentWeatherFeatures(false)
 		return

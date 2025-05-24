@@ -14,7 +14,7 @@
 
 	import { slide } from 'svelte/transition';
 	import SettingsSelect from '@/components/ui/settings/SettingsSelect.svelte';
-	import { checkPermsFeatures } from '@/lib/user/checkPerm';
+	import { hasFeatureAnywhere } from '@/lib/user/checkPerm';
 	import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
 	let test: boolean = $state(false);
@@ -86,7 +86,7 @@
 <!--{/snippet}-->
 
 <div class="mt-2 mx-auto max-w-[30rem]">
-	{#if checkPermsFeatures(getUserDetails().permissions, "pokemon")}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
 		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 			<SettingsGeneric title="Pokémon">
 				<FilterTypeSelect category="pokemonMajor" />
@@ -123,7 +123,7 @@
 		</Card>
 	{/if}
 
-	{#if checkPermsFeatures(getUserDetails().permissions, "pokestop")}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokestop")}
 		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 			<SettingsGeneric title="Plain Pokéstops">
 				<FilterTypeSelect category="pokestopPlain" />
@@ -157,7 +157,7 @@
 		</Card>
 	{/if}
 
-	{#if checkPermsFeatures(getUserDetails().permissions, "gym")}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}
 		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 			<SettingsGeneric title="Plain Gyms">
 				<FilterTypeSelect category="gymPlain" />
@@ -168,7 +168,7 @@
 		</Card>
 	{/if}
 
-	{#if checkPermsFeatures(getUserDetails().permissions, "station")}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, "station")}
 		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 			<SettingsGeneric title="Plain Power Spots">
 				<FilterTypeSelect category="stationMajor" />
@@ -176,7 +176,7 @@
 		</Card>
 	{/if}
 
-	{#if checkPermsFeatures(getUserDetails().permissions, "s2cell")}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, "s2cell")}
 		<Card class="pt-4 pb-2 px-2 mx-2">
 			<SettingsGeneric title="S2 Cells">
 				<FilterTypeSelect category="s2cell" />
