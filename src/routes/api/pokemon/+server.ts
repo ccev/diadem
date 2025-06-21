@@ -1,14 +1,18 @@
 import { json } from '@sveltejs/kit';
 import {env} from '$env/dynamic/private'
 import { getServerConfig } from '@/lib/config/config.server';
-import type { AllFilters } from '@/lib/filters/filters';
-import { hasFeatureAnywhere, noPermResult } from '@/lib/user/checkPerm';
+import type { AllFilters, FilterPokemon } from '@/lib/filters/filters';
+import { checkFeatureInBounds, hasFeatureAnywhere, noPermResult } from '@/lib/user/checkPerm';
+import type { Bounds } from '@/lib/mapObjects/mapBounds';
+import type { MapObjectRequestData } from '@/lib/mapObjects/updateMapObject';
 
 export async function POST({ request, locals }) {
 	if (!hasFeatureAnywhere(locals.perms, "pokemon")) return json(noPermResult)
 
-	const reqBody = await request.json()
-	const filter: AllFilters = reqBody.filter
+	const reqBody: MapObjectRequestData = await request.json()
+	const filter = reqBody.filter as FilterPokemon
+
+	const bounds = checkFeatureInBounds(locals.perms, "pokemon", reqBody)
 
 	let golbatFilters = [
 		{
@@ -29,12 +33,12 @@ export async function POST({ request, locals }) {
 
 	const body = {
 		min: {
-			latitude: reqBody.minLat,
-			longitude: reqBody.minLon,
+			latitude: bounds.minLat,
+			longitude: bounds.minLon,
 		},
 		max: {
-			latitude: reqBody.maxLat,
-			longitude: reqBody.maxLon,
+			latitude: bounds.maxLat,
+			longitude: bounds.maxLon,
 		},
 		limit: 500000,
 		filters: golbatFilters

@@ -6,12 +6,13 @@ import type { Permissions as ConfigRule } from "@/lib/config/config.d";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { type KojiFeatures } from "@/lib/koji";
 import { fetchKojiGeofences } from "@/lib/koji.server";
+import type { Polygon } from 'geojson';
 
 export type FeaturesKey = "*" | "pokemon" | "gym" | "pokestop" | "station" | "weather" | "s2cell";
 type PermArea = {
 	name: string;
 	features: FeaturesKey[];
-	bounds: Bounds;
+	polygon: Polygon;
 };
 export type Perms = {
 	everywhere: FeaturesKey[];
@@ -45,15 +46,8 @@ function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | un
 					);
 					continue;
 				}
-
-				const bounds: Bounds = {
-					minLon: kojiFeature!.bbox![0],
-					minLat: kojiFeature!.bbox![1],
-					maxLon: kojiFeature!.bbox![2],
-					maxLat: kojiFeature!.bbox![3]
-				};
-
-				area = { name: ruleArea, features: [], bounds };
+				
+				area = { name: ruleArea, features: [], polygon: kojiFeature.geometry };
 				perms.areas.push(area);
 			}
 

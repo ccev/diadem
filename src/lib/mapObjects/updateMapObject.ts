@@ -27,6 +27,8 @@ import { updateWeather } from '@/lib/mapObjects/weather.svelte';
 import { hasFeatureAnywhere } from '@/lib/user/checkPerm';
 import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
+export type MapObjectRequestData = Bounds & { filter: AllFilters | undefined }
+
 export function makeMapObject(data: MapData, type: MapObjectType) {
 	data.type = type;
 	data.mapId = type + '-' + data.id;
@@ -86,7 +88,7 @@ export async function updateMapObject(
 		return;
 	}
 
-	const body = {
+	const body: MapObjectRequestData = {
 		...getBounds(),
 		filter
 	};
