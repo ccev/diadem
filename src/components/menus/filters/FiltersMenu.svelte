@@ -85,7 +85,7 @@
 <!--	</SelectGroup>-->
 <!--{/snippet}-->
 
-<div class="mt-2 mx-auto max-w-[30rem]">
+<div class="">
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
 		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
 			<SettingsGeneric title="Pokémon">
@@ -199,7 +199,3 @@
 		</Card>
 	{/if}
 </div>
-
-<BottomNavSpacing />
-<BottomNavWrapper page="/filters" />
-

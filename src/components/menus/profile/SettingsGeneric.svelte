@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SettingsSettingTitle from '@/components/ui/settings/SettingsSettingTitle.svelte';
+	import SettingsSettingTitle from '@/components/menus/profile/SettingsSettingTitle.svelte';
 	import type { Snippet } from 'svelte';
 
 	let {

@@ -20,12 +20,23 @@
 	import { isSupportedFeature } from '@/lib/enabledFeatures';
 	import { getUserDetails } from '@/lib/user/userDetails.svelte.js';
 	import SignInButton from '@/components/ui/user/SignInButton.svelte';
+	import { getOpenedMenu, isMenuSidebar, isUiLeft, openMenu } from '@/lib/menus.svelte';
+	import ProfileMenu from '@/components/menus/profile/ProfileMenu.svelte';
+	import FiltersMenu from '@/components/menus/filters/FiltersMenu.svelte';
+	import Fabs from '@/components/ui/fab/Fabs.svelte';
+	import PopupContainer from '@/components/ui/popups/PopupContainer.svelte';
+	import { innerWidth } from "svelte/reactivity/window";
+	import MenuContainer from '@/components/menus/MenuContainer.svelte';
+	import CloseButton from '@/components/ui/CloseButton.svelte';
+	import MobileMenu from '@/components/menus/MobileMenu.svelte';
+	import DesktopMenu from '@/components/menus/DesktopMenu.svelte';
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-			e.preventDefault();
-			openModal(searchModalSnippet, "top")
-		}
+	let showSignInButton = $derived(isSupportedFeature("auth") && !getUserDetails().details)
+	const desktopPopupCutoff = 900
+	// const desktopPopupCutoff = 736
+
+	function onmapclick() {
+		resetMap()
 	}
 </script>
 
@@ -33,60 +44,74 @@
 	<title>{getConfig().general.mapName}</title>
 </svelte:head>
 
-<svelte:document onkeydown={handleKeydown} />
-
-{#snippet searchModalSnippet()}
-	<Search/>
-{/snippet}
-
 <ContextMenu />
 
-{#if isSupportedFeature("auth") && !getUserDetails().details}
-	<div class="fixed top-2 z-10 left-1/2 -translate-x-1/2">
+{#if showSignInButton}
+	<div class="fixed top-2 z-20 left-1/2 -translate-x-1/2">
 		<SignInButton />
 	</div>
 {/if}
 
+<!--{#if getOpenedMenu()}-->
+<!--	<div class="fixed top-2 left-2 bottom-20 pb-2 z-10 max-w-[26rem] overflow-y-auto max-h-full rounded-lg ">-->
+<!--		{#if showSignInButton}-->
+<!--			<div class="h-11"></div>-->
+<!--		{/if}-->
+<!--		{#if getOpenedMenu() === "profile"}-->
+<!--			profile-->
+<!--			<ProfileMenu />-->
+<!--		{:else if getOpenedMenu() === "filters"}-->
+<!--			filters-->
+<!--			<FiltersMenu />-->
+<!--		{/if}-->
+<!--	</div>-->
+
+<!--{/if}-->
+
 <WeatherOverview />
 
-<div
-	class="fixed z-10 bottom-2 w-full flex flex-col pointer-events-none"
-	class:items-end={!getUserSettings().isLeftHanded}
-	class:items-start={getUserSettings().isLeftHanded}
->
-	{#if getMap()}
-		<div
-			class="mx-2 gap-2 mb-2 flex-col flex"
-		>
-			<BaseFab onclick={() => openModal(searchModalSnippet, "top")}>
-				<SearchIcon size="24" />
-			</BaseFab>
-
-			<LocateFab />
-
+{#if isMenuSidebar()}
+	<div
+		class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full"
+	>
+		<div class="mr-auto flex flex-col items-start justify-end h-full gap-2">
+			{#if getOpenedMenu()}
+				<DesktopMenu />
+			{/if}
+			{#if (innerWidth.current ?? 0) < desktopPopupCutoff}
+				{#if getCurrentSelectedData()}
+					<div class="w-[30rem]">
+						<PopupContainer />
+					</div>
+				{/if}
+			{/if}
+			<BottomNav page="/" {onmapclick} />
 		</div>
-	{/if}
 
-	{#if getCurrentSelectedData()}
-		<div
-			class="w-full max-w-[30rem] mb-2 z-10"
-			style="pointer-events: all"
-			transition:slide={{duration: 50}}
-		>
-			{#if getCurrentSelectedData().type === "pokemon"}
-				<PokemonPopup mapId={getCurrentSelectedMapId()} />
-			{:else if getCurrentSelectedData().type === "pokestop"}
-				<PokestopPopup mapId={getCurrentSelectedMapId()} />
-			{:else if getCurrentSelectedData().type === "gym"}
-				<GymPopup mapId={getCurrentSelectedMapId()} />
-			{:else if getCurrentSelectedData().type === "station"}
-				<StationPopup mapId={getCurrentSelectedMapId()} />
+		<div class="flex flex-col items-end gap-2 max-w-[30rem]">
+			<Fabs />
+			{#if (innerWidth.current ?? desktopPopupCutoff) >= desktopPopupCutoff}
+				<PopupContainer />
 			{/if}
 		</div>
+	</div>
+{:else}
+	{#if getOpenedMenu()}
+		<MobileMenu />
 	{/if}
 
-	<BottomNav page="/" onmapclick={resetMap} />
-</div>
+	<div
+		class="fixed z-20 bottom-2 w-full flex flex-col pointer-events-none gap-2"
+		class:items-end={!isUiLeft()}
+		class:items-start={isUiLeft()}
+	>
+		{#if !getOpenedMenu()}
+			<Fabs />
+			<PopupContainer />
+		{/if}
+		<BottomNav page="/" {onmapclick} />
+	</div>
+{/if}
 
 <Map />
 

@@ -77,7 +77,7 @@
 
 	$effect(() => {
 		updateGeolocationEnabled().then()
-		let map = getMap()
+		const map = getMap()
 		if (map) geolocate.onAdd(map)
 	})
 

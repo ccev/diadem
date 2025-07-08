@@ -12,14 +12,14 @@
 
 
 	let details = $derived(getUserDetails().details);
-	let isLoggingOut = $state(false)
+	let isLoggingOut = $state(false);
 </script>
 
-<div
-	class="mx-2 rounded-lg border bg-card text-card-foreground shadow-md overflow-hidden"
-	class:animate-pulse={isLoggingOut}
->
-	{#if details}
+{#if details}
+	<div
+		class="rounded-lg border bg-card text-card-foreground shadow-md overflow-hidden"
+		class:animate-pulse={isLoggingOut}
+	>
 		<div class="p-4 flex items-center justify-start gap-4 w-full">
 			<Avatar.Root
 				class="shrink-0 bg-muted text-muted-foreground h-12 w-12 rounded-full text-lg uppercase"
@@ -59,22 +59,22 @@
 				</LogOutButton>
 			</div>
 		</div>
-	{:else}
-		<Button
-			class="p-4 gap-3! items-center w-full rounded-md"
-			variant="ghost"
-			tag="a"
-			href={getLoginLink()}
-			size=""
-		>
-			<DiscordIcon class="w-4 fill-foreground shrink-0" />
-			<p>
-				{m.signin_prompt_part_1()}
-				<b class="underline">
-				{m.signin_prompt_bold()}
-				</b>
-				{m.signin_prompt_part_2()}
-			</p>
-		</Button>
-	{/if}
-</div>
+		<!--{:else}-->
+		<!--		<Button-->
+		<!--			class="p-4 gap-3! items-center w-full rounded-md"-->
+		<!--			variant="ghost"-->
+		<!--			tag="a"-->
+		<!--			href={getLoginLink()}-->
+		<!--			size=""-->
+		<!--		>-->
+		<!--			<DiscordIcon class="w-4 fill-foreground shrink-0" />-->
+		<!--			<p>-->
+		<!--				{m.signin_prompt_part_1()}-->
+		<!--				<b class="underline">-->
+		<!--				{m.signin_prompt_bold()}-->
+		<!--				</b>-->
+		<!--				{m.signin_prompt_part_2()}-->
+		<!--			</p>-->
+		<!--		</Button>-->
+	</div>
+{/if}

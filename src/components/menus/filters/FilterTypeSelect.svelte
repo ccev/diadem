@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { Eye, EyeOff, Funnel } from 'lucide-svelte';
 	import type { FilterCategory, FilterType } from '@/lib/filters/filters';
-	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
+	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte.js';
 	import RadioGroup from '@/components/ui/basic/RadioGroup.svelte';
 	import RadioGroupItem from '@/components/ui/basic/RadioGroupItem.svelte';
+	import { updateFeatures } from '@/lib/map/featuresGen.svelte';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
+	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 
 	let { category }: { category: FilterCategory } = $props()
 
 	function onValueChange(newType: string) {
 		getUserSettings().filters[category].type = newType as FilterType
 		updateUserSettings()
+		updateAllMapObjects().then();
 	}
 </script>
 

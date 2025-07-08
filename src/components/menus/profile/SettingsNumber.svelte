@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getUserSettings } from '@/lib/userSettings.svelte.js';
-	import Input from '@/components/ui/settings/Input.svelte';
-	import SettingsSettingTitle from '@/components/ui/settings/SettingsSettingTitle.svelte';
+	import Input from '@/components/menus/profile/Input.svelte';
+	import SettingsSettingTitle from '@/components/menus/profile/SettingsSettingTitle.svelte';
 
 	let {
 		onchange,

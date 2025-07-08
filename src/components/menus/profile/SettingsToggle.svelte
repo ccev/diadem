@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getUserSettings } from '@/lib/userSettings.svelte.js';
 	import Button from '@/components/ui/basic/Button.svelte';
-	import Switch from '@/components/ui/settings/Switch.svelte';
-	import SettingsSettingTitle from '@/components/ui/settings/SettingsSettingTitle.svelte';
+	import Switch from '@/components/menus/profile/Switch.svelte';
+	import SettingsSettingTitle from '@/components/menus/profile/SettingsSettingTitle.svelte';
 
 	let {
 		onclick,

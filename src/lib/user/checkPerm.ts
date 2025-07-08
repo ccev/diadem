@@ -17,7 +17,7 @@ function isFeatureInFeatureList(featureList: FeaturesKey[] | undefined, feature:
 export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
 	if (isFeatureInFeatureList(perms.everywhere, feature)) return true;
 
-	for (const area of perms.areas) {
+	for (const area of perms.areas ?? []) {
 		if (isFeatureInFeatureList(area.features, feature)) {
 			return true
 		}

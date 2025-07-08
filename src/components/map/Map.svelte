@@ -15,7 +15,7 @@
 	import { clearSessionImageUrls, getMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 	import { loadMapObjectInterval } from '@/lib/map/loadMapObjects';
 	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from '@/lib/map/events';
-	import maplibre from 'maplibre-gl';
+	import maplibre, { type MapStyleDataEvent } from 'maplibre-gl';
 	import FrameRateControl from '@/lib/map/framerate';
 	import { getS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
@@ -27,6 +27,7 @@
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
 	async function onMapLoad() {
+		console.debug("style mapload")
 		if (map) {
 			setMap(map);
 			if (getUserSettings().showDebugMenu) {

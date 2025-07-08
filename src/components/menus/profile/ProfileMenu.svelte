@@ -19,13 +19,19 @@
 	import SettingsGeneric from '@/components/menus/profile/SettingsGeneric.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import SettingsSelect from '@/components/menus/profile/SettingsSelect.svelte';
-	import { deleteAllFeaturesOfType } from '@/lib/map/featuresGen.svelte.js';
+	import { deleteAllFeaturesOfType, updateFeatures } from '@/lib/map/featuresGen.svelte.js';
 	import RadioGroup from '@/components/ui/basic/RadioGroup.svelte';
 	import SettingsRadioGroupItem from '@/components/menus/profile/SettingsRadioGroupItem.svelte';
-  import { getUserDetails } from '@/lib/user/userDetails.svelte';
-  import type { PageProps } from './$types';
+	import { getUserDetails } from '@/lib/user/userDetails.svelte';
+	import type { PageProps } from './$types';
 	import ProfileCard from '@/components/ui/user/ProfileCard.svelte';
 	import { isSupportedFeature } from '@/lib/enabledFeatures';
+	import { isMenuSidebar, openMenu } from '@/lib/menus.svelte';
+	import CloseButton from '@/components/ui/CloseButton.svelte';
+	import { getMap } from '@/lib/map/map.svelte';
+	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
+	import { tick } from 'svelte';
+	import { clearSessionImageUrls } from '@/lib/map/featuresManage.svelte';
 
 	// $effect(() => {
 	// 	getUserSettings()
@@ -93,38 +99,40 @@
 
 		getUserSettings().mapStyle.id = mapStyle.id
 		getUserSettings().mapStyle.url = mapStyle.url
+		updateUserSettings()
+
+		setTimeout(() => {
+			clearSessionImageUrls()
+			updateFeatures(getMapObjects())
+		}, 1000)  // TODO: properly handle this using an event
 	}
 </script>
 
-<svelte:head>
-	<title>{getConfig().general.mapName} | {m.nav_profile()}</title>
-</svelte:head>
-
 {#snippet iconSelect(title, type, getIconFunc, getIconParams)}
 	{#if getUiconSets(type).length > 1}
-	<SettingsGeneric {title}>
-		<RadioGroup
-			childCount={getUiconSets(type).length}
-			value={getUserSettings().uiconSet[type].id}
-			onValueChange={(value) => onIconChange(value, type)}
-			evenColumns={false}
-		>
-			{#each getUiconSets(type) as iconSet (iconSet.value)}
-				<SettingsRadioGroupItem class="p-4" value={iconSet.value}>
-					<img
-						class="w-5"
-						src={getIconFunc(getIconParams, iconSet.value)}
-						alt="{title} (Style: {iconSet.label})"
-					>
-					{iconSet.label}
-				</SettingsRadioGroupItem>
-			{/each}
-		</RadioGroup>
-	</SettingsGeneric>
+		<SettingsGeneric {title}>
+			<RadioGroup
+				childCount={getUiconSets(type).length}
+				value={getUserSettings().uiconSet[type].id}
+				onValueChange={(value) => onIconChange(value, type)}
+				evenColumns={false}
+			>
+				{#each getUiconSets(type) as iconSet (iconSet.value)}
+					<SettingsRadioGroupItem class="p-4" value={iconSet.value}>
+						<img
+							class="w-5"
+							src={getIconFunc(getIconParams, iconSet.value)}
+							alt="{title} (Style: {iconSet.label})"
+						>
+						{iconSet.label}
+					</SettingsRadioGroupItem>
+				{/each}
+			</RadioGroup>
+		</SettingsGeneric>
 	{/if}
 {/snippet}
 
-<div class="mt-2 mx-auto max-w-[30rem] space-y-4">
+<div class="space-y-4 mt-4">
 	{#if isSupportedFeature("auth")}
 		<ProfileCard />
 	{/if}
@@ -143,12 +151,14 @@
 			options={languages}
 		/>
 
-		<SettingsToggle
-			title={m.settings_left_handed_mode_title()}
-			description={m.settings_left_handed_mode_description()}
-			onclick={() => {getUserSettings().isLeftHanded = !getUserSettings().isLeftHanded}}
-			value={getUserSettings().isLeftHanded}
-		/>
+		{#if !isMenuSidebar()}
+			<SettingsToggle
+				title={m.settings_left_handed_mode_title()}
+				description={m.settings_left_handed_mode_description()}
+				onclick={() => {getUserSettings().isLeftHanded = !getUserSettings().isLeftHanded}}
+				value={getUserSettings().isLeftHanded}
+			/>
+		{/if}
 
 		<SettingsGeneric title={m.settings_theme()}>
 			<RadioGroup
@@ -241,7 +251,3 @@
 		/>
 	</SettingsCard>
 </div>
-
-<BottomNavSpacing />
-<BottomNavWrapper page="/profile" />
-

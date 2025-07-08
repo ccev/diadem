@@ -18,6 +18,7 @@
 	import { watch } from 'runed';
 	import type { WeatherData } from '@/lib/types/mapObjectData/weather';
 	import { getUserSettings } from '@/lib/userSettings.svelte';
+	import { isUiLeft } from '@/lib/menus.svelte';
 
 	let ignoreWatch = false
 	let isClicked: boolean = $state(false)
@@ -69,14 +70,14 @@
 
 {#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather())}
 	<div
-		class="pointer-events-none fixed top-2 z-10 mx-2 "
-		class:right-2={!getUserSettings().isLeftHanded}
-		class:left-2={getUserSettings().isLeftHanded}
+		class="pointer-events-none fixed top-2 z-10"
+		class:right-2={!isUiLeft()}
+		class:left-2={isUiLeft()}
 	>
 		<Button
 			variant="ghost"
 			size=""
-			class="pointer-events-auto px-4 py-3 text-sm bg-card flex-col! items-start! border rounded-lg shadow-lg hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground pointer-events-auto disabled:pointer-events-none"
+			class="pointer-events-auto px-4 py-3 text-sm bg-card flex-col! items-start! border rounded-lg shadow-lg hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground disabled:pointer-events-none"
 			onclick={onClick}
 		>
 			<div>

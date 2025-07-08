@@ -4,6 +4,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { Avatar } from 'bits-ui';
 	import { getUserDetails } from '@/lib/user/userDetails.svelte';
+	import { openMenu } from '@/lib/menus.svelte';
 
 	let {
 		page,
@@ -27,20 +28,20 @@
 		{
 			text: m.nav_filters(),
 			icon: Settings2,
-			href: '/filters',
-			onclick: undefined
+			href: '/',
+			onclick: () => openMenu("filters")
 		},
 		{
 			text: m.nav_profile(),
 			icon: CircleUserRound,
 			href: '/profile',
-			onclick: undefined
+			onclick: () => openMenu("profile")
 		}
 	];
 </script>
 
 <div
-	class="z-10 h-16 mx-2 min-w-60 text-sm grid grid-cols-3 divide-x rounded-lg border bg-card text-card-foreground shadow-lg"
+	class="z-10 h-16 mx-2 min-w-60 text-sm grid grid-cols-3 divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
 	style="pointer-events: all"
 >
 	{#each buttons as btn}
