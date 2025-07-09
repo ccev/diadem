@@ -38,6 +38,13 @@
 	function onmapclick() {
 		resetMap()
 	}
+
+	$effect(() => {
+		// When opening a popup on mobile while in a menu, close the menu
+		if (getCurrentSelectedData() && !isMenuSidebar()) {
+			openMenu(null)
+		}
+	})
 </script>
 
 <svelte:head>
@@ -47,7 +54,7 @@
 <ContextMenu />
 
 {#if showSignInButton}
-	<div class="fixed top-2 z-20 left-1/2 -translate-x-1/2">
+	<div class="fixed top-2 z-10 left-1/2 -translate-x-1/2">
 		<SignInButton />
 	</div>
 {/if}
@@ -85,7 +92,7 @@
 					</div>
 				{/if}
 			{/if}
-			<BottomNav page="/" {onmapclick} />
+			<BottomNav />
 		</div>
 
 		<div class="flex flex-col items-end gap-2 w-[30rem]">
@@ -109,7 +116,7 @@
 			<Fabs />
 			<PopupContainer />
 		{/if}
-		<BottomNav page="/" {onmapclick} />
+		<BottomNav />
 	</div>
 {/if}
 

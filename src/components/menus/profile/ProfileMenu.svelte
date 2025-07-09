@@ -1,6 +1,4 @@
 <script lang="ts">
-	import BottomNavWrapper from '@/components/ui/nav/BottomNavWrapper.svelte';
-	import BottomNavSpacing from '@/components/ui/nav/BottomNavSpacing.svelte';
 	import { getDefaultIconSet, getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 	import { Cloud, Code, Image, Moon, Paintbrush, Sun } from 'lucide-svelte';
 	import SettingsCard from '@/components/menus/profile/SettingsCard.svelte';
@@ -132,7 +130,7 @@
 	{/if}
 {/snippet}
 
-<div class="space-y-4 mt-4">
+<div class="space-y-2 mt-2">
 	{#if isSupportedFeature("auth")}
 		<ProfileCard />
 	{/if}

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { openMenu } from '@/lib/menus.svelte';
+	import { getOpenedMenu, openMenu } from '@/lib/menus.svelte';
 	import MenuContainer from '@/components/menus/MenuContainer.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import { slide } from 'svelte/transition';
+	import * as m from '@/lib/paraglide/messages';
 </script>
 
 <div
@@ -14,7 +15,7 @@
 	<!--{/if}-->
 	<div class="w-full py-1 sticky top-2 flex items-center justify-between z-10 bg-card border border-b-border">
 		<h1 class="font-bold text-base tracking-tight mx-4">
-			Profile
+			{m["nav_" + getOpenedMenu()]()}
 		</h1>
 		<CloseButton
 			onclick={() => openMenu(null)}

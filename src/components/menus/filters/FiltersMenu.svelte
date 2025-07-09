@@ -1,6 +1,4 @@
 <script lang="ts">
-	import BottomNavWrapper from '@/components/ui/nav/BottomNavWrapper.svelte';
-	import BottomNavSpacing from '@/components/ui/nav/BottomNavSpacing.svelte';
 	import { getConfig } from '@/lib/config/config';
 	import * as m from '@/lib/paraglide/messages';
 	import Card from '@/components/ui/basic/Card.svelte';
@@ -85,9 +83,9 @@
 <!--	</SelectGroup>-->
 <!--{/snippet}-->
 
-<div class="">
+<div class="mt-2">
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
-		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
+		<Card class="pt-4 pb-2 px-2 mb-4">
 			<SettingsGeneric title="Pokémon">
 				<FilterTypeSelect category="pokemonMajor" />
 
@@ -124,7 +122,7 @@
 	{/if}
 
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokestop")}
-		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
+		<Card class="pt-4 pb-2 px-2 mb-4">
 			<SettingsGeneric title="Plain Pokéstops">
 				<FilterTypeSelect category="pokestopPlain" />
 			</SettingsGeneric>
@@ -158,7 +156,7 @@
 	{/if}
 
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}
-		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
+		<Card class="pt-4 pb-2 px-2 mb-4">
 			<SettingsGeneric title="Plain Gyms">
 				<FilterTypeSelect category="gymPlain" />
 			</SettingsGeneric>
@@ -169,7 +167,7 @@
 	{/if}
 
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "station")}
-		<Card class="pt-4 pb-2 px-2 mx-2 mb-4">
+		<Card class="pt-4 pb-2 px-2 mb-4">
 			<SettingsGeneric title="Plain Power Spots">
 				<FilterTypeSelect category="stationMajor" />
 			</SettingsGeneric>
@@ -177,7 +175,7 @@
 	{/if}
 
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "s2cell")}
-		<Card class="pt-4 pb-2 px-2 mx-2">
+		<Card class="pt-4 pb-2 px-2">
 			<SettingsGeneric title="S2 Cells">
 				<FilterTypeSelect category="s2cell" />
 
