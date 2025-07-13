@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { isModalOpen } from '@/lib/modal.svelte.js';
-	import { GeoJSON, MapLibre, SymbolLayer, LineLayer, FillLayer } from 'svelte-maplibre';
+	import { GeoJSON, MapLibre, SymbolLayer, LineLayer, FillLayer, Marker } from 'svelte-maplibre';
 	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
@@ -21,6 +21,7 @@
 	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
 	import { getSelectedWeatherS2Cells } from '@/lib/mapObjects/weather.svelte';
 	import DebugMenu from '@/components/map/DebugMenu.svelte';
+	import { getAnimateLocationMarker, getCurrentLocation } from '@/lib/map/geolocate.svelte';
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	let debugRerender: boolean = $state(true)
@@ -99,9 +100,23 @@
 		onload={onMapLoad}
 		oncontextmenu={onContextMenu}
 	>
+		{#if getCurrentLocation()}
+			<Marker lngLat={getCurrentLocation()}>
+<!--				<div class="w-4 h-4 bg-sky-500 rounded-full outline-white outline-4 animate-ping">-->
+
+<!--				</div>-->
+				<div class="relative w-4 h-4 rounded-full bg-sky-500 outline-white outline-4">
+					{#if getAnimateLocationMarker()}
+						<div
+							class="absolute left-1/2 top-1/2 -translate-1/2 bg-sky-500/75 w-5 h-5 rounded-full duration-1500 animate-ping"
+						></div>
+					{/if}
+				</div>
+			</Marker>
+		{/if}
+
 		<S2CellLayer id="s2cells" data={getS2CellGeojson()} />
 		<S2CellLayer id="selectedWeatherLayer" data={getSelectedWeatherS2Cells()} />
-
 
 		<GeoJSON
 			id="mapObjects"

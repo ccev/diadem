@@ -13,6 +13,7 @@ import {
 } from '@/lib/map/mapObjectsInterval';
 import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 import { getMap } from '@/lib/map/map.svelte';
+import { setAnimateLocationMarker } from '@/lib/map/geolocate.svelte';
 
 export async function onMapMoveEnd() {
 	clearLoadMapObjectsInterval();
@@ -35,6 +36,7 @@ export function onTouchStart(e: maplibre.MapTouchEvent) {
 export async function onMapMoveStart() {
 	clearPressTimer();
 	clearUpdateMapObjectsInterval();
+	setAnimateLocationMarker(false)
 
 	resetLoadMapObjects();
 }
