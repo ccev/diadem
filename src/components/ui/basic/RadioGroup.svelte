@@ -51,19 +51,19 @@
         grid-template-columns: repeat(min(var(--min-cols), var(--step-0-cols)), minmax(0, 1fr))
     }
 
-    @media only screen and (max-width: 412px) {
+    @container menu-container (max-width: 412px) {
         :global(.radio-group) {
             --min-cols: var(--step-1-cols);
         }
     }
 
-    @media only screen and (max-width: 318px) {
+    @container menu-container (max-width: 318px) {
         :global(.radio-group) {
             --min-cols: var(--step-2-cols);
         }
     }
 
-    @media only screen and (max-width: 230px) {
+    @container menu-container (max-width: 230px) {
         :global(.radio-group) {
             --min-cols: var(--step-3-cols);
         }

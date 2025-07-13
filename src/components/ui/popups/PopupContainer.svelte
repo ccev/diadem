@@ -9,7 +9,7 @@
 
 {#if getCurrentSelectedData()}
 	<div
-		class="w-full max-w-[30rem] z-10"
+		class="w-full max-w-120 z-10"
 		style="pointer-events: all"
 		transition:slide={{duration: 50}}
 	>

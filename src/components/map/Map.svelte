@@ -100,21 +100,6 @@
 		onload={onMapLoad}
 		oncontextmenu={onContextMenu}
 	>
-		{#if getCurrentLocation()}
-			<Marker lngLat={getCurrentLocation()}>
-<!--				<div class="w-4 h-4 bg-sky-500 rounded-full outline-white outline-4 animate-ping">-->
-
-<!--				</div>-->
-				<div class="relative w-4 h-4 rounded-full bg-sky-500 outline-white outline-4">
-					{#if getAnimateLocationMarker()}
-						<div
-							class="absolute left-1/2 top-1/2 -translate-1/2 bg-sky-500/75 w-5 h-5 rounded-full duration-1500 animate-ping"
-						></div>
-					{/if}
-				</div>
-			</Marker>
-		{/if}
-
 		<S2CellLayer id="s2cells" data={getS2CellGeojson()} />
 		<S2CellLayer id="selectedWeatherLayer" data={getSelectedWeatherS2Cells()} />
 
@@ -137,19 +122,17 @@
 			/>
 		</GeoJSON>
 
-		<!--{#each Object.values(getMapObjects()) as pokemon (pokemon.id)}-->
-		<!--	<Marker-->
-		<!--		lngLat={[pokemon.lon, pokemon.lat]}-->
-		<!--	>-->
-		<!--		<button-->
-		<!--			class="h-6 w-6 hover:scale-125 transition-transform cursor-pointer bg-cover"-->
-		<!--			style="background-image: url({uicons}pokemon/{pokemon.pokemon_id}.png)"-->
-		<!--			data-object-type={OBJ_TYPE_POKEMON}-->
-		<!--			data-object-id="pokemon-{pokemon.id}"-->
-		<!--			aria-label="Pokemon {pokemon.id}"-->
-		<!--		></button>-->
-		<!--	</Marker>-->
-		<!--{/each}-->
+		{#if getCurrentLocation()}
+			<Marker lngLat={getCurrentLocation()}>
+				<div class="relative w-4 h-4 rounded-full bg-sky-500 outline-white outline-4">
+					{#if getAnimateLocationMarker()}
+						<div
+							class="absolute left-1/2 top-1/2 -translate-1/2 bg-sky-500/75 w-5 h-5 rounded-full duration-1500 animate-ping"
+						></div>
+					{/if}
+				</div>
+			</Marker>
+		{/if}
 	</MapLibre>
 {:else}
 	<div class="mx-auto w-fit">

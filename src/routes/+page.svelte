@@ -32,8 +32,6 @@
 	import DesktopMenu from '@/components/menus/DesktopMenu.svelte';
 
 	let showSignInButton = $derived(isSupportedFeature("auth") && !getUserDetails().details)
-	const desktopPopupCutoff = 900
-	// const desktopPopupCutoff = 736
 
 	function onmapclick() {
 		resetMap()
@@ -81,25 +79,16 @@
 	<div
 		class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full"
 	>
-		<div class="mr-auto flex flex-col items-start justify-end h-full gap-2">
+		<div class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88">
 			{#if getOpenedMenu()}
 				<DesktopMenu />
-			{/if}
-			{#if (innerWidth.current ?? 0) < desktopPopupCutoff}
-				{#if getCurrentSelectedData()}
-					<div class="w-[30rem]">
-						<PopupContainer />
-					</div>
-				{/if}
 			{/if}
 			<BottomNav />
 		</div>
 
-		<div class="flex flex-col items-end gap-2 w-[30rem]">
+		<div class="flex flex-col items-end gap-2 w-[30rem] shrink basis-120">
 			<Fabs />
-			{#if (innerWidth.current ?? desktopPopupCutoff) >= desktopPopupCutoff}
-				<PopupContainer />
-			{/if}
+			<PopupContainer />
 		</div>
 	</div>
 {:else}

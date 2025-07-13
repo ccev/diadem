@@ -30,12 +30,12 @@
 	<Button size="default" onclick={togglePopupExpanded}>
 		{#if isPopupExpanded()}
 			<EyeClosed size="18"/>
-			<span class="max-[304px]:hidden">
+			<span class="@max-[304px]:hidden">
 				{m.popup_hide_details()}
 			</span>
 		{:else}
 			<Eye size="18"/>
-			<span class="max-[304px]:hidden">
+			<span class="@max-[304px]:hidden">
 				{m.popup_show_details()}
 			</span>
 		{/if}
@@ -48,7 +48,7 @@
 		target="_blank"
 	>
 		<Navigation size="18"/>
-		<span class="max-[364px]:hidden">
+		<span class="@max-[364px]:hidden">
 			{m.popup_navigate()}
 		</span>
 	</Button>
@@ -60,7 +60,7 @@
 			onclick={shareUrl}
 		>
 			<Share2 size="18"/>
-			<span class="max-[406px]:hidden">
+			<span class="@max-[406px]:hidden">
 				{m.popup_share()}
 			</span>
 		</Button>

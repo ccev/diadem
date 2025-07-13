@@ -130,7 +130,7 @@
 	{/if}
 {/snippet}
 
-<div class="space-y-2 mt-2">
+<div class="space-y-2 mt-2" style="container-name: menu-container; container-type: inline-size">
 	{#if isSupportedFeature("auth")}
 		<ProfileCard />
 	{/if}

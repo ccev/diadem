@@ -30,7 +30,7 @@
 
 </script>
 
-<Card class="h-full relative overflow-hidden py-4 mx-2">
+<Card class="h-full relative overflow-hidden py-4 mx-2 @container">
 	<CloseButton
 		class="absolute right-2 top-2"
 		onclick={closePopup}

@@ -14,7 +14,7 @@ export function getOpenedMenu() {
 }
 
 export function isMenuSidebar() {
-	return (innerWidth.current ?? 0) > 580
+	return (innerWidth.current ?? 0) > 725
 }
 
 export function isUiLeft() {

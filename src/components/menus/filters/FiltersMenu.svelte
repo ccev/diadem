@@ -83,7 +83,7 @@
 <!--	</SelectGroup>-->
 <!--{/snippet}-->
 
-<div class="mt-2">
+<div class="mt-2" style="container-name: menu; container-type: inline-size">
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
 		<Card class="pt-4 pb-2 px-2 mb-4">
 			<SettingsGeneric title="Pokémon">
