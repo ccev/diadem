@@ -41,6 +41,7 @@ type UserSettings = {
 	loadMapObjectsPadding: number;
 	showDebugMenu: boolean;
 	languageTag: string | "auto";
+	mapIconSize: number;
 	filters: {
 		pokemonMajor: FilterPokemon;
 		pokestopMajor: FilterPokestopMajor;
@@ -82,6 +83,7 @@ export function getDefaultUserSettings(): UserSettings {
 		loadMapObjectsPadding: 20,
 		languageTag: "auto",
 		showDebugMenu: false,
+		mapIconSize: 1,
 		filters: {
 			pokemonMajor: { category: "pokemonMajor", type: "all" },
 			pokestopMajor: { category: "pokestopMajor", type: "all" },

@@ -30,6 +30,7 @@
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
 	import { tick } from 'svelte';
 	import { clearSessionImageUrls } from '@/lib/map/featuresManage.svelte';
+	import SettingsSlider from '@/components/menus/profile/SettingsSlider.svelte';
 
 	// $effect(() => {
 	// 	getUserSettings()
@@ -205,6 +206,21 @@
 				{/each}
 			</RadioGroup>
 		</SettingsGeneric>
+
+		<SettingsGeneric title={m.settings_icon_size()}>
+			<SettingsSlider
+				value={getUserSettings().mapIconSize}
+				onchange={value => getUserSettings().mapIconSize = value}
+				steps={[0.75, 1, 1.25, 1.5]}
+				labels={{
+					0.75: "S",
+					1: "M",
+					1.25: "L",
+					1.5: "XL"
+				}}
+			/>
+		</SettingsGeneric>
+
 	</SettingsCard>
 
 	<SettingsCard>

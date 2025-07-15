@@ -141,5 +141,6 @@
 	"nav_profile": "Profile",
 	"signin_prompt_part_1": "To unlock more features,",
 	"signin_prompt_bold": "link your Discord account",
-	"signin_prompt_part_2": ""
+	"signin_prompt_part_2": "",
+	"settings_icon_size": "Map Icon Size"
 }

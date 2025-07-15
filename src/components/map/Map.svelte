@@ -24,19 +24,19 @@
 	import { getAnimateLocationMarker, getCurrentLocation } from '@/lib/map/geolocate.svelte';
 
 	let map: maplibre.Map | undefined = $state(undefined);
-	let debugRerender: boolean = $state(true)
+	let debugRerender: boolean = $state(true);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
 	async function onMapLoad() {
-		console.debug("style mapload")
+		console.debug('style mapload');
 		if (map) {
 			setMap(map);
 			if (getUserSettings().showDebugMenu) {
 				map.addControl(new FrameRateControl({}));
-				map.on("moveend", () => {
-					debugRerender = false
-					tick().then(() => debugRerender = true)
-				})
+				map.on('moveend', () => {
+					debugRerender = false;
+					tick().then(() => debugRerender = true);
+				});
 			}
 
 			map.on('touchstart', onTouchStart);
@@ -113,7 +113,12 @@
 				layout={{
 					"icon-image": ["get", "imageUrl"],
 					"icon-overlap": "always",
-					"icon-size": ["*", ["get", "imageSize"],  ["get", "imageSelectedScale"]],
+					"icon-size":[
+						"*",
+						["get", "imageSize"],
+						["get", "imageSelectedScale"],
+						getUserSettings().mapIconSize
+					],
 					"icon-allow-overlap": true,
 					"icon-offset": ["get", "imageOffset"]
 				}}
