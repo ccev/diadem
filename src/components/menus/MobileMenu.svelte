@@ -9,7 +9,7 @@
 
 <Drawer.Root
 	open={!!getOpenedMenu()}
-	onOpenChange={() => openMenu(null)}
+	onClose={() => openMenu(null)}
 	closeOnOutsideClick={false}
 >
 	<Drawer.Portal>
