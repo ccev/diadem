@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
-	import { pokemonName } from '@/lib/ingameLocale';
+	import { mPokemon } from '@/lib/ingameLocale';
 	import { getStationPokemon } from '@/lib/pogoUtils';
 	import { getIconPokemon } from '@/lib/uicons.svelte';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
@@ -22,10 +22,10 @@
 	{#each parsedStationed as data}
 		<div class="rounded-sm border border-border p-2 relative group">
 			<div class="absolute hidden group-hover:block group-active:block whitespace-nowrap">
-				{pokemonName(data)}
+				{mPokemon(data)}
 			</div>
 			<ImagePopup
-				alt={pokemonName(data)}
+				alt={mPokemon(data)}
 				src={getIconPokemon(data)}
 				class="w-5"
 			/>

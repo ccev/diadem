@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ingame, pokemonName } from '@/lib/ingameLocale.js';
+	import { mPokemon } from '@/lib/ingameLocale.js';
 	import type { PokemonData, PvpStats } from '@/lib/types/mapObjectData/pokemon';
 	import { getIconPokemon, getIconRaidEgg } from '@/lib/uicons.svelte';
 	import { getRaidPokemon } from '@/lib/pogoUtils';
@@ -29,7 +29,7 @@
 	<div class="w-6 shrink-0">
 		<ImagePopup
 			src={getIconPokemon(pokemon)}
-			alt={pokemonName(pokemon)}
+			alt={mPokemon(pokemon)}
 			class="w-6"
 		/>
 	</div>
@@ -37,7 +37,7 @@
 		<div>
 			#{data.rank}
 			{leagueName}
-			<b>{pokemonName(pokemon)}</b>
+			<b>{mPokemon(pokemon)}</b>
 		</div>
 		<div>
 			{data.cp} CP at level: {data.level} ({(data.percentage * 100).toFixed(1)}%) {data.cap}

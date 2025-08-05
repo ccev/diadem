@@ -35,7 +35,7 @@
 	import TextSeparator from '@/components/utils/TextSeparator.svelte';
 	import * as m from "@/lib/paraglide/messages"
 	import { getConfig } from '@/lib/config/config';
-	import { ingame, pokemonName } from '@/lib/ingameLocale';
+	import { mMove, mPokemon, mWeather } from '@/lib/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import { getPokemonSize, isFortOutdated } from '@/lib/pogoUtils';
@@ -56,7 +56,7 @@
 
 	function getTitle() {
 		let title = getConfig().general.mapName
-		title += " | " + pokemonName(data)
+		title += " | " + mPokemon(data)
 		return title
 	}
 
@@ -187,9 +187,9 @@
 					</span>
 			{/if}
 			<span>
-				{pokemonName(data)}
+				{mPokemon(data)}
 				{#if data.display_pokemon_id}
-					({pokemonName({ pokemon_id: data.display_pokemon_id })})
+					({mPokemon({ pokemon_id: data.display_pokemon_id })})
 				{/if}
 			</span>
 		</div>
@@ -236,7 +236,7 @@
 		>
 			{#if data.weather}
 				{m.weather_boost()}:
-				<b>{ingame("weather_" + data.weather)}</b>
+				<b>{mWeather(data.weather)}</b>
 			{:else}
 				{m.no_weather_boost()}
 			{/if}
@@ -269,9 +269,9 @@
 		{#if data.move_1 && data.move_2}
 			<IconValue Icon={Swords}>
 				{m.popup_pokemon_moves()}:
-				<b>{ingame("move_" + data.move_1)}</b>
+				<b>{mMove(data.move_1)}</b>
 				/
-				<b>{ingame("move_" + data.move_2)}</b>
+				<b>{mMove(data.move_2)}</b>
 			</IconValue>
 		{/if}
 

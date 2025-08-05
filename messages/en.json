@@ -142,5 +142,14 @@
 	"signin_prompt_part_1": "To unlock more features,",
 	"signin_prompt_bold": "link your Discord account",
 	"signin_prompt_part_2": "",
-	"settings_icon_size": "Map Icon Size"
+	"settings_icon_size": "Map Icon Size",
+	"unknown_weather": "Unknown Weather",
+	"unknown_type": "Unknown Type",
+	"unknown_item": "Unknown Item",
+	"unknown_raid": "Raid",
+	"unknown_move": "Unknown Move",
+	"unknown_alignment": "Unknown Alignment",
+	"unknown_generation": "Unknown Generation",
+	"unknown_quest": "Unknown Quest",
+	"unknown_character": "Unknown Grunt"
 }

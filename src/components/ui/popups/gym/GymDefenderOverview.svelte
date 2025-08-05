@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getIconPokemon } from '@/lib/uicons.svelte.js';
-	import { pokemonName } from '@/lib/ingameLocale';
+	import { mPokemon } from '@/lib/ingameLocale';
 	import Button from '@/components/ui/basic/Button.svelte';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import type { GymDefender } from '@/lib/types/mapObjectData/gym';
@@ -58,7 +58,7 @@
 		>
 			<ImagePopup
 				src={getIconPokemon(defender)}
-				alt={pokemonName(defender)}
+				alt={mPokemon(defender)}
 				class="w-5"
 			/>
 		</Button>
@@ -70,7 +70,7 @@
 			transition:slide={{ duration: 90 }}
 		>
 			<div>
-				<b>{pokemonName(selectedDefender)}</b>
+				<b>{mPokemon(selectedDefender)}</b>
 				<TextSeparator />
 				{m.pogo_cp({ cp: selectedDefender.cp_now + "/" + selectedDefender.cp_when_deployed })}
 

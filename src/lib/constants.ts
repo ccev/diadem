@@ -1,3 +1,5 @@
+import * as m from '@/lib/paraglide/messages';
+
 /**
  * Max Zoom level to still update the map while idling
  */
@@ -37,3 +39,22 @@ export const SELECTED_MAP_OBJECT_SCALE = 2
  * Interval to refresh Discord Auth (seconds)
  */
 export const DISCORD_REFRESH_INTERVAL = 60 * 60 * 24
+
+/**
+ * Interval to update a user's permissions (i.e. what roles they have) (seconds)
+ */
+export const PERMISSION_UPDATE_INTERVAL = 5 * 60
+
+/**
+ * All languages supported by the project
+ */
+export const AVAILABLE_LANGUAGES = [
+	{
+		label: m.language_english(),
+		value: "en"
+	},
+	{
+		label: m.language_german(),
+		value: "de"
+	}
+]

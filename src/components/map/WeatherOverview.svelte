@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ingame } from '@/lib/ingameLocale.js';
+	import { mType, mWeather } from '@/lib/ingameLocale.js';
 	import { getCurrentWeather, updateCurrentWeatherFeatures, updateWeather } from '@/lib/mapObjects/weather.svelte.js';
 	import Button from '@/components/ui/basic/Button.svelte';
 	import { getMap } from '@/lib/map/map.svelte';
@@ -83,7 +83,7 @@
 		>
 			<div>
 				<IconValue Icon={getWeatherIcon(getCurrentWeather()?.gameplay_condition)}>
-					{ingame("weather_" + getCurrentWeather()?.gameplay_condition)}
+					{mWeather(getCurrentWeather()?.gameplay_condition)}
 				</IconValue>
 			</div>
 
@@ -96,15 +96,15 @@
 						<div class="flex gap-2 mt-1 items-center">
 							<div class="w-4 h-4 shrink-0">
 								<ImagePopup
-									alt={ingame("poke_type_" + typeId)}
+									alt={mType(typeId)}
 									src={getIconType(typeId)}
 									class="w-4 h-4"
 								/>
 							</div>
 
 							<span>
-							{ingame("poke_type_" + typeId)}
-						</span>
+								{mType(typeId)}
+							</span>
 						</div>
 					{/each}
 

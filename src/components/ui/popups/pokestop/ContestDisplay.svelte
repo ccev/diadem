@@ -2,7 +2,7 @@
 	import { UsersRound } from 'lucide-svelte';
 	import { CONTEST_SLOTS } from '@/lib/pogoUtils.js';
 	import { getIconContest, getIconPokemon, getIconType } from '@/lib/uicons.svelte.js';
-	import { ingame, pokemonName } from '@/lib/ingameLocale.js';
+	import { mAlignment, mGeneration, mPokemon, mType } from '@/lib/ingameLocale.js';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
@@ -47,28 +47,28 @@
 		if (!focus) return metric({ name })
 
 		if (focus.type === "pokemon") {
-			name = pokemonName({ pokemon_id: focus.pokemon_id, form: focus.pokemon_form })
+			name = mPokemon({ pokemon_id: focus.pokemon_id, form: focus.pokemon_form })
 		} else if (focus.type === "type") {
 			if (focus.pokemon_type_2) {
 				name = m.connected_and({
-					1: ingame("poke_type_" + focus.pokemon_type_1),
-					2:  m.x_type({ type: ingame("poke_type_" + focus.pokemon_type_2) })
+					1: mType(focus.pokemon_type_1),
+					2:  m.x_type({ type: mType(focus.pokemon_type_2) })
 				})
 			} else {
-				name = m.x_type({ type: ingame("poke_type_" + focus.pokemon_type_1) })
+				name = m.x_type({ type: mType(focus.pokemon_type_1) })
 			}
 		} else if (focus.type === "buddy") {
 			name = m.contest_buddy_min_level({ level: focus.min_level })
 		} else if (focus.type === "alignment") {
-			name = ingame("alignment_" + focus.pokemon_alignment)
+			name = mAlignment(focus.pokemon_alignment)
 		} else if (focus.type === "class") {
 			// @ts-ignore
 			const func =  m["pokemon_class_" + focus.pokemon_class]
 			name = func ? func() : "?"
 		} else if (focus.type === "family") {
-			name = m.contest_pokemon_family({ pokemon: pokemonName({ pokemon_id: focus.pokemon_family }) })
+			name = m.contest_pokemon_family({ pokemon: mPokemon({ pokemon_id: focus.pokemon_family }) })
 		} else if (focus.type === "generation") {
-			name = ingame("generation_") + focus.generation + " " + m.pogo_pokemon()
+			name = mGeneration(focus.generation) + " " + m.pogo_pokemon()
 		} else if (focus.type === "hatched") {
 			name = focus.hatched ? m.contest_hatched() : m.contest_not_hatched()
 		} else if (focus.type === "mega") {
@@ -120,12 +120,12 @@
 				<div class="w-5 shrink-0">
 					<ImagePopup
 						src={getIconPokemon(entry)}
-						alt={pokemonName(entry)}
+						alt={mPokemon(entry)}
 						class="w-5"
 					/>
 				</div>
 				<div>
-					<b>{pokemonName(entry)}</b>
+					<b>{mPokemon(entry)}</b>
 					(Score: {entry.score.toFixed(0)})
 				</div>
 			</div>

@@ -6,7 +6,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
 	import { currentTimestamp, timestampToLocalTime } from '@/lib/utils.svelte.js';
-	import { ingame, pokemonName } from '@/lib/ingameLocale';
+	import { mMove, mPokemon, mRaid } from '@/lib/ingameLocale';
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import { getRaidPokemon, GYM_SLOTS, isFortOutdated } from '@/lib/pogoUtils';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
@@ -58,7 +58,7 @@
 				<div class="w-8 shrink-0">
 					<ImagePopup
 						src={getIconPokemon(getRaidPokemon(data))}
-						alt={pokemonName(getRaidPokemon(data))}
+						alt={mPokemon(getRaidPokemon(data))}
 						class="w-8"
 					/>
 				</div>
@@ -66,7 +66,7 @@
 				<div class="w-6 mx-1 shrink-0">
 					<ImagePopup
 						src={getIconRaidEgg(data.raid_level ?? 0)}
-						alt={ingame("raid_" + data.raid_level)}
+						alt={mRaid(data.raid_level)}
 						class="w-6"
 					/>
 				</div>
@@ -79,12 +79,12 @@
 					class="font-semibold whitespace-nowrap"
 					class:font-semibold={!data.raid_pokemon_id}
 				>
-					{ingame("raid_" + data.raid_level) || "Raid"}
+					{mRaid(data.raid_level)}
 				</span>
 
 					{#if data.raid_pokemon_id}
 						<b class="whitespace-nowrap">
-							· {pokemonName(getRaidPokemon(data))}
+							· {mPokemon(getRaidPokemon(data))}
 						</b>
 					{/if}
 				</div>
@@ -112,10 +112,10 @@
 
 				{#if expanded && data.raid_pokemon_id}
 					<div>
-						{m.pogo_cp({ cp: data.raid_pokemon_cp })}
-						({ingame("move_" + data.raid_pokemon_move_1)}
+						{m.pogo_cp({ cp: data.raid_pokemon_cp ?? 0 })}
+						({mMove(data.raid_pokemon_move_1)}
 						/
-						{ingame("move_" + data.raid_pokemon_move_2)})
+						({mMove(data.raid_pokemon_move_2)}
 					</div>
 				{/if}
 

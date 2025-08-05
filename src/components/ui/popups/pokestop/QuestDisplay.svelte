@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import { ingame, pokemonName } from '@/lib/ingameLocale';
+	import { mItem, mPokemon, mQuest } from '@/lib/ingameLocale';
 	import type { QuestReward } from '@/lib/types/mapObjectData/pokestop';
 	import { getIconPokemon, getIconReward } from '@/lib/uicons.svelte';
 	import * as m from '@/lib/paraglide/messages';
@@ -26,7 +26,7 @@
 	} = $props()
 
 	let reward: QuestReward | undefined = $derived(JSON.parse(questRewards ?? "[]")[0] as QuestReward)
-	let taskText: string = $derived(ingame("quest_title_" + questTitle).replaceAll("%{amount_0}", "" + (questTarget ?? "")))
+	let taskText: string = $derived(mQuest(questTitle, questTarget))
 	let rewardText: string = $derived.by(() => {
 		if (!reward) return ""
 
@@ -34,23 +34,23 @@
 			case 1:
 				return m.quest_xp({ count: reward.info.amount })
 			case 2:
-				return m.quest_item({ count: reward.info.amount, item: ingame("item_" + reward.info.item_id) })
+				return m.quest_item({ count: reward.info.amount, item: mItem(reward.info.item_id) })
 			case 3:
 				return m.quest_stardust({ count: reward.info.amount })
 			case 4:
-				return m.quest_candy({ count: reward.info.amount, pokemon: ingame("poke_" + reward.info.pokemon_id) })
+				return m.quest_candy({ count: reward.info.amount, pokemon: mPokemon(reward.info) })
 			case 5:
 				return "Avatar Clothing"
 			case 6:
 				return "Quest"
 			case 7:
-				return pokemonName(reward.info)
+				return mPokemon(reward.info)
 			case 8:
 				return "Pokecoins"
 			case 9:
 				return m.quest_xl_candy({
 					count: reward.info.amount,
-					pokemon: ingame("poke_" + reward.info.pokemon_id)
+					pokemon: mPokemon(reward.info)
 				})
 			case 10:
 				return "Level Cap"
@@ -59,7 +59,7 @@
 			case 12:
 				return m.quest_mega_resource({
 					count: reward.info.amount,
-					pokemon: ingame("poke_" + reward.info.pokemon_id)
+					pokemon: mPokemon(reward.info)
 				})
 				break
 			case 13:

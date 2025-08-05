@@ -5,7 +5,7 @@
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
-	import { ingame, pokemonName } from '@/lib/ingameLocale';
+	import { mCharacter, mItem, mPokemon } from '@/lib/ingameLocale';
 	import { currentTimestamp } from '@/lib/utils.svelte.js';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import {
@@ -49,14 +49,14 @@
 		<PokestopSection>
 			<div class="w-7 h-7 shrink-0">
 				<ImagePopup
-					src={getIconItem(data.lure_id)}
+					src={getIconItem(data.lure_id ?? 0)}
 					alt="TBD"
 					class="w-7"
 				/>
 			</div>
 			<div>
 				<span>
-					{ingame("item_" + data.lure_id)}
+					{mItem(data.lure_id)}
 				</span>
 				<TimeWithCountdown
 					expireTime={data.lure_expire_timestamp}
@@ -83,7 +83,7 @@
 
 					<div>
 						<span>
-							{ingame("grunt_a_" + incident.character)}
+							{mCharacter(incident.character)}
 
 							{#if incident.confirmed}
 								({m.confirmed()})
@@ -101,12 +101,12 @@
 					<div class="w-7 h-7 shrink-0">
 						<ImagePopup
 							src={getIconPokemon({ pokemon_id: 352 })}
-							alt={pokemonName({ pokemon_id: 352 })}
+							alt={mPokemon({ pokemon_id: 352 })}
 							class="w-7"
 						/>
 					</div>
 					<div>
-						{pokemonName({ pokemon_id: 352 })}
+						{mPokemon({ pokemon_id: 352 })}
 						<TimeWithCountdown
 							expireTime={incident.expiration}
 							showHours={false}

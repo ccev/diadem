@@ -31,6 +31,7 @@
 	import { tick } from 'svelte';
 	import { clearSessionImageUrls } from '@/lib/map/featuresManage.svelte';
 	import SettingsSlider from '@/components/menus/profile/SettingsSlider.svelte';
+	import { AVAILABLE_LANGUAGES } from '@/lib/constants';
 
 	// $effect(() => {
 	// 	getUserSettings()
@@ -40,22 +41,14 @@
 
 	type Language = {
 		label: string
-		shortLabel?: string
 		value: string
 	}
-	const languages: Language[] = [
+	const languages: Language[] =  [
 		{
 			label: m.language_auto(),
 			value: "auto"
 		},
-		{
-			label: m.language_english(),
-			value: "en"
-		},
-		{
-			label: m.language_german(),
-			value: "de"
-		}
+		...AVAILABLE_LANGUAGES
 	]
 
 	function onThemeChange(value: string) {

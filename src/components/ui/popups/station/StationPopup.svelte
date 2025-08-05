@@ -10,7 +10,7 @@
 	import type { GymData } from '@/lib/types/mapObjectData/gym';
 	import { currentTimestamp, timestampToLocalTime } from '@/lib/utils.svelte';
 	import { getRaidPokemon, STATION_SLOTS } from '@/lib/pogoUtils';
-	import { pokemonName } from '@/lib/ingameLocale';
+	import { mPokemon } from '@/lib/ingameLocale';
 	import { getStationPokemon } from '@/lib/pogoUtils.js';
 	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
@@ -44,7 +44,7 @@
 		<div class="w-12 h-12 shrink-0">
 			{#if data.battle_pokemon_id}
 			<ImagePopup
-				alt={pokemonName(getStationPokemon(data))}
+				alt={mPokemon(getStationPokemon(data))}
 				src={getIconPokemon(getStationPokemon(data))}
 				class="w-12 h-12"
 			/>
@@ -62,7 +62,7 @@
 		<div class="text-lg font-semibold tracking-tight">
 			<span>
 				{#if data.battle_pokemon_id}
-					{pokemonName(getStationPokemon(data))}
+					{mPokemon(getStationPokemon(data))}
 				{:else}
 					{data.name}
 				{/if}
