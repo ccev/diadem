@@ -1,37 +1,27 @@
 <script lang="ts">
-	import { slide } from 'svelte/transition';
-	import PokemonPopup from '@/components/ui/popups/pokemon/PokemonPopup.svelte';
-	import PokestopPopup from '@/components/ui/popups/pokestop/PokestopPopup.svelte';
-	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
 	import BottomNav from '@/components/ui/nav/BottomNav.svelte';
-	import { getUserSettings } from '@/lib/userSettings.svelte';
 	import Map from '@/components/map/Map.svelte';
 	import ContextMenu from '@/components/ui/contextmenu/ContextMenu.svelte';
 	import { getConfig } from '@/lib/config/config';
-	import GymPopup from '@/components/ui/popups/gym/GymPopup.svelte';
-	import StationPopup from '@/components/ui/popups/station/StationPopup.svelte';
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from '@/lib/mapObjects/currentSelectedState.svelte';
-	import { getMap, resetMap } from '@/lib/map/map.svelte';
+	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import { resetMap } from '@/lib/map/map.svelte';
 	import WeatherOverview from '@/components/map/WeatherOverview.svelte';
-	import { Search as SearchIcon } from 'lucide-svelte';
-	import Search from '@/components/ui/search/Search.svelte';
-	import { openModal } from '@/lib/modal.svelte';
-	import BaseFab from '@/components/ui/fab/BaseFab.svelte';
 	import { isSupportedFeature } from '@/lib/enabledFeatures';
 	import { getUserDetails } from '@/lib/user/userDetails.svelte.js';
 	import SignInButton from '@/components/ui/user/SignInButton.svelte';
 	import { getOpenedMenu, isMenuSidebar, isUiLeft, openMenu } from '@/lib/menus.svelte';
-	import ProfileMenu from '@/components/menus/profile/ProfileMenu.svelte';
-	import FiltersMenu from '@/components/menus/filters/FiltersMenu.svelte';
 	import Fabs from '@/components/ui/fab/Fabs.svelte';
 	import PopupContainer from '@/components/ui/popups/PopupContainer.svelte';
-	import { innerWidth } from "svelte/reactivity/window";
-	import MenuContainer from '@/components/menus/MenuContainer.svelte';
-	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import MobileMenu from '@/components/menus/MobileMenu.svelte';
 	import DesktopMenu from '@/components/menus/DesktopMenu.svelte';
+	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
 
-	let showSignInButton = $derived(isSupportedFeature("auth") && !getUserDetails().details)
+	let showSignInButton = $derived(
+		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES)
+		&& hasLoadedFeature(LoadedFeature.USER_DETAILS)
+		&& isSupportedFeature("auth")
+		&& !getUserDetails().details
+	)
 
 	function onmapclick() {
 		resetMap()

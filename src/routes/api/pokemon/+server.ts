@@ -58,6 +58,5 @@ export async function POST({ request, locals }) {
 		}
 	)
 	const results = await response.json()
-	console.info("got pokemon: " + JSON.stringify(body) + JSON.stringify(results))
 	return json({result: results, error: undefined});
 }
