@@ -14,7 +14,6 @@
 	import SettingsSelect from '@/components/menus/profile/SettingsSelect.svelte';
 	import { hasFeatureAnywhere } from '@/lib/user/checkPerm';
 	import { getUserDetails } from '@/lib/user/userDetails.svelte';
-	import IconPicker from '@/components/filters/IconPicker.svelte';
 
 	let test: boolean = $state(false);
 
@@ -85,22 +84,13 @@
 <!--{/snippet}-->
 
 <div class="mt-2" style="container-name: menu; container-type: inline-size">
-	<Card class="pb-2 px-2 mb-4">
-		<IconPicker />
-	</Card>
-
 	{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
-		<Card class="pb-2 px-2 mb-4">
-
+		<Card class="pt-4 pb-2 px-2 mb-4">
 			<SettingsGeneric title="Pokémon">
-<!--				<FilterTypeSelect category="pokemonMajor" />-->
+				<FilterTypeSelect category="pokemonMajor" />
 
-				<!--{#if getUserSettings().filters.pokemonMajor.type === "filtered"}-->
+				{#if getUserSettings().filters.pokemonMajor.type === "filtered"}
 					<div class="w-full flex flex-col gap-2" transition:slide={{ duration: 90 }}>
-						<Button variant="outline" size="" class="px-2 py-2 border-2 rounded-md gap-2">
-							<span>All Pokémon</span>
-							<Switch class="ml-auto" checked={true} />
-						</Button>
 						<Button variant="outline" size="" class="px-2 py-2 border-2 rounded-md gap-2">
 							<span>💯</span>
 							<span>100% IV</span>
@@ -126,7 +116,7 @@
 							<span>Add Filterset</span>
 						</Button>
 					</div>
-				<!--{/if}-->
+				{/if}
 			</SettingsGeneric>
 		</Card>
 	{/if}
