@@ -15,21 +15,33 @@ import { loadRemoteLocale } from '@/lib/ingameLocale';
 import { resolveLanguageTag } from '@/lib/i18n';
 
 let isLoading = $state(true)
+let loadingProgress = $state(0)
 
 export function getIsLoading() {
 	return isLoading
 }
 
+export function getLoadingProgress() {
+	return loadingProgress
+}
+
+async function loadingWrapper<T>(func: Promise<T>, progress: number): Promise<T> {
+	const result = await func
+	loadingProgress += progress
+	return result
+}
+
 export async function load() {
 	const configResponse = await fetch('/api/config');
 	setConfig(await configResponse.json());
+	loadingProgress += 40
 
 	await Promise.all([
-		initAllIconSets(),
-		loadMasterFile(),
-		loadKojiGeofences(),
-		updateSupportedFeatures(),
-		updateUserDetails()
+		loadingWrapper(initAllIconSets(), 10),
+		loadingWrapper(loadMasterFile(), 10),
+		loadingWrapper(loadKojiGeofences(), 15),
+		loadingWrapper(updateSupportedFeatures(), 15),
+		loadingWrapper(updateUserDetails(), 10)
 	]);
 
 	if (browser) {
@@ -54,5 +66,6 @@ export async function load() {
 		await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
 	}
 
+	loadingProgress = 100
 	isLoading = false
 }

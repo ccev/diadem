@@ -16,12 +16,15 @@
 	import { getConfig } from '@/lib/config/config';
 	import { loadRemoteLocale } from '@/lib/ingameLocale';
 	import { getIsLoading, load } from '@/lib/initialLoad.svelte';
+	import Loading from '@/components/ui/Loading.svelte';
+	import Map from '@/components/map/Map.svelte';
 
 	let { children } = $props();
 
 	load().then()
 
 	$effect(() => {
+		if (getIsLoading()) return
 		getUserSettings().isDarkMode
 		updateDarkMode()
 	})
@@ -43,13 +46,13 @@
 </script>
 
 <svelte:head>
-	<title>{getConfig()?.general?.mapName}</title>
+	<title>{getConfig()?.general?.mapName ?? "Loading"}</title>
 </svelte:head>
 
 <ParaglideJS languageTag={languageTag} {i18n}>
 
 {#if getIsLoading()}
-	Loading
+	<Loading />
 {:else}
 
 	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
