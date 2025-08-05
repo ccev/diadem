@@ -2,6 +2,7 @@ import type { MasterFile } from '@/lib/types/masterfile';
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import * as m from "@/lib/paraglide/messages"
 import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
+import { resolveLanguageTag } from '@/lib/i18n';
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -28,7 +29,8 @@ export async function loadRemoteLocale(languageTag: string) {
 }
 
 function mIngame(key: string): string {
-	let locale = remoteLocales[getUserSettings().languageTag]
+	const languageTag = resolveLanguageTag(getUserSettings().languageTag)
+	let locale = remoteLocales[languageTag]
 
 	if (!locale) {
 		const allRemoteLocales = Object.values(remoteLocales)

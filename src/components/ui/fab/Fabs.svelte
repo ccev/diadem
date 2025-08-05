@@ -5,6 +5,8 @@
 	import BaseFab from '@/components/ui/fab/BaseFab.svelte';
 	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
 	import { Search as SearchIcon } from 'lucide-svelte';
+	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
+	import { isSupportedFeature } from '@/lib/enabledFeatures';
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -24,9 +26,15 @@
 	<div
 		class="mx-2 gap-2 flex-col flex"
 	>
+		{#if
+			hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES)
+			&& isSupportedFeature("koji")
+			&& hasLoadedFeature(LoadedFeature.KOJI)
+		}
 		<BaseFab onclick={() => openModal(searchModalSnippet, "top")}>
 			<SearchIcon size="24" />
 		</BaseFab>
+		{/if}
 
 		<LocateFab />
 

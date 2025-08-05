@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { isModalOpen } from '@/lib/modal.svelte.js';
-	import { GeoJSON, MapLibre, SymbolLayer, LineLayer, FillLayer, Marker } from 'svelte-maplibre';
+	import { GeoJSON, MapLibre, Marker, SymbolLayer } from 'svelte-maplibre';
 	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
@@ -10,25 +10,25 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { isWebglSupported } from '@/lib/map/utils';
 	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from '@/lib/map/mapObjectsInterval';
-	import { setMap } from '@/lib/map/map.svelte';
+	import { getMap, setMap } from '@/lib/map/map.svelte';
 	import { clearPressTimer, onContextMenu } from '@/lib/map/contextmenu.svelte';
 	import { clearSessionImageUrls, getMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 	import { loadMapObjectInterval } from '@/lib/map/loadMapObjects';
 	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from '@/lib/map/events';
-	import maplibre, { type MapStyleDataEvent } from 'maplibre-gl';
+	import maplibre from 'maplibre-gl';
 	import FrameRateControl from '@/lib/map/framerate';
 	import { getS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
 	import { getSelectedWeatherS2Cells } from '@/lib/mapObjects/weather.svelte';
 	import DebugMenu from '@/components/map/DebugMenu.svelte';
 	import { getAnimateLocationMarker, getCurrentLocation } from '@/lib/map/geolocate.svelte';
+	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	let debugRerender: boolean = $state(true);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
 	async function onMapLoad() {
-		console.debug('style mapload');
 		if (map) {
 			setMap(map);
 			if (getUserSettings().showDebugMenu) {
@@ -60,11 +60,24 @@
 
 				setDirectLinkCoordinates(undefined);
 			}
-
-			await updateAllMapObjects(false);
-			resetUpdateMapObjectsInterval();
 		}
 	}
+
+	// update initial map objects only once every required part has been loaded
+	let isInitUpdatedMapObjects = false
+	$effect(() => {
+		if (
+			!isInitUpdatedMapObjects &&
+			getMap()
+			&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE)
+			&& hasLoadedFeature(LoadedFeature.MASTER_FILE)
+			&& hasLoadedFeature(LoadedFeature.ICON_SETS)
+		) {
+			console.debug("initial load data")
+			isInitUpdatedMapObjects = true
+			updateAllMapObjects(false).then(() => resetUpdateMapObjectsInterval()).catch(e => console.error(e))
+		}
+	});
 
 	onMount(() => {
 		setMap(undefined);

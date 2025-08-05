@@ -14,58 +14,56 @@ import {
 import { loadRemoteLocale } from '@/lib/ingameLocale';
 import { resolveLanguageTag } from '@/lib/i18n';
 
-let isLoading = $state(true)
-let loadingProgress = $state(0)
+export enum LoadedFeature {
+	ICON_SETS = "iconSets",
+	MASTER_FILE = "masterFile",
+	KOJI = "koji",
+	SUPPORTED_FEATURES = "supportedFeatures",
+	USER_DETAILS = "userDetails",
+	REMOTE_LOCALE = "remoteLocale",
+	SERVER_USER_SETTINGS = "serverUserSettings"
+}
+
+let loadedFeatures: LoadedFeature[] = $state([])
 
 export function getIsLoading() {
-	return isLoading
+	return getLoadingProgress() < 1
 }
 
-export function getLoadingProgress() {
-	return loadingProgress
+export function hasLoadedFeature(feature: LoadedFeature) {
+	return loadedFeatures.includes(feature)
 }
 
-async function loadingWrapper<T>(func: Promise<T>, progress: number): Promise<T> {
+/**
+ * Get current loading progress (range 0-1)
+ */
+export function getLoadingProgress(offset: number = 0) {
+	return (loadedFeatures.length + offset) / Object.keys(LoadedFeature).length
+}
+
+async function loadingWrapper<T>(func: Promise<T>, loadedFeature: LoadedFeature): Promise<T> {
 	const result = await func
-	loadingProgress += progress
+	loadedFeatures.push(loadedFeature)
 	return result
 }
 
 export async function load() {
-	const configResponse = await fetch('/api/config');
-	setConfig(await configResponse.json());
-	loadingProgress += 40
-
 	await Promise.all([
-		loadingWrapper(initAllIconSets(), 10),
-		loadingWrapper(loadMasterFile(), 10),
-		loadingWrapper(loadKojiGeofences(), 15),
-		loadingWrapper(updateSupportedFeatures(), 15),
-		loadingWrapper(updateUserDetails(), 10)
+		loadingWrapper(initAllIconSets(), LoadedFeature.ICON_SETS),
+		loadingWrapper(loadMasterFile(), LoadedFeature.MASTER_FILE),
+		loadingWrapper(loadKojiGeofences(), LoadedFeature.KOJI),
+		loadingWrapper(updateSupportedFeatures(), LoadedFeature.SUPPORTED_FEATURES),
+		loadingWrapper(updateUserDetails(), LoadedFeature.USER_DETAILS),
+		loadingWrapper(loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag)), LoadedFeature.REMOTE_LOCALE),
 	]);
 
 	if (browser) {
-		let hasServerUserSettings = false
-
 		if (getUserDetails().details) {
-			hasServerUserSettings = await getUserSettingsFromServer()
-		}
-
-		if (!hasServerUserSettings) {
-			const rawUserSettings = localStorage.getItem('userSettings');
-
-			if (rawUserSettings) {
-				setUserSettings(JSON.parse(rawUserSettings));
-			} else {
-				setUserSettings(getDefaultUserSettings());
-			}
-
-			updateUserSettings();
+			await getUserSettingsFromServer()
 		}
 
 		await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
 	}
 
-	loadingProgress = 100
-	isLoading = false
+	loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS)
 }

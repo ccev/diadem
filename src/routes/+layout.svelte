@@ -29,8 +29,10 @@
 		updateDarkMode()
 	})
 
-	let dialog: HTMLDialogElement
+	let dialog: HTMLDialogElement | undefined = $state(undefined)
 	$effect(() => {
+		if (!dialog) return
+
 		if (isModalOpen()) {
 			dialog.showModal()
 		} else {
@@ -53,31 +55,29 @@
 
 {#if getIsLoading()}
 	<Loading />
-{:else}
-
-	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-	<dialog
-		bind:this={dialog}
-		style="max-width: calc(100vw - 1rem);"
-		class="shadow-md mx-auto overflow-hidden w-fit rounded-md appearance-none bg-transparent backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
-		onclose={() => closeModal()}
-		onclick={() => closeModal()}
-		class:my-auto={getModalOptions().vertical === "center"}
-		class:mt-2={getModalOptions().vertical === "top"}
-	>
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="w-full h-full" onclick={e => e.stopPropagation()}>
-			{@render getModalOptions().snippet?.()}
-		</div>
-	</dialog>
-
-
-	{#if getIsToastOpen()}
-		<Toast />
-	{/if}
-
-	{@render children?.()}
 {/if}
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+<dialog
+	bind:this={dialog}
+	style="max-width: calc(100vw - 1rem);"
+	class="shadow-md mx-auto overflow-hidden w-fit rounded-md appearance-none bg-transparent backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
+	onclose={() => closeModal()}
+	onclick={() => closeModal()}
+	class:my-auto={getModalOptions().vertical === "center"}
+	class:mt-2={getModalOptions().vertical === "top"}
+>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="w-full h-full" onclick={e => e.stopPropagation()}>
+		{@render getModalOptions().snippet?.()}
+	</div>
+</dialog>
+
+
+{#if getIsToastOpen()}
+	<Toast />
+{/if}
+
+{@render children?.()}
 
 </ParaglideJS>
 

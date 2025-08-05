@@ -19,6 +19,7 @@
 	import type { WeatherData } from '@/lib/types/mapObjectData/weather';
 	import { getUserSettings } from '@/lib/userSettings.svelte';
 	import { isMenuSidebar, isUiLeft, openMenu } from '@/lib/menus.svelte';
+	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
 
 	let ignoreWatch = false
 	let isClicked: boolean = $state(false)
@@ -69,7 +70,12 @@
 	}
 </script>
 
-{#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather())}
+{#if
+	getCurrentWeather()
+	&& isWeatherUpdated(getCurrentWeather())
+	&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE)
+	&& hasLoadedFeature(LoadedFeature.ICON_SETS)
+}
 	<div
 		class="pointer-events-none fixed top-2 z-10"
 		class:right-2={!isUiLeft() || isMenuSidebar()}

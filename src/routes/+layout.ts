@@ -16,6 +16,17 @@ import { getUserDetails, updateUserDetails } from '@/lib/user/userDetails.svelte
 
 export const ssr = false;
 
-// export const load = async ({ fetch }) => {
-//
-// };
+export const load = async ({ fetch }) => {
+	const configResponse = await fetch('/api/config');
+	setConfig(await configResponse.json());
+
+	const rawUserSettings = localStorage.getItem('userSettings');
+
+	if (rawUserSettings) {
+		setUserSettings(JSON.parse(rawUserSettings));
+	} else {
+		setUserSettings(getDefaultUserSettings());
+	}
+
+	updateUserSettings();
+};

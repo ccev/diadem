@@ -126,12 +126,10 @@ export async function getUserSettingsFromServer() {
 
 	// User has existing user settings, merge with defaults, then update
 	if (!dbUserSettings.error && Object.keys(dbUserSettings.result).length > 0) {
+		// TODO: only overwrite map position if current position is default
 		setUserSettings(dbUserSettings.result);
 		updateUserSettings();
-		return true;
 	}
-
-	return false;
 }
 
 export function setUserSettings(newUserSettings: UserSettings) {
