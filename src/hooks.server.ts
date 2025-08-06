@@ -1,7 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
 import {
 	createSession,
-	deleteSessionTokenCookie, makeNewSession,
+	deleteSessionTokenCookie, invalidateSession, makeNewSession,
 	sessionCookieName,
 	setSessionTokenCookie,
 	validateSessionToken
@@ -51,6 +51,16 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	if (user && !permissionCache.has(user.id)) {
 		user.permissions = await updatePermissions(user as User, session.discordToken, event.fetch)
 		permissionCache.set(user.id, undefined)
+	}
+
+	// Refresh Discord Auth if necessary
+	const discord = getDiscordAuth()
+	if (discord && session && session.discordLastRefresh < new Date(Date.now() - (DISCORD_REFRESH_INTERVAL * 1000))) {
+		console.log("Refreshing Discord auth token for user " + user.id)
+		const tokens = await discord.refreshAccessToken(session.discordRefreshToken)
+
+		await makeNewSession(event, user.id, tokens.accessToken(), tokens.refreshToken(), tokens.accessTokenExpiresAt())
+		await invalidateSession(session.id)
 	}
 
 	event.locals.user = user;

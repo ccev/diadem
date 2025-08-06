@@ -27,8 +27,11 @@ function getFetchOptions(accessToken: string): RequestInit {
 	}
 }
 
-export async function getUserInfo(accessToken: string): Promise<DiscordUser> {
+export async function getUserInfo(accessToken: string): Promise<DiscordUser | undefined> {
 	const response = await fetch(endpoint, getFetchOptions(accessToken));
+
+	if (response.status === 401) return
+
 	const user: DiscordUserData = await response.json();
 	return {
 		id: user.id,
