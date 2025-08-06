@@ -4,12 +4,17 @@
 	import { updateGeolocationEnabled, updateLocation, getIsGeolocationEnabled, getIsFetchingLocation } from '@/lib/map/geolocate.svelte';
 	import { onMount } from 'svelte';
 
+	let {
+		...rest
+	} = $props()
+
 	onMount(() => updateGeolocationEnabled().then())
 </script>
 
 
 <BaseFab
 	onclick={updateLocation}
+	{...rest}
 >
 	{#if getIsGeolocationEnabled()}
 		<Locate size="24" class={getIsFetchingLocation() ? "fetching-location" : ""} />

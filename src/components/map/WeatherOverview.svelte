@@ -73,8 +73,7 @@
 {#if
 	getCurrentWeather()
 	&& isWeatherUpdated(getCurrentWeather())
-	&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE)
-	&& hasLoadedFeature(LoadedFeature.ICON_SETS)
+	&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS)
 }
 	<div
 		class="pointer-events-none fixed top-2 z-10"

@@ -17,8 +17,7 @@
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
 
 	let showSignInButton = $derived(
-		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES)
-		&& hasLoadedFeature(LoadedFeature.USER_DETAILS)
+		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
 		&& isSupportedFeature("auth")
 		&& !getUserDetails().details
 	)

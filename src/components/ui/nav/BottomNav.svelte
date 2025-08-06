@@ -5,6 +5,7 @@
 	import { Avatar } from 'bits-ui';
 	import { getUserDetails } from '@/lib/user/userDetails.svelte';
 	import { getOpenedMenu, type MenuTypes, openMenu } from '@/lib/menus.svelte';
+	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
 
 	function isSelected(type: MenuTypes) {
 		return type === getOpenedMenu()
@@ -54,6 +55,7 @@
 			size=""
 			class="flex px-2 pt-0.5 justify-center items-center flex-col text-sm bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground first:rounded-l-lg last:rounded-r-lg"
 			onclick={() => onNavigate(btn.type)}
+			disabled={!hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.SUPPORTED_FEATURES)}
 		>
 			{#if btn.type === "profile"}
 				<Avatar.Root>

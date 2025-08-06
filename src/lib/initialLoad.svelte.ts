@@ -30,8 +30,15 @@ export function getIsLoading() {
 	return getLoadingProgress() < 1
 }
 
-export function hasLoadedFeature(feature: LoadedFeature) {
-	return loadedFeatures.includes(feature)
+/**
+ * Checks whether certain parts have been loaded, is reactive
+ * @param features
+ */
+export function hasLoadedFeature(...features: LoadedFeature[]) {
+	for (const feature of features) {
+		if (!loadedFeatures.includes(feature)) return false
+	}
+	return true
 }
 
 /**
@@ -57,13 +64,13 @@ export async function load() {
 		loadingWrapper(loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag)), LoadedFeature.REMOTE_LOCALE),
 	]);
 
-	if (browser) {
-		if (getUserDetails().details) {
-			await getUserSettingsFromServer()
-		}
-
-		await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
-	}
-
-	loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS)
+	// if (browser) {
+	// 	if (getUserDetails().details) {
+	// 		await getUserSettingsFromServer()
+	// 	}
+	//
+	// 	await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
+	// }
+	//
+	// loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS)
 }

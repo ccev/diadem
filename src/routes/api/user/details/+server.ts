@@ -16,7 +16,7 @@ export async function GET(event) {
 	} as UserData);
 
 	const data = await getUserInfo(session.discordToken);
-	
+
 	if (!data) {
 		await invalidateSession(event.locals.session.id)
 		deleteSessionTokenCookie(event)

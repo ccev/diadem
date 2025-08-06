@@ -70,11 +70,8 @@
 		if (
 			!isInitUpdatedMapObjects &&
 			getMap()
-			&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE)
-			&& hasLoadedFeature(LoadedFeature.MASTER_FILE)
-			&& hasLoadedFeature(LoadedFeature.ICON_SETS)
+			&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.MASTER_FILE, LoadedFeature.ICON_SETS)
 		) {
-			console.debug('initial load data');
 			isInitUpdatedMapObjects = true;
 			updateAllMapObjects(false).then(() => resetUpdateMapObjectsInterval()).catch(e => console.error(e));
 		}
