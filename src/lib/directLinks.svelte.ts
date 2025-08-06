@@ -1,29 +1,19 @@
-import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 
-type DirectLinkCoordnates = {
-	lat: number | undefined
-	lon: number | undefined
-}
-type DirectLinkObject = {
-	type: MapObjectType
-	id: string
-}
-
-let directLinkCoordinates: DirectLinkCoordnates | undefined = $state(undefined)
-let directLinkObject: DirectLinkObject | undefined = $state(undefined)
-
-export function getDirectLinkCoordinates() {
-	return directLinkCoordinates
-}
+let directLinkObject: {
+	unavailable: boolean,
+	data?: {
+		id: string,
+		type: MapObjectType,
+		lat?: number,
+		lon?: number
+	}
+} | undefined = $state(undefined)
 
 export function getDirectLinkObject() {
 	return directLinkObject
 }
 
-export function setDirectLinkCoordinates(data: DirectLinkCoordnates | undefined) {
-	directLinkCoordinates = data
-}
-
-export function setDirectLinkObject(data: DirectLinkObject | undefined) {
-	directLinkObject = data
+export function setDirectLinkObject(id: string, type: MapObjectType, data?: { lat: number, lon: number }) {
+	directLinkObject = { unavailable: !Boolean(data), data: { id, type, ...data } }
 }

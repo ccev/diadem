@@ -3,9 +3,9 @@
 	import { GeoJSON, MapLibre, Marker, SymbolLayer } from 'svelte-maplibre';
 	import { getUserSettings, updateUserSettings } from '@/lib/userSettings.svelte';
 	import { onDestroy, onMount, tick } from 'svelte';
-	import { getDirectLinkCoordinates, setDirectLinkCoordinates } from '@/lib/directLinks.svelte';
-	import { clickFeatureHandler, clickMapHandler, updateCurrentPath } from '@/lib/mapObjects/interact';
-	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+	import { getDirectLinkObject } from '@/lib/directLinks.svelte';
+	import { clickFeatureHandler, clickMapHandler, openPopup, updateCurrentPath } from '@/lib/mapObjects/interact';
+	import { getMapObjectId, updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 	import Card from '@/components/ui/basic/Card.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { isWebglSupported } from '@/lib/map/utils';
@@ -23,6 +23,8 @@
 	import DebugMenu from '@/components/map/DebugMenu.svelte';
 	import { getAnimateLocationMarker, getCurrentLocation } from '@/lib/map/geolocate.svelte';
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
+	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
+	import { addMapObject, getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	let debugRerender: boolean = $state(true);
@@ -48,32 +50,47 @@
 
 			// tick so feature handler registers first
 			tick().then(() => map?.on('click', clickMapHandler));
-
-			const data = getDirectLinkCoordinates();
-			if (data && data.lat && data.lon) {
-				getUserSettings().mapPosition.center.lat = data.lat;
-				getUserSettings().mapPosition.center.lng = data.lon;
-				getUserSettings().mapPosition.zoom = 18;
-				updateUserSettings();
-
-				map.setCenter({ lat: data.lat, lng: data.lon });
-				map.setZoom(18);
-
-				setDirectLinkCoordinates(undefined);
-			}
 		}
 	}
 
 	// update initial map objects only once every required part has been loaded
 	let isInitUpdatedMapObjects = false;
 	$effect(() => {
+		const map = getMap()
 		if (
 			!isInitUpdatedMapObjects &&
-			getMap()
+			map
 			&& hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.MASTER_FILE, LoadedFeature.ICON_SETS)
 		) {
+			const directLink = getDirectLinkObject();
+			const directLinkData = directLink?.data
+
+			if (directLinkData && directLinkData.lat && directLinkData.lon) {
+				getUserSettings().mapPosition.center.lat = directLinkData.lat;
+				getUserSettings().mapPosition.center.lng = directLinkData.lon;
+				getUserSettings().mapPosition.zoom = 18;
+				updateUserSettings();
+
+				map.setCenter({ lat: directLinkData.lat, lng: directLinkData.lon });
+				map.setZoom(18);
+			}
+
 			isInitUpdatedMapObjects = true;
-			updateAllMapObjects(false).then(() => resetUpdateMapObjectsInterval()).catch(e => console.error(e));
+			updateAllMapObjects(false)
+				.then(() => {
+					resetUpdateMapObjectsInterval()
+
+					if (directLinkData) {
+						const allData = getMapObjects()[getMapObjectId(directLinkData.type, directLinkData.id)]
+						if (directLink.unavailable || !allData) {
+							openToast(m.direct_link_not_found({ type: m['pogo_' + directLinkData.data.type]() }), 5000);
+						} else if (allData) {
+							console.debug(allData)
+							openPopup(allData)
+						}
+					}
+				})
+				.catch(e => console.error(e));
 		}
 	});
 

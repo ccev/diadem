@@ -15,6 +15,7 @@
 	import MobileMenu from '@/components/menus/MobileMenu.svelte';
 	import DesktopMenu from '@/components/menus/DesktopMenu.svelte';
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
+	import Metadata from '@/components/utils/Metadata.svelte';
 
 	let showSignInButton = $derived(
 		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
@@ -35,7 +36,7 @@
 </script>
 
 <svelte:head>
-	<title>{getConfig().general.mapName}</title>
+	<Metadata />
 </svelte:head>
 
 <ContextMenu />

@@ -9,7 +9,7 @@
 		ArrowBigUp,
 		ArrowBigUpDash,
 		ArrowUp,
-		ArrowUpFromDot, ChevronUp, MousePointer2,
+		ArrowUpFromDot, ChevronUp, MousePointer2, Navigation2,
 		Search as SearchIcon
 	} from 'lucide-svelte';
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/initialLoad.svelte';
@@ -49,11 +49,11 @@
 		<div transition:slide={{ duration: 120 }}>
 			<BaseFab
 				onclick={() => resetMap()}
-				class="rounded-full! size-13!"
+				class="rounded-full!"
 			>
-				<MousePointer2
+				<Navigation2
 					size="24"
-					style="transform: rotateX({getSkew().pitch}deg) rotateZ({-getSkew().bearing + 45}deg);"
+					style="transform: rotateX({getSkew().pitch}deg) rotateZ({-getSkew().bearing}deg);"
 				/>
 			</BaseFab>
 		</div>

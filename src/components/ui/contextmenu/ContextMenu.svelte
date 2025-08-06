@@ -13,6 +13,7 @@
 
 	import { getContextMenuEvent, getIsContextMenuOpen, setIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
 	import { onClickOutside } from 'runed';
+	import { isUiLeft } from '@/lib/menus.svelte';
 
 	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
@@ -36,7 +37,7 @@
 		let x = event.point.x
 		let y = event.point.y
 
-		if (!getUserSettings().isLeftHanded) {
+		if (!isUiLeft()) {
 			x -= offsetWidth
 		}
 		if (x <= spacing) {

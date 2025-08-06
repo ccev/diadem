@@ -64,13 +64,13 @@ export async function load() {
 		loadingWrapper(loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag)), LoadedFeature.REMOTE_LOCALE),
 	]);
 
-	// if (browser) {
-	// 	if (getUserDetails().details) {
-	// 		await getUserSettingsFromServer()
-	// 	}
-	//
-	// 	await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
-	// }
-	//
-	// loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS)
+	if (browser) {
+		if (getUserDetails().details) {
+			await getUserSettingsFromServer()
+		}
+
+		await loadRemoteLocale(resolveLanguageTag(getUserSettings().languageTag));
+	}
+
+	loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS)
 }

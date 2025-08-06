@@ -6,7 +6,6 @@ import {
 	clearMapObjects,
 	getMapObjects
 } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-import maplibre from 'maplibre-gl';
 import { type Bounds, getBounds } from '@/lib/mapObjects/mapBounds';
 import type {
 	MapData,
@@ -15,13 +14,7 @@ import type {
 } from '@/lib/types/mapObjectData/mapObjects';
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import type { AllFilters, FilterS2Cell } from '@/lib/filters/filters';
-import { getDirectLinkObject, setDirectLinkObject } from '@/lib/directLinks.svelte';
-import { openPopup } from '@/lib/mapObjects/interact';
-import { openToast } from '@/components/ui/toast/toastUtils.svelte';
-import * as m from '@/lib/paraglide/messages';
-import { getMap } from '@/lib/map/map.svelte';
 import { updateFeatures } from '@/lib/map/featuresGen.svelte';
-import { updateMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 import { clearS2Cells, updateS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 import { updateWeather } from '@/lib/mapObjects/weather.svelte';
 import { hasFeatureAnywhere } from '@/lib/user/checkPerm';
@@ -29,17 +22,24 @@ import { getUserDetails } from '@/lib/user/userDetails.svelte';
 
 export type MapObjectRequestData = Bounds & { filter: AllFilters | undefined }
 
-export function makeMapObject(data: MapData, type: MapObjectType) {
+export function getMapObjectId(type: MapObjectType, id: string) {
+	return type + '-' + id
+}
+
+export function makeMapObject(data: MapData, type: MapObjectType): MapData {
 	data.type = type;
-	data.mapId = type + '-' + data.id;
+	data.mapId = getMapObjectId(type, data.id);
 	addMapObject(data);
+
+	return data
 }
 
 export async function getOneMapObject(
 	type: MapObjectType,
-	id: string
-): Promise<Partial<MapData> | undefined> {
-	const response = await fetch('/api/' + type + '/' + id);
+	id: string,
+	thisFetch?: typeof fetch
+): Promise<{ lat: number, lon: number } | undefined> {
+	const response = await (thisFetch ?? fetch)('/api/' + type + '/' + id);
 	const data = await response.json();
 
 	if (!data) return;
@@ -51,6 +51,7 @@ export async function getOneMapObject(
 	if (!data.result) {
 		return;
 	}
+
 	return data.result[0];
 }
 
@@ -164,15 +165,4 @@ export async function updateAllMapObjects(removeOld: boolean = true) {
 		}),
 		updateWeather()
 	]);
-
-	const directLinkData = getDirectLinkObject();
-	if (directLinkData) {
-		const mapObjectData = getMapObjects()[directLinkData.id];
-		if (mapObjectData) {
-			openPopup(mapObjectData);
-		} else {
-			openToast(m.direct_link_not_found({ type: m['pogo_' + directLinkData.type]() }), 5000);
-		}
-		setDirectLinkObject(undefined);
-	}
 }
