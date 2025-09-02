@@ -156,5 +156,6 @@
 	"scout_area_size": "Area Size",
 	"scout_queue_position": "Position in queue",
 	"scout_toast_success": "Started scouting, please wait a few seconds",
-	"scout_toast_error": "There was an error while scouting, please try again"
+	"scout_toast_error": "There was an error while scouting, please try again",
+	"scout_start": "Start scout"
 }

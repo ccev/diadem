@@ -1,24 +1,18 @@
 <script lang="ts">
-	import { ContextMenu } from "bits-ui"
-	import { fly, slide } from "svelte/transition"
-	import maplibre from 'maplibre-gl';
-	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 	import { Binoculars, Clipboard, Navigation } from 'lucide-svelte';
-	import Button from '@/components/ui/basic/Button.svelte';
 	import ContextMenuItem from '@/components/ui/contextmenu/ContextMenuItem.svelte';
-	import { canNativeShare, copyToClipboard, getMapsUrl, hasClipboardWrite } from '@/lib/utils.svelte';
-	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
-	import { getUserSettings } from '@/lib/userSettings.svelte';
-	import * as m from "@/lib/paraglide/messages"
+	import { copyToClipboard, getMapsUrl, hasClipboardWrite } from '@/lib/utils.svelte';
+	import * as m from '@/lib/paraglide/messages';
 
 	import { getContextMenuEvent, getIsContextMenuOpen, setIsContextMenuOpen } from '@/lib/map/contextmenu.svelte';
 	import { onClickOutside } from 'runed';
 	import { isMenuSidebar, isUiLeft, openMenu } from '@/lib/menus.svelte';
 	import { setCurrentScoutCenter, setCurrentScoutCoords } from '@/lib/scout.svelte';
+	import { Coords } from '@/lib/utils/coordinates';
 
 	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
-	let event: maplibre.MapTouchEvent | maplibre.MapMouseEvent
 	let mapsUrl: string = $state("")
 
 	const spacing = 4
@@ -30,7 +24,9 @@
 		if (!getContextMenuEvent()) return
 		if (!isMenuSidebar()) return
 
-		event = getContextMenuEvent()
+		const event = getContextMenuEvent()
+		if (!event) return
+
 		mapsUrl = getMapsUrl(event.lngLat.lat, event.lngLat.lng)
 
 		const { innerWidth, innerHeight } = window;
@@ -55,15 +51,17 @@
 	})
 
 	function copyCoords() {
-		event = getContextMenuEvent()
+		const event = getContextMenuEvent()
+		if (!event) return
 
 		copyToClipboard("" + event.lngLat.lat + "," + event.lngLat.lng)
 	}
 
 	function openScout() {
-		event = getContextMenuEvent()
+		const event = getContextMenuEvent()
+		if (!event) return
 
-		const center = { lat: event.lngLat.lat, lon: event.lngLat.lng }
+		const center = Coords.infer(event.lngLat)
 		setCurrentScoutCoords([center])
 		setCurrentScoutCenter(center)
 		openMenu("scout")

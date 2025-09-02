@@ -1,13 +1,10 @@
-import type { LngLat } from 'maplibre-gl';
-import type { FeatureCollection, Polygon, Feature } from 'geojson';
-import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from '@/lib/constants';
-import { point, destination } from '@turf/turf';
+import type { Feature, FeatureCollection, Polygon } from "geojson";
+import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from "@/lib/constants";
+import { destination, point } from "@turf/turf";
+import { Coords, type LatLon } from "@/lib/utils/coordinates";
 
 export type ScoutRequest = {
-	coords: {
-		lat: number;
-		lon: number;
-	}[];
+	coords: LatLon[];
 };
 
 export type ScoutGeoProperties = {
@@ -15,20 +12,22 @@ export type ScoutGeoProperties = {
 	strokeColor: string;
 };
 
-type ScoutData = ScoutRequest
-	& { center: { lat: number; lon: number } }
-	& { smallPoints: FeatureCollection<Polygon, ScoutGeoProperties> }
-	& { bigPoints: FeatureCollection<Polygon, ScoutGeoProperties> }
+type ScoutData = {
+	coords: Coords[];
+	center: Coords;
+	smallPoints: FeatureCollection<Polygon, ScoutGeoProperties>;
+	bigPoints: FeatureCollection<Polygon, ScoutGeoProperties>;
+};
 
 const defaultScoutData: ScoutData = {
-	center: { lat: 0, lon: 0 },
+	center: new Coords(0, 0),
 	coords: [],
 	smallPoints: {
-		type: 'FeatureCollection',
+		type: "FeatureCollection",
 		features: []
 	},
 	bigPoints: {
-		type: 'FeatureCollection',
+		type: "FeatureCollection",
 		features: []
 	}
 };
@@ -39,17 +38,20 @@ export function getCurrentScoutData() {
 	return currentScoutData;
 }
 
-export function setCurrentScoutCoords(coords: { lat: number; lon: number }[]) {
+export function setCurrentScoutCoords(coords: Coords[]) {
 	currentScoutData.coords = coords;
 }
 
-export function setCurrentScoutCenter(center: { lat: number; lon: number }) {
+export function setCurrentScoutCenter(center: Coords) {
 	currentScoutData.center = center;
 }
 
-export function setScoutGeojson(smallPoints: Feature<Polygon, ScoutGeoProperties>[], bigPoints: Feature<Polygon, ScoutGeoProperties>[]) {
+export function setScoutGeojson(
+	smallPoints: Feature<Polygon, ScoutGeoProperties>[],
+	bigPoints: Feature<Polygon, ScoutGeoProperties>[]
+) {
 	currentScoutData.smallPoints.features = smallPoints;
-	currentScoutData.bigPoints.features = bigPoints
+	currentScoutData.bigPoints.features = bigPoints;
 }
 
 export function resetCurrentScoutData() {
@@ -57,16 +59,16 @@ export function resetCurrentScoutData() {
 }
 
 export async function startScout() {
-	const response = await fetch('/api/scout', {
-		method: 'POST',
-		body: JSON.stringify(currentScoutData)
+	const response = await fetch("/api/scout", {
+		method: "POST",
+		body: JSON.stringify({ coords: currentScoutData.coords.map((c) => c.internal()) })
 	});
-	const data = await response.json()
-	return !data.error
+	const data = await response.json();
+	return !data.error;
 }
 
 export async function getScoutQueue() {
-	const response = await fetch('/api/scout');
+	const response = await fetch("/api/scout");
 	const data = await response.json();
 	return data.result;
 }
@@ -75,27 +77,26 @@ export async function getScoutQueue() {
  * Get scout coordinates, to cover a larger pokemon area
  * Function taken from ReactMap
  */
-export function getCoords(center: { lat: number; lon: number }, size: 0 | 1 | 2) {
-	if (size === 0) return [center]
+export function getCoords(center: Coords, size: 0 | 1 | 2) {
+	if (size === 0) return [center];
 
-	let distance
+	let distance;
 
 	if (size === 1) {
 		distance = RADIUS_POKEMON * 1.732;
 	} else if (size === 2) {
-		distance = RADIUS_SCOUT_GMO * 1.732
+		distance = RADIUS_SCOUT_GMO * 1.732;
 	} else {
-		return [center]
+		return [center];
 	}
 
-	const start = [center.lon, center.lat];
+	const start = center.geojson();
 	const coords = [center];
 
 	return coords.concat(
 		[0, 60, 120, 180, 240, 300].map((bearing) => {
-			const [lon, lat] = destination(point(start), distance / 1000, bearing).geometry
-				.coordinates;
-			return { lat, lon };
+			const coords = destination(point(start), distance / 1000, bearing).geometry.coordinates;
+			return Coords.infer(coords);
 		})
 	);
 }

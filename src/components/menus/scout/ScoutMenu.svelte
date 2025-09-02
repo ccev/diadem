@@ -3,23 +3,23 @@
 	import * as m from '@/lib/paraglide/messages';
 	import Card from '@/components/ui/basic/Card.svelte';
 	import SettingsSlider from '@/components/menus/profile/SettingsSlider.svelte';
-	import { getUserSettings } from '@/lib/userSettings.svelte';
-	import SettingsGeneric from '@/components/menus/profile/SettingsGeneric.svelte';
 	import SettingsSettingTitle from '@/components/menus/profile/SettingsSettingTitle.svelte';
 	import Button from '@/components/ui/basic/Button.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import {
 		getCoords,
 		getCurrentScoutData,
-		getScoutQueue, resetCurrentScoutData,
-		type ScoutGeoProperties, setCurrentScoutCoords,
+		getScoutQueue,
+		resetCurrentScoutData,
+		type ScoutGeoProperties,
+		setCurrentScoutCoords,
 		setScoutGeojson,
 		startScout
 	} from '@/lib/scout.svelte';
 	import { openMenu } from '@/lib/menus.svelte';
 	import { circle as makeCrircle } from '@turf/turf';
 	import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from '@/lib/constants';
-	import type { Feature, FeatureCollection, Polygon } from 'geojson';
+	import type { Feature, Polygon } from 'geojson';
 	import { watch } from 'runed';
 	import { openToast } from '@/components/ui/toast/toastUtils.svelte';
 
@@ -103,7 +103,6 @@
 		/>
 	</div>
 
-
 	<div class="w-full text-center my-2 text-sm">
 		<p>
 			{m.scout_queue_position()}: {queuePosition ?? ""}
@@ -111,7 +110,7 @@
 	</div>
 
 	<Button variant="default" size="lg" class="w-full" onclick={scoutButton}>
-		Start scout
+		{m.scout_start()}
 	</Button>
 
 </Card>
