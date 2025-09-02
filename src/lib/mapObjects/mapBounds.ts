@@ -1,4 +1,4 @@
-import { type Map, type LngLatBounds, type LngLatLike, LngLat } from 'maplibre-gl';
+import type { Map, LngLatLike, LngLat } from 'maplibre-gl';
 import { getUserSettings } from '@/lib/userSettings.svelte';
 import { getMap } from '@/lib/map/map.svelte';
 
