@@ -7,10 +7,10 @@ function getHeaders() {
 	}
 }
 
-export async function getSinglePokemon(id: string) {
+export async function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
 	const url = new URL("api/pokemon/id/" + params.id, getServerConfig().golbat.url)
 
-	return await fetch(
+	return await thisFetch(
 		url,
 		{
 			method: "GET",

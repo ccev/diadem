@@ -1,14 +1,32 @@
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type {
+	AllFilters,
 	FilterGymPlain,
 	FilterPokemon,
 	FilterPokestopPlain,
 	FilterStationMajor
 } from "@/lib/features/filters/filters";
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
+import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
-export async function queryPokemon(bounds: Bounds, filter: FilterPokemon) {
+export async function queryMapObjects(type: MapObjectType, bounds: Bounds, filter: AllFilters) {
+	let result: { error: undefined | string, result: MapData[] } = { error: "Internal Error", result: [] }
+
+	if (type === "pokemon") {
+		result = await queryPokemon(bounds, filter)
+	} else if (type === "gym") {
+		result = await queryGyms(bounds, filter)
+	} else if (type === "pokestop") {
+		result = await queryPokestops(bounds, filter)
+	} else if (type === "station") {
+		result = await queryStations(bounds, filter)
+	}
+
+	return result
+}
+
+async function queryPokemon(bounds: Bounds, filter: FilterPokemon) {
 	let golbatFilters = [
 		{
 			pokemon: []
@@ -42,7 +60,7 @@ export async function queryPokemon(bounds: Bounds, filter: FilterPokemon) {
 	return { result: results, error: undefined };
 }
 
-export async function queryPokestops(bounds: Bounds, filter: FilterPokestopPlain) {
+async function queryPokestops(bounds: Bounds, filter: FilterPokestopPlain) {
 	return await query(
 		"SELECT * FROM pokestop " +
 			"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
@@ -54,7 +72,7 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestopPlain
 	);
 }
 
-export async function queryGyms(bounds: Bounds, filter: FilterGymPlain) {
+async function queryGyms(bounds: Bounds, filter: FilterGymPlain) {
 	return await query(
 		"SELECT * FROM gym " +
 			"WHERE lat BETWEEN ? AND ? " +
@@ -65,7 +83,7 @@ export async function queryGyms(bounds: Bounds, filter: FilterGymPlain) {
 	);
 }
 
-export async function queryStations(bounds: Bounds, filter: FilterStationMajor) {
+async function queryStations(bounds: Bounds, filter: FilterStationMajor) {
 	return await query(
 		"SELECT * FROM station " +
 			"WHERE lat BETWEEN ? AND ? " +

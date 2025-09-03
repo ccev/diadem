@@ -17,7 +17,7 @@
 	let { data }: PageProps = $props();
 
 	let title: string = $derived.by(() => {
-		if (!data) return '';
+		if (!data || browser) return '';
 		const mapData = data as MapData
 
 		if (mapData.type === 'pokemon') {
@@ -42,7 +42,7 @@
 	});
 
 	let thumbnail: string = $derived.by(() => {
-		if (!data || !data.type) return '';
+		if (!data || browser) return '';
 		const mapData = data as MapData
 
 		let icon = ""
