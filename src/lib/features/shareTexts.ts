@@ -118,7 +118,7 @@ function getPokestopShareText(data: PokestopData) {
 	if (kecleonText) text += kecleonText
 	if (contestText) text += contestText
 
-	return texts.join("\n")
+	return text
 }
 
 function getGymShareText(data: GymData) {
