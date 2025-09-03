@@ -33,6 +33,8 @@
 
 {#if thumbnail}
 	<meta property="og:image" content={thumbnail} />
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:image:src" content={thumbnail}>
 {/if}
 
 {#if color}

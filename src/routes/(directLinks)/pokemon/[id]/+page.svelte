@@ -23,7 +23,7 @@
 			title={mPokemon(data)}
 			embedTitle={mPokemon(data)}
 			description={getPokemonShareText(data)}
-			image={getIconPokemon(data, getDefaultIconSet("pokemon").id)}
+			thumbnail={getIconPokemon(data, getDefaultIconSet("pokemon").id)}
 		/>
 	{:else}
 		<Metadata title={m.unknown_pokemon()} />
