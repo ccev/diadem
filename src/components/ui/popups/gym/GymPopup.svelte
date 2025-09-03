@@ -120,11 +120,11 @@
 					</div>
 				{/if}
 
-				{#if rsvps}
+				{#if rsvps && expanded}
 					<div class="grid items-center w-full justify-start mt-1.5" style="grid-template-columns: repeat(3, auto)">
 						{#each rsvps as rsvp (rsvp.timeslot)}
 							<UserRoundCheck size="16" class="mr-1.5" />
-							<b class="mr-1.5">{timestampToLocalTime(rsvp.timeslot)}</b>
+							<b class="mr-1.5">{timestampToLocalTime(rsvp.timeslot / 1000)}</b>
 							<span>
 								{m.rsvp_entry({going: rsvp.going_count, maybe: rsvp.maybe_count})}
 							</span>

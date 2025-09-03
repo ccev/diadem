@@ -76,7 +76,7 @@
 				map.setCenter({ lat: directLinkData.lat, lng: directLinkData.lon });
 				map.setZoom(18);
 			}
-			
+
 			isInitUpdatedMapObjects = true;
 			updateAllMapObjects(false)
 				.then(() => {
