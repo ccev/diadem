@@ -5,13 +5,13 @@
 		title,
 		embedTitle,
 		description,
-		image,
+		thumbnail,
 		color
 	}: {
 		title?: string,
 		embedTitle?: string,
 		description?: string,
-		image?: string,
+		thumbnail?: string,
 		color?: string
 	} = $props();
 
@@ -31,8 +31,10 @@
 	<meta name="twitter:description" content={description}>
 {/if}
 
-{#if image}
-	<meta property="og:image" content={image} />
+{#if thumbnail}
+	<meta property="og:image" content={thumbnail} />
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:image:src" content={thumbnail}>
 {/if}
 
 {#if color}
