@@ -11,6 +11,8 @@
 	import { Coords } from '@/lib/utils/coordinates';
 	import { copyToClipboard, hasClipboardWrite, isMenuSidebar, isUiLeft } from '@/lib/utils/device';
 	import { getMapsUrl } from '@/lib/utils/mapUrl';
+	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
+	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
 
 	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
@@ -86,11 +88,13 @@
 		target="_blank"
 	/>
 
-	<ContextMenuItem
-		Icon={Binoculars}
-		label={m.context_menu_scout_location()}
-		onclick={openScout}
-	/>
+	{#if hasFeatureAnywhere(getUserDetails().permissions, "scout")}
+		<ContextMenuItem
+			Icon={Binoculars}
+			label={m.context_menu_scout_location()}
+			onclick={openScout}
+		/>
+	{/if}
 {/snippet}
 
 {#if isMenuSidebar()}
