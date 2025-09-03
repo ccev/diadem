@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { UsersRound } from 'lucide-svelte';
-	import { CONTEST_SLOTS } from '@/lib/utils/pogoUtils.js';
 	import { getIconContest, getIconPokemon, getIconType } from '@/lib/services/uicons.svelte.js';
 	import { mAlignment, mGeneration, mPokemon, mType } from '@/lib/services/ingameLocale.js';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
@@ -8,6 +7,7 @@
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import type { ContestFocus, ContestRankings, PokestopData } from '@/lib/types/mapObjectData/pokestop.js';
 	import * as m from '@/lib/paraglide/messages';
+	import { CONTEST_SLOTS, getContestText } from '@/lib/utils/pokestopUtils';
 
 	let {
 		expanded,
@@ -34,51 +34,7 @@
 		getIconContest()
 	})
 
-	const name: string = $derived.by(() => {
-		let metric = m.contest_biggest
-		let name = ""
-
-		if (data.showcase_ranking_standard === 1) {
-			metric = m.contest_smallest
-		}
-
-		const focus: ContestFocus = JSON.parse(data.showcase_focus ?? "{}")
-
-		if (!focus) return metric({ name })
-
-		if (focus.type === "pokemon") {
-			name = mPokemon({ pokemon_id: focus.pokemon_id, form: focus.pokemon_form })
-		} else if (focus.type === "type") {
-			if (focus.pokemon_type_2) {
-				name = m.connected_and({
-					1: mType(focus.pokemon_type_1),
-					2:  m.x_type({ type: mType(focus.pokemon_type_2) })
-				})
-			} else {
-				name = m.x_type({ type: mType(focus.pokemon_type_1) })
-			}
-		} else if (focus.type === "buddy") {
-			name = m.contest_buddy_min_level({ level: focus.min_level })
-		} else if (focus.type === "alignment") {
-			name = mAlignment(focus.pokemon_alignment)
-		} else if (focus.type === "class") {
-			// @ts-ignore
-			const func =  m["pokemon_class_" + focus.pokemon_class]
-			name = func ? func() : "?"
-		} else if (focus.type === "family") {
-			name = m.contest_pokemon_family({ pokemon: mPokemon({ pokemon_id: focus.pokemon_family }) })
-		} else if (focus.type === "generation") {
-			name = mGeneration(focus.generation) + " " + m.pogo_pokemon()
-		} else if (focus.type === "hatched") {
-			name = focus.hatched ? m.contest_hatched() : m.contest_not_hatched()
-		} else if (focus.type === "mega") {
-			name = focus.restriction === 1 ? m.contest_mega_evolution() : m.contest_not_mega_evolution()
-		} else if (focus.type === "shiny") {
-			name = focus.shiny ? m.contest_shiny() : m.contest_not_shiny()
-		}
-
-		return metric({ name })
-	})
+	const name: string = $derived(getContestText(data))
 </script>
 
 <div class="py-2 border-border border-b group-last:mb-2">

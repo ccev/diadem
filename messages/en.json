@@ -158,5 +158,10 @@
 	"scout_toast_success": "Started scouting, please wait a few seconds",
 	"scout_toast_error": "There was an error while scouting, please try again",
 	"scout_start": "Start scout",
-    "pogo_ivs": "IVs"
+    "pogo_ivs": "IVs",
+    "unknown_station": "Unknown Power Spot",
+    "pogo_quest": "Quest",
+    "pogo_quests": "Quests",
+    "pogo_invasion": "Team Rocket",
+    "pogo_max_battle": "Max Battle"
 }

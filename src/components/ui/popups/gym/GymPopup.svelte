@@ -7,29 +7,17 @@
 	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
 	import { mMove, mPokemon, mRaid } from '@/lib/services/ingameLocale';
 	import Countdown from '@/components/utils/Countdown.svelte';
-	import { getRaidPokemon, GYM_SLOTS, isFortOutdated } from '@/lib/utils/pogoUtils';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
-	import {
-		CircleFadingArrowUp,
-		Clock,
-		ClockAlert,
-		ClockArrowUp,
-		ScanEye,
-		Smartphone,
-		Trees, UserRoundCheck,
-		UsersRound
-	} from 'lucide-svelte';
+	import { ClockAlert, Smartphone, Trees, UserRoundCheck, UsersRound } from 'lucide-svelte';
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
 	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
-	import { getConfig } from '@/lib/services/config/config';
-	import Button from '@/components/ui/basic/Button.svelte';
 	import GymDefenderOverview from '@/components/ui/popups/gym/GymDefenderOverview.svelte';
 	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 	import Metadata from '@/components/utils/Metadata.svelte';
+	import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from '@/lib/utils/gymUtils';
 
 	let { mapId }: { mapId: string } = $props();
 	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData);
@@ -42,7 +30,7 @@
 </svelte:head>
 
 {#snippet raidDisplay(expanded: boolean)}
-	{#if (data.raid_end_timestamp ?? 0) > currentTimestamp()}
+	{#if hasActiveRaid(data)}
 		<div
 			class="flex gap-2 items-center border-border border-b pb-2 mb-2"
 		>
@@ -64,7 +52,6 @@
 				</div>
 			{/if}
 
-
 			<div>
 				<div class="flex gap-1 items-center">
 				<span
@@ -83,7 +70,7 @@
 
 				<div>
 					<span class="whitespace-nowrap">
-						{#if (data.raid_battle_timestamp ?? 0) < currentTimestamp()}
+						{#if isRaidHatched(data)}
 							{m.raid_ends()}
 							<span class="font-semibold">
 								<Countdown expireTime={data.raid_end_timestamp} />

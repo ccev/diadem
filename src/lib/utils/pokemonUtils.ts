@@ -1,5 +1,5 @@
-import { POKEMON_MIN_RANK } from '@/lib/constants';
-import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
+import { POKEMON_MIN_RANK } from "@/lib/constants";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 
 export function hasTimer(data: PokemonData) {
 	return data.expire_timestamp && data.expire_timestamp_verified;
@@ -19,4 +19,16 @@ export function showGreat(data: PokemonData) {
 
 export function showUltra(data: PokemonData) {
 	return getRank(data, "ultra") > 0 && getRank(data, "ultra") <= POKEMON_MIN_RANK;
+}
+
+export function getPokemonSize(size: number) {
+	return (
+		{
+			1: "XXS",
+			2: "XS",
+			3: "M",
+			4: "XL",
+			5: "XXL"
+		}[size] ?? "?"
+	);
 }

@@ -1,0 +1,7 @@
+import type { ParamMatcher } from '@sveltejs/kit';
+import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectsState.svelte';
+
+export const match = ((param: string): param is MapObjectType => {
+	return allMapObjectTypes.includes(param as MapObjectType);
+}) satisfies ParamMatcher;

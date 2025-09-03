@@ -29,11 +29,10 @@
 	import { mMove, mPokemon, mWeather } from '@/lib/services/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-	import { getPokemonSize } from '@/lib/utils/pogoUtils';
 	import { POKEMON_MIN_RANK } from '@/lib/constants';
 	import PvpEntry from '@/components/ui/popups/pokemon/PvpEntry.svelte';
 	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
-	import { getRank, hasTimer, showGreat, showLittle, showUltra } from '@/lib/utils/pokemonUtils';
+	import { getPokemonSize, getRank, hasTimer, showGreat, showLittle, showUltra } from '@/lib/utils/pokemonUtils';
 	import Metadata from '@/components/utils/Metadata.svelte';
 
 	let { mapId } : { mapId: string } = $props()

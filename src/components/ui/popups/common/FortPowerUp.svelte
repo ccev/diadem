@@ -2,8 +2,8 @@
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import { CircleFadingArrowUp } from 'lucide-svelte';
-	import { isFortOutdated } from '@/lib/utils/pogoUtils';
 	import * as m from "@/lib/paraglide/messages"
+	import { isFortOutdated } from '@/lib/utils/gymUtils';
 
 	let {
 		points,

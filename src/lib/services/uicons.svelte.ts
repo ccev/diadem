@@ -7,12 +7,13 @@ import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObject
 import type { Incident, PokestopData, QuestReward } from '@/lib/types/mapObjectData/pokestop';
 import type { StationData } from '@/lib/types/mapObjectData/station';
 import type { GymData } from '@/lib/types/mapObjectData/gym';
-import { GYM_SLOTS, hasFortActiveLure, isFortOutdated } from '@/lib/utils/pogoUtils';
-import { allMapTypes } from '@/lib/mapObjects/mapObjectsState.svelte.js';
+import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 
 import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+import { hasFortActiveLure } from '@/lib/utils/pokestopUtils';
+import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
 
-export const DEFAULT_UICONS = "_internal_default"
+export const DEFAULT_UICONS = "_internal_default";
 const DEFAULT_URL = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
 
 const iconSets: {[key: string]: UICONS} = {}
@@ -52,21 +53,21 @@ export function getCurrentUiconSetDetails(type: MapObjectType): UiconSet | undef
 }
 
 export function getCurrentUiconSetDetailsAllTypes(): {[key in MapObjectType]: UiconSet | undefined} {
-	return allMapTypes.reduce((obj, type) => {
+	return allMapObjectTypes.reduce((obj, type) => {
 		obj[type] = getCurrentUiconSetDetails(type)
 		return obj
 	}, {})
 }
 
-export function getIconForMap(data: Partial<MapData>): string {
+export function getIconForMap(data: Partial<MapData>, iconSet?: string): string {
 	if (data.type === "pokemon") {
-		return getIconPokemon(data)
+		return getIconPokemon(data, iconSet)
 	} else if (data.type === "pokestop") {
-		return getIconPokestop(data)
+		return getIconPokestop(data, iconSet)
 	} else if (data.type === "gym") {
-		return getIconGym(data)
+		return getIconGym(data, iconSet)
 	} else if (data.type === "station") {
-		return getIconStation(data)
+		return getIconStation(data, iconSet)
 	}
 	console.error("Unknown icon type: " + data.type)
 	return ""

@@ -7,13 +7,6 @@
 	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
 	import { mCharacter, mItem, mPokemon } from '@/lib/services/ingameLocale';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
-	import {
-		hasFortActiveLure,
-		isFortOutdated,
-		isIncidentContest,
-		isIncidentInvasion,
-		isIncidentKecleon
-	} from '@/lib/utils/pogoUtils';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
 	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
@@ -27,6 +20,13 @@
 
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 	import Metadata from '@/components/utils/Metadata.svelte';
+	import {
+		hasFortActiveLure,
+		isIncidentContest,
+		isIncidentInvasion,
+		isIncidentKecleon
+	} from '@/lib/utils/pokestopUtils';
+	import { isFortOutdated } from '@/lib/utils/gymUtils';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData ?? getCurrentSelectedData() as PokestopData)

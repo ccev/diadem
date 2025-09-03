@@ -2,12 +2,12 @@
 	import { mPokemon } from '@/lib/services/ingameLocale.js';
 	import type { PokemonData, PvpStats } from '@/lib/types/mapObjectData/pokemon';
 	import { getIconPokemon, getIconRaidEgg } from '@/lib/services/uicons.svelte.js';
-	import { getRaidPokemon } from '@/lib/utils/pogoUtils';
 	import * as m from '@/lib/paraglide/messages';
 	import Countdown from '@/components/utils/Countdown.svelte';
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+	import { getRaidPokemon } from '@/lib/utils/gymUtils';
 
 	let {
 		data,

@@ -1,7 +1,7 @@
 import {
 	addMapObject,
 	addMapObjects,
-	allMapTypes,
+	allMapObjectTypes,
 	allMinorMapTypes,
 	clearAllMapObjects,
 	clearMapObjects,
@@ -137,7 +137,7 @@ export async function updateMapObject(
 
 export async function updateAllMapObjects(removeOld: boolean = true) {
 	await Promise.all([
-		...allMapTypes.map((type) => {
+		...allMapObjectTypes.map((type) => {
 			updateMapObject(type, removeOld);
 		}),
 		...allMinorMapTypes.map((type) => {

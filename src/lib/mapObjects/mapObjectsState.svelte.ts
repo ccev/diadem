@@ -6,7 +6,7 @@ export type MapObjectsStateType = {
 };
 
 let mapObjectsState: MapObjectsStateType = $state({});
-export const allMapTypes: MapObjectType[] = ['pokemon', 'pokestop', 'gym', 'station'];
+export const allMapObjectTypes: MapObjectType[] = ['pokemon', 'pokestop', 'gym', 'station'];
 export const allMinorMapTypes: MinorMapObjectType[] = ['s2cell']
 
 export function getMapObjects() {
