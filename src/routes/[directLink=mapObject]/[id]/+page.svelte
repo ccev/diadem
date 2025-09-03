@@ -11,29 +11,31 @@
 	import type { PageProps } from './$types';
 	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 	import { getDefaultIconSet } from '@/lib/services/userSettings.svelte';
-	import { getStationTitle } from '@/lib/utils/stationUtils';
+	import { getStationPokemon, getStationTitle } from '@/lib/utils/stationUtils';
 	import type { StationData } from '@/lib/types/mapObjectData/station';
 
 	let { data }: PageProps = $props();
 
 	let title: string = $derived.by(() => {
 		if (!data) return '';
-		if (data.type === 'pokemon') {
-			return mPokemon(data as PokemonData);
+		const mapData = data as MapData
+
+		if (mapData.type === 'pokemon') {
+			return mPokemon(mapData as PokemonData);
 		}
-		else if (data.type === "station") {
+		else if (mapData.type === "station") {
 			let title = ""
-			if (data.battle_pokemon_id) {
+			if (mapData.battle_pokemon_id) {
 				title = m.pogo_max_battle()
 			} else {
 				title = m.pogo_station()
 			}
-			if (data.id) title += ': ' + getStationTitle(data as StationData)
+			if (mapData.id) title += ': ' + getStationTitle(mapData as StationData)
 			return title;
 		}
-		else if (data.type === "gym" || data.type === "pokestop") {
-			let title =  m[`pogo_${data.type}`]()
-			if (data.name) title += `: ${data.name}`
+		else if (mapData.type === "gym" || mapData.type === "pokestop") {
+			let title =  m[`pogo_${mapData.type}`]()
+			if (mapData.name) title += `: ${mapData.name}`
 			return title
 		}
 		return '';
@@ -41,10 +43,12 @@
 
 	let thumbnail: string = $derived.by(() => {
 		if (!data || !data.type) return '';
+		const mapData = data as MapData
 
-		if (data.type === "pokemon" && !data.id) return ''
+		if (mapData.type === "pokemon" && !mapData.id) return ''
+		if (mapData.type === "station" && mapData.battle_pokemon_id) return mPokemon(getStationPokemon(mapData as StationData))
 
-		return data.url ?? getIconForMap(data, getDefaultIconSet(data.type).id) ?? '';
+		return mapData.url ?? getIconForMap(mapData, getDefaultIconSet(mapData.type).id) ?? '';
 	});
 
 	onMount(() => {
