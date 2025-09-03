@@ -26,23 +26,14 @@
 	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+	import Metadata from '@/components/utils/Metadata.svelte';
 
 	let { mapId } : { mapId: string } = $props()
 	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData ?? getCurrentSelectedData() as PokestopData)
-
-	function getTitle() {
-		let title = getConfig().general.mapName
-		if (data.name) {
-			title += " | " + data.name
-		} else {
-			title += " | " + m.pogo_gym()
-		}
-		return title
-	}
 </script>
 
 <svelte:head>
-	<title>{getTitle()}</title>
+	<Metadata title={data.name ?? m.pogo_pokestop()} />
 </svelte:head>
 
 {#snippet lureSection()}

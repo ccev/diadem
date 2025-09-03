@@ -17,7 +17,7 @@ export function getPokemonShareText(data: PokemonData) {
 	}
 
 	if (data.iv !== null) {
-		text += `${m.pogo_ivs()}: ${data.iv.toFixed(1)} (${data.atk_iv ?? "?"}/${data.def_iv ?? "?"}/${data.sta_iv ?? "?"})\n`;
+		text += `${m.pogo_ivs()}: ${data.iv.toFixed(1)}% (${data.atk_iv ?? "?"}/${data.def_iv ?? "?"}/${data.sta_iv ?? "?"})\n`;
 	}
 
 	if (showLittle(data)) {

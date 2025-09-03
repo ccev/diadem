@@ -18,5 +18,9 @@ export async function getOneMapObject(
 		return;
 	}
 
-	return data.result[0];
+	const result = data.result[0]
+
+	if (!result || Object.keys(result).length === 0) return
+
+	return result
 }

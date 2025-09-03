@@ -14,6 +14,7 @@
 	import Loading from '@/components/ui/Loading.svelte';
 	import { updateDarkMode } from '@/lib/utils/updateDarkMode';
 	import { onMount } from 'svelte';
+	import Metadata from '@/components/utils/Metadata.svelte';
 
 	let { children } = $props();
 
@@ -44,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<title>{getConfig()?.general?.mapName ?? "Loading"}</title>
+	<Metadata />
 </svelte:head>
 
 <ParaglideJS languageTag={languageTag} {i18n}>

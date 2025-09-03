@@ -1,15 +1,15 @@
 <script lang="ts">
 	import Metadata from '@/components/utils/Metadata.svelte';
 	import { onMount } from 'svelte';
-	import type { PageProps } from './$types';
 	import { mPokemon } from '@/lib/services/ingameLocale';
 	import { goto } from '$app/navigation';
 	import * as m from "@/lib/paraglide/messages";
 	import { getPokemonShareText } from '@/lib/features/shareTexts';
 	import { getIconPokemon } from '@/lib/services/uicons.svelte';
 	import { getDefaultIconSet } from '@/lib/services/userSettings.svelte';
+	import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 
-	let { data }: PageProps = $props();
+	let { data }: { data: PokemonData | undefined } = $props();
 
 	onMount(() => {
 		goto("/")

@@ -29,25 +29,16 @@
 	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+	import Metadata from '@/components/utils/Metadata.svelte';
 
 	let { mapId }: { mapId: string } = $props();
 	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData);
 	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? '[]'));
 	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? '[]'));
-
-	function getTitle() {
-		let title = getConfig().general.mapName;
-		if (data.name) {
-			title += ' | ' + data.name;
-		} else {
-			title += ' | ' + m.pogo_gym();
-		}
-		return title;
-	}
 </script>
 
 <svelte:head>
-	<title>{getTitle()}</title>
+	<Metadata title={data.name ?? m.pogo_gym()} />
 </svelte:head>
 
 {#snippet raidDisplay(expanded: boolean)}

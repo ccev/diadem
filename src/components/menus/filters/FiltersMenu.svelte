@@ -14,6 +14,7 @@
 	import SettingsSelect from '@/components/menus/profile/SettingsSelect.svelte';
 	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
+	import Metadata from '@/components/utils/Metadata.svelte';
 
 	let test: boolean = $state(false);
 
@@ -24,7 +25,7 @@
 </script>
 
 <svelte:head>
-	<title>{getConfig().general.mapName} | {m.nav_filters()}</title>
+	<Metadata title={m.nav_filters()} />
 </svelte:head>
 
 {#snippet showWhat()}
