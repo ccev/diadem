@@ -19,8 +19,8 @@
 </script>
 
 <title>{pageTitle}</title>
-<meta property="og:title" content={title ? pageTitle : embedTitle}>
-<meta name="twitter:title" content={title ? pageTitle : embedTitle}>
+<meta property="og:title" content={embedTitle ? embedTitle : pageTitle}>
+<meta name="twitter:title" content={embedTitle ? embedTitle : pageTitle}>
 
 <meta property="og:site_name" content={getConfig().general.mapName}>
 <meta name="twitter:site" content={getConfig().general.mapName}>
