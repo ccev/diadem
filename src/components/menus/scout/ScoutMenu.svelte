@@ -89,7 +89,7 @@
 	<Metadata title={m.nav_scout()} />
 </svelte:head>
 
-<Card class="py-4 px-4 mt-2">
+<Card class="py-4 px-2 mt-2">
 	<div class="flex flex-col gap-2">
 		<MenuTitle title={m.scout_area_size()} />
 		<Slider
