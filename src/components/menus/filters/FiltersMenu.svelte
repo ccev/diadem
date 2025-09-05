@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { getConfig } from '@/lib/services/config/config';
 	import * as m from '@/lib/paraglide/messages';
-	import Card from '@/components/ui/basic/Card.svelte';
+	import Card from '@/components/ui/Card.svelte';
 	import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte.js';
 	import { ChevronDown, ChevronUp, Eye, EyeOff, Filter, Plus } from 'lucide-svelte';
 	import MenuGeneric from '@/components/menus/MenuGeneric.svelte';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import { getIconPokemon } from '@/lib/services/uicons.svelte.js';
 	import Switch from '@/components/ui/input/Switch.svelte';
 	import FilterTypeSelect from '@/components/menus/filters/FilterTypeSelect.svelte';

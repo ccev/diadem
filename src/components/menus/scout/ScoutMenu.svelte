@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { getConfig } from '@/lib/services/config/config';
 	import * as m from '@/lib/paraglide/messages';
-	import Card from '@/components/ui/basic/Card.svelte';
+	import Card from '@/components/ui/Card.svelte';
 	import Slider from '@/components/ui/input/Slider.svelte';
 	import MenuTitle from '@/components/menus/MenuTitle.svelte';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import {
 		getCoords,

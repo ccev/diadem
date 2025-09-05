@@ -6,7 +6,7 @@
 	import { getDirectLinkObject } from '@/lib/features/directLinks.svelte.js';
 	import { clickFeatureHandler, clickMapHandler, openPopup, updateCurrentPath } from '@/lib/mapObjects/interact';
 	import { getMapObjectId, updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
-	import Card from '@/components/ui/basic/Card.svelte';
+	import Card from '@/components/ui/Card.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { isWebglSupported } from '@/lib/map/utils';
 	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from '@/lib/map/mapObjectsInterval';
@@ -29,19 +29,11 @@
 	import { getCurrentScoutData } from '@/lib/features/scout.svelte.js';
 
 	let map: maplibre.Map | undefined = $state(undefined);
-	let debugRerender: boolean = $state(true);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
 	async function onMapLoad() {
 		if (map) {
 			setMap(map);
-			if (getUserSettings().showDebugMenu) {
-				map.addControl(new FrameRateControl({}));
-				map.on('moveend', () => {
-					debugRerender = false;
-					tick().then(() => debugRerender = true);
-				});
-			}
 
 			map.on('touchstart', onTouchStart);
 			map.on('touchend', clearPressTimer);
@@ -85,7 +77,7 @@
 					if (directLinkData) {
 						const allData = getMapObjects()[getMapObjectId(directLinkData.type, directLinkData.id)]
 						if (directLink.unavailable || !allData) {
-							openToast(m.direct_link_not_found({ type: m['pogo_' + directLinkData.data.type]() }), 5000);
+							openToast(m.direct_link_not_found({ type: m['pogo_' + directLinkData.type]() }), 5000);
 						} else if (allData) {
 							console.debug(allData)
 							openPopup(allData)
@@ -113,9 +105,7 @@
 	onblur={clearUpdateMapObjectsInterval}
 ></svelte:window>
 
-{#if getUserSettings().showDebugMenu}
-	<DebugMenu rerender={debugRerender} />
-{/if}
+<DebugMenu />
 
 {#if isWebglSupported()}
 	<MapLibre

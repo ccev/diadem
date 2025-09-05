@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte.js';
 	import { getLoginLink } from '@/lib/services/user/login';
 	import * as m from '@/lib/paraglide/messages';

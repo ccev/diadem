@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { CircleUserRound, Map, Settings2 } from 'lucide-svelte';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { Avatar } from 'bits-ui';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte.js';

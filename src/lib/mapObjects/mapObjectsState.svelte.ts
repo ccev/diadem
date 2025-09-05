@@ -1,13 +1,10 @@
-import type { MapData, MapObjectType, MinorMapObjectType } from '@/lib/types/mapObjectData/mapObjects';
-import { updateFeatures } from '@/lib/map/featuresGen.svelte';
+import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 export type MapObjectsStateType = {
 	[key: string]: MapData;
 };
 
 let mapObjectsState: MapObjectsStateType = $state({});
-export const allMapObjectTypes: MapObjectType[] = ['pokemon', 'pokestop', 'gym', 'station'];
-export const allMinorMapTypes: MinorMapObjectType[] = ['s2cell']
 
 export function getMapObjects() {
 	return mapObjectsState;
@@ -21,7 +18,7 @@ export function addMapObjects(mapObjects: MapData[], type: MapObjectType) {
 	const newState: MapObjectsStateType = {};
 	for (const data of mapObjects) {
 		data.type = type;
-		data.mapId = type + '-' + data.id;
+		data.mapId = type + "-" + data.id;
 		newState[data.mapId] = data;
 	}
 	mapObjectsState = { ...mapObjectsState, ...newState };
@@ -33,12 +30,12 @@ export function delMapObject(key: string) {
 
 export function clearMapObjects(type: MapObjectType) {
 	for (const key in getMapObjects()) {
-		if (key.startsWith(type + '-')) {
+		if (key.startsWith(type + "-")) {
 			delMapObject(key);
 		}
 	}
 }
 
 export function clearAllMapObjects() {
-	mapObjectsState = {}
+	mapObjectsState = {};
 }

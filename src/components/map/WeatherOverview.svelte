@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { mType, mWeather } from '@/lib/services/ingameLocale.js';
 	import { getCurrentWeather, updateCurrentWeatherFeatures, updateWeather } from '@/lib/mapObjects/weather.svelte.js';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import { getMap } from '@/lib/map/map.svelte';
 	import { untrack } from 'svelte';
 	import { ArrowBigUpDash, Clock } from 'lucide-svelte';

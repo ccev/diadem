@@ -1,8 +1,6 @@
 import {
 	addMapObject,
 	addMapObjects,
-	allMapObjectTypes,
-	allMinorMapTypes,
 	clearAllMapObjects,
 	clearMapObjects,
 	getMapObjects
@@ -20,6 +18,7 @@ import { clearS2Cells, updateS2CellGeojson } from "@/lib/mapObjects/s2cells.svel
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+import { allMapObjectTypes, allMinorMapTypes } from "@/lib/mapObjects/mapObjectTypes";
 
 export type MapObjectRequestData = Bounds & { filter: AllFilters };
 

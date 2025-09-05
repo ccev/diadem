@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import { clearMap } from '@/lib/mapObjects/updateMapObject';
 	import { isSupportedFeature } from '@/lib/services/supportedFeatures';
 	import { goto } from '$app/navigation';

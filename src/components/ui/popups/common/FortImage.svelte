@@ -1,8 +1,8 @@
 <script lang="ts">
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import { closeModal, openModal } from '@/lib/ui/modal.svelte.js';
-	import Button from '@/components/ui/basic/Button.svelte';
-	import Card from '@/components/ui/basic/Card.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
+	import Card from '@/components/ui/Card.svelte';
 	import * as m from "@/lib/paraglide/messages"
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 

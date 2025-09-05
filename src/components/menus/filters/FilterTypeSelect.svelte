@@ -2,8 +2,8 @@
 	import { Eye, EyeOff, Funnel } from 'lucide-svelte';
 	import type { FilterCategory, FilterType } from '@/lib/features/filters/filters';
 	import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte.js';
-	import RadioGroup from '@/components/ui/basic/RadioGroup.svelte';
-	import RadioGroupItem from '@/components/ui/basic/RadioGroupItem.svelte';
+	import RadioGroup from '@/components/ui/input/RadioGroup.svelte';
+	import RadioGroupItem from '@/components/ui/input/RadioGroupItem.svelte';
 	import { updateFeatures } from '@/lib/map/featuresGen.svelte';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
 	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';

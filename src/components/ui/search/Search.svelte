@@ -9,7 +9,7 @@
 	import { getKojiGeofences } from '@/lib/features/koji';
 	import * as m from '@/lib/paraglide/messages';
 	import { closeModal } from '@/lib/ui/modal.svelte.js';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');

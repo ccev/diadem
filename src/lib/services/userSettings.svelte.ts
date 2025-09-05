@@ -22,7 +22,7 @@ type UiconSetUS = {
 	url: string;
 };
 
-type UserSettings = {
+export type UserSettings = {
 	mapPosition: {
 		center: {
 			lat: number;

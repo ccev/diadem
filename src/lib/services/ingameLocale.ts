@@ -85,7 +85,7 @@ export function mPokemon(data: Partial<PokemonData>) {
 	if (data.shiny) name += " ✨"
 
 	// if it's a special form, append in ()
-	const normalFormName = mIngame(prefixes.form + "29")
+	const normalFormName = mIngame(prefixes.form + "45")
 	const formName = data.form ? mIngame(prefixes.form + data.form) : ""
 	if (formName && formName !== normalFormName) name += " (" + formName + ")"
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isPopupExpanded, togglePopupExpanded } from '@/components/ui/popups/isPopupExpanded.svelte.js';
 	import { Eye, EyeClosed, Navigation, Share2 } from 'lucide-svelte';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { untrack } from 'svelte';
 	import { getCurrentPath } from '@/lib/mapObjects/interact';

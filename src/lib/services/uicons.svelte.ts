@@ -2,16 +2,18 @@ import { UICONS } from "uicons.js"
 import {getUserSettings} from '@/lib/services/userSettings.svelte.js';
 import {getConfig} from '@/lib/services/config/config';
 import type {PokemonData} from '@/lib/types/mapObjectData/pokemon';
-import type { UiconSet } from '@/lib/services/config/config';
+import type { UiconSet } from '@/lib/services/config/config.d';
 import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import type { Incident, PokestopData, QuestReward } from '@/lib/types/mapObjectData/pokestop';
 import type { StationData } from '@/lib/types/mapObjectData/station';
 import type { GymData } from '@/lib/types/mapObjectData/gym';
-import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 
 import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 import { hasFortActiveLure } from '@/lib/utils/pokestopUtils';
 import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
+import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectTypes';
+
+export type GetIconFunc<T extends MapData> = (data: Partial<T>, iconSet: string) => string
 
 export const DEFAULT_UICONS = "_internal_default";
 const DEFAULT_URL = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
@@ -73,7 +75,7 @@ export function getIconForMap(data: Partial<MapData>, iconSet?: string): string 
 	return ""
 }
 
-export function getIconPokemon(data: Partial<PokemonData>, iconSet: string = getUserSettings().uiconSet.pokemon.id) {
+export function getIconPokemon(data: Partial<PokemonData>, iconSet: string = getUserSettings().uiconSet.pokemon.id)  {
 	return iconSets[iconSet].pokemon(
 		data.pokemon_id,
 		data.temp_evolution_id,

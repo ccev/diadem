@@ -15,6 +15,7 @@
 	import { updateDarkMode } from '@/lib/utils/updateDarkMode';
 	import { onMount } from 'svelte';
 	import Metadata from '@/components/utils/Metadata.svelte';
+	import { watch } from 'runed';
 
 	let { children } = $props();
 
@@ -37,11 +38,8 @@
 		}
 	});
 
-	let languageTag: string = $state('en');
-	$effect(() => {
-		languageTag = resolveLanguageTag(getUserSettings().languageTag);
-		loadRemoteLocale(languageTag);  // TODO this is called twice when changing language
-	});
+	let languageTag: string = $derived(resolveLanguageTag(getUserSettings().languageTag));
+	$effect(() => loadRemoteLocale(languageTag).then())
 </script>
 
 <svelte:head>

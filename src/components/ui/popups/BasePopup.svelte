@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { isPopupExpanded } from '@/components/ui/popups/isPopupExpanded.svelte';
 	import PopupButtons from '@/components/ui/popups/common/PopupButtons.svelte';
-	import Card from '@/components/ui/basic/Card.svelte';
+	import Card from '@/components/ui/Card.svelte';
 	import { X } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { cubicIn, cubicOut } from 'svelte/easing';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import { closePopup } from '@/lib/mapObjects/interact';
 

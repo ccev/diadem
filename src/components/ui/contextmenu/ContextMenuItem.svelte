@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import type { Snippet } from 'svelte';
 	import type { LucideIcon } from '@/lib/types/lucide';
 

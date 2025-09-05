@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getUserSettings } from '@/lib/services/userSettings.svelte.js';
-	import Button from '@/components/ui/basic/Button.svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 	import Switch from '@/components/ui/input/Switch.svelte';
 	import MenuTitle from '@/components/menus/MenuTitle.svelte';
 
