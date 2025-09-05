@@ -1,0 +1,1 @@
+export const self = globalThis.self as unknown as ServiceWorkerGlobalScope;
