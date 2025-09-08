@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { isModalOpen } from '@/lib/ui/modal.svelte.js';
 	import { GeoJSON, MapLibre, SymbolLayer } from 'svelte-maplibre';
 	import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte.js';
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { getDirectLinkObject } from '@/lib/features/directLinks.svelte.js';
 	import { clickFeatureHandler, clickMapHandler, openPopup, updateCurrentPath } from '@/lib/mapObjects/interact';
-	import { getMapObjectId, updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 	import Card from '@/components/ui/Card.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { isWebglSupported } from '@/lib/map/utils';
@@ -16,18 +15,18 @@
 	import { loadMapObjectInterval } from '@/lib/map/loadMapObjects';
 	import { onMapMove, onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from '@/lib/map/events';
 	import maplibre from 'maplibre-gl';
-	import FrameRateControl from '@/lib/map/framerate';
 	import { getS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
 	import { getSelectedWeatherS2Cells } from '@/lib/mapObjects/weather.svelte';
 	import DebugMenu from '@/components/map/DebugMenu.svelte';
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/services/initialLoad.svelte.js';
 	import { openToast } from '@/lib/ui/toasts.svelte.js';
-	import { addMapObjects, getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
+	import { addMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
 	import MarkerCurrentLocation from '@/components/map/MarkerCurrentLocation.svelte';
 	import MarkerContextMenu from '@/components/map/MarkerContextMenu.svelte';
 	import { getCurrentScoutData } from '@/lib/features/scout.svelte.js';
 	import { Coords } from '@/lib/utils/coordinates';
+	import { isAnyModalOpen } from '@/lib/ui/modal.svelte.js';
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
@@ -115,7 +114,7 @@
 		class="h-screen overflow-hidden"
 		style={getUserSettings().mapStyle.url}
 		attributionControl={false}
-		interactive={!isModalOpen()}
+		interactive={!isAnyModalOpen()}
 		onmoveend={onMapMoveEnd}
 		onload={onMapLoad}
 		oncontextmenu={onContextMenu}

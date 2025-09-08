@@ -1,31 +1,29 @@
 <script lang="ts">
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import { closeModal, openModal } from '@/lib/ui/modal.svelte.js';
-	import Button from '@/components/ui/input/Button.svelte';
+	import { openModal } from '@/lib/ui/modal.svelte.js';
 	import Card from '@/components/ui/Card.svelte';
-	import * as m from "@/lib/paraglide/messages"
-	import CloseButton from '@/components/ui/CloseButton.svelte';
-
+	import * as m from '@/lib/paraglide/messages';
+	import Modal from '@/components/ui/modal/Modal.svelte';
 
 	let {
 		alt,
 		fortUrl,
 		fortIcon,
-		fortName = "",
-		fortDescription = ""
+		fortName = '',
+		fortDescription = ''
 	}: {
 		alt: string,
 		fortUrl?: string,
 		fortIcon: string,
 		fortName?: string,
 		fortDescription?: string
-	} = $props()
+	} = $props();
 
-	let photoWidth: number = $state(0)
+	let photoWidth: number = $state(0);
 </script>
 
-{#snippet fullImage()}
-	<Card class="mx-auto items-center flex flex-col rounded-md! overflow-hidden">
+<Modal modalType="fortDetails">
+	<Card class="mx-auto items-center flex flex-col rounded-md! shadow-none! overflow-hidden">
 		<img
 			class=""
 			src={fortUrl}
@@ -33,12 +31,12 @@
 			bind:clientWidth={photoWidth}
 		>
 
-<!--		<CloseButton-->
-<!--			class="absolute right-2 top-2 hover:bg-transparent backdrop-brightness-105 dark:backdrop-brightness-95 backdrop-blur-[2px] hover:backdrop-brightness-90 dark:hover:backdrop-brightness-75"-->
-<!--			onclick={closeModal}-->
-<!--		/>-->
+		<!--		<CloseButton-->
+		<!--			class="absolute right-2 top-2 hover:bg-transparent backdrop-brightness-105 dark:backdrop-brightness-95 backdrop-blur-[2px] hover:backdrop-brightness-90 dark:hover:backdrop-brightness-75"-->
+		<!--			onclick={closeModal}-->
+		<!--		/>-->
 
-<!--		TODO add neutral fort icon-->
+		<!--		TODO add neutral fort icon-->
 		{#if fortName || fortDescription}
 			<div
 				class="my-3 flex flex-col justify-center text-center mx-6"
@@ -48,8 +46,8 @@
 					<span class="font-semibold text-lg">
 						{fortName}
 					</span>
-					{/if}
-					{#if fortDescription}
+				{/if}
+				{#if fortDescription}
 					<span>
 						{fortDescription}
 					</span>
@@ -57,12 +55,12 @@
 			</div>
 		{/if}
 	</Card>
-{/snippet}
+</Modal>
 
 {#if fortUrl}
 	<button
 		class="group relative h-14 w-14 shrink-0 focus-visible:ring-ring rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-4 cursor-pointer"
-		onclick={() => openModal(fullImage)}
+		onclick={() => openModal("fortDetails")}
 		title={m.view_full_image()}
 	>
 		<ImagePopup

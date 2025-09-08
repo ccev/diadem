@@ -21,6 +21,7 @@ export type FilterCategory =
 	| "kecleon"
 	| "goldPokestop"
 	| "lure"
+	| "route"
 	| "gymMajor"
 	| "gymPlain"
 	| "raid"
@@ -39,6 +40,7 @@ export type AnyFilter =
 	| FilterKecleon
 	| FilterGoldPokestop
 	| FilterLure
+	| FilterRoute
 	| FilterGym
 	| FilterGymPlain
 	| FilterRaid
@@ -51,10 +53,10 @@ export type FilterTypeBool = "all" | "none";
 export type FilterType = "all" | "none" | "filtered";
 
 type BaseFilter = {
-	category: FilterCategory
+	category: FilterCategory;
 	enabled: boolean;
 	ignoreFilters: boolean;
-}
+};
 
 export type FilterPokemon = BaseFilter & {
 	category: "pokemonMajor";
@@ -67,52 +69,58 @@ export type FilterPokestop = BaseFilter & {
 	quest: FilterQuest;
 	invasion: FilterInvasion;
 	contest: FilterContest;
-	kecleon: FilterKecleon
-	goldPokestop: FilterGoldPokestop
+	kecleon: FilterKecleon;
+	goldPokestop: FilterGoldPokestop;
 	lure: FilterLure;
+	route: FilterRoute;
 	filters: never[];
 };
 
 export type FilterPokestopPlain = BaseFilter & {
 	category: "pokestopPlain";
-	filters: FiltersetPokestopPlain[]
+	filters: FiltersetPokestopPlain[];
 };
 
 export type FilterQuest = BaseFilter & {
 	category: "quest";
-	filters: FiltersetQuest[]
+	filters: FiltersetQuest[];
 };
 
 export type FilterInvasion = BaseFilter & {
 	category: "invasion";
-	filters: FiltersetInvasion[]
+	filters: FiltersetInvasion[];
 };
 
 export type FilterContest = BaseFilter & {
 	category: "contest";
-	filters: never[]
+	filters: never[];
 };
 
 export type FilterKecleon = BaseFilter & {
 	category: "kecleon";
-	filters: never[]
+	filters: never[];
 };
 
 export type FilterGoldPokestop = BaseFilter & {
 	category: "goldPokestop";
-	filters: never[]
+	filters: never[];
 };
 
 export type FilterLure = BaseFilter & {
 	category: "lure";
-	filters: FiltersetLure[]
+	filters: FiltersetLure[];
+};
+
+export type FilterRoute = BaseFilter & {
+	category: "route";
+	filters: never[];
 };
 
 export type FilterGym = BaseFilter & {
 	category: "gymMajor";
-	gymPlain: FilterGymPlain,
-	raid: FilterRaid,
-	filters: never[]
+	gymPlain: FilterGymPlain;
+	raid: FilterRaid;
+	filters: never[];
 };
 
 export type FilterGymPlain = BaseFilter & {
@@ -122,14 +130,14 @@ export type FilterGymPlain = BaseFilter & {
 
 export type FilterRaid = BaseFilter & {
 	category: "raid";
-	filters: FiltersetRaid[]
+	filters: FiltersetRaid[];
 };
 
 export type FilterStation = BaseFilter & {
 	category: "stationMajor";
-	stationPlain: FilterStationPlain,
-	maxBattle: FilterMaxBattle,
-	filters: never[]
+	stationPlain: FilterStationPlain;
+	maxBattle: FilterMaxBattle;
+	filters: never[];
 };
 
 export type FilterStationPlain = BaseFilter & {
@@ -139,10 +147,10 @@ export type FilterStationPlain = BaseFilter & {
 
 export type FilterMaxBattle = BaseFilter & {
 	category: "maxBattle";
-	filters: FiltersetMaxBattle[]
+	filters: FiltersetMaxBattle[];
 };
 
 export type FilterS2Cell = BaseFilter & {
 	category: "s2cell";
-	filters: FiltersetS2Cell[]
+	filters: FiltersetS2Cell[];
 };

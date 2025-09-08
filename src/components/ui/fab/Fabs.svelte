@@ -30,16 +30,14 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'k' && (e.metaKey || e.ctrlKey) && isSearchAllowed) {
 			e.preventDefault();
-			openModal(searchModalSnippet, 'top');
+			openModal("search");
 		}
 	}
 </script>
 
 <svelte:document onkeydown={handleKeydown} />
 
-{#snippet searchModalSnippet()}
-	<Search />
-{/snippet}
+<Search />
 
 <div
 	class="mx-2 gap-2 flex-col flex items-center"
@@ -61,7 +59,7 @@
 
 	{#if isSearchAllowed}
 		<BaseFab
-			onclick={() => openModal(searchModalSnippet, "top")}
+			onclick={() => openModal("search")}
 		>
 			<SearchIcon size="24" />
 		</BaseFab>

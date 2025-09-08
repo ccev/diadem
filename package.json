@@ -42,7 +42,7 @@
 		"@turf/turf": "^7.2.0",
 		"@types/geojson": "^7946.0.15",
 		"arctic": "^3.6.1",
-		"bits-ui": "^2.8.11",
+		"bits-ui": "^2.9.6",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.40.0",

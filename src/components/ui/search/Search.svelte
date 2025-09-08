@@ -10,53 +10,57 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { closeModal } from '@/lib/ui/modal.svelte.js';
 	import Button from '@/components/ui/input/Button.svelte';
+	import Modal from '@/components/ui/modal/Modal.svelte';
+	import ModalTop from '@/components/ui/modal/ModalTop.svelte';
 
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');
 
-	onMount(() => {
-		input?.focus();
-	});
+	// onMount(() => {
+	// 	input?.focus();
+	// });
 </script>
 
-<Command.Root
-	class="rounded-lg border bg-card text-card-foreground"
-	shouldFilter={false}
->
-	<div class="flex items-center border-b pb-px pr-px pl-2">
-		<Search class="mr-2 h-4 w-4 shrink-0 opacity-50" />
+<ModalTop modalType="search">
+	<Command.Root
+		class="rounded-lg border bg-card text-card-foreground"
+		shouldFilter={false}
+	>
+		<div class="flex items-center border-b pb-px pr-px pl-2">
+			<Search class="mr-2 h-4 w-4 shrink-0 opacity-50" />
 
-		<Command.Input
-			bind:value={searchQuery}
-			placeholder={m.search_placeholder()}
-			autocomplete="off"
-			spellcheck="false"
-			type="search"
-			class="placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 pr-2 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-			style="width: min(calc(100vw - 1rem), 32rem)"
-		/>
+			<Command.Input
+				bind:value={searchQuery}
+				placeholder={m.search_placeholder()}
+				autocomplete="off"
+				spellcheck="false"
+				type="search"
+				class="placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 pr-2 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+				style="width: min(calc(100vw - 1rem), 32rem)"
+			/>
 
-		<Button
-			variant="ghost"
-			size=""
-			class="rounded-md p-2 mr-1"
-			onclick={() => closeModal()}
-		>
-			<X size="20" class="opacity-50" />
-		</Button>
-	</div>
+			<Button
+				variant="ghost"
+				size=""
+				class="rounded-md p-2 mr-1"
+				onclick={() => closeModal("search")}
+			>
+				<X size="20" class="opacity-50" />
+			</Button>
+		</div>
 
-	<Command.List class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-[32rem]">
-		<Command.Viewport>
-			{#if isSupportedFeature("geocoding")}
-				<GroupAddress {searchQuery} />
-			{/if}
+		<Command.List class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-[32rem]">
+			<Command.Viewport>
+				{#if isSupportedFeature("geocoding")}
+					<GroupAddress {searchQuery} />
+				{/if}
 
-			{#if getKojiGeofences() && isSupportedFeature("koji")}
-				<GroupArea {searchQuery} />
-			{/if}
+				{#if getKojiGeofences() && isSupportedFeature("koji")}
+					<GroupArea {searchQuery} />
+				{/if}
 
-			<Command.Separator class="bg-foreground/5 h-px w-full" />
-		</Command.Viewport>
-	</Command.List>
-</Command.Root>
+				<Command.Separator class="bg-foreground/5 h-px w-full" />
+			</Command.Viewport>
+		</Command.List>
+	</Command.Root>
+</ModalTop>

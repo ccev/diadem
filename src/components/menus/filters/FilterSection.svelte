@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="ParentCategory extends keyof UserSettings['filters']">
 	import Card from '@/components/ui/Card.svelte';
 	import { ChevronDown, ChevronUp, Eye, EyeOff, FunnelX, Plus } from 'lucide-svelte';
 	import MenuGeneric from '@/components/menus/MenuGeneric.svelte';
@@ -9,26 +9,60 @@
 	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
 	import type { FeaturesKey } from '@/lib/server/auth/permissions';
-	import type { FilterCategory } from '@/lib/features/filters/filters';
+	import type { AnyFilter, FilterCategory } from '@/lib/features/filters/filters';
 	import Switch from '@/components/ui/input/Switch.svelte';
 	import { getIconPokemon } from '@/lib/services/uicons.svelte';
+	import type { Snippet } from 'svelte';
+	import { getUserSettings, updateUserSettings, type UserSettings } from '@/lib/services/userSettings.svelte';
+	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 
 	let {
 		requiredPermission,
 		title,
 		category,
 		isFilterable = true,
-		subCategories = []
+		subCategories = [],
 	}: {
 		requiredPermission: FeaturesKey
 		title: string
-		category: FilterCategory,
+		category: ParentCategory,
 		isFilterable?: boolean
-		subCategories?: { title: string, category: FilterCategory }[]
+		subCategories?: { title: string, category: FilterCategory, filterable?: boolean }[]
 	} = $props();
 
 	let subcategoriesExpanded: boolean = $state(false);
-	let isToggled: boolean = $state(false);
+
+	const test = getUserSettings().filters[category]
+
+	function onEnabledChange(thisCategory: ParentCategory, value: boolean) {
+		const filter: AnyFilter = getUserSettings().filters[thisCategory];
+		filter.enabled = value;
+
+		subCategories.forEach(subcategory => {
+			getUserSettings().filters[thisCategory][subcategory.category].enabled = value;
+		});
+
+		updateUserSettings();
+		updateAllMapObjects().then();
+	}
+
+	function onSubEnabledChange(thisCategory: FilterCategory, value: boolean) {
+		getUserSettings().filters[category][thisCategory].enabled = value;
+		console.log(!Object.values(getUserSettings().filters[category]).find(subcategory => subcategory.enabled))
+		console.log(Object.values(getUserSettings().filters[category]).find(subcategory => subcategory.enabled))
+
+		if (
+			value
+			|| !Object.values(getUserSettings().filters[category]).find(subcategory => subcategory.enabled)
+		) {
+			// if enabled, always enable parent
+			// if all siblngs are disabled, disable parent
+			getUserSettings().filters[category].enabled = value;
+		}
+
+		updateUserSettings();
+		updateAllMapObjects().then();
+	}
 </script>
 
 {#if hasFeatureAnywhere(getUserDetails().permissions, requiredPermission)}
@@ -37,7 +71,9 @@
 			{title}
 			{category}
 			{isFilterable}
-			subCategories={subCategories?.map(s => s.category) ?? []}
+			onEnabledChange={onEnabledChange}
+			isExpandable={subCategories.length > 0}
+			filter={getUserSettings().filters[category]}
 			bind:expanded={subcategoriesExpanded}
 		/>
 
@@ -48,7 +84,9 @@
 						<FilterControl
 							title={subcategory.title}
 							category={subcategory.category}
-							parentCategory={category}
+							isFilterable={subcategory.filterable ?? true}
+							onEnabledChange={onSubEnabledChange}
+							filter={getUserSettings().filters[category][subcategory.category]}
 						/>
 					{/each}
 				</div>

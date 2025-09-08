@@ -101,9 +101,11 @@
 			{ title: "Plain Pokéstops", category: "pokestopPlain" },
 			{ title: "Quests", category: "quest" },
 			{ title: "Team Rocket", category: "invasion" },
-			{ title: "Showcases", category: "contest" },
-			{ title: "Lures", category: "lure" },
-			{ title: "Routes", category: "contest" },
+			{ title: "Lures", category: "lure", filterable: false },
+			{ title: "Showcases", category: "contest", filterable: false },
+			{ title: "Routes", category: "route", filterable: false },
+			{ title: "Kecleon", category: "kecleon", filterable: false },
+			{ title: "Golden Pokéstops", category: "goldPokestop", filterable: false },
 		]}
 	/>
 
@@ -124,8 +126,8 @@
 		category="stationMajor"
 		isFilterable={false}
 		subCategories={[
-			{ title: "Plain Power Spots", category: "stationMajor" },
-			{ title: "Max Battles", category: "stationMajor" },
+			{ title: "Plain Power Spots", category: "stationPlain" },
+			{ title: "Max Battles", category: "maxBattle" },
 		]}
 	/>
 

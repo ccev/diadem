@@ -1,59 +1,41 @@
 <script lang="ts">
-	import { ChevronDown, FunnelX, Plus } from 'lucide-svelte';
-	import type {
-		AnyFilter,
-		FilterCategory,
-		FilterPokemon,
-		FilterType
-	} from '@/lib/features/filters/filters';
+	import { ChevronDown, FunnelPlus } from 'lucide-svelte';
+	import type { AnyFilter, FilterCategory } from '@/lib/features/filters/filters';
 	import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte.js';
 	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 	import Switch from '@/components/ui/input/Switch.svelte';
-	import MenuTitle from '@/components/menus/MenuTitle.svelte';
 	import Button from '@/components/ui/input/Button.svelte';
-	import { getIconPokemon } from '@/lib/services/uicons.svelte';
 
 	import { slide } from 'svelte/transition';
 	import Filterset from '@/components/menus/filters/Filterset.svelte';
-	import { watch } from 'runed';
 	import type { FiltersetPokemon } from '@/lib/features/filters/filtersets';
+	import FilterViewModal from '@/components/menus/filters/filterview/FilterViewModal.svelte';
+	import { openModal } from '@/lib/ui/modal.svelte.js';
 
 	let {
 		category,
 		title,
+		onEnabledChange,
+		filter,
+		isExpandable = false,
 		isFilterable = true,
-		subCategories = [],
-		parentCategory = undefined,
 		expanded = $bindable(false)
 	}: {
 		category: FilterCategory,
 		title: string,
+		onEnabledChange: (thisCategory: FilterCategory, value: boolean) => void,
+		filter: AnyFilter,
+		isExpandable?: boolean,
 		isFilterable?: boolean,
 		subCategories?: FilterCategory[],
-		parentCategory?: FilterCategory | undefined,
 		expanded?: boolean
 	} = $props();
 
-	let filter: AnyFilter = $derived(getUserSettings().filters[category]);
 	let isEnabled: boolean = $derived(filter.enabled);
 	let hasAnyFilterset: boolean = $derived((filter?.filters?.length ?? 0) > 0);
 
-	function onEnabledChange(value: boolean) {
-		filter.type = value ? 'all' : 'none';
-
-		subCategories.forEach(subcategory => {
-			getUserSettings().filters[subcategory].enabled = value;
-		});
-		if (parentCategory && value) {
-			getUserSettings().filters[parentCategory].enabled = value;
-		}
-		// TODO uncheck parent if all children are unchecked
-
-		updateUserSettings();
-		updateAllMapObjects().then();
-	}
-
 	function placeholderAddFilter() {
+		openModal("filtersetPokemon")
 		if (category !== 'pokemonMajor') return;
 		const newFilter: FiltersetPokemon = {
 			id: '1',
@@ -62,55 +44,74 @@
 			enabled: true,
 			iv: { min: 100, max: 100}
 		};
-		filter.filters = [newFilter];
+		getUserSettings().filters['pokemonMajor'].filters = [newFilter];
 		updateUserSettings();
 		updateAllMapObjects().then();
 	}
 </script>
 
+<FilterViewModal />
+
 <div
 	class="py-2 pr-4 pl-0"
 >
-	<div class="flex gap-2 justify-between items-center">
-		{#if subCategories.length === 0}
-			<div class="pl-4 py-2">
-				<MenuTitle {title} />
+	<div class="flex gap-2 justify-start items-center whitespace-normal">
+		{#if !isExpandable}
+			<div class="pl-4 py-2 font-semibold text-base">
+				{title}
 			</div>
 
 		{:else}
-			<Button class="flex items-center justify-start! gap-1 flex-1"
-					variant="ghost"
-					onclick={() => expanded = !expanded}>
-				<MenuTitle {title} />
+			<Button
+				class="flex items-center justify-start! gap-1 flex-1"
+				variant="ghost"
+				onclick={() => expanded = !expanded}
+			>
+				<span class="font-semibold text-base">
+					{title}
+				</span>
+				{#if isExpandable}
 				<ChevronDown size="20" />
+				{:else}
+					<FunnelPlus class="ml-1" size="14" />
+				{/if}
 			</Button>
 		{/if}
 
-		<Switch bind:checked={isEnabled} onCheckedChange={onEnabledChange} />
+		{#if isFilterable && !hasAnyFilterset}
+			<Button class="ml-1" variant="outline" size="sm" onclick={placeholderAddFilter}>
+				<FunnelPlus size="14" />
+<!--				<span>Filter</span>-->
+			</Button>
+		{/if}
+
+		<Switch class="ml-auto" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(category, v)} />
 	</div>
 
 	{#if isEnabled && isFilterable}
-		<div
-			class="w-full flex flex-col gap-1 pl-2"
-			transition:slide={{ duration: 90 }}
-			class:mt-2={hasAnyFilterset}
-		>
-			{#each filter.filters ?? [] as filterset (filterset.id)}
-				<Filterset filter={filterset} />
-			{/each}
-			<div class="flex" class:mb-0.5={hasAnyFilterset}>
-				{#if hasAnyFilterset}
-					<Button class="w-full" variant="ghost" size="sm">
-						<FunnelX size="16" />
-						<span>Ignore filters</span>
-					</Button>
-				{/if}
-				<Button class="w-full" variant="ghost" size="sm" onclick={placeholderAddFilter}>
-					<Plus size="16" />
+		{#if hasAnyFilterset}
+			<div
+				class="w-full my-1 flex flex-col gap-1 pl-2"
+				transition:slide={{ duration: 90 }}
+			>
+				{#each filter.filters ?? [] as filterset (filterset.id)}
+					<Filterset filter={filterset} />
+				{/each}
+			</div>
+
+			<div class="flex justify-start ml-2" class:mb-0.5={hasAnyFilterset}>
+				<!--{#if hasAnyFilterset}-->
+				<!--	<Button class="w-full" variant="ghost" size="sm">-->
+				<!--		<FunnelX size="16" />-->
+				<!--		<span>Ignore filters</span>-->
+				<!--	</Button>-->
+				<!--{/if}-->
+				<Button class="" variant="ghost" size="sm" onclick={placeholderAddFilter}>
+					<FunnelPlus size="14" />
 					<span>Add filter</span>
 				</Button>
 			</div>
-		</div>
+		{/if}
 	{/if}
 </div>
 

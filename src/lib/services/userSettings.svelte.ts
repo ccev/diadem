@@ -89,6 +89,7 @@ export function getDefaultUserSettings(): UserSettings {
 				kecleon: { category: "kecleon", ...defaultFilter() },
 				goldPokestop: { category: "goldPokestop", ...defaultFilter() },
 				lure: { category: "lure", ...defaultFilter() },
+				route: { category: "route", ...defaultFilter() },
 			},
 			gymMajor: {
 				category: "gymMajor",

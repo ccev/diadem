@@ -7,15 +7,12 @@
 
 	import Toast from '@/components/ui/Toast.svelte';
 	import { getIsToastOpen } from '@/lib/ui/toasts.svelte.js';
-	import { closeModal, getModalOptions, isModalOpen } from '@/lib/ui/modal.svelte.js';
-	import { getConfig } from '@/lib/services/config/config';
 	import { loadRemoteLocale } from '@/lib/services/ingameLocale';
 	import { getIsLoading, load } from '@/lib/services/initialLoad.svelte.js';
 	import Loading from '@/components/ui/Loading.svelte';
 	import { updateDarkMode } from '@/lib/utils/updateDarkMode';
 	import { onMount } from 'svelte';
 	import Metadata from '@/components/utils/Metadata.svelte';
-	import { watch } from 'runed';
 
 	let { children } = $props();
 
@@ -25,17 +22,6 @@
 		if (getIsLoading()) return;
 		getUserSettings().isDarkMode;
 		updateDarkMode();
-	});
-
-	let dialog: HTMLDialogElement | undefined = $state(undefined);
-	$effect(() => {
-		if (!dialog) return;
-
-		if (isModalOpen()) {
-			dialog.showModal();
-		} else {
-			dialog.close();
-		}
 	});
 
 	let languageTag: string = $derived(resolveLanguageTag(getUserSettings().languageTag));
@@ -51,22 +37,6 @@
 	{#if getIsLoading()}
 		<Loading />
 	{/if}
-	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-	<dialog
-		bind:this={dialog}
-		style="max-width: calc(100vw - 1rem);"
-		class="shadow-md mx-auto overflow-hidden w-fit rounded-md appearance-none bg-transparent backdrop:backdrop-blur-[1px] backdrop:backdrop-brightness-95 backdrop:transition-all"
-		onclose={() => closeModal()}
-		onclick={() => closeModal()}
-		class:my-auto={getModalOptions().vertical === "center"}
-		class:mt-2={getModalOptions().vertical === "top"}
-	>
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="w-full h-full" onclick={e => e.stopPropagation()}>
-			{@render getModalOptions().snippet?.()}
-		</div>
-	</dialog>
-
 
 	{#if getIsToastOpen()}
 		<Toast />

@@ -1,38 +1,30 @@
-import type { Snippet } from 'svelte';
-
-import { setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
-
-type ModalVertical = "top" | "center"
-type ModalOptions = {
-	isOpen: boolean
-	snippet: Snippet | undefined
-	vertical: ModalVertical
+export type OpenModals = {
+	search: boolean
+	fortDetails: boolean
+	select: boolean
+	filtersetPokemon: boolean
 }
-const defaultOptions: ModalOptions = {
-	isOpen: false,
-	snippet: undefined,
-	vertical: "top"
-}
+export type ModalType = keyof OpenModals
 
-let modalOptions: ModalOptions = $state(defaultOptions)
+let openModals: OpenModals = $state({
+	search: false,
+	fortDetails: false,
+	select: false,
+	filtersetPokemon: false
+})
 
-export function isModalOpen() {
-	return modalOptions.isOpen
+export function openModal(modal: ModalType) {
+	openModals[modal] = true
 }
 
-export function openModal(snippet: Snippet, vertical: ModalVertical = "center") {
-	modalOptions = {
-		isOpen: true,
-		snippet,
-		vertical
-	}
+export function closeModal(modal: ModalType) {
+	openModals[modal] = false
 }
 
-export function closeModal() {
-	modalOptions = defaultOptions
+export function isOpenModal(modal: ModalType) {
+	return openModals[modal]
 }
 
-export function getModalOptions() {
-	return modalOptions
+export function isAnyModalOpen() {
+	return Boolean(Object.values(openModals).some(Boolean))
 }
-
