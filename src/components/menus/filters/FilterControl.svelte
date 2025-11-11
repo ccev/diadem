@@ -57,17 +57,18 @@
 	}
 </script>
 
-<PokemonFilterset isInEdit={false} />
-<PlainPokestopFilterset isInEdit={false} />
-<QuestFilterset isInEdit={false} />
-
 <div
 	class="py-2 pr-4 pl-0"
 >
 	<div class="flex gap-2 justify-start items-center whitespace-normal">
 		{#if !isExpandable}
-			<div class="pl-4 py-2 font-semibold text-base">
-				{title}
+			<div class="pl-4 py-2">
+				<p class="font-semibold text-base">
+					{title}
+				</p>
+				<p class="text-sm text-muted-foreground font-semibold">
+					Showing 12 of 267
+				</p>
 			</div>
 
 		{:else}
@@ -86,15 +87,21 @@
 				{/if}
 			</Button>
 		{/if}
+<!--		<span class="text-sm text-muted-foreground">67</span>-->
+
+		<div class="flex gap-1 ml-auto items-center">
+
+
 
 		{#if isFilterable && !hasAnyFilterset && isEnabled}
-			<Button class="ml-1" variant="outline" size="sm" onclick={placeholderAddFilter}>
+			<Button class="" variant="outline" size="sm" onclick={placeholderAddFilter}>
 				<FunnelPlus size="14" />
 <!--				<span>Filter</span>-->
 			</Button>
 		{/if}
 
-		<Switch class="ml-auto" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(category, v)} />
+		<Switch class="" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(category, v)} />
+		</div>
 	</div>
 
 	{#if isEnabled && isFilterable}

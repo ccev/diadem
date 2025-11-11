@@ -1,30 +1,75 @@
-import type { Snippet } from 'svelte';
+import type { Snippet } from "svelte";
+import { FiniteStateMachine } from "runed";
+import { closeModal, type ModalType } from "@/lib/ui/modal.svelte";
+import { addOrUpdateFilterset, editFiltersetNoCommit } from '@/lib/features/filters/manageFilters';
 
-export type FiltersetPage = 'new' | 'overview' | 'attribute'
-let currentPage: FiltersetPage = $state("new");
-let previousPage: FiltersetPage = $state("new");
-let attributePage: Snippet | undefined = $state(undefined);
+export type FiltersetPage = "new" | "overview" | "attribute";
+type PageEvents = "newFilter" | "save" | "close" | "reset" | "editAttribute";
 
-export function setCurrentFiltersetPage(page: FiltersetPage) {
-	previousPage = currentPage
-	currentPage = page
+export let isFilterPageTransitionReverse = false
+let attributePageDetails: { snippet?: Snippet, label?: string } = $state({
+	snippet: undefined,
+	label: undefined
+});
+
+const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("new", {
+	new: {
+		_enter: () => {
+			isFilterPageTransitionReverse = false
+		},
+		newFilter: "overview",
+		reset: "new"
+	},
+	overview: {
+		close: "new",
+		reset: "new",
+		editAttribute: "attribute",
+		save: (modalType: ModalType) => {
+			addOrUpdateFilterset()
+			closeModal(modalType)
+		}
+	},
+	attribute: {
+		_enter: () => {
+			isFilterPageTransitionReverse = true
+		},
+		close: "overview",
+		reset: "new",
+		save: () => {
+			editFiltersetNoCommit()
+			return "overview"
+		}
+	}
+});
+
+export function filtersetPageReset() {
+	pageStates.send("reset")
+}
+
+export function filtersetPageNew() {
+	pageStates.send("newFilter")
+}
+
+export function filtersetPageEditAttribute() {
+	pageStates.send("editAttribute")
+}
+
+export function filtersetPageClose(modalType: ModalType) {
+	pageStates.send("close", modalType)
+}
+
+export function filtersetPageSave(modalType: ModalType) {
+	pageStates.send("save", modalType)
 }
 
 export function getCurrentFiltersetPage() {
-	// return "overview"
-	return currentPage
+	return pageStates.current;
 }
 
-export function setCurrentAttributePage(page: Snippet) {
-	attributePage = page
+export function setCurrentAttributePage(snippet: Snippet, label: string) {
+	attributePageDetails = { snippet, label };
 }
 
 export function getCurrentAttributePage() {
-	// return undefined
-	return attributePage
-}
-
-export function getPreviousFiltersetPage() {
-	// return "overview"
-	return previousPage
+	return attributePageDetails;
 }

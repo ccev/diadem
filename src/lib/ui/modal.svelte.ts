@@ -2,6 +2,7 @@ import {
 	clearUpdateMapObjectsInterval,
 	resetUpdateMapObjectsInterval
 } from "@/lib/map/mapObjectsInterval";
+import { filtersetPageReset } from '@/lib/ui/filtersetPages.svelte';
 
 export type OpenModals = {
 	search: boolean
@@ -31,9 +32,14 @@ export function openModal(modal: ModalType) {
 
 export function closeModal(modal: ModalType) {
 	openModals[modal] = false
+
 	if (!isAnyModalOpen()) {
 		resetUpdateMapObjectsInterval();
 	}
+
+	// this would only need to be done on filterset modal closes
+	// delay to account for animations
+	setTimeout(filtersetPageReset, 100)
 }
 
 export function isOpenModal(modal: ModalType) {

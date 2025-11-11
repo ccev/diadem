@@ -1,11 +1,9 @@
 <script lang="ts">
 	import Button from '@/components/ui/input/Button.svelte';
-	import { slide, fly } from 'svelte/transition';
-	import { Check, CirclePlus, Pencil, PlusCircle } from 'lucide-svelte';
-	import { Separator } from 'bits-ui';
+	import { fly } from 'svelte/transition';
+	import { CirclePlus, Pencil } from 'lucide-svelte';
 	import type { FiltersetPokemon } from '@/lib/features/filters/filtersets';
-	import Filterset from '@/components/menus/filters/Filterset.svelte';
-	import { getCurrentFiltersetPage, setCurrentFiltersetPage } from '@/lib/ui/filtersetPages.svelte';
+	import { filtersetPageNew } from '@/lib/ui/filtersetPages.svelte';
 
 	const placeholderFilter: FiltersetPokemon = {
 		id: '1',
@@ -16,7 +14,7 @@
 	};
 
 	function onnew() {
-		setCurrentFiltersetPage("overview")
+		filtersetPageNew()
 	}
 </script>
 

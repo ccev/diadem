@@ -2,7 +2,7 @@
 	import Button from '@/components/ui/input/Button.svelte';
 	import { ChevronRight } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
-	import { setCurrentAttributePage, setCurrentFiltersetPage } from '@/lib/ui/filtersetPages.svelte';
+	import { filtersetPageEditAttribute, setCurrentAttributePage } from '@/lib/ui/filtersetPages.svelte';
 
 	let {
 		label,
@@ -15,8 +15,8 @@
 	} = $props();
 
 	function onattribute() {
-		setCurrentAttributePage(page);
-		setCurrentFiltersetPage('attribute');
+		setCurrentAttributePage(page, label);
+		filtersetPageEditAttribute()
 	}
 </script>
 

@@ -6,12 +6,15 @@
 	import PageAttribute from '@/components/menus/filters/filterset/PageAttribute.svelte';
 	import {
 		type FiltersetPage,
+		filtersetPageClose,
+		filtersetPageSave,
 		getCurrentAttributePage,
-		getCurrentFiltersetPage, setCurrentFiltersetPage
+		getCurrentFiltersetPage
 	} from '@/lib/ui/filtersetPages.svelte';
 	import FiltersetButtons from '@/components/menus/filters/filterset/FiltersetButtons.svelte';
 	import type { ModalType } from '@/lib/ui/modal.svelte';
-	import type { Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
+	import Button from '@/components/ui/input/Button.svelte';
 
 	let {
 		modalType,
@@ -28,33 +31,40 @@
 	} = $props();
 
 	function onsave() {
-		setCurrentFiltersetPage("new")
+		filtersetPageSave(modalType);
 	}
 
 	function oncancel() {
-		setCurrentFiltersetPage("overview")
+		filtersetPageClose(modalType);
 	}
 
 	function ondelete() {
-		if (!isInEdit) return
+		if (!isInEdit) return;
 	}
 </script>
 
-<Modal {modalType}>
+<Modal {modalType} class="max-h-screen">
 	{#snippet title()}
-		<div class="pb-2 pl-5 pt-3">
-			<MenuTitle title={modalTitle} />
-		</div>
+		<p class="pb-2 pl-5 pt-3 font-semibold text-base">
+			<span>
+				{modalTitle}
+			</span>
+			{#if getCurrentAttributePage().label && getCurrentFiltersetPage() === "attribute"}
+				<span class="font-normal">
+					/ {getCurrentAttributePage().label}
+				</span>
+			{/if}
+		</p>
 	{/snippet}
-	<div class="px-4 py-2 w-128 max-w-full h-124 overflow-hidden ">
+	<div class="px-4 py-2 w-128 max-w-full h-130 overflow-hidden ">
 		<div class="relative h-full">
 			{#if getCurrentFiltersetPage() === "new"}
 				<PageNewFilterset />
 			{:else if getCurrentFiltersetPage() === "overview"}
 				<PageOverview {overview} />
-			{:else if getCurrentFiltersetPage() === "attribute" && getCurrentAttributePage()}
+			{:else if getCurrentFiltersetPage() === "attribute" && getCurrentAttributePage().snippet}
 				<PageAttribute>
-					{@render getCurrentAttributePage()?.()}
+					{@render getCurrentAttributePage().snippet?.()}
 				</PageAttribute>
 			{/if}
 

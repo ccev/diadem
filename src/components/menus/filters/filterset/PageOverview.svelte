@@ -3,7 +3,7 @@
 	import { Pencil } from 'lucide-svelte';
 	import { fly } from 'svelte/transition';
 	import type { Snippet } from 'svelte';
-	import { getCurrentFiltersetPage, getPreviousFiltersetPage } from '@/lib/ui/filtersetPages.svelte';
+	import { isFilterPageTransitionReverse } from '@/lib/ui/filtersetPages.svelte';
 	import Button from '@/components/ui/input/Button.svelte';
 
 	let {
@@ -15,7 +15,7 @@
 
 <div
 	class="w-full absolute top-0 h-[calc(100%-3rem)] overflow-y-auto"
-	transition:fly={{duration: 100, x: getPreviousFiltersetPage() === "attribute" || getCurrentFiltersetPage() === "attribute" ? -80 : 80}}
+	transition:fly={{duration: 100, x: isFilterPageTransitionReverse ? -80 : 80}}
 >
 	<Card class="w-full text-sm divide-y-border divide-y mb-3 flex gap-2">
 		<Button
