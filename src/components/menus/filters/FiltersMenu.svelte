@@ -88,7 +88,7 @@
 <!--	</SelectGroup>-->
 <!--{/snippet}-->
 
-<PokemonFilterset isInEdit={false} />
+<PokemonFilterset isInEdit={false} isNew={false} />
 <PlainPokestopFilterset isInEdit={false} />
 <QuestFilterset isInEdit={false} />
 

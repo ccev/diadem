@@ -163,5 +163,18 @@
     "pogo_quest": "Quest",
     "pogo_quests": "Quests",
     "pogo_invasion": "Team Rocket",
-    "pogo_max_battle": "Max Battle"
+    "pogo_max_battle": "Max Battle",
+    "any": "Any",
+    "count_pokemon": "{count} Pokémon",
+    "species": "Species",
+    "cp": "CP",
+    "level": "Level",
+    "filterset_title_new_pokemon": "New Pokémon Filter",
+    "filterset_title_edit_pokemon": "Edit Pokémon Filter",
+    "atk_def_sta": "{atk}/{def}/{sta}",
+    "range_to": "{x} – {y}",
+    "range_min": "{x}+",
+    "range_max": "≤{x}",
+    "rank_x": "Rank {rank}",
+    "x_percentage": "{x}%"
 }

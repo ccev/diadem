@@ -1,14 +1,24 @@
 <script lang="ts">
 	import Button from '@/components/ui/input/Button.svelte';
 	import { X } from 'lucide-svelte';
+	import * as m from '@/lib/paraglide/messages';
 
 	let {
-		label,
-		color
+		label = undefined,
+		isEmpty = false,
+		color = "yellow",
+		onremove = () => {}
 	}: {
-		label: string,
-		color: 'yellow' | 'muted'
+		label?: string,
+		isEmpty: boolean,
+		color?: 'yellow' | 'muted',
+		onremove?: () => void
 	} = $props();
+
+	function onclick(event: MouseEvent) {
+		event.stopPropagation();
+		onremove()
+	}
 
 	const colors = {
 		muted: {
@@ -22,22 +32,29 @@
 			border: '--color-amber-200'
 		}
 	};
+
+	let actualColor = $derived(colors[isEmpty ? "muted" : color])
 </script>
 
 <div
 	class="pl-2 rounded-sm  border w-fit flex items-stretch attribute-chip"
-	class:pr-2={color === "muted"}
-	style="--color-attr-chip-border: var({colors[color].border}); --color-attr-chip-bg: var({colors[color].bg}); --color-attr-chip-text: var({colors[color].text});"
+	class:pr-2={isEmpty}
+	style="--color-attr-chip-border: var({actualColor.border}); --color-attr-chip-bg: var({actualColor.bg}); --color-attr-chip-text: var({actualColor.text});"
 >
 	<span class="py-1">
-		{label}
+		{#if isEmpty}
+			{m.any()}
+		{:else}
+			{label}
+		{/if}
 	</span>
-	{#if color !== "muted"}
+	{#if !isEmpty}
 		<Button
 			class="h-auto! w-auto! px-2! p-0! attribute-chip-button"
 			variant=""
 			size="icon"
 			style=""
+			{onclick}
 		>
 			<X size="14" />
 		</Button>

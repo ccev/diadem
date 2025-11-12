@@ -22,7 +22,7 @@ type MinMax = {
 	max: number;
 };
 
-type Pokemon = { pokemon: number; form: number };
+type Pokemon = { pokemon_id: number; form: number };
 type QuestReward = { id: string; amount?: MinMax };
 
 export type FiltersetPokemon = BaseFilterset & {
