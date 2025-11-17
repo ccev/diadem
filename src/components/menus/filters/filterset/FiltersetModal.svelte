@@ -16,54 +16,38 @@
 	import { onDestroy, type Snippet } from 'svelte';
 	import Button from '@/components/ui/input/Button.svelte';
 	import {
-		existsCurrentSelectedFilterset, getCurrentSelectedFilterset,
+		existsCurrentSelectedFilterset, getCurrentSelectedFilterset, getCurrentSelectedFiltersetInEdit,
 		resetCurrentSelectedFilterset
-	} from '@/lib/features/filters/manageFilters.svelte';
+	} from '@/lib/features/filters/filtersetPageData.svelte.js';
 	import PageBase from '@/components/menus/filters/filterset/PageBase.svelte';
 
 	let {
 		modalType,
 		modalTitle,
 		overview,
-		initialPage,
 		height = 130
 	}: {
 		modalType: ModalType
 		modalTitle: string
 		overview: Snippet
-		initialPage: FiltersetPage
 		height?: number
 	} = $props();
-
-	function onopenchange(opened: boolean) {
-		if (!opened) resetCurrentSelectedFilterset()
-	}
-
-	function onsave() {
-		filtersetPageSave(modalType)
-	}
-
-	function oncancel() {
-		filtersetPageClose(modalType);
-	}
-
-	function ondelete() {
-		if (!existsCurrentSelectedFilterset()) return;
-	}
 </script>
 
-<Modal {modalType} {onopenchange} class="max-h-screen">
+<Modal {modalType} class="max-h-screen">
 	{#snippet title()}
-		<p class="pb-2 pl-5 pt-3 font-semibold text-base">
-			<span>
-				{modalTitle}
-			</span>
-			{#if getCurrentAttributePage().label && getCurrentFiltersetPage() === "attribute"}
-				<span class="font-normal">
-					/ {getCurrentAttributePage().label}
+		{#if !(getCurrentFiltersetPage() === "base" && getCurrentSelectedFiltersetInEdit())}
+			<p class="pb-2 pl-5 pt-3 font-semibold text-base">
+				<span>
+					{modalTitle}
 				</span>
-			{/if}
-		</p>
+				{#if getCurrentAttributePage().label && getCurrentFiltersetPage() === "attribute"}
+					<span class="font-normal">
+						/ {getCurrentAttributePage().label}
+					</span>
+				{/if}
+			</p>
+		{/if}
 	{/snippet}
 	<div
 		class="px-4 py-2 w-128 max-w-full overflow-hidden"
@@ -80,14 +64,7 @@
 				<PageAttribute />
 			{/if}
 
-			{#if getCurrentFiltersetPage() !== "new"}
-				<FiltersetButtons
-					showDelete={existsCurrentSelectedFilterset()}
-					{oncancel}
-					{onsave}
-					{ondelete}
-				/>
-			{/if}
+			<FiltersetButtons {modalType} />
 		</div>
 
 	</div>

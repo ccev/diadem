@@ -7,6 +7,8 @@
 	import { slide } from 'svelte/transition';
 	import Filterset from '@/components/menus/filters/Filterset.svelte';
 	import { openModal } from '@/lib/ui/modal.svelte.js';
+	import { filtersetPageNew, filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
+	import { getNewFilterset, setCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
 
 	let {
 		category,
@@ -36,6 +38,8 @@
 			return
 		}
 
+		setCurrentSelectedFilterset(category, getNewFilterset(), false)
+		filtersetPageReset()
 		openModal("filtersetPokemon")
 	}
 </script>

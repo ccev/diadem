@@ -3,6 +3,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
 	import type { FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
+	import { getAttributeLabelIvProduct, getAttributeLabelIvValues } from '@/lib/features/filters/pokemonFilterUtils';
 
 	let {
 		data,
@@ -17,43 +18,14 @@
 
 {#if data.iv}
 	<AttributeChip
-		label={makeAttributeRangeLabel(
-			data.iv,
-			percBounds.min,
-			percBounds.max,
-			m.x_percentage({ x: data.iv?.min ?? percBounds.min }),
-			m.x_percentage({ x: data.iv?.max ?? percBounds.max })
-		)}
+		label={getAttributeLabelIvProduct(data.iv)}
 		isEmpty={false}
 		onremove={() => delete data.iv}
 	/>
 {/if}
 {#if data.ivAtk || data.ivDef || data.ivSta}
 	<AttributeChip
-		label={makeAttributeRangeLabel(
-			{
-				min:
-					(data.ivAtk?.min ?? ivBounds.min) +
-					(data.ivDef?.min ?? ivBounds.min) +
-					(data.ivSta?.min ?? ivBounds.min),
-				max:
-					(data.ivAtk?.max ?? ivBounds.max) +
-					(data.ivDef?.max ?? ivBounds.max) +
-					(data.ivSta?.max ?? ivBounds.max)
-			},
-			ivBounds.min * 3,
-			ivBounds.max * 3,
-			m.atk_def_sta({
-				atk: data.ivAtk?.min ?? ivBounds.min,
-				def: data.ivDef?.min ?? ivBounds.min,
-				sta: data.ivSta?.min ?? ivBounds.min
-			}),
-			m.atk_def_sta({
-				atk: data.ivAtk?.max ?? ivBounds.max,
-				def: data.ivDef?.max ?? ivBounds.max,
-				sta: data.ivSta?.max ?? ivBounds.max
-			})
-		)}
+		label={getAttributeLabelIvValues(data.ivAtk, data.ivDef, data.ivSta)}
 		isEmpty={false}
 		onremove={() => {
 			delete data.ivAtk;

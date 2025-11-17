@@ -4,23 +4,23 @@ import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 
-let currentSelectedFilterset: {
+let filtersetPageData: {
 	category: FilterCategory,
+	selectedAttribute: AnyFilterset | undefined,
+	inEdit: boolean,
 	data: AnyFilterset
 } | undefined = $state(undefined)
 
-let currentSelectedAttribute: AnyFilterset | undefined = $state(undefined)
-
-export function setCurrentSelectedFilterset(category: FilterCategory, data: AnyFilterset) {
-	currentSelectedFilterset = { category, data }
+export function setCurrentSelectedFilterset(category: FilterCategory, data: AnyFilterset, inEdit: boolean) {
+	filtersetPageData = { category, data, inEdit, selectedAttribute: undefined }
 }
 
 export function resetCurrentSelectedFilterset() {
-	currentSelectedFilterset = undefined
+	filtersetPageData = undefined
 }
 
 export function getCurrentSelectedFilterset() {
-	return currentSelectedFilterset
+	return filtersetPageData
 }
 
 export function existsCurrentSelectedFilterset() {
@@ -31,8 +31,12 @@ export function existsCurrentSelectedFilterset() {
 	}
 }
 
+export function getCurrentSelectedFiltersetInEdit() {
+	return filtersetPageData?.inEdit || false
+}
+
 export function saveSelectedFilterset() {
-	const filterset = currentSelectedFilterset
+	const filterset = filtersetPageData
 
 	if (filterset) {
 		const filters: AnyFilterset[] | undefined = getUserSettings().filters[filterset.category]?.filters
@@ -50,20 +54,35 @@ export function saveSelectedFilterset() {
 	}
 }
 
+export function deleteCurrentSelectedFilterset() {
+	const filterset = filtersetPageData
+
+	if (filterset) {
+		const filters: AnyFilterset[] | undefined = getUserSettings().filters[filterset.category]?.filters
+		if (!filters) return
+
+		getUserSettings().filters[filterset.category].filters = filters.filter(f => f.id !== filterset.data.id)
+
+		updateUserSettings();
+		updateAllMapObjects().then();
+	}
+}
+
+
 export function getCurrentSelectedAttribute() {
-	return currentSelectedAttribute
+	return filtersetPageData?.selectedAttribute
 }
 
 export function setCurrentSelectedAttribute() {
-	if (currentSelectedFilterset) currentSelectedAttribute = $state.snapshot(currentSelectedFilterset.data)
+	if (filtersetPageData) filtersetPageData.selectedAttribute = $state.snapshot(filtersetPageData.data)
 }
 
 export function resetCurrentSelectedAttribute() {
-	currentSelectedAttribute = undefined
+	if (filtersetPageData) filtersetPageData.selectedAttribute = undefined
 }
 
 export function saveCurrentSelectedAttribute() {
-	if (currentSelectedFilterset) currentSelectedFilterset.data = currentSelectedAttribute
+	if (filtersetPageData && filtersetPageData.selectedAttribute) filtersetPageData.data = filtersetPageData.selectedAttribute
 }
 
 export function getNewFilterset(): BaseFilterset {
@@ -73,4 +92,20 @@ export function getNewFilterset(): BaseFilterset {
 		icon: "💯",
 		enabled: true
 	}
+}
+
+export function getCurrentSelectedFiltersetEncoded() {
+	if (!filtersetPageData) return ""
+	const thisData = $state.snapshot(filtersetPageData.data)
+	thisData.id = ""
+	thisData.enabled = true
+	const jsonStr = JSON.stringify(thisData)
+	return btoa(encodeURIComponent(jsonStr))
+}
+
+export function decodeFilterset(str: string) {
+	const decoded: AnyFilterset = JSON.parse(decodeURIComponent(atob(str)))
+	// TODO: check if object is ok (i.e. with zod)
+	decoded.id = crypto.randomUUID()
+	return decoded
 }

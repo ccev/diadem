@@ -5,37 +5,37 @@
 	import * as m from '@/lib/paraglide/messages';
 
 	import { getCurrentPath } from '@/lib/mapObjects/interact';
-	import { canNativeShare, copyToClipboard, hasClipboardWrite } from '@/lib/utils/device';
+	import {
+		backupShareUrl,
+		canBackupShare,
+		canNativeShare,
+		copyToClipboard,
+		hasClipboardWrite
+	} from '@/lib/utils/device';
 	import { getMapsUrl } from '@/lib/utils/mapUrl';
 
 	let {
 		lat,
-	  	lon,
+		lon
 	}: {
 		lat: number,
-	  	lon: number
-	} = $props()
+		lon: number
+	} = $props();
 
-	function shareUrl() {
-		const url = window.location.origin + getCurrentPath()
-		const shareData = {url}
-		if (canNativeShare(shareData)) {
-			navigator.share(shareData)
-		} else if (hasClipboardWrite()) {
-			copyToClipboard(window.location.toString())
-		}
+	function getShareUrl() {
+		return window.location.origin + getCurrentPath();
 	}
 </script>
 
 <div class="flex px-4 gap-1.5 absolute bottom-4 w-full">
 	<Button size="default" onclick={togglePopupExpanded}>
 		{#if isPopupExpanded()}
-			<EyeClosed size="18"/>
+			<EyeClosed size="18" />
 			<span class="@max-[304px]:hidden">
 				{m.popup_hide_details()}
 			</span>
 		{:else}
-			<Eye size="18"/>
+			<Eye size="18" />
 			<span class="@max-[304px]:hidden">
 				{m.popup_show_details()}
 			</span>
@@ -48,19 +48,19 @@
 		href={getMapsUrl(lat, lon)}
 		target="_blank"
 	>
-		<Navigation size="18"/>
+		<Navigation size="18" />
 		<span class="@max-[364px]:hidden">
 			{m.popup_navigate()}
 		</span>
 	</Button>
 
-	{#if canNativeShare() || hasClipboardWrite()}
+	{#if canBackupShare({ url: getShareUrl() })}
 		<Button
 			variant="outline"
 			tag="button"
-			onclick={shareUrl}
+			onclick={() => backupShareUrl(getShareUrl())}
 		>
-			<Share2 size="18"/>
+			<Share2 size="18" />
 			<span class="@max-[406px]:hidden">
 				{m.popup_share()}
 			</span>

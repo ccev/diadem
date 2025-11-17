@@ -1,23 +1,51 @@
 import type { Snippet } from "svelte";
 import { FiniteStateMachine } from "runed";
 import { closeModal, type ModalType } from "@/lib/ui/modal.svelte.js";
-import { saveCurrentSelectedAttribute, saveSelectedFilterset } from '@/lib/features/filters/manageFilters.svelte.js';
+import { getCurrentSelectedFiltersetInEdit, saveCurrentSelectedAttribute, saveSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte.js';
 import type { AnyFilterset } from '@/lib/features/filters/filtersets';
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
 export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>
 type PageEvents = "newFilter" | "save" | "close" | "reset" | "editAttribute" | "edit" | "select";
 
-export let isFilterPageTransitionReverse = false
+let isFilterPageBack = $state(false)
+let isFilterPageReset = $state(false)
+let hasSelectedSuggestedFilter = false
+
 let attributePageDetails: { snippet?: FiltersetSnippet<AnyFilterset>, label?: string } = $state({
 	snippet: undefined,
 	label: undefined
 });
 
-const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("new", {
+function pageBack(page: FiltersetPage) {
+	isFilterPageBack = true
+	return page
+}
+
+function pageForward(page: FiltersetPage) {
+	isFilterPageBack = false
+	return page
+}
+
+function resetPages() {
+	isFilterPageReset = true
+	setTimeout(() => isFilterPageReset = false, 100)
+	return getCurrentSelectedFiltersetInEdit() ? "base" : "new"
+}
+
+const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 	base: {
-		edit: 'overview',
-		close: "new",
+		reset: resetPages,
+		edit: () => pageForward('overview'),
+		// @ts-ignore
+		close: (modalType: ModalType) => {
+			if (getCurrentSelectedFiltersetInEdit()) {
+				closeModal(modalType)
+			} else {
+				return pageBack("new")
+			}
+		},
+		// @ts-ignore
 		save: (modalType: ModalType) => {
 			saveSelectedFilterset()
 			closeModal(modalType)
@@ -25,30 +53,42 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("new", {
 	},
 	new: {
 		_enter: () => {
-			isFilterPageTransitionReverse = false
+			hasSelectedSuggestedFilter = false
 		},
-		newFilter: "overview",
-		reset: "new",
-		select: "base"
+		reset: resetPages,
+		newFilter: () => pageForward("overview"),
+		select: () => {
+			hasSelectedSuggestedFilter = true
+			return pageForward("base")
+		}
 	},
 	overview: {
-		close: "new",
-		reset: "new",
-		editAttribute: "attribute",
+		reset: resetPages,
+		close: () => {
+			if (getCurrentSelectedFiltersetInEdit() || hasSelectedSuggestedFilter) {
+				return pageBack("base")
+			} else {
+				return pageBack("new")
+			}
+		},
+		editAttribute: () => pageForward("attribute"),
+		// @ts-ignore
 		save: (modalType: ModalType) => {
-			saveSelectedFilterset()
-			closeModal(modalType)
+			if (!hasSelectedSuggestedFilter) saveSelectedFilterset()
+
+			if (getCurrentSelectedFiltersetInEdit() || hasSelectedSuggestedFilter) {
+				return pageBack("base")
+			} else {
+				closeModal(modalType)
+			}
 		}
 	},
 	attribute: {
-		_enter: () => {
-			isFilterPageTransitionReverse = true
-		},
-		close: "overview",
-		reset: "new",
+		reset: resetPages,
+		close: () => pageBack("overview"),
 		save: () => {
 			saveCurrentSelectedAttribute()
-			return "overview"
+			return pageBack("overview")
 		}
 	}
 });
@@ -73,6 +113,14 @@ export function filtersetPageSave(modalType: ModalType) {
 	pageStates.send("save", modalType)
 }
 
+export function filtersetPageEdit() {
+	pageStates.send("edit")
+}
+
+export function filtersetPageSelect() {
+	pageStates.send("select")
+}
+
 export function getCurrentFiltersetPage() {
 	return pageStates.current;
 }
@@ -86,4 +134,12 @@ export function setCurrentAttributePage<T extends AnyFilterset>(snippet: Filters
 
 export function getCurrentAttributePage() {
 	return attributePageDetails;
+}
+
+export function getFiltersetPageTransition() {
+	const duration = isFilterPageReset ? 0 : 100
+	return {
+		out: {duration, x: isFilterPageBack ? 80 : -80},
+		in: {duration, x: isFilterPageBack ? -80 : 80}
+	}
 }

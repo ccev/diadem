@@ -3,6 +3,7 @@
 	import { getGenderLabel, getPokemonSize } from '@/lib/utils/pokemonUtils';
 	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
 	import type { FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
+	import { getAttributeLabelSize } from '@/lib/features/filters/pokemonFilterUtils';
 
 	let {
 		data,
@@ -15,13 +16,7 @@
 
 {#if data.size}
 	<AttributeChip
-		label={makeAttributeRangeLabel(
-			data.size,
-			sizeBounds.min,
-			sizeBounds.max,
-			getPokemonSize(data.size.min ?? sizeBounds.min),
-			getPokemonSize(data.size.max ?? sizeBounds.max)
-		)}
+		label={getAttributeLabelSize(data.size)}
 		isEmpty={false}
 		onremove={() => delete data.size}
 	/>

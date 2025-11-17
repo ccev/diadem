@@ -25,3 +25,16 @@ export function copyToClipboard(content: string) {
 		.then(() => openToast(m.clipboard_copied()))
 		.catch((e) => openToast(m.clipboard_error()));
 }
+
+export function canBackupShare(shareData: ShareData) {
+	return canNativeShare(shareData) || hasClipboardWrite()
+}
+
+export function backupShareUrl(url: string) {
+	const shareData = { url };
+	if (canNativeShare(shareData)) {
+		navigator.share(shareData).then();
+	} else if (hasClipboardWrite()) {
+		copyToClipboard(url);
+	}
+}

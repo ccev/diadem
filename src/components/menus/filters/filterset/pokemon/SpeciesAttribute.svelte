@@ -9,23 +9,37 @@
 	import { ToggleGroup } from 'bits-ui';
 
 	let {
-		data,
+		data
 	}: {
 		data: FiltersetPokemon
 	} = $props();
 
+	let isCompact = $state(false)
+
 	function pokemonValue(pokemon: { pokemon_id: number, form: number }) {
-		return `${pokemon.pokemon_id}-${pokemon.form}`
+		return `${pokemon.pokemon_id}-${pokemon.form}`;
 	}
 
-	let selected = $derived(data.pokemon?.map(p => pokemonValue(p)) ?? [])
-	$inspect(selected)
+	let selected = $derived(data.pokemon?.map(p => pokemonValue(p)) ?? []);
 </script>
 
-<div class="overflow-y-auto h-118 flex flex-wrap">
+<Button
+	variant="default"
+	size="sm"
+	onclick={() => isCompact = !isCompact}
+>
+	Compact
+</Button>
+
+<div class="overflow-y-auto h-110 flex flex-wrap -mx-4 px-4">
 	{#each getSpawnablePokemon() as pokemon}
 		<button
-			class="size-10 p-1 cursor-pointer hover:bg-accent"
+			class="p-1 flex flex-col items-center text-sm cursor-pointer hover:bg-accent"
+			class:w-20={!isCompact}
+			class:h-22={!isCompact}
+			class:py-1={!isCompact}
+			class:rounded-sm={!isCompact}
+			class:size-10={isCompact}
 			data-pokemon-id={pokemon.pokemon_id}
 			data-form-id={pokemon.form}
 			class:bg-sky-100={selected.includes(pokemonValue(pokemon))}
@@ -43,11 +57,18 @@
 				if (data.pokemon?.length === 0) delete data.pokemon
 			}}
 		>
-		<img
-			alt={mPokemon(pokemon)}
-			src={getIconPokemon(pokemon)}
-			loading="lazy"
-		>
+			<img
+				class:size-10={!isCompact}
+				alt={mPokemon(pokemon)}
+				src={getIconPokemon(pokemon)}
+				loading="lazy"
+			>
+			{#if !isCompact}
+				<span>
+					{mPokemon(pokemon)}
+				</span>
+			{/if}
+
 		</button>
 	{/each}
 </div>

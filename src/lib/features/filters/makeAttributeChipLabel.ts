@@ -7,6 +7,10 @@ export function makeAttributeRangeLabel(value: MinMax | undefined = undefined, m
 	if (!minLabel) minLabel = value?.min ?? min
 	if (!maxLabel) maxLabel = value?.max ?? max
 
+	if (value?.max === value?.min) {
+		return minLabel
+	}
+
 	if (value?.min === min && value?.max !== max) {
 		return m.range_max({ x: maxLabel })
 	} else if (value?.min !== min && value?.max === max) {

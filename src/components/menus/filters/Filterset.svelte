@@ -5,6 +5,8 @@
 
 	import type { AnyFilterset } from '@/lib/features/filters/filtersets';
 	import { openModal } from '@/lib/ui/modal.svelte';
+	import { setCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
+	import { filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
 
 	let {
 		filter
@@ -17,7 +19,11 @@
 	class="px-4! h-fit!"
 	variant="outline"
 	size="lg"
-	onclick={() => openModal("filtersetPokemon")}
+	onclick={() => {
+		setCurrentSelectedFilterset("pokemonMajor", filter, true)
+		filtersetPageReset()
+		openModal("filtersetPokemon")
+	}}
 >
 	<div class="flex-1 flex gap-1 items-center justify-start rounded-md py-2 h-12 m-0! pr-2" size="" variant="ghost">
 		<span>{filter.icon}</span>

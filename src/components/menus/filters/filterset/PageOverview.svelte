@@ -3,9 +3,11 @@
 	import { Pencil } from 'lucide-svelte';
 	import { fly } from 'svelte/transition';
 	import type { Snippet } from 'svelte';
-	import { isFilterPageTransitionReverse } from '@/lib/features/filters/filtersetPages.svelte.js';
+	import {
+		getFiltersetPageTransition,
+	} from '@/lib/features/filters/filtersetPages.svelte.js';
 	import Button from '@/components/ui/input/Button.svelte';
-	import { getCurrentSelectedFilterset } from '@/lib/features/filters/manageFilters.svelte';
+	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte.js';
 
 	let {
 		overview
@@ -16,7 +18,8 @@
 
 <div
 	class="w-full absolute top-0 h-[calc(100%-3rem)] overflow-y-auto"
-	transition:fly={{duration: 100, x: isFilterPageTransitionReverse ? -80 : 80}}
+	in:fly={getFiltersetPageTransition().in}
+	out:fly={getFiltersetPageTransition().out}
 >
 	<Card class="w-full text-sm divide-y-border divide-y mb-3 flex gap-2">
 		<Button

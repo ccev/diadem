@@ -5,8 +5,11 @@
 		getCurrentSelectedAttribute,
 		resetCurrentSelectedAttribute,
 		setCurrentSelectedAttribute
-	} from '@/lib/features/filters/manageFilters.svelte';
-	import { getCurrentAttributePage } from '@/lib/features/filters/filtersetPages.svelte.js';
+	} from '@/lib/features/filters/filtersetPageData.svelte.js';
+	import {
+		getCurrentAttributePage,
+		getFiltersetPageTransition
+	} from '@/lib/features/filters/filtersetPages.svelte.js';
 
 	onMount(() => {
 		setCurrentSelectedAttribute()
@@ -20,7 +23,8 @@
 
 <div
 	class="w-full absolute top-0 h-full pb-20"
-	transition:fly={{duration: 100, x: 80}}
+	in:fly={getFiltersetPageTransition().in}
+	out:fly={getFiltersetPageTransition().out}
 >
 	{#if getCurrentSelectedAttribute()}
 		{@render getCurrentAttributePage().snippet?.(getCurrentSelectedAttribute())}
