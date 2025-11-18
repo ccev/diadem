@@ -39,7 +39,7 @@
 
 			if (filterset.pokemon) {
 				text += m.species() + ": "
-				if (filterset.pokemon.length === 0) {
+				if (filterset.pokemon.length === 1) {
 					text += mPokemon(filterset.pokemon[0]) + "\n"
 				} else {
 					text += m.count_pokemon({ count: filterset.pokemon.length }) + "\n"

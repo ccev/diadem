@@ -38,7 +38,12 @@ async function queryPokemon(bounds: Bounds, filter: FilterPokemon) {
 			.filter((filter) => filter.enabled)
 			.map((filter) => {
 				const query: GolbatPokemonQuery = {};
-				if (filter.pokemon) query.pokemon = filter.pokemon.map(p => {return { id: p.pokemon_id, form: p.form }});
+				if (filter.pokemon) query.pokemon = filter.pokemon.map(p => {
+					const obj: { id: number; form?: number } = { id: p.pokemon_id }
+					if (p.form) obj.form = p.form
+
+					return obj
+				});
 				if (filter.iv) query.iv = filter.iv;
 				if (filter.ivAtk) query.atk_iv = filter.ivAtk;
 				if (filter.ivDef) query.def_iv = filter.ivDef;
