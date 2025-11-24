@@ -1,5 +1,10 @@
-import type { Incident, PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { mItem, mPokemon } from "@/lib/services/ingameLocale";
+import type {
+	ContestFocus,
+	Incident,
+	PokestopData,
+	QuestReward
+} from "@/lib/types/mapObjectData/pokestop";
+import { mAlignment, mGeneration, mItem, mPokemon, mType } from "@/lib/services/ingameLocale";
 import * as m from "@/lib/paraglide/messages";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 

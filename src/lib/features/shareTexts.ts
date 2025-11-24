@@ -109,7 +109,7 @@ function getPokestopShareText(data: PokestopData) {
 			invasionText += `🥷 ${mCharacter(incident.character)} (${timestampToLocalTime(incident.expiration, true)})\n`
 		} else if (isIncidentKecleon(incident)) {
 			kecleonText += `🦎 ${mPokemon({ pokemon_id: 352 })} (${timestampToLocalTime(incident.expiration)})\n`
-		} else if (isIncidentContest()) {
+		} else if (isIncidentContest(incident)) {
 			contestText += `🏅 ${getContestText(data)} (${timestampToLocalTime(incident.expiration, true)})\n`
 		}
 	})
