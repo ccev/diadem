@@ -40,12 +40,7 @@
 	import Button from '@/components/ui/input/Button.svelte';
 
 	let { mapId }: { mapId: string } = $props();
-	let data: PokemonData = $derived.by(() => {
-		return {
-			...getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData,
-			shiny: false
-		};
-	});
+	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData);
 
 	// let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 

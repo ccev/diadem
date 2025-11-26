@@ -52,7 +52,6 @@ export type AnyFilter =
 type BaseFilter = {
 	category: FilterCategory;
 	enabled: boolean;
-	ignoreFilters: boolean;
 };
 
 export type FilterPokemon = BaseFilter & {

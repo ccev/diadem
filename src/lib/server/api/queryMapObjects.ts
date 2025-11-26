@@ -2,8 +2,10 @@ import { query } from "@/lib/server/db/external/internalQuery";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type {
 	AnyFilter,
+	FilterGym,
 	FilterGymPlain,
 	FilterPokemon,
+	FilterPokestop,
 	FilterStation
 } from "@/lib/features/filters/filters";
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
@@ -11,6 +13,7 @@ import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObject
 import type { GolbatPokemonQuery } from "@/lib/server/api/queries";
 import { LIMIT_GYM, LIMIT_POKEMON, LIMIT_STATION } from "@/lib/constants";
 import { queryPokestops } from "@/lib/server/api/queryPokestops";
+import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 
 export async function queryMapObjects(type: MapObjectType, bounds: Bounds, filter: AnyFilter) {
 	let result: { error: undefined | string; result: MapData[] } = {
@@ -18,14 +21,14 @@ export async function queryMapObjects(type: MapObjectType, bounds: Bounds, filte
 		result: []
 	};
 
-	if (type === "pokemon") {
-		result = await queryPokemon(bounds, filter);
-	} else if (type === "gym") {
-		result = await queryGyms(bounds, filter);
-	} else if (type === "pokestop") {
-		result = await queryPokestops(bounds, filter);
-	} else if (type === "station") {
-		result = await queryStations(bounds, filter);
+	if (type === "pokemon" && filter.enabled) {
+		result = await queryPokemon(bounds, filter as FilterPokemon);
+	} else if (type === "gym" && filter.enabled) {
+		result = await queryGyms(bounds, filter as FilterGym);
+	} else if (type === "pokestop" && filter.enabled) {
+		result = await queryPokestops(bounds, filter as FilterPokestop);
+	} else if (type === "station" && filter.enabled) {
+		result = await queryStations(bounds, filter as FilterStation);
 	}
 
 	return result;
@@ -80,11 +83,15 @@ async function queryPokemon(bounds: Bounds, filter: FilterPokemon) {
 	};
 
 	const response = await getMultiplePokemon(body);
-	const results = await response.json();
+	const results: PokemonData[] = await response.json();
+	for (const pokemon of results) {
+		pokemon.shiny = false
+		pokemon.username = null
+	}
 	return { result: results, error: undefined };
 }
 
-async function queryGyms(bounds: Bounds, filter: FilterGymPlain) {
+async function queryGyms(bounds: Bounds, filter: FilterGym) {
 	return await query(
 		"SELECT * FROM gym " +
 			"WHERE lat BETWEEN ? AND ? " +

@@ -5,15 +5,18 @@
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
-	import type { ContestFocus, ContestRankings, PokestopData } from '@/lib/types/mapObjectData/pokestop.js';
+	import type { ContestFocus, ContestRankings, Incident, PokestopData } from '@/lib/types/mapObjectData/pokestop.js';
 	import * as m from '@/lib/paraglide/messages';
 	import { CONTEST_SLOTS, getContestText } from '@/lib/utils/pokestopUtils';
+	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 
 	let {
 		expanded,
+		incident,
 		data
 	}: {
 		expanded: boolean
+		incident: Incident
 		data: PokestopData
 	} = $props()
 
@@ -35,34 +38,42 @@
 	})
 
 	const name: string = $derived(getContestText(data))
+
+	const hasNoDetails = $derived((data?.showcase_expiry ?? 0) < currentTimestamp())
 </script>
 
 <div class="py-2 border-border border-b group-last:mb-2">
 	<div class="flex items-center gap-2">
-		<div class="w-7 h-7 shrink-0">
-			<ImagePopup
-				src={image}
-				alt={name}
-				class="w-7"
-			/>
-		</div>
+		{#if !hasNoDetails}
+			<div class="w-7 h-7 shrink-0">
+				<ImagePopup
+					src={image}
+					alt={name}
+					class="w-7"
+				/>
+			</div>
+		{/if}
 		<div>
 			<div>
-				Showcase:
-				<b>{name}</b>
+				{#if !hasNoDetails}
+					{m.contest()}: <b>{name}</b>
+				{:else}
+					{m.contest()}
+				{/if}
+
 			</div>
 
 			<div>
 				Ends
 				<TimeWithCountdown
-					expireTime={data.showcase_expiry}
+					expireTime={incident.expiration}
 					showHours={true}
 				/>
 			</div>
 		</div>
 	</div>
 
-	{#if expanded}
+	{#if expanded && !hasNoDetails}
 		<div class="mt-2">
 			<IconValue Icon={UsersRound}>
 				Entries: <b>{contestRankings.total_entries}</b>/{CONTEST_SLOTS}

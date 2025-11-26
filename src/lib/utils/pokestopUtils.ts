@@ -82,6 +82,10 @@ export function getContestText(data: PokestopData) {
 	let metric = m.contest_biggest
 	let name = ""
 
+	if ((data?.showcase_expiry ?? 0) < currentTimestamp()) {
+		return m.unknown_contest()
+	}
+
 	if (data.showcase_ranking_standard === 1) {
 		metric = m.contest_smallest
 	}

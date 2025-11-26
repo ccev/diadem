@@ -1,6 +1,7 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type {
 	AnyFilter,
+	FilterContest,
 	FilterInvasion,
 	FilterLure,
 	FilterPokestop,
@@ -11,16 +12,61 @@ import { LIMIT_POKESTOP } from "@/lib/constants";
 import { query } from "@/lib/server/db/external/internalQuery";
 
 export async function queryPokestops(bounds: Bounds, filter: FilterPokestop) {
+	let sqlQuery = "" +
+		"SELECT * FROM pokestop " +
+		"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
+		"WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 "
+
+	const conditions: string[] = []
+	const values: any[] = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+
+	if (!filter.pokestopPlain.enabled) {
+		if (filter.contest.enabled) {
+			conditions.push("display_type = 9 AND expiration > UNIX_TIMESTAMP()")
+		}
+	}
+
+
+	if (conditions.length > 0) {
+		sqlQuery += "AND ("
+		sqlQuery += conditions.join(" OR ")
+		sqlQuery += ") "
+	}
+
+	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`
+	console.log(sqlQuery)
+	return await query(sqlQuery, values);
+}
+
+export async function queryPokestopsOld(bounds: Bounds, filter: FilterPokestop) {
 	const sqlQueries: string[] = [];
 	const sqlValues: any[] = [];
+	const incidentConditions: string[] = []
 
-	sqlQueries.push(buildPokestopPlainQuery(bounds, sqlValues, filter.pokestopPlain))
-	sqlQueries.push(buildQuestQuery(bounds, sqlValues, filter.quest))
-	sqlQueries.push(buildLureQuery(bounds, sqlValues, filter.lure))
+	if (filter.pokestopPlain.enabled) sqlQueries.push(buildPokestopPlainQuery(bounds, sqlValues, filter.pokestopPlain))
+	if (filter.quest.enabled) sqlQueries.push(buildQuestQuery(bounds, sqlValues, filter.quest))
+	if (filter.lure.enabled) sqlQueries.push(buildLureQuery(bounds, sqlValues, filter.lure))
+	if (filter.contest.enabled) {
+		incidentConditions.push("display_type = 9 AND expiration > UNIX_TIMESTAMP() ")
+	}
+	// if (filter.contest.enabled) {
+	// 	sqlQueries.push(buildSubQuery(bounds, sqlValues) + "AND")
+	// }
+
+	if (sqlQueries.length === 0 && filter.enabled) {
+		sqlQueries.push(buildSubQuery(bounds, sqlValues))
+	}
 
 	const unionQuery = sqlQueries.join(" UNION ")
 
-	const sqlQuery = `SELECT * FROM (${unionQuery}) AS pokestop LEFT JOIN incident ON incident.pokestop_id = pokestop.id LIMIT ${LIMIT_POKESTOP}`;
+	let sqlQuery = `SELECT * FROM (${unionQuery}) AS pokestop LEFT JOIN incident ON incident.pokestop_id = pokestop.id `;
+
+	if (incidentConditions.length > 0) {
+		sqlQuery += "WHERE " + incidentConditions.join("OR")
+	}
+
+	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`
+	console.log(sqlQuery)
 	return await query(sqlQuery, sqlValues);
 }
 
@@ -39,24 +85,22 @@ function buildSubQuery(bounds: Bounds, sqlValues: any[]) {
 
 function buildPokestopPlainQuery(bounds: Bounds, sqlValues: any[], filter: FilterPokestopPlain) {
 	let sqlQuery = buildSubQuery(bounds, sqlValues);
-	if (filter.enabled && !filter.ignoreFilters) {
-		for (const filterset of filter.filters) {
-			if (filterset.isSponsored !== undefined) {
-				sqlQuery += "AND sponsor_id ";
-				filterset.isSponsored ? (sqlQuery += "> 0 ") : (sqlQuery += "== 0 ");
-			}
-			if (filterset.powerUpLevel !== undefined) {
-				sqlQuery += "AND power_up_level BETWEEN ? AND ? ";
-				sqlValues.push(filterset.powerUpLevel.min);
-				sqlValues.push(filterset.powerUpLevel.max);
-			}
-			if (filterset.isArScanEligible !== undefined) {
-				sqlQuery += "AND ar_scan_eligible ";
-				filterset.isArScanEligible ? (sqlQuery += "== 1 ") : (sqlQuery += "!= 1 ");
-			}
-			if (filterset.hasDetatils !== undefined) {
-				sqlQuery += "AND name IS NOT NULL ";
-			}
+	for (const filterset of filter.filters) {
+		if (filterset.isSponsored !== undefined) {
+			sqlQuery += "AND sponsor_id ";
+			filterset.isSponsored ? (sqlQuery += "> 0 ") : (sqlQuery += "== 0 ");
+		}
+		if (filterset.powerUpLevel !== undefined) {
+			sqlQuery += "AND power_up_level BETWEEN ? AND ? ";
+			sqlValues.push(filterset.powerUpLevel.min);
+			sqlValues.push(filterset.powerUpLevel.max);
+		}
+		if (filterset.isArScanEligible !== undefined) {
+			sqlQuery += "AND ar_scan_eligible ";
+			filterset.isArScanEligible ? (sqlQuery += "== 1 ") : (sqlQuery += "!= 1 ");
+		}
+		if (filterset.hasDetatils !== undefined) {
+			sqlQuery += "AND name IS NOT NULL ";
 		}
 	}
 	return sqlQuery;
@@ -64,31 +108,35 @@ function buildPokestopPlainQuery(bounds: Bounds, sqlValues: any[], filter: Filte
 
 function buildQuestQuery(bounds: Bounds, sqlValues: any[], filter: FilterQuest) {
 	let sqlQuery = buildSubQuery(bounds, sqlValues);
-	if (filter.enabled && !filter.ignoreFilters) {
-		for (const filterset of filter.filters) {
-			if (filterset.ar !== undefined) {
-				if (filterset.ar === "ar" || filterset.ar === "all") {
-					sqlQuery += "AND quest_target IS NOT NULL "
-				}
-				if (filterset.ar === "noar" || filterset.ar === "all") {
-					sqlQuery += "AND alternative_quest_target IS NOT NULL "
-				}
+	for (const filterset of filter.filters) {
+		if (filterset.ar !== undefined) {
+			if (filterset.ar === "ar" || filterset.ar === "all") {
+				sqlQuery += "AND quest_target IS NOT NULL "
 			}
-			// other stuff has to be filtered in frontend
+			if (filterset.ar === "noar" || filterset.ar === "all") {
+				sqlQuery += "AND alternative_quest_target IS NOT NULL "
+			}
 		}
+		// other stuff has to be filtered in frontend
 	}
 	return sqlQuery;
 }
 
 function buildLureQuery(bounds: Bounds, sqlValues: any[], filter: FilterLure) {
 	let sqlQuery = buildSubQuery(bounds, sqlValues);
-	if (filter.enabled && !filter.ignoreFilters) {
-		for (const filterset of filter.filters) {
-			if (filterset.items !== undefined) {
-				sqlQuery += "AND lure_id IN ? ";
-				sqlValues.push(filterset.items);
-			}
+	for (const filterset of filter.filters) {
+		if (filterset.items !== undefined) {
+			sqlQuery += "AND lure_id IN ? ";
+			sqlValues.push(filterset.items);
 		}
 	}
+	if (filter.filters.length === 0) sqlQuery += "AND lure_id != 0 "
+	sqlQuery += "AND lure_expire_timestamp > UNIX_TIMESTAMP()"
 	return sqlQuery;
+}
+
+function buildContestQuery(bounds: Bounds, sqlValues: any[], filter: FilterContest) {
+	let sqlQuery = buildSubQuery(bounds, sqlValues);
+	sqlQuery += "AND (SELECT COUNT(*) FROM incident where incident.pokestop_id = id AND display_type = 9 AND expiration > UNIX_TIMESTAMP()) > 0"
+	return sqlQuery
 }

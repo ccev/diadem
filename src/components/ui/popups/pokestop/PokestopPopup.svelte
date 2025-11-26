@@ -108,6 +108,7 @@
 			{:else if isIncidentContest(incident)}
 				<ContestDisplay
 					{expanded}
+					{incident}
 					{data}
 				/>
 			{/if}

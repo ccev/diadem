@@ -191,5 +191,7 @@
     "filter_template_xxl": "All XXL",
     "filter_template_unown": "Unown",
     "filter_template_sea_trio": "Sea Trio",
-    "shiny_rate": "Shiny Rate"
+    "shiny_rate": "Shiny Rate",
+    "unknown_contest": "Unknown Showcase",
+    "contest": "Showcase"
 }

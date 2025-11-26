@@ -111,7 +111,6 @@ export function getDefaultUserSettings(): UserSettings {
 function defaultFilter() {
 	return {
 		enabled: true,
-		ignoreFilters: false,
 		filters: []
 	}
 }
