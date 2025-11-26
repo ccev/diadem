@@ -21,7 +21,8 @@
 		SearchX, Sparkles,
 		Swords,
 		Trophy,
-		Venus
+		Venus,
+		Crown
 	} from 'lucide-svelte';
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import * as m from '@/lib/paraglide/messages';
@@ -36,6 +37,7 @@
 	import Metadata from '@/components/utils/Metadata.svelte';
 	import { getCachedShinyRate, getShinyRate } from '@/lib/features/shinyRate';
 	import type { ShinyRateResponse } from '@/lib/server/api/queries';
+	import Button from '@/components/ui/input/Button.svelte';
 
 	let { mapId }: { mapId: string } = $props();
 	let data: PokemonData = $derived.by(() => {
@@ -172,11 +174,35 @@
 	{/snippet}
 
 	{#snippet content()}
+		<div class="rounded-sm bg-accent text-accent-foreground border border-border px-4 -mx-4 pt-3 pb-4 mb-2 mt-3">
+			<p class="text-xs mb-2">
+				Stats · Last 7 days · Total seen: 50,300 ·
+				<Button variant="link" size="sm" class="p-0! m-0! h-fit! text-xs! underline">
+					See more
+				</Button>
+			</p>
+			<IconValue Icon={Sparkles}>
+				{m.shiny_rate()}:
+				<b>
+					1:503.5
+				</b>
+			</IconValue>
+			<IconValue Icon={Crown}>
+				Rarity:
+				<b>
+					Common
+				</b>
+				<span>
+					(1:60,000)
+				</span>
+			</IconValue>
+		</div>
+
 		<div class="mb-3">
 			{@render basicInfo()}
 		</div>
 
-		<!-- TODO: shiny rates. i don't fully understand how to best do this -->
+		<!-- TODO: shiny rates. i don't fully know how to best do this -->
 		<!--{@const cachedShinyRate = getCachedShinyRate(data.pokemon_id, data.form ?? 0)}-->
 		<!--{#if cachedShinyRate}-->
 		<!--	<IconValue Icon={Sparkles}>-->

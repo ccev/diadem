@@ -1,4 +1,4 @@
-import type { MinMax } from "@/lib/features/filters/filtersets";
+import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 import * as m from "@/lib/paraglide/messages";
 import { getPokemonSize } from '@/lib/utils/pokemonUtils';
@@ -29,6 +29,15 @@ export const pokemonBounds = {
 		max: 5
 	}
 };
+
+export function generatePokemonFilterDetails(filter: FiltersetPokemon): FiltersetPokemon {
+	if (!filter.icon.isUserSelected) {
+		if (filter.pokemon?.length === 1) {
+
+		}
+	}
+	return filter
+}
 
 export function getAttributeLabelIvProduct(iv: MinMax) {
 	return makeAttributeRangeLabel(

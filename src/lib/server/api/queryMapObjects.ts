@@ -9,7 +9,7 @@ import type {
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
 import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import type { GolbatPokemonQuery } from "@/lib/server/api/queries";
-import { LIMIT_POKEMON } from "@/lib/constants";
+import { LIMIT_GYM, LIMIT_POKEMON, LIMIT_STATION } from "@/lib/constants";
 import { queryPokestops } from "@/lib/server/api/queryPokestops";
 
 export async function queryMapObjects(type: MapObjectType, bounds: Bounds, filter: AnyFilter) {
@@ -90,7 +90,7 @@ async function queryGyms(bounds: Bounds, filter: FilterGymPlain) {
 			"WHERE lat BETWEEN ? AND ? " +
 			"AND lon BETWEEN ? AND ? " +
 			"AND deleted = 0 " +
-			"LIMIT 10000",
+			"LIMIT " + LIMIT_GYM,
 		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
 	);
 }
@@ -101,7 +101,7 @@ async function queryStations(bounds: Bounds, filter: FilterStation) {
 			"WHERE lat BETWEEN ? AND ? " +
 			"AND lon BETWEEN ? AND ? " +
 			"AND end_time > UNIX_TIMESTAMP() " +
-			"LIMIT 10000",
+			"LIMIT " + LIMIT_STATION,
 		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
 	);
 }

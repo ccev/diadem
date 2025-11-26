@@ -32,62 +32,6 @@
 	<Metadata title={m.nav_filters()} />
 </svelte:head>
 
-{#snippet showWhat()}
-	<FilterControl category="pokestopMajor">
-	</FilterControl>
-	<!--	<div class="grid grid-cols-3 gap-2">-->
-	<!--		<Button variant="outline">-->
-	<!--			<Eye size="16" />-->
-	<!--			<span>All</span>-->
-	<!--		</Button>-->
-	<!--		<Button variant="outline">-->
-	<!--			<EyeOff size="16" />-->
-	<!--			<span>None</span>-->
-	<!--		</Button>-->
-	<!--		<Button variant="outline">-->
-	<!--			<Filter size="16" />-->
-	<!--			<span>Filtered</span>-->
-	<!--		</Button>-->
-	<!--	</div>-->
-{/snippet}
-
-{#snippet showWhat2()}
-	<div class="grid grid-cols-3 gap-2">
-		<Button variant="outline">
-			<Eye size="16" />
-			<span>All</span>
-		</Button>
-		<Button variant="outline">
-			<EyeOff size="16" />
-			<span>None</span>
-		</Button>
-		<Button variant="outline">
-			<Filter size="16" />
-			<span>Filtered</span>
-		</Button>
-	</div>
-{/snippet}
-<!--{#snippet showWhat()}-->
-<!--	<SelectGroup-->
-<!--		value={"" + getUserSettings().isDarkMode}-->
-<!--		onValueChange={() => {}}-->
-<!--		class="self-center"-->
-<!--	>-->
-<!--		<SelectGroupItem class="p-4" value="false">-->
-<!--			<Eye size="20" />-->
-<!--			All-->
-<!--		</SelectGroupItem>-->
-<!--		<SelectGroupItem class="p-4" value="null">-->
-<!--			<EyeOff size="20" />-->
-<!--			None-->
-<!--		</SelectGroupItem>-->
-<!--		<SelectGroupItem class="p-4" value="true">-->
-<!--			<Filter size="20" />-->
-<!--			Filtered-->
-<!--		</SelectGroupItem>-->
-<!--	</SelectGroup>-->
-<!--{/snippet}-->
-
 <PokemonFilterset />
 <PlainPokestopFilterset />
 <QuestFilterset />
@@ -105,7 +49,7 @@
 		category="pokestopMajor"
 		isFilterable={false}
 		subCategories={[
-			{ title: "Plain Pokéstops", category: "pokestopPlain" },
+			{ title: "Plain Pokéstops", category: "pokestopPlain", filterable: false },
 			{ title: "Quests", category: "quest" },
 			{ title: "Team Rocket", category: "invasion" },
 			{ title: "Lures", category: "lure", filterable: false },

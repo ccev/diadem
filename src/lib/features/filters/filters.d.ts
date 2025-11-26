@@ -49,9 +49,6 @@ export type AnyFilter =
 	| FilterMaxBattle
 	| FilterS2Cell;
 
-export type FilterTypeBool = "all" | "none";
-export type FilterType = "all" | "none" | "filtered";
-
 type BaseFilter = {
 	category: FilterCategory;
 	enabled: boolean;

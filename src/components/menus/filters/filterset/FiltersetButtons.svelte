@@ -10,7 +10,7 @@
 	import {
 		deleteCurrentSelectedFilterset,
 		existsCurrentSelectedFilterset, getCurrentSelectedFilterset, getCurrentSelectedFiltersetEncoded,
-		getCurrentSelectedFiltersetInEdit
+		getCurrentSelectedFiltersetInEdit, getCurrentSelectedFiltersetIsEmpty
 	} from '@/lib/features/filters/filtersetPageData.svelte';
 	import { backupShareUrl, canBackupShare, canNativeShare, hasClipboardWrite } from '@/lib/utils/device';
 	import * as m from '@/lib/paraglide/messages';
@@ -85,7 +85,12 @@
 		<Button class="" variant="secondary" onclick={() => filtersetPageClose(modalType)}>
 			Cancel
 		</Button>
-		<Button class="" variant="default" onclick={() => filtersetPageSave(modalType)}>
+		<Button
+			class=""
+			variant="default"
+			onclick={() => filtersetPageSave(modalType)}
+			disabled={getCurrentSelectedFiltersetIsEmpty() && getCurrentFiltersetPage() !== "attribute"}
+		>
 			Save
 		</Button>
 	{/if}

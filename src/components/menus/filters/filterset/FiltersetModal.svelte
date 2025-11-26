@@ -48,7 +48,7 @@
 		</p>
 	{/snippet}
 	<div
-		class="px-4 py-2 w-128 max-w-full overflow-hidden"
+		class="px-4 pb-2 pt-1 w-128 max-w-full overflow-hidden"
 		style:height="min(calc(100vh - 4rem), {height / 4}rem)"
 	>
 		<div class="relative h-full">

@@ -18,6 +18,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				emoji: '💯'
 			},
 			title: {
@@ -29,6 +30,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				uicon: {
 					category: IconCategory.FEATURES,
 					params: {
@@ -46,6 +48,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				uicon: {
 					category: IconCategory.FEATURES,
 					params: {
@@ -63,6 +66,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				emoji: '🗑️'
 			},
 			title: {
@@ -74,6 +78,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				emoji: '📏'
 			},
 			title: {
@@ -85,6 +90,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				uicon: {
 					category: IconCategory.POKEMON,
 					params: { pokemon_id: 201, form: 6 }
@@ -99,6 +105,7 @@
 		{
 			id: crypto.randomUUID(),
 			icon: {
+				isUserSelected: false,
 				uicon: {
 					category: IconCategory.POKEMON,
 					params: { pokemon_id: 480, form: 0 }

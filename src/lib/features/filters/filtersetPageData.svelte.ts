@@ -42,6 +42,13 @@ export function existsCurrentSelectedFilterset() {
 	}
 }
 
+export function getCurrentSelectedFiltersetIsEmpty() {
+	const filterset = getCurrentSelectedFilterset()
+	if (!filterset) return true
+
+	return Object.keys(filterset.data).length <= Object.keys(getNewFilterset()).length
+}
+
 export function getCurrentSelectedFiltersetInEdit() {
 	return filtersetPageData?.inEdit ?? false;
 }
@@ -125,7 +132,10 @@ export function getNewFilterset(): BaseFilterset {
 			message: "pokemon_filter",
 			title: undefined
 		},
-		icon: "💯",
+		icon: {
+			isUserSelected: false,
+			emoji: "💯"
+		},
 		enabled: true
 	};
 }

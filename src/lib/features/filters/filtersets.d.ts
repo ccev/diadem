@@ -16,11 +16,15 @@ export type AnyFilterset =
 type BaseFilterset = {
 	id: string;
 	title: {
+		// a user-selected name
 		title?: string;
+
+		// an auto-generated, localized name
 		message: keyof typeof m;
 	};
 	enabled: boolean;
 	icon: {
+		isUserSelected: boolean;
 		emoji?: string;
 		uicon?: {
 			category: IconCategory;
