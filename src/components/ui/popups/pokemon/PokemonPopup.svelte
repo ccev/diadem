@@ -183,8 +183,9 @@
 			{@const entry = stats.entry}
 			<div class="rounded-sm bg-accent text-accent-foreground border border-border px-4 -mx-4 pt-3 pb-3.5 mb-2 mt-3">
 				<p class="text-xs mb-2">
-					Stats · Last {formatNumber(stats.total.days)} days
-					· Total seen: {formatNumberCompact(entry?.shiny?.total ?? entry?.spawns?.count)}
+					{m.stats()}
+					· {m.last_x_days({ days: formatNumber(stats.total.days) })}
+					· {m.total_seen()}: {formatNumberCompact(entry?.shiny?.total ?? entry?.spawns?.count)}
 <!--					·-->
 <!--					<Button variant="link" size="sm" class="p-0! m-0! h-fit! text-xs! underline">-->
 <!--						See more-->
@@ -199,12 +200,12 @@
 					</IconValue>
 				{:else}
 					<IconValue Icon={Sparkles}>
-						No Shiny found
+						{m.no_shiny()}
 					</IconValue>
 				{/if}
 				{#if entry.spawns && entry.spawns.count > 0}
 					<IconValue Icon={Crown}>
-						Rarity:
+						{m.rarity()}:
 						<b>
 							{getRarityLabel(entry.spawns.count, stats.total.count)}
 						</b>

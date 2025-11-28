@@ -199,9 +199,14 @@
     "new_quest_filter": "New Quest Filter",
     "edit_quest_filter": "Edit Quest Filter",
     "rarity_common": "Common",
-    "rarity_uncommon": "Unommon",
+    "rarity_uncommon": "Uncommon",
     "rarity_rare": "Rare",
     "rarity_very_rare": "Very Rare",
     "rarity_extremely_rare": "Extremely Rare",
-    "rarity_legendary": "Off the charts"
+    "rarity_legendary": "Off the charts",
+    "stats": "Stats",
+    "last_x_days": "Last {days} days",
+    "total_seen": "Total seen",
+    "no_shiny": "No shiny",
+    "rarity": "Rarity"
 }
