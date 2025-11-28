@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, EyeClosed, FunnelPlus } from 'lucide-svelte';
+	import { ChevronDown, Eye, EyeClosed, FunnelPlus } from 'lucide-svelte';
 	import type { AnyFilter, FilterCategory } from '@/lib/features/filters/filters';
 	import Switch from '@/components/ui/input/Switch.svelte';
 	import Button from '@/components/ui/input/Button.svelte';
@@ -9,6 +9,8 @@
 	import { type ModalType, openModal } from '@/lib/ui/modal.svelte.js';
 	import { filtersetPageNew, filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
 	import { getNewFilterset, setCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
+	import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte';
+	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 
 	let {
 		category,
@@ -33,12 +35,24 @@
 
 	let isEnabled: boolean = $derived(filter.enabled);
 	let hasAnyFilterset: boolean = $derived((filter?.filters?.length ?? 0) > 0);
+	let allFiltersetsDisabled: boolean = $derived(
+		hasAnyFilterset && filter.filters?.every((f) => !f.enabled)
+	);
 
 	function onAddFilter() {
-		if (!filterModal) return
-		setCurrentSelectedFilterset(category, getNewFilterset(), false)
-		filtersetPageReset()
-		openModal(filterModal)
+		if (!filterModal) return;
+		setCurrentSelectedFilterset(category, getNewFilterset(), false);
+		filtersetPageReset();
+		openModal(filterModal);
+	}
+
+	function onToggleAll() {
+		const shouldEnable = allFiltersetsDisabled;
+		getUserSettings().filters[category].filters = getUserSettings().filters[category].filters.map(
+			(filterset) => ({ ...filterset, enabled: shouldEnable })
+		);
+		updateUserSettings();
+		updateAllMapObjects().then();
 	}
 </script>
 
@@ -84,20 +98,19 @@
 				{/if}
 			</Button>
 		{/if}
-<!--		<span class="text-sm text-muted-foreground">67</span>-->
+		<!--		<span class="text-sm text-muted-foreground">67</span>-->
 
 		<div class="flex gap-1 ml-auto items-center">
 
 
+			<!--		{#if isFilterable && !hasAnyFilterset && isEnabled}-->
+			<!--			<Button class="" variant="outline" size="sm" onclick={placeholderAddFilter}>-->
+			<!--				<FunnelPlus size="14" />-->
+			<!--&lt;!&ndash;				<span>Filter</span>&ndash;&gt;-->
+			<!--			</Button>-->
+			<!--		{/if}-->
 
-<!--		{#if isFilterable && !hasAnyFilterset && isEnabled}-->
-<!--			<Button class="" variant="outline" size="sm" onclick={placeholderAddFilter}>-->
-<!--				<FunnelPlus size="14" />-->
-<!--&lt;!&ndash;				<span>Filter</span>&ndash;&gt;-->
-<!--			</Button>-->
-<!--		{/if}-->
-
-		<Switch class="" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(category, v)} />
+			<Switch class="" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(category, v)} />
 		</div>
 	</div>
 
@@ -123,9 +136,15 @@
 						class=""
 						variant="ghost"
 						size="sm"
+						onclick={onToggleAll}
 					>
-						<EyeClosed size="16" />
-						<span>Disable all</span>
+						{#if allFiltersetsDisabled}
+							<Eye size="16" />
+							<span>Enable all</span>
+						{:else}
+							<EyeClosed size="16" />
+							<span>Disable all</span>
+						{/if}
 					</Button>
 				{/if}
 			</div>
