@@ -3,7 +3,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
 	import type { FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
-	import { getAttributeLabelIvProduct, getAttributeLabelIvValues } from '@/lib/features/filters/pokemonFilterUtils';
+	import { getAttributeLabelIvProduct, getAttributeLabelIvValues } from '@/lib/features/filters/filterUtilsPokemon';
 
 	let {
 		data,

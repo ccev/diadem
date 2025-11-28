@@ -12,7 +12,7 @@
 	}: {
 		class?: string
 		variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
-		size?: 'default' | 'sm' | 'lg' | 'icon'
+		size?: 'default' | 'sm' | 'lg' | 'icon' | ''
 		children?: Snippet,
 		tag?: 'a' | 'button',
 	} & HTMLButtonAttributes & HTMLAnchorAttributes = $props();
@@ -34,7 +34,7 @@
 		icon: 'h-10 w-10 rounded-md'
 	};
 
-	let className = variants[variant] + ' ' + sizes[size];
+	let className = variants[variant] + ' ' + (sizes[size] ?? '');
 </script>
 
 <svelte:element

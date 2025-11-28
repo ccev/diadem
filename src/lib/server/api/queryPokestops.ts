@@ -68,7 +68,6 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestop) {
 	}
 
 	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`
-	console.log(sqlQuery)
 	return await query(sqlQuery, values);
 }
 
@@ -100,7 +99,6 @@ export async function queryPokestopsOld(bounds: Bounds, filter: FilterPokestop) 
 	}
 
 	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`
-	console.log(sqlQuery)
 	return await query(sqlQuery, sqlValues);
 }
 

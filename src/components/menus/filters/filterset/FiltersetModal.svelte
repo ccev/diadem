@@ -17,21 +17,47 @@
 	import Button from '@/components/ui/input/Button.svelte';
 	import {
 		existsCurrentSelectedFilterset, getCurrentSelectedFilterset, getCurrentSelectedFiltersetInEdit,
+		getCurrentSelectedFiltersetIsShared,
 		resetCurrentSelectedFilterset
 	} from '@/lib/features/filters/filtersetPageData.svelte.js';
 	import PageBase from '@/components/menus/filters/filterset/PageBase.svelte';
+	import type { FilterCategory } from '@/lib/features/filters/filters';
+	import * as m from '@/lib/paraglide/messages';
 
 	let {
 		modalType,
-		modalTitle,
+		titleBase,
+		titleShared,
+		titleNew,
+		titleEdit,
+		category,
 		overview,
+		base,
 		height = 130
 	}: {
 		modalType: ModalType
-		modalTitle: string
+		titleBase: string
+		titleShared: string
+		titleNew: string
+		titleEdit: string
+		category: FilterCategory
 		overview: Snippet
+		base: Snippet
 		height?: number
 	} = $props();
+
+	let modalTitle = $derived.by(() => {
+		if (getCurrentSelectedFiltersetIsShared()) return titleShared
+		if (!getCurrentSelectedFiltersetInEdit()) {
+			return titleNew
+		} else {
+			if (getCurrentFiltersetPage() === "base") {
+				return titleBase
+			} else {
+				return titleEdit
+			}
+		}
+	})
 </script>
 
 <Modal {modalType} class="max-h-screen">
@@ -53,9 +79,9 @@
 	>
 		<div class="relative h-full">
 			{#if getCurrentFiltersetPage() === "new"}
-				<PageNewFilterset />
+				<PageNewFilterset {category} />
 			{:else if getCurrentFiltersetPage() === "base"}
-				<PageBase />
+				<PageBase {base} />
 			{:else if getCurrentFiltersetPage() === "overview"}
 				<PageOverview {overview} />
 			{:else if getCurrentFiltersetPage() === "attribute" && getCurrentAttributePage().snippet}

@@ -13,7 +13,7 @@ export type AnyFilterset =
 	| FiltersetMaxBattle
 	| FiltersetS2Cell;
 
-type BaseFilterset = {
+export type BaseFilterset = {
 	id: string;
 	title: {
 		// a user-selected name

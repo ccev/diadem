@@ -3,22 +3,11 @@
 	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
 	import Attribute from '@/components/menus/filters/filterset/Attribute.svelte';
 	import AttributesOverview from '@/components/menus/filters/filterset/AttributesOverview.svelte';
-	import PageAttribute from '@/components/menus/filters/filterset/PageAttribute.svelte';
 	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
 	import type { FiltersetPokemon } from '@/lib/features/filters/filtersets';
-	import {
-		makeAttributePokemonLabel,
-		makeAttributeRangeLabel
-	} from '@/lib/features/filters/makeAttributeChipLabel';
-	import {
-		existsCurrentSelectedFilterset,
-		getCurrentSelectedFilterset, getCurrentSelectedFiltersetInEdit, getCurrentSelectedFiltersetIsShared
-	} from '@/lib/features/filters/filtersetPageData.svelte.js';
+	import { makeAttributePokemonLabel } from '@/lib/features/filters/makeAttributeChipLabel';
+	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte.js';
 	import * as m from '@/lib/paraglide/messages';
-	import { getGenderLabel, getPokemonSize, pokemonSizes } from '@/lib/utils/pokemonUtils';
-	import ToggleGroup from '@/components/ui/input/selectgroup/ToggleGroup.svelte';
-	import SelectGroupItem from '@/components/ui/input/selectgroup/SelectGroupItem.svelte';
-	import { CircleSmall, Mars, Venus } from 'lucide-svelte';
 	import AppearanceAttribute from '@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte';
 	import { changeAttributeMinMax } from '@/lib/features/filters/filtersetUtils';
 	import AppearanceChips from '@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte';
@@ -27,32 +16,29 @@
 	import SpeciesAttribute from '@/components/menus/filters/filterset/pokemon/SpeciesAttribute.svelte';
 	import {
 		getAttributeLabelCp,
-		getAttributeLabelLevel, getAttributeLabelRank,
+		getAttributeLabelLevel,
+		getAttributeLabelRank,
 		pokemonBounds
-	} from '@/lib/features/filters/pokemonFilterUtils';
-	import { getCurrentFiltersetPage } from '@/lib/features/filters/filtersetPages.svelte';
+	} from '@/lib/features/filters/filterUtilsPokemon';
+	import PokemonAttributeOverview from '@/components/menus/filters/filterset/pokemon/PokemonAttributeOverview.svelte';
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetPokemon | undefined;
-
-	let modalTitle = $derived.by(() => {
-		if (getCurrentSelectedFiltersetIsShared()) return m.shared_pokemon_filter()
-		if (!getCurrentSelectedFiltersetInEdit()) {
-			return m.filterset_title_new_pokemon()
-		} else {
-			if (getCurrentFiltersetPage() === "base") {
-				return m.pokemon_filter()
-			} else {
-				return m.filterset_title_edit_pokemon()
-			}
-		}
-	})
 </script>
 
 <FiltersetModal
 	modalType="filtersetPokemon"
-	{modalTitle}
+	category="pokemon"
+	titleBase={m.pokemon_filter()}
+	titleShared={m.shared_pokemon_filter()}
+	titleNew={m.filterset_title_new_pokemon()}
+	titleEdit={m.filterset_title_edit_pokemon()}
 	height={134}
 >
+	{#snippet base()}
+		{#if data}
+			<PokemonAttributeOverview {data} />
+		{/if}
+	{/snippet}
 	{#snippet overview()}
 		{#if data}
 			<AttributesOverview>

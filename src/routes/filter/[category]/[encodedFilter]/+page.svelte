@@ -7,7 +7,7 @@
 		getAttributeLabelCp,
 		getAttributeLabelIvProduct,
 		getAttributeLabelIvValues, getAttributeLabelLevel, getAttributeLabelRank, getAttributeLabelSize
-	} from '@/lib/features/filters/pokemonFilterUtils';
+	} from '@/lib/features/filters/filterUtilsPokemon';
 	import type { FiltersetPokemon } from '@/lib/features/filters/filtersets';
 	import { getGenderLabel } from '@/lib/utils/pokemonUtils';
 	import { mPokemon } from '@/lib/services/ingameLocale';

@@ -4,7 +4,7 @@
 		getAttributeLabelCp,
 		getAttributeLabelIvProduct,
 		getAttributeLabelIvValues, getAttributeLabelLevel, getAttributeLabelRank, getAttributeLabelSize
-	} from '@/lib/features/filters/pokemonFilterUtils';
+	} from '@/lib/features/filters/filterUtilsPokemon';
 	import AttributeDisplay from '@/components/menus/filters/filterset/AttributeDisplay.svelte';
 	import * as m from "@/lib/paraglide/messages";
 	import { getGenderLabel } from '@/lib/utils/pokemonUtils';

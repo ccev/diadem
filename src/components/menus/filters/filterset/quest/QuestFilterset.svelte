@@ -5,129 +5,130 @@
 	import AttributesOverview from '@/components/menus/filters/filterset/AttributesOverview.svelte';
 	import PageAttribute from '@/components/menus/filters/filterset/PageAttribute.svelte';
 	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
+	import * as m from '@/lib/paraglide/messages';
+	import type { FiltersetPokemon, FiltersetQuest } from '@/lib/features/filters/filtersets';
+	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
+	import { makeAttributePokemonLabel } from '@/lib/features/filters/makeAttributeChipLabel';
 
-	let {
-		isInEdit
-	}: {
-		isInEdit: boolean;
-	} = $props();
-
+	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetQuest | undefined;
 </script>
 
 <FiltersetModal
 	modalType="filtersetQuest"
-	modalTitle="Quest Filter"
-	{isInEdit}
-	initialPage={isInEdit ? "overview" : "new"}
+	category="quest"
+	titleBase={m.quest_filter()}
+	titleShared={m.shared_quest_filter()}
+	titleNew={m.new_quest_filter()}
+	titleEdit={m.edit_quest_filter()}
 >
 	{#snippet overview()}
-		<AttributesOverview>
-			<Attribute
-				label="AR Quests"
-			>
-				<div>
-					both
-				</div>
-				{#snippet page()}
-					<PageAttribute>
-						<div>test</div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-		</AttributesOverview>
-		<AttributesOverview>
-			<Attribute
-				label="Pokemon"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-			<Attribute
-				label="Items"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-			<Attribute
-				label="Mega Energy"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-			<Attribute
-				label="Candy XL"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-			<Attribute
-				label="Candy"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-			<Attribute
-				label="Stardust"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
-			<Attribute
-				label="XP"
-			>
-				<AttributeChip
-					label="Any"
-					color="muted"
-				/>
-				{#snippet page()}
-					<PageAttribute>
-						<div></div>
-					</PageAttribute>
-				{/snippet}
-			</Attribute>
+		{#if data}
+			<AttributesOverview>
+				<Attribute label="AR Quests">
+					<AttributeChip
+						label={makeAttributePokemonLabel(data.pokemon ?? [])}
+						isEmpty={!data.pokemon}
+						onremove={() => delete data.pokemon}
+					/>
+					{#snippet page()}
+						todo
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
+			<AttributesOverview>
+				<Attribute
+					label="Pokemon"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
+				<Attribute
+					label="Items"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
+				<Attribute
+					label="Mega Energy"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
+				<Attribute
+					label="Candy XL"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
+				<Attribute
+					label="Candy"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
+				<Attribute
+					label="Stardust"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
+				<Attribute
+					label="XP"
+				>
+					<AttributeChip
+						label="Any"
+						color="muted"
+					/>
+					{#snippet page()}
+						<PageAttribute>
+							<div></div>
+						</PageAttribute>
+					{/snippet}
+				</Attribute>
 
-		</AttributesOverview>
+			</AttributesOverview>
+		{/if}
 	{/snippet}
 </FiltersetModal>

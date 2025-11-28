@@ -15,24 +15,29 @@
 	import type { Snippet } from 'svelte';
 	import { getUserSettings, updateUserSettings, type UserSettings } from '@/lib/services/userSettings.svelte';
 	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+	import { deleteAllFeaturesOfType } from '@/lib/map/featuresGen.svelte';
+	import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
+	import type { ModalType } from '@/lib/ui/modal.svelte';
 
 	let {
 		requiredPermission,
 		title,
 		category,
+		mapObject,
+		filterModal = undefined,
 		isFilterable = true,
 		subCategories = [],
 	}: {
 		requiredPermission: FeaturesKey
 		title: string
 		category: ParentCategory,
+		mapObject: MapObjectType
+		filterModal?: ModalType | undefined
 		isFilterable?: boolean
-		subCategories?: { title: string, category: FilterCategory, filterable?: boolean }[]
+		subCategories?: { title: string, category: FilterCategory, filterModal?: ModalType, filterable?: boolean }[]
 	} = $props();
 
 	let subcategoriesExpanded: boolean = $state(false);
-
-	const test = getUserSettings().filters[category]
 
 	function onEnabledChange(thisCategory: ParentCategory, value: boolean) {
 		const filter: AnyFilter = getUserSettings().filters[thisCategory];
@@ -60,17 +65,19 @@
 			getUserSettings().filters[category].enabled = value;
 		}
 
+		deleteAllFeaturesOfType(mapObject)
 		updateUserSettings();
 		updateAllMapObjects().then();
 	}
 </script>
 
 {#if hasFeatureAnywhere(getUserDetails().permissions, requiredPermission)}
-	<Card class="py-0 px-2">
+	<Card class="py-1 px-2">
 		<FilterControl
 			{title}
 			{category}
 			{isFilterable}
+			{filterModal}
 			onEnabledChange={onEnabledChange}
 			isExpandable={subCategories.length > 0}
 			filter={getUserSettings().filters[category]}
@@ -84,6 +91,7 @@
 						<FilterControl
 							title={subcategory.title}
 							category={subcategory.category}
+							filterModal={subcategory.filterModal}
 							isFilterable={subcategory.filterable ?? true}
 							onEnabledChange={onSubEnabledChange}
 							filter={getUserSettings().filters[category][subcategory.category]}

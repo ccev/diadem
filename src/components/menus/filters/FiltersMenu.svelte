@@ -33,7 +33,6 @@
 </svelte:head>
 
 <PokemonFilterset />
-<PlainPokestopFilterset />
 <QuestFilterset />
 
 <div class="mt-2 space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
@@ -41,17 +40,20 @@
 		requiredPermission="pokemon"
 		title="Pokémon"
 		category="pokemon"
+		mapObject="pokemon"
+		filterModal="filtersetPokemon"
 	/>
 
 	<FilterSection
 		requiredPermission="pokestop"
 		title="Pokéstops"
 		category="pokestopMajor"
+		mapObject="pokestop"
 		isFilterable={false}
 		subCategories={[
 			{ title: "Plain Pokéstops", category: "pokestopPlain", filterable: false },
-			{ title: "Quests", category: "quest" },
-			{ title: "Team Rocket", category: "invasion" },
+			{ title: "Quests", category: "quest", filterModal: "filtersetQuest" },
+			{ title: "Team Rocket", category: "invasion", filterModal: "filtersetInvasion" },
 			{ title: "Lures", category: "lure", filterable: false },
 			{ title: "Showcases", category: "contest", filterable: false },
 			{ title: "Routes", category: "route", filterable: false },
@@ -64,6 +66,7 @@
 		requiredPermission="gym"
 		title="Gyms"
 		category="gymMajor"
+		mapObject="gym"
 		isFilterable={false}
 		subCategories={[
 			{ title: "Plain Gyms", category: "gymPlain" },
@@ -75,6 +78,7 @@
 		requiredPermission="station"
 		title="Power Spots"
 		category="stationMajor"
+		mapObject="station"
 		isFilterable={false}
 		subCategories={[
 			{ title: "Plain Power Spots", category: "stationPlain" },

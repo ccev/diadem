@@ -3,7 +3,7 @@
 	import { getGenderLabel, getPokemonSize } from '@/lib/utils/pokemonUtils';
 	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
 	import type { FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
-	import { getAttributeLabelSize } from '@/lib/features/filters/pokemonFilterUtils';
+	import { getAttributeLabelSize } from '@/lib/features/filters/filterUtilsPokemon';
 
 	let {
 		data,

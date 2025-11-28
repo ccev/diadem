@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { ChevronDown, FunnelPlus } from 'lucide-svelte';
+	import { ChevronDown, EyeClosed, FunnelPlus } from 'lucide-svelte';
 	import type { AnyFilter, FilterCategory } from '@/lib/features/filters/filters';
 	import Switch from '@/components/ui/input/Switch.svelte';
 	import Button from '@/components/ui/input/Button.svelte';
 
 	import { slide } from 'svelte/transition';
 	import Filterset from '@/components/menus/filters/Filterset.svelte';
-	import { openModal } from '@/lib/ui/modal.svelte.js';
+	import { type ModalType, openModal } from '@/lib/ui/modal.svelte.js';
 	import { filtersetPageNew, filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
 	import { getNewFilterset, setCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
 
@@ -15,6 +15,7 @@
 		title,
 		onEnabledChange,
 		filter,
+		filterModal = undefined,
 		isExpandable = false,
 		isFilterable = true,
 		expanded = $bindable(false)
@@ -23,6 +24,7 @@
 		title: string,
 		onEnabledChange: (thisCategory: FilterCategory, value: boolean) => void,
 		filter: AnyFilter,
+		filterModal?: ModalType | undefined,
 		isExpandable?: boolean,
 		isFilterable?: boolean,
 		subCategories?: FilterCategory[],
@@ -32,30 +34,38 @@
 	let isEnabled: boolean = $derived(filter.enabled);
 	let hasAnyFilterset: boolean = $derived((filter?.filters?.length ?? 0) > 0);
 
-	function placeholderAddFilter() {
-		if (category !== 'pokemon') {
-			openModal('filtersetQuest');
-			return
-		}
-
+	function onAddFilter() {
+		if (!filterModal) return
 		setCurrentSelectedFilterset(category, getNewFilterset(), false)
 		filtersetPageReset()
-		openModal("filtersetPokemon")
+		openModal(filterModal)
 	}
 </script>
 
 <div
-	class="py-2 pr-4 pl-0"
+	class="py-2 pr-4 pl-0 --border-red-200 --border-1"
+	class:py-0!={isEnabled && isFilterable && !hasAnyFilterset}
 >
 	<div class="flex gap-2 justify-start items-center whitespace-normal">
 		{#if !isExpandable}
-			<div class="pl-4 py-2">
+			<div
+				class="pl-4 py-2"
+			>
 				<p class="font-semibold text-base">
 					{title}
 				</p>
-				<p class="text-sm text-muted-foreground font-semibold">
-					Showing 12 of 267
-				</p>
+				{#if isEnabled && isFilterable}
+					{#if hasAnyFilterset}
+						<p class="text-sm text-muted-foreground font-semibold">
+							Showing 12 of 267
+						</p>
+					{:else}
+						<Button class="-ml-2" variant="ghost" size="sm" onclick={onAddFilter}>
+							<FunnelPlus size="14" />
+							<span>Add {title} filter</span>
+						</Button>
+					{/if}
+				{/if}
 			</div>
 
 		{:else}
@@ -68,7 +78,7 @@
 					{title}
 				</span>
 				{#if isExpandable}
-				<ChevronDown size="20" />
+					<ChevronDown size="20" />
 				{:else}
 					<FunnelPlus class="ml-1" size="14" />
 				{/if}
@@ -80,12 +90,12 @@
 
 
 
-		{#if isFilterable && !hasAnyFilterset && isEnabled}
-			<Button class="" variant="outline" size="sm" onclick={placeholderAddFilter}>
-				<FunnelPlus size="14" />
-<!--				<span>Filter</span>-->
-			</Button>
-		{/if}
+<!--		{#if isFilterable && !hasAnyFilterset && isEnabled}-->
+<!--			<Button class="" variant="outline" size="sm" onclick={placeholderAddFilter}>-->
+<!--				<FunnelPlus size="14" />-->
+<!--&lt;!&ndash;				<span>Filter</span>&ndash;&gt;-->
+<!--			</Button>-->
+<!--		{/if}-->
 
 		<Switch class="" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(category, v)} />
 		</div>
@@ -102,17 +112,22 @@
 				{/each}
 			</div>
 
-			<div class="flex justify-start ml-2" class:mb-0.5={hasAnyFilterset}>
-				<!--{#if hasAnyFilterset}-->
-				<!--	<Button class="w-full" variant="ghost" size="sm">-->
-				<!--		<FunnelX size="16" />-->
-				<!--		<span>Ignore filters</span>-->
-				<!--	</Button>-->
-				<!--{/if}-->
-				<Button class="" variant="ghost" size="sm" onclick={placeholderAddFilter}>
+			<div class="flex justify-between ml-2" class:mb-0.5={hasAnyFilterset}>
+
+				<Button class="" variant="ghost" size="sm" onclick={onAddFilter}>
 					<FunnelPlus size="14" />
-					<span>Add filter</span>
+					<span>Add {title} filter</span>
 				</Button>
+				{#if hasAnyFilterset}
+					<Button
+						class=""
+						variant="ghost"
+						size="sm"
+					>
+						<EyeClosed size="16" />
+						<span>Disable all</span>
+					</Button>
+				{/if}
 			</div>
 		{/if}
 	{/if}

@@ -2,9 +2,15 @@
 	import { fly } from 'svelte/transition';
 	import { getFiltersetPageTransition } from '@/lib/features/filters/filtersetPages.svelte';
 	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
-	import PokemonAttributeOverview from '@/components/menus/filters/filterset/pokemon/PokemonAttributeOverview.svelte';
 	import { filterTitle } from '@/lib/features/filters/filtersetUtils';
 	import FiltersetIcon from '@/lib/features/filters/FiltersetIcon.svelte';
+	import type { Snippet } from 'svelte';
+
+	let {
+		base
+	}: {
+		base: Snippet
+	} = $props();
 
 	const filterset = getCurrentSelectedFilterset();
 </script>
@@ -30,9 +36,6 @@
 	</div>
 
 	{#if filterset?.data}
-		{#if filterset.category === "pokemon"}
-			<!--@ts-ignore-->
-			<PokemonAttributeOverview data={filterset.data} />
-		{/if}
+		{@render base()}
 	{/if}
 </div>

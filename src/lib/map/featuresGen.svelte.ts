@@ -90,9 +90,7 @@ function getModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType)
 }
 
 export function deleteAllFeaturesOfType(type: MapObjectType) {
-	console.log(features[type]);
 	features[type] = {};
-	console.log(features[type]);
 }
 
 export function deleteAllFeatures() {
