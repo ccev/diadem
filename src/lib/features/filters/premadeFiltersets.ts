@@ -10,14 +10,14 @@ import { filtersetPageNew } from '@/lib/features/filters/filtersetPages.svelte';
 import { IconCategory, IconFeature } from "@/lib/features/filters/icons";
 import { League } from '@/lib/services/uicons.svelte';
 
-export const premadeFiltersets: { [key in FilterCategory]: FiltersetPokemon[] } = {
+export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] } = {
 	pokemon: [
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			emoji: '💯',
 			title: 'filter_template_hundo',
 			iv: { min: 100, max: 100 }
 		}),
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			uicon: {
 				category: IconCategory.FEATURES,
 				params: {
@@ -28,7 +28,7 @@ export const premadeFiltersets: { [key in FilterCategory]: FiltersetPokemon[] } 
 			title: 'filter_template_rank1_great',
 			pvpRankGreat: { min: 1, max: 1 }
 		}),
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			uicon: {
 				category: IconCategory.FEATURES,
 				params: {
@@ -39,17 +39,17 @@ export const premadeFiltersets: { [key in FilterCategory]: FiltersetPokemon[] } 
 			title: 'filter_template_rank1_ultra',
 			pvpRankGreat: { min: 1, max: 1 }
 		}),
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			emoji: '🗑️',
 			title: 'filter_template_nundo',
 			iv: { min: 0, max: 0 }
 		}),
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			emoji: '📏',
 			title: 'filter_template_xxl',
 			size: { min: 5, max: 5 }
 		}),
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			uicon: {
 				category: IconCategory.POKEMON,
 				params: { pokemon_id: 201, form: 6 }
@@ -57,7 +57,7 @@ export const premadeFiltersets: { [key in FilterCategory]: FiltersetPokemon[] } 
 			title: 'filter_template_unown',
 			pokemon: Array.from({ length: 28 }, (_, i) => i + 1).map(i => ({ pokemon_id: 201, form: i }))
 		}),
-		filtersetPokemon({
+		filterset<FiltersetPokemon>({
 			uicon: {
 				category: IconCategory.POKEMON,
 				params: { pokemon_id: 480, form: 0 }
@@ -78,31 +78,22 @@ type BaseParams = {
 
 type Params<Filterset extends AnyFilterset> = BaseParams & Partial<Omit<Filterset, keyof BaseFilterset>>
 
-function baseFilterset(options: BaseParams): BaseFilterset {
-	const data: BaseFilterset =  {
+function filterset<Filterset extends AnyFilterset>(options: Params<Filterset>): Filterset {
+	const { title, uicon, emoji, ...rest } = options
+
+	const data: Filterset =  {
 		id: crypto.randomUUID(),
 		icon: {
 			isUserSelected: false,
 		},
 		title: {
-			message: options.title,
+			message: title,
 		},
 		enabled: true,
+		...rest
 	}
-	if (options.uicon) data.icon.uicon = options.uicon
-	if (options.emoji) data.icon.emoji = options.emoji
-
-	delete options.title
-	delete options.uicon
-	delete options.emoji
+	if (uicon) data.icon.uicon = uicon
+	if (emoji) data.icon.emoji = emoji
 
 	return data
-}
-
-function filtersetPokemon(options: Params<FiltersetPokemon>): FiltersetPokemon {
-	return {...baseFilterset(options), ...options}
-}
-
-function filtersetQuest(options: Params<FiltersetQuest>): FiltersetQuest {
-	return {...baseFilterset(options), ...options}
 }

@@ -50,6 +50,7 @@
 					size=""
 					variant="outline"
 					onclick={() => {
+						filterset.id = crypto.randomUUID()
 						setCurrentSelectedFilterset("pokemon", filterset, false)
 						filtersetPageSelect()
 					}}
