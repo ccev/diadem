@@ -8,9 +8,7 @@ import {
 	getIconRaidEgg,
 	getIconReward
 } from "@/lib/services/uicons.svelte.js";
-import {
-	type MapObjectsStateType
-} from "@/lib/mapObjects/mapObjectsState.svelte.js";
+import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/config.d";
@@ -20,9 +18,13 @@ import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
-import { isIncidentInvasion, shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/utils/pokestopUtils";
+import {
+	isIncidentInvasion,
+	shouldDisplayIncidient,
+	shouldDisplayQuest
+} from "@/lib/utils/pokestopUtils";
 import { getRaidPokemon } from "@/lib/utils/gymUtils";
-import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectTypes';
+import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
 
 export type IconProperties = {
 	imageUrl: string;
@@ -64,7 +66,10 @@ function getFeature(id: string, coordinates: number[], properties: IconPropertie
 			type: "Point",
 			coordinates: coordinates
 		},
-		properties,
+		properties: {
+			...properties,
+			imageUrl: properties.imageUrl + "?w=64"
+		},
 		id
 	};
 }
@@ -168,7 +173,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
 					const reward = JSON.parse(obj.alternative_quest_rewards)[0];
 
-					if (!shouldDisplayQuest(reward)) continue
+					if (!shouldDisplayQuest(reward)) continue;
 
 					const mapId = obj.mapId + "-altquest-" + obj.alternative_quest_timestamp;
 
@@ -189,9 +194,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				if (obj.quest_target && obj.quest_rewards) {
 					const reward = JSON.parse(obj.quest_rewards)[0];
 
-					if (!shouldDisplayQuest(reward)) continue
+					if (!shouldDisplayQuest(reward)) continue;
 
 					const mapId = obj.mapId + "-quest-" + obj.quest_timestamp;
+					const spacing = subFeatures.length === 0 ? 0 : questModifiers.spacing;
 
 					subFeatures.push(
 						getFeature(mapId, [obj.lon, obj.lat], {
@@ -200,7 +206,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 							imageSelectedScale: selectedScale,
 							imageOffset: [
 								modifiers.offsetX + questModifiers.offsetX,
-								modifiers.offsetY + questModifiers.offsetY + questModifiers.spacing
+								modifiers.offsetY + questModifiers.offsetY + spacing
 							],
 							id: obj.mapId,
 							expires: obj.quest_expiry ?? null
@@ -215,7 +221,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 					if (!incident.id || !isIncidentInvasion(incident) || incident.expiration < timestamp) {
 						continue;
 					}
-					if (!shouldDisplayIncidient(incident)) continue
+					if (!shouldDisplayIncidient(incident)) continue;
 
 					const mapId = obj.mapId + "-incident-" + incident.id;
 					const invasionModifiers = getModifiers(userIconSet, "invasion");
@@ -292,14 +298,18 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		} else if (obj.type === "station") {
 			expires = obj.end_time;
 			if (obj.battle_pokemon_id) {
-				const mapId = obj.mapId + "-battle-" + obj.battle_pokemon_id;
+				const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;
+				const maxBattleModifiers = getModifiers(userIconSet, "max_battle");
 
 				subFeatures.push(
 					getFeature(mapId, [obj.lon, obj.lat], {
 						imageUrl: getIconPokemon(getStationPokemon(obj)),
-						imageSize: getModifiers(userIconSet, "pokemon").scale * 0.8,
+						imageSize: maxBattleModifiers.scale,
 						imageSelectedScale: selectedScale,
-						imageOffset: [0, modifiers.offsetY - 15],
+						imageOffset: [
+							modifiers.offsetX + maxBattleModifiers.offsetX,
+							modifiers.offsetY + maxBattleModifiers.offsetY
+						],
 						id: obj.mapId,
 						expires: obj.end_time ?? null
 					})
@@ -307,13 +317,16 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			}
 		}
 
-		// subFeatures.push(getFeature("debug-red-dot", [obj.lon, obj.lat], {
-		// 	imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
-		// 	id: obj.mapId,
-		// 	imageSize: 0.05,
-		// 	expires: null,
-		// 	imageSelectedScale: 1
-		// }))
+		// subFeatures.push(
+		// 	getFeature("debug-red-dot", [obj.lon, obj.lat], {
+		// 		imageUrl:
+		// 			"https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Red_Circle%28small%29.svg/29px-Red_Circle%28small%29.svg.png",
+		// 		id: obj.mapId,
+		// 		imageSize: 0.05,
+		// 		expires: null,
+		// 		imageSelectedScale: 1
+		// 	})
+		// );
 
 		subFeatures.push(
 			getFeature(obj.mapId, [obj.lon, obj.lat], {

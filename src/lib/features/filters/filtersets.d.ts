@@ -68,6 +68,8 @@ export type FiltersetPokestopPlain = BaseFilterset & {
 export type FiltersetQuest = BaseFilterset & {
 	ar?: QuestArType;
 	rewardType?: RewardType;
+	title?: string
+	target?: number
 	pokemon?: Pokemon[];
 	item?: QuestReward[];
 	megaResource?: QuestReward[];

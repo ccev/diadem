@@ -17,8 +17,7 @@ import {
 import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectTypes';
 
-export const DEFAULT_UICONS = "_internal_default";
-const DEFAULT_URL = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
+export const DEFAULT_UICONS = "DEFAULT";
 
 const iconSets: {[key: string]: UICONS} = {}
 
@@ -41,10 +40,7 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {
 	await Promise.all(
-		[
-			...getConfig().uiconSets.map(s => initIconSet(s.id, s.url, thisFetch)),
-			initIconSet(DEFAULT_UICONS, DEFAULT_URL, thisFetch)
-		]
+		getConfig().uiconSets.map(s => initIconSet(s.id, `/assets/${s.id}/`, thisFetch)),
 	)
 }
 

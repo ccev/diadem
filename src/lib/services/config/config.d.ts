@@ -13,6 +13,7 @@ type UiconSetModifiers = {
 export type UiconSetModifierType = MapObjectType
 	| "quest"
 	| "invasion"
+	| "max_battle"
 	| "raid_pokemon"
 	| "raid_pokemon_6"
 	| "raid_egg"
