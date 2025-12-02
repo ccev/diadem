@@ -1,11 +1,12 @@
-import type { MasterStats, PokemonStatEntry, TotalPokemonStats } from "@/lib/server/api/queries";
 
-let masterStats: MasterStats | undefined = undefined
+import type { MasterStats, PokemonStatEntry, TotalPokemonStats } from "@/lib/server/api/queryStats";
+
+let masterStats: MasterStats | undefined = undefined;
 
 export type PokemonStats = {
-	total: TotalPokemonStats
-	entry: PokemonStatEntry | undefined
-}
+	total: TotalPokemonStats;
+	entry: PokemonStatEntry | undefined;
+};
 
 export async function loadMasterStats() {
 	const response = await fetch("/api/stats");

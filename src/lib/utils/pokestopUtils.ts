@@ -126,6 +126,10 @@ export function rewardTypeLabel(rewardType: RewardType) {
 	}
 }
 
+export function getQuestKey(questReward: string, questTitle: string, questTarget: number) {
+	return `${questReward}/${questTitle}/${questTarget}`
+}
+
 export function getContestText(data: PokestopData) {
 	let metric = m.contest_biggest
 	let name = ""

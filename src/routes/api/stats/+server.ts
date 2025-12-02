@@ -1,6 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { queryMasterStats } from "@/lib/server/api/queryStats";
-import type { MasterStats } from "@/lib/server/api/queries";
+import { type MasterStats, queryMasterStats } from "@/lib/server/api/queryStats";
 import TTLCache from "@isaacs/ttlcache";
 
 const UPDATE_INTERVAL = 60 * 60;
@@ -10,8 +9,8 @@ const statsCache: TTLCache<"stats", MasterStats> = new TTLCache({
 });
 
 export async function GET() {
-	// const stats = statsCache.get("stats");
-	// if (stats) return json(stats);
+	const stats = statsCache.get("stats");
+	if (stats) return json(stats);
 
 	try {
 		const stats = await queryMasterStats();
