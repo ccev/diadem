@@ -67,6 +67,11 @@ export type Permissions = {
 	features?: FeaturesKey[]
 }
 
+export type Log = {
+	level: string
+	file?: string
+}
+
 export type ClientConfig = {
 	mapStyles: {
 		id: string
@@ -84,7 +89,7 @@ export type ServerConfig = {
 		auth?: string
 		secret?: string
 	}
-	dragonite: {
+	dragonite: {  // TODO: this should be optional and scout disabled
 		url: string
 		secret?: string
 		basicAuth?: string
@@ -99,6 +104,7 @@ export type ServerConfig = {
 		url: string
 		basicAuth?: string
 	}
+	log: Log
 	internalDb: DbCreds
 	auth: Auth
 	permissions?: Permissions[]

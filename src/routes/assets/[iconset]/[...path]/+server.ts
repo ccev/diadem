@@ -1,7 +1,9 @@
 import { error } from "@sveltejs/kit";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import sharp, { type ResizeOptions } from "sharp";
+import { getLogger } from '@/lib/server/logging';
 
+const log = getLogger("uicons");
 const CACHE_AGE = 86400 * 7  // 7 days
 
 export async function GET({ params, fetch, url }) {
@@ -34,6 +36,8 @@ export async function GET({ params, fetch, url }) {
 
 		const webp = await sharp(buffer).resize(resizeOptions).webp({ quality: 80 }).toBuffer();
 
+		log.info("[%s] Serving icon %s (width=%s)", iconSetId, iconPath, width ?? "oiginal")
+
 		return new Response(webp, {
 			headers: {
 				"Content-Type": "image/webp",
@@ -41,7 +45,7 @@ export async function GET({ params, fetch, url }) {
 			}
 		});
 	} catch (err) {
-		console.error(err);
+		log.error(err);
 		return new Response("error processing image", { status: 500 });
 	}
 }

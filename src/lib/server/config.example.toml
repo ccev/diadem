@@ -1,17 +1,19 @@
 [server.golbat]
 url = "http://127.0.0.1:9001"
-auth = ""
+secret = ""
 
+# Dragonite integration for scout
 [server.dragonite]
 url = "http://127.0.0.1:7272"
 secret = ""
-basicAuth = ""
 
+# Optional Koji integrtion. Uncomment to disable
 [server.koji]
 url = "http://127.0.0.1:8080"
 secret = "secret"
-projectName = "maltemap"
+projectName = "reactmap"
 
+# Optional nominatim integration. Uncomment to disable
 [server.nominatim]
 url = "http://127.0.0.1:500"
 basicAuth = ""
@@ -23,22 +25,53 @@ optional = true
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "http://yourmap.com/login/discord/callback"
-serverLink = ""
+redirectUri = "https://map.co/login/discord/callback"
 
+[client.discord]
+serverLink = "https://discord.com/invite/VGgsQN2hYG"
+serverId = "1359028304128245934"
+
+# Permissions work by defining permission sets.
+# When a user fulfills every requirement in that set,
+# they will allow access to every configured feature,
+# only in the configured areas.
+#
+# User requirements:
+#   - everyone: bool
+#   - loggedIn: bool
+#   - guildId:  id
+#   - roleId:   id
+#
+# Allows access to:
+#   - areas:    name[]    (area name, as configured in koji)
+#   - features: feature[] (*, pokemon, gym, pokestop, station, weather, s2cell, scout)
+#
+# Below are some examples
+
+# Every user gets access to gyms and pokestops in New York
 [[server.permissions]]
 everyone = true
 areas = ["New York"]
 features = ["gym", "pokestop"]
 
+# Every logged-in user gets access to all Power Spots
+# Above permissions are also granted, since these users also fulfill those requirements
 [[server.permissions]]
 loggedIn = true
 features = ["station"]
 
+# Every user who's a member of my Malte# server gets access to all Pokemon and Scout
+# Above permissions are also granted, since these users also fulfill those requirements
+[[server.permissions]]
+guildId = "1359028304128245934"
+features = ["pokemon", "scout"]
+
+# Every user with that specific role gets access to every feature in Tokyo
+# Above permissions are also granted, since these users also fulfill those requirements
 [[server.permissions]]
 guildId = "1359028304128245934"
 roleId = "1483326963558653982"
-areas = ["*"]
+areas = ["Tokyo"]
 features = ["*"]
 
 [server.db]
@@ -49,15 +82,15 @@ user = ""
 password = ""
 
 [server.internalDb]
-host = "135.181.239.132"
+host = "127.0.0.1"
 port = 3306
 database = "maltemap_dev"
-user = "golbat_ext"
-password = "XgwmleVgzYcp8q2kwELFzhBixeK7DGv2GffQJQNinwihAdSV5AWBr"
+user = ""
+password = ""
 
 [client.general]
 mapName = "Maltemap"
-defaultLocale = "en"
+defaultLocale = "en"  # Only used in link previews, client locale is set based on user preference
 
 ### Map Styles
 
@@ -81,18 +114,7 @@ url = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
 
 [[client.uiconSets]]
-id = "pogoOutline"
-name = "GO"
-url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
-
-base = { scale = 0.25 }
-pokemon = { default = true }
-gym = { default = true, offsetY = -37, offsetX = -19 }
-raid_pokemon = { scale = 0.8, offsetX = -11, offsetY = -30 }
-raid_egg = { scale = 0.12, offsetX = -41, offsetY = -80 }
-
-[[client.uiconSets]]
-id = "wwmUicons"
+id = "DEFAULT"  # One DEFAULT is required, and it's intended to be this
 name = "GO"
 url = "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
 
@@ -102,6 +124,17 @@ raid_pokemon = { scale = 1.2, offsetY = -50 }
 raid_pokemon_6 = { scale = 1.2, offsetY = -120 }
 raid_egg = { scale = 0.17, offsetY = -120 }
 raid_egg_6 = { scale = 0.17, offsetY = -230 }
+
+[[client.uiconSets]]
+id = "pogoOutline"
+name = "GO"
+url = "https://raw.githubusercontent.com/whiFtewillem/PogoAssets/refs/heads/main/uicons-outline/"
+
+base = { scale = 0.5 }
+pokemon = { default = true, scale = 0.4 }
+gym = { default = true, offsetY = -26, offsetX = -14 }
+raid_pokemon = { scale = 0.8, offsetX = -11, offsetY = -30 }
+raid_egg = { scale = 0.24, offsetX = -25, offsetY = -40 }
 
 [[client.uiconSets]]
 id = "home"
@@ -118,11 +151,12 @@ name = "Shuffle"
 url = "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
 
 base = { scale = 0.09 }
-pokemon = { scale = 0.25 }
-pokestop = { default = true, offsetY = -100 }
-station = { default = true, offsetY = -102 }
-quest = { scale = 0.13, offsetX = -50, offsetY = 35, spacing = -120 }
-invasion = { scale = 0.11, offsetX = 70, offsetY = -85, spacing = 130 }
+pokemon = { scale = 0.5 }
+pokestop = { default = true, offsetY = -25, scale = 0.5 }
+station = { default = true, offsetY = -25, scale = 0.5 }
+quest = { scale = 0.4, offsetX = -40, offsetY = -40, spacing = 60 }
+invasion = { scale = 0.35, offsetX = 40, offsetY = -44, spacing = 60 }
+max_battle = { scale = 0.4, offsetY = -50 }
 
 [[client.uiconSets]]
 id = "shuffleShiny"

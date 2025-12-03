@@ -6,6 +6,9 @@ import { getServerConfig } from '@/lib/services/config/config.server';
 import { addScoutEntries, getScoutQueue } from '@/lib/server/api/dragoniteApi';
 
 import { noPermResult, result } from '@/lib/server/api/results';
+import { getLogger } from '@/lib/server/logging';
+
+const log = getLogger("scout")
 
 export async function POST({ request, locals }) {
 	// TODO: rate limit
@@ -19,6 +22,8 @@ export async function POST({ request, locals }) {
 	const locations = scoutData.coords.map(c => [c.lat, c.lon])
 	const success = await addScoutEntries(username, locations)
 
+	log.info("Queued scout entries / success: %s / locations: %d", "" + success, locations.length)
+
 	if (success) {
 		return json(result())
 	} else {
@@ -26,10 +31,12 @@ export async function POST({ request, locals }) {
 	}
 }
 
-export async function GET({ request, locals }) {
+export async function GET({ locals }) {
 	if (!hasFeatureAnywhere(locals.perms, "scout")) return json(noPermResult(undefined))
 
 	const response = await getScoutQueue()
+
+	log.info("Fetched scout queue size")
 
 	if (response === undefined) {
 		return json(result(undefined, "Internal Error"))

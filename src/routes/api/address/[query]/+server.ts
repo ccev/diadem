@@ -1,6 +1,9 @@
-import { json } from '@sveltejs/kit';
+import { error, json } from "@sveltejs/kit";
 import { getServerConfig } from '@/lib/services/config/config.server';
 import type { FeatureCollection, Point } from 'geojson';
+import { getLogger } from '@/lib/server/logging';
+
+const log = getLogger("nominatim")
 
 type NominatimProps = {
 	geocoding: {
@@ -15,11 +18,13 @@ type NominatimProps = {
 
 export async function GET({ params, url }) {
 	const config = getServerConfig();
-	if (!config.nominatim)
+	if (!config.nominatim) {
+		log.warning("Nominatim was called, but is not configured")
 		return json({
 			error: 'No Nominatim config',
 			result: {}
 		});
+	}
 
 	const lang = url.searchParams.get('lang') ?? 'en';
 
@@ -48,7 +53,13 @@ export async function GET({ params, url }) {
 		signal: AbortSignal.timeout(2000)
 	});
 
+	if (!response.ok) {
+		log.error("Nominatim request failed: %s", await response.text())
+		error(500)
+	}
+
 	const data: FeatureCollection<Point, NominatimProps> = await response.json();
+
 	return json({
 		error: null,
 		result:

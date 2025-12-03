@@ -1,6 +1,9 @@
 import mysql from 'mysql2/promise';
 import { getServerConfig } from '@/lib/services/config/config.server';
 import { getDbUri } from '@/lib/services/config/dbUri.server';
+import { getLogger } from '@/lib/server/logging';
+
+const log = getLogger("query")
 
 const connection = mysql.createPool(getDbUri(getServerConfig().db));
 
@@ -58,8 +61,7 @@ export async function query<T>(
 		}
 	}
 
-	console.log(`Query took ${performance.now() - start}ms: ${sql}`)
-
+	log.debug(`Query took %fms: %s`, (performance.now() - start).toFixed(1), sql)
 	return {
 		error,
 		result: parsedResult

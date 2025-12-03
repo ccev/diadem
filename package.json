@@ -43,6 +43,7 @@
 		"@types/geojson": "^7946.0.15",
 		"arctic": "^3.6.1",
 		"bits-ui": "^2.14.2",
+		"chalk": "^5.6.2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.40.0",
@@ -58,6 +59,8 @@
 		"toml": "^3.0.0",
 		"uicons.js": "^2.0.2",
 		"vaul-svelte": "^0.3.2",
+		"winston": "^3.18.3",
+		"winston-daily-rotate-file": "^5.0.0",
 		"zod": "^4.1.12"
 	},
 	"engines": {

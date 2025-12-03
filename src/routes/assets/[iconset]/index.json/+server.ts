@@ -1,10 +1,17 @@
 import { error } from "@sveltejs/kit";
 import { getClientConfig } from "@/lib/services/config/config.server";
-import sharp, { type ResizeOptions } from "sharp";
+import { getLogger } from "@/lib/server/logging";
+import TTLCache from "@isaacs/ttlcache";
 
-export async function GET({ params, fetch, url }) {
-	const config = getClientConfig();
+const log = getLogger("uicons");
+const config = getClientConfig();
+const CACHE_DURATION = 60 * 60 * 1000;
+const indexCache: TTLCache<string, ReadableStream<Uint8Array<ArrayBufferLike>>> = new TTLCache({
+	max: config.uiconSets.length,
+	ttl: CACHE_DURATION
+});
 
+export async function GET({ params, fetch }) {
 	const iconSetId = params.iconset;
 
 	const iconSet = config.uiconSets.find((s) => s.id === iconSetId);
@@ -12,19 +19,30 @@ export async function GET({ params, fetch, url }) {
 		error(404, "Unknown Icon Set");
 	}
 
-	try {
-		const res = await fetch(iconSet.url + "/index.json");
-		if (!res.ok) {
-			error(500, "Fetching index.json failed");
-		}
-
-		return new Response(res.body, {
+	const cachedIndex = indexCache.get(iconSetId);
+	if (cachedIndex) {
+		log.info("[%s] Serving cached index.json", iconSetId);
+		return new Response(cachedIndex, {
 			headers: {
 				"Content-Type": "application/json"
 			}
 		});
-	} catch (err) {
-		console.error(err);
-		return new Response("error serving index.json", { status: 500 });
 	}
+
+	const url = iconSet.url + "/index.json"
+	const res = await fetch(url);
+	log.info("[%s] Serving fresh index.json", iconSetId);
+
+	if (!res.ok || res.body === null) {
+		log.error("Fetching iconset for %s (%s) failed with %s", iconSetId, url, await res.text());
+		error(500, "Fetching index.json failed");
+	}
+
+	// indexCache.set(iconSetId, res.body);
+
+	return new Response(res.body, {
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
 }

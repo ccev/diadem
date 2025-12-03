@@ -1,10 +1,13 @@
 import { getSinglePokemon } from "@/lib/server/api/golbatApi";
 import { query } from "@/lib/server/db/external/internalQuery";
-import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
+import type { GymData } from '@/lib/types/mapObjectData/gym';
+import type { StationData } from '@/lib/types/mapObjectData/station';
 
 export async function querySingleMapObject(type: MapObjectType, id: string, thisFetch: typeof fetch = fetch) {
-	let result: { error: undefined | string; result: MapData[] } = {
-		error: "Internal Error",
+	let result: { error: undefined | number; result: MapData[] } = {
+		error: 500,
 		result: []
 	};
 
@@ -38,11 +41,11 @@ async function querySinglePokemon(id: string, thisFetch: typeof fetch) {
 }
 
 async function querySingleGym(id: string) {
-	return await query("SELECT * FROM gym " + "WHERE gym.id = ?", [id]);
+	return await query<GymData>("SELECT * FROM gym " + "WHERE gym.id = ?", [id]);
 }
 
 async function querySinglePokestop(id: string) {
-	return await query(
+	return await query<PokestopData>(
 		"SELECT * FROM pokestop " +
 			"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
 			"WHERE pokestop.id = ?",
@@ -51,5 +54,5 @@ async function querySinglePokestop(id: string) {
 }
 
 async function querySingleStation(id: string) {
-	return await query("SELECT * FROM station " + "WHERE station.id = ?", [id]);
+	return await query<StationData>("SELECT * FROM station " + "WHERE station.id = ?", [id]);
 }

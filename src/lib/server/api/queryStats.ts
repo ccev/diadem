@@ -152,7 +152,6 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allQuestStats.result) {
 		for (const row of allQuestStats.result) {
-			console.log(row[""])
 			const questRewards: QuestReward[] = JSON.parse(row.quest_rewards);
 			if (questRewards.length !== 1) continue;
 
