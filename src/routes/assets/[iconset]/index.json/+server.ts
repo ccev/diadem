@@ -6,7 +6,7 @@ import TTLCache from "@isaacs/ttlcache";
 const log = getLogger("uicons");
 const config = getClientConfig();
 const CACHE_DURATION = 60 * 60 * 1000;
-const indexCache: TTLCache<string, ReadableStream<Uint8Array<ArrayBufferLike>>> = new TTLCache({
+const indexCache: TTLCache<string, string> = new TTLCache({
 	max: config.uiconSets.length,
 	ttl: CACHE_DURATION
 });
@@ -38,9 +38,11 @@ export async function GET({ params, fetch }) {
 		error(500, "Fetching index.json failed");
 	}
 
-	// indexCache.set(iconSetId, res.body);
+	const text = await res.text()
 
-	return new Response(res.body, {
+	indexCache.set(iconSetId, text);
+
+	return new Response(text, {
 		headers: {
 			"Content-Type": "application/json"
 		}
