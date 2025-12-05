@@ -31,6 +31,7 @@ export type UiconSet = {
 type General = {
 	mapName: string
 	defaultLocale: string
+	customHome: boolean
 }
 
 export type DbCreds = {

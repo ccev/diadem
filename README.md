@@ -3,7 +3,8 @@
 A WIP next-gen map frontend for pogo.
 
 ## Setup
-1. `cp src/lib/server/config.example.toml config.toml && ln config.toml src/lib/server/config.toml` + fill out config.toml
+1. `cp config/config.example.toml config/config.toml && ln config/config.toml src/lib/server/config.toml && cp config/Home.example.svelte config/Home.svelte && ln config/Home.svelte src/components/custom/Home.svelte` 
++ fill out config.toml
 2. `pnpm run db:push`
 3. `pnpm install` && `pnpm run build`
 4. Start with `PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "smap"`

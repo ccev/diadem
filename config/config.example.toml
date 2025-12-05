@@ -91,6 +91,7 @@ password = ""
 [client.general]
 mapName = "Maltemap"
 defaultLocale = "en"  # Only used in link previews, client locale is set based on user preference
+customHome = false  # If enabled, path / will show the config/Home.svelte component, so you can build your own homepage. The map can be found under /map
 
 ### Map Styles
 

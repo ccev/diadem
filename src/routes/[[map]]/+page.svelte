@@ -18,6 +18,9 @@
 	import Metadata from '@/components/utils/Metadata.svelte';
 	import { getContextMenuEvent, getIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
 	import { isMenuSidebar, isUiLeft } from '@/lib/utils/device';
+	import { page } from '$app/state';
+
+	import Home from '@/components/custom/Home.svelte';
 
 	let showSignInButton = $derived(
 		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
@@ -31,68 +34,60 @@
 			openMenu(null)
 		}
 	})
+
+	let showCustomHome = $derived(getConfig().general.customHome && page.params.map !== "map")
 </script>
 
 <svelte:head>
 	<Metadata />
 </svelte:head>
 
-<ContextMenu />
+{#if getConfig().general.customHome}
+	<Home />
+{:else}
+	<ContextMenu />
 
-{#if showSignInButton}
-	<div class="fixed top-2 z-10 left-1/2 -translate-x-1/2">
-		<SignInButton />
-	</div>
-{/if}
+	{#if showSignInButton}
+		<div class="fixed top-2 z-10 left-1/2 -translate-x-1/2">
+			<SignInButton />
+		</div>
+	{/if}
 
-<!--{#if getOpenedMenu()}-->
-<!--	<div class="fixed top-2 left-2 bottom-20 pb-2 z-10 max-w-[26rem] overflow-y-auto max-h-full rounded-lg ">-->
-<!--		{#if showSignInButton}-->
-<!--			<div class="h-11"></div>-->
-<!--		{/if}-->
-<!--		{#if getOpenedMenu() === "profile"}-->
-<!--			profile-->
-<!--			<ProfileMenu />-->
-<!--		{:else if getOpenedMenu() === "filters"}-->
-<!--			filters-->
-<!--			<FiltersMenu />-->
-<!--		{/if}-->
-<!--	</div>-->
+	<WeatherOverview />
 
-<!--{/if}-->
+	{#if isMenuSidebar()}
+		<div
+			class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full"
+		>
+			<div class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88">
+				{#if getOpenedMenu()}
+					<DesktopMenu />
+				{/if}
+				<BottomNav />
+			</div>
 
-<WeatherOverview />
+			<div class="flex flex-col items-end gap-2 w-[30rem] shrink basis-120">
+				<Fabs />
+				<PopupContainer />
+			</div>
+		</div>
+	{:else if !getIsContextMenuOpen()}
+		<MobileMenu />
 
-{#if isMenuSidebar()}
-	<div
-		class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full"
-	>
-		<div class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88">
-			{#if getOpenedMenu()}
-				<DesktopMenu />
+		<div
+			class="fixed z-20 bottom-2 w-full flex flex-col pointer-events-none gap-2"
+			class:items-end={!isUiLeft()}
+			class:items-start={isUiLeft()}
+		>
+			{#if !getOpenedMenu()}
+				<Fabs />
+				<PopupContainer />
 			{/if}
 			<BottomNav />
 		</div>
+	{/if}
 
-		<div class="flex flex-col items-end gap-2 w-[30rem] shrink basis-120">
-			<Fabs />
-			<PopupContainer />
-		</div>
-	</div>
-{:else if !getIsContextMenuOpen()}
-	<MobileMenu />
-
-	<div
-		class="fixed z-20 bottom-2 w-full flex flex-col pointer-events-none gap-2"
-		class:items-end={!isUiLeft()}
-		class:items-start={isUiLeft()}
-	>
-		{#if !getOpenedMenu()}
-			<Fabs />
-			<PopupContainer />
-		{/if}
-		<BottomNav />
-	</div>
+	<Map />
 {/if}
 
-<Map />
+
