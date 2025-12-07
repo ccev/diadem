@@ -1,5 +1,7 @@
 node_modules
 .idea
+config/*
+!config/*example*
 config.toml
 .vite/*
 src/components/custom/*

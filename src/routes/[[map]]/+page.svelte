@@ -42,7 +42,7 @@
 	<Metadata />
 </svelte:head>
 
-{#if getConfig().general.customHome}
+{#if showCustomHome}
 	<Home />
 {:else}
 	<ContextMenu />
