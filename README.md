@@ -18,7 +18,7 @@ A WIP next-gen map frontend for pogo.
 
 ### Update
 1. `git pull`
-2. `pnpm install` && `pnpm run build`
+2. `./setup.sh && pnpm install && pnpm run build`
 3. `pm2 restart`
 
 ### Asset caching
