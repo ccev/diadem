@@ -5,6 +5,8 @@ config/*
 config.toml
 .vite/*
 src/components/custom/*
+static/custom/*
+src/routes/(custom)/*
 
 # Output
 .output
