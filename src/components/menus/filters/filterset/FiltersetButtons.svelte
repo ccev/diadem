@@ -33,6 +33,7 @@
 	function getShareUrl() {
 		const filterset = getCurrentSelectedFilterset()
 		if (filterset) {
+			// TODO: major category / subCategory
 			return `${window.location.origin}/filter/${filterset.subCategory}/${getCurrentSelectedFiltersetEncoded()}`
 		} else {
 			return window.location.origin

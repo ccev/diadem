@@ -12,6 +12,7 @@ export const ssr = true;
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
 	const start = performance.now();
+
 	const configResponse = await fetch("/api/config");
 	setConfig(await configResponse.json());
 

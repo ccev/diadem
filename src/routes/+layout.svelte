@@ -10,7 +10,7 @@
 	let languageTag: string = $derived(resolveLanguageTag(getUserSettings().languageTag));
 </script>
 
-<ModeWatcher defaultMode={"light"} track={false} />
+<ModeWatcher defaultMode={getUserSettings().themeMode} track={false} />
 <ParaglideJS languageTag={languageTag} {i18n}>
 	{@render children()}
 </ParaglideJS>

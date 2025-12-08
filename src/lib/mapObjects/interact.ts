@@ -8,6 +8,7 @@ import { getCurrentSelectedData, setCurrentSelectedData } from '@/lib/mapObjects
 
 import { setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
 import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+import { getMapPath } from "@/lib/utils/getMapPath";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -34,10 +35,10 @@ export function updateCurrentPath() {
 
 export function getCurrentPath() {
 	const data = getCurrentSelectedData()
-	if (!data) {
-		return '/';
+	if (data) {
+		return `/${data.type}/${data.id}`
 	}
-	return `/${data.type}/${data.id}`;
+	return getMapPath()
 }
 
 function setCurrentPath() {

@@ -2,6 +2,7 @@ import { generateCodeVerifier, generateState } from 'arctic';
 import { getDiscordAuth } from '@/lib/server/auth/discord';
 
 import type { RequestEvent } from '@sveltejs/kit';
+import { getMapPath } from "@/lib/utils/getMapPath";
 
 const SCOPES = ['identify', 'guilds.members.read'];
 
@@ -27,7 +28,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		sameSite: 'lax'
 	});
 
-	event.cookies.set('login_redirect', event.url.searchParams.get("redir") ?? "/", {
+	event.cookies.set('login_redirect', event.url.searchParams.get("redir") ?? getMapPath(), {
 		path: '/',
 		httpOnly: true,
 		maxAge: 60 * 10,

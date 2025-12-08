@@ -2,6 +2,7 @@ import type { PageLoad } from './$types';
 import { openToast } from '@/lib/ui/toasts.svelte.js';
 import { redirect } from '@sveltejs/kit';
 import * as m from '@/lib/paraglide/messages';
+import { getMapPath } from "@/lib/utils/getMapPath";
 
 export const load: PageLoad = (event) => {
 	if (event.data.error) {
@@ -10,5 +11,5 @@ export const load: PageLoad = (event) => {
 		openToast(m.signin_toast_success({ name: event.data.name ?? "" }), 10000);
 	}
 
-	return redirect(302, event.data.redir ?? '/');
+	return redirect(302, event.data.redir ?? getMapPath());
 };
