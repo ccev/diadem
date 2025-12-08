@@ -1,17 +1,9 @@
 import { getConfig } from "@/lib/services/config/config";
 import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import type {
-	FilterCategory,
-	FilterContest,
 	FilterGym,
-	FilterGymPlain,
-	FilterInvasion,
-	FilterLure,
 	FilterPokemon,
 	FilterPokestop,
-	FilterPokestopPlain,
-	FilterQuest,
-	FilterRaid,
 	FilterS2Cell,
 	FilterStation
 } from "@/lib/features/filters/filters";
@@ -36,7 +28,7 @@ export type UserSettings = {
 	};
 	uiconSet: { [key in MapObjectType]: UiconSetUS };
 	isLeftHanded: boolean;
-	isDarkMode: boolean | null;
+	themeMode: "dark" | "light" | "system";
 	loadMapObjectsWhileMoving: boolean;
 	loadMapObjectsPadding: number;
 	showDebugMenu: boolean;
@@ -71,7 +63,7 @@ export function getDefaultUserSettings(): UserSettings {
 			station: getDefaultIconSet("station")
 		},
 		isLeftHanded: false,
-		isDarkMode: false,
+		themeMode: "system",
 		loadMapObjectsWhileMoving: false,
 		loadMapObjectsPadding: 20,
 		languageTag: "auto",
@@ -89,19 +81,19 @@ export function getDefaultUserSettings(): UserSettings {
 				kecleon: { category: "kecleon", ...defaultFilter() },
 				goldPokestop: { category: "goldPokestop", ...defaultFilter() },
 				lure: { category: "lure", ...defaultFilter() },
-				route: { category: "route", ...defaultFilter() },
+				route: { category: "route", ...defaultFilter() }
 			},
 			gymMajor: {
 				category: "gymMajor",
 				...defaultFilter(),
 				gymPlain: { category: "gymPlain", ...defaultFilter() },
-				raid: { category: "raid", ...defaultFilter() },
+				raid: { category: "raid", ...defaultFilter() }
 			},
 			stationMajor: {
 				category: "stationMajor",
 				...defaultFilter(),
 				stationPlain: { category: "stationPlain", ...defaultFilter() },
-				maxBattle: { category: "maxBattle", ...defaultFilter() },
+				maxBattle: { category: "maxBattle", ...defaultFilter() }
 			},
 			s2cell: { category: "s2cell", ...defaultFilter() }
 		}
@@ -112,7 +104,7 @@ function defaultFilter() {
 	return {
 		enabled: true,
 		filters: []
-	}
+	};
 }
 
 export function getDefaultIconSet(type: MapObjectType) {

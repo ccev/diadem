@@ -99,11 +99,13 @@ customHome = false  # If enabled, path / will show the config/Home.svelte compon
 id = "positron"
 name = "Positron"
 url = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+default = "light"
 
 [[client.mapStyles]]
 id = "dark"
 name = "Dark"
 url = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+default = "dark"
 
 [[client.mapStyles]]
 id = "voyager"

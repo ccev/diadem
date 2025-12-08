@@ -1,5 +1,5 @@
-import type { MapObjectType } from '../../types/mapObjectData/mapObjects';
-import type { FeaturesKey } from '../../server/auth/permissions';
+import type { MapObjectType } from "../../types/mapObjectData/mapObjects";
+import type { FeaturesKey } from "../../server/auth/permissions";
 
 type UiconSetModifiers = {
 	default: boolean,
@@ -73,12 +73,15 @@ export type Log = {
 	file?: string
 }
 
+export type MapStyle = {
+	id: string
+	name: string
+	url: string
+	default?: "dark" | "light"
+}
+
 export type ClientConfig = {
-	mapStyles: {
-		id: string
-		name: string
-		url: string
-	}[]
+	mapStyles: MapStyle[]
 	uiconSets: UiconSet[]
 	general: General,
 	discord: ClientDiscord,

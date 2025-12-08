@@ -1,6 +1,6 @@
 import { parse } from 'toml';
 import configFile from '@/lib/server/config.toml?raw';
-import type { Config } from '@/lib/services/config/config.d';
+import type { Config } from '@/lib/services/config/configTypes';
 
 const config: Config = parse(configFile);
 

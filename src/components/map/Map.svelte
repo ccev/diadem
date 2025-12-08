@@ -13,7 +13,14 @@
 	import { clearPressTimer, onContextMenu } from '@/lib/ui/contextmenu.svelte.js';
 	import { clearSessionImageUrls, getMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 	import { loadMapObjectInterval } from '@/lib/map/loadMapObjects';
-	import { onMapMove, onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from '@/lib/map/events';
+	import {
+		onMapMove,
+		onMapMoveEnd,
+		onMapMoveStart,
+		onMapStyleDataLoading,
+		onTouchStart,
+		onWindowFocus
+	} from "@/lib/map/events";
 	import maplibre from 'maplibre-gl';
 	import { getS2CellGeojson } from '@/lib/mapObjects/s2cells.svelte.js';
 	import S2CellLayer from '@/components/map/S2CellLayer.svelte';
@@ -21,7 +28,7 @@
 	import DebugMenu from '@/components/map/DebugMenu.svelte';
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/services/initialLoad.svelte.js';
 	import { openToast } from '@/lib/ui/toasts.svelte.js';
-	import { addMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
+	import { addMapObjects, getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import MarkerCurrentLocation from '@/components/map/MarkerCurrentLocation.svelte';
 	import MarkerContextMenu from '@/components/map/MarkerContextMenu.svelte';
 	import { getCurrentScoutData } from '@/lib/features/scout.svelte.js';
@@ -33,6 +40,7 @@
 	} from '@/lib/features/filters/filtersetPageData.svelte';
 	import { filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
 	import { openMenu } from '@/lib/ui/menus.svelte';
+	import { updateFeatures } from "@/lib/map/featuresGen.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
@@ -47,6 +55,7 @@
 			map.on('touchcancel', clearPressTimer);
 			map.on('movestart', onMapMoveStart);
 			map.on('move', onMapMove);
+			map.on('styledataloading', onMapStyleDataLoading)
 
 			// tick so feature handler registers first
 			tick().then(() => map?.on('click', clickMapHandler));

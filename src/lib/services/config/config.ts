@@ -1,4 +1,4 @@
-import type { ClientConfig } from '@/lib/services/config/config.d';
+import type { ClientConfig } from '@/lib/services/config/configTypes';
 
 let config: ClientConfig
 

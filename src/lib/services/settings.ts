@@ -13,21 +13,10 @@ import {
 import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
 import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import { getUiconSetDetails } from '@/lib/services/uicons.svelte';
+import { tick } from "svelte";
 
 export function onSettingsChange<K extends keyof UserSettings>(key: K, value: UserSettings[K]) {
 	getUserSettings()[key] = value
-	updateUserSettings()
-}
-
-export function onThemeChange(value: "true" | "false" | boolean | any) {
-	// TODO refactor dark mode to use svecosystem thingy
-	if (value === "true" || value === true) {
-		getUserSettings().isDarkMode = true
-	} else if (value === "false" || value === false) {
-		getUserSettings().isDarkMode = false
-	} else {
-		getUserSettings().isDarkMode = null
-	}
 	updateUserSettings()
 }
 
@@ -55,9 +44,4 @@ export function onMapStyleChange(mapStyleId: string) {
 	getUserSettings().mapStyle.id = mapStyle.id
 	getUserSettings().mapStyle.url = mapStyle.url
 	updateUserSettings()
-
-	setTimeout(() => {
-		clearSessionImageUrls()
-		updateFeatures(getMapObjects())
-	}, 1000)  // TODO: properly handle this using an event
 }

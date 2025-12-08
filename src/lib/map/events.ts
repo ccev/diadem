@@ -16,6 +16,9 @@ import { getMap } from '@/lib/map/map.svelte';
 import { setAnimateLocationMarker } from '@/lib/map/geolocate.svelte';
 import type { MapMoveEvent } from 'svelte-maplibre';
 import { setSkew } from '@/lib/map/mapSkew.svelte';
+import { clearSessionImageUrls } from "@/lib/map/featuresManage.svelte";
+import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 
 export async function onMapMoveEnd() {
 	clearLoadMapObjectsInterval();
@@ -51,4 +54,11 @@ export function onWindowFocus() {
 
 export function onMapMove(event: MapMoveEvent) {
 	setSkew(event.target.getPitch(), event.target.getBearing())
+}
+
+export function onMapStyleDataLoading() {
+	// this is fired when the map style is changed
+	// so we need to re-fetch images as these are tied to the style
+	clearSessionImageUrls()
+	updateFeatures(getMapObjects())
 }

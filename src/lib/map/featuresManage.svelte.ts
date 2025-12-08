@@ -45,5 +45,7 @@ async function addMapImage(url: string) {
 		setLoadedImage(url, imageData)
 	}
 
-	map.addImage(url, imageData);
+	if (!map.hasImage(url)) {
+		map.addImage(url, imageData);
+	}
 }

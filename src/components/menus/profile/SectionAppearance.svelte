@@ -1,19 +1,21 @@
 <script lang="ts">
-	import * as m from '@/lib/paraglide/messages';
-	import { Cloud, Moon, Paintbrush, Sun } from 'lucide-svelte';
-	import { getUserSettings } from '@/lib/services/userSettings.svelte';
-	import { isMenuSidebar } from '@/lib/utils/device';
-	import { onMapStyleChange, onSettingsChange, onThemeChange } from '@/lib/services/settings';
-	import { getConfig } from '@/lib/services/config/config';
-	import MenuCard from '@/components/menus/MenuCard.svelte';
-	import SliderSteps from '@/components/ui/input/slider/SliderSteps.svelte';
-	import Toggle from '@/components/ui/input/Toggle.svelte';
-	import Select from '@/components/ui/input/Select.svelte';
-	import MenuGeneric from '@/components/menus/MenuGeneric.svelte';
-	import RadioGroup from '@/components/ui/input/selectgroup/RadioGroup.svelte';
-	import { MapLibre } from 'svelte-maplibre';
-	import { AVAILABLE_LANGUAGES } from '@/lib/constants';
-	import SelectGroupItem from '@/components/ui/input/selectgroup/SelectGroupItem.svelte';
+	import * as m from "@/lib/paraglide/messages";
+	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import { isMenuSidebar } from "@/lib/utils/device";
+	import { onMapStyleChange, onSettingsChange } from "@/lib/services/settings";
+	import { getConfig } from "@/lib/services/config/config";
+	import MenuCard from "@/components/menus/MenuCard.svelte";
+	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
+	import Toggle from "@/components/ui/input/Toggle.svelte";
+	import Select from "@/components/ui/input/Select.svelte";
+	import MenuGeneric from "@/components/menus/MenuGeneric.svelte";
+	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
+	import { MapLibre } from "svelte-maplibre";
+	import { AVAILABLE_LANGUAGES } from "@/lib/constants";
+	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
+	import { mode } from "mode-watcher";
+	import { setThemeMode } from "@/lib/services/themeMode";
 
 	type Language = {
 		label: string
@@ -23,7 +25,7 @@
 	const languages: Language[] = [
 		{
 			label: m.language_auto(),
-			value: 'auto'
+			value: "auto"
 		},
 		...AVAILABLE_LANGUAGES
 	];
@@ -51,19 +53,19 @@
 
 	<MenuGeneric title={m.settings_theme()}>
 		<RadioGroup
-			value={"" + getUserSettings().isDarkMode}
-			onValueChange={onThemeChange}
+			value={mode.current}
+			onValueChange={setThemeMode}
 			class="self-center"
 		>
-			<SelectGroupItem class="p-4" value="false">
+			<SelectGroupItem class="p-4" value="light">
 				<Sun size="20" />
 				{m.theme_light()}
 			</SelectGroupItem>
-			<SelectGroupItem class="p-4" value="null">
+			<SelectGroupItem class="p-4" value="system">
 				<Cloud size="20" />
 				{m.theme_system()}
 			</SelectGroupItem>
-			<SelectGroupItem class="p-4" value="true">
+			<SelectGroupItem class="p-4" value="dark">
 				<Moon size="20" />
 				{m.theme_dark()}
 			</SelectGroupItem>
