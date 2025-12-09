@@ -1,7 +1,12 @@
 {
   "$schema": "https://inlang.com/schema/project-settings",
   "baseLocale": "en",
+  "sourceLanguageTag": "en",
   "locales": [
+    "en",
+    "de"
+  ],
+  "languageTags": [
     "en",
     "de"
   ],
@@ -10,6 +15,6 @@
     "https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@2/dist/index.js"
   ],
   "plugin.inlang.messageFormat": {
-    "pathPattern": "./messages/{locale}.json"
+    "pathPattern": "./messages/{locale|languageTag}.json"
   }
 }
