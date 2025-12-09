@@ -125,17 +125,8 @@ export function saveCurrentSelectedAttribute() {
 	}
 }
 
-export function toggleCurrentSelectedFilterset() {
-	const filterset = filtersetPageData?.data
-	if (!filterset) return
-	const filter = getFilter()
-	if (!filter) return
-
-	filter.filters = filter.filters.map(
-		(filter: AnyFilterset) => (
-			filter.id === filterset.id ? { ...filter, enabled: !filter.enabled } : filter
-		)
-	);
+export function toggleFilterset(filterset: AnyFilterset) {
+	filterset.enabled = !filterset.enabled
 
 	updateUserSettings();
 	updateAllMapObjects().then();

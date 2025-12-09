@@ -1,18 +1,18 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import { Eye, EyeClosed } from 'lucide-svelte';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { Eye, EyeClosed } from "lucide-svelte";
 
-	import type { AnyFilterset } from '@/lib/features/filters/filtersets';
-	import { openModal } from '@/lib/ui/modal.svelte';
+	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
+	import { openModal } from "@/lib/ui/modal.svelte";
 	import {
 		type SelectedFiltersetData,
 		setCurrentSelectedFilterset,
-		toggleCurrentSelectedFilterset
-	} from '@/lib/features/filters/filtersetPageData.svelte';
-	import { filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
-	import { filterTitle } from '@/lib/features/filters/filtersetUtils';
-	import FiltersetIcon from '@/lib/features/filters/FiltersetIcon.svelte';
-	import type { FilterCategory } from '@/lib/features/filters/filters';
+		toggleFilterset
+	} from "@/lib/features/filters/filtersetPageData.svelte";
+	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 
 	let {
 		filter,
@@ -58,7 +58,7 @@
 		size="icon"
 		onclick={(e) => {
 			e.stopPropagation()
-			toggleCurrentSelectedFilterset()
+			toggleFilterset(filter)
 		}}
 	>
 		{#if filter.enabled}

@@ -144,7 +144,7 @@
 	{#snippet image()}
 		<div class="w-12 shrink-0">
 			<ImagePopup
-				alt={data.pokemon_id.toString()}
+				alt={mPokemon(data)}
 				src={getIconPokemon(data)}
 				class="w-12 h-12"
 			/>
