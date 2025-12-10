@@ -17,7 +17,14 @@
 	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 	import Metadata from '@/components/utils/Metadata.svelte';
-	import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from '@/lib/utils/gymUtils';
+	import {
+		getRaidPokemon,
+		GYM_SLOTS,
+		hasActiveRaid,
+		isFortOutdated,
+		isRaidHatched,
+		shouldDisplayRaid
+	} from "@/lib/utils/gymUtils";
 
 	let { mapId }: { mapId: string } = $props();
 	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData);
@@ -30,7 +37,7 @@
 </svelte:head>
 
 {#snippet raidDisplay(expanded: boolean)}
-	{#if hasActiveRaid(data)}
+	{#if shouldDisplayRaid(data)}
 		<div
 			class="flex gap-2 items-center border-border border-b pb-2 mb-2"
 		>

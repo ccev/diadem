@@ -2,6 +2,7 @@ import type { GymData } from '@/lib/types/mapObjectData/gym';
 import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 export const GYM_SLOTS = 6;
 
@@ -29,4 +30,35 @@ export function hasActiveRaid(data: GymData) {
 
 export function isRaidHatched(data: GymData) {
 	return (data.raid_battle_timestamp ?? 0) < currentTimestamp()
+}
+
+export function shouldDisplayRaid(data: GymData) {
+	const timestamp = currentTimestamp()
+	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false
+
+	const gymFilters = getUserSettings().filters.gymMajor
+	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false
+
+	if (gymFilters.raid.filters === undefined) return true
+
+	const filters = gymFilters.raid.filters.filter(f => f.enabled)
+	if (filters.length === 0) return true
+
+	const isEgg = !data.raid_pokemon_id
+
+	for (const filter of filters) {
+		if (!filter.levels?.includes(data.raid_level)) continue
+		if (isEgg && !filter.showEggs) continue
+
+		const hasBossFilter = filter.bosses && filter.bosses.length > 0
+		if (!hasBossFilter) return true
+
+		for (const boss of filter.bosses ?? []) {
+			if (boss.pokemon_id === data.raid_pokemon_id && (!boss.form || boss.form === data.raid_pokemon_form)) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

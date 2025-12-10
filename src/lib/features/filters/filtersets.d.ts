@@ -100,7 +100,7 @@ export type FiltersetGymPlain = BaseFilterset & {
 export type FiltersetRaid = BaseFilterset & {
 	levels?: number[];
 	bosses?: Pokemon[];
-	hatchState?: "egg" | "boss" | "all";
+	showEggs?: boolean;
 };
 
 export type FiltersetStationPlain = BaseFilterset & {};

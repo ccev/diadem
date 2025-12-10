@@ -17,6 +17,7 @@ import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { error } from "@sveltejs/kit";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { StationData } from "@/lib/types/mapObjectData/station";
+import { queryGyms } from "@/lib/server/api/queryGyms";
 
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
@@ -43,7 +44,7 @@ export async function queryMapObjects<Data extends MapData>(
 	if (type === "pokemon" && filter.enabled) {
 		return await queryPokemon(bounds, filter as FilterPokemon);
 	} else if (type === "gym" && filter.enabled) {
-		dbResponse = await queryGyms(bounds, filter as FilterGym);
+		[ dbResponse, examinedResponse ] = await queryGyms(bounds, filter as FilterGym);
 	} else if (type === "pokestop" && filter.enabled) {
 		[ dbResponse, examinedResponse ] = await queryPokestops(bounds, filter as FilterPokestop);
 	} else if (type === "station" && filter.enabled) {
@@ -135,18 +136,6 @@ async function queryPokemon(
 		result: { examined: 0, data: [] },
 		error: 500
 	};
-}
-
-async function queryGyms(bounds: Bounds, filter: FilterGym) {
-	return await query<GymData[]>(
-		"SELECT * FROM gym " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
-			"AND deleted = 0 " +
-			"LIMIT " +
-			LIMIT_GYM,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
-	);
 }
 
 async function queryStations(bounds: Bounds, filter: FilterStation) {

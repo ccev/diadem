@@ -23,7 +23,7 @@ import {
 	shouldDisplayIncidient,
 	shouldDisplayQuest
 } from "@/lib/utils/pokestopUtils";
-import { getRaidPokemon } from "@/lib/utils/gymUtils";
+import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
 
 export type IconProperties = {
@@ -246,7 +246,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			if ((obj.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
 				overwriteIcon = getIconGym({ team_id: 0 });
 			} else {
-				if ((obj.raid_end_timestamp ?? 0) > timestamp) {
+				if (shouldDisplayRaid(obj)) {
 					if (obj.raid_pokemon_id) {
 						const mapId = obj.mapId + "-raidpokemon-" + obj.raid_spawn_timestamp;
 						let raidModifiers = getModifiers(userIconSet, "raid_pokemon");
