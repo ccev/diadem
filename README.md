@@ -15,14 +15,14 @@ To get an idea of what's working right now, check out the [Demo](https://map.mal
 
 ## Setup
 
-Due to the aforementioned reasons, documentation is lacking, and for now it's generally not advised to 
+Before this becomes ready for production, documentation is lacking, and for now it's generally not advised to 
 set this up yourself. But I'm not stopping you:
 
 1. `git clone https://github.com/ccev/diadem && cd `
 1. `./setup.sh`, then fill out config/config.toml
 2. `pnpm run db:push`
 3. `pnpm install` && `pnpm run build`
-4. Start with `PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"`
+4. Start with pm2: `PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"`
 5. Set up a reverse proxy, I use caddy with this config:
     ```
     map.co {
@@ -33,7 +33,7 @@ set this up yourself. But I'm not stopping you:
 ### Update
 1. `git pull`
 2. `./setup.sh && pnpm install && pnpm run build`
-3. `pm2 restart`
+3. `pm2 restart diadem`
 
 ### Asset caching
 Diadem proxies and optimizes UICON repos. Clients will cache all uicons for 7 days. 
