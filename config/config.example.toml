@@ -1,3 +1,7 @@
+[server.log]
+level = "info" #crit, error, warning, info, debug
+# file = "/var/log/diadem.log"
+
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""
@@ -131,7 +135,7 @@ raid_egg_6 = { scale = 0.17, offsetY = -230 }
 [[client.uiconSets]]
 id = "pogoOutline"
 name = "GO"
-url = "https://raw.githubusercontent.com/whiFtewillem/PogoAssets/refs/heads/main/uicons-outline/"
+url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
 
 base = { scale = 0.5 }
 pokemon = { default = true, scale = 0.4 }
