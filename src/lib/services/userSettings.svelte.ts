@@ -48,10 +48,10 @@ export function getDefaultUserSettings(): UserSettings {
 	return {
 		mapPosition: {
 			center: {
-				lat: general.defaultMapLat ?? 53.86762990550971,
-				lng: general.defaultMapLng ?? 10.687758976519007
+				lat: general.defaultLat ?? 51.516855,
+				lng: general.defaultLon ?? -0.080500
 			},
-			zoom: general.defaultMapZoom ?? 15
+			zoom: general.defaultZoom ?? 15
 		},
 		mapStyle: {
 			id: getConfig().mapStyles[0].id,
