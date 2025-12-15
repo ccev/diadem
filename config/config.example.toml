@@ -1,3 +1,6 @@
+[server.log]
+level = "info"
+
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""
