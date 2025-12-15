@@ -16,6 +16,8 @@ import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/cons
 import { getDiscordAuth } from "@/lib/server/auth/discord";
 import { building } from "$app/environment";
 import type { ServerInit } from "@sveltejs/kit";
+import { getClientConfig } from "@/lib/services/config/config.server";
+
 
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
@@ -31,14 +33,19 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		event.locals.session = null;
 
 		if (isAuthRequired()) {
-			if (event.url.pathname.startsWith("/login")) return resolve(event);
+			const pathname = event.url.pathname;
+			const mapPath = getClientConfig().general.customHome ? "/map" : "/";
 
-			return new Response(null, {
-				status: 302,
-				headers: {
-					Location: "/login/discord"
-				}
-			});
+			if (pathname.startsWith("/login")) return resolve(event);
+
+			if (pathname === mapPath || pathname.startsWith(mapPath + "/")) {
+				return new Response(null, {
+					status: 302,
+					headers: {
+						Location: "/login/discord"
+					}
+				});
+			}
 		}
 
 		return resolve(event);
