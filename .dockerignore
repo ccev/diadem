@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+
+# Build output
+build
+.svelte-kit
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+LICENSE
+*.md
+
+# Development/Test
+.env.local
+.env.*.local
+coverage
+.nyc_output
+
+# Config (mounted at runtime, not baked in)
+# Keep config examples for build stage
+!config/*.example.*
