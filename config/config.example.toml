@@ -96,6 +96,9 @@ password = ""
 mapName = "Diadem"
 defaultLocale = "en"  # Only used in link previews, client locale is set based on user preference
 customHome = false  # If enabled, path / will show the config/Home.svelte component, so you can build your own homepage. The map can be found under /map
+defaultMapLat = 53.86762990550971 # Starting Latitude
+defaultMapLng = 10.687758976519007 # Starting Longitude
+defaultMapZoom = 15 # Default Zoom
 
 ### Map Styles
 
