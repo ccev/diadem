@@ -13,9 +13,8 @@ services:
       - HOST=0.0.0.0
       - PORT=3900
     volumes:
-      # Required: Mount your config file (both paths needed for runtime and db:push)
-      - ./config/config.toml:/app/build/server/config.toml:ro
-      - ./config/config.toml:/app/src/lib/server/config.toml:ro
+      # Required: Mount your config file
+      - ./config/config.toml:/app/config/config.toml:ro
       # Optional: Persistent logs
       - diadem-logs:/app/logs
     depends_on:
