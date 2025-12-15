@@ -14,12 +14,8 @@
 		showHours?: boolean
 	} = $props()
 
-	if (!expireTime) {
-		expireTime = 0
-	}
-
 	let formattedTime: string = $state("")
-	let remainingTime: number = (expireTime ?? 0) - currentTimestamp()
+	let remainingTime: number = $derived((expireTime ?? 0) - currentTimestamp())
 	let interval: NodeJS.Timeout | undefined
 
 	function updateCountdown() {
@@ -75,7 +71,7 @@
 		expireTime
 
 		untrack(() => {
-			remainingTime = expireTime - currentTimestamp()
+			remainingTime = (expireTime ?? 0) - currentTimestamp()
 			updateCountdown()
 		})
 		interval = setInterval(updateCountdown, 1000)

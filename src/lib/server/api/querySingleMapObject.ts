@@ -26,16 +26,13 @@ export async function querySingleMapObject(type: MapObjectType, id: string, this
 async function querySinglePokemon(id: string, thisFetch: typeof fetch) {
 	const response = await getSinglePokemon(id, thisFetch);
 
-	if (!response.ok)
+	if (!response)
 		return {
 			result: [],
 			error: "Error"
 		};
-
-	const data = await response.json();
-
 	return {
-		result: [data],
+		result: [response],
 		error: null
 	};
 }

@@ -43,7 +43,7 @@ export async function GET() {
 			gyms: fortStats.gyms
 		} as LiveStats);
 	} catch (e) {
-		console.error("Error fetching stats", e);
+		log.error("Error fetching live stats: %s", e);
 		return json({
 			pokemon: {},
 			generatedAt: 0

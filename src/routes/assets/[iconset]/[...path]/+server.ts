@@ -59,7 +59,13 @@ export async function GET({ params, fetch, url }) {
 			}
 		});
 	} catch (err) {
-		log.error(err);
+		log.error(
+			"[%s] Processing uicon %s (width=%s) failed: %s",
+			iconSetId,
+			iconPath,
+			width ?? "original",
+			err
+		);
 		return new Response("error processing image", { status: 500 });
 	}
 }

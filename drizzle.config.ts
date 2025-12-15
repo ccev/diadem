@@ -1,10 +1,11 @@
-import { defineConfig } from 'drizzle-kit';
-import { getInternalDbUri } from './src/lib/services/config/configNode.server';
+import { defineConfig } from "drizzle-kit";
+import { getServerConfig } from "./src/lib/services/config/config.server";
+import { getDbUri } from "./src/lib/services/config/dbUri.server";
 
 export default defineConfig({
-	schema: './src/lib/server/db/internal/schema.ts',
-	dialect: 'mysql',
-	dbCredentials: { url: getInternalDbUri() },
+	schema: "./src/lib/server/db/internal/schema.ts",
+	dialect: "mysql",
+	dbCredentials: { url: getDbUri(getServerConfig().internalDb) },
 	verbose: true,
 	strict: true
 });

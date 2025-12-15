@@ -1,47 +1,58 @@
-import { getServerConfig } from '@/lib/services/config/config.server';
-import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
+import { getServerConfig } from "@/lib/services/config/config.server";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { getLogger } from "@/lib/server/logging";
 
 export type PokemonResponse = {
-	pokemon: PokemonData[]
-	examined: number
-	skipped: number
-	total: number
-}
+	pokemon: PokemonData[];
+	examined: number;
+	skipped: number;
+	total: number;
+};
 
-function getHeaders() {
-	return {
-		"Authorization": getServerConfig().golbat.auth,
-		"X-Golbat-Secret": getServerConfig().golbat.secret
+const log = getLogger("golbat");
+const config = getServerConfig().golbat;
+
+async function callGolbat<T>(
+	path: string,
+	method: "GET" | "POST",
+	body: BodyInit | undefined = undefined,
+	thisFetch: typeof fetch = fetch
+): Promise<T | undefined> {
+	const start = performance.now();
+	const url = new URL(path, config.url);
+
+	const headers: HeadersInit = {};
+
+	if (config.auth) {
+		headers["Authorization"] = config.auth;
 	}
+	if (config.secret) {
+		headers["X-Golbat-Secret"] = config.secret;
+	}
+
+	const response = await thisFetch(url, { method, body, headers });
+
+	if (!response.ok) {
+		log.error(
+			"[%s] Golbat returned a bad status | %d (%s)",
+			url.toString(),
+			response.status,
+			await response.text()
+		);
+		return undefined;
+	}
+
+	const result = await response.json();
+
+	log.debug("[%s] Request took %fms", url.pathname, (performance.now() - start).toFixed(1));
+
+	return result;
 }
 
 export async function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
-	const url = new URL("api/pokemon/id/" + id, getServerConfig().golbat.url)
-
-	return await thisFetch(
-		url,
-		{
-			method: "GET",
-			headers: getHeaders()
-		}
-	)
+	return await callGolbat<PokemonData>("api/pokemon/id/" + id, "GET", undefined, thisFetch)
 }
 
 export async function getMultiplePokemon(body: any) {
-	const url = new URL("api/pokemon/v3/scan", getServerConfig().golbat.url)
-
-	const response = await fetch(
-		url,
-		{
-			method: "POST",
-			headers: getHeaders(),
-			body: JSON.stringify(body)
-		}
-	)
-	if (!response.ok) {
-		console.error("Error while fetching Pokemon: " + response.status)
-		return undefined
-	}
-	const result: PokemonResponse = await response.json()
-	return result
+	return await callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body))
 }
