@@ -220,5 +220,6 @@
 	"xp": "XP",
 	"xl_candy": "Candy XL",
 	"redirect_notice": "You're being automatically redirected to {goal}. Click here if that didn't work.",
-	"language_spanish": "Spanish"
+	"language_spanish": "Spanish",
+	"signin": "Link"
 }
