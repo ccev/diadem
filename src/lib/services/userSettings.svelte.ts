@@ -9,6 +9,7 @@ import type {
 } from "@/lib/features/filters/filters";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { browser } from "$app/environment";
+import { getDefaultMapStyle } from "@/lib/services/themeMode";
 
 type UiconSetUS = {
 	id: string;
@@ -44,6 +45,8 @@ export type UserSettings = {
 };
 
 export function getDefaultUserSettings(): UserSettings {
+	const defaultMapStyle = getDefaultMapStyle()
+
 	return {
 		mapPosition: {
 			center: {
@@ -53,8 +56,8 @@ export function getDefaultUserSettings(): UserSettings {
 			zoom: 15
 		},
 		mapStyle: {
-			id: getConfig().mapStyles[0].id,
-			url: getConfig().mapStyles[0].url
+			id: defaultMapStyle.id,
+			url: defaultMapStyle.url
 		},
 		uiconSet: {
 			pokemon: getDefaultIconSet("pokemon"),
