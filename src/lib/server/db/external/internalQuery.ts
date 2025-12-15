@@ -28,7 +28,7 @@ export async function query<T>(
 		);
 		result = queryResult[0];
 	} catch (e) {
-		console.error('SQL exception', e);
+		log.error('SQL exception', e);
 		error = 500;
 	}
 

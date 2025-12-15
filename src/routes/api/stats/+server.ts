@@ -25,7 +25,7 @@ export async function GET() {
 		statsCache.set("stats", stats);
 		return json(stats);
 	} catch (e) {
-		console.error("Error fetching stats", e);
+		log.error("Error while generating master stats: %e", e);
 		return json({
 			pokemon: {},
 			generatedAt: 0
