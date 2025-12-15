@@ -1,0 +1,65 @@
+services:
+  diadem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: diadem:latest
+    container_name: diadem
+    restart: unless-stopped
+    ports:
+      - "${DIADEM_PORT:-3900}:3900"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3900
+    volumes:
+      # Required: Mount your config file (both paths needed for runtime and db:push)
+      - ./config/config.toml:/app/build/server/config.toml:ro
+      - ./config/config.toml:/app/src/lib/server/config.toml:ro
+      # Optional: Persistent logs
+      - diadem-logs:/app/logs
+    depends_on:
+      diadem-db:
+        condition: service_healthy
+    networks:
+      - diadem-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3900').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  diadem-db:
+    image: mariadb:11.4
+    container_name: diadem-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-changeme_root}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-diadem}
+      MARIADB_USER: ${MARIADB_USER:-diadem}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-changeme}
+    volumes:
+      - diadem-db-data:/var/lib/mysql
+    networks:
+      - diadem-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  diadem-db-data:
+    name: diadem-db-data
+  diadem-logs:
+    name: diadem-logs
+
+networks:
+  diadem-network:
+    name: diadem-network
+    driver: bridge

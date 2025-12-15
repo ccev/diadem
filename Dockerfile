@@ -33,7 +33,15 @@ RUN groupadd --gid 1001 diadem && \
 COPY --from=builder --chown=diadem:diadem /app/build ./build
 COPY --from=builder --chown=diadem:diadem /app/package.json ./
 COPY --from=deps --chown=diadem:diadem /app/node_modules ./node_modules
+
+# Files needed for drizzle-kit db:push at runtime
+COPY --from=builder --chown=diadem:diadem /app/drizzle.config.ts ./
+COPY --from=builder --chown=diadem:diadem /app/src/lib/server/db ./src/lib/server/db
+COPY --from=builder --chown=diadem:diadem /app/src/lib/services ./src/lib/services
+
 RUN mkdir -p /app/config && chown diadem:diadem /app/config
+COPY --chown=diadem:diadem docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 USER diadem
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
@@ -41,7 +49,7 @@ ENV PORT=3900
 
 EXPOSE 3900
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD node -e "fetch('http://localhost:${PORT:-3900}').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
-CMD ["node", "build/index.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
