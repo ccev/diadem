@@ -20,7 +20,7 @@
 		data: FiltersetQuest
 	} = $props();
 
-	let thisValues: QuestArType[] = $state(data.ar ? [data.ar] : [])
+	let thisValues: QuestArType[] = $derived(data.ar ? [data.ar] : [])
 </script>
 
 <div class="">

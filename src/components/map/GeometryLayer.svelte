@@ -15,7 +15,10 @@
 
 	let lastWasEmpty = true
 
-	if (reactive && data) {
+	// svelte-ignore state_referenced_locally values are never updated
+	const makeEffect = reactive && data
+
+	if (makeEffect) {
 		$effect(() => {
 			if (data.features.length === 0 && lastWasEmpty) return
 			lastWasEmpty = data.features.length === 0

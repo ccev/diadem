@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { changeAttributeMinMax } from '@/lib/features/filters/filtersetUtils';
-	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
-	import type { FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
-	import { getSpawnablePokemon } from '@/lib/services/masterfile';
-	import { getIconPokemon } from '@/lib/services/uicons.svelte';
-	import { mPokemon } from '@/lib/services/ingameLocale';
-	import Button from '@/components/ui/input/Button.svelte';
-	import { ToggleGroup } from 'bits-ui';
+	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import { getSpawnablePokemon } from "@/lib/services/masterfile";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte";
+	import { mPokemon } from "@/lib/services/ingameLocale";
+	import Button from "@/components/ui/input/Button.svelte";
 
 	let {
 		data

@@ -16,7 +16,7 @@
 		sizeBounds: MinMax
 	} = $props();
 
-	let thisValues = $state(data.gender?.map(String) ?? ["1", "2", "3"])
+	let thisValues = $derived(data.gender?.map(String) ?? ["1", "2", "3"])
 </script>
 
 <SliderRange

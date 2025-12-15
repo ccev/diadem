@@ -14,7 +14,7 @@
 		children?: Snippet
 	} = $props()
 
-	const Item = type === "toggle" ? ToggleGroup.Item : RadioGroup.Item
+	const Item = $derived(type === "toggle" ? ToggleGroup.Item : RadioGroup.Item)
 </script>
 
 <Item

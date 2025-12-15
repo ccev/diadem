@@ -11,8 +11,8 @@
 		...rest
 	}: {
 		class?: string
-		variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
-		size?: 'default' | 'sm' | 'lg' | 'icon' | ''
+		variant?: keyof typeof variants
+		size?: keyof typeof sizes
 		children?: Snippet,
 		tag?: 'a' | 'button',
 	} & HTMLButtonAttributes & HTMLAnchorAttributes = $props();
@@ -31,10 +31,11 @@
 		default: 'h-10 px-4 py-2 rounded-md',
 		sm: 'h-9 rounded-md px-3',
 		lg: 'h-11 rounded-md px-8',
-		icon: 'h-10 w-10 rounded-md'
+		icon: 'h-10 w-10 rounded-md',
+		'': ''
 	};
 
-	let className = variants[variant] + ' ' + (sizes[size] ?? '');
+	let className = $derived(variants[variant] + ' ' + (sizes[size] ?? ''));
 </script>
 
 <svelte:element
