@@ -8,7 +8,7 @@ import {
 	makeNewSession
 } from "@/lib/server/auth/auth";
 import { redirect } from "@sveltejs/kit";
-import { getMapPath } from "@/lib/utils/getMapPath";
+import { getClientConfig } from "@/lib/services/config/config.server";
 
 export const load: PageServerLoad = async (event) => {
 	const discord = getDiscordAuth();
@@ -18,7 +18,9 @@ export const load: PageServerLoad = async (event) => {
 	const state = event.url.searchParams.get("state");
 	const storedState = event.cookies.get("discord_state") ?? null;
 	const codeVerifier = event.cookies.get("discord_code_verifier") ?? null;
-	const redirectLink = event.cookies.get("login_redirect") ?? getMapPath();
+	const mapPath = getClientConfig().general.customHome ? "/map" : "/";
+	const redirectLink = event.cookies.get("login_redirect") ?? mapPath;
+
 
 	const respone: { error: string | undefined; redir: string; name: string } = {
 		error: undefined,
