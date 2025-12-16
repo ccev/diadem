@@ -2,7 +2,7 @@ import { generateCodeVerifier, generateState } from 'arctic';
 import { getDiscordAuth } from '@/lib/server/auth/discord';
 
 import type { RequestEvent } from '@sveltejs/kit';
-import { getClientConfig } from "@/lib/services/config/config.server";
+import { getClientConfig, isAuthRequired } from "@/lib/services/config/config.server";
 
 const SCOPES = ['identify', 'guilds.members.read'];
 
@@ -29,14 +29,14 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	});
 
 	const mapPath = getClientConfig().general.customHome ? "/map" : "/";
+	const redirect = isAuthRequired() ? "/" : mapPath;
 
-	event.cookies.set('login_redirect', event.url.searchParams.get("redir") ?? mapPath, {
+	event.cookies.set('login_redirect', event.url.searchParams.get("redir") ?? redirect, {
 		path: '/',
 		httpOnly: true,
 		maxAge: 60 * 10,
 		sameSite: 'lax'
 	});
-
 
 	return new Response(null, {
 		status: 302,

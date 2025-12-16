@@ -8,7 +8,7 @@ import {
 	makeNewSession
 } from "@/lib/server/auth/auth";
 import { redirect } from "@sveltejs/kit";
-import { getClientConfig } from "@/lib/services/config/config.server";
+import { getClientConfig, isAuthRequired } from "@/lib/services/config/config.server";
 
 export const load: PageServerLoad = async (event) => {
 	const discord = getDiscordAuth();
@@ -18,9 +18,13 @@ export const load: PageServerLoad = async (event) => {
 	const state = event.url.searchParams.get("state");
 	const storedState = event.cookies.get("discord_state") ?? null;
 	const codeVerifier = event.cookies.get("discord_code_verifier") ?? null;
-	const mapPath = getClientConfig().general.customHome ? "/map" : "/";
-	const redirectLink = event.cookies.get("login_redirect") ?? mapPath;
 
+	const clientConfig = getClientConfig();
+	const mapPath = clientConfig.general.customHome ? "/map" : "/";
+
+	const redirectLink =
+		event.cookies.get("login_redirect") ??
+		(isAuthRequired() ? "/" : mapPath);
 
 	const respone: { error: string | undefined; redir: string; name: string } = {
 		error: undefined,
@@ -29,10 +33,16 @@ export const load: PageServerLoad = async (event) => {
 	};
 
 	if (code === null || state === null || storedState === null || codeVerifier === null) {
+		if (isAuthRequired() && mapPath === "/") {
+			throw redirect(302, "/login/discord");
+		}
 		respone.error = "Discord Login: No Code or state found";
 		return respone;
 	}
 	if (state !== storedState) {
+		if (isAuthRequired() && mapPath === "/") {
+			throw redirect(302, "/login/discord");
+		}
 		respone.error = "Discord Login: State didn't match";
 		return respone;
 	}
@@ -41,6 +51,9 @@ export const load: PageServerLoad = async (event) => {
 	try {
 		tokens = await discord.validateAuthorizationCode(code, codeVerifier);
 	} catch (e) {
+		if (isAuthRequired() && mapPath === "/") {
+			throw redirect(302, "/login/discord");
+		}
 		respone.error = "Discord Login: Invalid code, credentials or redirect URI";
 		return respone;
 	}
@@ -61,8 +74,15 @@ export const load: PageServerLoad = async (event) => {
 		userId = await createUserFromDiscordId(userInfo.id);
 	}
 
-	await makeNewSession(event, userId, tokens.accessToken(), tokens.refreshToken(), tokens.accessTokenExpiresAt());
+	await makeNewSession(
+		event,
+		userId,
+		tokens.accessToken(),
+		tokens.refreshToken(),
+		tokens.accessTokenExpiresAt()
+	);
 
 	respone.name = userInfo.displayName;
+	respone.redir = mapPath;
 	return respone;
 };
