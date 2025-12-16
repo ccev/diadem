@@ -181,7 +181,7 @@ export function getContestText(data: PokestopData) {
 }
 
 export function shouldDisplayIncidient(incident: Incident) {
-	const pokestopFilters = getUserSettings().filters.pokestopMajor
+	const pokestopFilters = getUserSettings().filters.pokestop
 	if (!pokestopFilters.enabled) return false
 
 	if (pokestopFilters.goldPokestop.enabled && isIncidentGold(incident)) return true
@@ -198,7 +198,7 @@ export function shouldDisplayIncidient(incident: Incident) {
 }
 
 export function shouldDisplayQuest(reward: QuestReward) {
-	const pokestopFilters = getUserSettings().filters.pokestopMajor
+	const pokestopFilters = getUserSettings().filters.pokestop
 	if (!pokestopFilters.enabled || !pokestopFilters.quest.enabled) return false
 
 	// TODO quest display filters
@@ -208,7 +208,7 @@ export function shouldDisplayQuest(reward: QuestReward) {
 
 export function shouldDisplayLure(data: Partial<PokestopData>) {
 	if (!hasFortActiveLure(data)) return false;
-	const pokestopFilters = getUserSettings().filters.pokestopMajor;
+	const pokestopFilters = getUserSettings().filters.pokestop;
 	if (!pokestopFilters.enabled || !pokestopFilters.lure.enabled) return false;
 
 	const lureFilters = pokestopFilters.lure.filters.filter((f) => f.enabled);

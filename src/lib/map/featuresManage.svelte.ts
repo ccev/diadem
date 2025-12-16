@@ -1,31 +1,33 @@
-import type { FeatureCollection, Point, Polygon } from 'geojson';
-import { type Feature, type IconProperties } from '@/lib/map/featuresGen.svelte';
-import { getMap } from '@/lib/map/map.svelte';
-import type { S2CellFeature, S2CellProperties } from '@/lib/mapObjects/s2cells.svelte.js';
-import { getLoadedImages, setLoadedImage } from '@/lib/map/loadedImages.svelte';
+import type { FeatureCollection, Point } from "geojson";
+import { type Feature, type IconProperties } from "@/lib/map/featuresGen.svelte";
+import { getMap } from "@/lib/map/map.svelte";
+import { getLoadedImages, setLoadedImage } from "@/lib/map/loadedImages.svelte";
+import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 
 let mapObjectsGeoJson: FeatureCollection<Point, IconProperties> = {
-	type: 'FeatureCollection',
+	type: "FeatureCollection",
 	features: []
 };
 
 let sessionImageUrls: string[] = [];
 
 export function updateMapObjectsGeoJson(features: Feature[]) {
-	mapObjectsGeoJson = { type: 'FeatureCollection', features };
+	mapObjectsGeoJson = { type: "FeatureCollection", features };
 
-	getMap()?.getSource('mapObjects')?.setData(mapObjectsGeoJson);
+	const map = getMap();
+
+	updateMapGeojsonSource(MapSourceId.MAP_OBJECTS, mapObjectsGeoJson);
 	Promise.all(
 		mapObjectsGeoJson.features.map((f) => {
 			return addMapImage(f.properties?.imageUrl);
 		})
 	).then(() => {
-		getMap()?.getSource('mapObjects')?.setData(mapObjectsGeoJson);
+		updateMapGeojsonSource(MapSourceId.MAP_OBJECTS, mapObjectsGeoJson);
 	});
 }
 
 export function clearSessionImageUrls() {
-	sessionImageUrls = []
+	sessionImageUrls = [];
 }
 
 export function getMapObjectsGeoJson() {
@@ -43,7 +45,7 @@ async function addMapImage(url: string) {
 	if (!imageData) {
 		const image = await map.loadImage(url);
 		imageData = image.data;
-		setLoadedImage(url, imageData)
+		setLoadedImage(url, imageData);
 	}
 
 	if (!map.hasImage(url)) {

@@ -20,13 +20,14 @@
 		getAttributeLabelRank,
 		pokemonBounds
 	} from '@/lib/features/filters/filterUtilsPokemon';
-	import PokemonAttributeOverview from '@/components/menus/filters/filterset/pokemon/PokemonAttributeOverview.svelte';
+	import PokemonFilterDisplay from '@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte';
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetPokemon | undefined;
 </script>
 
 <FiltersetModal
 	modalType="filtersetPokemon"
+	mapObject="pokemon"
 	majorCategory="pokemon"
 	titleBase={m.pokemon_filter()}
 	titleShared={m.shared_pokemon_filter()}
@@ -36,7 +37,7 @@
 >
 	{#snippet base()}
 		{#if data}
-			<PokemonAttributeOverview {data} />
+			<PokemonFilterDisplay {data} />
 		{/if}
 	{/snippet}
 	{#snippet overview()}

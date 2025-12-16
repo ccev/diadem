@@ -20,6 +20,7 @@
 	import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 	import { formatNumberCompact } from '@/lib/utils/numberFormat';
 	import { tick } from 'svelte';
+	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 
 	let {
 		majorCategory,
@@ -27,7 +28,7 @@
 		title,
 		onEnabledChange,
 		filter,
-		mapObject = undefined,
+		mapObject,
 		filterModal = undefined,
 		isExpandable = false,
 		isFilterable = true,
@@ -38,7 +39,7 @@
 		title: string,
 		onEnabledChange: (thisCategory: FilterCategory, value: boolean) => void,
 		filter: AnyFilter,
-		mapObject?: MapObjectType | undefined,
+		mapObject: MapObjectType,
 		filterModal?: ModalType | undefined,
 		isExpandable?: boolean,
 		isFilterable?: boolean,
@@ -69,12 +70,13 @@
 		filter.filters = filter.filters.map((filterset) => ({ ...filterset, enabled: shouldEnable }))
 
 		updateUserSettings();
+		deleteAllFeaturesOfType(mapObject)
 		tick().then(() => updateAllMapObjects().then());
 	}
 </script>
 
 {#snippet showingCount()}
-	{#if mapObject}
+	{#if mapObject && !subCategory}
 		{@const { showing, examined } = getMapObjectCounts(mapObject)}
 		<p class="text-sm text-muted-foreground font-semibold">
 			{#if showing === examined}
@@ -154,13 +156,13 @@
 	</div>
 
 	{#if isEnabled && isFilterable}
-		{#if hasAnyFilterset}
+		{#if hasAnyFilterset && filterModal}
 			<div
 				class="w-full my-1 flex flex-col gap-1 pl-2"
 				transition:slide={{ duration: 90 }}
 			>
 				{#each filter.filters ?? [] as filterset (filterset.id)}
-					<Filterset filter={filterset} {majorCategory} {subCategory} />
+					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} />
 				{/each}
 			</div>
 

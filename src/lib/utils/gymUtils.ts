@@ -4,7 +4,23 @@ import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
+export type RaidFilterType = "level" | "boss"
 export const GYM_SLOTS = 6;
+export const RAID_LEVELS = [
+	1,		// 1 star
+	11,		// 1 star shadow
+	3,		// 3 star
+	13,		// 3 star shadow
+	5,		// legendary
+	15,		// legendary shadow
+	6,		// mega
+	7,		// mega legendary
+	10,		// primal
+	8,		// ultra beast
+	// 16,		// 4 mega enhanced
+	// 17,		// 5 mega enhanced
+	9,		// elite
+]
 
 export function getRaidPokemon(gym: GymData): Partial<PokemonData> {
 	return {
@@ -36,7 +52,7 @@ export function shouldDisplayRaid(data: GymData) {
 	const timestamp = currentTimestamp()
 	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false
 
-	const gymFilters = getUserSettings().filters.gymMajor
+	const gymFilters = getUserSettings().filters.gym
 	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false
 
 	if (gymFilters.raid.filters === undefined) return true

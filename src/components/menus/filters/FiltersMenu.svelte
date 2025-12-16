@@ -19,6 +19,7 @@
 	import PokemonFilterset from '@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte';
 	import PlainPokestopFilterset from '@/components/menus/filters/filterset/plainPokestop/PlainPokestopFilterset.svelte';
 	import QuestFilterset from '@/components/menus/filters/filterset/quest/QuestFilterset.svelte';
+	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
 
 	let test: boolean = $state(false);
 
@@ -34,6 +35,7 @@
 
 <PokemonFilterset />
 <QuestFilterset />
+<RaidFilterset />
 
 <div class="mt-2 space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
 	<FilterSection
@@ -47,7 +49,7 @@
 	<FilterSection
 		requiredPermission="pokestop"
 		title="Pokéstops"
-		category="pokestopMajor"
+		category="pokestop"
 		mapObject="pokestop"
 		isFilterable={false}
 		subCategories={[
@@ -65,24 +67,24 @@
 	<FilterSection
 		requiredPermission="gym"
 		title="Gyms"
-		category="gymMajor"
+		category="gym"
 		mapObject="gym"
 		isFilterable={false}
 		subCategories={[
-			{ title: "Plain Gyms", category: "gymPlain" },
-			{ title: "Raids", category: "raid" },
+			{ title: "Plain Gyms", category: "gymPlain", filterable: false },
+			{ title: "Raids", category: "raid", filterModal: "filtersetRaid" },
 		]}
 	/>
 
 	<FilterSection
 		requiredPermission="station"
 		title="Power Spots"
-		category="stationMajor"
+		category="station"
 		mapObject="station"
 		isFilterable={false}
 		subCategories={[
-			{ title: "Plain Power Spots", category: "stationPlain" },
-			{ title: "Max Battles", category: "maxBattle" },
+			{ title: "Plain Power Spots", category: "stationPlain", filterable: false },
+			{ title: "Max Battles", category: "maxBattle", filterable: false },
 		]}
 	/>
 

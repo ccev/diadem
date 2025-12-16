@@ -3,7 +3,7 @@
 	import { Eye, EyeClosed } from "lucide-svelte";
 
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
-	import { openModal } from "@/lib/ui/modal.svelte";
+	import { type ModalType, openModal } from "@/lib/ui/modal.svelte";
 	import {
 		type SelectedFiltersetData,
 		setCurrentSelectedFilterset,
@@ -17,11 +17,13 @@
 	let {
 		filter,
 		majorCategory,
-		subCategory
+		subCategory,
+		filterModal
 	}: {
 		filter: AnyFilterset
 		majorCategory: SelectedFiltersetData["majorCategory"],
 		subCategory?: FilterCategory,
+		filterModal: ModalType
 	} = $props();
 </script>
 
@@ -32,7 +34,7 @@
 	onclick={() => {
 		setCurrentSelectedFilterset(majorCategory, subCategory, filter, true)
 		filtersetPageReset()
-		openModal("filtersetPokemon")
+		openModal(filterModal)
 	}}
 >
 

@@ -24,12 +24,22 @@
 		muted: {
 			text: '--color-slate-500',
 			bg: '--color-slate-100',
-			border: '--color-slate-200'
+			border: '--color-slate-200',
+			dark: {
+				text: '--color-zinc-400',
+				bg: '--color-zinc-900',
+				border: '--color-zinc-800',
+			}
 		},
 		yellow: {
 			text: '--color-amber-900',
 			bg: '--color-amber-100',
-			border: '--color-amber-200'
+			border: '--color-amber-200',
+			dark: {
+				text: '--color-indigo-100',
+				bg: '--color-indigo-900',
+				border: '--color-indigo-800',
+			}
 		}
 	};
 
@@ -39,7 +49,12 @@
 <div
 	class="pl-2 rounded-sm border w-fit flex items-stretch attribute-chip"
 	class:pr-2={isEmpty}
-	style="--color-attr-chip-border: var({actualColor.border}); --color-attr-chip-bg: var({actualColor.bg}); --color-attr-chip-text: var({actualColor.text});"
+	style:--color-attr-chip-border="var({actualColor.border})"
+	style:--color-attr-chip-bg="var({actualColor.bg})"
+	style:--color-attr-chip-text="var({actualColor.text})"
+	style:--color-attr-chip-dark-border="var({actualColor.dark.border})"
+	style:--color-attr-chip-dark-bg="var({actualColor.dark.bg})"
+	style:--color-attr-chip-dark-text="var({actualColor.dark.text})"
 >
 	<span class="py-1">
 		{#if isEmpty}
@@ -68,7 +83,17 @@
         border-color: var(--color-attr-chip-border);
     }
 
+    :global(.dark .attribute-chip) {
+        background-color: var(--color-attr-chip-dark-bg);
+        color: var(--color-attr-chip-dark-text);
+        border-color: var(--color-attr-chip-dark-border);
+    }
+
     :global(.attribute-chip-button:hover), :global(.attribute-chip-button:active) {
         background-color: color-mix(in oklab, var(--color-attr-chip-border) 50%, transparent);
+    }
+
+    :global(.dark .attribute-chip-button:hover), :global(.dark .attribute-chip-button:active) {
+        background-color: color-mix(in oklab, var(--color-attr-chip-dark-border) 90%, transparent);
     }
 </style>

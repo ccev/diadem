@@ -15,6 +15,7 @@
 </script>
 
 <FiltersetModal
+	mapObject="pokestop"
 	modalType="filtersetPlainPokestop"
 	modalTitle="Plain Pokestop Filter"
 	{isInEdit}

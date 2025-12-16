@@ -16,16 +16,19 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { isOpenModal, type ModalType } from '@/lib/ui/modal.svelte';
 	import { closeModal } from '@/lib/ui/modal.svelte.js';
+	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 	let {
-		modalType
+		modalType,
+		mapObject
 	}: {
-		modalType: ModalType
+		modalType: ModalType,
+		mapObject: MapObjectType
 	} = $props()
 
 	function ondelete() {
 		if (existsCurrentSelectedFilterset()) {
-			deleteCurrentSelectedFilterset()
+			deleteCurrentSelectedFilterset(mapObject)
 		}
 		closeModal(modalType)
 	}
@@ -90,7 +93,7 @@
 		<Button
 			class=""
 			variant="default"
-			onclick={() => filtersetPageSave(modalType)}
+			onclick={() => filtersetPageSave(modalType, mapObject)}
 			disabled={getCurrentSelectedFiltersetIsEmpty() && getCurrentFiltersetPage() !== "attribute"}
 		>
 			Save

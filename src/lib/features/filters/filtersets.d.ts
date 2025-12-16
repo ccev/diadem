@@ -97,10 +97,12 @@ export type FiltersetGymPlain = BaseFilterset & {
 	defenderAmount?: MinMax;
 };
 
+export type RaidFilterShow = "egg" | "boss"
+
 export type FiltersetRaid = BaseFilterset & {
 	levels?: number[];
 	bosses?: Pokemon[];
-	showEggs?: boolean;
+	show?: RaidFilterShow[];
 };
 
 export type FiltersetStationPlain = BaseFilterset & {};

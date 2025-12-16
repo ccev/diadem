@@ -33,7 +33,10 @@
 	import { getCurrentScoutData } from "@/lib/features/scout.svelte.js";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { isAnyModalOpen, openModal } from "@/lib/ui/modal.svelte.js";
-	import { getCurrentSelectedFiltersetIsShared } from "@/lib/features/filters/filtersetPageData.svelte";
+	import {
+		getCurrentSelectedFiltersetIsShared,
+		openFiltersetModal
+	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { openMenu } from "@/lib/ui/menus.svelte";
 	import { MapSourceId } from "@/lib/map/layers";
@@ -90,7 +93,7 @@
 			if (getCurrentSelectedFiltersetIsShared()) {
 				openMenu("filters")
 				filtersetPageReset()
-				tick().then(() => openModal("filtersetPokemon"))
+				tick().then(openFiltersetModal)
 			}
 
 			isInitUpdatedMapObjects = true;

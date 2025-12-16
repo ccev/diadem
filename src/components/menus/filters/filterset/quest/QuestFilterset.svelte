@@ -23,7 +23,8 @@
 
 <FiltersetModal
 	modalType="filtersetQuest"
-	majorCategory="pokestopMajor"
+	mapObject="pokestop"
+	majorCategory="pokestop"
 	subCategory="quest"
 	titleBase={m.quest_filter()}
 	titleShared={m.shared_quest_filter()}

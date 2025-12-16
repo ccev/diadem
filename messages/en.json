@@ -221,5 +221,10 @@
 	"xl_candy": "Candy XL",
 	"redirect_notice": "You're being automatically redirected to {goal}. Click here if that didn't work.",
 	"language_spanish": "Spanish",
-    "language_portuguese": "Portuguese"
+    "language_portuguese": "Portuguese",
+	"raid_filter": "Raid Filter",
+	"shared_raid_filter": "Shared Raid Filter",
+	"new_raid_filter": "New Raid Filter",
+	"edit_raid_filter": "Edit Raid Filter",
+    "count_raid_levels": "{count} Raid levels"
 }
