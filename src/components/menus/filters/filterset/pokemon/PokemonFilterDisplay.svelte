@@ -27,7 +27,7 @@
 	{/if}
 
 	{#if data.iv}
-		<AttributeDisplay label="Total IV" value={getAttributeLabelIvProduct(data.iv)} />
+		<AttributeDisplay label={m.iv_product_label_long()} value={getAttributeLabelIvProduct(data.iv)} />
 	{/if}
 	{#if data.ivAtk || data.ivDef || data.ivSta}
 		<AttributeDisplay label={m.pogo_ivs()} value={getAttributeLabelIvValues(data.ivAtk, data.ivDef, data.ivSta)} />

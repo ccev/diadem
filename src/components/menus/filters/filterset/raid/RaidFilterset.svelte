@@ -1,25 +1,17 @@
 <script lang="ts">
-	import FiltersetModal from '@/components/menus/filters/filterset/FiltersetModal.svelte';
-	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
-	import Attribute from '@/components/menus/filters/filterset/Attribute.svelte';
-	import AttributesOverview from '@/components/menus/filters/filterset/AttributesOverview.svelte';
-	import PageAttribute from '@/components/menus/filters/filterset/PageAttribute.svelte';
-	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
-	import * as m from '@/lib/paraglide/messages';
-	import type { FiltersetPokemon, FiltersetQuest, FiltersetRaid } from "@/lib/features/filters/filtersets";
-	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
+	import FiltersetModal from "@/components/menus/filters/filterset/FiltersetModal.svelte";
+	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
+	import Attribute from "@/components/menus/filters/filterset/Attribute.svelte";
+	import AttributesOverview from "@/components/menus/filters/filterset/AttributesOverview.svelte";
+	import * as m from "@/lib/paraglide/messages";
+	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
+	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import {
 		makeAttributePokemonLabel,
-		makeAttributeRaidLevelLabel, makeAttributeRaidShowLabel
+		makeAttributeRaidLevelLabel,
+		makeAttributeRaidShowLabel
 	} from "@/lib/features/filters/makeAttributeChipLabel";
-	import { getAttributeLabelAr } from '@/lib/features/filters/filterUtilsQuest';
-	import ArAttribute from '@/components/menus/filters/filterset/quest/ArAttribute.svelte';
-	import RewardAttribute from '@/components/menus/filters/filterset/quest/RewardAttribute.svelte';
-	import Card from '@/components/ui/Card.svelte';
-	import { pokemonBounds } from '@/lib/features/filters/filterUtilsPokemon';
-	import AppearanceChips from '@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte';
-	import AppearanceAttribute from '@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte';
-	import { rewardTypeLabel } from '@/lib/utils/pokestopUtils';
+	import Card from "@/components/ui/Card.svelte";
 	import RaidTypeAttribute from "@/components/menus/filters/filterset/raid/RaidTypeAttribute.svelte";
 	import type { RaidFilterType } from "@/lib/utils/gymUtils";
 	import HatchedLevelAttribute from "@/components/menus/filters/filterset/raid/HatchedLevelAttribute.svelte";
@@ -30,7 +22,6 @@
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetRaid | undefined;
 
 	let filterType: RaidFilterType = $derived(Object.hasOwn(data ?? {}, "bosses") ? "boss" : "level")
-
 </script>
 
 <FiltersetModal
@@ -57,7 +48,7 @@
 
 			{#if filterType === "level"}
 				<AttributesOverview>
-					<Attribute label="Levels">
+					<Attribute label={m.raid_levels()}>
 						<AttributeChip
 							label={makeAttributeRaidLevelLabel(data.levels ?? [])}
 							isEmpty={!data.levels}
@@ -67,7 +58,7 @@
 							<RaidLevelAttribute data={thisData} />
 						{/snippet}
 					</Attribute>
-					<Attribute label="Show">
+					<Attribute label={m.raid_show()}>
 						{#if !data.show}
 							<AttributeChip isEmpty={true} />
 						{:else}
@@ -92,7 +83,7 @@
 				</AttributesOverview>
 			{:else}
 				<AttributesOverview>
-					<Attribute label="Bosses">
+					<Attribute label={m.raid_bosses()}>
 						<AttributeChip
 							label={makeAttributePokemonLabel(data.bosses ?? [])}
 							isEmpty={!data.bosses}

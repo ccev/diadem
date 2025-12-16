@@ -32,5 +32,5 @@ export function makeAttributeRaidLevelLabel(levels: number[]) {
 }
 
 export function makeAttributeRaidShowLabel(show: "egg" | "boss") {
-	return show
+	return show === "egg" ? m.raid_show_eggs() : m.raid_show_bosses()
 }

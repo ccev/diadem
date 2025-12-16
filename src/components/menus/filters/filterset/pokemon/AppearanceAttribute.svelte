@@ -22,7 +22,7 @@
 <SliderRange
 	min={sizeBounds.min}
 	max={sizeBounds.max}
-	title="Size"
+	title={m.pokemon_size()}
 	valueMin={data.size?.min ?? sizeBounds.min}
 	valueMax={data.size?.max ?? sizeBounds.max}
 	onchange={([min, max]) => changeAttributeMinMax(data, "size", sizeBounds.min, sizeBounds.max, min, max)}
@@ -31,7 +31,7 @@
 
 <div class="mt-4">
 	<div class="text-base font-semibold mb-2">
-		Gender
+		{m.pokemon_gender()}
 	</div>
 
 	<ToggleGroup

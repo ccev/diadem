@@ -21,6 +21,7 @@
 	import { formatNumberCompact } from '@/lib/utils/numberFormat';
 	import { tick } from 'svelte';
 	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+	import { mAny } from "@/lib/utils/anyMessage";
 
 	let {
 		majorCategory,
@@ -108,7 +109,7 @@
 					{#if isFilterable && !hasAnyFilterset}
 						<Button class="-ml-2" variant="ghost" size="sm" onclick={onAddFilter}>
 							<FunnelPlus size="14" />
-							<span>Add {title} filter</span>
+							<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
 						</Button>
 					{/if}
 				{/if}
@@ -170,7 +171,7 @@
 
 				<Button class="" variant="ghost" size="sm" onclick={onAddFilter}>
 					<FunnelPlus size="14" />
-					<span>Add {title} filter</span>
+					<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
 				</Button>
 				{#if hasAnyFilterset}
 					<Button

@@ -35,8 +35,7 @@
 
 {#if availableBosses.length > 0}
 	<Toggle
-		title="Available"
-		description="Only show currently available Raid bosses"
+		title={m.raid_boss_select_available()}
 		onclick={() => showAvailable = !showAvailable}
 		value={showAvailable}
 	/>
@@ -56,7 +55,6 @@
 				</span>
 			</div>
 			<div class="flex flex-wrap  mt-2">
-
 				<PokemonSelect
 					pokemonList={availableBosses.filter(b => b.level === raidLevel)}
 					selected={data?.bosses ?? []}

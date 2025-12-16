@@ -53,7 +53,7 @@
 						<SpeciesAttribute data={thisData} />
 					{/snippet}
 				</Attribute>
-				<Attribute label="Appearance">
+				<Attribute label={m.pokemon_looks()}>
 					<AppearanceChips {data} sizeBounds={pokemonBounds.size} />
 					{#snippet page(thisData: FiltersetPokemon)}
 						<AppearanceAttribute data={thisData} sizeBounds={pokemonBounds.size} />
@@ -114,7 +114,7 @@
 						<SliderRange
 							min={pokemonBounds.rank.min}
 							max={pokemonBounds.rank.max}
-							title="Little League Rank"
+							title={m.little_league_rank()}
 							valueMin={thisData.pvpRankLittle?.min ?? pokemonBounds.rank.min}
 							valueMax={thisData.pvpRankLittle?.max ?? pokemonBounds.rank.max}
 							onchange={([min, max]) => changeAttributeMinMax(thisData, "pvpRankLittle", pokemonBounds.rank.min, pokemonBounds.rank.max, min, max)}
@@ -131,7 +131,7 @@
 						<SliderRange
 							min={pokemonBounds.rank.min}
 							max={pokemonBounds.rank.max}
-							title="Great League Rank"
+							title={m.great_league_rank()}
 							valueMin={thisData.pvpRankGreat?.min ?? pokemonBounds.rank.min}
 							valueMax={thisData.pvpRankGreat?.max ?? pokemonBounds.rank.max}
 							onchange={([min, max]) => changeAttributeMinMax(thisData, "pvpRankGreat", pokemonBounds.rank.min, pokemonBounds.rank.max, min, max)}
@@ -148,7 +148,7 @@
 						<SliderRange
 							min={pokemonBounds.rank.min}
 							max={pokemonBounds.rank.max}
-							title="Ultra League Rank"
+							title={m.ultra_league_rank()}
 							valueMin={thisData.pvpRankUltra?.min ?? pokemonBounds.rank.min}
 							valueMax={thisData.pvpRankUltra?.max ?? pokemonBounds.rank.max}
 							onchange={([min, max]) => changeAttributeMinMax(thisData, "pvpRankUltra", pokemonBounds.rank.min, pokemonBounds.rank.max, min, max)}

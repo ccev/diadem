@@ -17,7 +17,7 @@
 <SliderRange
 	min={percBounds.min}
 	max={percBounds.max}
-	title="IV %"
+	title={m.iv_product_label()}
 	valueMin={data.iv?.min ?? percBounds.min}
 	valueMax={data.iv?.max ?? percBounds.max}
 	onchange={([min, max]) => changeAttributeMinMax(data, "iv", percBounds.min, percBounds.max, min, max)}
@@ -25,7 +25,7 @@
 <SliderRange
 	min={ivBounds.min}
 	max={ivBounds.max}
-	title="Attack IV"
+	title={m.attack_iv()}
 	valueMin={data.ivAtk?.min ?? ivBounds.min}
 	valueMax={data.ivAtk?.max ?? ivBounds.max}
 	onchange={([min, max]) => changeAttributeMinMax(data, "ivAtk", percBounds.min, percBounds.max, min, max)}
@@ -33,7 +33,7 @@
 <SliderRange
 	min={ivBounds.min}
 	max={ivBounds.max}
-	title="Defense IV"
+	title={m.defense_iv()}
 	valueMin={data.ivDef?.min ?? ivBounds.min}
 	valueMax={data.ivDef?.max ?? ivBounds.max}
 	onchange={([min, max]) => changeAttributeMinMax(data, "ivDef", percBounds.min, percBounds.max, min, max)}
@@ -41,7 +41,7 @@
 <SliderRange
 	min={ivBounds.min}
 	max={ivBounds.max}
-	title="Stamina IV"
+	title={m.stamina_iv()}
 	valueMin={data.ivSta?.min ?? ivBounds.min}
 	valueMax={data.ivSta?.max ?? ivBounds.max}
 	onchange={([min, max]) => changeAttributeMinMax(data, "ivSta", percBounds.min, percBounds.max, min, max)}

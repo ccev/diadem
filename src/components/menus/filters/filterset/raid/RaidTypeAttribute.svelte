@@ -15,7 +15,7 @@
 
 <div>
 	<div class="text-base font-semibold mb-2">
-		Filter by
+		{m.raid_filter_by()}
 	</div>
 
 	<RadioGroup
@@ -38,14 +38,14 @@
 			value="level"
 			class="p-2 w-full"
 		>
-			Raid Level
+			{m.raid_filter_by_level()}
 		</SelectGroupItem>
 		<SelectGroupItem
 			type="radio"
 			value="boss"
 			class="p-2 w-full"
 		>
-			Raid Boss
+			{m.raid_filter_by_boss()}
 		</SelectGroupItem>
 	</RadioGroup>
 </div>

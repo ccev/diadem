@@ -25,7 +25,7 @@
 
 <div class="mt-4 px-1">
 	<div class="text-base font-semibold mb-2">
-		Show
+		{m.raid_show()}
 	</div>
 
 	<ToggleGroup
@@ -46,14 +46,14 @@
 			value="egg"
 			class="p-2 w-full"
 		>
-			Eggs
+			{m.raid_show_eggs()}
 		</SelectGroupItem>
 		<SelectGroupItem
 			type="toggle"
 			value="boss"
 			class="p-2 w-full"
 		>
-			Bosses
+			{m.raid_show_bosses()}
 		</SelectGroupItem>
 	</ToggleGroup>
 </div>
