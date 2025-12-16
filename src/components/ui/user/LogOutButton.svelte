@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { getLoginLink } from '@/lib/services/user/login';
 	import { updateUserDetails } from '@/lib/services/user/userDetails.svelte';
+	import { getConfig } from '@/lib/services/config/config';
 
 	let {
 		isLoggingOut = $bindable(),
@@ -17,6 +18,14 @@
 		await fetch('/logout');
 		// TODO: Error handling
 		clearMap()
+
+		if (
+			getConfig().general.customHome &&
+			isSupportedFeature("authRequired")
+		) {
+			window.location.href = '/'
+			return
+		}
 
 		if (isSupportedFeature("authRequired")) {
 			await goto(getLoginLink())
