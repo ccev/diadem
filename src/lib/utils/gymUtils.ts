@@ -50,11 +50,15 @@ export function isRaidHatched(data: GymData) {
 
 export function shouldDisplayRaid(data: GymData) {
 	const timestamp = currentTimestamp()
+
+	// only active raids
 	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false
 
+	// general disabling
 	const gymFilters = getUserSettings().filters.gym
 	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false
 
+	// yes if not filtersets
 	if (gymFilters.raid.filters === undefined) return true
 
 	const filters = gymFilters.raid.filters.filter(f => f.enabled)
@@ -63,12 +67,22 @@ export function shouldDisplayRaid(data: GymData) {
 	const isEgg = !data.raid_pokemon_id
 
 	for (const filter of filters) {
-		if (!filter.levels?.includes(data.raid_level)) continue
-		if (isEgg && !filter.showEggs) continue
+		if (filter.show) {
+			// skip if hatch state shouldn't be shown
+			if (filter.show.includes("egg") && !isEgg) continue
+			if (filter.show.includes("boss") && isEgg) continue
 
-		const hasBossFilter = filter.bosses && filter.bosses.length > 0
-		if (!hasBossFilter) return true
+			// return true if this is the only attribute
+			if (!filter.levels && !filter.bosses) {
+				if (filter.show.includes("egg") && isEgg) return true
+				if (filter.show.includes("boss") && !isEgg) return true
+			}
+		}
 
+		// respect level filters
+		if (filter.levels?.includes(data.raid_level)) return true
+
+		// check if boss should be shown
 		for (const boss of filter.bosses ?? []) {
 			if (boss.pokemon_id === data.raid_pokemon_id && (!boss.form || boss.form === data.raid_pokemon_form)) {
 				return true

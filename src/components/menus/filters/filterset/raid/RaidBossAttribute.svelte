@@ -1,11 +1,9 @@
 <script lang="ts">
-	import type { FiltersetPokemon, FiltersetRaid } from "@/lib/features/filters/filtersets";
+	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import { getSpawnablePokemon } from "@/lib/services/masterfile";
 	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { onSettingsChange } from "@/lib/services/settings";
-	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getActiveRaids } from "@/lib/features/masterStats.svelte";
 	import { mRaid } from "@/lib/services/ingameLocale";
 	import { resize } from "@/lib/services/assets";

@@ -163,7 +163,7 @@
 				transition:slide={{ duration: 90 }}
 			>
 				{#each filter.filters ?? [] as filterset (filterset.id)}
-					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} />
+					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} {mapObject} />
 				{/each}
 			</div>
 

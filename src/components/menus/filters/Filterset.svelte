@@ -13,17 +13,20 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
+	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 	let {
 		filter,
 		majorCategory,
 		subCategory,
-		filterModal
+		filterModal,
+		mapObject
 	}: {
 		filter: AnyFilterset
 		majorCategory: SelectedFiltersetData["majorCategory"],
 		subCategory?: FilterCategory,
 		filterModal: ModalType
+		mapObject: MapObjectType
 	} = $props();
 </script>
 
@@ -60,7 +63,7 @@
 		size="icon"
 		onclick={(e) => {
 			e.stopPropagation()
-			toggleFilterset(filter)
+			toggleFilterset(filter, mapObject)
 		}}
 	>
 		{#if filter.enabled}

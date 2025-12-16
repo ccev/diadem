@@ -1,18 +1,8 @@
 <script lang="ts">
-	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
-	import * as m from '@/lib/paraglide/messages';
-	import { pokemonSizes } from '@/lib/utils/pokemonUtils';
-	import ToggleGroup from '@/components/ui/input/selectgroup/ToggleGroup.svelte';
-	import SelectGroupItem from '@/components/ui/input/selectgroup/SelectGroupItem.svelte';
-	import { Camera, CameraOff, CircleSmall, Mars, Venus } from 'lucide-svelte';
-	import {
-		type FiltersetPokemon,
-		type FiltersetQuest, type FiltersetRaid,
-		type MinMax, type RaidFilterShow
-	} from "@/lib/features/filters/filtersets";
-	import { changeAttributeMinMax } from '@/lib/features/filters/filtersetUtils';
-	import RadioGroup from '@/components/ui/input/selectgroup/RadioGroup.svelte';
-	import { QuestArType } from '@/lib/features/filters/filterUtilsQuest';
+	import * as m from "@/lib/paraglide/messages";
+	import ToggleGroup from "@/components/ui/input/selectgroup/ToggleGroup.svelte";
+	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
+	import { type FiltersetRaid, type RaidFilterShow } from "@/lib/features/filters/filtersets";
 
 	let {
 		data

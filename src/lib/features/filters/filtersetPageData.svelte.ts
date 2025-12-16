@@ -129,10 +129,11 @@ export function saveCurrentSelectedAttribute() {
 	}
 }
 
-export function toggleFilterset(filterset: AnyFilterset) {
+export function toggleFilterset(filterset: AnyFilterset, mapObject: MapObjectType) {
 	filterset.enabled = !filterset.enabled
 
 	updateUserSettings();
+	deleteAllFeaturesOfType(mapObject)
 	updateAllMapObjects().then();
 }
 

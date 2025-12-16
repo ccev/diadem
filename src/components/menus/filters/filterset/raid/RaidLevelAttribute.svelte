@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { RAID_LEVELS } from "@/lib/utils/gymUtils";
 	import { mRaid } from "@/lib/services/ingameLocale";
-	import type { FiltersetPokemon, FiltersetRaid, MinMax } from "@/lib/features/filters/filtersets";
+	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import ToggleGroup from "@/components/ui/input/selectgroup/ToggleGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import { getIconRaidEgg } from "@/lib/services/uicons.svelte";
 	import { resize } from "@/lib/services/assets";
 
 	let {
-		data,
+		data
 	}: {
 		data: FiltersetRaid
 	} = $props();
