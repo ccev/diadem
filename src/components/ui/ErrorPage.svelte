@@ -46,6 +46,10 @@
 				</Button>
 				{@render extraButtons?.()}
 			</div>
+		{:else if extraButtons}
+			<div class="mt-4 flex justify-center w-full gap-2">
+				{@render extraButtons?.()}
+			</div>
 		{/if}
 	</Card>
 </div>
