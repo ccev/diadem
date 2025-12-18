@@ -1,6 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
 import {
-	createSession,
 	deleteSessionTokenCookie,
 	invalidateSession,
 	makeNewSession,
@@ -11,13 +10,8 @@ import {
 import TTLCache from "@isaacs/ttlcache";
 import { getEveryonePerms, type Perms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
-import { getServerConfig, isAuthRequired } from "@/lib/services/config/config.server";
 import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { getDiscordAuth } from "@/lib/server/auth/discord";
-import { building } from "$app/environment";
-import type { ServerInit } from "@sveltejs/kit";
-import { getClientConfig } from "@/lib/services/config/config.server";
-
 
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
@@ -32,21 +26,14 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		event.locals.user = null;
 		event.locals.session = null;
 
-		if (isAuthRequired()) {
-			const pathname = event.url.pathname;
-			const mapPath = getClientConfig().general.customHome ? "/map" : "/";
-
-			if (pathname.startsWith("/login")) return resolve(event);
-
-			if (pathname === mapPath || pathname.startsWith(mapPath + "/")) {
-				return new Response(null, {
-					status: 302,
-					headers: {
-						Location: "/login/discord"
-					}
-				});
-			}
-		}
+		// if (isAuthRequired()) {
+		// 	if (event.url.pathname.startsWith("/login")) return resolve(event);
+		// 	if (getClientConfig().general.customHome && event.url.pathname === "/") return resolve(event)
+		//
+		// 	return new Response(null, {
+		// 		status: 401,
+		// 	});
+		// }
 
 		return resolve(event);
 	}
