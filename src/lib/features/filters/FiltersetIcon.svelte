@@ -1,9 +1,10 @@
 <script lang="ts">
-	import type { AnyFilterset } from '@/lib/features/filters/filtersets';
-	import * as m from '@/lib/paraglide/messages';
-	import { filterTitle } from '@/lib/features/filters/filtersetUtils';
-	import { getIcon } from '@/lib/features/filters/icons';
-	import { hasLoadedFeature, LoadedFeature } from '@/lib/services/initialLoad.svelte';
+	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
+	import * as m from "@/lib/paraglide/messages";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { getIcon } from "@/lib/features/filters/icons";
+	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
+	import { resize } from "@/lib/services/assets";
 
 	let {
 		filterset,
@@ -18,13 +19,12 @@
 
 <div
 	class="flex items-center justify-center"
-	style:height="{rem}rem"
 	style:width="{rem}rem"
 >
 	{#if filterset?.icon?.uicon}
 		{#if hasLoadedFeature(LoadedFeature.ICON_SETS)}
 			<img
-				src={getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params)}
+				src={resize(getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params), { width: 64 })}
 				alt={filterTitle(filterset)}
 				class="size-full"
 			>

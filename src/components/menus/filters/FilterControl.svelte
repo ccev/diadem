@@ -182,10 +182,10 @@
 					>
 						{#if allFiltersetsDisabled}
 							<Eye size="16" />
-							<span>Enable all</span>
+							<span>{m.enable_filters()}</span>
 						{:else}
 							<EyeClosed size="16" />
-							<span>Disable all</span>
+							<span>{m.disable_filters()}</span>
 						{/if}
 					</Button>
 				{/if}

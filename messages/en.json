@@ -256,5 +256,15 @@
     "error_404": "404: Page not found",
     "discord_block_title": "Discord Link required",
     "discord_block_desc": "You have to link your Discord account before accessing the map",
-    "discord_block_button": "Link Discord"
+    "discord_block_button": "Link Discord",
+    "filter_template_raids_5": "Legendary Raids",
+    "filter_template_raids_5_shadow": "Legendary Shadow Raids",
+    "filter_template_raids_shadow": "Shadow Raids",
+    "filter_template_raids_mega": "Mega Raids",
+    "filter_template_raids_mega_legendary": "Mega Legendary Raids",
+    "filter_template_raids_primal": "Primal Raids",
+    "filter_template_raids_ultra_beast": "Ultra Beast Raids",
+    "filter_template_raids_elite": "Elite Raids",
+    "enable_filters": "Enable filters",
+    "disable_filters": "Disable filters"
 }

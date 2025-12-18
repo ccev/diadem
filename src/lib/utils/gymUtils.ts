@@ -6,21 +6,21 @@ import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 export type RaidFilterType = "level" | "boss"
 export const GYM_SLOTS = 6;
-export const RAID_LEVELS = [
-	1,		// 1 star
-	11,		// 1 star shadow
-	3,		// 3 star
-	13,		// 3 star shadow
-	5,		// legendary
-	15,		// legendary shadow
-	6,		// mega
-	7,		// mega legendary
-	10,		// primal
-	8,		// ultra beast
-	// 16,		// 4 mega enhanced
-	// 17,		// 5 mega enhanced
-	9,		// elite
-]
+
+export enum RaidLevel {
+	STAR_1 = 1,
+	SHADOW_STAR_1 = 11,
+	STAR_3 = 3,
+	SHADOW_STAR_3 = 13,
+	LEGENDARY = 5,
+	SHADOW_LEGENDARY = 15,
+	MEGA = 6,
+	MEGA_LEGENDARY = 7,
+	PRIMAL = 10,
+	ULTRA_BEAST = 8,
+	ELITE = 9,
+}
+export const RAID_LEVELS = Object.values(RaidLevel).filter(v => typeof v === "number") as number[]
 
 export function getRaidPokemon(gym: GymData): Partial<PokemonData> {
 	return {
