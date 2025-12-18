@@ -29,7 +29,7 @@
 			class="absolute inset-0 z-10 pointer-events-none"
 		>
 			<div
-				class="h-[100dvh] w-full overflow-y-auto pointer-events-auto"
+				class="h-height w-full overflow-y-auto pointer-events-auto"
 				style="-webkit-overflow-scrolling: touch;"
 			>
 				<div
