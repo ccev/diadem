@@ -40,6 +40,7 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { openMenu } from "@/lib/ui/menus.svelte";
 	import { MapSourceId } from "@/lib/map/layers";
+	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
@@ -124,62 +125,50 @@
 
 <DebugMenu />
 
-{#if isWebglSupported()}
-	<MapLibre
-		bind:map
-		center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
-		zoom={initialMapPosition.zoom}
-		class="h-screen overflow-hidden"
-		style={getUserSettings().mapStyle.url}
-		attributionControl={false}
-		interactive={!isAnyModalOpen()}
-		onmoveend={onMapMoveEnd}
-		onload={onMapLoad}
-		oncontextmenu={onContextMenu}
+<MapLibre
+	bind:map
+	center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
+	zoom={initialMapPosition.zoom}
+	class="h-screen overflow-hidden"
+	style={getUserSettings().mapStyle.url}
+	attributionControl={false}
+	interactive={!isAnyModalOpen()}
+	onmoveend={onMapMoveEnd}
+	onload={onMapLoad}
+	oncontextmenu={onContextMenu}
+>
+	<GeometryLayer id={MapSourceId.S2_CELLS} data={getS2CellGeojson()} />
+	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
+	<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
+	<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
+
+	<GeoJSON
+		id={MapSourceId.MAP_OBJECTS}
+		data={{
+			type: 'FeatureCollection',
+			features: []
+		}}
 	>
-		<GeometryLayer id={MapSourceId.S2_CELLS} data={getS2CellGeojson()} />
-		<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
-		<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
-		<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
-
-		<GeoJSON
-			id={MapSourceId.MAP_OBJECTS}
-			data={{
-				type: 'FeatureCollection',
-				features: []
+		<SymbolLayer
+			id="mapObjectsLayer"
+			hoverCursor="pointer"
+			layout={{
+				"icon-image": ["get", "imageUrl"],
+				"icon-overlap": "always",
+				"icon-size":[
+					"*",
+					["get", "imageSize"],
+					["get", "imageSelectedScale"],
+					getUserSettings().mapIconSize
+				],
+				"icon-allow-overlap": true,
+				"icon-offset": ["get", "imageOffset"]
 			}}
-		>
-			<SymbolLayer
-				id="mapObjectsLayer"
-				hoverCursor="pointer"
-				layout={{
-					"icon-image": ["get", "imageUrl"],
-					"icon-overlap": "always",
-					"icon-size":[
-						"*",
-						["get", "imageSize"],
-						["get", "imageSelectedScale"],
-						getUserSettings().mapIconSize
-					],
-					"icon-allow-overlap": true,
-					"icon-offset": ["get", "imageOffset"]
-				}}
-				eventsIfTopMost={true}
-				onclick={clickFeatureHandler}
-			/>
-		</GeoJSON>
+			eventsIfTopMost={true}
+			onclick={clickFeatureHandler}
+		/>
+	</GeoJSON>
 
-		<MarkerCurrentLocation />
-		<MarkerContextMenu />
-	</MapLibre>
-{:else}
-	<div class="mx-auto w-fit">
-		<Card class="m-4 p-4 w-fit">
-			{#if isWebglSupported() === null}
-				{m.webgl_disabled_error()}
-			{:else}
-				{m.webgl_unsupported_error()}
-			{/if}
-		</Card>
-	</div>
-{/if}
+	<MarkerCurrentLocation />
+	<MarkerContextMenu />
+</MapLibre>

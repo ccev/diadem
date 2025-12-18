@@ -1,4 +1,5 @@
 <script lang="ts">
+	import "../app.css";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { ModeWatcher } from "mode-watcher";
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import "../../app.css";
-
 	import Toast from "@/components/ui/Toast.svelte";
 	import { getIsToastOpen } from "@/lib/ui/toasts.svelte.js";
 	import { getIsLoading, load } from "@/lib/services/initialLoad.svelte.js";

@@ -250,5 +250,8 @@
     "add_filter_pokemon_undefined": "Add Pokémon filter",
     "add_filter_pokestop_quest": "Add Quest filter",
     "add_filter_pokestop_invasion": "Add Team Rocket filter",
-    "add_filter_gym_raid": "Add Raid filter"
+    "add_filter_gym_raid": "Add Raid filter",
+    "error_back_to_website": "Back to site",
+    "error_webgl_unavailable": "WebGL unavailable",
+    "error_404": "404: Page not found"
 }
