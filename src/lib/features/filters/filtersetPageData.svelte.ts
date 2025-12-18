@@ -1,4 +1,4 @@
-import { closeModal, type ModalType } from "@/lib/ui/modal.svelte";
+import { closeModal, type ModalType, openModal } from "@/lib/ui/modal.svelte";
 import type { AnyFilterset, BaseFilterset } from "@/lib/features/filters/filtersets";
 import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 import { getUserSettings, updateUserSettings, type UserSettings } from "@/lib/services/userSettings.svelte";
@@ -6,6 +6,8 @@ import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { FiltersetPokemonSchema } from "@/lib/features/filters/filtersetSchemas";
 import { getId } from "@/lib/utils/uuid";
 import * as m from "@/lib/paraglide/messages";
+import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 type DataGeneric<M extends keyof UserSettings["filters"]> = {
 	majorCategory: M
@@ -72,7 +74,7 @@ export function getCurrentSelectedFiltersetIsShared() {
 	return filtersetPageData?.isShared ?? false;
 }
 
-export function saveSelectedFilterset() {
+export function saveSelectedFilterset(mapObject: MapObjectType) {
 	const filterset = filtersetPageData?.data
 	if (!filterset) return
 	const filter = getFilter()
@@ -89,10 +91,11 @@ export function saveSelectedFilterset() {
 	}
 
 	updateUserSettings();
+	deleteAllFeaturesOfType(mapObject)
 	updateAllMapObjects().then();
 }
 
-export function deleteCurrentSelectedFilterset() {
+export function deleteCurrentSelectedFilterset(mapObject: MapObjectType) {
 	const filterset = filtersetPageData?.data
 	if (!filterset) return
 	const filter = getFilter()
@@ -103,6 +106,7 @@ export function deleteCurrentSelectedFilterset() {
 	);
 
 	updateUserSettings();
+	deleteAllFeaturesOfType(mapObject)
 	updateAllMapObjects().then();
 }
 
@@ -125,10 +129,11 @@ export function saveCurrentSelectedAttribute() {
 	}
 }
 
-export function toggleFilterset(filterset: AnyFilterset) {
+export function toggleFilterset(filterset: AnyFilterset, mapObject: MapObjectType) {
 	filterset.enabled = !filterset.enabled
 
 	updateUserSettings();
+	deleteAllFeaturesOfType(mapObject)
 	updateAllMapObjects().then();
 }
 
@@ -154,4 +159,19 @@ export function getCurrentSelectedFiltersetEncoded() {
 	thisData.enabled = true;
 	const jsonStr = JSON.stringify(thisData);
 	return btoa(encodeURIComponent(jsonStr));
+}
+
+export function openFiltersetModal() {
+	const filterset = getCurrentSelectedFilterset()
+	if (!filterset) return
+
+	const { majorCategory, subCategory } = filterset
+
+	if (majorCategory === "pokemon") {
+		openModal("filtersetPokemon")
+	} else if (majorCategory === "pokestop" && subCategory === "quest") {
+		openModal("filtersetQuest")
+	} else if (majorCategory === "gym" && subCategory === "raid") {
+		openModal("filtersetRaid")
+	}
 }

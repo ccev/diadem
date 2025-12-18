@@ -50,16 +50,20 @@ function mIngame(key: string): string {
  * @param name name, from the prefixes object. an "unknown_{name}" paraglide message must exist
  * @param id the ID to translate, can be nullish
  * @param defaultName placeholder for missing translations, defaults to "unknown X"
+ * @param plural I true, append "_plural"
  */
 function mBasicId(
 	name: keyof typeof prefixes,
 	id?: string | number | null,
-	defaultName?: string | null
+	defaultName?: string | null,
+	plural: boolean = false
 ): string {
 	// @ts-ignore dynamic message
 	if (!id) return m["unknown_" + name]();
 
-	const localeString = mIngame(prefixes[name] + id);
+	const suffix = plural ? "_plural" : ""
+
+	const localeString = mIngame(prefixes[name] + id + suffix);
 
 	// @ts-ignore dynamic message
 	if (!localeString) return defaultName ?? m["unknown_" + name]();
@@ -147,9 +151,10 @@ export function mItem(itemId?: number | string | null) {
 /**
  * Get localized raid level
  * @param raidLevel
+ * @param plural
  */
-export function mRaid(raidLevel?: number | string | null) {
-	return mBasicId("raid", raidLevel);
+export function mRaid(raidLevel?: number | string | null, plural: boolean = false) {
+	return mBasicId("raid", raidLevel, undefined, plural);
 }
 
 /**

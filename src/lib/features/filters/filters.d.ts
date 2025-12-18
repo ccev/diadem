@@ -13,7 +13,7 @@ import type {
 
 export type FilterCategory =
 	| "pokemon"
-	| "pokestopMajor"
+	| "pokestop"
 	| "pokestopPlain"
 	| "quest"
 	| "invasion"
@@ -22,10 +22,10 @@ export type FilterCategory =
 	| "goldPokestop"
 	| "lure"
 	| "route"
-	| "gymMajor"
+	| "gym"
 	| "gymPlain"
 	| "raid"
-	| "stationMajor"
+	| "station"
 	| "stationPlain"
 	| "maxBattle"
 	| "s2cell";
@@ -60,7 +60,7 @@ export type FilterPokemon = BaseFilter & {
 };
 
 export type FilterPokestop = BaseFilter & {
-	category: "pokestopMajor";
+	category: "pokestop";
 	pokestopPlain: FilterPokestopPlain;
 	quest: FilterQuest;
 	invasion: FilterInvasion;
@@ -113,7 +113,7 @@ export type FilterRoute = BaseFilter & {
 };
 
 export type FilterGym = BaseFilter & {
-	category: "gymMajor";
+	category: "gym";
 	gymPlain: FilterGymPlain;
 	raid: FilterRaid;
 	filters: never[];
@@ -130,7 +130,7 @@ export type FilterRaid = BaseFilter & {
 };
 
 export type FilterStation = BaseFilter & {
-	category: "stationMajor";
+	category: "station";
 	stationPlain: FilterStationPlain;
 	maxBattle: FilterMaxBattle;
 	filters: never[];

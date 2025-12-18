@@ -11,13 +11,17 @@
 		getAttributeLabelRank,
 		getAttributeLabelSize
 	} from "@/lib/features/filters/filterUtilsPokemon";
-	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import type { FiltersetPokemon, FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
-	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import { getMapPath } from "@/lib/utils/getMapPath";
+	import {
+		makeAttributePokemonLabel,
+		makeAttributeRaidLevelLabel,
+		makeAttributeRaidShowLabel
+	} from "@/lib/features/filters/makeAttributeChipLabel";
 
 	let { data }: PageProps = $props();
 
@@ -28,6 +32,8 @@
 
 		if (data.majorCategory === "pokemon") {
 			title += m.pokemon_filter();
+		} else if (data.majorCategory === "gym" && data.subCategory === "raid") {
+			title += m.raid_filter();
 		}
 
 		if (title) title += " | " + filterTitle(data.filterset);
@@ -43,12 +49,7 @@
 			const filterset = data.filterset as FiltersetPokemon;
 
 			if (filterset.pokemon) {
-				text += m.species() + ": ";
-				if (filterset.pokemon.length === 1) {
-					text += mPokemon(filterset.pokemon[0]) + "\n";
-				} else {
-					text += m.count_pokemon({ count: filterset.pokemon.length }) + "\n";
-				}
+				text += `${m.species()}: ${makeAttributePokemonLabel(filterset.pokemon)}\n`;
 			}
 			if (filterset.iv || filterset.ivAtk || filterset.ivDef || filterset.ivSta) {
 				text += m.pogo_ivs() + ": ";
@@ -88,9 +89,21 @@
 			if (filterset.gender) {
 				text += `${m.pokemon_gender()}: ${filterset.gender.map(getGenderLabel).join(", ")}\n`;
 			}
-
-			return text;
+		} else if (data.majorCategory === "gym" && data.subCategory === "raid") {
+			const filterset = data.filterset as FiltersetRaid;
+			if (filterset.bosses) {
+				text += `${m.raid_bosses_long()}: ${makeAttributePokemonLabel(filterset.bosses)}\n`;
+			}
+			if (filterset.levels) {
+				text += `${m.raid_levels_long()}: ${makeAttributeRaidLevelLabel(filterset.levels)}\n`;
+			}
+			if (filterset.show) {
+				for (const show of filterset.show) {
+					text += `${m.raid_show()}: ${makeAttributeRaidShowLabel(show)}\n`;
+				}
+			}
 		}
+		return text;
 	});
 
 	if (browser) {

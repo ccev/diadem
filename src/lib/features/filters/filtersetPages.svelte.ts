@@ -10,6 +10,7 @@ import {
 	setCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
 import type { AnyFilterset } from '@/lib/features/filters/filtersets';
+import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
 export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>
@@ -54,8 +55,8 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 			}
 		},
 		// @ts-ignore
-		save: (modalType: ModalType) => {
-			saveSelectedFilterset()
+		save: (modalType: ModalType, mapObject: MapObjectType) => {
+			saveSelectedFilterset(mapObject)
 			closeModal(modalType)
 		}
 	},
@@ -87,9 +88,9 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 		},
 		editAttribute: () => pageForward("attribute"),
 		// @ts-ignore
-		save: (modalType: ModalType) => {
+		save: (modalType: ModalType, mapObject: MapObjectType) => {
 			if (!hasSelectedSuggestedFilter) {
-				saveSelectedFilterset()
+				saveSelectedFilterset(mapObject)
 				closeModal(modalType)
 			} else {
 				return pageBack("base")
@@ -122,8 +123,8 @@ export function filtersetPageClose(modalType: ModalType) {
 	pageStates.send("close", modalType)
 }
 
-export function filtersetPageSave(modalType: ModalType) {
-	pageStates.send("save", modalType)
+export function filtersetPageSave(modalType: ModalType, mapObject: MapObjectType) {
+	pageStates.send("save", modalType, mapObject)
 }
 
 export function filtersetPageEdit() {

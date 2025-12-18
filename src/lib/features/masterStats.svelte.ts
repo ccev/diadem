@@ -1,4 +1,9 @@
-import type { MasterStats, PokemonStatEntry, TotalPokemonStats } from "@/lib/server/api/queryStats";
+import type {
+	ActiveRaidStats,
+	MasterStats,
+	PokemonStatEntry,
+	TotalPokemonStats
+} from "@/lib/server/api/queryStats";
 import { getQuestKey } from "@/lib/utils/pokestopUtils";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 
@@ -44,4 +49,8 @@ export function getQuestStatsForRewardFilter(reward: QuestReward) {
 
 export function getQuestStatsForTask(title: string, target: number) {
 	
+}
+
+export function getActiveRaids(): ActiveRaidStats[] {
+	return masterStats?.activeRaids ?? []
 }

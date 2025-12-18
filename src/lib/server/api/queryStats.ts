@@ -31,6 +31,13 @@ type QuestStatsRow = {
 	}[];
 };
 
+export type ActiveRaidStats = {
+	level: number;
+	pokemon_id: number;
+	form: number;
+	count: number
+}
+
 export type PokemonStatEntry = {
 	shiny?: {
 		shinies: number;
@@ -68,6 +75,7 @@ export type MasterStats = {
 	};
 	totalQuests: TotalQuestStats;
 	quests: QuestStats;
+	activeRaids: ActiveRaidStats[];
 	generatedAt: number;
 };
 
@@ -75,7 +83,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	// TODO: timeframe
 	// TODO: this takes a while, and it's cached. but the cache is only filled when a user requests this. amybe there should instead be a cronjob
 
-	const [allShinyStats, allSpawnStats, allQuestStats] = await Promise.all([
+	const [allShinyStats, allSpawnStats, allQuestStats, allRaidStats] = await Promise.all([
 		query<AllShinyStatsRow[]>(
 			"SELECT pokemon_id, form_id, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
 				"FROM pokemon_shiny_stats " +
@@ -103,6 +111,12 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			"WHERE alternative_quest_title IS NOT NULL " +
 			") q " +
 			"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
+		),
+		query<ActiveRaidStats[]>(
+			"SELECT level, pokemon_id, form_id as form, count " +
+			"FROM raid_stats " +
+			"WHERE date = (SELECT MAX(date) FROM raid_stats) AND area = 'world' " +
+			"ORDER BY level ASC"
 		)
 	]);
 
@@ -112,6 +126,8 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	const quests: QuestStats = {};
 	let questsTotal = 0;
+
+	let activeRaids: ActiveRaidStats[] = []
 
 	if (allShinyStats.result) {
 		for (const row of allShinyStats.result) {
@@ -149,7 +165,6 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		}
 	}
 
-
 	if (allQuestStats.result) {
 		for (const row of allQuestStats.result) {
 			const questRewards: QuestReward[] = JSON.parse(row.quest_rewards);
@@ -168,6 +183,10 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		}
 	}
 
+	if (allRaidStats.result) {
+		activeRaids = allRaidStats.result
+	}
+
 	return {
 		totalPokemon: {
 			count: pokemonTotal,
@@ -178,6 +197,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			count: questsTotal
 		},
 		quests,
+		activeRaids,
 		generatedAt: Date.now()
 	};
 }

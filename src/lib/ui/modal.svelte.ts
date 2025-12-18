@@ -11,6 +11,7 @@ export type OpenModals = {
 	filtersetPlainPokestop: boolean;
 	filtersetQuest: boolean;
 	filtersetInvasion: boolean;
+	filtersetRaid: boolean;
 };
 export type ModalType = keyof OpenModals;
 
@@ -21,7 +22,8 @@ let openModals: OpenModals = $state({
 	filtersetPokemon: false,
 	filtersetPlainPokestop: false,
 	filtersetQuest: false,
-	filtersetInvasion: false
+	filtersetInvasion: false,
+	filtersetRaid: false
 });
 
 export function openModal(modal: ModalType) {

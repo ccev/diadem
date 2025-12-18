@@ -88,6 +88,7 @@
 				<div class="mb-2" transition:slide={{ duration: 80 }}>
 					{#each subCategories as subcategory}
 						<FilterControl
+							{mapObject}
 							title={subcategory.title}
 							majorCategory={category}
 							subCategory={subcategory.category}

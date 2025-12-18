@@ -19,6 +19,9 @@
 	import { isMenuSidebar, isUiLeft } from "@/lib/utils/device";
 	import { page } from "$app/state";
 	import Home from "@/components/custom/Home.svelte";
+	import { isWebglSupported } from "@/lib/map/utils";
+	import ErrorPage from "@/components/ui/ErrorPage.svelte";
+	import * as m from "@/lib/paraglide/messages";
 
 	let showSignInButton = $derived(
 		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
@@ -42,7 +45,7 @@
 
 {#if showCustomHome}
 	<Home />
-{:else}
+{:else if isWebglSupported()}
 	<ContextMenu />
 
 	{#if showSignInButton}
@@ -86,6 +89,12 @@
 	{/if}
 
 	<Map />
+{:else}
+	<ErrorPage
+		error={m.error_webgl_unavailable()}
+		description={isWebglSupported() === null ? m.webgl_disabled_error() : m.webgl_unsupported_error()}
+		href="{getConfig().general.customHome ? '/' : ''}"
+	/>
 {/if}
 
 

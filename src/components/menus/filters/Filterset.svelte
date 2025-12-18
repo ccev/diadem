@@ -3,7 +3,7 @@
 	import { Eye, EyeClosed } from "lucide-svelte";
 
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
-	import { openModal } from "@/lib/ui/modal.svelte";
+	import { type ModalType, openModal } from "@/lib/ui/modal.svelte";
 	import {
 		type SelectedFiltersetData,
 		setCurrentSelectedFilterset,
@@ -13,15 +13,20 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
+	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 	let {
 		filter,
 		majorCategory,
-		subCategory
+		subCategory,
+		filterModal,
+		mapObject
 	}: {
 		filter: AnyFilterset
 		majorCategory: SelectedFiltersetData["majorCategory"],
 		subCategory?: FilterCategory,
+		filterModal: ModalType
+		mapObject: MapObjectType
 	} = $props();
 </script>
 
@@ -32,7 +37,7 @@
 	onclick={() => {
 		setCurrentSelectedFilterset(majorCategory, subCategory, filter, true)
 		filtersetPageReset()
-		openModal("filtersetPokemon")
+		openModal(filterModal)
 	}}
 >
 
@@ -58,7 +63,7 @@
 		size="icon"
 		onclick={(e) => {
 			e.stopPropagation()
-			toggleFilterset(filter)
+			toggleFilterset(filter, mapObject)
 		}}
 	>
 		{#if filter.enabled}

@@ -41,11 +41,11 @@ export async function updateMapObject(
 	if (type === "pokemon") {
 		filter = getUserSettings().filters.pokemon;
 	} else if (type === "pokestop") {
-		filter = getUserSettings().filters.pokestopMajor;
+		filter = getUserSettings().filters.pokestop;
 	} else if (type === "gym") {
-		filter = getUserSettings().filters.gymMajor;
+		filter = getUserSettings().filters.gym;
 	} else if (type === "station") {
-		filter = getUserSettings().filters.stationMajor;
+		filter = getUserSettings().filters.station;
 	} else if (type === "s2cell") {
 		filter = getUserSettings().filters.s2cell;
 	}

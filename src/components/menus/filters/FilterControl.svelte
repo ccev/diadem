@@ -20,6 +20,8 @@
 	import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 	import { formatNumberCompact } from '@/lib/utils/numberFormat';
 	import { tick } from 'svelte';
+	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+	import { mAny } from "@/lib/utils/anyMessage";
 
 	let {
 		majorCategory,
@@ -27,7 +29,7 @@
 		title,
 		onEnabledChange,
 		filter,
-		mapObject = undefined,
+		mapObject,
 		filterModal = undefined,
 		isExpandable = false,
 		isFilterable = true,
@@ -38,7 +40,7 @@
 		title: string,
 		onEnabledChange: (thisCategory: FilterCategory, value: boolean) => void,
 		filter: AnyFilter,
-		mapObject?: MapObjectType | undefined,
+		mapObject: MapObjectType,
 		filterModal?: ModalType | undefined,
 		isExpandable?: boolean,
 		isFilterable?: boolean,
@@ -69,12 +71,13 @@
 		filter.filters = filter.filters.map((filterset) => ({ ...filterset, enabled: shouldEnable }))
 
 		updateUserSettings();
+		deleteAllFeaturesOfType(mapObject)
 		tick().then(() => updateAllMapObjects().then());
 	}
 </script>
 
 {#snippet showingCount()}
-	{#if mapObject}
+	{#if mapObject && !subCategory}
 		{@const { showing, examined } = getMapObjectCounts(mapObject)}
 		<p class="text-sm text-muted-foreground font-semibold">
 			{#if showing === examined}
@@ -106,7 +109,7 @@
 					{#if isFilterable && !hasAnyFilterset}
 						<Button class="-ml-2" variant="ghost" size="sm" onclick={onAddFilter}>
 							<FunnelPlus size="14" />
-							<span>Add {title} filter</span>
+							<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
 						</Button>
 					{/if}
 				{/if}
@@ -154,13 +157,13 @@
 	</div>
 
 	{#if isEnabled && isFilterable}
-		{#if hasAnyFilterset}
+		{#if hasAnyFilterset && filterModal}
 			<div
 				class="w-full my-1 flex flex-col gap-1 pl-2"
 				transition:slide={{ duration: 90 }}
 			>
 				{#each filter.filters ?? [] as filterset (filterset.id)}
-					<Filterset filter={filterset} {majorCategory} {subCategory} />
+					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} {mapObject} />
 				{/each}
 			</div>
 
@@ -168,7 +171,7 @@
 
 				<Button class="" variant="ghost" size="sm" onclick={onAddFilter}>
 					<FunnelPlus size="14" />
-					<span>Add {title} filter</span>
+					<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
 				</Button>
 				{#if hasAnyFilterset}
 					<Button

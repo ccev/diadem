@@ -37,9 +37,9 @@ export type UserSettings = {
 	mapIconSize: number;
 	filters: {
 		pokemon: FilterPokemon;
-		pokestopMajor: FilterPokestop;
-		gymMajor: FilterGym;
-		stationMajor: FilterStation;
+		pokestop: FilterPokestop;
+		gym: FilterGym;
+		station: FilterStation;
 		s2cell: FilterS2Cell;
 	};
 };
@@ -74,8 +74,8 @@ export function getDefaultUserSettings(): UserSettings {
 		mapIconSize: 1,
 		filters: {
 			pokemon: { category: "pokemon", ...defaultFilter() },
-			pokestopMajor: {
-				category: "pokestopMajor",
+			pokestop: {
+				category: "pokestop",
 				...defaultFilter(),
 				pokestopPlain: { category: "pokestopPlain", ...defaultFilter() },
 				quest: { category: "quest", ...defaultFilter() },
@@ -86,14 +86,14 @@ export function getDefaultUserSettings(): UserSettings {
 				lure: { category: "lure", ...defaultFilter() },
 				route: { category: "route", ...defaultFilter() }
 			},
-			gymMajor: {
-				category: "gymMajor",
+			gym: {
+				category: "gym",
 				...defaultFilter(),
 				gymPlain: { category: "gymPlain", ...defaultFilter() },
 				raid: { category: "raid", ...defaultFilter() }
 			},
-			stationMajor: {
-				category: "stationMajor",
+			station: {
+				category: "station",
 				...defaultFilter(),
 				stationPlain: { category: "stationPlain", ...defaultFilter() },
 				maxBattle: { category: "maxBattle", ...defaultFilter() }

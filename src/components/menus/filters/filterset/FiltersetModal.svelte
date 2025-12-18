@@ -23,9 +23,11 @@
 	import PageBase from '@/components/menus/filters/filterset/PageBase.svelte';
 	import type { FilterCategory } from '@/lib/features/filters/filters';
 	import * as m from '@/lib/paraglide/messages';
+	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 
 	let {
 		modalType,
+		mapObject,
 		titleBase,
 		titleShared,
 		titleNew,
@@ -37,6 +39,7 @@
 		height = 130
 	}: {
 		modalType: ModalType
+		mapObject: MapObjectType
 		titleBase: string
 		titleShared: string
 		titleNew: string
@@ -90,7 +93,7 @@
 				<PageAttribute />
 			{/if}
 
-			<FiltersetButtons {modalType} />
+			<FiltersetButtons {modalType} {mapObject} />
 		</div>
 
 	</div>

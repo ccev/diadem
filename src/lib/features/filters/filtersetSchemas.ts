@@ -85,7 +85,7 @@ export const FiltersetGymPlainSchema = BaseFiltersetSchema.extend({
 export const FiltersetRaidSchema = BaseFiltersetSchema.extend({
 	levels: z.array(z.number()).optional(),
 	bosses: z.array(PokemonSchema).optional(),
-	hatchState: z.enum(["egg", "boss", "all"]).optional(),
+	show: z.array(z.enum(["egg", "boss"])).optional(),
 });
 
 export const FiltersetStationPlainSchema = BaseFiltersetSchema.extend({});

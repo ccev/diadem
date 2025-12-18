@@ -25,6 +25,7 @@ import {
 } from "@/lib/utils/pokestopUtils";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
+import { resize } from "@/lib/services/assets";
 
 export type IconProperties = {
 	imageUrl: string;
@@ -68,7 +69,7 @@ function getFeature(id: string, coordinates: number[], properties: IconPropertie
 		},
 		properties: {
 			...properties,
-			imageUrl: properties.imageUrl + "?w=64"
+			imageUrl: resize(properties.imageUrl, { width: 64 })
 		},
 		id
 	};
@@ -127,8 +128,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 	const startTime = performance.now();
 
-	const showQuests = getUserSettings().filters.pokestopMajor.quest.enabled;
-	const showInvasions = getUserSettings().filters.pokestopMajor.invasion.enabled;
+	const showQuests = getUserSettings().filters.pokestop.quest.enabled;
+	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled;
+	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();
@@ -159,6 +161,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		const userIconSet = iconSets[obj.type];
 		let overwriteIcon: string | undefined = undefined;
+		let showThis: boolean = true;
 		const modifiers = getModifiers(userIconSet, obj.type);
 		let selectedScale = 1;
 		let expires = null;
@@ -243,53 +246,53 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 			}
 		} else if (obj.type === "gym") {
+			showThis = showAllGyms || shouldDisplayRaid(obj);
+
 			if ((obj.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
 				overwriteIcon = getIconGym({ team_id: 0 });
-			} else {
-				if (shouldDisplayRaid(obj)) {
-					if (obj.raid_pokemon_id) {
-						const mapId = obj.mapId + "-raidpokemon-" + obj.raid_spawn_timestamp;
-						let raidModifiers = getModifiers(userIconSet, "raid_pokemon");
+			} else if (shouldDisplayRaid(obj)) {
+				if (obj.raid_pokemon_id) {
+					const mapId = obj.mapId + "-raidpokemon-" + obj.raid_spawn_timestamp;
+					let raidModifiers = getModifiers(userIconSet, "raid_pokemon");
 
-						if (obj.availble_slots === 0 && userIconSet?.raid_egg_6) {
-							raidModifiers = getModifiers(userIconSet, "raid_pokemon_6");
-						}
-
-						subFeatures.push(
-							getFeature(mapId, [obj.lon, obj.lat], {
-								imageUrl: getIconPokemon(getRaidPokemon(obj)),
-								imageSize: getModifiers(userIconSet, "pokemon").scale * raidModifiers.scale,
-								imageSelectedScale: selectedScale,
-								imageOffset: [
-									modifiers.offsetX + raidModifiers.offsetX,
-									modifiers.offsetY + raidModifiers.offsetY
-								],
-								id: obj.mapId,
-								expires: obj.raid_end_timestamp ?? null
-							})
-						);
-					} else {
-						const mapId = obj.mapId + "-raidegg-" + obj.raid_spawn_timestamp;
-						let raidModifiers = getModifiers(userIconSet, "raid_egg");
-
-						if (obj.availble_slots === 0 && userIconSet?.raid_egg_6) {
-							raidModifiers = getModifiers(userIconSet, "raid_egg_6");
-						}
-
-						subFeatures.push(
-							getFeature(mapId, [obj.lon, obj.lat], {
-								imageUrl: getIconRaidEgg(obj.raid_level ?? 0),
-								imageSize: raidModifiers.scale,
-								imageSelectedScale: selectedScale,
-								imageOffset: [
-									modifiers.offsetX + raidModifiers.offsetX,
-									modifiers.offsetY + raidModifiers.offsetY
-								],
-								id: obj.mapId,
-								expires: obj.raid_battle_timestamp ?? null
-							})
-						);
+					if (obj.availble_slots === 0 && userIconSet?.raid_egg_6) {
+						raidModifiers = getModifiers(userIconSet, "raid_pokemon_6");
 					}
+
+					subFeatures.push(
+						getFeature(mapId, [obj.lon, obj.lat], {
+							imageUrl: getIconPokemon(getRaidPokemon(obj)),
+							imageSize: getModifiers(userIconSet, "pokemon").scale * raidModifiers.scale,
+							imageSelectedScale: selectedScale,
+							imageOffset: [
+								modifiers.offsetX + raidModifiers.offsetX,
+								modifiers.offsetY + raidModifiers.offsetY
+							],
+							id: obj.mapId,
+							expires: obj.raid_end_timestamp ?? null
+						})
+					);
+				} else {
+					const mapId = obj.mapId + "-raidegg-" + obj.raid_spawn_timestamp;
+					let raidModifiers = getModifiers(userIconSet, "raid_egg");
+
+					if (obj.availble_slots === 0 && userIconSet?.raid_egg_6) {
+						raidModifiers = getModifiers(userIconSet, "raid_egg_6");
+					}
+
+					subFeatures.push(
+						getFeature(mapId, [obj.lon, obj.lat], {
+							imageUrl: getIconRaidEgg(obj.raid_level ?? 0),
+							imageSize: raidModifiers.scale,
+							imageSelectedScale: selectedScale,
+							imageOffset: [
+								modifiers.offsetX + raidModifiers.offsetX,
+								modifiers.offsetY + raidModifiers.offsetY
+							],
+							id: obj.mapId,
+							expires: obj.raid_battle_timestamp ?? null
+						})
+					);
 				}
 			}
 		} else if (obj.type === "pokemon") {
@@ -328,16 +331,18 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		// 	})
 		// );
 
-		subFeatures.push(
-			getFeature(obj.mapId, [obj.lon, obj.lat], {
-				imageUrl: overwriteIcon ?? getIconForMap(obj),
-				id: obj.mapId,
-				imageSize: modifiers.scale,
-				imageSelectedScale: selectedScale,
-				imageOffset: [modifiers.offsetX, modifiers.offsetY],
-				expires
-			})
-		);
+		if (showThis) {
+			subFeatures.push(
+				getFeature(obj.mapId, [obj.lon, obj.lat], {
+					imageUrl: overwriteIcon ?? getIconForMap(obj),
+					id: obj.mapId,
+					imageSize: modifiers.scale,
+					imageSelectedScale: selectedScale,
+					imageOffset: [modifiers.offsetX, modifiers.offsetY],
+					expires
+				})
+			);
+		}
 
 		features[obj.type][obj.mapId] = subFeatures;
 		if (obj.mapId === selectedMapId) selectedFeatures = [...selectedFeatures, ...subFeatures];

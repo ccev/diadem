@@ -1,15 +1,18 @@
 <script lang="ts">
-	import type { FiltersetPokemon } from '@/lib/features/filters/filtersets';
+	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
 	import {
 		getAttributeLabelCp,
 		getAttributeLabelIvProduct,
-		getAttributeLabelIvValues, getAttributeLabelLevel, getAttributeLabelRank, getAttributeLabelSize
-	} from '@/lib/features/filters/filterUtilsPokemon';
-	import AttributeDisplay from '@/components/menus/filters/filterset/AttributeDisplay.svelte';
+		getAttributeLabelIvValues,
+		getAttributeLabelLevel,
+		getAttributeLabelRank,
+		getAttributeLabelSize
+	} from "@/lib/features/filters/filterUtilsPokemon";
 	import * as m from "@/lib/paraglide/messages";
-	import { getGenderLabel } from '@/lib/utils/pokemonUtils';
-	import { getIconPokemon } from '@/lib/services/uicons.svelte';
-	import { mPokemon } from '@/lib/services/ingameLocale';
+	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
+	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
+	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
+	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
 
 	let {
 		data
@@ -18,31 +21,13 @@
 	} = $props()
 </script>
 
-{#if data.pokemon}
-	<AttributeDisplay
-		label={m.species()}
-		class="w-full mb-3 pb-0!"
-	>
-		<div class="flex overflow-x-auto gap-2 pb-3 mt-1">
-			{#each data.pokemon as species}
-				<div class="border-border border rounded-lg px-2 py-1 flex gap-2 items-center shrink-0">
-					<img
-						class="size-9"
-						src={getIconPokemon(species)}
-						alt={mPokemon(species)}
-					>
-					<span class="text-base">
-						{mPokemon(species)}
-					</span>
-				</div>
-			{/each}
-		</div>
-	</AttributeDisplay>
-{/if}
+<FilterDisplay class="max-h-96">
+	{#if data.pokemon}
+		<PokemonDisplay label={m.species()} pokemon={data.pokemon} />
+	{/if}
 
-<div class="flex flex-wrap gap-x-2 gap-y-3">
 	{#if data.iv}
-		<AttributeDisplay label="Total IV" value={getAttributeLabelIvProduct(data.iv)} />
+		<AttributeDisplay label={m.iv_product_label_long()} value={getAttributeLabelIvProduct(data.iv)} />
 	{/if}
 	{#if data.ivAtk || data.ivDef || data.ivSta}
 		<AttributeDisplay label={m.pogo_ivs()} value={getAttributeLabelIvValues(data.ivAtk, data.ivDef, data.ivSta)} />
@@ -71,4 +56,4 @@
 			value={data.gender.map(getGenderLabel).join(", ")}
 		/>
 	{/if}
-</div>
+</FilterDisplay>

@@ -1,5 +1,5 @@
 import type { MinMax, Pokemon } from "@/lib/features/filters/filtersets";
-import { mPokemon } from '@/lib/services/ingameLocale';
+import { mPokemon, mRaid } from '@/lib/services/ingameLocale';
 import * as m from '@/lib/paraglide/messages';
 import { getGenderLabel } from '@/lib/utils/pokemonUtils';
 
@@ -23,4 +23,14 @@ export function makeAttributePokemonLabel(pokemon: Pokemon[]) {
 	if (pokemon.length === 1) return mPokemon(pokemon[0])
 
 	return m.count_pokemon({ count: pokemon.length })
+}
+
+export function makeAttributeRaidLevelLabel(levels: number[]) {
+	if (levels.length === 1) return mRaid(levels[0], true)
+
+	return m.count_raid_levels({ count: levels.length })
+}
+
+export function makeAttributeRaidShowLabel(show: "egg" | "boss") {
+	return show === "egg" ? m.raid_show_eggs() : m.raid_show_bosses()
 }
