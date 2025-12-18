@@ -7,7 +7,7 @@ import {
 	getUserFromDiscordId,
 	makeNewSession
 } from "@/lib/server/auth/auth";
-import { redirect } from "@sveltejs/kit";
+import { getClientConfig, isAuthRequired } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 
 export const load: PageServerLoad = async (event) => {
@@ -18,7 +18,9 @@ export const load: PageServerLoad = async (event) => {
 	const state = event.url.searchParams.get("state");
 	const storedState = event.cookies.get("discord_state") ?? null;
 	const codeVerifier = event.cookies.get("discord_code_verifier") ?? null;
-	const redirectLink = event.cookies.get("login_redirect") ?? getMapPath();
+
+	const redirectLink =
+		event.cookies.get("login_redirect") ?? (isAuthRequired() ? "/" : getMapPath(getClientConfig()));
 
 	const respone: { error: string | undefined; redir: string; name: string } = {
 		error: undefined,
@@ -45,7 +47,7 @@ export const load: PageServerLoad = async (event) => {
 
 	const userInfo = await getUserInfo(tokens.accessToken());
 
-	if (!userInfo.id) {
+	if (!userInfo?.id) {
 		respone.error = "Discord Login: Discord didn't return user info";
 		return respone;
 	}
@@ -59,7 +61,13 @@ export const load: PageServerLoad = async (event) => {
 		userId = await createUserFromDiscordId(userInfo.id);
 	}
 
-	await makeNewSession(event, userId, tokens.accessToken(), tokens.refreshToken(), tokens.accessTokenExpiresAt());
+	await makeNewSession(
+		event,
+		userId,
+		tokens.accessToken(),
+		tokens.refreshToken(),
+		tokens.accessTokenExpiresAt()
+	);
 
 	respone.name = userInfo.displayName;
 	return respone;

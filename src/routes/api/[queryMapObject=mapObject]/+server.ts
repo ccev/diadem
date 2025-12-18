@@ -1,18 +1,17 @@
 import { error, json } from "@sveltejs/kit";
-import { checkFeatureInBounds, hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
-
-import { noPermResult } from "@/lib/server/api/results";
+import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import { queryMapObjects } from "@/lib/server/api/queryMapObjects";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
 import { getLogger } from "@/lib/server/logging";
+import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 
 const log = getLogger("mapobjects");
 
 export async function POST({ request, locals, params }) {
 	const start = performance.now();
-	if (!hasFeatureAnywhere(locals.perms, params.queryMapObject)) return json(noPermResult());
-	const permCheckTime = performance.now()
+	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user)) error(401);
+	const permCheckTime = performance.now();
 
 	const data: MapObjectRequestData = await request.json();
 	const type = params.queryMapObject as MapObjectType;

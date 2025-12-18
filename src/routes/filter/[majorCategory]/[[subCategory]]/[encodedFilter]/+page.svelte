@@ -22,6 +22,7 @@
 		makeAttributeRaidLevelLabel,
 		makeAttributeRaidShowLabel
 	} from "@/lib/features/filters/makeAttributeChipLabel";
+	import { getConfig } from "@/lib/services/config/config";
 
 	let { data }: PageProps = $props();
 
@@ -108,7 +109,7 @@
 
 	if (browser) {
 		tick().then(() => {
-			goto(getMapPath());
+			goto(getMapPath(getConfig()));
 		});
 	}
 </script>
@@ -124,7 +125,7 @@
 </svelte:head>
 
 {#if browser}
-	<a class="p-4 mx-auto underline" href={getMapPath()}>
+	<a class="p-4 mx-auto underline" href={getMapPath(getConfig())}>
 		{m.redirect_notice({ goal: title })}
 	</a>
 {/if}
