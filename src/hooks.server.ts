@@ -26,15 +26,6 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		event.locals.user = null;
 		event.locals.session = null;
 
-		// if (isAuthRequired()) {
-		// 	if (event.url.pathname.startsWith("/login")) return resolve(event);
-		// 	if (getClientConfig().general.customHome && event.url.pathname === "/") return resolve(event)
-		//
-		// 	return new Response(null, {
-		// 		status: 401,
-		// 	});
-		// }
-
 		return resolve(event);
 	}
 

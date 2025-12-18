@@ -253,5 +253,8 @@
     "add_filter_gym_raid": "Add Raid filter",
     "error_back_to_website": "Back to site",
     "error_webgl_unavailable": "WebGL unavailable",
-    "error_404": "404: Page not found"
+    "error_404": "404: Page not found",
+    "discord_block_title": "Discord Link required",
+    "discord_block_desc": "You have to link your Discord account before accessing the map",
+    "discord_block_button": "Link Discord"
 }

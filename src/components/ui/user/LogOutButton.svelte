@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from '@/components/ui/input/Button.svelte';
 	import { clearMap } from '@/lib/mapObjects/updateMapObject';
-	import { isSupportedFeature } from '@/lib/services/supportedFeatures';
+	import { isSupportedFeature, updateSupportedFeatures } from "@/lib/services/supportedFeatures";
 	import { goto } from '$app/navigation';
 	import { getLoginLink } from '@/lib/services/user/login';
 	import { updateUserDetails } from '@/lib/services/user/userDetails.svelte';
@@ -18,19 +18,17 @@
 		await fetch('/logout');
 		// TODO: Error handling
 		clearMap()
-
-		if (
-			getConfig().general.customHome &&
-			isSupportedFeature("authRequired")
-		) {
-			window.location.href = '/'
-			return
-		}
+		await Promise.all([
+			updateSupportedFeatures(),
+			updateUserDetails()
+		])
 
 		if (isSupportedFeature("authRequired")) {
-			await goto(getLoginLink())
-		} else {
-			await updateUserDetails();
+			if (getConfig().general.customHome) {
+				await goto("/")
+			} else {
+				await goto(getLoginLink())
+			}
 		}
 		isLoggingOut = false
 	}

@@ -2,17 +2,20 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import * as m from "@/lib/paraglide/messages";
+	import type { Snippet } from "svelte";
 
 	let {
 		error,
 		description = undefined,
 		href = "/",
-		linkLabel = m.error_back_to_website()
+		linkLabel = m.error_back_to_website(),
+		extraButtons = undefined
 	}: {
 		error: string,
 		description?: string,
 		href?: string,
-		linkLabel?: string
+		linkLabel?: string,
+		extraButtons?: Snippet
 	} = $props();
 </script>
 
@@ -22,19 +25,26 @@
 	</div>
 
 	<Card class="bg-card max-w-xl relative px-8 pt-8 pb-6 mx-4">
-		<p class="text-xl font-semibold text-center">
+		<p class="text-xl font-semibold text-center mb-2">
 			{error}
 		</p>
 
 		{#if description}
-			<p class="text-center mt-2 text-muted-foreground">
+			<p class="text-center text-muted-foreground">
 				{description}
 			</p>
 		{/if}
 
 		{#if href && linkLabel}
-			<div class="mt-6 flex justify-center w-full">
-				<Button tag="a" {href}>{linkLabel}</Button>
+			<div class="mt-4 flex justify-center w-full gap-2">
+				<Button
+					variant={extraButtons ? "secondary" : "default"}
+					tag="a"
+					{href}
+				>
+					{linkLabel}
+				</Button>
+				{@render extraButtons?.()}
 			</div>
 		{/if}
 	</Card>

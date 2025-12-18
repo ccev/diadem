@@ -22,6 +22,8 @@
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 	import * as m from "@/lib/paraglide/messages";
+	import Button from "@/components/ui/input/Button.svelte";
+	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
 
 	let showSignInButton = $derived(
 		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
@@ -37,6 +39,7 @@
 	})
 
 	let showCustomHome = $derived(getConfig().general.customHome && page.params.map !== "map")
+	const errorHref = getConfig().general.customHome ? '/' : ''
 </script>
 
 <svelte:head>
@@ -45,7 +48,26 @@
 
 {#if showCustomHome}
 	<Home />
-{:else if isWebglSupported()}
+{:else if !isWebglSupported()}
+	<ErrorPage
+		error={m.error_webgl_unavailable()}
+		description={isWebglSupported() === null ? m.webgl_disabled_error() : m.webgl_unsupported_error()}
+		href={errorHref}
+	/>
+{:else if hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES) && isSupportedFeature("showFullscreenLogin")}
+	<ErrorPage
+		error={m.discord_block_title()}
+		description={m.discord_block_desc()}
+		href={errorHref}
+	>
+		{#snippet extraButtons()}
+			<Button href="/login/discord" tag="a">
+				<DiscordIcon class="fill-primary-foreground w-3.5 shrink-0" />
+				<span>{m.discord_block_button()}</span>
+			</Button>
+		{/snippet}
+	</ErrorPage>
+{:else}
 	<ContextMenu />
 
 	{#if showSignInButton}
@@ -89,12 +111,6 @@
 	{/if}
 
 	<Map />
-{:else}
-	<ErrorPage
-		error={m.error_webgl_unavailable()}
-		description={isWebglSupported() === null ? m.webgl_disabled_error() : m.webgl_unsupported_error()}
-		href="{getConfig().general.customHome ? '/' : ''}"
-	/>
 {/if}
 
 

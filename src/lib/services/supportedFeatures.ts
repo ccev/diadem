@@ -1,4 +1,4 @@
-export type optionalFeatures = "koji" | "geocoding" | "auth" | "authRequired"
+export type optionalFeatures = "koji" | "geocoding" | "auth" | "authRequired" | "showFullscreenLogin"
 
 export type SupportedFeatures = {
 	[ key in optionalFeatures ]: boolean
@@ -8,7 +8,8 @@ let supportedFeatures: SupportedFeatures = {
 	koji: false,
 	geocoding: false,
 	auth: false,
-	authRequired: false
+	authRequired: false,
+	showFullscreenLogin: false
 }
 
 export function isSupportedFeature(feature: optionalFeatures) {
