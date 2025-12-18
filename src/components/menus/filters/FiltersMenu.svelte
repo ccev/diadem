@@ -20,6 +20,7 @@
 	import PlainPokestopFilterset from '@/components/menus/filters/filterset/plainPokestop/PlainPokestopFilterset.svelte';
 	import QuestFilterset from '@/components/menus/filters/filterset/quest/QuestFilterset.svelte';
 	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
+	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 
 	let test: boolean = $state(false);
 
@@ -38,6 +39,7 @@
 <RaidFilterset />
 
 <div class="mt-2 space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
+	<SignInButton />
 	<FilterSection
 		requiredPermission="pokemon"
 		title="Pokémon"

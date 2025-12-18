@@ -4,9 +4,12 @@
 	import SectionAppearance from '@/components/menus/profile/SectionAppearance.svelte';
 	import SectionIcons from '@/components/menus/profile/SectionIcons.svelte';
 	import SectionAdvanced from '@/components/menus/profile/SectionAdvanced.svelte';
+	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 </script>
 
 <div class="space-y-2 mt-2" style="container-name: menu-container; container-type: inline-size">
+	<SignInButton />
+
 	{#if isSupportedFeature("auth")}
 		<ProfileCard />
 	{/if}

@@ -25,12 +25,6 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
 
-	let showSignInButton = $derived(
-		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
-		&& isSupportedFeature("auth")
-		&& !getUserDetails().details
-	)
-
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
 		if (getCurrentSelectedData() && !isMenuSidebar()) {
@@ -69,12 +63,6 @@
 	</ErrorPage>
 {:else}
 	<ContextMenu />
-
-	{#if showSignInButton}
-		<div class="fixed top-2 z-10 left-1/2 -translate-x-1/2">
-			<SignInButton />
-		</div>
-	{/if}
 
 	<WeatherOverview />
 
