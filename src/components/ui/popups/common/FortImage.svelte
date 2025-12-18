@@ -1,9 +1,10 @@
 <script lang="ts">
 	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import { openModal } from '@/lib/ui/modal.svelte.js';
+	import { closeModal, openModal } from "@/lib/ui/modal.svelte.js";
 	import Card from '@/components/ui/Card.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import Modal from '@/components/ui/modal/Modal.svelte';
+	import CloseButton from "@/components/ui/CloseButton.svelte";
 
 	let {
 		alt,
@@ -18,29 +19,30 @@
 		fortName?: string,
 		fortDescription?: string
 	} = $props();
-
-	let photoWidth: number = $state(0);
 </script>
 
 <Modal modalType="fortDetails">
-	<Card class="mx-auto items-center flex flex-col rounded-md! shadow-none! overflow-hidden">
+	<Card
+		class="mx-auto items-center flex flex-col rounded-md! shadow-none! overflow-hidden w-xl max-w-full p-2"
+		style="max-height: calc(100vh - 6rem)"
+	>
+<!--		<div class="flex justify-end p-2 w-full">-->
+<!--			<CloseButton-->
+<!--			class=""-->
+<!--			onclick={() => closeModal("fortDetails")}-->
+<!--		/>-->
+<!--		</div>-->
+
 		<img
-			class=""
+			class="w-full object-contain"
+			style="height: clamp(6rem, 100%, 31rem)"
 			src={fortUrl}
 			{alt}
-			bind:clientWidth={photoWidth}
 		>
 
-		<!--		<CloseButton-->
-		<!--			class="absolute right-2 top-2 hover:bg-transparent backdrop-brightness-105 dark:backdrop-brightness-95 backdrop-blur-[2px] hover:backdrop-brightness-90 dark:hover:backdrop-brightness-75"-->
-		<!--			onclick={closeModal}-->
-		<!--		/>-->
-
-		<!--		TODO add neutral fort icon-->
 		{#if fortName || fortDescription}
 			<div
-				class="my-3 flex flex-col justify-center text-center mx-6"
-				style="max-width: calc({photoWidth}px - 3rem)"
+				class="mt-2 flex flex-col justify-center text-center mx-6"
 			>
 				{#if fortName}
 					<span class="font-semibold text-lg">
