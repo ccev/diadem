@@ -38,7 +38,7 @@ export function getCurrentPath() {
 	if (data) {
 		return `/${data.type}/${data.id}`
 	}
-	return getMapPath()
+	return getMapPath(getConfig())
 }
 
 function setCurrentPath() {

@@ -7,8 +7,8 @@ import {
 	getUserFromDiscordId,
 	makeNewSession
 } from "@/lib/server/auth/auth";
-import { redirect } from "@sveltejs/kit";
 import { getClientConfig, isAuthRequired } from "@/lib/services/config/config.server";
+import { getMapPath } from "@/lib/utils/getMapPath";
 
 export const load: PageServerLoad = async (event) => {
 	const discord = getDiscordAuth();
@@ -19,12 +19,8 @@ export const load: PageServerLoad = async (event) => {
 	const storedState = event.cookies.get("discord_state") ?? null;
 	const codeVerifier = event.cookies.get("discord_code_verifier") ?? null;
 
-	const clientConfig = getClientConfig();
-	const mapPath = clientConfig.general.customHome ? "/map" : "/";
-
 	const redirectLink =
-		event.cookies.get("login_redirect") ??
-		(isAuthRequired() ? "/" : mapPath);
+		event.cookies.get("login_redirect") ?? (isAuthRequired() ? "/" : getMapPath(getClientConfig()));
 
 	const respone: { error: string | undefined; redir: string; name: string } = {
 		error: undefined,
@@ -33,16 +29,10 @@ export const load: PageServerLoad = async (event) => {
 	};
 
 	if (code === null || state === null || storedState === null || codeVerifier === null) {
-		if (isAuthRequired() && mapPath === "/") {
-			throw redirect(302, "/login/discord");
-		}
 		respone.error = "Discord Login: No Code or state found";
 		return respone;
 	}
 	if (state !== storedState) {
-		if (isAuthRequired() && mapPath === "/") {
-			throw redirect(302, "/login/discord");
-		}
 		respone.error = "Discord Login: State didn't match";
 		return respone;
 	}
@@ -51,16 +41,13 @@ export const load: PageServerLoad = async (event) => {
 	try {
 		tokens = await discord.validateAuthorizationCode(code, codeVerifier);
 	} catch (e) {
-		if (isAuthRequired() && mapPath === "/") {
-			throw redirect(302, "/login/discord");
-		}
 		respone.error = "Discord Login: Invalid code, credentials or redirect URI";
 		return respone;
 	}
 
 	const userInfo = await getUserInfo(tokens.accessToken());
 
-	if (!userInfo.id) {
+	if (!userInfo?.id) {
 		respone.error = "Discord Login: Discord didn't return user info";
 		return respone;
 	}
@@ -83,6 +70,5 @@ export const load: PageServerLoad = async (event) => {
 	);
 
 	respone.name = userInfo.displayName;
-	respone.redir = mapPath;
 	return respone;
 };
