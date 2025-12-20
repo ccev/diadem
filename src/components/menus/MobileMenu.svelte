@@ -6,17 +6,6 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { Drawer } from 'vaul-svelte';
 	import { onMount, onDestroy } from 'svelte';
-
-	let previousOverflow: string;
-
-	onMount(() => {
-		previousOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
-	});
-
-	onDestroy(() => {
-		document.body.style.overflow = previousOverflow;
-	});
 </script>
 
 <Drawer.Root
@@ -26,14 +15,14 @@
 >
 	<Drawer.Portal>
 		<Drawer.Content
-			class="absolute inset-0 z-10 pointer-events-none"
+			class="absolute left-0 bottom-0 z-10 pointer-events-none h-full w-full"
 		>
 			<div
-				class="h-height w-full overflow-y-auto pointer-events-auto"
+				class="h-full overflow-y-auto"
 				style="-webkit-overflow-scrolling: touch;"
 			>
 				<div
-					class="pb-20 px-2 pt-2 mt-40 min-h-full rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm"
+					class="pb-20 px-2 pt-2 mt-40 min-h-full rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm pointer-events-auto "
 					out:slide={{ duration: 70, axis: 'y' }}
 				>
 					<div class="w-full py-1 sticky top-2 flex items-center justify-between z-10 bg-card/60 backdrop-blur-sm rounded-lg border border-border">
