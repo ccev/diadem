@@ -1,5 +1,14 @@
-import type { AnyFilterset, FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
+import type {
+	AnyFilterset,
+	BaseFilterset,
+	FiltersetPokemon,
+	FiltersetRaid,
+	MinMax
+} from "@/lib/features/filters/filtersets";
 import * as m from '@/lib/paraglide/messages';
+import type { FilterCategory } from "@/lib/features/filters/filters";
+import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtilsPokemon";
+import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
 
 export function changeAttributeMinMax(
 	data: AnyFilterset,
@@ -26,8 +35,34 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 	}
 	if (Object.keys(m).includes(filterset.title.message)) {
 		// @ts-ignore
-		return m[filterset.title.message]()
+		const params = filterset.title.params
+		if (params) {
+			for (const [key, value] of Object.entries(params)) {
+				if (Object.hasOwn(m, value)) {
+					params[key] = m[value]()
+				}
+			}
+		}
+
+		return m[filterset.title.message](params)
 	}
 
 	return m.unknown_filter()
+}
+
+export function generateFilterDetails(majorCategory: FilterCategory, subCategory: FilterCategory, filtersert: AnyFilterset) {
+	if (majorCategory === "pokemon") {
+		generatePokemonFilterDetails(filtersert as FiltersetPokemon)
+	} else if (subCategory === "quest") {
+
+	} else if (subCategory === "raid") {
+		generateRaidFilterDetails(filtersert as FiltersetRaid)
+	}
+}
+
+export function setFilterIcon(filter: AnyFilterset, options: { uicon?: BaseFilterset["icon"]["uicon"], emoji?: BaseFilterset["icon"]["emoji"] }) {
+	if (!filter.icon.isUserSelected) {
+		filter.icon.uicon = options.uicon
+		filter.icon.emoji = options.emoji
+	}
 }

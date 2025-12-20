@@ -4,6 +4,7 @@
 	import type { RaidFilterType } from "@/lib/utils/gymUtils";
 	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import * as m from "@/lib/paraglide/messages";
+	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 
 	let {
 		data,
@@ -31,6 +32,8 @@
 				delete data.levels
 				delete data.show
 			}
+
+			updateDetailsCurrentSelectedFilterset()
 		}}
 		class="w-full"
 	>

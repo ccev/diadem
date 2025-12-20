@@ -23,9 +23,9 @@
 	<div
 		class="flex gap-4 items-center px-2 mt-4"
 	>
-		<FiltersetIcon filterset={getCurrentSelectedFilterset()?.data} size={8} />
+		<FiltersetIcon filterset={$state.snapshot(getCurrentSelectedFilterset()?.data)} size={8} />
 		<span class="text-lg font-semibold">
-			{filterTitle(getCurrentSelectedFilterset()?.data)}
+			{filterTitle($state.snapshot(getCurrentSelectedFilterset()?.data))}
 		</span>
 	</div>
 

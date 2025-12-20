@@ -31,7 +31,7 @@
 
 <TextInput
 	title="Name"
-	value={filterTitle(data)}
+	value={filterTitle($state.snapshot(data))}
 	onchange={e => {
 		data.title.title = e.target?.value ?? ""
 	}}

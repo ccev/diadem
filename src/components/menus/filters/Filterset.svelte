@@ -45,8 +45,8 @@
 		class="flex-1 flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-2"
 		class:opacity-50={!filter.enabled}
 	>
-		<FiltersetIcon filterset={filter} size={5} />
-		<span>{filterTitle(filter)}</span>
+		<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
+		<span>{filterTitle($state.snapshot(filter))}</span>
 	</div>
 	<!--	<Button class="flex-1 justify-start rounded-md py-2 h-12 m-0! pl-4 pr-2" size="" variant="ghost">-->
 	<!--		<span>{filter.icon}</span>-->

@@ -197,8 +197,8 @@ export function getIconItem(itemId: number, amount: number = 0) {
 	return iconSets[DEFAULT_UICONS].reward("item", itemId, amount)
 }
 
-export function getIconRaidEgg(level: number) {
-	return iconSets[DEFAULT_UICONS].raidEgg(level)
+export function getIconRaidEgg(level: number, hatched: boolean = false) {
+	return iconSets[DEFAULT_UICONS].raidEgg(level, hatched)
 }
 
 export function getIconType(type: number) {

@@ -8,6 +8,7 @@ import { getId } from "@/lib/utils/uuid";
 import * as m from "@/lib/paraglide/messages";
 import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
 
 type DataGeneric<M extends keyof UserSettings["filters"]> = {
 	majorCategory: M
@@ -129,6 +130,11 @@ export function saveCurrentSelectedAttribute() {
 	}
 }
 
+export function updateDetailsCurrentSelectedFilterset() {
+	const filterset = getCurrentSelectedFilterset()
+	if (filterset) generateFilterDetails(filterset.majorCategory, filterset.subCategory, filterset.data)
+}
+
 export function toggleFilterset(filterset: AnyFilterset, mapObject: MapObjectType) {
 	filterset.enabled = !filterset.enabled
 
@@ -141,12 +147,12 @@ export function getNewFilterset(): BaseFilterset {
 	return {
 		id: getId(),
 		title: {
-			message: "pokemon_filter",
+			message: "unknown_filter",
 			title: undefined
 		},
 		icon: {
 			isUserSelected: false,
-			emoji: "💯"
+			emoji: "📂"
 		},
 		enabled: true
 	};

@@ -2,6 +2,7 @@
 	import Button from '@/components/ui/input/Button.svelte';
 	import { X } from 'lucide-svelte';
 	import * as m from '@/lib/paraglide/messages';
+	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 
 	let {
 		label = undefined,
@@ -18,6 +19,7 @@
 	function onclick(event: MouseEvent) {
 		event.stopPropagation();
 		onremove()
+		updateDetailsCurrentSelectedFilterset()
 	}
 
 	const colors = {

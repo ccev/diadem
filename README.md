@@ -18,8 +18,6 @@ To get an idea of what's working right now, check out the [demo](https://map.mal
 Before this becomes ready for production, documentation is lacking, and for now it's generally not advised to 
 set this up yourself. But I'm not stopping you:
 
-- You need to be on the `pokemon_api_examined` branch of Golbat
-
 1. `git clone https://github.com/ccev/diadem && cd `
 1. `./setup.sh`, then fill out config/config.toml
 2. `pnpm run db:push`

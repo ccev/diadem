@@ -42,10 +42,10 @@
 			<div
 				class="rounded-full bg-accent size-10 border flex items-center justify-center relative"
 			>
-			<FiltersetIcon filterset={getCurrentSelectedFilterset()?.data} size={5} />
+			<FiltersetIcon filterset={$state.snapshot(getCurrentSelectedFilterset()?.data)} size={5} />
 			</div>
 			<div class="flex items-center gap-2 text-base">
-				<b>{filterTitle(getCurrentSelectedFilterset()?.data)}</b>
+				<b>{filterTitle($state.snapshot(getCurrentSelectedFilterset()?.data))}</b>
 			</div>
 			<Pencil class="ml-auto" size="14" />
 

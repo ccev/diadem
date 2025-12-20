@@ -1,7 +1,7 @@
-import * as m from "@/lib/paraglide/messages";
+import { m } from "@/lib/paraglide/messages";
 import type { IconCategory } from "@/lib/features/filters/icons";
 import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
-import type { RewardType } from '@/lib/utils/pokestopUtils';
+import type { RewardType } from "@/lib/utils/pokestopUtils";
 
 export type AnyFilterset =
 	| FiltersetPokemon
@@ -17,15 +17,20 @@ export type AnyFilterset =
 
 // remember to update zod schemas when editing filterset types!
 
+// auto-generated, localized name
+interface Message<K extends keyof typeof m = keyof typeof m> {
+	message: K;
+	params?: Parameters<(typeof m)[K]> | Record<string, string>;
+}
+
+export type FiltersetTitle = {
+	// a user-selected name
+	title?: string;
+} & Message;
+
 export type BaseFilterset = {
 	id: string;
-	title: {
-		// a user-selected name
-		title?: string;
-
-		// an auto-generated, localized name
-		message: keyof typeof m;
-	};
+	title: FiltersetTitle;
 	enabled: boolean;
 	icon: {
 		isUserSelected: boolean;
@@ -70,8 +75,8 @@ export type FiltersetPokestopPlain = BaseFilterset & {
 export type FiltersetQuest = BaseFilterset & {
 	ar?: QuestArType;
 	rewardType?: RewardType;
-	title?: string
-	target?: number
+	title?: string;
+	target?: number;
 	pokemon?: Pokemon[];
 	item?: QuestReward[];
 	megaResource?: QuestReward[];
@@ -97,7 +102,7 @@ export type FiltersetGymPlain = BaseFilterset & {
 	defenderAmount?: MinMax;
 };
 
-export type RaidFilterShow = "egg" | "boss"
+export type RaidFilterShow = "egg" | "boss";
 
 export type FiltersetRaid = BaseFilterset & {
 	levels?: number[];

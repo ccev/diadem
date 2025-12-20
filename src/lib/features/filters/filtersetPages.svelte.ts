@@ -7,10 +7,11 @@ import {
 	getNewFilterset,
 	saveCurrentSelectedAttribute,
 	saveSelectedFilterset,
-	setCurrentSelectedFilterset
+	setCurrentSelectedFilterset, updateDetailsCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
 import type { AnyFilterset } from '@/lib/features/filters/filtersets';
 import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
 export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>
@@ -70,6 +71,7 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 			const subCategory = getCurrentSelectedFilterset()?.subCategory
 			// @ts-ignore
 			if (majorCategory) setCurrentSelectedFilterset(majorCategory, subCategory, getNewFilterset(), false);
+			updateDetailsCurrentSelectedFilterset()
 			return pageForward("overview")
 		},
 		select: () => {
@@ -102,6 +104,7 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 		close: () => pageBack("overview"),
 		save: () => {
 			saveCurrentSelectedAttribute()
+			updateDetailsCurrentSelectedFilterset()
 			return pageBack("overview")
 		}
 	}

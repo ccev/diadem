@@ -28,6 +28,6 @@ export function getIcon(category: IconCategory, params: Params) {
 			return getIconLeague(params.league)
 		}
 	} else if (category === IconCategory.RAID) {
-		return getIconRaidEgg(params.level)
+		return getIconRaidEgg(params.level, params.hatched ?? false)
 	}
 }

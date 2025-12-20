@@ -5,7 +5,8 @@ const BaseFiltersetSchema = z.object({
 	id: z.string(),
 	title: z.object({
 		title: z.string().optional(),
-		message: z.string()
+		message: z.string(),
+		params: z.record(z.string(), z.string()).optional()
 	}),
 	enabled: z.boolean(),
 	icon: z.object({
