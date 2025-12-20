@@ -16,13 +16,14 @@
 	<Drawer.Portal>
 		<Drawer.Content
 			class="absolute left-0 bottom-0 z-10 pointer-events-none h-full w-full"
+			style="{getOpenedMenu() === 'scout' ? 'height: fit-content !important;' : ''}"
 		>
 			<div
 				class="h-full overflow-y-auto"
 				style="-webkit-overflow-scrolling: touch;"
 			>
 				<div
-					class="pb-20 px-2 pt-2 mt-40 min-h-full rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm pointer-events-auto "
+					class="pb-20 px-2 pt-2 mt-40 min-h-full rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm pointer-events-auto"
 					out:slide={{ duration: 70, axis: 'y' }}
 				>
 					<div class="w-full py-1 sticky top-2 flex items-center justify-between z-10 bg-card/60 backdrop-blur-sm rounded-lg border border-border">
