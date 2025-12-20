@@ -24,6 +24,9 @@
 	import * as m from "@/lib/paraglide/messages";
 	import Button from "@/components/ui/input/Button.svelte";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
+	import QuestFilterset from "@/components/menus/filters/filterset/quest/QuestFilterset.svelte";
+	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
+	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
@@ -62,6 +65,10 @@
 		{/snippet}
 	</ErrorPage>
 {:else}
+	<PokemonFilterset />
+	<QuestFilterset />
+	<RaidFilterset />
+
 	<ContextMenu />
 
 	<WeatherOverview />

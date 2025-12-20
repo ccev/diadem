@@ -4,12 +4,14 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	let {
+		class: class_ = "",
 		onchange,
 		value,
 		title,
 		description = '',
 		...rest
 	}: {
+		class: string,
 		onchange: (e: Event & { target: HTMLInputElement }) => void,
 		value: string,
 		title: string,
@@ -18,7 +20,7 @@
 </script>
 
 <div
-	class="py-3 w-full text-left rounded-md gap-2"
+	class="py-3 w-full text-left rounded-md gap-2 {class_}"
 >
 	<MenuTitle {title} {description} />
 

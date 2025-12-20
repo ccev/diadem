@@ -14,7 +14,14 @@ export function updateMapGeojsonSource(sourceId: MapSourceId, data: GeoJsonType)
 	const map = getMap()
 	if (!map) return
 
-	const source = map.getSource<GeoJSONSource>(sourceId)
+	let source: GeoJSONSource | undefined = undefined
+	try {
+		source = map.getSource<GeoJSONSource>(sourceId)
+	} catch (e) {
+		// sometimes throws on startup. i think we can ignore this (not 100% sure)
+		return
+	}
+
 	if (!source) return
 
 	source.setData(data)

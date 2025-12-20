@@ -23,13 +23,13 @@
 			class="rounded-full! size-20! text-4xl! bg-muted ring-border ring-2 ring-offset-4"
 			variant="ghost"
 		>
-			<FiltersetIcon filterset={data} size={10} />
+			<FiltersetIcon filterset={$state.snapshot(data)} size={10} />
 		</Button>
 	</div>
 </div>
 
-
 <TextInput
+	class="z-50 relative"
 	title="Name"
 	value={filterTitle($state.snapshot(data))}
 	onchange={e => {

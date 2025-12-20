@@ -34,10 +34,6 @@
 	<Metadata title={m.nav_filters()} />
 </svelte:head>
 
-<PokemonFilterset />
-<QuestFilterset />
-<RaidFilterset />
-
 <div class="mt-2 space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
 	<SignInButton />
 	<FilterSection
