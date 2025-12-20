@@ -35,8 +35,8 @@
 			</p>
 		{/if}
 
-		{#if href && linkLabel}
-			<div class="mt-4 flex justify-center w-full gap-2">
+		<div class="mt-4 flex justify-center w-full gap-2">
+			{#if href && linkLabel}
 				<Button
 					variant={extraButtons ? "secondary" : "default"}
 					tag="a"
@@ -44,9 +44,9 @@
 				>
 					{linkLabel}
 				</Button>
-				{@render extraButtons?.()}
-			</div>
-		{/if}
+			{/if}
+			{@render extraButtons?.()}
+		</div>
 	</Card>
 </div>
 
