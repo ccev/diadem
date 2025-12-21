@@ -78,7 +78,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 		filterset<FiltersetRaid>({
 			uicon: {
 				category: IconCategory.RAID,
-				params: { level: RaidLevel.SHADOW_LEGENDARY }
+				params: { level: RaidLevel.LEGENDARY }
 			},
 			title: "filter_template_raids_5",
 			levels: [RaidLevel.LEGENDARY]
