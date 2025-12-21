@@ -31,7 +31,7 @@
 </script>
 
 <Button
-	class="pl-4! pr-1! h-fit! relative overflow-hidden"
+	class="pl-0! pr-1! h-fit! relative overflow-hidden"
 	variant="outline"
 	size="lg"
 	onclick={() => {
@@ -40,12 +40,20 @@
 		openModal(filterModal)
 	}}
 >
+	<div
+		class="h-12 w-0.5 mr-1.5 transition-colors"
+		class:bg-green-500={filter.enabled}
+		class:dark:bg-emerald-600={filter.enabled}
+		class:bg-rose-300={!filter.enabled}
+		class:dark:bg-rose-900={!filter.enabled}
+	></div>
 
 	<div
-		class="flex-1 flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-2"
+		class="flex-1 flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-2 transition-opacity"
 		class:opacity-50={!filter.enabled}
 	>
 		<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
+
 		<span>{filterTitle($state.snapshot(filter))}</span>
 	</div>
 	<!--	<Button class="flex-1 justify-start rounded-md py-2 h-12 m-0! pl-4 pr-2" size="" variant="ghost">-->
