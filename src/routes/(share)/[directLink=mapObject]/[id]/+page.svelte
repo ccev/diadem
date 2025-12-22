@@ -1,8 +1,6 @@
 <script lang="ts">
 	import Metadata from "@/components/utils/Metadata.svelte";
-	import { tick } from "svelte";
 	import { mPokemon } from "@/lib/services/ingameLocale";
-	import { goto } from "$app/navigation";
 	import * as m from "@/lib/paraglide/messages";
 	import { getShareText } from "@/lib/features/shareTexts";
 	import { getIconForMap, getIconPokemon } from "@/lib/services/uicons.svelte.js";
@@ -10,11 +8,10 @@
 	import type { MapData } from "@/lib/types/mapObjectData/mapObjects";
 	import type { PageProps } from "./$types";
 	import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-	import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
+	import { getDefaultIconSet } from "@/lib/services/userSettings.svelte.js";
 	import { getStationPokemon, getStationTitle } from "@/lib/utils/stationUtils";
 	import type { StationData } from "@/lib/types/mapObjectData/station";
-	import { getMapPath } from "@/lib/utils/getMapPath";
-	import { getConfig } from "@/lib/services/config/config";
+	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 
 	let { data }: PageProps = $props();
 
@@ -54,12 +51,6 @@
 
 		return icon || mapData.url || getIconForMap(mapData, getDefaultIconSet(mapData.type).id) || "";
 	});
-
-	if (browser) {
-		tick().then(() => {
-			goto(getMapPath(getConfig()));
-		});
-	}
 </script>
 
 <svelte:head>
@@ -73,9 +64,4 @@
 	{/if}
 </svelte:head>
 
-{#if browser}
-	<a class="p-4 mx-auto underline" href={getMapPath(getConfig())}>
-		{m.redirect_notice({ goal: title })}
-	</a>
-{/if}
-
+<RedirectFlash goal={title} />

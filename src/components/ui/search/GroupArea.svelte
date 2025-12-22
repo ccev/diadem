@@ -8,6 +8,7 @@
 	import SearchItem from '@/components/ui/search/SearchItem.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import { closeModal } from '@/lib/ui/modal.svelte';
+	import { getFeatureJump } from "@/lib/utils/geo";
 
 	let {
 		searchQuery
@@ -19,9 +20,7 @@
 
 	// TODO: make it so .startswith is at the top and .filter is at the bottom
 
-	function getPolygonCenter(feature: Feature) {
-		return centroid(feature).geometry.coordinates.reverse()
-	}
+
 </script>
 
 
@@ -32,7 +31,8 @@
 	{#each areas as feature (feature.properties.name)}
 		<SearchItem
 			onselect={() => {
-				flyTo(getPolygonCenter(feature), 14)
+				const jumpTo = getFeatureJump(feature)
+				flyTo(jumpTo.coords.geojson(), jumpTo.zoom)
 				closeModal("search")
 			}}
 			value={feature.properties.name.toLowerCase()}

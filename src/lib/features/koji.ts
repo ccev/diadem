@@ -10,12 +10,12 @@ let geofences: KojiFeatures = []
 
 export async function loadKojiGeofences() {
 	const result = await fetch("/api/koji")
-	const data = await result.json()
-	if (data.error) {
-		console.error("Error while fetching geofences: " + data.error)
-	} else {
-		geofences = data.result
+
+	if (!result.ok) {
+		console.error("Error while fetching geofences")
 	}
+	
+	geofences = await result.json()
 }
 
 export function getKojiGeofences() {

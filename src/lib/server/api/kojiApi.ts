@@ -1,16 +1,15 @@
 import { getServerConfig } from '@/lib/services/config/config.server';
 import { getLogger } from '@/lib/server/logging';
+import { error, json } from "@sveltejs/kit";
+import type { KojiFeatures } from "@/lib/features/koji";
 
 const log = getLogger("koji")
 
-export async function fetchKojiGeofences(thisFetch?: typeof fetch) {
+export async function fetchKojiGeofences(thisFetch?: typeof fetch): Promise<KojiFeatures | undefined> {
 	const config = getServerConfig();
-	if (!config.koji) {
+	if (!config.koji || !config.koji.url) {
 		log.warning("Koji was called, but is not configured")
-		return {
-			error: 'No Koji config',
-			result: {}
-		}
+		return
 	}
 
 	const url = config.koji.url + '/api/v1/geofence/FeatureCollection/' + config.koji.projectName;
@@ -22,9 +21,11 @@ export async function fetchKojiGeofences(thisFetch?: typeof fetch) {
 		}
 	});
 
+	if (!response.ok) {
+		log.error("Koji Error: %d (%s)", response.status, await response.text())
+		return
+	}
+
 	const data = await response.json();
-	return {
-		error: data.data ? '' : data.message,
-		result: data?.data?.features || {}
-	};
+	return data?.data?.features ?? [] as KojiFeatures
 }

@@ -13,16 +13,13 @@
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import type { FiltersetPokemon, FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
-	import { tick } from "svelte";
-	import { goto } from "$app/navigation";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
-	import { getMapPath } from "@/lib/utils/getMapPath";
 	import {
 		makeAttributePokemonLabel,
 		makeAttributeRaidLevelLabel,
 		makeAttributeRaidShowLabel
 	} from "@/lib/features/filters/makeAttributeChipLabel";
-	import { getConfig } from "@/lib/services/config/config";
+	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 
 	let { data }: PageProps = $props();
 
@@ -106,12 +103,6 @@
 		}
 		return text;
 	});
-
-	if (browser) {
-		tick().then(() => {
-			goto(getMapPath(getConfig()));
-		});
-	}
 </script>
 
 <svelte:head>
@@ -124,8 +115,4 @@
 	{/if}
 </svelte:head>
 
-{#if browser}
-	<a class="p-4 mx-auto underline" href={getMapPath(getConfig())}>
-		{m.redirect_notice({ goal: title })}
-	</a>
-{/if}
+<RedirectFlash goal={title} />
