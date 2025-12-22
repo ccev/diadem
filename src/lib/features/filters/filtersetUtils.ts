@@ -51,6 +51,8 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 }
 
 export function generateFilterDetails(majorCategory: FilterCategory, subCategory: FilterCategory, filtersert: AnyFilterset) {
+	// TODO: i think this should be re-run if filter locale differs from client locale.
+
 	if (majorCategory === "pokemon") {
 		generatePokemonFilterDetails(filtersert as FiltersetPokemon)
 	} else if (subCategory === "quest") {

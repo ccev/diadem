@@ -32,6 +32,10 @@ async function updateAllRemoteLocales() {
 async function loadRemoteLocale(locale: Locale) {
 	if (!locales.includes(locale)) return;
 
+	if (locale === "pt") {
+		locale = "pt-br"
+	}
+
 	if (updateCache.has(locale)) return;
 	updateCache.set(locale, undefined);
 

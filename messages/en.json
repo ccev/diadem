@@ -285,5 +285,10 @@
     "filter_template_levels_various": "Various {kind}",
     "filter_template_raids_fallback": "Raid Filter",
     "filter_template_raids_all": "All {kind}",
-    "filter_template_pokemon_raids": "{pokemon} Raids"
+    "filter_template_pokemon_raids": "{pokemon} Raids",
+    "filter_template_pokemon_fallback": "Pokémon Filter",
+    "filter_template_pokemon_template": "{attributes}{kind}",
+    "short_rank_little_league": "LL #{rank}",
+    "short_rank_great_league": "GL #{rank}",
+    "short_rank_ultra_league": "UL #{rank}"
 }

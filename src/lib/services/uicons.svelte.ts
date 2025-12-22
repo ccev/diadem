@@ -217,5 +217,5 @@ export enum League {
 }
 
 export function getIconLeague(league: League) {
-	return iconSets[DEFAULT_UICONS].misc(league)
+	return iconSets[DEFAULT_UICONS].misc(league) ?? iconSets[DEFAULT_UICONS].misc(League.GREAT)
 }

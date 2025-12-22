@@ -31,7 +31,7 @@
 </script>
 
 <Button
-	class="pl-0! pr-1! h-fit! relative overflow-hidden"
+	class="pl-0! pr-1! h-fit! relative overflow-hidden group"
 	variant="outline"
 	size="lg"
 	onclick={() => {
@@ -41,7 +41,7 @@
 	}}
 >
 	<div
-		class="h-12 w-0.5 mr-1.5 transition-colors"
+		class="h-12 w-0.5 mr-1.5 transition-colors shrink-0"
 		class:bg-green-500={filter.enabled}
 		class:dark:bg-emerald-600={filter.enabled}
 		class:bg-rose-300={!filter.enabled}
@@ -49,12 +49,15 @@
 	></div>
 
 	<div
-		class="flex-1 flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-2 transition-opacity"
+		class="shrink-1 min-w-0 w-full flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-0 transition-opacity relative"
 		class:opacity-50={!filter.enabled}
 	>
+		<div
+			class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent transition-colors"
+		></div>
 		<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
 
-		<span>{filterTitle($state.snapshot(filter))}</span>
+		<span class="overflow-x-hidden">{filterTitle($state.snapshot(filter))}</span>
 	</div>
 	<!--	<Button class="flex-1 justify-start rounded-md py-2 h-12 m-0! pl-4 pr-2" size="" variant="ghost">-->
 	<!--		<span>{filter.icon}</span>-->
@@ -66,7 +69,7 @@
 	<!--	</Button>-->
 
 	<Button
-		class="ml-auto my-0!"
+		class="ml-auto my-0! shrink-0"
 		variant="outline"
 		size="icon"
 		onclick={(e) => {
