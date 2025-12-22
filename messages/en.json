@@ -290,5 +290,6 @@
     "filter_template_pokemon_template": "{attributes}{kind}",
     "short_rank_little_league": "LL #{rank}",
     "short_rank_great_league": "GL #{rank}",
-    "short_rank_ultra_league": "UL #{rank}"
+    "short_rank_ultra_league": "UL #{rank}",
+	"context_menu_share_position": "Share map position"
 }

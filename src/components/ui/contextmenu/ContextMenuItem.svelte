@@ -12,14 +12,12 @@
 		label,
 		tag = "button",
 		onclick = undefined,
-		children,
 		...rest
 	}: {
 		Icon: LucideIcon,
 		label: string,
-		tag?: string,
+		tag?: "a" | "button",
 		onclick?: () => void,
-		children: Snippet
 	} = $props()
 
 	function onClick() {

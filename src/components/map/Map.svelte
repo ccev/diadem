@@ -43,6 +43,33 @@
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
+
+	// lat/lon/zoom params
+	const params = new URLSearchParams(window.location.search)
+
+	const userSettings = getUserSettings()
+	const lat = Number(params.get("lat") ?? undefined)
+	const lon = Number(params.get("lon") ?? undefined)
+	const zoom = Number(params.get("zoom") ?? undefined)
+
+	if (Number.isFinite(lat)) {
+		console.log(lat)
+		userSettings.mapPosition.center.lat = lat
+	}
+
+	if (Number.isFinite(lon)) {
+		console.log(lon)
+		userSettings.mapPosition.center.lng = lon
+	}
+
+	if (Number.isFinite(zoom)) {
+		console.log(zoom)
+		userSettings.mapPosition.zoom = zoom
+	}
+
+	history.replaceState({}, '', window.location.origin + window.location.pathname)
+	updateUserSettings()
+
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
 	async function onMapLoad() {

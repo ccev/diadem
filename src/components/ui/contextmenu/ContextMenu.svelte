@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { Binoculars, Clipboard, Navigation } from 'lucide-svelte';
+	import { Binoculars, Clipboard, Navigation, Pin } from "lucide-svelte";
 	import ContextMenuItem from '@/components/ui/contextmenu/ContextMenuItem.svelte';
 	import * as m from '@/lib/paraglide/messages';
 
@@ -9,10 +9,18 @@
 	import { openMenu } from '@/lib/ui/menus.svelte.js';
 	import { setCurrentScoutCenter, setCurrentScoutCoords } from '@/lib/features/scout.svelte.js';
 	import { Coords } from '@/lib/utils/coordinates';
-	import { copyToClipboard, hasClipboardWrite, isMenuSidebar, isUiLeft } from '@/lib/utils/device';
+	import {
+		backupShareUrl,
+		canBackupShare,
+		copyToClipboard,
+		hasClipboardWrite,
+		isMenuSidebar,
+		isUiLeft
+	} from "@/lib/utils/device";
 	import { getMapsUrl } from '@/lib/utils/mapUrl';
 	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
+	import { getMap } from "@/lib/map/map.svelte";
 
 	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
@@ -69,6 +77,22 @@
 		setCurrentScoutCenter(center)
 		openMenu("scout")
 	}
+
+	function shareMapPosition() {
+		const event = getContextMenuEvent()
+		if (!event) return
+
+		const center = Coords.infer(event.lngLat)
+		const zoom = getMap()?.getZoom()
+		console.log(zoom)
+
+		const url = new URL(window.location.href)
+		url.searchParams.set("lat", center.lat.toString())
+		url.searchParams.set("lon", center.lon.toString())
+		if (zoom) url.searchParams.set("zoom", zoom.toString())
+
+		backupShareUrl(url.toString())
+	}
 </script>
 
 {#snippet menuItems()}
@@ -77,6 +101,14 @@
 			Icon={Clipboard}
 			label={m.context_menu_copy_coordinates()}
 			onclick={copyCoords}
+		/>
+	{/if}
+
+	{#if canBackupShare({ url: window.location.href })}
+		<ContextMenuItem
+			Icon={Pin}
+			label={m.context_menu_share_position()}
+			onclick={shareMapPosition}
 		/>
 	{/if}
 
