@@ -44,7 +44,7 @@
 			>
 				<FiltersetIcon filterset={$state.snapshot(getCurrentSelectedFilterset()?.data)} size={5} />
 			</div>
-			<div class="relative text-base min-w-0 overflow-hidden">
+			<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
 				<div
 					class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent transition-colors"
 				></div>
