@@ -18,7 +18,7 @@
 </script>
 
 <div
-	class="flex items-center justify-center"
+	class="flex items-center justify-center shrink-0"
 	style:width="{rem}rem"
 >
 	{#if filterset?.icon?.uicon}

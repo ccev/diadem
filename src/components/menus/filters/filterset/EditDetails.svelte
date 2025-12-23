@@ -12,7 +12,6 @@
 	}: {
 		data: AnyFilterset
 	} = $props()
-	$inspect(data)
 </script>
 
 <MenuTitle title="Icon" />

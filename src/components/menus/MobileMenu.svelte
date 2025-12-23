@@ -18,7 +18,7 @@
 			style="{getOpenedMenu() === 'scout' ? 'height: fit-content !important;' : '' }; -webkit-overflow-scrolling: touch; touch-action: pan-y;"
 		>
 			<div
-				class="pb-20 px-2 pt-2 mt-40 min-h-full rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm"
+				class="pb-20 px-2 pt-2 mt-40 min-h-full rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm pointer-events-auto"
 				out:slide={{ duration: 70, axis: 'y' }}
 			>
 				<div class="sticky top-2 z-20">
