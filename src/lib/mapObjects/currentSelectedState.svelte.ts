@@ -2,17 +2,22 @@ import type { MapData } from '@/lib/types/mapObjectData/mapObjects';
 import { updateSelected } from '@/lib/map/featuresGen.svelte';
 import { updateMapObjectsGeoJson } from '@/lib/map/featuresManage.svelte';
 
-let currentSelectedData: MapData | null = $state(null);
+let currentSelectedData: { data: MapData | null, isOverwrite: boolean } = $state({ data: null, isOverwrite: false });
 
-export function setCurrentSelectedData(data: MapData | null) {
-	currentSelectedData = data
-	updateSelected(currentSelectedData)
+export function setCurrentSelectedData(data: MapData | null, isOverwrite: boolean = false) {
+	currentSelectedData.data = data
+	currentSelectedData.isOverwrite = isOverwrite
+	updateSelected(currentSelectedData.data)
 }
 
 export function getCurrentSelectedData() {
-	return currentSelectedData;
+	return currentSelectedData.data;
 }
 
 export function getCurrentSelectedMapId() {
-	return $state.snapshot(currentSelectedData?.mapId) || '';
+	return $state.snapshot(currentSelectedData.data?.mapId) || '';
+}
+
+export function isCurrentSelectedOverwrite() {
+	return currentSelectedData.isOverwrite
 }

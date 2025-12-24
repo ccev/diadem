@@ -102,7 +102,7 @@
 			if (directLinkData) {
 				if (directLinkData.id) {
 					addMapObjects([directLinkData], directLinkData.type, 1)
-					openPopup(directLinkData)
+					openPopup(directLinkData, true)
 
 					if (!map.getBounds().contains(Coords.infer(directLinkData).maplibre())) {
 						getUserSettings().mapPosition.center.lat = directLinkData.lat;

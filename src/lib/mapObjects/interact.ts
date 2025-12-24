@@ -21,8 +21,8 @@ export function closePopup() {
 	if (title) title.innerText = getConfig().general.mapName;
 }
 
-export function openPopup(data: MapData) {
-	setCurrentSelectedData(data);
+export function openPopup(data: MapData, isOverwrite: boolean = false) {
+	setCurrentSelectedData(data, isOverwrite);
 	setCurrentPath();
 }
 

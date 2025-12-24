@@ -16,6 +16,7 @@
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import GroupGym from "@/components/ui/search/GroupGym.svelte";
 	import { watch } from "runed";
+	import GroupPokestop from "@/components/ui/search/GroupPokestop.svelte";
 
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');
@@ -66,6 +67,10 @@
 
 				{#if isSupportedFeature("geocoding")}
 					<GroupAddress {searchQuery} />
+				{/if}
+
+				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokestop")}
+					<GroupPokestop {searchQuery} />
 				{/if}
 
 				{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}

@@ -3,6 +3,7 @@ import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 export type RaidFilterType = "level" | "boss"
 export const GYM_SLOTS = 6;
@@ -53,6 +54,8 @@ export function shouldDisplayRaid(data: GymData) {
 
 	// only active raids
 	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false
+
+	if (isCurrentSelectedOverwrite()) return true
 
 	// general disabling
 	const gymFilters = getUserSettings().filters.gym

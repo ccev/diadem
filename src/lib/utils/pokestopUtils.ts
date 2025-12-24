@@ -3,6 +3,7 @@ import { mAlignment, mGeneration, mItem, mPokemon, mType } from '@/lib/services/
 import * as m from '@/lib/paraglide/messages';
 import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 import { getUserSettings } from '@/lib/services/userSettings.svelte';
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7
@@ -181,6 +182,7 @@ export function getContestText(data: PokestopData) {
 }
 
 export function shouldDisplayIncidient(incident: Incident) {
+	if (isCurrentSelectedOverwrite()) return true
 	const pokestopFilters = getUserSettings().filters.pokestop
 	if (!pokestopFilters.enabled) return false
 
@@ -198,6 +200,7 @@ export function shouldDisplayIncidient(incident: Incident) {
 }
 
 export function shouldDisplayQuest(reward: QuestReward) {
+	if (isCurrentSelectedOverwrite()) return true
 	const pokestopFilters = getUserSettings().filters.pokestop
 	if (!pokestopFilters.enabled || !pokestopFilters.quest.enabled) return false
 
@@ -208,6 +211,7 @@ export function shouldDisplayQuest(reward: QuestReward) {
 
 export function shouldDisplayLure(data: Partial<PokestopData>) {
 	if (!hasFortActiveLure(data)) return false;
+	if (isCurrentSelectedOverwrite()) return true
 	const pokestopFilters = getUserSettings().filters.pokestop;
 	if (!pokestopFilters.enabled || !pokestopFilters.lure.enabled) return false;
 
