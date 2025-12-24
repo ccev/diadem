@@ -78,9 +78,9 @@
 		}}
 	>
 		{#if filter.enabled}
-			<EyeClosed size="16" />
-		{:else}
 			<Eye size="16" />
+		{:else}
+			<EyeClosed size="16" />
 		{/if}
 	</Button>
 </Button>
