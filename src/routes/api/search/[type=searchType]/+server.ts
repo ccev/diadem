@@ -1,0 +1,43 @@
+import { error, json } from "@sveltejs/kit";
+import { getLogger } from "@/lib/server/logging";
+import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { searchGyms } from "@/lib/server/api/golbatApi";
+import { Coords } from "@/lib/utils/coordinates";
+import { type SearchPayload, SearchType } from "@/lib/services/search";
+
+const log = getLogger("search");
+
+export async function POST({ request, locals, params }) {
+	const start = performance.now();
+	const type: SearchType = params.type as SearchType;
+
+	if (!hasFeatureAnywhereServer(locals.perms, type, locals.user)) error(401);
+
+	const permCheckTime = performance.now();
+
+	// this bypasses area perm restrictions (up to 20km), but cba to respect that
+
+	const payload: SearchPayload = await request.json();
+
+	// surely sylvie wouldn't find a rce here
+	const center = Coords.infer(payload.center);
+	let results: any[] | undefined = undefined;
+
+	if (type === SearchType.GYM) {
+		results = await searchGyms(payload.name, center);
+	}
+
+	if (!results) {
+		error(500);
+	}
+
+	log.info(
+		"[%s] search for <%s> / count: %d / permcheck: %fms + query: %fms",
+		type,
+		results?.length,
+		(permCheckTime - start).toFixed(1),
+		(performance.now() - permCheckTime).toFixed(1),
+	);
+
+	return json(results);
+}

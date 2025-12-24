@@ -17,6 +17,6 @@ export async function geocode(query: string) {
 		return []
 	}
 
-	const data: { error: null | string, result: AddressData[] } = await result.json()
-	return data.result
+	const data: AddressData[] = await result.json()
+	return data
 }

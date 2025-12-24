@@ -7,22 +7,33 @@
 	import { isSupportedFeature } from '@/lib/services/supportedFeatures';
 	import { getKojiGeofences } from '@/lib/features/koji';
 	import * as m from '@/lib/paraglide/messages';
-	import { closeModal } from '@/lib/ui/modal.svelte.js';
+	import { closeModal, isOpenModal } from "@/lib/ui/modal.svelte.js";
 	import Button from '@/components/ui/input/Button.svelte';
 	import Modal from '@/components/ui/modal/Modal.svelte';
 	import ModalTop from '@/components/ui/modal/ModalTop.svelte';
+	import SearchGroup from "@/components/ui/search/SearchGroup.svelte";
+	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import GroupGym from "@/components/ui/search/GroupGym.svelte";
+	import { watch } from "runed";
 
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');
 
-	onMount(() => {
-		input?.focus();
-	});
+	watch(
+		() => isOpenModal("search"),
+		() => {
+			if (isOpenModal("search")) {
+				input?.focus();
+				searchQuery = ""
+			}
+		}
+	)
 </script>
 
 <ModalTop modalType="search">
 	<Command.Root
-		class="rounded-lg border bg-card text-card-foreground"
+		class="rounded-lg border bg-card text-card-foreground max-h-[calc(100vh-1rem)] overflow-hidden"
 		shouldFilter={false}
 	>
 		<div class="flex items-center border-b pb-px pr-px pl-2">
@@ -49,14 +60,20 @@
 			</Button>
 		</div>
 
-		<Command.List class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-128">
+		<Command.List
+			class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200"
+		>
 			<Command.Viewport>
+				{#if getKojiGeofences() && isSupportedFeature("koji")}
+					<GroupArea {searchQuery} />
+				{/if}
+
 				{#if isSupportedFeature("geocoding")}
 					<GroupAddress {searchQuery} />
 				{/if}
 
-				{#if getKojiGeofences() && isSupportedFeature("koji")}
-					<GroupArea {searchQuery} />
+				{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}
+					<GroupGym {searchQuery} />
 				{/if}
 
 				<Command.Separator class="bg-foreground/5 h-px w-full" />

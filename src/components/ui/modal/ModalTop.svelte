@@ -7,13 +7,19 @@
 
 	let {
 		modalType,
-		children
+		children,
+		onopenchange = undefined
 	}: {
 		modalType: ModalType,
 		children?: Snippet
+		onopenchange?: Dialog.RootProps["onOpenChange"]
 	} = $props();
 </script>
 
-<Modal {modalType} class="data-[state=closed]:slide-out-to-top-10 data-[state=open]:slide-in-from-top-10! zoom-in-100! zoom-out-100! top-2! translate-y-0!">
+<Modal
+	{modalType}
+	{onopenchange}
+	class="data-[state=closed]:slide-out-to-top-10 data-[state=open]:slide-in-from-top-10! zoom-in-100! zoom-out-100! top-2! translate-y-0!"
+>
 	{@render children?.()}
 </Modal>

@@ -163,12 +163,12 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		let overwriteIcon: string | undefined = undefined;
 		let showThis: boolean = true;
 		const modifiers = getModifiers(userIconSet, obj.type);
-		let selectedScale = 1;
 		let expires = null;
 
 		const subFeatures: Feature[] = [];
 
-		if (obj.mapId === selectedMapId) selectedScale = SELECTED_MAP_OBJECT_SCALE;
+		const isSelected = obj.mapId === selectedMapId
+		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
 
 		if (obj.type === "pokestop") {
 			if (showQuests) {
@@ -246,7 +246,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 			}
 		} else if (obj.type === "gym") {
-			showThis = showAllGyms || shouldDisplayRaid(obj);
+			showThis = showAllGyms || shouldDisplayRaid(obj) || isSelected;
 
 			if ((obj.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
 				overwriteIcon = getIconGym({ team_id: 0 });

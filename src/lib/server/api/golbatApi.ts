@@ -1,6 +1,8 @@
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { getLogger } from "@/lib/server/logging";
+import type { Coords } from "@/lib/utils/coordinates";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
 
 export type PokemonResponse = {
 	pokemon: PokemonData[];
@@ -55,4 +57,20 @@ export async function getSinglePokemon(id: string, thisFetch: typeof fetch = fet
 
 export async function getMultiplePokemon(body: any) {
 	return await callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body))
+}
+
+export async function searchGyms(query: string, coords: Coords) {
+	const body = {
+		filters: [
+			{
+				name: query,
+				location_distance: {
+					location: coords.internal(),
+					distance: 20_000  // 20km
+				}
+			}
+		],
+		limit: 15
+	}
+	return await callGolbat<GymData[]>("api/gym/search", "POST", JSON.stringify(body))
 }

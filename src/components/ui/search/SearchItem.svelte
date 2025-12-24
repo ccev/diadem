@@ -6,12 +6,16 @@
 		onselect,
 		label,
 		value,
-		iconName
+		keywords = [],
+		iconName = undefined,
+		image = undefined
 	}: {
 		onselect: () => void,
 		label: string,
 		value: string,
-		iconName?: string
+		keywords?: string[],
+		iconName?: string,
+		image?: string,
 	} = $props()
 </script>
 
@@ -23,6 +27,14 @@
 	<div class="w-full flex gap-2 items-center text-start">
 		{#if iconName}
 			<LucideIcon size="16" name={iconName} />
+		{/if}
+		{#if image}
+			<img
+				class="size-5 object-cover rounded-full"
+				src={image}
+				alt={label}
+				loading="lazy"
+			>
 		{/if}
 		<span>
 			{label}
