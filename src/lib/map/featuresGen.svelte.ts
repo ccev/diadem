@@ -13,7 +13,7 @@ import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
-import { getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte.js";
+import { getCurrentSelectedMapId, isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte.js";
 import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -128,9 +128,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 	const startTime = performance.now();
 
-	const showQuests = getUserSettings().filters.pokestop.quest.enabled;
-	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled;
-	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled;
+	const isSelectedOverwrite = isCurrentSelectedOverwrite()
+	const showQuests = getUserSettings().filters.pokestop.quest.enabled || isSelectedOverwrite;
+	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled || isSelectedOverwrite;;
+	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled || isSelectedOverwrite;;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();
@@ -196,7 +197,6 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 				if (obj.quest_target && obj.quest_rewards) {
 					const reward = JSON.parse(obj.quest_rewards)[0];
-
 					if (!shouldDisplayQuest(reward)) continue;
 
 					const mapId = obj.mapId + "-quest-" + obj.quest_timestamp;

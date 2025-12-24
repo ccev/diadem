@@ -16,6 +16,7 @@
 	import { updateFeatures } from "@/lib/map/featuresGen.svelte";
 	import { onMount } from "svelte";
 	import { getBounds } from "@/lib/mapObjects/mapBounds";
+	import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 
 	let {
 		searchQuery
@@ -59,8 +60,8 @@
 			onselect={() => {
 				flyTo(Coords.infer(gym), 16.5)
 				closeModal("search")
+				openPopup(makeMapObject(gym, "gym"), true)
 				addMapObjects([gym], "gym", 1)
-				openPopup(gym)
 				updateFeatures(getMapObjects());
 			}}
 			value={"" + gym.id}

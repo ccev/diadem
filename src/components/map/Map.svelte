@@ -101,8 +101,8 @@
 			const directLinkData = getDirectLinkObject();
 			if (directLinkData) {
 				if (directLinkData.id) {
-					addMapObjects([directLinkData], directLinkData.type, 1)
 					openPopup(directLinkData, true)
+					addMapObjects([directLinkData], directLinkData.type, 1)
 
 					if (!map.getBounds().contains(Coords.infer(directLinkData).maplibre())) {
 						getUserSettings().mapPosition.center.lat = directLinkData.lat;

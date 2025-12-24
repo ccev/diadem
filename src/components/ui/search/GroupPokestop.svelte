@@ -14,6 +14,7 @@
 	import { onMount } from "svelte";
 	import { getBounds } from "@/lib/mapObjects/mapBounds";
 	import type { PokestopData } from "@/lib/types/mapObjectData/pokestop.d.ts";
+	import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 
 	let {
 		searchQuery
@@ -57,8 +58,8 @@
 			onselect={() => {
 				flyTo(Coords.infer(pokestop), 16.5)
 				closeModal("search")
+				openPopup(makeMapObject(pokestop, "pokestop"), true)
 				addMapObjects([pokestop], "pokestop", 1)
-				openPopup(pokestop, true)
 				updateFeatures(getMapObjects());
 			}}
 			value={"" + pokestop.id}
