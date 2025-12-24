@@ -19,12 +19,14 @@ export async function POST({ request, locals, params }) {
 
 	const payload: SearchPayload = await request.json();
 
+	if (payload.range > 50_000) error(400)
+
 	// surely sylvie wouldn't find a rce here
 	const center = Coords.infer(payload.center);
 	let results: any[] | undefined = undefined;
 
 	if (type === SearchType.GYM) {
-		results = await searchGyms(payload.name, center);
+		results = await searchGyms(payload.name, center, payload.range);
 	}
 
 	if (!results) {

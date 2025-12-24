@@ -59,14 +59,14 @@ export async function getMultiplePokemon(body: any) {
 	return await callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body))
 }
 
-export async function searchGyms(query: string, coords: Coords) {
+export async function searchGyms(query: string, coords: Coords, range: number) {
 	const body = {
 		filters: [
 			{
 				name: query,
 				location_distance: {
 					location: coords.internal(),
-					distance: 20_000  // 20km
+					distance: range
 				}
 			}
 		],

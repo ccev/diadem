@@ -1,5 +1,6 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { Debounced, watch } from "runed";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 /**
  * Sorts given array by .startswith(), then .includes()
@@ -25,6 +26,7 @@ export function sortSearchResults<T>(items: T[], query: string, selector: (item:
 
 export type SearchPayload = {
 	name: string
+	range: number
 	center: {
 		lat: number
 		lon: number
@@ -37,7 +39,7 @@ export enum SearchType {
 }
 
 export async function searchExternal<T>(type: SearchType, name: string, center: Coords): Promise<undefined | T[]> {
-	const payload: SearchPayload = { name, center: center.internal() }
+	const payload: SearchPayload = { name, range: getUserSettings().searchRange, center: center.internal() }
 
 	const result = await fetch("/api/search/" + type, { method: "POST", body: JSON.stringify(payload) })
 	if (!result.ok) {
@@ -46,13 +48,4 @@ export async function searchExternal<T>(type: SearchType, name: string, center: 
 	}
 
 	return await result.json()
-}
-
-export function debounceSearch(query: string) {
-	const debounced = new Debounced(() => query, 100)
-
-	watch(
-		() => debounced.current,
-		() => console.log(debounced.current)
-	)
 }
