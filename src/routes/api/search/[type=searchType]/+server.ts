@@ -3,7 +3,7 @@ import { getLogger } from "@/lib/server/logging";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { searchGyms } from "@/lib/server/api/golbatApi";
 import { Coords } from "@/lib/utils/coordinates";
-import { type SearchPayload, SearchType } from "@/lib/services/search";
+import { type SearchPayload, SearchType, sortSearchResults } from "@/lib/services/search.svelte";
 
 const log = getLogger("search");
 
@@ -30,6 +30,8 @@ export async function POST({ request, locals, params }) {
 	if (!results) {
 		error(500);
 	}
+
+	results = sortSearchResults(results, payload.name, o => o.name)
 
 	log.info(
 		"[%s] search for <%s> / count: %d / permcheck: %fms + query: %fms",

@@ -36,19 +36,20 @@ export type SqlExaminedResult = {
 export async function queryMapObjects<Data extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
-	filter: AnyFilter
+	filter: AnyFilter | undefined
 ): Promise<WrappedMapObjectResponse<Data>> {
 	let dbResponse: { result: Data[], error: number | undefined } | undefined = undefined
 	let examinedResponse: { result: SqlExaminedResult, error: number | undefined } | undefined = undefined
+	const enabled = filter === undefined || filter.enabled
 
-	if (type === "pokemon" && filter.enabled) {
-		return await queryPokemon(bounds, filter as FilterPokemon);
-	} else if (type === "gym" && filter.enabled) {
-		[ dbResponse, examinedResponse ] = await queryGyms(bounds, filter as FilterGym);
-	} else if (type === "pokestop" && filter.enabled) {
-		[ dbResponse, examinedResponse ] = await queryPokestops(bounds, filter as FilterPokestop);
-	} else if (type === "station" && filter.enabled) {
-		dbResponse = await queryStations(bounds, filter as FilterStation);
+	if (type === "pokemon" && enabled) {
+		return await queryPokemon(bounds, filter as FilterPokemon | undefined);
+	} else if (type === "gym" && enabled) {
+		[ dbResponse, examinedResponse ] = await queryGyms(bounds, filter as FilterGym | undefined);
+	} else if (type === "pokestop" && enabled) {
+		[ dbResponse, examinedResponse ] = await queryPokestops(bounds, filter as FilterPokestop | undefined);
+	} else if (type === "station" && enabled) {
+		dbResponse = await queryStations(bounds, filter as FilterStation | undefined);
 	} else {
 		return { result: { examined: 0, data: [] }, error: 404 };
 	}
@@ -67,12 +68,12 @@ export async function queryMapObjects<Data extends MapData>(
 
 async function queryPokemon(
 	bounds: Bounds,
-	filter: FilterPokemon
+	filter: FilterPokemon | undefined
 ): Promise<WrappedMapObjectResponse<PokemonData>> {
-	let golbatQuries: GolbatPokemonQuery[];
-	const enabledFilters = filter.filters?.filter((f) => f.enabled) ?? [];
+	let golbatQueries: GolbatPokemonQuery[];
+	const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
 	if (enabledFilters.length > 0) {
-		golbatQuries = enabledFilters.map((filter) => {
+		golbatQueries = enabledFilters.map((filter) => {
 			const query: GolbatPokemonQuery = {};
 			if (filter.pokemon)
 				query.pokemon = filter.pokemon.map((p) => {
@@ -96,7 +97,7 @@ async function queryPokemon(
 			return query;
 		});
 	} else {
-		golbatQuries = [
+		golbatQueries = [
 			{
 				pokemon: []
 			}
@@ -113,7 +114,7 @@ async function queryPokemon(
 			longitude: bounds.maxLon
 		},
 		limit: LIMIT_POKEMON,
-		filters: golbatQuries
+		filters: golbatQueries
 	};
 
 	const result = await getMultiplePokemon(body);
@@ -138,7 +139,7 @@ async function queryPokemon(
 	};
 }
 
-async function queryStations(bounds: Bounds, filter: FilterStation) {
+async function queryStations(bounds: Bounds, filter: FilterStation | undefined) {
 	return await query<StationData[]>(
 		"SELECT * FROM station " +
 			"WHERE lat BETWEEN ? AND ? " +

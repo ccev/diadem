@@ -15,35 +15,28 @@
 		searchQuery: string
 	} = $props()
 
-	const titlePrefix = " · "
-
 	let addresses: AddressData[] = $state([])
-	let extraTitle: string = $state("")
+	let isLoading: boolean = $state(false)
 
-	const debounced = new Debounced(() => searchQuery, 100)
-
-	watch(
-		() => debounced.current,
-		() => {
-			if (searchQuery.length > 3) {
-				extraTitle = titlePrefix + m.search_address_loading()
-				geocode(searchQuery).then(a => {
-					addresses = a
-					extraTitle = addresses.length > 0 ? "" : titlePrefix + m.search_address_no_place_found()
-				})
-			} else {
-				extraTitle = searchQuery ? titlePrefix + m.search_address_no_place_found() : ""
-				addresses = []
-			}
+	function searchAddress() {
+		if (searchQuery.length > 3) {
+			isLoading = true
+			geocode(searchQuery).then(a => {
+				addresses = a
+				isLoading = false
+			})
+		} else {
+			addresses = []
 		}
-	)
-
-
+	}
 </script>
 
 <SearchGroup
-	title="{m.search_place_title()}{extraTitle}"
+	title={m.search_place_title()}
 	items={addresses}
+	query={searchQuery}
+	debounceCallback={searchAddress}
+	{isLoading}
 >
 	{#snippet item(address: AddressData)}
 		<SearchItem

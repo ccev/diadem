@@ -7,13 +7,15 @@
 	import * as m from "@/lib/paraglide/messages";
 	import { closeModal } from "@/lib/ui/modal.svelte";
 	import type { GymData } from "@/lib/types/mapObjectData/gym.d.ts";
-	import { searchExternal, SearchType } from "@/lib/services/search";
+	import { debounceSearch, searchExternal, SearchType, sortSearchResults } from "@/lib/services/search.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getMap } from "@/lib/map/map.svelte";
 	import { addMapObjects, getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { openPopup } from "@/lib/mapObjects/interact";
-	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+	import { fetchMapObjects, updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+	import { onMount } from "svelte";
+	import { getBounds } from "@/lib/mapObjects/mapBounds";
 
 	let {
 		searchQuery
@@ -21,38 +23,41 @@
 		searchQuery: string
 	} = $props()
 
-	const titlePrefix = " · "
-
 	let gyms: GymData[] = $state([])
-	let extraTitle: string = $state("")
+	let isLoading: boolean = $state(false)
 
-	const debounced = new Debounced(() => searchQuery, 100)
-
-	watch(
-		() => debounced.current,
-		() => {
-			if (searchQuery.length > 3) {
-				extraTitle = titlePrefix + m.search_address_loading()
-				searchExternal<GymData>(SearchType.GYM, searchQuery, Coords.infer(getMap()?.getCenter() ?? [])).then(r => {
-					if (r) gyms = r
-					extraTitle = gyms.length > 0 ? "" : titlePrefix + m.search_address_no_place_found()
-				})
-			} else {
-				extraTitle = searchQuery ? titlePrefix + m.search_address_no_place_found() : ""
-				gyms = []
+	onMount(() => {
+		isLoading = true
+		fetchMapObjects<GymData>("gym", getBounds()).then(r => {
+			if (r) {
+				gyms = r.data.filter(g => g.name).sort((a, b) => a?.name?.localeCompare(b?.name ?? "") ?? 0)
+				isLoading = false
 			}
+		})
+	})
+
+	function searchGym() {
+		if (searchQuery.length > 0) {
+			isLoading = true
+			searchExternal<GymData>(SearchType.GYM, searchQuery, Coords.infer(getMap()?.getCenter() ?? [])).then(r => {
+				if (r) gyms = r
+				isLoading = false
+			})
 		}
-	)
+	}
 </script>
 
 <SearchGroup
-	title="{m.pogo_gyms()}{extraTitle}"
+	title={m.pogo_gyms()}
 	items={gyms}
+	query={searchQuery}
+	debounceCallback={searchGym}
+	{isLoading}
 >
 	{#snippet item(gym: GymData)}
 		<SearchItem
 			onselect={() => {
-				flyTo(Coords.infer(gym), 18)
+				flyTo(Coords.infer(gym), 16.5)
 				closeModal("search")
 				addMapObjects([gym], "gym", 1)
 				openPopup(gym)

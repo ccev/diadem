@@ -9,7 +9,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { closeModal } from '@/lib/ui/modal.svelte';
 	import { getFeatureJump } from "@/lib/utils/geo";
-	import { sortSearchResults } from "@/lib/services/search";
+	import { sortSearchResults } from "@/lib/services/search.svelte";
 
 	let {
 		searchQuery
@@ -20,7 +20,11 @@
 	let areas = $derived(sortSearchResults(getKojiGeofences(), searchQuery, a => a.properties.name))
 </script>
 
-<SearchGroup title={m.search_area_title()} items={areas}>
+<SearchGroup
+	title={m.search_area_title()}
+	items={areas}
+	query={searchQuery}
+>
 	{#if areas.length === 0}
 		<NothingFound text={m.search_area_no_areas_found()} />
 	{/if}

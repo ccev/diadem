@@ -16,7 +16,7 @@ import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { allMapObjectTypes, allMinorMapTypes } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectResponse } from '@/lib/server/api/queryMapObjects';
 
-export type MapObjectRequestData = Bounds & { filter: AnyFilter };
+export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
 
 export function getMapObjectId(type: MapObjectType, id: string) {
 	return type + "-" + id;
@@ -27,6 +27,21 @@ export function clearMap() {
 	clearAllMapObjects();
 	clearS2Cells();
 	updateFeatures(getMapObjects());
+}
+
+export async function fetchMapObjects<T extends MapData>(type: MapObjectType, bounds: Bounds, filter: AnyFilter | undefined = undefined): Promise<MapObjectResponse<T> | undefined> {
+	const body: MapObjectRequestData = {
+		...getBounds(),
+		filter
+	};
+	const response = await fetch("/api/" + type, { method: "POST", body: JSON.stringify(body) });
+
+	if (!response.ok) {
+		console.error(`Error while fetching ${type}: ${response.status}`)
+		return
+	}
+
+	return await response.json();
 }
 
 export async function updateMapObject(
@@ -48,6 +63,9 @@ export async function updateMapObject(
 		filter = getUserSettings().filters.station;
 	} else if (type === "s2cell") {
 		filter = getUserSettings().filters.s2cell;
+	} else {
+		console.log("unknown type while udpating map objects!")
+		return
 	}
 
 	if ((!filter || !filter.enabled) && type !== "s2cell") {
@@ -56,25 +74,20 @@ export async function updateMapObject(
 		return;
 	}
 
-	const body: MapObjectRequestData = {
-		...getBounds(),
-		filter
-	};
-
 	if (type === "s2cell") {
+		const body: MapObjectRequestData = {
+			...getBounds(),
+			filter
+		};
 		updateS2CellGeojson(body as { filter: FilterS2Cell } & Bounds);
 		return;
 	}
 
 	const fetchStart = performance.now();
-	const response = await fetch("/api/" + type, { method: "POST", body: JSON.stringify(body) });
+	const data = await fetchMapObjects(type, getBounds(), filter)
 
-	if (!response.ok) {
-		console.error(`Error while fetching ${type}: ${response.status}`)
-		return
-	}
+	if (!data) return
 
-	const data: MapObjectResponse<MapData> = await response.json();
 	console.debug("updateMapObject | fetch took " + (performance.now() - fetchStart) + "ms");
 
 	// const startTime = performance.now()

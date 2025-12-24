@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getMap, resetMap } from '@/lib/map/map.svelte';
-	import { isAnyModalOpen, openModal } from '@/lib/ui/modal.svelte.js';
+	import { isAnyModalOpen, isOpenModal, openModal } from "@/lib/ui/modal.svelte.js";
 	import Search from '@/components/ui/search/Search.svelte';
 	import BaseFab from '@/components/ui/fab/BaseFab.svelte';
 	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
@@ -37,7 +37,9 @@
 
 <svelte:document onkeydown={handleKeydown} />
 
+{#if isOpenModal("search")}
 <Search />
+{/if}
 
 <div
 	class="mx-2 gap-2 flex-col flex items-center"

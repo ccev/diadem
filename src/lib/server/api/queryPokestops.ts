@@ -18,7 +18,7 @@ import {
 } from "@/lib/utils/pokestopUtils";
 import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
 
-export async function queryPokestops(bounds: Bounds, filter: FilterPokestop) {
+export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | undefined) {
 	const boundsFilter = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 "
 	const boundsValues = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
 
@@ -29,7 +29,7 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestop) {
 	const conditions: string[] = []
 	const values: any[] = [...boundsValues]
 
-	if (!filter.pokestopPlain.enabled) {
+	if (filter && !filter.pokestopPlain.enabled) {
 		if (filter.contest.enabled) {
 			conditions.push(`incident.display_type = ${INCIDENT_DISPLAY_CONTEST} AND incident.expiration > UNIX_TIMESTAMP()`)
 		}

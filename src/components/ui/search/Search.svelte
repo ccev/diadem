@@ -20,15 +20,11 @@
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');
 
-	watch(
-		() => isOpenModal("search"),
-		() => {
-			if (isOpenModal("search")) {
-				input?.focus();
+	onMount(() => {
+		input?.focus();
 				searchQuery = ""
-			}
-		}
-	)
+	})
+
 </script>
 
 <ModalTop modalType="search">

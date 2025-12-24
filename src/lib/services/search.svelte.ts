@@ -1,4 +1,5 @@
 import type { Coords } from "@/lib/utils/coordinates";
+import { Debounced, watch } from "runed";
 
 /**
  * Sorts given array by .startswith(), then .includes()
@@ -45,4 +46,13 @@ export async function searchExternal<T>(type: SearchType, name: string, center: 
 	}
 
 	return await result.json()
+}
+
+export function debounceSearch(query: string) {
+	const debounced = new Debounced(() => query, 100)
+
+	watch(
+		() => debounced.current,
+		() => console.log(debounced.current)
+	)
 }

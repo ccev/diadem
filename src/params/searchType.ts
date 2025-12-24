@@ -1,5 +1,5 @@
 import type { ParamMatcher } from "@sveltejs/kit";
-import { SearchType } from "@/lib/services/search";
+import { SearchType } from "@/lib/services/search.svelte";
 
 export const match = ((param: string) => {
 	// @ts-ignore
