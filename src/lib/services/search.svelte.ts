@@ -1,6 +1,8 @@
 import type { Coords } from "@/lib/utils/coordinates";
-import { Debounced, watch } from "runed";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import  { getAllPokemonNames, type PokemonLocaleName } from "@/lib/services/ingameLocale";
+
+let allPokemonNames: PokemonLocaleName[] | undefined = undefined
 
 /**
  * Sorts given array by .startswith(), then .includes()
@@ -36,6 +38,7 @@ export type SearchPayload = {
 export enum SearchType {
 	GYM = "gym",
 	POKESTOP = "pokestop",
+	POKEMON = "pokemon"
 }
 
 export async function searchExternal<T>(type: SearchType, name: string, center: Coords): Promise<undefined | T[]> {
@@ -48,4 +51,12 @@ export async function searchExternal<T>(type: SearchType, name: string, center: 
 	}
 
 	return await result.json()
+}
+
+export function searchPokemon(query: string) {
+	if (allPokemonNames === undefined) {
+		allPokemonNames = getAllPokemonNames()
+	}
+
+	return sortSearchResults(allPokemonNames, query, p => p.name)
 }

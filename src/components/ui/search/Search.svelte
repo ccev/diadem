@@ -15,17 +15,21 @@
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import GroupGym from "@/components/ui/search/GroupGym.svelte";
-	import { watch } from "runed";
+	import { Debounced, watch } from "runed";
 	import GroupPokestop from "@/components/ui/search/GroupPokestop.svelte";
+	import { searchPokemon } from "@/lib/services/search.svelte";
+	import type { PokemonLocaleName } from "@/lib/services/ingameLocale";
+	import GroupPokemon from "@/components/ui/search/GroupPokemon.svelte";
 
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');
 
 	onMount(() => {
 		input?.focus();
-				searchQuery = ""
+		searchQuery = ""
 	})
 
+	const debounced = new Debounced(() => searchQuery, 100);
 </script>
 
 <ModalTop modalType="search">
@@ -75,6 +79,10 @@
 
 				{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}
 					<GroupGym {searchQuery} />
+				{/if}
+
+				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
+					<GroupPokemon {searchQuery} />
 				{/if}
 
 				<Command.Separator class="bg-foreground/5 h-px w-full" />

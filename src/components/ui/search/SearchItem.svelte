@@ -1,6 +1,7 @@
 <script lang="ts">
 	import LucideIcon from '@/components/utils/LucideIcon.svelte';
 	import { Command } from "bits-ui";
+	import type { Snippet } from "svelte";
 
 	let {
 		onselect,
@@ -8,7 +9,8 @@
 		value,
 		keywords = [],
 		iconName = undefined,
-		image = undefined
+		image = undefined,
+		labelSnippet = undefined
 	}: {
 		onselect: () => void,
 		label: string,
@@ -16,6 +18,7 @@
 		keywords?: string[],
 		iconName?: string,
 		image?: string,
+		labelSnippet?: Snippet
 	} = $props()
 </script>
 
@@ -36,8 +39,14 @@
 				loading="lazy"
 			>
 		{/if}
-		<span>
-			{label}
-		</span>
+		{#if labelSnippet}
+			<p>
+				{@render labelSnippet()}
+			</p>
+		{:else}
+			<span>
+				{label}
+			</span>
+		{/if}
 	</div>
 </Command.Item>

@@ -1,6 +1,13 @@
 import * as m from "@/lib/paraglide/messages";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { getLocale } from "@/lib/paraglide/runtime";
+import type { Pokemon } from "@/lib/features/filters/filtersets";
+
+export type PokemonLocaleName = {
+	name: string
+	id: number
+	evolutionId: number
+}
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -26,7 +33,7 @@ export async function loadRemoteLocale(languageTag: string, thisFetch: typeof fe
 	remoteLocales[languageTag] = data;
 }
 
-function mIngame(key: string): string {
+function getIngameLocale() {
 	const languageTag = getLocale();
 	let locale = remoteLocales[languageTag];
 
@@ -36,11 +43,15 @@ function mIngame(key: string): string {
 		if (allRemoteLocales) {
 			locale = allRemoteLocales[0];
 		} else {
-			return "";
+			return {}
 		}
 	}
 
-	return locale[key] ?? "";
+	return locale
+}
+
+function mIngame(key: string): string {
+	return getIngameLocale()[key] ?? "";
 }
 
 /**
@@ -187,4 +198,20 @@ export function mGeneration(generationId?: number | string | null) {
  */
 export function mCharacter(characterId?: number | string | null) {
 	return mBasicId("character", characterId);
+}
+
+export function getAllPokemonNames() {
+	const pokemonNames: PokemonLocaleName[] = []
+
+	for (const [key, name] of Object.entries(getIngameLocale())) {
+		if (!key.startsWith(prefixes.pokemon)) continue
+		const parts = key.split('_');
+
+		pokemonNames.push({
+			name,
+			id: parseInt(parts[1]),
+			evolutionId: parseInt(parts?.[2]?.slice(1))
+		})
+	}
+	return pokemonNames
 }

@@ -25,9 +25,6 @@
 	items={areas}
 	query={searchQuery}
 >
-	{#if areas.length === 0}
-		<NothingFound text={m.search_area_no_areas_found()} />
-	{/if}
 	{#snippet item(feature: KojiFeature)}
 		<SearchItem
 			onselect={() => {
