@@ -42,10 +42,8 @@
 >
 	<div
 		class="h-12 w-0.5 mr-1.5 transition-colors shrink-0"
-		class:bg-green-500={filter.enabled}
-		class:dark:bg-emerald-600={filter.enabled}
-		class:bg-rose-300={!filter.enabled}
-		class:dark:bg-rose-900={!filter.enabled}
+		class:bg-green={filter.enabled}
+		class:bg-red={!filter.enabled}
 	></div>
 
 	<div

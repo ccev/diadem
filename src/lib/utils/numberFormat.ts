@@ -58,19 +58,24 @@ export function formatRatio(
 	return `1:${formatNumber(ratio, { maximumFractionDigits: ratio >= 1_000 ? 0 : 1 })}`;
 }
 
+type PercentageOptions = {
+	minDecimals?: number
+	maxDecimals?: number
+}
+
 /**
  * Format a percentage
  * @param value The decimal value (e.g., 0.5 for 50%)
  * @param decimals Number of decimal places (default: 1)
  * @returns Formatted percentage string (e.g., "50.0%")
  */
-export function formatPercentage(value: number | null | undefined, decimals: number = 1): string {
+export function formatPercentage(value: number | null | undefined, options?: PercentageOptions): string {
 	if (value === null || value === undefined || isNaN(value)) return 'N/A';
 
 	return new Intl.NumberFormat(getLocale(), {
 		style: 'percent',
-		minimumFractionDigits: decimals,
-		maximumFractionDigits: decimals
+		minimumFractionDigits: options?.minDecimals ?? 1,
+		maximumFractionDigits: options?.maxDecimals ?? 1
 	}).format(value);
 }
 

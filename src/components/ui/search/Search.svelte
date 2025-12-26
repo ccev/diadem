@@ -73,16 +73,16 @@
 					<GroupAddress {searchQuery} />
 				{/if}
 
+				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
+					<GroupPokemon {searchQuery} />
+				{/if}
+
 				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokestop")}
 					<GroupPokestop {searchQuery} />
 				{/if}
 
 				{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}
 					<GroupGym {searchQuery} />
-				{/if}
-
-				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
-					<GroupPokemon {searchQuery} />
 				{/if}
 
 				<Command.Separator class="bg-foreground/5 h-px w-full" />

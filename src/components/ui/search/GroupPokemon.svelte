@@ -82,7 +82,7 @@
 					</span>
 				{/if}
 				<span class="text-muted-foreground">
-					<Countdown expireTime={pokemon.expire_timestamp} />
+					(<Countdown expireTime={pokemon.expire_timestamp} />)
 				</span>
 			{/snippet}
 		</SearchItem>

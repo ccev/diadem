@@ -44,8 +44,9 @@
 	} from "@/lib/utils/pokemonUtils";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "@/lib/features/masterStats.svelte";
-	import { formatRatio } from "@/lib/utils/numberFormat";
+	import { formatPercentage, formatRatio } from "@/lib/utils/numberFormat";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
+	import { getLocale } from "@/lib/paraglide/runtime";
 
 	let { mapId }: { mapId: string } = $props();
 	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData);
@@ -152,18 +153,18 @@
 	{/snippet}
 
 	{#snippet title()}
-		<div class="flex items-center gap-1.5 text-lg font-semibold tracking-tight -ml-0.5">
-			{#if data.iv}
-					<span
-						class="rounded-xl px-2.5 py-1 text-sm"
-						class:bg-rose-300={data.iv <= 50}
-						class:bg-orange-300={data.iv > 50 && data.iv <= 75}
-						class:bg-cyan-300={data.iv > 75 && data.iv < 90}
-						class:bg-teal-300={data.iv >= 90 && data.iv <= 99}
-						class:bg-green-300={data.iv > 99}
-					>
-						{data.iv?.toFixed(1)}%
-					</span>
+		<div class="flex items-baseline text-lg font-semibold tracking-tight -ml-0.5">
+			{#if data.iv !== undefined && data.iv !== null}
+				<span
+					class="mr-2 border-1 bg-muted border-border rounded-lg px-2 py-0.5 text-base"
+					class:text-tier-0={data.iv <= 50}
+					class:text-tier-1={data.iv > 50 && data.iv <= 75}
+					class:text-tier-2={data.iv > 75 && data.iv < 90}
+					class:text-tier-3={data.iv >= 90 && data.iv <= 99}
+					class:text-tier-4={data.iv > 99}
+				>
+					{formatPercentage(data.iv / 100, { minDecimals: 0 })}
+				</span>
 			{/if}
 			<span>
 				{mPokemon(data)}
