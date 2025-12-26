@@ -47,6 +47,7 @@
 	import { formatPercentage, formatRatio } from "@/lib/utils/numberFormat";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 	import { getLocale } from "@/lib/paraglide/runtime";
+	import { resize } from "@/lib/services/assets";
 
 	let { mapId }: { mapId: string } = $props();
 	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData);
@@ -139,6 +140,20 @@
 			<b>#{getRank(data, "ultra")}</b>
 		</IconValue>
 	{/if}
+
+	{#if data.display_pokemon_id}
+		{@const displayPokemon = { pokemon_id: data.display_pokemon_id }}
+		<div class="flex items-center">
+			<img
+				class="w-4 shrink-0"
+				src={resize(getIconPokemon(displayPokemon), { width: 64 })}
+				alt={mPokemon(displayPokemon)}
+			>
+			<span class="ml-1.5">
+				{m.display_pokemon_notice({ pokemon: mPokemon(data), display: mPokemon(displayPokemon) })}
+			</span>
+		</div>
+	{/if}
 {/snippet}
 
 <BasePopup lat={data.lat} lon={data.lon}>
@@ -153,7 +168,7 @@
 	{/snippet}
 
 	{#snippet title()}
-		<div class="flex items-baseline text-lg font-semibold tracking-tight -ml-0.5">
+		<p class="flex items-baseline text-lg font-semibold tracking-tight -ml-0.5">
 			{#if data.iv !== undefined && data.iv !== null}
 				<span
 					class="mr-2 border-1 bg-muted border-border rounded-lg px-2 py-0.5 text-base"
@@ -172,7 +187,7 @@
 					({mPokemon({ pokemon_id: data.display_pokemon_id })})
 				{/if}
 			</span>
-		</div>
+		</p>
 	{/snippet}
 
 	{#snippet description()}
@@ -275,7 +290,6 @@
 				{m.popup_pokemon_is_strong()}
 			</IconValue>
 		{/if}
-
 		<IconValue
 			Icon={getWeatherIcon(data.weather)}
 		>
