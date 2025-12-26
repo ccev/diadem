@@ -13,7 +13,7 @@
 	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
 	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
 	import GymDefenderOverview from '@/components/ui/popups/gym/GymDefenderOverview.svelte';
-	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 	import Metadata from '@/components/utils/Metadata.svelte';
@@ -26,8 +26,7 @@
 		shouldDisplayRaid
 	} from "@/lib/utils/gymUtils";
 
-	let { mapId }: { mapId: string } = $props();
-	let data: GymData = $derived(getMapObjects()[mapId] as GymData ?? getCurrentSelectedData() as GymData);
+	let data: GymData = $derived(getMapObjects()[getCurrentSelectedMapId()] as GymData ?? getCurrentSelectedData() as GymData);
 	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? '[]'));
 	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? '[]'));
 </script>

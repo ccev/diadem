@@ -1,10 +1,10 @@
-import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+
 import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 import { getDirectLinkObject } from '@/lib/features/directLinks.svelte';
 import { getMap } from '@/lib/map/map.svelte';
 import { Coords } from '@/lib/utils/coordinates';
 import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
-import { allMapObjectTypes } from '@/lib/mapObjects/mapObjectTypes';
+import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type MapObjectsStateType = {
 	[key: string]: MapData;

@@ -6,7 +6,7 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 	import { mPokemon } from '@/lib/services/ingameLocale';
-	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
 	import { Clock, ClockArrowDown, ClockArrowUp, MapPinned, Star, UsersRound } from 'lucide-svelte';
 	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
@@ -14,8 +14,7 @@
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 	import { getStationPokemon, getStationTitle, STATION_SLOTS } from '@/lib/utils/stationUtils';
 
-	let { mapId } : { mapId: string } = $props()
-	let data: StationData = $derived(getMapObjects()[mapId] as StationData ?? getCurrentSelectedData() as StationData)
+	let data: StationData = $derived(getMapObjects()[getCurrentSelectedMapId()] as StationData ?? getCurrentSelectedData() as StationData)
 </script>
 
 {#snippet basicInfo()}

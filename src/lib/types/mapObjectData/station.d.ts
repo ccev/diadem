@@ -1,7 +1,9 @@
+import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+
 export type StationData = {
 	id: string
 	mapId: string
-	type: "station"
+	type: MapObjectType.STATION
 	lat: number
 	lon: number
 	name: string

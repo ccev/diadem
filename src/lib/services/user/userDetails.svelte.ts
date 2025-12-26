@@ -1,5 +1,6 @@
 import type { DiscordUser } from '@/lib/server/auth/discordDetails';
-import type { Perms } from '@/lib/server/auth/permissions';
+
+import type { Perms } from "@/lib/utils/features";
 
 export type UserData = {
 	details?: DiscordUser;

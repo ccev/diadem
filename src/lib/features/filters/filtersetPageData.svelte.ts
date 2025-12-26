@@ -7,8 +7,8 @@ import { FiltersetPokemonSchema } from "@/lib/features/filters/filtersetSchemas"
 import { getId } from "@/lib/utils/uuid";
 import * as m from "@/lib/paraglide/messages";
 import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
-import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 type DataGeneric<M extends keyof UserSettings["filters"]> = {
 	majorCategory: M

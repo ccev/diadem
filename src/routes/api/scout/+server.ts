@@ -5,12 +5,13 @@ import { addScoutEntries, getScoutQueue } from "@/lib/server/api/dragoniteApi";
 import { result } from "@/lib/server/api/results";
 import { getLogger } from "@/lib/server/logging";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { Features } from "@/lib/utils/features";
 
 const log = getLogger("scout");
 
 export async function POST({ request, locals }) {
 	// TODO: rate limit
-	if (!hasFeatureAnywhereServer(locals.perms, "scout", locals.user)) error(401);
+	if (!hasFeatureAnywhereServer(locals.perms, Features.SCOUT, locals.user)) error(401);
 
 	const scoutData: ScoutRequest = await request.json();
 
@@ -30,7 +31,7 @@ export async function POST({ request, locals }) {
 }
 
 export async function GET({ locals }) {
-	if (!hasFeatureAnywhereServer(locals.perms, "scout", locals.user)) error(401);
+	if (!hasFeatureAnywhereServer(locals.perms, Features.SCOUT, locals.user)) error(401);
 
 	const response = await getScoutQueue();
 

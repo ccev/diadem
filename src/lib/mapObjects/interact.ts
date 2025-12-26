@@ -2,13 +2,13 @@ import { getConfig } from '@/lib/services/config/config';
 import type { MapMouseEvent } from 'maplibre-gl';
 import type { LayerClickInfo } from 'svelte-maplibre';
 import type { Feature } from '@/lib/map/featuresGen.svelte.js';
-import type { MapData } from '@/lib/types/mapObjectData/mapObjects';
 import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 import { getCurrentSelectedData, setCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
 import { setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
 import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 import { getMapPath } from "@/lib/utils/getMapPath";
+import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 
 export function closePopup() {
 	setCurrentSelectedData(null);

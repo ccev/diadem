@@ -13,7 +13,8 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
-	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		filter,

@@ -32,7 +32,7 @@
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 	import { POKEMON_MIN_RANK } from "@/lib/constants";
 	import PvpEntry from "@/components/ui/popups/pokemon/PvpEntry.svelte";
-	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import {
 		getPokemonSize,
 		getRank,
@@ -46,16 +46,13 @@
 	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "@/lib/features/masterStats.svelte";
 	import { formatPercentage, formatRatio } from "@/lib/utils/numberFormat";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
-	import { getLocale } from "@/lib/paraglide/runtime";
 	import { resize } from "@/lib/services/assets";
 
-	let { mapId }: { mapId: string } = $props();
-	let data: PokemonData = $derived(getMapObjects()[mapId] as PokemonData ?? getCurrentSelectedData() as PokemonData);
+	let data: PokemonData = $derived(getMapObjects()[getCurrentSelectedMapId()] as PokemonData ?? getCurrentSelectedData() as PokemonData);
 
 	// let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 
 	let stats: PokemonStats | undefined = $derived(getMasterPokemonStats(data.pokemon_id, data.form ?? 0));
-
 </script>
 
 <svelte:head>

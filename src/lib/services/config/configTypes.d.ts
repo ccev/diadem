@@ -1,5 +1,6 @@
-import type { MapObjectType } from "../../types/mapObjectData/mapObjects";
-import type { FeaturesKey } from "../../server/auth/permissions";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+
+import type { FeaturesKey } from "@/lib/utils/features";
 
 type UiconSetModifiers = {
 	default: boolean,

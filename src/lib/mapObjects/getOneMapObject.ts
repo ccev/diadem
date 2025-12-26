@@ -1,4 +1,5 @@
-import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export async function getOneMapObject(
 	type: MapObjectType,
@@ -18,9 +19,9 @@ export async function getOneMapObject(
 		return;
 	}
 
-	const result = data.result[0]
+	const result = data.result[0];
 
-	if (!result || Object.keys(result).length === 0) return
+	if (!result || Object.keys(result).length === 0) return;
 
-	return result
+	return result;
 }

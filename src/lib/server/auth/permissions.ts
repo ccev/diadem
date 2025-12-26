@@ -3,21 +3,12 @@ import { setPermissions } from "@/lib/server/auth/auth";
 import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
-import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
-import type { Polygon } from 'geojson';
+import { getLogger } from "@/lib/server/logging";
+import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
 
-export type FeaturesKey = "*" | "pokemon" | "gym" | "pokestop" | "station" | "weather" | "s2cell" | "scout";
-type PermArea = {
-	name: string;
-	features: FeaturesKey[];
-	polygon: Polygon;
-};
-export type Perms = {
-	everywhere: FeaturesKey[];
-	areas: PermArea[];
-};
+const log = getLogger("permissions");
 
 let initializedEveryonePerms: boolean = false;
 let everyonePerms: Perms = { everywhere: [], areas: [] };
@@ -39,7 +30,9 @@ function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | un
 		for (const ruleArea of rule.areas) {
 			let area: PermArea | undefined = perms.areas.find((a) => ruleArea === a.name);
 			if (!area) {
-				const kojiFeature = geofences!.find((f) => f.properties.name.toLowerCase() === ruleArea.toLowerCase());
+				const kojiFeature = geofences!.find(
+					(f) => f.properties.name.toLowerCase() === ruleArea.toLowerCase()
+				);
 				if (!kojiFeature) {
 					console.error(
 						`You configured area ${ruleArea} in your config permissions, but there's no Koji area with that name. Permissions for this area are ignored`
@@ -60,11 +53,10 @@ function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | un
 
 async function getGeofences(thisFetch: typeof fetch) {
 	const data = await fetchKojiGeofences(thisFetch);
-	if (data.error) {
-		console.error("Koji error while handling permissions. All area-based permissions are ignored");
-		return undefined;
+	if (!data) {
+		log.error("Koji error while handling permissions. All area-based permissions are ignored");
 	}
-	return data.result as KojiFeatures;
+	return data;
 }
 
 export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: KojiFeatures) {

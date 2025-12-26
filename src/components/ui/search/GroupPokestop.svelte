@@ -15,6 +15,7 @@
 	import { getBounds } from "@/lib/mapObjects/mapBounds";
 	import type { PokestopData } from "@/lib/types/mapObjectData/pokestop.d.ts";
 	import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		searchQuery
@@ -58,8 +59,8 @@
 			onselect={() => {
 				flyTo(Coords.infer(pokestop), 16.5)
 				closeModal("search")
-				openPopup(makeMapObject(pokestop, "pokestop"), true)
-				addMapObjects([pokestop], "pokestop", 1)
+				openPopup(makeMapObject(pokestop, MapObjectType.POKESTOP), true)
+				addMapObjects([pokestop], MapObjectType.POKESTOP, 1)
 				updateFeatures(getMapObjects());
 			}}
 			value={"" + pokestop.id}

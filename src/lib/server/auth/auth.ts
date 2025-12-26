@@ -4,7 +4,8 @@ import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '@/lib/server/db/internal';
 import * as table from '@/lib/server/db/internal/schema';
-import type { Perms } from '@/lib/server/auth/permissions';
+
+import type { Perms } from "@/lib/utils/features";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 

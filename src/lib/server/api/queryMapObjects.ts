@@ -3,21 +3,18 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type {
 	AnyFilter,
 	FilterGym,
-	FilterGymPlain,
 	FilterPokemon,
 	FilterPokestop,
 	FilterStation
 } from "@/lib/features/filters/filters";
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
-import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import type { GolbatPokemonQuery } from "@/lib/server/api/queries";
-import { LIMIT_GYM, LIMIT_POKEMON, LIMIT_STATION } from "@/lib/constants";
+import { LIMIT_POKEMON, LIMIT_STATION } from "@/lib/constants";
 import { queryPokestops } from "@/lib/server/api/queryPokestops";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-import { error } from "@sveltejs/kit";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { queryGyms } from "@/lib/server/api/queryGyms";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
@@ -30,25 +27,29 @@ export type WrappedMapObjectResponse<Data extends MapData> = {
 };
 
 export type SqlExaminedResult = {
-	examined: number
-}[]
+	examined: number;
+}[];
 
 export async function queryMapObjects<Data extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
 	filter: AnyFilter | undefined
 ): Promise<WrappedMapObjectResponse<Data>> {
-	let dbResponse: { result: Data[], error: number | undefined } | undefined = undefined
-	let examinedResponse: { result: SqlExaminedResult, error: number | undefined } | undefined = undefined
-	const enabled = filter === undefined || filter.enabled
+	let dbResponse: { result: Data[]; error: number | undefined } | undefined = undefined;
+	let examinedResponse: { result: SqlExaminedResult; error: number | undefined } | undefined =
+		undefined;
+	const enabled = filter === undefined || filter.enabled;
 
-	if (type === "pokemon" && enabled) {
+	if (type === MapObjectType.POKEMON && enabled) {
 		return await queryPokemon(bounds, filter as FilterPokemon | undefined);
-	} else if (type === "gym" && enabled) {
-		[ dbResponse, examinedResponse ] = await queryGyms(bounds, filter as FilterGym | undefined);
-	} else if (type === "pokestop" && enabled) {
-		[ dbResponse, examinedResponse ] = await queryPokestops(bounds, filter as FilterPokestop | undefined);
-	} else if (type === "station" && enabled) {
+	} else if (type === MapObjectType.GYM && enabled) {
+		[dbResponse, examinedResponse] = await queryGyms(bounds, filter as FilterGym | undefined);
+	} else if (type === MapObjectType.POKESTOP && enabled) {
+		[dbResponse, examinedResponse] = await queryPokestops(
+			bounds,
+			filter as FilterPokestop | undefined
+		);
+	} else if (type === MapObjectType.STATION && enabled) {
 		dbResponse = await queryStations(bounds, filter as FilterStation | undefined);
 	} else {
 		return { result: { examined: 0, data: [] }, error: 404 };
@@ -58,9 +59,9 @@ export async function queryMapObjects<Data extends MapData>(
 		return { result: { examined: 0, data: [] }, error: 500 };
 	}
 
-	let examined = dbResponse.result.length
+	let examined = dbResponse.result.length;
 	if (examinedResponse && examinedResponse.result[0] && examinedResponse.error === undefined) {
-		examined = examinedResponse.result[0].examined
+		examined = examinedResponse.result[0].examined;
 	}
 
 	return { result: { examined, data: dbResponse?.result ?? [] }, error: undefined };

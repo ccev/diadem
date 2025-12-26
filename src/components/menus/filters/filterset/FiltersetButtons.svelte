@@ -16,7 +16,8 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { isOpenModal, type ModalType } from '@/lib/ui/modal.svelte';
 	import { closeModal } from '@/lib/ui/modal.svelte.js';
-	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		modalType,

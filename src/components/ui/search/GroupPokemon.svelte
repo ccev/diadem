@@ -1,25 +1,19 @@
 <script lang="ts">
 	import SearchGroup from "@/components/ui/search/SearchGroup.svelte";
-	import { flyTo } from "@/lib/map/utils";
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { closeModal } from "@/lib/ui/modal.svelte";
-	import type { GymData } from "@/lib/types/mapObjectData/gym.d.ts";
-	import { searchExternal, searchPokemon, SearchType, sortSearchResults } from "@/lib/services/search.svelte";
+	import { searchExternal, searchPokemon, SearchType } from "@/lib/services/search.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getMap } from "@/lib/map/map.svelte";
-	import { addMapObjects, getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-	import { openPopup } from "@/lib/mapObjects/interact";
-	import { fetchMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { onMount } from "svelte";
-	import { getBounds } from "@/lib/mapObjects/mapBounds";
-	import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 	import type { PokemonData } from "@/lib/types/mapObjectData/pokemon.d.ts";
-	import { mPokemon, type PokemonLocaleName } from "@/lib/services/ingameLocale";
+	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { resize } from "@/lib/services/assets";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		searchQuery
@@ -33,7 +27,7 @@
 	onMount(() => {
 		const thisPokemon: PokemonData[] = []
 		for (const obj of Object.values(getMapObjects())) {
-			if (obj.type === "pokemon") thisPokemon.push(obj)
+			if (obj.type === MapObjectType.POKEMON) thisPokemon.push(obj)
 		}
 		pokemon = thisPokemon.sort((a, b) => mPokemon(a).localeCompare(mPokemon(b)))
 	})

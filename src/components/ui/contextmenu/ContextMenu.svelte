@@ -21,6 +21,7 @@
 	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
 	import { getMap } from "@/lib/map/map.svelte";
+	import { Features } from "@/lib/utils/features";
 
 	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
@@ -120,7 +121,7 @@
 		target="_blank"
 	/>
 
-	{#if hasFeatureAnywhere(getUserDetails().permissions, "scout")}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT)}
 		<ContextMenuItem
 			Icon={Binoculars}
 			label={m.context_menu_scout_location()}

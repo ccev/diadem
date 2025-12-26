@@ -16,7 +16,7 @@
 	import QuestDisplay from '@/components/ui/popups/pokestop/QuestDisplay.svelte';
 	import PokestopSection from '@/components/ui/popups/pokestop/PokestopSection.svelte';
 	import ContestDisplay from '@/components/ui/popups/pokestop/ContestDisplay.svelte';
-	import { getCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 	import Metadata from '@/components/utils/Metadata.svelte';
@@ -31,8 +31,7 @@
 	import { getRarityLabel } from "@/lib/utils/pokemonUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 
-	let { mapId } : { mapId: string } = $props()
-	let data: PokestopData = $derived(getMapObjects()[mapId] as PokestopData ?? getCurrentSelectedData() as PokestopData)
+	let data: PokestopData = $derived(getMapObjects()[getCurrentSelectedMapId()] as PokestopData ?? getCurrentSelectedData() as PokestopData)
 </script>
 
 <svelte:head>

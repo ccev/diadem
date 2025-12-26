@@ -20,6 +20,7 @@
 	import { searchPokemon } from "@/lib/services/search.svelte";
 	import type { PokemonLocaleName } from "@/lib/services/ingameLocale";
 	import GroupPokemon from "@/components/ui/search/GroupPokemon.svelte";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let input: HTMLInputElement | undefined = $state();
 	let searchQuery: string = $state('');
@@ -73,15 +74,15 @@
 					<GroupAddress {searchQuery} />
 				{/if}
 
-				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokemon")}
+				{#if hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKEMON)}
 					<GroupPokemon {searchQuery} />
 				{/if}
 
-				{#if hasFeatureAnywhere(getUserDetails().permissions, "pokestop")}
+				{#if hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKESTOP)}
 					<GroupPokestop {searchQuery} />
 				{/if}
 
-				{#if hasFeatureAnywhere(getUserDetails().permissions, "gym")}
+				{#if hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.GYM)}
 					<GroupGym {searchQuery} />
 				{/if}
 

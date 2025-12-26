@@ -1,6 +1,7 @@
 import type { AvailableLanguageTag } from '../../lib/paraglide/runtime';
 import type { ParaglideLocals } from '@inlang/paraglide-sveltekit';
-import type { Perms } from '@/lib/server/auth/permissions';
+
+import type { Perms } from "@/lib/utils/features";
 
 declare global {
 	namespace App {

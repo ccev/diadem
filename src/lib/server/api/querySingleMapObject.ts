@@ -1,23 +1,27 @@
 import { getSinglePokemon } from "@/lib/server/api/golbatApi";
 import { query } from "@/lib/server/db/external/internalQuery";
-import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
-import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
-import type { GymData } from '@/lib/types/mapObjectData/gym';
-import type { StationData } from '@/lib/types/mapObjectData/station';
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-export async function querySingleMapObject(type: MapObjectType, id: string, thisFetch: typeof fetch = fetch) {
+export async function querySingleMapObject(
+	type: MapObjectType,
+	id: string,
+	thisFetch: typeof fetch = fetch
+) {
 	let result: { error: undefined | number; result: MapData[] } = {
 		error: 500,
 		result: []
 	};
 
-	if (type === "pokemon") {
+	if (type === MapObjectType.POKEMON) {
 		result = await querySinglePokemon(id, thisFetch);
-	} else if (type === "gym") {
+	} else if (type === MapObjectType.GYM) {
 		result = await querySingleGym(id);
-	} else if (type === "pokestop") {
+	} else if (type === MapObjectType.POKESTOP) {
 		result = await querySinglePokestop(id);
-	} else if (type === "station") {
+	} else if (type === MapObjectType.STATION) {
 		result = await querySingleStation(id);
 	}
 	return result;

@@ -21,13 +21,14 @@
 		pokemonBounds
 	} from '@/lib/features/filters/filterUtilsPokemon';
 	import PokemonFilterDisplay from '@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte';
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetPokemon | undefined;
 </script>
 
 <FiltersetModal
 	modalType="filtersetPokemon"
-	mapObject="pokemon"
+	mapObject={MapObjectType.POKEMON}
 	majorCategory="pokemon"
 	titleBase={m.pokemon_filter()}
 	titleShared={m.shared_pokemon_filter()}

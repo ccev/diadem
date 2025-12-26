@@ -5,6 +5,7 @@
 	import AttributesOverview from '@/components/menus/filters/filterset/AttributesOverview.svelte';
 	import PageAttribute from '@/components/menus/filters/filterset/PageAttribute.svelte';
 	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		isInEdit
@@ -15,7 +16,7 @@
 </script>
 
 <FiltersetModal
-	mapObject="pokestop"
+	mapObject={MapObjectType.POKESTOP}
 	modalType="filtersetPlainPokestop"
 	modalTitle="Plain Pokestop Filter"
 	{isInEdit}

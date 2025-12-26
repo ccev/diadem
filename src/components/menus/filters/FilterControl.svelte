@@ -17,11 +17,11 @@
 	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 	import * as m from '@/lib/paraglide/messages';
 	import { getMapObjectCounts } from '@/lib/mapObjects/mapObjectsState.svelte';
-	import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 	import { formatNumberCompact } from '@/lib/utils/numberFormat';
 	import { tick } from 'svelte';
 	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 	import { mAny } from "@/lib/utils/anyMessage";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		majorCategory,

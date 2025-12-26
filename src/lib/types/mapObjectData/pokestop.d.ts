@@ -1,9 +1,10 @@
 import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
+import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type PokestopData = {
 	id: string
 	mapId: string
-	type: "pokestop"
+	type: MapObjectType.POKESTOP
 	lat: number
 	lon: number
 	incident: Incident[]

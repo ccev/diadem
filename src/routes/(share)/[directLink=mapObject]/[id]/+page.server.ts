@@ -2,11 +2,11 @@ import type { PageServerLoad } from "./$types";
 import { getConfig, setConfig } from "@/lib/services/config/config";
 import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
-import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import { querySingleMapObject } from "@/lib/server/api/querySingleMapObject";
 import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 import { getLogger } from "@/lib/server/logging";
 import { getClientConfig } from "@/lib/services/config/config.server";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 const log = getLogger("directlink");
 export const ssr = true;

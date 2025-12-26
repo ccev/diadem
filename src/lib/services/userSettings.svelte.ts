@@ -1,5 +1,4 @@
 import { getConfig } from "@/lib/services/config/config";
-import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import type {
 	FilterGym,
 	FilterPokemon,
@@ -10,8 +9,9 @@ import type {
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { browser } from "$app/environment";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-type UiconSetUS = {
+export type UiconSetUS = {
 	id: string;
 	url: string;
 };
@@ -28,7 +28,13 @@ export type UserSettings = {
 		id: string;
 		url: string;
 	};
-	uiconSet: { [key in MapObjectType]: UiconSetUS };
+	uiconSet: {
+		pokemon: UiconSetUS
+		pokestop: UiconSetUS
+		gym: UiconSetUS
+		station: UiconSetUS
+		tappable: UiconSetUS
+	};
 	isLeftHanded: boolean;
 	themeMode: "dark" | "light" | "system";
 	loadMapObjectsWhileMoving: boolean;
@@ -47,13 +53,13 @@ export type UserSettings = {
 
 export function getDefaultUserSettings(): UserSettings {
 	const general = getConfig().general;
-	const defaultMapStyle = getDefaultMapStyle()
+	const defaultMapStyle = getDefaultMapStyle();
 
 	return {
 		mapPosition: {
 			center: {
 				lat: general.defaultLat ?? 51.516855,
-				lng: general.defaultLon ?? -0.080500
+				lng: general.defaultLon ?? -0.0805
 			},
 			zoom: general.defaultZoom ?? 15
 		},
@@ -62,10 +68,11 @@ export function getDefaultUserSettings(): UserSettings {
 			url: defaultMapStyle.url
 		},
 		uiconSet: {
-			pokemon: getDefaultIconSet("pokemon"),
-			pokestop: getDefaultIconSet("pokestop"),
-			gym: getDefaultIconSet("gym"),
-			station: getDefaultIconSet("station")
+			pokemon: getDefaultIconSet(MapObjectType.POKEMON),
+			pokestop: getDefaultIconSet(MapObjectType.POKESTOP),
+			gym: getDefaultIconSet(MapObjectType.GYM),
+			station: getDefaultIconSet(MapObjectType.STATION),
+			tappable: getDefaultIconSet(MapObjectType.TAPPABLE)
 		},
 		isLeftHanded: false,
 		themeMode: "system",

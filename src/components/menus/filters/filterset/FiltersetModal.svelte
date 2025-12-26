@@ -23,7 +23,8 @@
 	import PageBase from '@/components/menus/filters/filterset/PageBase.svelte';
 	import type { FilterCategory } from '@/lib/features/filters/filters';
 	import * as m from '@/lib/paraglide/messages';
-	import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
+
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		modalType,

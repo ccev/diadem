@@ -18,6 +18,7 @@
 	import RaidLevelAttribute from "@/components/menus/filters/filterset/raid/RaidLevelAttribute.svelte";
 	import RaidBossAttribute from "@/components/menus/filters/filterset/raid/RaidBossAttribute.svelte";
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetRaid | undefined;
 
@@ -26,7 +27,7 @@
 
 <FiltersetModal
 	modalType="filtersetRaid"
-	mapObject="gym"
+	mapObject={MapObjectType.GYM}
 	majorCategory="gym"
 	subCategory="raid"
 	titleBase={m.raid_filter()}

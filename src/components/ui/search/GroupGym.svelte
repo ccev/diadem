@@ -15,6 +15,7 @@
 	import { onMount } from "svelte";
 	import { getBounds } from "@/lib/mapObjects/mapBounds";
 	import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		searchQuery
@@ -27,7 +28,7 @@
 
 	onMount(() => {
 		isLoading = true
-		fetchMapObjects<GymData>("gym", getBounds()).then(r => {
+		fetchMapObjects<GymData>(MapObjectType.GYM, getBounds()).then(r => {
 			if (r) {
 				gyms = r.data.filter(g => g.name).sort((a, b) => a?.name?.localeCompare(b?.name ?? "") ?? 0)
 				isLoading = false
@@ -58,8 +59,8 @@
 			onselect={() => {
 				flyTo(Coords.infer(gym), 16.5)
 				closeModal("search")
-				openPopup(makeMapObject(gym, "gym"), true)
-				addMapObjects([gym], "gym", 1)
+				openPopup(makeMapObject(gym, MapObjectType.GYM), true)
+				addMapObjects([gym], MapObjectType.GYM, 1)
 				updateFeatures(getMapObjects());
 			}}
 			value={"" + gym.id}

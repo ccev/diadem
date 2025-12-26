@@ -58,7 +58,7 @@
 		"svelte-maplibre": "1.2.5",
 		"tailwind-merge": "^2.5.5",
 		"toml": "^3.0.0",
-		"uicons.js": "^2.0.2",
+		"uicons.js": "^2.2.0",
 		"vaul-svelte": "^0.3.2",
 		"winston": "^3.18.3",
 		"winston-daily-rotate-file": "^5.0.0",

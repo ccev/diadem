@@ -295,5 +295,19 @@
     "settings_search_range_title": "Search Radius",
     "settings_search_range_description": "The area around the map center to be searched while using the search menu",
     "x_km": "{x}km",
-    "display_pokemon_notice": "This {pokemon} is hiding as a {display}"
+    "display_pokemon_notice": "This {pokemon} is hiding as a {display}",
+    "plain_pokestops": "Plain Pokéstops",
+    "lures": "Lures",
+    "contests": "Showcases",
+    "routes": "Routes",
+    "kecleon": "Kecleon",
+    "golden_pokestops": "Golden Pokéstops",
+    "raids": "Raids",
+    "plain_gyms": "Plain Gyms",
+    "plain_stations": "Plain Power Spots",
+    "max_battles": "Max Battles",
+    "s2_cells": "S2 Cells",
+    "tappables": "Apples",
+    "spawnpoints": "Spawnpoints",
+    "nests": "Nests"
 }

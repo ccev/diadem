@@ -8,10 +8,11 @@ import {
 	validateSessionToken
 } from "@/lib/server/auth/auth";
 import TTLCache from "@isaacs/ttlcache";
-import { getEveryonePerms, type Perms, updatePermissions } from "@/lib/server/auth/permissions";
+import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
 import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { getDiscordAuth } from "@/lib/server/auth/discord";
+import type { Perms } from "@/lib/utils/features";
 
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000

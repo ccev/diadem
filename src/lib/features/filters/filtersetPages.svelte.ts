@@ -10,8 +10,8 @@ import {
 	setCurrentSelectedFilterset, updateDetailsCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
 import type { AnyFilterset } from '@/lib/features/filters/filtersets';
-import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
 export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>

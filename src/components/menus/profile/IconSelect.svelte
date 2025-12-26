@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { getDefaultIconSet, getUserSettings } from '@/lib/services/userSettings.svelte.js';
 	import { getConfig } from '@/lib/services/config/config';
-	import type { MapData, MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 	import MenuGeneric from '@/components/menus/MenuGeneric.svelte';
 	import * as m from '@/lib/paraglide/messages';
 	import RadioGroup from '@/components/ui/input/selectgroup/RadioGroup.svelte';
 	import { onIconChange } from '@/lib/services/settings';
 	import { getIconForMap } from '@/lib/services/uicons.svelte';
 	import SelectGroupItem from '@/components/ui/input/selectgroup/SelectGroupItem.svelte';
+	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		title,

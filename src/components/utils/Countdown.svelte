@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount, untrack } from "svelte";
-	import * as m from "@/lib/paraglide/messages"
-	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+	import { onDestroy } from "svelte";
 	import { getCountdownString, startCountdown, stopCountdown } from "@/lib/utils/countdown.svelte";
 
 	let {
@@ -12,14 +10,17 @@
 		showHours?: boolean
 	} = $props()
 
-	let id: symbol | undefined = startCountdown(expireTime, showHours)
+	let id: symbol | undefined = undefined
 	let time = $derived(getCountdownString(id))
 
-	// onMount(() => {
-	// 	id = startCountdown(expireTime, showHours)
-	// })
+	$effect(() => {
+		if (id) stopCountdown(id)
+		id = startCountdown(expireTime, showHours)
+	})
 
-	onDestroy(() => stopCountdown(id))
+	onDestroy(() => {
+		 if (id) stopCountdown(id)
+	})
 </script>
 
 {time}

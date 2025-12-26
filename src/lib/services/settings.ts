@@ -10,8 +10,8 @@ import {
 	updateFeatures
 } from "@/lib/map/featuresGen.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-import type { MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
 import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export function onSettingsChange<K extends keyof UserSettings>(key: K, value: UserSettings[K]) {
 	getUserSettings()[key] = value;

@@ -1,3 +1,5 @@
+import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+
 export type PvpStats = {
 	cap: number
 	cp: number
@@ -11,7 +13,7 @@ export type PvpStats = {
 
 export type PokemonData = {
 	id: string;
-	type: "pokemon"
+	type: MapObjectType.POKEMON
 	mapId: string
 	pokestop_id: string | null;
 	spawn_id: number | null;

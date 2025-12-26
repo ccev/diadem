@@ -1,4 +1,4 @@
-import type { MapData } from "@/lib/types/mapObjectData/mapObjects";
+import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 
 let directLinkObject: MapData | undefined = $state(undefined);
 

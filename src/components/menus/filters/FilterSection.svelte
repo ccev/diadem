@@ -8,7 +8,6 @@
 	import { slide } from 'svelte/transition';
 	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
 	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
-	import type { FeaturesKey } from '@/lib/server/auth/permissions';
 	import type { AnyFilter, FilterCategory } from '@/lib/features/filters/filters';
 	import Switch from '@/components/ui/input/Switch.svelte';
 	import { getIconPokemon } from '@/lib/services/uicons.svelte';
@@ -16,8 +15,10 @@
 	import { getUserSettings, updateUserSettings, type UserSettings } from '@/lib/services/userSettings.svelte';
 	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 	import { deleteAllFeaturesOfType } from '@/lib/map/featuresGen.svelte';
-	import type { MapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 	import type { ModalType } from '@/lib/ui/modal.svelte';
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+
+	import type { FeaturesKey } from "@/lib/utils/features";
 
 	let {
 		requiredPermission,

@@ -5,7 +5,6 @@ import {
 	getMapObjects
 } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { type Bounds, getBounds } from "@/lib/mapObjects/mapBounds";
-import type { MapData, MapObjectType, MinorMapObjectType } from '@/lib/types/mapObjectData/mapObjects';
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
@@ -13,14 +12,10 @@ import { clearS2Cells, updateS2CellGeojson } from "@/lib/mapObjects/s2cells.svel
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-import { allMapObjectTypes, allMinorMapTypes } from "@/lib/mapObjects/mapObjectTypes";
-import type { MapObjectResponse } from '@/lib/server/api/queryMapObjects';
+import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
-
-export function getMapObjectId(type: MapObjectType, id: string) {
-	return type + "-" + id;
-}
 
 export function clearMap() {
 	// TODO: Also do this on login
@@ -29,7 +24,11 @@ export function clearMap() {
 	updateFeatures(getMapObjects());
 }
 
-export async function fetchMapObjects<T extends MapData>(type: MapObjectType, bounds: Bounds, filter: AnyFilter | undefined = undefined): Promise<MapObjectResponse<T> | undefined> {
+export async function fetchMapObjects<T extends MapData>(
+	type: MapObjectType,
+	bounds: Bounds,
+	filter: AnyFilter | undefined = undefined
+): Promise<MapObjectResponse<T> | undefined> {
 	const body: MapObjectRequestData = {
 		...getBounds(),
 		filter
@@ -37,44 +36,41 @@ export async function fetchMapObjects<T extends MapData>(type: MapObjectType, bo
 	const response = await fetch("/api/" + type, { method: "POST", body: JSON.stringify(body) });
 
 	if (!response.ok) {
-		console.error(`Error while fetching ${type}: ${response.status}`)
-		return
+		console.error(`Error while fetching ${type}: ${response.status}`);
+		return;
 	}
 
 	return await response.json();
 }
 
-export async function updateMapObject(
-	type: MapObjectType | MinorMapObjectType,
-	removeOld: boolean = true
-) {
+export async function updateMapObject(type: MapObjectType, removeOld: boolean = true) {
 	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return;
 
 	const startTime = performance.now();
 	let filter: AnyFilter | undefined = undefined;
 
-	if (type === "pokemon") {
+	if (type === MapObjectType.POKEMON) {
 		filter = getUserSettings().filters.pokemon;
-	} else if (type === "pokestop") {
+	} else if (type === MapObjectType.POKESTOP) {
 		filter = getUserSettings().filters.pokestop;
-	} else if (type === "gym") {
+	} else if (type === MapObjectType.GYM) {
 		filter = getUserSettings().filters.gym;
-	} else if (type === "station") {
+	} else if (type === MapObjectType.STATION) {
 		filter = getUserSettings().filters.station;
-	} else if (type === "s2cell") {
+	} else if (type === MapObjectType.S2_CELL) {
 		filter = getUserSettings().filters.s2cell;
 	} else {
-		console.log("unknown type while udpating map objects!")
-		return
+		console.log("unknown type while udpating map objects!");
+		return;
 	}
 
-	if ((!filter || !filter.enabled) && type !== "s2cell") {
+	if ((!filter || !filter.enabled) && type !== MapObjectType.S2_CELL) {
 		clearMapObjects(type);
 		updateFeatures(getMapObjects());
 		return;
 	}
 
-	if (type === "s2cell") {
+	if (type === MapObjectType.S2_CELL) {
 		const body: MapObjectRequestData = {
 			...getBounds(),
 			filter
@@ -84,9 +80,9 @@ export async function updateMapObject(
 	}
 
 	const fetchStart = performance.now();
-	const data = await fetchMapObjects(type, getBounds(), filter)
+	const data = await fetchMapObjects(type, getBounds(), filter);
 
-	if (!data) return
+	if (!data) return;
 
 	console.debug("updateMapObject | fetch took " + (performance.now() - fetchStart) + "ms");
 
@@ -138,9 +134,6 @@ export async function updateMapObject(
 export async function updateAllMapObjects(removeOld: boolean = true) {
 	await Promise.all([
 		...allMapObjectTypes.map((type) => {
-			updateMapObject(type, removeOld);
-		}),
-		...allMinorMapTypes.map((type) => {
 			updateMapObject(type, removeOld);
 		}),
 		updateWeather()

@@ -12,8 +12,10 @@ import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelt
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
-import type { MapData, MapObjectType } from "@/lib/types/mapObjectData/mapObjects";
-import { getCurrentSelectedMapId, isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte.js";
+import {
+	getCurrentSelectedMapId,
+	isCurrentSelectedOverwrite
+} from "@/lib/mapObjects/currentSelectedState.svelte.js";
 import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -24,7 +26,7 @@ import {
 	shouldDisplayQuest
 } from "@/lib/utils/pokestopUtils";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
-import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
+import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
 
 export type IconProperties = {
@@ -128,10 +130,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 	const startTime = performance.now();
 
-	const isSelectedOverwrite = isCurrentSelectedOverwrite()
+	const isSelectedOverwrite = isCurrentSelectedOverwrite();
 	const showQuests = getUserSettings().filters.pokestop.quest.enabled || isSelectedOverwrite;
-	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled || isSelectedOverwrite;;
-	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled || isSelectedOverwrite;;
+	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled || isSelectedOverwrite;
+	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled || isSelectedOverwrite;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();
@@ -168,10 +170,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		const subFeatures: Feature[] = [];
 
-		const isSelected = obj.mapId === selectedMapId
+		const isSelected = obj.mapId === selectedMapId;
 		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
 
-		if (obj.type === "pokestop") {
+		if (obj.type === MapObjectType.POKESTOP) {
 			if (showQuests) {
 				const questModifiers = getModifiers(userIconSet, "quest");
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
@@ -245,7 +247,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 					index += 1;
 				}
 			}
-		} else if (obj.type === "gym") {
+		} else if (obj.type === MapObjectType.GYM) {
 			showThis = showAllGyms || shouldDisplayRaid(obj) || isSelected;
 
 			if ((obj.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
@@ -295,10 +297,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 					);
 				}
 			}
-		} else if (obj.type === "pokemon") {
+		} else if (obj.type === MapObjectType.POKEMON) {
 			if (obj.expire_timestamp && obj.expire_timestamp < currentTimestamp()) continue;
 			expires = obj.expire_timestamp;
-		} else if (obj.type === "station") {
+		} else if (obj.type === MapObjectType.STATION) {
 			expires = obj.end_time;
 			if (obj.battle_pokemon_id) {
 				const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;

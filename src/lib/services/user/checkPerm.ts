@@ -1,12 +1,13 @@
-import type { FeaturesKey, Perms } from "@/lib/server/auth/permissions";
+
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { bbox, feature as makeFeature, featureCollection, intersect, polygon } from "@turf/turf";
 import type { Feature, Polygon } from "geojson";
+import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
 
 function isFeatureInFeatureList(featureList: FeaturesKey[] | undefined, feature: FeaturesKey) {
 	if (featureList === undefined) return false;
 
-	return featureList.includes("*") || featureList.includes(feature);
+	return featureList.includes(Features.ALL) || featureList.includes(feature);
 }
 
 export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
