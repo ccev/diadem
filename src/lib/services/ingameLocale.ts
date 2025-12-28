@@ -4,10 +4,10 @@ import { getLocale } from "@/lib/paraglide/runtime";
 import type { Pokemon } from "@/lib/features/filters/filtersets";
 
 export type PokemonLocaleName = {
-	name: string
-	id: number
-	evolutionId: number
-}
+	name: string;
+	id: number;
+	evolutionId: number;
+};
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -43,11 +43,11 @@ function getIngameLocale() {
 		if (allRemoteLocales) {
 			locale = allRemoteLocales[0];
 		} else {
-			return {}
+			return {};
 		}
 	}
 
-	return locale
+	return locale;
 }
 
 function mIngame(key: string): string {
@@ -72,7 +72,7 @@ function mBasicId(
 	// @ts-ignore dynamic message
 	if (!id) return m["unknown_" + name]();
 
-	const suffix = plural ? "_plural" : ""
+	const suffix = plural ? "_plural" : "";
 
 	const localeString = mIngame(prefixes[name] + id + suffix);
 
@@ -86,7 +86,14 @@ function mBasicId(
  * Get the full, localized name of a pokemon
  * @param data The Pokemon Data
  */
-export function mPokemon(data: Partial<PokemonData>) {
+export function mPokemon(data: {
+	pokemon_id?: number | null | undefined;
+	temp_evolution_id?: number | null | undefined;
+	form?: number | null | undefined;
+	alignment?: number | null | undefined;
+	bread_mode?: number | null | undefined;
+	shiny?: number | boolean | null | undefined;
+}) {
 	if (!data.pokemon_id) return m.unknown_pokemon();
 
 	// base pokemon name
@@ -201,17 +208,17 @@ export function mCharacter(characterId?: number | string | null) {
 }
 
 export function getAllPokemonNames() {
-	const pokemonNames: PokemonLocaleName[] = []
+	const pokemonNames: PokemonLocaleName[] = [];
 
 	for (const [key, name] of Object.entries(getIngameLocale())) {
-		if (!key.startsWith(prefixes.pokemon)) continue
-		const parts = key.split('_');
+		if (!key.startsWith(prefixes.pokemon)) continue;
+		const parts = key.split("_");
 
 		pokemonNames.push({
 			name,
 			id: parseInt(parts[1]),
 			evolutionId: parseInt(parts?.[2]?.slice(1))
-		})
+		});
 	}
-	return pokemonNames
+	return pokemonNames;
 }

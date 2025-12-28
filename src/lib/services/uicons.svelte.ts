@@ -46,12 +46,12 @@ export function getUiconSetDetails(id: string): UiconSet | undefined {
 
 export function getCurrentUiconSetDetailsAllTypes(): Partial<Record<MapObjectType, UiconSet>> {
 	return {
-		[MapObjectType.POKEMON]:  getUiconSetDetails(getUserSettings().uiconSet.pokemon.id),
-		[MapObjectType.POKESTOP]:  getUiconSetDetails(getUserSettings().uiconSet.pokestop.id),
-		[MapObjectType.GYM]:  getUiconSetDetails(getUserSettings().uiconSet.gym.id),
-		[MapObjectType.STATION]:  getUiconSetDetails(getUserSettings().uiconSet.station.id),
-		[MapObjectType.TAPPABLE]:  getUiconSetDetails(getUserSettings().uiconSet.tappable.id),
-	}
+		[MapObjectType.POKEMON]: getUiconSetDetails(getUserSettings().uiconSet.pokemon.id),
+		[MapObjectType.POKESTOP]: getUiconSetDetails(getUserSettings().uiconSet.pokestop.id),
+		[MapObjectType.GYM]: getUiconSetDetails(getUserSettings().uiconSet.gym.id),
+		[MapObjectType.STATION]: getUiconSetDetails(getUserSettings().uiconSet.station.id),
+		[MapObjectType.TAPPABLE]: getUiconSetDetails(getUserSettings().uiconSet.tappable.id)
+	};
 }
 
 export function getIconForMap(data: Partial<MapData>, iconSet?: string): string {
@@ -64,14 +64,23 @@ export function getIconForMap(data: Partial<MapData>, iconSet?: string): string 
 	} else if (data.type === MapObjectType.STATION) {
 		return getIconStation(data, iconSet);
 	} else if (data.type === MapObjectType.TAPPABLE) {
-		return getIconTappable(data, iconSet)
+		return getIconTappable(data, iconSet);
 	}
 	console.error("Unknown icon type: " + data.type);
 	return "";
 }
 
 export function getIconPokemon(
-	data: Partial<PokemonData>,
+	data: {
+		pokemon_id?: number | null | undefined;
+		temp_evolution_id?: number | null | undefined;
+		form?: number | null | undefined;
+		costume?: number | null | undefined;
+		gender?: number | null | undefined;
+		alignment?: number | null | undefined;
+		bread_mode?: number | null | undefined;
+		shiny?: number | boolean | null | undefined;
+	},
 	iconSet: string = getUserSettings().uiconSet.pokemon.id
 ) {
 	return iconSets[iconSet].pokemon(
@@ -82,7 +91,7 @@ export function getIconPokemon(
 		data.gender,
 		data.alignment,
 		data.bread_mode,
-		false
+		Boolean(data.shiny)
 	);
 }
 
@@ -236,5 +245,5 @@ export function getIconTappable(
 	data: Partial<TappableData>,
 	iconSet: string = getUserSettings().uiconSet.tappable.id
 ) {
-	return iconSets[iconSet].tappable(data.tappable_type)
+	return iconSets[iconSet].tappable(data.tappable_type);
 }

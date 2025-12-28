@@ -1,10 +1,14 @@
 import { getConfig } from "@/lib/services/config/config";
 import type {
 	FilterGym,
+	FilterNest,
 	FilterPokemon,
 	FilterPokestop,
+	FilterRoute,
 	FilterS2Cell,
-	FilterStation
+	FilterSpawnpoint,
+	FilterStation,
+	FilterTappable
 } from "@/lib/features/filters/filters";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { browser } from "$app/environment";
@@ -48,6 +52,10 @@ export type UserSettings = {
 		gym: FilterGym;
 		station: FilterStation;
 		s2cell: FilterS2Cell;
+		nest: FilterNest;
+		spawnpoint: FilterSpawnpoint;
+		route: FilterRoute;
+		tappable: FilterTappable;
 	};
 };
 
@@ -92,8 +100,7 @@ export function getDefaultUserSettings(): UserSettings {
 				contest: { category: "contest", ...defaultFilter() },
 				kecleon: { category: "kecleon", ...defaultFilter() },
 				goldPokestop: { category: "goldPokestop", ...defaultFilter() },
-				lure: { category: "lure", ...defaultFilter() },
-				route: { category: "route", ...defaultFilter() }
+				lure: { category: "lure", ...defaultFilter() }
 			},
 			gym: {
 				category: "gym",
@@ -107,7 +114,11 @@ export function getDefaultUserSettings(): UserSettings {
 				stationPlain: { category: "stationPlain", ...defaultFilter() },
 				maxBattle: { category: "maxBattle", ...defaultFilter() }
 			},
-			s2cell: { category: "s2cell", ...defaultFilter() }
+			s2cell: { category: "s2cell", ...defaultFilter() },
+			nest: { category: "nest", ...defaultFilter() },
+			spawnpoint: { category: "spawnpoint", ...defaultFilter() },
+			route: { category: "route", ...defaultFilter() },
+			tappable: { category: "tappable", ...defaultFilter() },
 		}
 	};
 }

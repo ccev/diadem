@@ -4,13 +4,11 @@ import type { Bounds } from '@/lib/mapObjects/mapBounds';
 import { getMap } from '@/lib/map/map.svelte.js';
 import type { Feature, FeatureCollection, Polygon } from 'geojson';
 import type { CellID } from 's2js/dist/s2/cellid';
+import type { MapObjectPolygonProperties } from "@/lib/map/featuresGen.svelte";
 
 export type S2CellProperties = {
-	id: string;
-	fillColor: string;
-	strokeColor: string;
 	level: number;
-};
+} & MapObjectPolygonProperties;
 
 export type S2CellFeature = Feature<Polygon, S2CellProperties>;
 

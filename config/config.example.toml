@@ -6,6 +6,9 @@ level = "info" #crit, error, warning, info, debug
 url = "http://127.0.0.1:9001"
 secret = ""
 
+# This can be configured in Fletchling. Match the string to its config
+defaultNestName = "Unknown Nest"
+
 # Dragonite integration for scout
 [server.dragonite]
 url = "http://127.0.0.1:7272"

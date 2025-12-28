@@ -94,6 +94,8 @@ export type FiltersetLure = BaseFilterset & {
 	items: number[];
 };
 
+export type FiltersetRoute = BaseFilterset & {}
+
 export type FiltersetGymPlain = BaseFilterset & {
 	isSponsored?: boolean;
 	powerUpLevel?: MinMax;
@@ -122,3 +124,9 @@ export type FiltersetMaxBattle = BaseFilterset & {
 export type FiltersetS2Cell = BaseFilterset & {
 	level?: number;
 };
+
+export type FiltersetNest = BaseFilterset & {}
+
+export type FiltersetSpawnpoint = BaseFilterset & {}
+
+export type FiltersetTappable = BaseFilterset & {}

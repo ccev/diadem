@@ -96,6 +96,7 @@ export type ServerConfig = {
 		url: string
 		auth?: string
 		secret?: string
+		defaultNestName?: string
 	}
 	dragonite: {  // TODO: this should be optional and scout disabled
 		url: string

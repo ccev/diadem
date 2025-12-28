@@ -41,7 +41,6 @@
 			{ title: m.pogo_invasion(), category: "invasion", filterModal: "filtersetInvasion" },
 			{ title: m.lures(), category: "lure", filterable: false },
 			{ title: m.contests(), category: "contest", filterable: false },
-			{ title: m.routes(), category: "route", filterable: false },
 			{ title: m.kecleon(), category: "kecleon", filterable: false },
 			{ title: m.golden_pokestops(), category: "goldPokestop", filterable: false },
 		]}
@@ -75,7 +74,7 @@
 		requiredPermission={MapObjectType.NEST}
 		title={m.nests()}
 		mapObject={MapObjectType.NEST}
-		category="pokestop"
+		category="nest"
 		isFilterable={true}
 	/>
 
@@ -83,13 +82,22 @@
 		requiredPermission={MapObjectType.TAPPABLE}
 		title={m.tappables()}
 		mapObject={MapObjectType.TAPPABLE}
-		category="pokestop"
+		category="tappable"
+		isFilterable={false}
+	/>
+
+	<FilterSection
+		requiredPermission={MapObjectType.ROUTE}
+		title={m.routes()}
+		mapObject={MapObjectType.ROUTE}
+		category="route"
 		isFilterable={false}
 	/>
 
 	<FilterSection
 		requiredPermission={MapObjectType.S2_CELL}
 		title={m.s2_cells()}
+		mapObject={MapObjectType.S2_CELL}
 		category="s2cell"
 		isFilterable={true}
 	/>
@@ -97,8 +105,8 @@
 	<FilterSection
 		requiredPermission={MapObjectType.SPAWNPOINT}
 		title={m.spawnpoints()}
-		mapObject={MapObjectType.POKESTOP}
-		category="pokestop"
+		mapObject={MapObjectType.SPAWNPOINT}
+		category="spawnpoint"
 		isFilterable={false}
 	/>
 </div>

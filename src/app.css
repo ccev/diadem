@@ -49,6 +49,10 @@
     --tier-2: var(--color-blue-700);
     --tier-3: var(--color-teal-600);
     --tier-4: var(--color-emerald-600);
+    --nest-polygon: rgba(152, 248, 163, 0.3);
+    --nest-polygon-stroke: rgba(152, 248, 163, 0.6);
+    --nest-circle: rgba(121, 241, 135, 0.8);
+    --nest-circle-stroke: rgba(152, 248, 163, 0.6);
 }
 
 .dark {

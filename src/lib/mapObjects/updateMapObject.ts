@@ -59,6 +59,14 @@ export async function updateMapObject(type: MapObjectType, removeOld: boolean = 
 		filter = getUserSettings().filters.station;
 	} else if (type === MapObjectType.S2_CELL) {
 		filter = getUserSettings().filters.s2cell;
+	} else if (type === MapObjectType.NEST) {
+		filter = getUserSettings().filters.nest;
+	} else if (type === MapObjectType.SPAWNPOINT) {
+		filter = getUserSettings().filters.spawnpoint;
+	} else if (type === MapObjectType.ROUTE) {
+		filter = getUserSettings().filters.route;
+	} else if (type === MapObjectType.TAPPABLE) {
+		filter = getUserSettings().filters.tappable;
 	} else {
 		console.log("unknown type while udpating map objects!");
 		return;

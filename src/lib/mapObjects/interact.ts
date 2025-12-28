@@ -1,7 +1,7 @@
 import { getConfig } from '@/lib/services/config/config';
 import type { MapMouseEvent } from 'maplibre-gl';
 import type { LayerClickInfo } from 'svelte-maplibre';
-import type { Feature } from '@/lib/map/featuresGen.svelte.js';
+import type { MapObjectIconFeature } from '@/lib/map/featuresGen.svelte.js';
 import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 import { getCurrentSelectedData, setCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
@@ -56,14 +56,14 @@ export function clickMapHandler(event: MapMouseEvent) {
 	}
 }
 
-export function clickFeatureHandler(event: LayerClickInfo<Feature>) {
+export function clickFeatureHandler(event: LayerClickInfo<MapObjectIconFeature>) {
 	event.event.originalEvent.preventDefault();
 	if (!event.features) return;
 
-	let clickedFeature: Feature = event.features[0];
+	let clickedFeature: MapObjectIconFeature = event.features[0];
 
 	event.features.forEach((f) => {
-		if (f.geometry.coordinates[1] < clickedFeature.geometry.coordinates[1]) {
+		if (f.geometry.type === "Point" && f.geometry.coordinates[1] < clickedFeature.geometry.coordinates[1]) {
 			clickedFeature = f;
 		}
 	});

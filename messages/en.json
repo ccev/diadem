@@ -309,5 +309,18 @@
     "s2_cells": "S2 Cells",
     "tappables": "Apples",
     "spawnpoints": "Spawnpoints",
-    "nests": "Nests"
+    "nests": "Nests",
+    "pokemon_nest": "{pokemon} Nest",
+    "park_name": "Park name",
+    "nest_avg": "Spawn rate",
+    "nest_avg_value": "~{avg}/hour",
+    "nest_ratio": "Spawn Ratio",
+    "nest_spawnpoint_count": "Total Spawnpoints",
+    "nest_size": "Area",
+    "square_m_value": "{size}m²",
+    "pogo_nest": "Nest",
+    "pogo_s2cell": "S2 Cell",
+    "pogo_tappable": "Tappable",
+    "pogo_spawnpoint": "Spawnpoint",
+    "pogo_route": "Route"
 }

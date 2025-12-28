@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { GeoJSON, MapLibre, SymbolLayer } from "svelte-maplibre";
+	import { FillLayer, GeoJSON, LineLayer, MapLibre, SymbolLayer, CircleLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
 	import { getDirectLinkObject } from "@/lib/features/directLinks.svelte.js";
 	import { clickFeatureHandler, clickMapHandler, openPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import Card from "@/components/ui/Card.svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { isWebglSupported } from "@/lib/map/utils";
 	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
@@ -32,7 +30,7 @@
 	import MarkerContextMenu from "@/components/map/MarkerContextMenu.svelte";
 	import { getCurrentScoutData } from "@/lib/features/scout.svelte.js";
 	import { Coords } from "@/lib/utils/coordinates";
-	import { isAnyModalOpen, openModal } from "@/lib/ui/modal.svelte.js";
+	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import {
 		getCurrentSelectedFiltersetIsShared,
 		openFiltersetModal
@@ -40,7 +38,7 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { openMenu } from "@/lib/ui/menus.svelte";
 	import { MapSourceId } from "@/lib/map/layers";
-	import ErrorPage from "@/components/ui/ErrorPage.svelte";
+	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -177,15 +175,16 @@
 		}}
 	>
 		<SymbolLayer
-			id="mapObjectsLayer"
+			id="mapObjectIcons"
 			hoverCursor="pointer"
+			filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
 			layout={{
 				"icon-image": ["get", "imageUrl"],
 				"icon-overlap": "always",
-				"icon-size":[
+				"icon-size": [
 					"*",
 					["get", "imageSize"],
-					["get", "imageSelectedScale"],
+					["get", "selectedScale"],
 					getUserSettings().mapIconSize
 				],
 				"icon-allow-overlap": true,
@@ -193,6 +192,42 @@
 			}}
 			eventsIfTopMost={true}
 			onclick={clickFeatureHandler}
+		/>
+		<CircleLayer
+			id="mapObjectCircles"
+			hoverCursor="pointer"
+			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
+			paint={{
+				"circle-radius": [
+					"*",
+					["get", "radius"],
+					["get", "selectedScale"],
+					getUserSettings().mapIconSize
+				],
+				'circle-color': ["get", "fillColor"],
+				'circle-stroke-width': 1,
+				'circle-stroke-color': ["get", "strokeColor"]
+			}}
+			beforeLayerType="symbol"
+			eventsIfTopMost={true}
+			onclick={clickFeatureHandler}
+		/>
+		<FillLayer
+			id="MapObjectPolygonsFill"
+			paint={{
+			  'fill-color': ["get", "fillColor"],
+			}}
+			beforeLayerType="circle"
+			onclick={clickFeatureHandler}
+			hoverCursor="pointer"
+		/>
+		<LineLayer
+			id="MapObjectPolygonsStroke"
+			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 1 }}
+			beforeLayerType="circle"
+			onclick={clickFeatureHandler}
+			hoverCursor="pointer"
 		/>
 	</GeoJSON>
 

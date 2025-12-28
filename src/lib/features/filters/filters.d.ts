@@ -3,12 +3,16 @@ import type {
 	FiltersetInvasion,
 	FiltersetLure,
 	FiltersetMaxBattle,
+	FiltersetNest,
 	FiltersetPokemon,
 	FiltersetPokestopPlain,
 	FiltersetQuest,
 	FiltersetRaid,
+	FiltersetRoute,
 	FiltersetS2Cell,
-	FiltersetStationPlain
+	FiltersetSpawnpoint,
+	FiltersetStationPlain,
+	FiltersetTappable
 } from "@/lib/features/filters/filtersets";
 
 export type FilterCategory =
@@ -28,7 +32,10 @@ export type FilterCategory =
 	| "station"
 	| "stationPlain"
 	| "maxBattle"
-	| "s2cell";
+	| "s2cell"
+	| "nest"
+	| "spawnpoint"
+	| "tappable"
 
 export type AnyFilter =
 	| FilterPokemon
@@ -47,7 +54,10 @@ export type AnyFilter =
 	| FilterStation
 	| FilterStationPlain
 	| FilterMaxBattle
-	| FilterS2Cell;
+	| FilterS2Cell
+	| FilterNest
+	| FilterSpawnpoint
+	| FilterTappable
 
 type BaseFilter = {
 	category: FilterCategory;
@@ -68,7 +78,6 @@ export type FilterPokestop = BaseFilter & {
 	kecleon: FilterKecleon;
 	goldPokestop: FilterGoldPokestop;
 	lure: FilterLure;
-	route: FilterRoute;
 	filters: never[];
 };
 
@@ -109,7 +118,7 @@ export type FilterLure = BaseFilter & {
 
 export type FilterRoute = BaseFilter & {
 	category: "route";
-	filters: never[];
+	filters: FiltersetRoute[];
 };
 
 export type FilterGym = BaseFilter & {
@@ -150,3 +159,18 @@ export type FilterS2Cell = BaseFilter & {
 	category: "s2cell";
 	filters: FiltersetS2Cell[];
 };
+
+export type FilterNest = BaseFilter & {
+	category: "nest";
+	filters: FiltersetNest[];
+}
+
+export type FilterSpawnpoint = BaseFilter & {
+	category: "spawnpoint";
+	filters: FiltersetSpawnpoint[];
+}
+
+export type FilterTappable = BaseFilter & {
+	category: "tappable";
+	filters: FiltersetTappable[];
+}

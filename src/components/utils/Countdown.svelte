@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
 	import { getCountdownString, startCountdown, stopCountdown } from "@/lib/utils/countdown.svelte";
+	import { watch } from "runed";
 
 	let {
 		expireTime,
@@ -8,19 +9,22 @@
 	}: {
 		expireTime: number | null | undefined,
 		showHours?: boolean
-	} = $props()
+	} = $props();
 
-	let id: symbol | undefined = undefined
-	let time = $derived(getCountdownString(id))
+	let id: symbol | undefined = $state(undefined);
+	let time = $derived(getCountdownString(id));
 
-	$effect(() => {
-		if (id) stopCountdown(id)
-		id = startCountdown(expireTime, showHours)
-	})
+	watch(
+		() => [expireTime, showHours],
+		() => {
+			if (id) stopCountdown(id);
+			id = startCountdown(expireTime, showHours);
+		}
+	);
 
 	onDestroy(() => {
-		 if (id) stopCountdown(id)
-	})
+		if (id) stopCountdown(id);
+	});
 </script>
 
 {time}

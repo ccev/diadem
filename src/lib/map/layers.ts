@@ -7,7 +7,7 @@ export enum MapSourceId {
 	S2_CELLS = "s2cells",
 	SELECTED_WEATHER = "selectedWeather",
 	SCOUT_BIG_POINTS = "scoutBigPoints",
-	SCOUT_SMALL_POINTS = "scoutSmallPoints"
+	SCOUT_SMALL_POINTS = "scoutSmallPoints",
 }
 
 export function updateMapGeojsonSource(sourceId: MapSourceId, data: GeoJsonType) {

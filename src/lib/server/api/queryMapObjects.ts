@@ -3,18 +3,52 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type {
 	AnyFilter,
 	FilterGym,
+	FilterNest,
 	FilterPokemon,
 	FilterPokestop,
-	FilterStation
+	FilterRoute,
+	FilterSpawnpoint,
+	FilterStation,
+	FilterTappable
 } from "@/lib/features/filters/filters";
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
 import type { GolbatPokemonQuery } from "@/lib/server/api/queries";
-import { LIMIT_POKEMON, LIMIT_STATION } from "@/lib/constants";
+import {
+	LIMIT_NEST,
+	LIMIT_POKEMON,
+	LIMIT_ROUTE,
+	LIMIT_SPAWNPOINT,
+	LIMIT_STATION,
+	LIMIT_TAPPABLE
+} from "@/lib/constants";
 import { queryPokestops } from "@/lib/server/api/queryPokestops";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { queryGyms } from "@/lib/server/api/queryGyms";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import { getServerConfig } from "@/lib/services/config/config.server";
+
+const FIELDS_NEST = [
+	"nest_id as id",
+	"lat",
+	"lon",
+	"name",
+	"polygon",
+	"spawnpoints",
+	"m2",
+	"active",
+	"pokemon_id",
+	"pokemon_form",
+	"pokemon_avg",
+	"pokemon_ratio",
+	"pokemon_count",
+	"discarded",
+	"updated"
+]
 
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
@@ -51,6 +85,14 @@ export async function queryMapObjects<Data extends MapData>(
 		);
 	} else if (type === MapObjectType.STATION && enabled) {
 		dbResponse = await queryStations(bounds, filter as FilterStation | undefined);
+	} else if (type === MapObjectType.NEST && enabled) {
+		dbResponse = await queryNests(bounds, filter as FilterNest | undefined);
+	} else if (type === MapObjectType.SPAWNPOINT && enabled) {
+		dbResponse = await querySpawnpoints(bounds, filter as FilterSpawnpoint | undefined);
+	} else if (type === MapObjectType.ROUTE && enabled) {
+		dbResponse = await queryRoutes(bounds, filter as FilterRoute | undefined);
+	} else if (type === MapObjectType.TAPPABLE && enabled) {
+		dbResponse = await queryTappables(bounds, filter as FilterTappable | undefined);
 	} else {
 		return { result: { examined: 0, data: [] }, error: 404 };
 	}
@@ -148,6 +190,65 @@ async function queryStations(bounds: Bounds, filter: FilterStation | undefined) 
 			"AND end_time > UNIX_TIMESTAMP() " +
 			"LIMIT " +
 			LIMIT_STATION,
+		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	);
+}
+
+async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
+	const { error, result } = await query<NestData[]>(
+		"SELECT  " +
+			FIELDS_NEST.join(",") +
+			" FROM nests " +
+			"WHERE lat BETWEEN ? AND ? " +
+			"AND lon BETWEEN ? AND ? " +
+			"AND active = 1 " +
+			"AND pokemon_id IS NOT NULL " +
+			"LIMIT " +
+			LIMIT_NEST,
+		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	);
+	const defaultName = getServerConfig().golbat.defaultNestName ?? "Unknown Nest"
+	for (const nest of result) {
+		if (nest.name === defaultName) {
+			nest.name = null;
+		}
+	}
+	return { error, result }
+}
+
+async function querySpawnpoints(bounds: Bounds, filter: FilterSpawnpoint | undefined) {
+	return await query<SpawnpointData[]>(
+		"SELECT * " +
+			"FROM spawnpoint " +
+			"WHERE lat BETWEEN ? AND ? " +
+			"AND lon BETWEEN ? AND ? " +
+			"LIMIT " +
+			LIMIT_SPAWNPOINT,
+		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	);
+}
+
+async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
+	return await query<RouteData[]>(
+		"SELECT start_lat AS lat, start_lon AS lon, type AS route_type, * " +
+			"FROM nests " +
+			"WHERE lat BETWEEN ? AND ? " +
+			"AND lon BETWEEN ? AND ? " +
+			"LIMIT " +
+			LIMIT_ROUTE,
+		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	);
+}
+
+async function queryTappables(bounds: Bounds, filter: FilterTappable | undefined) {
+	return await query<TappableData[]>(
+		"SELECT * " +
+			"FROM tappable " +
+			"WHERE lat BETWEEN ? AND ? " +
+			"AND lon BETWEEN ? AND ? " +
+			"AND expire_timestamp > UNIX_TIMESTAMP() " +
+			"LIMIT " +
+			LIMIT_TAPPABLE,
 		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
 	);
 }
