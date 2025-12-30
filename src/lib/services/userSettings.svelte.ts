@@ -104,9 +104,9 @@ export function getDefaultUserSettings(): UserSettings {
 			},
 			gym: {
 				category: "gym",
-				...defaultFilter(),
-				gymPlain: { category: "gymPlain", ...defaultFilter() },
-				raid: { category: "raid", ...defaultFilter() }
+				...defaultFilter(true),
+				gymPlain: { category: "gymPlain", ...defaultFilter(true) },
+				raid: { category: "raid", ...defaultFilter(true) }
 			},
 			station: {
 				category: "station",
@@ -123,9 +123,9 @@ export function getDefaultUserSettings(): UserSettings {
 	};
 }
 
-function defaultFilter() {
+function defaultFilter(enabled: boolean = false) {
 	return {
-		enabled: true,
+		enabled,
 		filters: []
 	};
 }
