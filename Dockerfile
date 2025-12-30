@@ -39,7 +39,7 @@ COPY --from=builder --chown=diadem:diadem /app/drizzle.config.ts ./
 COPY --from=builder --chown=diadem:diadem /app/src/lib/server/db ./src/lib/server/db
 COPY --from=builder --chown=diadem:diadem /app/src/lib/services ./src/lib/services
 
-RUN mkdir -p /app/config && chown diadem:diadem /app/config
+RUN mkdir -p /app/config /app/logs && chown diadem:diadem /app/config /app/logs
 COPY --chown=diadem:diadem docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 USER diadem
