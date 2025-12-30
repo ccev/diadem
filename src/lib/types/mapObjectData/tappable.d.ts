@@ -6,8 +6,8 @@ export type TappableData = {
   type: MapObjectType.TAPPABLE;
   lat: number;
   lon: number;
-  fort_id: string | null;
-  spawn_id: bigint | null;
+  // fort_id: string | null;
+  // spawn_id: bigint | null;
   tappable_type: string;
   pokemon_id: number | null;
   item_id: number | null;

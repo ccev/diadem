@@ -68,8 +68,8 @@
 
 		<IconValue Icon={Clock}>
 			{m.last_updated()}: <b>
-			<Countdown expireTime={data.updated} />
-		</b>
+				<Countdown expireTime={data.updated} />
+			</b>
 		</IconValue>
 	{/snippet}
 </BasePopup>

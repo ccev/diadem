@@ -307,7 +307,7 @@
     "plain_stations": "Plain Power Spots",
     "max_battles": "Max Battles",
     "s2_cells": "S2 Cells",
-    "tappables": "Apples",
+    "tappables": "Ground Items",
     "spawnpoints": "Spawnpoints",
     "nests": "Nests",
     "pokemon_nest": "{pokemon} Nest",
@@ -320,7 +320,11 @@
     "square_m_value": "{size}m²",
     "pogo_nest": "Nest",
     "pogo_s2cell": "S2 Cell",
-    "pogo_tappable": "Tappable",
+    "pogo_tappable": "Ground Item",
     "pogo_spawnpoint": "Spawnpoint",
-    "pogo_route": "Route"
+    "pogo_route": "Route",
+    "lure_hint": "This Pokémon was seen at a Lure Module",
+    "tappable_hint": "This Pokémon appears after tapping an Apple",
+    "unknown_tappable": "Unknown Ground Item",
+    "time_is_estimated": "Time is estimated"
 }

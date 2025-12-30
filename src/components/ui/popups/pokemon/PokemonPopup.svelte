@@ -6,13 +6,14 @@
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 	import {
+		Apple,
 		ArrowLeftRight,
 		BicepsFlexed,
 		ChartSpline,
 		CircleSmall,
 		Clock,
 		ClockAlert,
-		Crown,
+		Crown, Flower,
 		LibraryBig,
 		MapPinX,
 		Mars,
@@ -21,7 +22,7 @@
 		SearchCheck,
 		SearchX,
 		Sparkles,
-		Swords,
+		Swords, Telescope,
 		Trophy,
 		Venus
 	} from "lucide-svelte";
@@ -77,6 +78,16 @@
 
 {#snippet basicInfo()}
 	{@render timer()}
+
+	{#if data.seen_type?.includes("tappable")}
+		<IconValue Icon={Apple}>
+			{m.tappable_hint()}
+		</IconValue>
+	{:else if data.seen_type?.includes("lure")}
+		<IconValue Icon={Flower}>
+			{m.lure_hint()}
+		</IconValue>
+	{/if}
 
 	{#if Math.abs(data.changed - (data.updated ?? data.changed)) > 10}
 		<IconValue Icon={ArrowLeftRight}>

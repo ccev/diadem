@@ -50,6 +50,21 @@ const FIELDS_NEST = [
 	"updated"
 ]
 
+const FIELDS_TAPPABLE = [
+	"id",
+	"lat",
+	"lon",
+	"lat",
+	"lon",
+	"type as tappable_type",
+	"pokemon_id",
+	"item_id",
+	"count",
+	"expire_timestamp_verified",
+	"expire_timestamp",
+	"updated"
+]
+
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
 	data: Data[];
@@ -142,7 +157,7 @@ async function queryPokemon(
 	} else {
 		golbatQueries = [
 			{
-				pokemon: []
+				pokemon: [],
 			}
 		];
 	}
@@ -242,11 +257,12 @@ async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
 
 async function queryTappables(bounds: Bounds, filter: FilterTappable | undefined) {
 	return await query<TappableData[]>(
-		"SELECT * " +
-			"FROM tappable " +
+		"SELECT " +
+			FIELDS_TAPPABLE.join(",") +
+			" FROM tappable " +
 			"WHERE lat BETWEEN ? AND ? " +
 			"AND lon BETWEEN ? AND ? " +
-			"AND expire_timestamp > UNIX_TIMESTAMP() " +
+			// "AND expire_timestamp > UNIX_TIMESTAMP() " +
 			"LIMIT " +
 			LIMIT_TAPPABLE,
 		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]

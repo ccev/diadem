@@ -245,5 +245,10 @@ export function getIconTappable(
 	data: Partial<TappableData>,
 	iconSet: string = getUserSettings().uiconSet.tappable.id
 ) {
+	if (data.item_id) {
+		return getIconItem(data.item_id, data.count ?? 1)
+	} else if (data.pokemon_id) {
+		return getIconPokemon(data)
+	}
 	return iconSets[iconSet].tappable(data.tappable_type);
 }

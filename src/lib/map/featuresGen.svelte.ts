@@ -476,7 +476,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		} else if (obj.type === MapObjectType.SPAWNPOINT) {
 		} else if (obj.type === MapObjectType.ROUTE) {
 		} else if (obj.type === MapObjectType.TAPPABLE) {
-			// expires = obj.expire_timestamp
+			expires = obj.expire_timestamp
 		}
 
 		// subFeatures.push(
