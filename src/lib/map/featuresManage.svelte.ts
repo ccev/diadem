@@ -21,7 +21,7 @@ let sessionImageUrls= new Set<string>();
 export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 	mapObjectsGeoJson = { type: "FeatureCollection", features };
 
-	updateMapGeojsonSource(MapSourceId.MAP_OBJECTS, mapObjectsGeoJson);
+	// updateMapGeojsonSource(MapSourceId.MAP_OBJECTS, mapObjectsGeoJson);
 	Promise.all(
 		mapObjectsGeoJson.features
 			.filter((f) => isFeatureIcon(f))
