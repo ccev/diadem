@@ -10,7 +10,11 @@ import {
 } from "@/lib/services/uicons.svelte.js";
 import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
+import {
+	FORT_OUTDATED_SECONDS,
+	SELECTED_MAP_OBJECT_SCALE,
+	SPAWNPOINT_OUTDATED_SECONDS
+} from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import {
 	getCurrentSelectedMapId,
@@ -224,7 +228,6 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const timestamp = currentTimestamp();
 
 	const selectedMapId = getCurrentSelectedMapId();
-
 	const allCurrentMapIds = Object.keys(mapObjects);
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
 
@@ -385,7 +388,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 			}
 		} else if (obj.type === MapObjectType.POKEMON) {
-			if (obj.expire_timestamp && obj.expire_timestamp < currentTimestamp()) continue;
+			if (obj.expire_timestamp && obj.expire_timestamp < timestamp) continue;
 			expires = obj.expire_timestamp;
 		} else if (obj.type === MapObjectType.STATION) {
 			expires = obj.end_time;
@@ -474,6 +477,18 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				})
 			);
 		} else if (obj.type === MapObjectType.SPAWNPOINT) {
+			showThis = false
+			const isOutdated = obj.last_seen < timestamp - SPAWNPOINT_OUTDATED_SECONDS
+			let cssVar = "--spawnpoint"
+			if (isOutdated) cssVar += "-inactive"
+
+			subFeatures.push(getCircleFeature(obj.mapId, [obj.lon, obj.lat], {
+				id: obj.mapId,
+				strokeColor: styles.getPropertyValue(cssVar + "-stroke"),
+				fillColor: styles.getPropertyValue(cssVar),
+				radius: 3,
+				selectedScale: selectedScale
+			}))
 		} else if (obj.type === MapObjectType.ROUTE) {
 		} else if (obj.type === MapObjectType.TAPPABLE) {
 			expires = obj.expire_timestamp

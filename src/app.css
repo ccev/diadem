@@ -53,6 +53,10 @@
     --nest-polygon-stroke: rgba(152, 248, 163, 0.6);
     --nest-circle: rgba(121, 241, 135, 0.8);
     --nest-circle-stroke: rgba(152, 248, 163, 0.6);
+    --spawnpoint: rgba(116, 223, 253, 0.6);
+    --spawnpoint-stroke: rgba(57, 140, 168, 0.8);
+    --spawnpoint-inactive: rgba(251, 99, 124, 0.6);
+    --spawnpoint-inactive-stroke: rgba(179, 38, 77, 0.8);
 }
 
 .dark {

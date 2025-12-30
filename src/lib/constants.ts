@@ -24,6 +24,11 @@ export const FORT_OUTDATED_SECONDS = 24 * 60 * 60;
 export const WEATHER_OUTDATED_SECONDS = 60 * 60 * 6;
 
 /**
+ * A spawnpoint is considered outdated if not updated within this timeframe (seconds)
+ */
+export const SPAWNPOINT_OUTDATED_SECONDS = 60 * 60 * 24  // 1 day
+
+/**
  * Always show PVP ranks > X in Pokemon Popups
  */
 export const POKEMON_MIN_RANK = 15;

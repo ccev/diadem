@@ -354,8 +354,8 @@
 
 		<IconValue Icon={Search}>
 			{m.first_seen()}: <b>
-			<Countdown expireTime={data.first_seen_timestamp} />
-		</b>
+				<Countdown expireTime={data.first_seen_timestamp} />
+			</b>
 		</IconValue>
 
 	{/snippet}

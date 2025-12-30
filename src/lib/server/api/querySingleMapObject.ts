@@ -4,6 +4,7 @@ import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 
 export async function querySingleMapObject(
 	type: MapObjectType,
@@ -23,6 +24,8 @@ export async function querySingleMapObject(
 		result = await querySinglePokestop(id);
 	} else if (type === MapObjectType.STATION) {
 		result = await querySingleStation(id);
+	} else if (type === MapObjectType.SPAWNPOINT) {
+		result = await querySingleSpawnpoint(id);
 	}
 	return result;
 }
@@ -56,4 +59,8 @@ async function querySinglePokestop(id: string) {
 
 async function querySingleStation(id: string) {
 	return await query<StationData>("SELECT * FROM station " + "WHERE station.id = ?", [id]);
+}
+
+async function querySingleSpawnpoint(id: string) {
+	return await query<SpawnpointData>("SELECT * FROM spawnpoint WHERE id = ?", [id]);
 }

@@ -19,6 +19,8 @@ import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingam
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from "@/lib/utils/gymUtils";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
+import { getMmSsFromSeconds } from "@/lib/utils/time";
 
 export function getShareText(data: MapData): string {
 	if (!data.id) return "";
@@ -32,6 +34,8 @@ export function getShareText(data: MapData): string {
 			return getGymShareText(data)
 		case MapObjectType.STATION:
 			return getStationShareText(data)
+		case MapObjectType.SPAWNPOINT:
+			return getSpawnpointShareText(data)
 	}
 	// TODO: share texts for other map objects
 	return "";
@@ -158,5 +162,16 @@ function getStationShareText(data: StationData) {
 	text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, true)}\n`;
 	text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, true)}\n`;
 
+	return text;
+}
+
+function getSpawnpointShareText(data: SpawnpointData) {
+	let text = "";
+
+	if (data.despawn_sec) {
+		text += `🕜 ${m.spawnpoint_despawns()}: ${getMmSsFromSeconds(data.despawn_sec)}\n`;
+	} else {
+		text += `🕜 ${m.spawnpoint_unknown()}\n`;
+	}
 	return text;
 }

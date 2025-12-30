@@ -326,5 +326,7 @@
     "lure_hint": "This Pokémon was seen at a Lure Module",
     "tappable_hint": "This Pokémon appears after tapping an Apple",
     "unknown_tappable": "Unknown Ground Item",
-    "time_is_estimated": "Time is estimated"
+    "time_is_estimated": "Time is estimated",
+    "spawnpoint_despawns": "Despawns",
+    "spawnpoint_unknown": "Unknown despawn time"
 }

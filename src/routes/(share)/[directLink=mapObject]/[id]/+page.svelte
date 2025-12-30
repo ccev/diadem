@@ -33,6 +33,8 @@
 			let title = m[`pogo_${mapData.type}`]().toString();
 			if (mapData.name) title += `: ${mapData.name}`;
 			return title;
+		} else if (mapData.type === MapObjectType.SPAWNPOINT) {
+			return m.pogo_spawnpoint()
 		}
 		return "";
 	});
