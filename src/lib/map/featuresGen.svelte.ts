@@ -17,6 +17,7 @@ import {
 } from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import {
+	getCurrentSelectedData,
 	getCurrentSelectedMapId,
 	isCurrentSelectedOverwrite
 } from "@/lib/mapObjects/currentSelectedState.svelte.js";
@@ -209,13 +210,9 @@ export function updateSelected(currentSelected: MapData | null) {
 }
 
 export function updateFeatures(mapObjects: MapObjectsStateType) {
-	console.debug("running updateFeatures");
-
 	// TODO perf: only update if needed by storing a id: hash table
 	// TODO perf: when currentSelected is updated, only update what's needed and not the whole array
 	// TODO: when a gym is updated, it's not being shown on the map
-
-	const startTime = performance.now();
 
 	const styles = getComputedStyle(document.documentElement);
 
@@ -227,25 +224,24 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();
 
-	const selectedMapId = getCurrentSelectedMapId();
-	const allCurrentMapIds = Object.keys(mapObjects);
+	const selectedMapId = getCurrentSelectedData()?.mapId ?? "";
+	// const allCurrentMapIds = Object.keys(mapObjects);
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
 
 	for (const [type, thisFeatures] of Object.entries(features)) {
 		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
 			if (
 				subFeatures.find(
-					(f) => f.properties.expires !== null && f.properties.expires < timestamp
+					(f) => f.properties?.expires && f.properties.expires < timestamp
 				) ||
-				!allCurrentMapIds.includes(existingId)
+				!(existingId in mapObjects)
 			) {
 				delete features[type][existingId];
 			}
 		}
 	}
 
-	const loopTime = performance.now();
-	console.debug("feature: init took " + (loopTime - startTime) + "ms");
+	// const loopTime = performance.now();
 
 	for (const obj of Object.values(mapObjects)) {
 		if (features[obj.type][obj.mapId]) continue;
@@ -521,14 +517,5 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		features[obj.type][obj.mapId] = subFeatures;
 		if (obj.mapId === selectedMapId) selectedFeatures = [...selectedFeatures, ...subFeatures];
 	}
-
-	console.debug("feature: loop took " + (performance.now() - loopTime) + "ms");
-
-	console.debug(
-		"generating features took " +
-			(performance.now() - startTime) +
-			"ms | count: " +
-			Object.values(mapObjects).length
-	);
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }

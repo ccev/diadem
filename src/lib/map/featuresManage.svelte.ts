@@ -16,7 +16,7 @@ let mapObjectsGeoJson: FeatureCollection<
 	features: []
 };
 
-let sessionImageUrls: string[] = [];
+let sessionImageUrls= new Set<string>();
 
 export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 	mapObjectsGeoJson = { type: "FeatureCollection", features };
@@ -34,7 +34,7 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 }
 
 export function clearSessionImageUrls() {
-	sessionImageUrls = [];
+	sessionImageUrls.clear();
 }
 
 export function getMapObjectsGeoJson() {
@@ -45,8 +45,8 @@ async function addMapImage(url: string) {
 	const map = getMap();
 	if (!map) return;
 
-	if (sessionImageUrls.includes(url)) return;
-	sessionImageUrls.push(url);
+	if (sessionImageUrls.has(url)) return;
+	sessionImageUrls.add(url);
 
 	let imageData = getLoadedImages()[url];
 	if (!imageData) {
