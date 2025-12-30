@@ -1,7 +1,7 @@
 import { getConfig } from '@/lib/services/config/config';
 import type { MapMouseEvent } from 'maplibre-gl';
 import type { LayerClickInfo } from 'svelte-maplibre';
-import type { MapObjectIconFeature } from '@/lib/map/featuresGen.svelte.js';
+import type { MapObjectFeature, MapObjectIconFeature } from "@/lib/map/featuresGen.svelte.js";
 import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
 import { getCurrentSelectedData, setCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
 
@@ -9,6 +9,9 @@ import { setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
 import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
+import { getMap } from "@/lib/map/map.svelte";
+import { MapObjectLayerId } from "@/lib/map/layers";
+import { openMenu } from "@/lib/ui/menus.svelte";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -47,26 +50,21 @@ function setCurrentPath() {
 
 export function clickMapHandler(event: MapMouseEvent) {
 	if (event.originalEvent.defaultPrevented) return;
+
+	const map = getMap()
+	if (!map) return
+
+	const features = map.queryRenderedFeatures(event.point, {
+		layers: Object.values(MapObjectLayerId)
+	})
+
 	// @ts-ignore
-	if (event.originalEvent.target?.dataset.objectType) {
-		// @ts-ignore
-		openPopup(getMapObjects()[event.originalEvent.target.dataset.objectId]);
+	const feature = features[0] as MapObjectFeature
+
+	if (feature) {
+		openPopup(getMapObjects()[feature.properties.id])
 	} else {
-		closePopup();
+		openMenu(null)
+		closePopup()
 	}
-}
-
-export function clickFeatureHandler(event: LayerClickInfo<MapObjectIconFeature>) {
-	event.event.originalEvent.preventDefault();
-	if (!event.features) return;
-
-	let clickedFeature: MapObjectIconFeature = event.features[0];
-
-	event.features.forEach((f) => {
-		if (f.geometry.type === "Point" && f.geometry.coordinates[1] < clickedFeature.geometry.coordinates[1]) {
-			clickedFeature = f;
-		}
-	});
-
-	openPopup(getMapObjects()[clickedFeature.properties.id]);
 }

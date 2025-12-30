@@ -10,6 +10,13 @@ export enum MapSourceId {
 	SCOUT_SMALL_POINTS = "scoutSmallPoints",
 }
 
+export enum MapObjectLayerId {
+	ICONS = "mapObjectIcons",
+	CIRCLES = "mapObjectCircles",
+	POLYGON_FILL = "mapObjectPolygonFill",
+	POLYGON_STROKE = "mapObjectPolygonStroke",
+}
+
 export function updateMapGeojsonSource(sourceId: MapSourceId, data: GeoJsonType) {
 	const map = getMap()
 	if (!map) return

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { FillLayer, GeoJSON, LineLayer, MapLibre, SymbolLayer, CircleLayer } from "svelte-maplibre";
+	import { CircleLayer, FillLayer, GeoJSON, LineLayer, MapLibre, SymbolLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
 	import { getDirectLinkObject } from "@/lib/features/directLinks.svelte.js";
-	import { clickFeatureHandler, clickMapHandler, openPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
+	import { clickMapHandler, openPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
 	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from "@/lib/map/mapObjectsInterval";
@@ -37,7 +37,7 @@
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { openMenu } from "@/lib/ui/menus.svelte";
-	import { MapSourceId } from "@/lib/map/layers";
+	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
@@ -175,7 +175,7 @@
 		}}
 	>
 		<SymbolLayer
-			id="mapObjectIcons"
+			id={MapObjectLayerId.ICONS}
 			hoverCursor="pointer"
 			filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
 			layout={{
@@ -191,10 +191,9 @@
 				"icon-offset": ["get", "imageOffset"]
 			}}
 			eventsIfTopMost={true}
-			onclick={clickFeatureHandler}
 		/>
 		<CircleLayer
-			id="mapObjectCircles"
+			id={MapObjectLayerId.CIRCLES}
 			hoverCursor="pointer"
 			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
 			paint={{
@@ -210,23 +209,20 @@
 			}}
 			beforeLayerType="symbol"
 			eventsIfTopMost={true}
-			onclick={clickFeatureHandler}
 		/>
 		<FillLayer
-			id="MapObjectPolygonsFill"
+			id={MapObjectLayerId.POLYGON_FILL}
 			paint={{
 			  'fill-color': ["get", "fillColor"],
 			}}
 			beforeLayerType="circle"
-			onclick={clickFeatureHandler}
 			hoverCursor="pointer"
 		/>
 		<LineLayer
-			id="MapObjectPolygonsStroke"
+			id={MapObjectLayerId.POLYGON_STROKE}
 			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
 			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 1 }}
 			beforeLayerType="circle"
-			onclick={clickFeatureHandler}
 			hoverCursor="pointer"
 		/>
 	</GeoJSON>
