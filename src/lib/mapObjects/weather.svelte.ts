@@ -3,7 +3,7 @@ import {
 	cellToFeature,
 	getCoveringS2Cells,
 	type S2CellProperties
-} from "@/lib/mapObjects/s2cells.svelte";
+} from "@/lib/mapObjects/s2cells.js";
 import { getMap } from "@/lib/map/map.svelte";
 import type { CellID } from "s2js/dist/s2/cellid";
 import { s2 } from "s2js";
@@ -39,7 +39,7 @@ export function updateCurrentWeatherFeatures(show: boolean) {
 	};
 
 	if (currentWeather && show) {
-		data.features = [cellToFeature(currentWeather.cellId, CELL_COLOR, CELL_COLOR, "custom")];
+		data.features = [cellToFeature(currentWeather.cellId, CELL_COLOR, CELL_COLOR, "weathercell")];
 		lastSelectedWeatherWasEmpty = false
 	} else {
 		lastSelectedWeatherWasEmpty = true

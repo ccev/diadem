@@ -1,4 +1,4 @@
-import type { Feature as GeojsonFeature, MultiPolygon, Point } from "geojson";
+import type { Feature as GeojsonFeature, MultiPolygon, Point, Polygon } from "geojson";
 import {
 	getCurrentUiconSetDetailsAllTypes,
 	getIconForMap,
@@ -10,29 +10,18 @@ import {
 } from "@/lib/services/uicons.svelte.js";
 import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-import {
-	FORT_OUTDATED_SECONDS,
-	SELECTED_MAP_OBJECT_SCALE,
-	SPAWNPOINT_OUTDATED_SECONDS
-} from "@/lib/constants";
+import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE, SPAWNPOINT_OUTDATED_SECONDS } from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
-import {
-	getCurrentSelectedData,
-	getCurrentSelectedMapId,
-	isCurrentSelectedOverwrite
-} from "@/lib/mapObjects/currentSelectedState.svelte.js";
+import { getCurrentSelectedData, isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte.js";
 import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
-import {
-	isIncidentInvasion,
-	shouldDisplayIncidient,
-	shouldDisplayQuest
-} from "@/lib/utils/pokestopUtils";
+import { isIncidentInvasion, shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/utils/pokestopUtils";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
+import { geojson, s2 } from "s2js";
 
 export enum MapObjectFeatureType {
 	ICON = 0,
@@ -487,7 +476,17 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			}))
 		} else if (obj.type === MapObjectType.ROUTE) {
 		} else if (obj.type === MapObjectType.TAPPABLE) {
+			if (obj.expire_timestamp && obj.expire_timestamp < timestamp) continue;
 			expires = obj.expire_timestamp
+		} else if (obj.type === MapObjectType.S2_CELL) {
+			showThis = false
+			const cell = s2.Cell.fromCellID(obj.cellId);
+			const polygon = geojson.toGeoJSON(cell) as Polygon;
+			subFeatures.push(getPolygonFeature(obj.mapId, [polygon.coordinates], {
+				id: obj.mapId,
+				strokeColor: styles.getPropertyValue("--s2cell-polygon-stroke"),
+				fillColor: styles.getPropertyValue("--s2cell-polygon")
+			}))
 		}
 
 		// subFeatures.push(

@@ -6,6 +6,7 @@ import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 
 export enum MapObjectType {
 	POKEMON = "pokemon",
@@ -27,9 +28,7 @@ export type MapData =
 	| NestData
 	| SpawnpointData
 	| RouteData
-	| TappableData;
-
-export type MinorMapObjectType = "s2cell";
-export const allMinorMapTypes: MinorMapObjectType[] = ["s2cell"];
+	| TappableData
+	| S2CellData
 
 export const allMapObjectTypes = Object.values(MapObjectType);

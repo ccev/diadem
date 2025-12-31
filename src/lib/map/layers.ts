@@ -4,7 +4,6 @@ import type { GeoJSON as GeoJsonType } from 'geojson';
 
 export enum MapSourceId {
 	MAP_OBJECTS = "mapObjects",
-	S2_CELLS = "s2cells",
 	SELECTED_WEATHER = "selectedWeather",
 	SCOUT_BIG_POINTS = "scoutBigPoints",
 	SCOUT_SMALL_POINTS = "scoutSmallPoints",

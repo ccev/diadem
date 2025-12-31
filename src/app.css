@@ -57,6 +57,8 @@
     --spawnpoint-stroke: rgba(57, 140, 168, 0.8);
     --spawnpoint-inactive: rgba(251, 99, 124, 0.6);
     --spawnpoint-inactive-stroke: rgba(179, 38, 77, 0.8);
+    --s2cell-polygon: rgba(94, 246, 242, 0.1);
+    --s2cell-polygon-stroke: rgba(67, 216, 212, 0.5);
 }
 
 .dark {

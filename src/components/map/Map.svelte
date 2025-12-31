@@ -20,7 +20,6 @@
 		onWindowFocus
 	} from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
-	import { getS2CellGeojson } from "@/lib/mapObjects/s2cells.svelte.js";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
@@ -162,7 +161,6 @@
 	onload={onMapLoad}
 	oncontextmenu={onContextMenu}
 >
-	<GeometryLayer id={MapSourceId.S2_CELLS} data={getS2CellGeojson()} />
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
 	<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
