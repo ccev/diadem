@@ -12,16 +12,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN mkdir -p src/routes/\(custom\) && \
-    mkdir -p src/components/custom && \
-    mkdir -p src/lib/server && \
-    cp config/custom.example.css config/custom.css && \
-    cp config/Home.example.svelte config/Home.svelte && \
-    cp config/config.example.toml config/config.toml && \
-    ln config/custom.css src/custom.css && \
-    ln config/Home.svelte src/components/custom/Home.svelte && \
-    ln config/config.toml src/lib/server/config.toml
-RUN pnpm run build
+RUN ./setup.sh && pnpm run build
 
 FROM node:22-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
