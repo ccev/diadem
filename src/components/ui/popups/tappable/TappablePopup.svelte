@@ -13,17 +13,9 @@
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
+	import { getTappableName } from "@/lib/utils/tappableUtils";
 
 	let data: TappableData = $derived(getMapObjects()[getCurrentSelectedMapId()] as TappableData ?? getCurrentSelectedData() as TappableData);
-	let name: string = $derived.by(() => {
-		if (data.pokemon_id) {
-			return mPokemon(data)
-		} else if (data.item_id) {
-			return mItem(data.item_id)
-		} else {
-			return m.unknown_tappable()
-		}
-	})
 </script>
 
 {#snippet basicInfo()}
@@ -47,7 +39,7 @@
 	{#snippet image()}
 		<div class="w-12 shrink-0">
 			<ImagePopup
-				alt={name}
+				alt={getTappableName(data)}
 				src={getIconTappable(data)}
 				class="w-12 h-12"
 			/>
@@ -57,7 +49,7 @@
 	{#snippet title()}
 		<div class="text-lg font-semibold tracking-tight">
 			<span>
-				{name} ({m.pogo_tappable()})
+				{getTappableName(data)} ({m.pogo_tappable()})
 			</span>
 		</div>
 	{/snippet}
