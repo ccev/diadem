@@ -8,7 +8,7 @@ import { type Bounds, getBounds } from "@/lib/mapObjects/mapBounds";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
-import { clearS2Cells, getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
+import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
@@ -20,7 +20,6 @@ export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
 export function clearMap() {
 	// TODO: Also do this on login
 	clearAllMapObjects();
-	clearS2Cells();
 	updateFeatures(getMapObjects());
 }
 
