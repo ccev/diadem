@@ -15,7 +15,7 @@ export async function loadKojiGeofences() {
 	if (!result.ok) {
 		console.error("Error while fetching geofences")
 	}
-	
+
 	geofences = await result.json()
 }
 

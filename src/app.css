@@ -51,7 +51,8 @@
     --tier-4: var(--color-emerald-600);
     --nest-polygon: rgba(152, 248, 163, 0.3);
     --nest-polygon-stroke: rgba(152, 248, 163, 0.6);
-    --nest-polygon-selected: rgba(165, 243, 174, 0.5);
+    --fence-fill: rgba(100, 149, 237, 0.15);
+    --fence-stroke: rgba(100, 149, 237, 0.7);
     --nest-circle: rgba(121, 241, 135, 0.8);
     --nest-circle-stroke: rgba(152, 248, 163, 0.6);
     --spawnpoint: rgba(116, 223, 253, 0.6);

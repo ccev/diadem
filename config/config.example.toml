@@ -17,11 +17,21 @@ defaultNestName = "Unknown Nest"
 url = "http://127.0.0.1:7272"
 secret = ""
 
-# Optional Koji integrtion. Uncomment to disable
+# Optional Koji integration. Uncomment to disable
 [server.koji]
 url = "http://127.0.0.1:8080"
 secret = "secret"
 projectName = "reactmap"
+
+# Filter geofences based on user permissions
+# When enabled, the /api/koji endpoint will only return geofences for areas
+# the user has permission to access. This affects the "Show Map Fences" feature.
+#
+# Example: If a user only has permissions for ["Aurora", "Wheaton"], they will
+# only see those two geofences on the map, not all geofences from Koji.
+#
+# Users with "everywhere" permissions (no area restrictions) will see all fences.
+filterByPermissions = false
 
 # Optional nominatim integration. Uncomment to disable
 [server.nominatim]
@@ -107,6 +117,9 @@ customHome = false  # If enabled, path / will show the config/Home.svelte compon
 defaultLat = 51.516855
 defaultLon = -0.080500
 defaultZoom = 15
+
+# Default setting for showing area fences on map (new users only)
+defaultShowMapFences = false
 
 ### Map Styles
 
