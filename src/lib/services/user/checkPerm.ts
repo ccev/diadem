@@ -1,7 +1,16 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { bbox, feature as makeFeature, featureCollection, intersect, polygon } from "@turf/turf";
+import { bbox, feature as makeFeature, featureCollection, intersect, polygon, union } from "@turf/turf";
 import type { Feature, Polygon } from "geojson";
 import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
+import { getUniversalLogger, isDebugEnabled } from "@/lib/utils/logger";
+
+const log = getUniversalLogger("checkPerm");
+
+function debugLog(message: string, ...args: unknown[]) {
+	if (isDebugEnabled("permissions")) {
+		log.debug(message, ...args);
+	}
+}
 
 function isFeatureInFeatureList(featureList: FeaturesKey[] | undefined, feature: FeaturesKey) {
 	if (featureList === undefined) return false;
