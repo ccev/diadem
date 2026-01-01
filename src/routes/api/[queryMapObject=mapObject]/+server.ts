@@ -17,6 +17,12 @@ export async function POST({ request, locals, params }) {
 	const type = params.queryMapObject as MapObjectType;
 	const bounds = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
 
+	// If bounds is null, user doesn't have permission for the current viewport
+	if (bounds === null) {
+		log.warning("[%s] Access denied - viewport outside permitted areas", params.queryMapObject);
+		return json({ data: [] });
+	}
+
 	const queried = await queryMapObjects(type, bounds, data.filter);
 
 	log.info(

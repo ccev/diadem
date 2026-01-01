@@ -294,6 +294,8 @@
 	"context_menu_share_position": "Share map position",
     "settings_search_range_title": "Search Radius",
     "settings_search_range_description": "The area around the map center to be searched while using the search menu",
+    "settings_show_map_fences_title": "Show Map Fences",
+    "settings_show_map_fences_description": "Display area boundaries from Koji on the map",
     "x_km": "{x}km",
     "display_pokemon_notice": "This {pokemon} is hiding as a {display}",
     "plain_pokestops": "Plain Pokéstops",

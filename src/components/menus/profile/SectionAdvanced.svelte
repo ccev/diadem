@@ -29,6 +29,13 @@
 	</div>
 
 	<Toggle
+		title={m.settings_show_map_fences_title()}
+		description={m.settings_show_map_fences_description()}
+		onclick={() => onSettingsChange("showMapFences", !getUserSettings().showMapFences)}
+		value={getUserSettings().showMapFences}
+	/>
+
+	<Toggle
 		title={m.settings_show_debug_title()}
 		description={m.settings_show_debug_description()}
 		onclick={() => onSettingsChange("showDebugMenu", !getUserSettings().showDebugMenu)}
