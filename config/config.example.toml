@@ -2,6 +2,9 @@
 level = "info" #crit, error, warning, info, debug
 # file = "/var/log/diadem.log"
 
+[server.log.debug]
+permissions = false  # Enable verbose permission checking logs
+
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""
