@@ -44,7 +44,8 @@ export type MapObjectPolygonProperties = {
 	type: MapObjectFeatureType.POLYGON;
 	fillColor: string;
 	strokeColor: string;
-	selectedScale: 1;
+	selectedFill: string;
+	isSelected: boolean
 };
 
 export type MapObjectCircleProperties = {
@@ -91,6 +92,14 @@ export function isFeatureIcon(feature: MapObjectFeature): feature is MapObjectIc
 	return feature.properties.type === MapObjectFeatureType.ICON;
 }
 
+export function isFeatureCircle(feature: MapObjectFeature): feature is MapObjectCircleFeature {
+	return feature.properties.type === MapObjectFeatureType.CIRCLE;
+}
+
+export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjectPolygonFeature {
+	return feature.properties.type === MapObjectFeatureType.POLYGON;
+}
+
 function getIconFeature(
 	id: string,
 	coordinates: Point["coordinates"],
@@ -125,7 +134,6 @@ function getPolygonFeature(
 		properties: {
 			...properties,
 			type: MapObjectFeatureType.POLYGON,
-			selectedScale: 1
 		},
 		id
 	};
@@ -181,7 +189,13 @@ export function deleteAllFeatures() {
 export function updateSelected(currentSelected: MapData | null) {
 	// TODO base the scale on original modifiers, not the current size
 	if (selectedFeatures) {
-		selectedFeatures.forEach((f) => (f.properties.selectedScale = 1));
+		for (const feature of selectedFeatures) {
+			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
+				feature.properties.selectedScale = 1;
+			} else if (isFeaturePolygon(feature)) {
+				feature.properties.isSelected = false
+			}
+		}
 		selectedFeatures = [];
 	}
 
@@ -189,7 +203,11 @@ export function updateSelected(currentSelected: MapData | null) {
 		const thisFeatures = features[currentSelected.type][currentSelected.mapId] ?? [];
 
 		for (const feature of thisFeatures) {
-			feature.properties.selectedScale = SELECTED_MAP_OBJECT_SCALE;
+			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
+				feature.properties.selectedScale = SELECTED_MAP_OBJECT_SCALE;
+			} else if (isFeaturePolygon(feature)) {
+				feature.properties.isSelected = true
+			}
 		}
 
 		selectedFeatures = thisFeatures;
@@ -466,7 +484,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				getPolygonFeature(obj.mapId, polygon, {
 					id: obj.mapId,
 					strokeColor: styles.getPropertyValue("--nest-polygon-stroke"),
-					fillColor: styles.getPropertyValue("--nest-polygon")
+					fillColor: styles.getPropertyValue("--nest-polygon"),
+					selectedFill: styles.getPropertyValue("--nest-polygon-selected"),
+					isSelected
 				})
 			);
 		} else if (obj.type === MapObjectType.SPAWNPOINT) {
@@ -493,7 +513,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			subFeatures.push(getPolygonFeature(obj.mapId, [polygon.coordinates], {
 				id: obj.mapId,
 				strokeColor: styles.getPropertyValue("--s2cell-polygon-stroke"),
-				fillColor: styles.getPropertyValue("--s2cell-polygon")
+				fillColor: styles.getPropertyValue("--s2cell-polygon"),
+				selectedFill: styles.getPropertyValue("--s2cell-polygon-selected"),
+				isSelected
 			}))
 		}
 

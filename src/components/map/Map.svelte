@@ -42,30 +42,30 @@
 	let map: maplibre.Map | undefined = $state(undefined);
 
 	// lat/lon/zoom params
-	const params = new URLSearchParams(window.location.search)
+	const params = new URLSearchParams(window.location.search);
 
-	const userSettings = getUserSettings()
-	const lat = Number(params.get("lat") ?? undefined)
-	const lon = Number(params.get("lon") ?? undefined)
-	const zoom = Number(params.get("zoom") ?? undefined)
+	const userSettings = getUserSettings();
+	const lat = Number(params.get("lat") ?? undefined);
+	const lon = Number(params.get("lon") ?? undefined);
+	const zoom = Number(params.get("zoom") ?? undefined);
 
 	if (Number.isFinite(lat)) {
-		console.log(lat)
-		userSettings.mapPosition.center.lat = lat
+		console.log(lat);
+		userSettings.mapPosition.center.lat = lat;
 	}
 
 	if (Number.isFinite(lon)) {
-		console.log(lon)
-		userSettings.mapPosition.center.lng = lon
+		console.log(lon);
+		userSettings.mapPosition.center.lng = lon;
 	}
 
 	if (Number.isFinite(zoom)) {
-		console.log(zoom)
-		userSettings.mapPosition.zoom = zoom
+		console.log(zoom);
+		userSettings.mapPosition.zoom = zoom;
 	}
 
-	history.replaceState({}, '', window.location.origin + window.location.pathname)
-	updateUserSettings()
+	history.replaceState({}, "", window.location.origin + window.location.pathname);
+	updateUserSettings();
 
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
@@ -73,16 +73,16 @@
 		if (map) {
 			setMap(map);
 
-			map.on('touchstart', onTouchStart);
-			map.on('touchend', clearPressTimer);
-			map.on('touchmove', clearPressTimer);
-			map.on('touchcancel', clearPressTimer);
-			map.on('movestart', onMapMoveStart);
-			map.on('move', onMapMove);
-			map.on('styledataloading', onMapStyleDataLoading)
+			map.on("touchstart", onTouchStart);
+			map.on("touchend", clearPressTimer);
+			map.on("touchmove", clearPressTimer);
+			map.on("touchcancel", clearPressTimer);
+			map.on("movestart", onMapMoveStart);
+			map.on("move", onMapMove);
+			map.on("styledataloading", onMapStyleDataLoading);
 
 			// tick so feature handler registers first
-			tick().then(() => map?.on('click', clickMapHandler));
+			tick().then(() => map?.on("click", clickMapHandler));
 		}
 	}
 
@@ -98,8 +98,8 @@
 			const directLinkData = getDirectLinkObject();
 			if (directLinkData) {
 				if (directLinkData.id) {
-					openPopup(directLinkData, true)
-					addMapObjects([directLinkData], directLinkData.type, 1)
+					openPopup(directLinkData, true);
+					addMapObjects([directLinkData], directLinkData.type, 1);
 
 					if (!map.getBounds().contains(Coords.infer(directLinkData).maplibre())) {
 						getUserSettings().mapPosition.center.lat = directLinkData.lat;
@@ -111,14 +111,14 @@
 						map.setZoom(18);
 					}
 				} else {
-					openToast(m.direct_link_not_found({ type: m['pogo_' + directLinkData.type]() }), 5000);
+					openToast(m.direct_link_not_found({ type: m["pogo_" + directLinkData.type]() }), 5000);
 				}
 			}
 
 			if (getCurrentSelectedFiltersetIsShared()) {
-				openMenu("filters")
-				filtersetPageReset()
-				tick().then(openFiltersetModal)
+				openMenu("filters");
+				filtersetPageReset();
+				tick().then(openFiltersetModal);
 			}
 
 			isInitUpdatedMapObjects = true;
@@ -211,7 +211,12 @@
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
 			paint={{
-			  'fill-color': ["get", "fillColor"],
+			  'fill-color': [
+				  'case',
+				  ['get', 'isSelected'],
+				  ['get', 'selectedFill'],
+				  ['get', 'fillColor']
+				]
 			}}
 			beforeLayerType="circle"
 			hoverCursor="pointer"

@@ -51,6 +51,7 @@
     --tier-4: var(--color-emerald-600);
     --nest-polygon: rgba(152, 248, 163, 0.3);
     --nest-polygon-stroke: rgba(152, 248, 163, 0.6);
+    --nest-polygon-selected: rgba(165, 243, 174, 0.5);
     --nest-circle: rgba(121, 241, 135, 0.8);
     --nest-circle-stroke: rgba(152, 248, 163, 0.6);
     --spawnpoint: rgba(116, 223, 253, 0.6);
@@ -59,6 +60,7 @@
     --spawnpoint-inactive-stroke: rgba(179, 38, 77, 0.8);
     --s2cell-polygon: rgba(94, 246, 242, 0.1);
     --s2cell-polygon-stroke: rgba(67, 216, 212, 0.5);
+    --s2cell-polygon-selected: rgba(94, 246, 242, 0.4);
 }
 
 .dark {
