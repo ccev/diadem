@@ -15,7 +15,7 @@
 		pokemonList={getSpawnablePokemon()}
 		selected={data?.pokemon ?? []}
 		onselect={(pokemon, isSelected) => {
-			if (isSelected) {
+			if (!isSelected) {
 				data.pokemon = data.pokemon?.filter(p => p.pokemon_id !== pokemon.pokemon_id || p.form !== pokemon.form)
 			} else {
 				if (!data.pokemon) data.pokemon = []

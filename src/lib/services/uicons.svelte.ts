@@ -154,8 +154,8 @@ export function getIconStation(
 	return iconSets[iconSet].station((data.start_time ?? 0) < currentTimestamp());
 }
 
-export function getIconInvasion(data: Incident) {
-	return iconSets[DEFAULT_UICONS].invasion(data.character, Boolean(data.confirmed));
+export function getIconInvasion(character: number | null, confirmed: number | boolean | null) {
+	return iconSets[DEFAULT_UICONS].invasion(character, Boolean(confirmed));
 }
 
 export function getIconReward(data: QuestReward) {

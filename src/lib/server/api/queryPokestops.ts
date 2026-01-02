@@ -56,7 +56,7 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | un
 		}
 		if (filter.invasion.enabled) {
 			const invasionFilters = filter.invasion.filters.filter(f => f.enabled)
-			if (invasionFilters.length === 0) conditions.push(
+			if (invasionFilters.length > 0) conditions.push(
 				`incident.display_type IN (${INCIDENT_DISPLAYS_INVASION.join(",")}) AND incident.expiration > UNIX_TIMESTAMP()`
 			)
 			// TODO quest filters

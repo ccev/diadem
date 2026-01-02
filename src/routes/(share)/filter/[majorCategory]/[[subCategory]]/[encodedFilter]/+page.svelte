@@ -11,7 +11,7 @@
 		getAttributeLabelRank,
 		getAttributeLabelSize
 	} from "@/lib/features/filters/filterUtilsPokemon";
-	import type { FiltersetPokemon, FiltersetRaid } from "@/lib/features/filters/filtersets";
+	import type { FiltersetInvasion, FiltersetPokemon, FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import {
@@ -20,6 +20,7 @@
 		makeAttributeRaidShowLabel
 	} from "@/lib/features/filters/makeAttributeChipLabel";
 	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
+	import { makeAttributeCharacterLabel } from "@/lib/features/filters/filterUtilsInvasion";
 
 	let { data }: PageProps = $props();
 
@@ -99,6 +100,14 @@
 				for (const show of filterset.show) {
 					text += `${m.raid_show()}: ${makeAttributeRaidShowLabel(show)}\n`;
 				}
+			}
+		} else if (data.majorCategory === "pokestop" && data.subCategory === "invasion") {
+			const filterset = data.filterset as FiltersetInvasion;
+			if (filterset.characters) {
+				text += `${m.grunts()}: ${makeAttributeCharacterLabel(filterset.characters)}\n`
+			}
+			if (filterset.rewards) {
+				text += `${m.rewards()}: ${makeAttributePokemonLabel(filterset.rewards)}\n`
 			}
 		}
 		return text;

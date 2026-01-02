@@ -117,7 +117,7 @@ export function getDefaultUserSettings(): UserSettings {
 			// s2cell: { category: "s2cell", ...defaultFilter() },
 			s2cell: {
 				category: "s2cell",
-				enabled: true,
+				enabled: false,
 				filters: [
 					{
 						level: 14,

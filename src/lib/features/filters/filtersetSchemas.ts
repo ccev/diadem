@@ -69,6 +69,7 @@ export const FiltersetQuestSchema = BaseFiltersetSchema.extend({
 
 export const FiltersetInvasionSchema = BaseFiltersetSchema.extend({
 	characters: z.array(z.number()).optional(),
+	rewards: z.array(PokemonSchema).optional(),
 });
 
 export const FiltersetLureSchema = BaseFiltersetSchema.extend({

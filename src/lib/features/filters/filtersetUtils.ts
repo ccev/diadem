@@ -1,6 +1,7 @@
 import type {
 	AnyFilterset,
 	BaseFilterset,
+	FiltersetInvasion,
 	FiltersetPokemon,
 	FiltersetRaid,
 	MinMax
@@ -9,6 +10,7 @@ import * as m from '@/lib/paraglide/messages';
 import type { FilterCategory } from "@/lib/features/filters/filters";
 import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtilsPokemon";
 import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
+import { generateInvasionFilterDetails } from "@/lib/features/filters/filterUtilsInvasion";
 
 export function changeAttributeMinMax(
 	data: AnyFilterset,
@@ -33,7 +35,8 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 	if (filterset.title.title) {
 		return filterset.title.title
 	}
-	if (Object.keys(m).includes(filterset.title.message)) {
+
+	if (filterset.title.message in m) {
 		// @ts-ignore
 		const params = filterset.title.params
 		if (params) {
@@ -45,6 +48,9 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 		}
 
 		return m[filterset.title.message](params)
+	}
+	if (filterset.title.message) {
+		return filterset.title.message
 	}
 
 	return m.unknown_filter()
@@ -59,6 +65,8 @@ export function generateFilterDetails(majorCategory: FilterCategory, subCategory
 
 	} else if (subCategory === "raid") {
 		generateRaidFilterDetails(filtersert as FiltersetRaid)
+	} else if (subCategory === "invasion") {
+		generateInvasionFilterDetails(filtersert as FiltersetInvasion)
 	}
 }
 

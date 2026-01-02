@@ -17,7 +17,7 @@ import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
-import { isIncidentInvasion, shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/utils/pokestopUtils";
+import { hasFortActiveLure, isIncidentInvasion, shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/utils/pokestopUtils";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
@@ -206,6 +206,8 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const styles = getComputedStyle(document.documentElement);
 
 	const isSelectedOverwrite = isCurrentSelectedOverwrite();
+	const showAllPokestops = getUserSettings().filters.pokestop.pokestopPlain.enabled || isSelectedOverwrite;
+	const showLures = getUserSettings().filters.pokestop.lure.enabled || isSelectedOverwrite;
 	const showQuests = getUserSettings().filters.pokestop.quest.enabled || isSelectedOverwrite;
 	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled || isSelectedOverwrite;
 	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled || isSelectedOverwrite;
@@ -249,12 +251,14 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
 
 		if (obj.type === MapObjectType.POKESTOP) {
+			showThis = showAllPokestops || showLures && hasFortActiveLure(obj) || isSelected;
 			if (showQuests) {
 				const questModifiers = getModifiers(userIconSet, "quest");
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
 					const reward = JSON.parse(obj.alternative_quest_rewards)[0];
 
 					if (!shouldDisplayQuest(reward)) continue;
+					showThis = true
 
 					const mapId = obj.mapId + "-altquest-" + obj.alternative_quest_timestamp;
 
@@ -275,6 +279,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				if (obj.quest_target && obj.quest_rewards) {
 					const reward = JSON.parse(obj.quest_rewards)[0];
 					if (!shouldDisplayQuest(reward)) continue;
+					showThis = true
 
 					const mapId = obj.mapId + "-quest-" + obj.quest_timestamp;
 					const spacing = subFeatures.length === 0 ? 0 : questModifiers.spacing;
@@ -296,31 +301,34 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			}
 
 			let index = 0;
-			if (showInvasions) {
-				for (const incident of obj?.incident ?? []) {
-					if (!incident.id || !isIncidentInvasion(incident) || incident.expiration < timestamp) {
-						continue;
-					}
-					if (!shouldDisplayIncidient(incident)) continue;
-
-					const mapId = obj.mapId + "-incident-" + incident.id;
-					const invasionModifiers = getModifiers(userIconSet, "invasion");
-
-					subFeatures.push(
-						getIconFeature(mapId, [obj.lon, obj.lat], {
-							imageUrl: getIconInvasion(incident),
-							imageSize: invasionModifiers.scale,
-							selectedScale: selectedScale,
-							imageOffset: [
-								modifiers.offsetX + invasionModifiers.offsetX,
-								modifiers.offsetY + invasionModifiers.offsetY + index * invasionModifiers.spacing
-							],
-							id: obj.mapId,
-							expires: incident.expiration
-						})
-					);
-					index += 1;
+			for (const incident of obj?.incident ?? []) {
+				if (shouldDisplayIncidient(incident)) {
+					showThis = true
+				} else {
+					continue
 				}
+
+				if (!showInvasions || !incident.id || !isIncidentInvasion(incident) || incident.expiration < timestamp) {
+					continue;
+				}
+
+				const mapId = obj.mapId + "-incident-" + incident.id;
+				const invasionModifiers = getModifiers(userIconSet, "invasion");
+
+				subFeatures.push(
+					getIconFeature(mapId, [obj.lon, obj.lat], {
+						imageUrl: getIconInvasion(incident.character, incident.confirmed),
+						imageSize: invasionModifiers.scale,
+						selectedScale: selectedScale,
+						imageOffset: [
+							modifiers.offsetX + invasionModifiers.offsetX,
+							modifiers.offsetY + invasionModifiers.offsetY + index * invasionModifiers.spacing
+						],
+						id: obj.mapId,
+						expires: incident.expiration
+					})
+				);
+				index += 1;
 			}
 		} else if (obj.type === MapObjectType.GYM) {
 			showThis = showAllGyms || shouldDisplayRaid(obj) || isSelected;

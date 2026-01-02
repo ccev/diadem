@@ -328,5 +328,19 @@
     "unknown_tappable": "Unknown Ground Item",
     "time_is_estimated": "Time is estimated",
     "spawnpoint_despawns": "Despawns",
-    "spawnpoint_unknown": "Unknown despawn time"
+    "spawnpoint_unknown": "Unknown despawn time",
+	"invasion_filter": "Team Rocket Filter",
+	"shared_invasion_filter": "Shared Team Rocket Filter",
+	"new_invasion_filter": "New Team Rocket Filter",
+	"edit_invasion_filter": "Edit Team Rocket Filter",
+    "invasion_filter_by": "Filter by",
+    "invasion_filter_by_reward": "Rewards",
+    "invasion_filter_by_character": "Grunts",
+    "rewards": "Rewards",
+    "grunts": "Grunts",
+    "count_characters": "{count} Grunts",
+    "count_leaders": "{count} Leaders",
+    "filter_template_invasion_fallback": "Team Rocket Filter",
+    "filter_template_invasion_one_grunt": "{type} Grunt",
+    "filter_template_invasion_giovanni": "Giovanni"
 }

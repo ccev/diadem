@@ -179,5 +179,7 @@ export function openFiltersetModal() {
 		openModal("filtersetQuest")
 	} else if (majorCategory === "gym" && subCategory === "raid") {
 		openModal("filtersetRaid")
+	} else if (majorCategory === "pokestop" && subCategory === "invasion") {
+		openModal("filtersetInvasion")
 	}
 }

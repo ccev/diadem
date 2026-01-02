@@ -69,8 +69,8 @@
 				<PokestopSection>
 					<div class="w-7 h-7 shrink-0">
 						<ImagePopup
-							src={getIconInvasion(incident)}
-							alt="TBD"
+							src={getIconInvasion(incident.character, incident.confirmed)}
+							alt={mCharacter(incident.character)}
 							class="w-7"
 						/>
 					</div>

@@ -38,6 +38,11 @@ export type ActiveRaidStats = {
 	count: number
 }
 
+export type ActiveInvasionCharacterStats = {
+	character: number;
+	count: number
+}
+
 export type PokemonStatEntry = {
 	shiny?: {
 		shinies: number;
@@ -76,6 +81,7 @@ export type MasterStats = {
 	totalQuests: TotalQuestStats;
 	quests: QuestStats;
 	activeRaids: ActiveRaidStats[];
+	activeCharacters: ActiveInvasionCharacterStats[];
 	generatedAt: number;
 };
 
@@ -83,7 +89,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	// TODO: timeframe
 	// TODO: this takes a while, and it's cached. but the cache is only filled when a user requests this. amybe there should instead be a cronjob
 
-	const [allShinyStats, allSpawnStats, allQuestStats, allRaidStats] = await Promise.all([
+	const [allShinyStats, allSpawnStats, allQuestStats, allRaidStats, allCharacterStats] = await Promise.all([
 		query<AllShinyStatsRow[]>(
 			"SELECT pokemon_id, form_id, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
 				"FROM pokemon_shiny_stats " +
@@ -117,6 +123,12 @@ export async function queryMasterStats(): Promise<MasterStats> {
 			"FROM raid_stats " +
 			"WHERE date = (SELECT MAX(date) FROM raid_stats) AND area = 'world' " +
 			"ORDER BY level ASC"
+		),
+		query<ActiveInvasionCharacterStats[]>(
+			"SELECT `character`, `count` " +
+			"FROM invasion_stats " +
+			"WHERE date = (SELECT MAX(date) FROM invasion_stats) AND area = 'world' " +
+			"ORDER BY `character` ASC"
 		)
 	]);
 
@@ -128,6 +140,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	let questsTotal = 0;
 
 	let activeRaids: ActiveRaidStats[] = []
+	let activeCharacters: ActiveInvasionCharacterStats[] = []
 
 	if (allShinyStats.result) {
 		for (const row of allShinyStats.result) {
@@ -187,6 +200,10 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		activeRaids = allRaidStats.result
 	}
 
+	if (allCharacterStats.result) {
+		activeCharacters = allCharacterStats.result
+	}
+
 	return {
 		totalPokemon: {
 			count: pokemonTotal,
@@ -198,6 +215,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		},
 		quests,
 		activeRaids,
+		activeCharacters,
 		generatedAt: Date.now()
 	};
 }

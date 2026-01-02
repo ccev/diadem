@@ -35,5 +35,6 @@
 		{:else if getCurrentSelectedData()?.type === MapObjectType.TAPPABLE}
 			<TappablePopup />
 		{/if}
+	<!--	TODO: S2 Cell popup -->
 	</div>
 {/if}
