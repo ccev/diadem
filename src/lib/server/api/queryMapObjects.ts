@@ -238,17 +238,26 @@ async function queryStations(bounds: Bounds, filter: FilterStation | undefined) 
 
 async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
 	const { error, result } = await query<NestData[]>(
-		"SELECT  " +
-			FIELDS_NEST +
-			" FROM nests " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
-			"AND active = 1 " +
-			"AND pokemon_id IS NOT NULL " +
-			"LIMIT " +
-			LIMIT_NEST,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+		"SELECT " + FIELDS_NEST +
+		" FROM nests " +
+		" WHERE MBRIntersects(polygon, ST_Envelope(LineString(Point(?, ?), Point(?, ?)))) " +
+		" AND active = 1 " +
+		" AND pokemon_id IS NOT NULL " +
+		" LIMIT " + LIMIT_NEST,
+		[bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]
 	);
+	// const { error, result } = await query<NestData[]>(
+	// 	"SELECT  " +
+	// 		FIELDS_NEST +
+	// 		" FROM nests " +
+	// 		"WHERE lat BETWEEN ? AND ? " +
+	// 		"AND lon BETWEEN ? AND ? " +
+	// 		"AND active = 1 " +
+	// 		"AND pokemon_id IS NOT NULL " +
+	// 		"LIMIT " +
+	// 		LIMIT_NEST,
+	// 	[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	// );
 	const defaultName = getServerConfig().golbat.defaultNestName ?? "Unknown Nest"
 	for (const nest of result) {
 		if (nest.name === defaultName) {
