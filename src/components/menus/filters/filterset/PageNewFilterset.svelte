@@ -16,6 +16,7 @@
 	import { premadeFiltersets } from '@/lib/features/filters/premadeFiltersets';
 	import type { FilterCategory } from '@/lib/features/filters/filters';
 	import { getId } from "@/lib/utils/uuid";
+	import { m } from "@/lib/paraglide/messages";
 
 	let {
 		majorCategory,
@@ -40,14 +41,16 @@
 	>
 		<CirclePlus size="18" />
 		<span>
-			Create new
+			{m.create_new()}
 		</span>
 	</Button>
 
 
 	<div class="flex items-center gap-4 my-3">
 		<div class="bg-border h-px w-full"></div>
-		<span class="text-muted-foreground text-sm whitespace-nowrap">or select suggested filter</span>
+		<span class="text-muted-foreground text-sm whitespace-nowrap">
+			{m.or_select_suggested_filter()}
+		</span>
 		<div class="bg-border h-px w-full"></div>
 	</div>
 

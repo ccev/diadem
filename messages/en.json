@@ -342,5 +342,7 @@
     "count_leaders": "{count} Leaders",
     "filter_template_invasion_fallback": "Team Rocket Filter",
     "filter_template_invasion_one_grunt": "{type} Grunt",
-    "filter_template_invasion_giovanni": "Giovanni"
+    "filter_template_invasion_giovanni": "Giovanni",
+    "create_new": "Create new",
+    "or_select_suggested_filter": "or select suggested filter"
 }
