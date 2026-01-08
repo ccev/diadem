@@ -190,7 +190,7 @@ export function getContestText(data: PokestopData) {
 export function shouldDisplayIncidient(incident: Incident) {
 	const timestamp = currentTimestamp()
 
-	// only active raids
+	// only active incidents
 	if ((incident.expiration ?? 0) < timestamp) return false
 
 	if (isCurrentSelectedOverwrite()) return true;
