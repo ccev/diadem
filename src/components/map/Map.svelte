@@ -50,17 +50,14 @@
 	const zoom = Number(params.get("zoom") ?? undefined);
 
 	if (Number.isFinite(lat)) {
-		console.log(lat);
 		userSettings.mapPosition.center.lat = lat;
 	}
 
 	if (Number.isFinite(lon)) {
-		console.log(lon);
 		userSettings.mapPosition.center.lng = lon;
 	}
 
 	if (Number.isFinite(zoom)) {
-		console.log(zoom);
 		userSettings.mapPosition.zoom = zoom;
 	}
 
@@ -172,6 +169,41 @@
 			features: []
 		}}
 	>
+		<FillLayer
+			id={MapObjectLayerId.POLYGON_FILL}
+			paint={{
+			  'fill-color': [
+				  'case',
+				  ['get', 'isSelected'],
+				  ['get', 'selectedFill'],
+				  ['get', 'fillColor']
+				]
+			}}
+			hoverCursor="pointer"
+		/>
+		<LineLayer
+			id={MapObjectLayerId.POLYGON_STROKE}
+			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 1 }}
+			hoverCursor="pointer"
+		/>
+		<CircleLayer
+			id={MapObjectLayerId.CIRCLES}
+			hoverCursor="pointer"
+			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
+			paint={{
+				"circle-radius": [
+					"*",
+					["get", "radius"],
+					["get", "selectedScale"],
+					getUserSettings().mapIconSize
+				],
+				'circle-color': ["get", "fillColor"],
+				'circle-stroke-width': 1,
+				'circle-stroke-color': ["get", "strokeColor"]
+			}}
+			eventsIfTopMost={true}
+		/>
 		<SymbolLayer
 			id={MapObjectLayerId.ICONS}
 			hoverCursor="pointer"
@@ -189,44 +221,6 @@
 				"icon-offset": ["get", "imageOffset"]
 			}}
 			eventsIfTopMost={true}
-		/>
-		<CircleLayer
-			id={MapObjectLayerId.CIRCLES}
-			hoverCursor="pointer"
-			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
-			paint={{
-				"circle-radius": [
-					"*",
-					["get", "radius"],
-					["get", "selectedScale"],
-					getUserSettings().mapIconSize
-				],
-				'circle-color': ["get", "fillColor"],
-				'circle-stroke-width': 1,
-				'circle-stroke-color': ["get", "strokeColor"]
-			}}
-			beforeLayerType="symbol"
-			eventsIfTopMost={true}
-		/>
-		<FillLayer
-			id={MapObjectLayerId.POLYGON_FILL}
-			paint={{
-			  'fill-color': [
-				  'case',
-				  ['get', 'isSelected'],
-				  ['get', 'selectedFill'],
-				  ['get', 'fillColor']
-				]
-			}}
-			beforeLayerType="circle"
-			hoverCursor="pointer"
-		/>
-		<LineLayer
-			id={MapObjectLayerId.POLYGON_STROKE}
-			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
-			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 1 }}
-			beforeLayerType="circle"
-			hoverCursor="pointer"
 		/>
 	</GeoJSON>
 

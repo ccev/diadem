@@ -6,6 +6,7 @@ import type { Feature, Polygon } from "geojson";
 import type { CellID } from "s2js/dist/s2/cellid";
 import type { MapObjectPolygonProperties } from "@/lib/map/featuresGen.svelte";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
+import { LIMIT_S2_CELLS } from '@/lib/constants';
 
 export type S2CellProperties = {
 	level: number;
@@ -52,11 +53,9 @@ export function cellToFeature(
 export function getS2CellMapObjects(bounds: Bounds, filter: FilterS2Cell) {
 	let levels = filter.filters.flatMap((f) => f.level ?? []);
 
-	const zoom = getMap()?.getZoom() ?? 0;
-
 	return levels.flatMap((level) => {
-		if (zoom + 2.5 < level) return [];
 		const cells = getCoveringS2Cells(bounds, level);
+		if (cells.length > LIMIT_S2_CELLS) return [];
 
 		return cells.map((cellId) => {
 			return {

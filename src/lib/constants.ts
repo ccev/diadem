@@ -71,3 +71,4 @@ export const LIMIT_NEST = 10000;
 export const LIMIT_SPAWNPOINT = 50000;
 export const LIMIT_ROUTE = 10000;
 export const LIMIT_TAPPABLE = 10000;
+export const LIMIT_S2_CELLS = 10000;
