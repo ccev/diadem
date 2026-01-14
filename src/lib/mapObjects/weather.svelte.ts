@@ -13,6 +13,7 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 import type { FeatureCollection, Polygon } from "geojson";
+import { Features } from '@/lib/utils/features';
 
 const WEATHER_CELL_LEVEL = 10;
 const UPDATE_INTERVAL = 5 * 60 * 1000;
@@ -49,8 +50,8 @@ export function updateCurrentWeatherFeatures(show: boolean) {
 }
 
 export async function updateWeather() {
-	if (!hasFeatureAnywhere(getUserDetails().permissions, "weather")) {
-		currentWeather = false;
+	if (!hasFeatureAnywhere(getUserDetails().permissions, Features.WEATHER)) {
+		currentWeather = undefined;
 		updateCurrentWeatherFeatures(false);
 		return;
 	}
