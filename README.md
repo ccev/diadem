@@ -35,6 +35,11 @@ set this up yourself. But I'm not stopping you:
 2. `./setup.sh && pnpm install && pnpm run build`
 3. `pm2 restart diadem`
 
+### Running in Docker
+1. `git clone https://github.com/ccev/diadem && cd `
+2. `cp ./config/config.example.toml ./config/config.toml`
+3. Modify the config file to your liking by editing ./config/config.toml
+
 ### Asset caching
 Diadem proxies and optimizes UICON repos. Clients will cache all uicons for 7 days. 
 But I suggest adding your own caching rules, i.e. with Cloudflare:

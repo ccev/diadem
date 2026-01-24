@@ -30,6 +30,9 @@ COPY --from=builder --chown=diadem:diadem /app/drizzle.config.ts ./
 COPY --from=builder --chown=diadem:diadem /app/src/lib/server/db ./src/lib/server/db
 COPY --from=builder --chown=diadem:diadem /app/src/lib/services ./src/lib/services
 
+# Create config.toml mount point (actual config mounted at runtime)
+RUN touch ./src/lib/server/config.toml && chown diadem:diadem ./src/lib/server/config.toml
+
 RUN mkdir -p /app/config /app/logs && chown diadem:diadem /app/config /app/logs
 COPY --chown=diadem:diadem docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
