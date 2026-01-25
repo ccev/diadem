@@ -9,10 +9,16 @@ ensure_linked_file() {
   local cfg="$2"        # e.g. config/custom.txt
   local example="$3"    # e.g. config/custom.example.txt
 
-  # if source already exists, do nothing
+  # if source already exists (and is not a broken symlink), do nothing
   if [ -e "$src" ]; then
     echo "$src exists, skipping"
     return
+  fi
+
+  # remove broken symlinks if they exist
+  if [ -L "$src" ]; then
+    echo "$src is a broken symlink, removing"
+    rm "$src"
   fi
 
   echo "$src missing, setting it up"
@@ -22,6 +28,12 @@ ensure_linked_file() {
   mkdir -p "$(dirname "$cfg")"
 
   # create config file from example if needed
+  # also handle case where Docker created a directory instead of a file (happens when mount source is missing)
+  if [ -d "$cfg" ]; then
+    echo "$cfg is a directory (Docker artifact?), removing"
+    rm -rf "$cfg"
+  fi
+
   if [ ! -e "$cfg" ]; then
     if [ ! -e "$example" ]; then
       echo "ERROR: example file $example does not exist"
