@@ -35,10 +35,15 @@ set this up yourself. But I'm not stopping you:
 2. `./setup.sh && pnpm install && pnpm run build`
 3. `pm2 restart diadem`
 
-### Running in Docker
+### Quick-Start in Docker
+These are the basic steps to get going in Docker, but are not production ready (single-node DB, no redundancy, etc)
 1. `git clone https://github.com/ccev/diadem && cd `
 2. `cp ./config/config.example.toml ./config/config.toml`
-3. Modify the config file to your liking by editing ./config/config.toml
+3. Modify the config file to your liking by editing ./config/config.toml. You'll need to point the db at hostname `diadem-db`
+4. `cp docker-compose.example.yml docker-compose.yml`
+5. Modify the docker-compose file to your liking, such as pointing to an external database
+6. `docker compose up --build`
+7. Diadem is now running on http://localhost:3900
 
 ### Asset caching
 Diadem proxies and optimizes UICON repos. Clients will cache all uicons for 7 days. 
