@@ -36,6 +36,7 @@ type General = {
 	defaultLat?: number
 	defaultLon?: number
 	defaultZoom?: number
+	defaultShowMapFences?: boolean
 }
 
 export type DbCreds = {
@@ -72,9 +73,14 @@ export type Permissions = {
 	features?: FeaturesKey[]
 }
 
+export type Debug = {
+	permissions?: boolean
+}
+
 export type Log = {
 	level: string
 	file?: string
+	debug?: Debug
 }
 
 export type MapStyle = {
@@ -108,6 +114,7 @@ export type ServerConfig = {
 		url: string
 		secret: string
 		projectName: string
+		filterByPermissions?: boolean
 	}
 	nominatim?: {
 		url: string

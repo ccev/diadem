@@ -119,6 +119,8 @@
 	"boosted": "Gestärkt",
 	"settings_show_debug_title": "Map-Debug-Menü anzeigen",
 	"settings_show_debug_description": "Zeigt detaillierte Informationen über die App",
+	"settings_show_map_fences_title": "Gebiete anzeigen",
+	"settings_show_map_fences_description": "Gebietsgrenzen von Koji auf der Karte anzeigen",
 	"search_address_loading": "Lädt...",
 	"search_address_no_place_found": "Nichts gefunden",
 	"search_area_no_areas_found": "Keine Gebiete gefunden",
