@@ -12,7 +12,7 @@ const CACHE = `cache-${version}`;
 
 const ASSETS = [
 	...build, // the app itself
-	...files  // everything in `static`
+	...files.filter(f => !f.endsWith('.gitkeep'))  // everything in `static` except .gitkeep
 ];
 
 export function makeOfflineAvailable() {
