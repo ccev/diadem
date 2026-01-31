@@ -3,9 +3,10 @@ import type {
 	ActiveRaidStats,
 	MasterStats,
 	PokemonStatEntry,
+	QuestStats,
 	TotalPokemonStats
 } from "@/lib/server/api/queryStats";
-import { getQuestKey } from "@/lib/utils/pokestopUtils";
+import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 
 let masterStats: MasterStats | undefined = $state(undefined);
@@ -19,43 +20,75 @@ export async function loadMasterStats() {
 	const response = await fetch("/api/stats");
 
 	if (!response.ok) {
-		console.error("Stat fetching failed!")
+		console.error("Stat fetching failed!");
 	}
 
 	masterStats = await response.json();
 }
 
 export function getMasterStats() {
-	return masterStats
+	return masterStats;
 }
 
 export function getPokemonStats(pokemonId: number, formId: number): PokemonStats | undefined {
-	if (!masterStats) return undefined
+	if (!masterStats) return undefined;
 	const key = `${pokemonId}-${formId}`;
 
 	return {
 		total: masterStats.totalPokemon,
 		entry: masterStats.pokemon[key]
-	}
+	};
 }
 
 export function getQuestCount(reward: string, title: string, target: number) {
-	return masterStats?.quests[getQuestKey(reward, title, target)]?.count ?? 0
+	return masterStats?.quests[getQuestKey(reward, title, target)]?.count ?? 0;
 }
 
 export function getQuestStatsForRewardFilter(reward: QuestReward) {
-	const allQuests = Object.values(masterStats?.quests ?? {})
-	return allQuests.find(q => q.reward === reward)
+	const allQuests = Object.values(masterStats?.quests ?? {});
+	return allQuests.find((q) => q.reward === reward);
 }
 
-export function getQuestStatsForTask(title: string, target: number) {
-	
+export function getQuestStatsForTask(title: string, target: number) {}
+
+export function getQuestStats() {
+	return Object.values(masterStats?.quests ?? {});
+}
+
+export function getQuestRewards<T extends RewardType>(
+	type: T
+): { reward: Extract<QuestReward, { type: T }>; tasks: { title: string; target: number }[] }[] {
+	const stats = getQuestStats().filter((q) => q.reward.type === type);
+
+	const groupedMap = new Map<
+		string,
+		{ reward: QuestReward; tasks: { title: string; target: number }[] }
+	>();
+
+	for (const current of stats) {
+		const key = JSON.stringify(current.reward);
+
+		const task = { title: current.title, target: current.target };
+
+		const existing = groupedMap.get(key);
+		if (existing) {
+			existing.tasks.push(task);
+		} else {
+			groupedMap.set(key, {
+				reward: current.reward,
+				tasks: [task]
+			});
+		}
+	}
+
+	// @ts-ignore too lazy to type this propery
+	return Array.from(groupedMap.values());
 }
 
 export function getActiveRaids(): ActiveRaidStats[] {
-	return masterStats?.activeRaids ?? []
+	return masterStats?.activeRaids ?? [];
 }
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
-	return masterStats?.activeCharacters ?? []
+	return masterStats?.activeCharacters ?? [];
 }

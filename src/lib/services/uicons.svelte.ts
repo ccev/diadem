@@ -8,7 +8,7 @@ import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { shouldDisplayIncidient, shouldDisplayLure } from "@/lib/utils/pokestopUtils";
+import { RewardType, shouldDisplayIncidient, shouldDisplayLure } from "@/lib/utils/pokestopUtils";
 import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
@@ -158,63 +158,63 @@ export function getIconInvasion(character: number | null, confirmed: number | bo
 	return iconSets[DEFAULT_UICONS].invasion(character, Boolean(confirmed));
 }
 
-export function getIconReward(data: QuestReward) {
+export function getIconReward(type: RewardType, info: { item_id?: number, pokemon_id?: number, form?: number, amount?: number }) {
 	let rewardType = "";
-	let id = 0;
-	switch (data.type) {
-		case 1:
+	let id: number | undefined = undefined;
+	switch (type) {
+		case RewardType.XP:
 			rewardType = "experience";
 			break;
-		case 2:
+		case RewardType.ITEM:
 			rewardType = "item";
-			id = data.info.item_id;
+			id = info.item_id;
 			break;
-		case 3:
+		case RewardType.STARDUST:
 			rewardType = "stardust";
 			break;
-		case 4:
+		case RewardType.CANDY:
 			rewardType = "candy";
-			id = data.info.pokemon_id;
+			id = info.pokemon_id;
 			break;
-		case 5:
+		case RewardType.AVATAR_CLOTHING:
 			rewardType = "avatar_clothing";
 			break;
-		case 6:
+		case RewardType.QUEST:
 			rewardType = "quest";
 			break;
-		case 7:
-			return getIconPokemon(data.info);
-		case 8:
+		case RewardType.POKEMON:
+			return getIconPokemon(info);
+		case RewardType.POKECOINS:
 			rewardType = "pokecoin";
 			break;
-		case 9:
+		case RewardType.XL_CANDY:
 			rewardType = "xl_candy";
-			id = data.info.pokemon_id;
+			id = info.pokemon_id;
 			break;
-		case 10:
+		case RewardType.LEVEL_CAP:
 			rewardType = "level_cap";
 			break;
-		case 11:
+		case RewardType.STICKER:
 			rewardType = "sticker";
 			break;
-		case 12:
+		case RewardType.MEGA_ENERGY:
 			rewardType = "mega_resource";
-			id = data.info.pokemon_id;
+			id = info.pokemon_id;
 			break;
-		case 13:
+		case RewardType.INCIDENT:
 			rewardType = "incident";
 			break;
-		case 14:
+		case RewardType.PLAYER_ATTRIBUTE:
 			rewardType = "player_attribute";
 			break;
 		default:
 			rewardType = "";
 	}
 
-	return iconSets[DEFAULT_UICONS].reward(rewardType, id, data.info?.amount ?? 0);
+	return iconSets[DEFAULT_UICONS].reward(rewardType, id, info.amount ?? 0);
 }
 
-export function getIconItem(itemId: number, amount: number = 0) {
+export function getIconItem(itemId: number | string, amount: number = 0) {
 	return iconSets[DEFAULT_UICONS].reward("item", itemId, amount);
 }
 

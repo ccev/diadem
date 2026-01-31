@@ -342,5 +342,10 @@
     "count_leaders": "{count} Leaders",
     "filter_template_invasion_fallback": "Team Rocket Filter",
     "filter_template_invasion_one_grunt": "{type} Grunt",
-    "filter_template_invasion_giovanni": "Giovanni"
+    "filter_template_invasion_giovanni": "Giovanni",
+    "count_items": "{count} Items",
+    "tasks": "Tasks",
+    "pokemon_mega_resource": "{pokemon} Mega Energy",
+	"pokemon_candy": "{pokemon} Candy",
+	"pokemon_xl_candy": "{pokemon} Candy XL"
 }

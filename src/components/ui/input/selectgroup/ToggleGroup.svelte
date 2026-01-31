@@ -10,13 +10,15 @@
 		evenColumns = true,
 		onchange = () => {},
 		values = $bindable(),
+		orientation = "horizontal"
 	}: {
 		childCount?: number
 		class?: string
 		children?: Snippet
 		onchange?: (values: string[]) => void
 		evenColumns?: boolean,
-		values: string[]
+		values: string[],
+		orientation?: "horizontal" | "vertical"
 	} = $props();
 </script>
 
@@ -28,8 +30,8 @@
 		bind:value={values}
 		onValueChange={onchange}
 		type="multiple"
-		orientation="horizontal"
 		class="select-group w-fit grid gap-4 {class_}"
+		{orientation}
 	>
 		{@render children?.()}
 	</ToggleGroup.Root>

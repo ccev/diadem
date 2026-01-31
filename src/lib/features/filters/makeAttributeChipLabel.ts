@@ -1,5 +1,5 @@
-import type { MinMax, Pokemon } from "@/lib/features/filters/filtersets";
-import { mPokemon, mRaid } from '@/lib/services/ingameLocale';
+import type { MinMax, Pokemon, QuestReward } from "@/lib/features/filters/filtersets";
+import { mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import * as m from '@/lib/paraglide/messages';
 import { getGenderLabel } from '@/lib/utils/pokemonUtils';
 
@@ -33,4 +33,10 @@ export function makeAttributeRaidLevelLabel(levels: number[]) {
 
 export function makeAttributeRaidShowLabel(show: "egg" | "boss") {
 	return show === "egg" ? m.raid_show_eggs() : m.raid_show_bosses()
+}
+
+export function makeAttributeItemLabel(items: QuestReward[]) {
+	if (items.length === 1) return mItem(items[0].id)  // TODO: add range (need min/max)
+
+	return m.count_items({ count: items.length })
 }
