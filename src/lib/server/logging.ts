@@ -46,6 +46,6 @@ if (config.file) {
 	log.add(new DailyRotateFile({ filename: config.file }))
 }
 
-export function getLogger(name: string) {
+export function getServerLogger(name: string) {
 	return log.child({ label: name })
 }

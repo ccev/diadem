@@ -13,6 +13,19 @@ import type { User } from "@/lib/server/db/internal/schema";
 import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import { getDiscordAuth } from "@/lib/server/auth/discord";
 import type { Perms } from "@/lib/utils/features";
+import { getServerLogger } from "@/lib/server/logging";
+import { setServerLoggerFactory } from "@/lib/utils/logger";
+import { getServerConfig } from "@/lib/services/config/config.server";
+
+setServerLoggerFactory((name) => {
+	const winstonLogger = getServerLogger(name);
+	return {
+		debug: (message, ...args) => winstonLogger.debug(message, ...args),
+		info: (message, ...args) => winstonLogger.info(message, ...args),
+		warning: (message, ...args) => winstonLogger.warning(message, ...args),
+		error: (message, ...args) => winstonLogger.error(message, ...args),
+	};
+});
 
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
