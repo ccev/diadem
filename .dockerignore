@@ -26,7 +26,7 @@ Thumbs.db
 
 # Docker
 Dockerfile
-docker-compose*.yml
+docker-compose.example.yml
 .dockerignore
 
 # Documentation

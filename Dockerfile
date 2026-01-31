@@ -12,16 +12,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN mkdir -p src/routes/\(custom\) && \
-    mkdir -p src/components/custom && \
-    mkdir -p src/lib/server && \
-    cp config/custom.example.css config/custom.css && \
-    cp config/Home.example.svelte config/Home.svelte && \
-    cp config/config.example.toml config/config.toml && \
-    ln config/custom.css src/custom.css && \
-    ln config/Home.svelte src/components/custom/Home.svelte && \
-    ln config/config.toml src/lib/server/config.toml
-RUN pnpm run build
+RUN ./setup.sh && pnpm run build
 
 FROM node:22-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -38,6 +29,9 @@ COPY --from=deps --chown=diadem:diadem /app/node_modules ./node_modules
 COPY --from=builder --chown=diadem:diadem /app/drizzle.config.ts ./
 COPY --from=builder --chown=diadem:diadem /app/src/lib/server/db ./src/lib/server/db
 COPY --from=builder --chown=diadem:diadem /app/src/lib/services ./src/lib/services
+
+# Create config.toml mount point (actual config mounted at runtime)
+RUN touch ./src/lib/server/config.toml && chown diadem:diadem ./src/lib/server/config.toml
 
 RUN mkdir -p /app/config /app/logs && chown diadem:diadem /app/config /app/logs
 COPY --chown=diadem:diadem docker-entrypoint.sh ./
