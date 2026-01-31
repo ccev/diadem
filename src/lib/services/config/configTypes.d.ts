@@ -72,14 +72,9 @@ export type Permissions = {
 	features?: FeaturesKey[]
 }
 
-export type Debug = {
-	permissions?: boolean
-}
-
 export type Log = {
 	level: string
 	file?: string
-	debug?: Debug
 }
 
 export type MapStyle = {

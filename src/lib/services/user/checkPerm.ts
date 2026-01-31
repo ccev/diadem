@@ -4,8 +4,6 @@ import type { Feature, Polygon } from "geojson";
 import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 
-const log = getLogger("permissions");
-
 function isFeatureInFeatureList(featureList: FeaturesKey[] | undefined, feature: FeaturesKey) {
 	if (featureList === undefined) return false;
 
