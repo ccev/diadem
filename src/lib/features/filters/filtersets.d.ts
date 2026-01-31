@@ -19,7 +19,7 @@ export type AnyFilterset =
 
 // auto-generated, localized name
 interface Message<K extends keyof typeof m = keyof typeof m> {
-	message: K;
+	message: K | string;
 	params?: Parameters<(typeof m)[K]> | Record<string, string>;
 }
 
@@ -88,6 +88,7 @@ export type FiltersetQuest = BaseFilterset & {
 
 export type FiltersetInvasion = BaseFilterset & {
 	characters?: number[];
+	rewards?: Pokemon[]
 };
 
 export type FiltersetLure = BaseFilterset & {

@@ -1,4 +1,5 @@
 import type {
+	ActiveInvasionCharacterStats,
 	ActiveRaidStats,
 	MasterStats,
 	PokemonStatEntry,
@@ -53,4 +54,8 @@ export function getQuestStatsForTask(title: string, target: number) {
 
 export function getActiveRaids(): ActiveRaidStats[] {
 	return masterStats?.activeRaids ?? []
+}
+
+export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
+	return masterStats?.activeCharacters ?? []
 }

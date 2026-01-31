@@ -4,7 +4,11 @@ import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import type { FilterCategory } from "@/lib/features/filters/filters";
 import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 import { getId } from "@/lib/utils/uuid";
-import { FiltersetPokemonSchema, FiltersetRaidSchema } from "@/lib/features/filters/filtersetSchemas";
+import {
+	FiltersetInvasionSchema,
+	FiltersetPokemonSchema,
+	FiltersetRaidSchema
+} from "@/lib/features/filters/filtersetSchemas";
 import * as m from "@/lib/paraglide/messages";
 import { getLogger } from "@/lib/server/logging";
 import type { ZodSafeParseResult } from "zod";
@@ -26,6 +30,8 @@ function decodeFilterset(
 		zodResult = FiltersetPokemonSchema.safeParse(decoded)
 	} else if (majorCategory === "gym" && subCategory === "raid") {
 		zodResult = FiltersetRaidSchema.safeParse(decoded)
+	} else if (majorCategory === "pokestop" && subCategory === "invasion") {
+		zodResult = FiltersetInvasionSchema.safeParse(decoded)
 	}
 
 	if (!zodResult) return undefined

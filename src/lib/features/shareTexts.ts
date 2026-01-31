@@ -21,21 +21,31 @@ import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import { getMmSsFromSeconds } from "@/lib/utils/time";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import { formatDecimal } from "@/lib/utils/numberFormat";
 
 export function getShareText(data: MapData): string {
 	if (!data.id) return "";
 
 	switch (data.type) {
 		case MapObjectType.POKEMON:
-			return getPokemonShareText(data)
+			return getPokemonShareText(data);
 		case MapObjectType.POKESTOP:
-			return getPokestopShareText(data)
+			return getPokestopShareText(data);
 		case MapObjectType.GYM:
-			return getGymShareText(data)
+			return getGymShareText(data);
 		case MapObjectType.STATION:
-			return getStationShareText(data)
+			return getStationShareText(data);
+		case MapObjectType.NEST:
+			return getNestShareText(data);
 		case MapObjectType.SPAWNPOINT:
-			return getSpawnpointShareText(data)
+			return getSpawnpointShareText(data);
+		case MapObjectType.ROUTE:
+			return getRouteShareText(data);
+		case MapObjectType.TAPPABLE:
+			return getTappableShareText(data)
 	}
 	// TODO: share texts for other map objects
 	return "";
@@ -165,6 +175,18 @@ function getStationShareText(data: StationData) {
 	return text;
 }
 
+function getNestShareText(data: NestData) {
+	let text = ""
+
+	if (data.name) {
+		text += `🌳 ${m.park_name()}: ${data.name}\n`;
+	}
+
+	text += `🔄 ${m.nest_avg()}: ${m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}\n`
+
+	return text
+}
+
 function getSpawnpointShareText(data: SpawnpointData) {
 	let text = "";
 
@@ -174,4 +196,22 @@ function getSpawnpointShareText(data: SpawnpointData) {
 		text += `🕜 ${m.spawnpoint_unknown()}\n`;
 	}
 	return text;
+}
+
+function getRouteShareText(data: RouteData) {
+	let text = ""
+
+	return text
+}
+
+function getTappableShareText(data: TappableData) {
+	let text = ""
+
+	text += `🕜 ${m.popup_despawns()}: ${timestampToLocalTime(data.expire_timestamp, true)}\n`
+
+	if (!hasTimer(data)) {
+		text += `⚠️ ${m.time_is_estimated()}\n`
+	}
+
+	return text
 }

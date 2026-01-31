@@ -27,6 +27,7 @@
 	import QuestFilterset from "@/components/menus/filters/filterset/quest/QuestFilterset.svelte";
 	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
 	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
+	import InvasionFilterset from "@/components/menus/filters/filterset/invasion/InvasionFilterset.svelte";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
@@ -68,6 +69,7 @@
 	<PokemonFilterset />
 	<QuestFilterset />
 	<RaidFilterset />
+	<InvasionFilterset />
 
 	<ContextMenu />
 

@@ -1,4 +1,3 @@
-
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { bbox, feature as makeFeature, featureCollection, intersect, polygon } from "@turf/turf";
 import type { Feature, Polygon } from "geojson";

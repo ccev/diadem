@@ -55,7 +55,7 @@
 			<Button class="mr-auto" variant="secondary" onclick={ondelete}>
 				<Trash size="14" />
 				<span>
-					Delete
+					{m.delete()}
 				</span>
 			</Button>
 
@@ -79,7 +79,7 @@
 		>
 			<Pencil size="14" />
 			<span>
-				Edit
+				{m.edit()}
 			</span>
 		</Button>
 	{/if}
@@ -89,7 +89,7 @@
 		&& !((existsCurrentSelectedFilterset()) && getCurrentFiltersetPage() === "base")
 	}
 		<Button class="" variant="secondary" onclick={() => filtersetPageClose(modalType)}>
-			Cancel
+			{m.cancel()}
 		</Button>
 		<Button
 			class=""
@@ -97,7 +97,7 @@
 			onclick={() => filtersetPageSave(modalType, mapObject)}
 			disabled={getCurrentSelectedFiltersetIsEmpty() && getCurrentFiltersetPage() !== "attribute"}
 		>
-			Save
+			{m.save()}
 		</Button>
 	{/if}
 </div>

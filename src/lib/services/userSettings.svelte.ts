@@ -33,11 +33,11 @@ export type UserSettings = {
 		url: string;
 	};
 	uiconSet: {
-		pokemon: UiconSetUS
-		pokestop: UiconSetUS
-		gym: UiconSetUS
-		station: UiconSetUS
-		tappable: UiconSetUS
+		pokemon: UiconSetUS;
+		pokestop: UiconSetUS;
+		gym: UiconSetUS;
+		station: UiconSetUS;
+		tappable: UiconSetUS;
 	};
 	isLeftHanded: boolean;
 	themeMode: "dark" | "light" | "system";
@@ -114,11 +114,24 @@ export function getDefaultUserSettings(): UserSettings {
 				stationPlain: { category: "stationPlain", ...defaultFilter() },
 				maxBattle: { category: "maxBattle", ...defaultFilter() }
 			},
-			s2cell: { category: "s2cell", ...defaultFilter() },
+			// s2cell: { category: "s2cell", ...defaultFilter() },
+			s2cell: {
+				category: "s2cell",
+				enabled: false,
+				filters: [
+					{
+						level: 14,
+						id: "s2celldefault",
+						title: { message: "s2_cells" },
+						enabled: true,
+						icon: { isUserSelected: false }
+					}
+				]
+			},
 			nest: { category: "nest", ...defaultFilter() },
 			spawnpoint: { category: "spawnpoint", ...defaultFilter() },
 			route: { category: "route", ...defaultFilter() },
-			tappable: { category: "tappable", ...defaultFilter() },
+			tappable: { category: "tappable", ...defaultFilter() }
 		}
 	};
 }

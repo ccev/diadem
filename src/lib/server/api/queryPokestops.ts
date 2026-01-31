@@ -52,14 +52,11 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | un
 		if (filter.quest.enabled) {
 			const questFilters = filter.quest.filters.filter(f => f.enabled)
 			if (questFilters.length === 0) conditions.push("alternative_quest_rewards IS NOT NULL OR quest_rewards IS NOT NULL")
-			// TODO quest filters
 		}
 		if (filter.invasion.enabled) {
-			const invasionFilters = filter.invasion.filters.filter(f => f.enabled)
-			if (invasionFilters.length === 0) conditions.push(
+			conditions.push(
 				`incident.display_type IN (${INCIDENT_DISPLAYS_INVASION.join(",")}) AND incident.expiration > UNIX_TIMESTAMP()`
 			)
-			// TODO quest filters
 		}
 	}
 

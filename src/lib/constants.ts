@@ -63,11 +63,12 @@ export const RADIUS_POKEMON = 70;
  */
 export const RADIUS_SCOUT_GMO = 1000;
 
-export const LIMIT_POKEMON = 50000;
+export const LIMIT_POKEMON = 10000;
 export const LIMIT_POKESTOP = 10000;
 export const LIMIT_GYM = 10000;
 export const LIMIT_STATION = 10000;
 export const LIMIT_NEST = 10000;
-export const LIMIT_SPAWNPOINT = 10000;
+export const LIMIT_SPAWNPOINT = 50000;
 export const LIMIT_ROUTE = 10000;
 export const LIMIT_TAPPABLE = 10000;
+export const LIMIT_S2_CELLS = 10000;

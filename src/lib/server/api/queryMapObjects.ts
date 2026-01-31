@@ -32,7 +32,7 @@ import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { getServerConfig } from "@/lib/services/config/config.server";
 
-const FIELDS_NEST = [
+export const FIELDS_NEST = [
 	"nest_id as id",
 	"lat",
 	"lon",
@@ -48,9 +48,9 @@ const FIELDS_NEST = [
 	"pokemon_count",
 	"discarded",
 	"updated"
-]
+].join(",")
 
-const FIELDS_TAPPABLE = [
+export const FIELDS_TAPPABLE = [
 	"id",
 	"lat",
 	"lon",
@@ -63,7 +63,34 @@ const FIELDS_TAPPABLE = [
 	"expire_timestamp_verified",
 	"expire_timestamp",
 	"updated"
-]
+].join(",")
+
+export const FIELDS_ROUTE = [
+	"id",
+	"start_lat as lat",
+	"start_lon as lon",
+	"name",
+	"shortcode",
+	"description",
+	"distance_meters",
+	"duration_seconds",
+	"start_fort_id",
+	"start_image",
+	"start_lat",
+	"start_lon",
+	"end_fort_id",
+	"end_image",
+	"end_lat",
+	"end_lon",
+	"image",
+	"image_border_color",
+	"reversible",
+	"tags",
+	"type as route_type",
+	"updated",
+	"version",
+	"waypoints"
+].join(",")
 
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
@@ -211,17 +238,26 @@ async function queryStations(bounds: Bounds, filter: FilterStation | undefined) 
 
 async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
 	const { error, result } = await query<NestData[]>(
-		"SELECT  " +
-			FIELDS_NEST.join(",") +
-			" FROM nests " +
-			"WHERE lat BETWEEN ? AND ? " +
-			"AND lon BETWEEN ? AND ? " +
-			"AND active = 1 " +
-			"AND pokemon_id IS NOT NULL " +
-			"LIMIT " +
-			LIMIT_NEST,
-		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+		"SELECT " + FIELDS_NEST +
+		" FROM nests " +
+		" WHERE MBRIntersects(polygon, ST_Envelope(LineString(Point(?, ?), Point(?, ?)))) " +
+		" AND active = 1 " +
+		" AND pokemon_id IS NOT NULL " +
+		" LIMIT " + LIMIT_NEST,
+		[bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]
 	);
+	// const { error, result } = await query<NestData[]>(
+	// 	"SELECT  " +
+	// 		FIELDS_NEST +
+	// 		" FROM nests " +
+	// 		"WHERE lat BETWEEN ? AND ? " +
+	// 		"AND lon BETWEEN ? AND ? " +
+	// 		"AND active = 1 " +
+	// 		"AND pokemon_id IS NOT NULL " +
+	// 		"LIMIT " +
+	// 		LIMIT_NEST,
+	// 	[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	// );
 	const defaultName = getServerConfig().golbat.defaultNestName ?? "Unknown Nest"
 	for (const nest of result) {
 		if (nest.name === defaultName) {
@@ -245,8 +281,9 @@ async function querySpawnpoints(bounds: Bounds, filter: FilterSpawnpoint | undef
 
 async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
 	return await query<RouteData[]>(
-		"SELECT start_lat AS lat, start_lon AS lon, type AS route_type, * " +
-			"FROM nests " +
+		"SELECT  " +
+			FIELDS_ROUTE +
+			" FROM route " +
 			"WHERE lat BETWEEN ? AND ? " +
 			"AND lon BETWEEN ? AND ? " +
 			"LIMIT " +
@@ -258,7 +295,7 @@ async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
 async function queryTappables(bounds: Bounds, filter: FilterTappable | undefined) {
 	return await query<TappableData[]>(
 		"SELECT " +
-			FIELDS_TAPPABLE.join(",") +
+			FIELDS_TAPPABLE +
 			" FROM tappable " +
 			"WHERE lat BETWEEN ? AND ? " +
 			"AND lon BETWEEN ? AND ? " +

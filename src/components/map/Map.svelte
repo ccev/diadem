@@ -20,7 +20,6 @@
 		onWindowFocus
 	} from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
-	import { getS2CellGeojson } from "@/lib/mapObjects/s2cells.svelte.js";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
@@ -43,30 +42,27 @@
 	let map: maplibre.Map | undefined = $state(undefined);
 
 	// lat/lon/zoom params
-	const params = new URLSearchParams(window.location.search)
+	const params = new URLSearchParams(window.location.search);
 
-	const userSettings = getUserSettings()
-	const lat = Number(params.get("lat") ?? undefined)
-	const lon = Number(params.get("lon") ?? undefined)
-	const zoom = Number(params.get("zoom") ?? undefined)
+	const userSettings = getUserSettings();
+	const lat = Number(params.get("lat") ?? undefined);
+	const lon = Number(params.get("lon") ?? undefined);
+	const zoom = Number(params.get("zoom") ?? undefined);
 
 	if (Number.isFinite(lat)) {
-		console.log(lat)
-		userSettings.mapPosition.center.lat = lat
+		userSettings.mapPosition.center.lat = lat;
 	}
 
 	if (Number.isFinite(lon)) {
-		console.log(lon)
-		userSettings.mapPosition.center.lng = lon
+		userSettings.mapPosition.center.lng = lon;
 	}
 
 	if (Number.isFinite(zoom)) {
-		console.log(zoom)
-		userSettings.mapPosition.zoom = zoom
+		userSettings.mapPosition.zoom = zoom;
 	}
 
-	history.replaceState({}, '', window.location.origin + window.location.pathname)
-	updateUserSettings()
+	history.replaceState({}, "", window.location.origin + window.location.pathname);
+	updateUserSettings();
 
 	const initialMapPosition = JSON.parse(JSON.stringify(getUserSettings().mapPosition));
 
@@ -74,16 +70,16 @@
 		if (map) {
 			setMap(map);
 
-			map.on('touchstart', onTouchStart);
-			map.on('touchend', clearPressTimer);
-			map.on('touchmove', clearPressTimer);
-			map.on('touchcancel', clearPressTimer);
-			map.on('movestart', onMapMoveStart);
-			map.on('move', onMapMove);
-			map.on('styledataloading', onMapStyleDataLoading)
+			map.on("touchstart", onTouchStart);
+			map.on("touchend", clearPressTimer);
+			map.on("touchmove", clearPressTimer);
+			map.on("touchcancel", clearPressTimer);
+			map.on("movestart", onMapMoveStart);
+			map.on("move", onMapMove);
+			map.on("styledataloading", onMapStyleDataLoading);
 
 			// tick so feature handler registers first
-			tick().then(() => map?.on('click', clickMapHandler));
+			tick().then(() => map?.on("click", clickMapHandler));
 		}
 	}
 
@@ -99,8 +95,8 @@
 			const directLinkData = getDirectLinkObject();
 			if (directLinkData) {
 				if (directLinkData.id) {
-					openPopup(directLinkData, true)
-					addMapObjects([directLinkData], directLinkData.type, 1)
+					openPopup(directLinkData, true);
+					addMapObjects([directLinkData], directLinkData.type, 1);
 
 					if (!map.getBounds().contains(Coords.infer(directLinkData).maplibre())) {
 						getUserSettings().mapPosition.center.lat = directLinkData.lat;
@@ -112,14 +108,14 @@
 						map.setZoom(18);
 					}
 				} else {
-					openToast(m.direct_link_not_found({ type: m['pogo_' + directLinkData.type]() }), 5000);
+					openToast(m.direct_link_not_found({ type: m["pogo_" + directLinkData.type]() }), 5000);
 				}
 			}
 
 			if (getCurrentSelectedFiltersetIsShared()) {
-				openMenu("filters")
-				filtersetPageReset()
-				tick().then(openFiltersetModal)
+				openMenu("filters");
+				filtersetPageReset();
+				tick().then(openFiltersetModal);
 			}
 
 			isInitUpdatedMapObjects = true;
@@ -162,7 +158,6 @@
 	onload={onMapLoad}
 	oncontextmenu={onContextMenu}
 >
-	<GeometryLayer id={MapSourceId.S2_CELLS} data={getS2CellGeojson()} />
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
 	<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
@@ -174,6 +169,41 @@
 			features: []
 		}}
 	>
+		<FillLayer
+			id={MapObjectLayerId.POLYGON_FILL}
+			paint={{
+			  'fill-color': [
+				  'case',
+				  ['get', 'isSelected'],
+				  ['get', 'selectedFill'],
+				  ['get', 'fillColor']
+				]
+			}}
+			hoverCursor="pointer"
+		/>
+		<LineLayer
+			id={MapObjectLayerId.POLYGON_STROKE}
+			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 1 }}
+			hoverCursor="pointer"
+		/>
+		<CircleLayer
+			id={MapObjectLayerId.CIRCLES}
+			hoverCursor="pointer"
+			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
+			paint={{
+				"circle-radius": [
+					"*",
+					["get", "radius"],
+					["get", "selectedScale"],
+					getUserSettings().mapIconSize
+				],
+				'circle-color': ["get", "fillColor"],
+				'circle-stroke-width': 1,
+				'circle-stroke-color': ["get", "strokeColor"]
+			}}
+			eventsIfTopMost={true}
+		/>
 		<SymbolLayer
 			id={MapObjectLayerId.ICONS}
 			hoverCursor="pointer"
@@ -191,39 +221,6 @@
 				"icon-offset": ["get", "imageOffset"]
 			}}
 			eventsIfTopMost={true}
-		/>
-		<CircleLayer
-			id={MapObjectLayerId.CIRCLES}
-			hoverCursor="pointer"
-			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
-			paint={{
-				"circle-radius": [
-					"*",
-					["get", "radius"],
-					["get", "selectedScale"],
-					getUserSettings().mapIconSize
-				],
-				'circle-color': ["get", "fillColor"],
-				'circle-stroke-width': 1,
-				'circle-stroke-color': ["get", "strokeColor"]
-			}}
-			beforeLayerType="symbol"
-			eventsIfTopMost={true}
-		/>
-		<FillLayer
-			id={MapObjectLayerId.POLYGON_FILL}
-			paint={{
-			  'fill-color': ["get", "fillColor"],
-			}}
-			beforeLayerType="circle"
-			hoverCursor="pointer"
-		/>
-		<LineLayer
-			id={MapObjectLayerId.POLYGON_STROKE}
-			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
-			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 1 }}
-			beforeLayerType="circle"
-			hoverCursor="pointer"
 		/>
 	</GeoJSON>
 

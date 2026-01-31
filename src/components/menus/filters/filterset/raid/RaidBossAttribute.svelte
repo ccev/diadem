@@ -20,7 +20,7 @@
 	let showAvailable: boolean = $state(availableBosses.length > 0);
 
 	function onselect(pokemon: { pokemon_id: number, form: number }, isSelected: boolean) {
-		if (isSelected) {
+		if (!isSelected) {
 			data.bosses = data.bosses?.filter(p => p.pokemon_id !== pokemon.pokemon_id || p.form !== pokemon.form);
 		} else {
 			if (!data.bosses) data.bosses = [];

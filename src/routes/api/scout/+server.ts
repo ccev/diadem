@@ -17,11 +17,16 @@ export async function POST({ request, locals }) {
 
 	if (!scoutData.coords) return json(result(undefined, "No Coords"));
 
-	const username = locals.user?.username ?? "unknown user from maltemap";
+	const username = "Diadem: " + locals.user?.username || "<unknown user>";
 	const locations = scoutData.coords.map((c) => [c.lat, c.lon]);
 	const success = await addScoutEntries(username, locations);
 
-	log.info("Queued scout entries / success: %s / locations: %d", "" + success, locations.length);
+	log.info(
+		"Queued scout entries / success: %s / user: %s / locations: %d",
+		"" + success,
+		locals.user?.id || "unauthed",
+		locations.length
+	);
 
 	if (success) {
 		return json(result());

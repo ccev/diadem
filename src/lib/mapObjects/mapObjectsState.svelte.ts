@@ -15,11 +15,13 @@ export function getMapObjects() {
 
 export function addMapObjects(mapObjects: MapData[], type: MapObjectType, examined: number) {
 	const newState: MapObjectsStateType = {};
+
+	// adds missing mapId and type to map objects
+	// could be moved to the server
 	for (let data of mapObjects) {
 		data = makeMapObject(data, type);
 		newState[data.mapId] = data;
 	}
-
 	mapObjectsState = { ...mapObjectsState, ...newState };
 	mapObjectCounts[type] = { showing: mapObjects.length, examined };
 }
