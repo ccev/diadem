@@ -1,8 +1,8 @@
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-import { getLogger } from "@/lib/server/logging";
 import type { Coords } from "@/lib/utils/coordinates";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
+import { getLogger } from "@/lib/utils/logger";
 
 export type PokemonResponse = {
 	pokemon: PokemonData[];
@@ -52,11 +52,11 @@ async function callGolbat<T>(
 }
 
 export async function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
-	return await callGolbat<PokemonData>("api/pokemon/id/" + id, "GET", undefined, thisFetch)
+	return await callGolbat<PokemonData>("api/pokemon/id/" + id, "GET", undefined, thisFetch);
 }
 
 export async function getMultiplePokemon(body: any) {
-	return await callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body))
+	return await callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
 }
 
 export async function searchGyms(query: string, coords: Coords, range: number) {
@@ -71,6 +71,6 @@ export async function searchGyms(query: string, coords: Coords, range: number) {
 			}
 		],
 		limit: 15
-	}
-	return await callGolbat<GymData[]>("api/gym/search", "POST", JSON.stringify(body))
+	};
+	return await callGolbat<GymData[]>("api/gym/search", "POST", JSON.stringify(body));
 }

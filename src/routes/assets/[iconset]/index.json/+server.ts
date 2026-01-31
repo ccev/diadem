@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import { getClientConfig } from "@/lib/services/config/config.server";
-import { getLogger } from "@/lib/server/logging";
 import TTLCache from "@isaacs/ttlcache";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("uicons");
 const config = getClientConfig();
@@ -29,7 +29,7 @@ export async function GET({ params, fetch }) {
 		});
 	}
 
-	const url = iconSet.url + "/index.json"
+	const url = iconSet.url + "/index.json";
 	const res = await fetch(url);
 	log.info("[%s] Serving fresh index.json", iconSetId);
 
@@ -38,7 +38,7 @@ export async function GET({ params, fetch }) {
 		error(500, "Fetching index.json failed");
 	}
 
-	const text = await res.text()
+	const text = await res.text();
 
 	indexCache.set(iconSetId, text);
 

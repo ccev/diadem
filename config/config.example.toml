@@ -1,5 +1,5 @@
 [server.log]
-level = "info" #crit, error, warning, info, debug
+level = "info" # crit, error, warning, info, debug
 # file = "/var/log/diadem.log"
 
 [server.log.debug]

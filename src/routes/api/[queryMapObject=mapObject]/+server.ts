@@ -2,9 +2,10 @@ import { error, json } from "@sveltejs/kit";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import { queryMapObjects } from "@/lib/server/api/queryMapObjects";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
-import { getLogger } from "@/lib/server/logging";
+import { getServerLogger } from "@/lib/server/logging";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("mapobjects");
 

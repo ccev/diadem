@@ -1,8 +1,9 @@
 import { error, json } from "@sveltejs/kit";
 import { query } from "@/lib/server/db/external/internalQuery";
-import { getLogger } from "@/lib/server/logging";
+import { getServerLogger } from "@/lib/server/logging";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { Features } from '@/lib/utils/features';
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("mapobjects");
 
