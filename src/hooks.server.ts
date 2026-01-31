@@ -24,6 +24,7 @@ setServerLoggerFactory((name) => {
 		info: (message, ...args) => winstonLogger.info(message, ...args),
 		warning: (message, ...args) => winstonLogger.warning(message, ...args),
 		error: (message, ...args) => winstonLogger.error(message, ...args),
+		crit: (message, ...args) => winstonLogger.crit(message, ...args),
 	};
 });
 

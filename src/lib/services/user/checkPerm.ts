@@ -1,8 +1,17 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { bbox, feature as makeFeature, featureCollection, intersect, polygon } from "@turf/turf";
+import {
+	bbox,
+	feature as makeFeature,
+	featureCollection,
+	intersect,
+	polygon,
+	union
+} from "@turf/turf";
 import type { Feature, Polygon } from "geojson";
 import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
+
+const log = getLogger("permissions");
 
 function isFeatureInFeatureList(featureList: FeaturesKey[] | undefined, feature: FeaturesKey) {
 	if (featureList === undefined) return false;
@@ -21,42 +30,70 @@ export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
 	return false;
 }
 
-export function checkFeatureInBounds(perms: Perms, feature: FeaturesKey, bounds: Bounds): Bounds {
+export function checkFeatureInBounds(
+	perms: Perms,
+	feature: FeaturesKey,
+	bounds: Bounds
+): Bounds | null {
 	if (isFeatureInFeatureList(perms.everywhere, feature)) return bounds;
 
 	const start = performance.now();
 
-	const allPolygons: Feature<Polygon>[] = [
-		polygon([
-			[
-				[bounds.minLon, bounds.minLat],
-				[bounds.minLon, bounds.maxLat],
-				[bounds.maxLon, bounds.maxLat],
-				[bounds.maxLon, bounds.minLat],
-				[bounds.minLon, bounds.minLat]
-			]
-		])
-	];
+	const viewportPolygon = polygon([
+		[
+			[bounds.minLon, bounds.minLat],
+			[bounds.minLon, bounds.maxLat],
+			[bounds.maxLon, bounds.maxLat],
+			[bounds.maxLon, bounds.minLat],
+			[bounds.minLon, bounds.minLat]
+		]
+	]);
 
+	const permittedPolygons: Feature<Polygon>[] = [];
 	for (const area of perms.areas) {
 		if (isFeatureInFeatureList(area.features, feature)) {
-			allPolygons.push(makeFeature(area.polygon));
+			if (area.polygon) {
+				permittedPolygons.push(makeFeature(area.polygon));
+			}
 		}
 	}
 
-	if (allPolygons.length === 1) {
-		return bounds;
+	// If no permitted areas have this feature (or none have polygons), deny access
+	if (permittedPolygons.length === 0) {
+		return null;
 	}
 
-	const intersection = intersect(featureCollection(allPolygons));
+	// Find intersection of viewport with each permitted area and collect results
+	let combinedIntersection: Feature<Polygon> | null = null;
+	for (const permittedPolygon of permittedPolygons) {
+		const areaIntersection = intersect(
+			featureCollection([viewportPolygon, permittedPolygon])
+		);
+		if (areaIntersection) {
+			if (!combinedIntersection) {
+				combinedIntersection = areaIntersection as Feature<Polygon>;
+			} else {
+				combinedIntersection = union(
+					featureCollection([combinedIntersection, areaIntersection as Feature<Polygon>])
+				) as Feature<Polygon> | null;
+			}
+		}
+	}
 
-	console.debug(
-		`CheckFeatureInBound for ${feature} with ${allPolygons.length} polygons took ${performance.now() - start} ms`
+	log.debug(
+		"calculated area intersections | areas: %d | feature: %s | any match permissions: %s | took: %fms",
+		permittedPolygons.length,
+		feature,
+		Boolean(combinedIntersection),
+		(performance.now() - start).toFixed(1)
 	);
 
-	if (!intersection) return bounds;
+	// If no intersection with any permitted area, deny access
+	if (!combinedIntersection) {
+		return null;
+	}
 
-	const result = bbox(intersection);
+	const result = bbox(combinedIntersection);
 
 	return {
 		minLon: result[0],

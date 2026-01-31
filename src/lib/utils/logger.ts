@@ -7,11 +7,8 @@ export interface Logger {
 	info: LogFn;
 	warning: LogFn;
 	error: LogFn;
+	crit: LogFn;
 }
-
-export type DebugCategories = {
-	permissions?: boolean;
-};
 
 let serverLoggerFactory: ((name: string) => Logger) | null = null;
 
@@ -26,6 +23,7 @@ function createBrowserLogger(name: string): Logger {
 		info: (message, ...args) => console.info(prefix, message, ...args),
 		warning: (message, ...args) => console.warn(prefix, message, ...args),
 		error: (message, ...args) => console.error(prefix, message, ...args),
+		crit: (message, ...args) => console.error(prefix, message, ...args),
 	};
 }
 
