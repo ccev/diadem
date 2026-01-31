@@ -1,7 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { FeatureCollection, Point } from "geojson";
-import { getLogger } from "@/lib/server/logging";
+import { getServerLogger } from "@/lib/server/logging";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("nominatim");
 

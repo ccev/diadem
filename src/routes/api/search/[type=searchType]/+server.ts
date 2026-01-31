@@ -1,9 +1,10 @@
 import { error, json } from "@sveltejs/kit";
-import { getLogger } from "@/lib/server/logging";
+import { getServerLogger } from "@/lib/server/logging";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { searchGyms } from "@/lib/server/api/golbatApi";
 import { Coords } from "@/lib/utils/coordinates";
 import { type SearchPayload, SearchType, sortSearchResults } from "@/lib/services/search.svelte";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("search");
 

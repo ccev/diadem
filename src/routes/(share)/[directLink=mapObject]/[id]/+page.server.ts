@@ -4,9 +4,9 @@ import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { querySingleMapObject } from "@/lib/server/api/querySingleMapObject";
 import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
-import { getLogger } from "@/lib/server/logging";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("directlink");
 export const ssr = true;
