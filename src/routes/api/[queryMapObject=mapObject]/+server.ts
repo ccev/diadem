@@ -19,7 +19,6 @@ export async function POST({ request, locals, params }) {
 	const bounds = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
 
 	if (!bounds) {
-		log.debug("[%s] access denied - viewport outside permitted areas", params.queryMapObject);
 		return json({ data: [] });
 	}
 
