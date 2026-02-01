@@ -7,8 +7,9 @@ import type {
 import { mAlignment, mGeneration, mItem, mPokemon, mType } from "@/lib/services/ingameLocale";
 import * as m from "@/lib/paraglide/messages";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
+import type { FilterPokestop } from "@/lib/features/filters/filters";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7;
@@ -70,21 +71,27 @@ export function isIncidentContest(incident: Incident) {
 export function getRewardText(reward: QuestReward) {
 	switch (reward.type) {
 		case RewardType.XP:
+			if (!reward.info.amount) return m.xp()
 			return m.quest_xp({ count: reward.info.amount });
 		case RewardType.ITEM:
+			if (!reward.info.amount) return mItem(reward.info.item_id)
 			return m.quest_item({ count: reward.info.amount, item: mItem(reward.info.item_id) });
 		case RewardType.STARDUST:
+			if (!reward.info.amount) return m.stardust()
 			return m.quest_stardust({ count: reward.info.amount });
 		case RewardType.CANDY:
+			if (!reward.info.amount) return m.pokemon_candy({ pokemon: mPokemon(reward.info) })
 			return m.quest_candy({ count: reward.info.amount, pokemon: mPokemon(reward.info) });
 		case RewardType.POKEMON:
 			return mPokemon(reward.info);
 		case RewardType.XL_CANDY:
+			if (!reward.info.amount) return m.pokemon_xl_candy({ pokemon: mPokemon(reward.info) })
 			return m.quest_xl_candy({
 				count: reward.info.amount,
 				pokemon: mPokemon(reward.info)
 			});
 		case RewardType.MEGA_ENERGY:
+			if (!reward.info.amount) return m.pokemon_mega_resource({ pokemon: mPokemon(reward.info) })
 			return m.quest_mega_resource({
 				count: reward.info.amount,
 				pokemon: mPokemon(reward.info)
@@ -185,6 +192,20 @@ export function getContestText(data: PokestopData) {
 	}
 
 	return metric({ name });
+}
+
+export function getDefaultPokestopFilter() {
+	return {
+		category: "pokestop",
+		...defaultFilter(),
+		pokestopPlain: { category: "pokestopPlain", ...defaultFilter() },
+		quest: { category: "quest", ...defaultFilter() },
+		invasion: { category: "invasion", ...defaultFilter() },
+		contest: { category: "contest", ...defaultFilter() },
+		kecleon: { category: "kecleon", ...defaultFilter() },
+		goldPokestop: { category: "goldPokestop", ...defaultFilter() },
+		lure: { category: "lure", ...defaultFilter() }
+	} as FilterPokestop
 }
 
 export function shouldDisplayIncidient(incident: Incident) {

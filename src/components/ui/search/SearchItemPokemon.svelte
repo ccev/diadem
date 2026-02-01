@@ -18,7 +18,7 @@
 	{result}
 	identifier={m.pogo_pokemon()}
 	onselect={() => {
-		setActiveSearchPokemon({ pokemon_id: result.item.id, form: result.item.form })
+		setActiveSearchPokemon(result.item.name, { pokemon_id: result.item.id, form: result.item.form })
 	}}
 	imageUrl={resize(getIconPokemon({ pokemon_id: result.item.id, form: result.item.form }), { width: 64 })}
 />

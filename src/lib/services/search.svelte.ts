@@ -1,11 +1,15 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { mPokemon, type PokemonSearchEntry, prefixes } from "@/lib/services/ingameLocale";
+import { mPokemon, prefixes } from "@/lib/services/ingameLocale";
 import createFuzzySearch, { type FuzzyMatches, type FuzzySearcher } from "@nozbe/microfuzz";
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
 import { getSpawnablePokemon } from "@/lib/services/masterfile";
+import { getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
+import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import { getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
+import * as m from "@/lib/paraglide/messages";
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -17,7 +21,8 @@ export enum SearchableType {
 	ADDRESS = "address",
 	GYM = "gym",
 	POKESTOP = "pokestop",
-	STATION = "station"
+	STATION = "station",
+	QUEST = "quest"
 }
 
 export type SearchEntry = {
@@ -40,7 +45,12 @@ export type PokemonSearchEntry = SearchEntry & {
 	type: SearchableType.POKEMON;
 };
 
-export type AnySearchEntry = PokemonSearchEntry | AreaSearchEntry;
+export type QuestSearchEntry = SearchEntry & {
+	reward: QuestReward;
+	type: SearchableType.QUEST;
+};
+
+export type AnySearchEntry = PokemonSearchEntry | AreaSearchEntry | QuestSearchEntry;
 
 let currentSearchQuery = $state("")
 
@@ -61,7 +71,7 @@ export function setCurrentSearchQuery(query: string) {
 }
 
 export function initSearch() {
-	const pokemonEntries = getSpawnablePokemon().map((p) => {
+	const pokemonEntries = getSpawnablePokemon(true).map((p) => {
 		return {
 			name: mPokemon(p),
 			id: p.pokemon_id,
@@ -81,8 +91,23 @@ export function initSearch() {
 		} as AreaSearchEntry;
 	});
 
+	const questEntries = getActiveQuestRewards()?.map(r => {
+		const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward
+		let rewardName = getRewardText(reward)
+		if (reward.type === RewardType.POKEMON) {
+			rewardName = m.x_quests({ x: rewardName })
+		}
+
+		return {
+			name: rewardName,
+			key: "quest-" + JSON.stringify(reward),
+			type: SearchableType.QUEST,
+			reward
+		} as QuestSearchEntry
+	}) ?? []
+
 	// order matters. sorted by priority
-	const allSearchResults = [...areaEntries, ...pokemonEntries];
+	const allSearchResults = [...areaEntries, ...pokemonEntries, ...questEntries];
 	fuzzy = createFuzzySearch(allSearchResults, { key: "name" });
 }
 

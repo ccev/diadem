@@ -15,6 +15,7 @@ import { browser } from "$app/environment";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { AnySearchEntry } from "@/lib/services/search.svelte";
+import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
 
 export type UiconSetUS = {
 	id: string;
@@ -93,17 +94,7 @@ export function getDefaultUserSettings(): UserSettings {
 		searchRange: 20_000,
 		filters: {
 			pokemon: { category: "pokemon", ...defaultFilter() },
-			pokestop: {
-				category: "pokestop",
-				...defaultFilter(),
-				pokestopPlain: { category: "pokestopPlain", ...defaultFilter() },
-				quest: { category: "quest", ...defaultFilter() },
-				invasion: { category: "invasion", ...defaultFilter() },
-				contest: { category: "contest", ...defaultFilter() },
-				kecleon: { category: "kecleon", ...defaultFilter() },
-				goldPokestop: { category: "goldPokestop", ...defaultFilter() },
-				lure: { category: "lure", ...defaultFilter() }
-			},
+			pokestop: getDefaultPokestopFilter(),
 			gym: {
 				category: "gym",
 				...defaultFilter(true),
@@ -139,7 +130,7 @@ export function getDefaultUserSettings(): UserSettings {
 	};
 }
 
-function defaultFilter(enabled: boolean = false) {
+export function defaultFilter(enabled: boolean = false) {
 	return {
 		enabled,
 		filters: []

@@ -120,6 +120,9 @@ export async function updateAllMapObjects(removeOld: boolean = true) {
 	const activeSearch = getActiveSearch();
 
 	if (activeSearch) {
+		for (const mapObjectType of allMapObjectTypes) {
+			if (mapObjectType !== activeSearch.mapObject) clearMapObjects(mapObjectType)
+		}
 		await updateMapObject(activeSearch.mapObject, removeOld, activeSearch.filter);
 	} else {
 		await Promise.all([

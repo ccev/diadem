@@ -8,13 +8,13 @@
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getSkew, isMapSkewed } from "@/lib/map/mapSkew.svelte";
-	import { slide, fade } from "svelte/transition";
+	import { fade, slide } from "svelte/transition";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import { initSearch } from "@/lib/services/search.svelte";
 
 	let isSearchAllowed = $derived(
 		!isSearchViewActive()
-		&& hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.MASTER_FILE)
+		&& hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.MASTER_FILE, LoadedFeature.MASTER_STATS)
 		&& (
 			hasLoadedFeature(LoadedFeature.KOJI) &&
 			isSupportedFeature("koji")
