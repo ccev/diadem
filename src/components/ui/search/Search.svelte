@@ -70,9 +70,8 @@
 		<Command.List
 			class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200"
 		>
-
 			<Command.Viewport>
-				{#if !getCurrentSearchQuery() && recentSearches}
+				{#if !getCurrentSearchQuery() && recentSearches.length > 0}
 					<Command.Group>
 						<Command.GroupHeading
 							class="text-muted-foreground p-1 px-2 py-1.5 text-xs font-medium self-starts"
