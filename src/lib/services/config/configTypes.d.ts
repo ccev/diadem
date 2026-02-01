@@ -36,6 +36,7 @@ type General = {
 	defaultLat?: number
 	defaultLon?: number
 	defaultZoom?: number
+	defaultShowMapFences?: boolean
 }
 
 export type DbCreds = {
@@ -108,6 +109,7 @@ export type ServerConfig = {
 		url: string
 		secret: string
 		projectName: string
+		filterByPermissions?: boolean
 	}
 	nominatim?: {
 		url: string

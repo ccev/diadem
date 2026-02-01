@@ -44,6 +44,7 @@ export type UserSettings = {
 	loadMapObjectsWhileMoving: boolean;
 	loadMapObjectsPadding: number;
 	showDebugMenu: boolean;
+	showMapFences: boolean;
 	mapIconSize: number;
 	searchRange: number;
 	filters: {
@@ -87,6 +88,7 @@ export function getDefaultUserSettings(): UserSettings {
 		loadMapObjectsWhileMoving: false,
 		loadMapObjectsPadding: 20,
 		showDebugMenu: false,
+		showMapFences: general.defaultShowMapFences ?? false,
 		mapIconSize: 1,
 		searchRange: 20_000,
 		filters: {

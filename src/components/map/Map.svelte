@@ -21,6 +21,7 @@
 	} from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
+	import FenceLayer from "@/components/map/FenceLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
@@ -28,6 +29,7 @@
 	import MarkerCurrentLocation from "@/components/map/MarkerCurrentLocation.svelte";
 	import MarkerContextMenu from "@/components/map/MarkerContextMenu.svelte";
 	import { getCurrentScoutData } from "@/lib/features/scout.svelte.js";
+	import { getMapFencesGeojson } from "@/lib/features/mapFences.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import {
@@ -161,6 +163,9 @@
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
 	<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
+	{#if getUserSettings().showMapFences && hasLoadedFeature(LoadedFeature.KOJI)}
+		<FenceLayer data={getMapFencesGeojson()} />
+	{/if}
 
 	<GeoJSON
 		id={MapSourceId.MAP_OBJECTS}

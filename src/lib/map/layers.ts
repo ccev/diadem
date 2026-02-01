@@ -7,6 +7,7 @@ export enum MapSourceId {
 	SELECTED_WEATHER = "selectedWeather",
 	SCOUT_BIG_POINTS = "scoutBigPoints",
 	SCOUT_SMALL_POINTS = "scoutSmallPoints",
+	MAP_FENCES = "mapFences",
 }
 
 export enum MapObjectLayerId {

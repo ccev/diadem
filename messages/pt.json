@@ -119,6 +119,8 @@
 	"boosted": "Aprimorado",
 	"settings_show_debug_title": "Exibir menu de depuração do mapa",
 	"settings_show_debug_description": "Exibir informações detalhadas sobre o aplicativo",
+	"settings_show_map_fences_title": "Mostrar limites do mapa",
+	"settings_show_map_fences_description": "Exibir os limites das áreas do Koji no mapa",
 	"search_address_loading": "Carregando...",
 	"search_address_no_place_found": "Não encontrei nada.",
 	"search_area_no_areas_found": "Nenhuma área encontrada",
