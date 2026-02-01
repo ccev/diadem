@@ -18,6 +18,10 @@ export async function POST({ request, locals, params }) {
 	const type = params.queryMapObject as MapObjectType;
 	const bounds = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
 
+	if (!bounds) {
+		return json({ data: [] });
+	}
+
 	const queried = await queryMapObjects(type, bounds, data.filter);
 
 	log.info(
