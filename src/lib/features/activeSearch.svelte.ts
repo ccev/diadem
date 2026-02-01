@@ -7,6 +7,8 @@ import { getDefaultPokestopFilter, RewardType, rewardTypeLabel } from "@/lib/uti
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
 import * as m from "@/lib/paraglide/messages";
+import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
+import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 
 export type ActiveSearchParams = {
 	filter: AnyFilter;
@@ -49,6 +51,7 @@ export function isSearchViewActive() {
 
 export function setActiveSearch(newParams: ActiveSearchParams) {
 	activeSearchSvelte = newParams;
+	deleteAllFeatures()
 	updateAllMapObjects().then();
 }
 
@@ -102,7 +105,7 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 			filterset.candy = [{ id: reward.info.pokemon_id.toString() }]
 			break
 		case RewardType.POKEMON:
-			filterset.pokemon = [{ pokemon_id: reward.info.pokemon_id, form: reward.info.form }]
+			filterset.pokemon = [reward.info]
 			break
 		case RewardType.XL_CANDY:
 			filterset.xlCandy = [{ id: reward.info.pokemon_id.toString() }]
@@ -110,11 +113,19 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 		case RewardType.MEGA_ENERGY:
 			filterset.megaResource = [{ id: reward.info.pokemon_id.toString() }]
 			break
+		case RewardType.XP:
+			filterset.xp = { min: 0, max: Infinity }
+			break;
+		case RewardType.STARDUST:
+			filterset.stardust = { min: 0, max: Infinity }
+			break;
 	}
 
 	const filter = getDefaultPokestopFilter();
 	filter.quest.enabled = true;
 	filter.quest.filters = [filterset];
+	filter.enabled = true
+	console.log(filter)
 
 	setActiveSearch({
 		name,

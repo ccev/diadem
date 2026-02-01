@@ -1,9 +1,4 @@
-import type {
-	ContestFocus,
-	Incident,
-	PokestopData,
-	QuestReward
-} from "@/lib/types/mapObjectData/pokestop";
+import type { ContestFocus, Incident, PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { mAlignment, mGeneration, mItem, mPokemon, mType } from "@/lib/services/ingameLocale";
 import * as m from "@/lib/paraglide/messages";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -11,6 +6,8 @@ import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svel
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7;
@@ -215,6 +212,14 @@ export function getDefaultPokestopFilter() {
 	} as FilterPokestop
 }
 
+export function getActivePokestopFilter() {
+	const activeSearch = getActiveSearch()
+	if (activeSearch && activeSearch.mapObject === MapObjectType.POKESTOP) {
+		return activeSearch.filter as FilterPokestop
+	}
+	return getUserSettings().filters.pokestop
+}
+
 export function shouldDisplayIncidient(incident: Incident) {
 	const timestamp = currentTimestamp();
 
@@ -223,7 +228,7 @@ export function shouldDisplayIncidient(incident: Incident) {
 
 	if (isCurrentSelectedOverwrite()) return true;
 
-	const pokestopFilters = getUserSettings().filters.pokestop;
+	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled) return false;
 
 	if (pokestopFilters.goldPokestop.enabled && isIncidentGold(incident)) return true;
@@ -249,10 +254,10 @@ export function shouldDisplayQuest(
 	isAr: boolean
 ) {
 	if (isCurrentSelectedOverwrite()) return true;
-	const pokestopFilters = getUserSettings().filters.pokestop;
-	if (!pokestopFilters.enabled || !pokestopFilters.quest.enabled) return false;
+	const pokestopFilter = getActivePokestopFilter();
+	if (!pokestopFilter.enabled || !pokestopFilter.quest.enabled) return false;
 
-	const questFilters = pokestopFilters.quest.filters.filter((f) => f.enabled);
+	const questFilters = pokestopFilter.quest.filters.filter((f) => f.enabled);
 	if (questFilters.length === 0) return true;
 
 	for (const questFilter of questFilters) {
@@ -290,7 +295,7 @@ export function shouldDisplayQuest(
 			questFilter.pokemon &&
 			reward.type === RewardType.POKEMON &&
 			questFilter.pokemon.find(
-				(p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form
+				(p) => p.pokemon_id === reward.info.pokemon_id && p.form_id === reward.info.form_id
 			)
 		) {
 			return true;
@@ -351,7 +356,7 @@ export function shouldDisplayQuest(
 export function shouldDisplayLure(data: Partial<PokestopData>) {
 	if (!hasFortActiveLure(data)) return false;
 	if (isCurrentSelectedOverwrite()) return true;
-	const pokestopFilters = getUserSettings().filters.pokestop;
+	const pokestopFilters = getActivePokestopFilter();;
 	if (!pokestopFilters.enabled || !pokestopFilters.lure.enabled) return false;
 
 	const lureFilters = pokestopFilters.lure.filters.filter((f) => f.enabled);

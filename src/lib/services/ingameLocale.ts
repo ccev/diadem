@@ -2,6 +2,7 @@ import * as m from "@/lib/paraglide/messages";
 import { getLocale } from "@/lib/paraglide/runtime";
 import { SearchableType, type SearchEntry } from "@/lib/services/search.svelte";
 import { getIconPokemon } from "@/lib/services/uicons.svelte";
+import { formatNumber } from "@/lib/utils/numberFormat";
 
 export const prefixes = {
 	pokemon: "poke_",

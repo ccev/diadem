@@ -95,6 +95,7 @@ export function initSearch() {
 		const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward
 		let rewardName = getRewardText(reward)
 		if (reward.type === RewardType.POKEMON) {
+			if (reward.info.pokemon_id === 610) console.log(reward)
 			rewardName = m.x_quests({ x: rewardName })
 		}
 

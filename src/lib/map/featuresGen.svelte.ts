@@ -17,7 +17,14 @@ import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
-import { hasFortActiveLure, isIncidentInvasion, shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/utils/pokestopUtils";
+import {
+	getActivePokestopFilter,
+	hasFortActiveLure,
+	isIncidentInvasion,
+	parseQuestReward,
+	shouldDisplayIncidient,
+	shouldDisplayQuest
+} from "@/lib/utils/pokestopUtils";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
@@ -224,10 +231,10 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const styles = getComputedStyle(document.documentElement);
 
 	const isSelectedOverwrite = isCurrentSelectedOverwrite();
-	const showAllPokestops = getUserSettings().filters.pokestop.pokestopPlain.enabled || isSelectedOverwrite;
-	const showLures = getUserSettings().filters.pokestop.lure.enabled || isSelectedOverwrite;
-	const showQuests = getUserSettings().filters.pokestop.quest.enabled || isSelectedOverwrite;
-	const showInvasions = getUserSettings().filters.pokestop.invasion.enabled || isSelectedOverwrite;
+	const showAllPokestops = getActivePokestopFilter().pokestopPlain.enabled || isSelectedOverwrite;
+	const showLures = getActivePokestopFilter().lure.enabled || isSelectedOverwrite;
+	const showQuests = getActivePokestopFilter().quest.enabled || isSelectedOverwrite;
+	const showInvasions = getActivePokestopFilter().invasion.enabled || isSelectedOverwrite;
 	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled || isSelectedOverwrite;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
@@ -274,9 +281,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				const questModifiers = getModifiers(userIconSet, "quest");
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
 					// no ar
-					const reward = JSON.parse(obj.alternative_quest_rewards)[0];
+					const reward = parseQuestReward(obj.alternative_quest_rewards);
 
-					if (!shouldDisplayQuest(reward, obj.alternative_quest_title ?? "", obj.alternative_quest_title, false)) continue;
+					if (!reward || !shouldDisplayQuest(reward, obj.alternative_quest_title ?? "", obj.alternative_quest_title, false)) continue;
 					showThis = true
 
 					const mapId = obj.mapId + "-altquest-" + obj.alternative_quest_timestamp;
@@ -297,8 +304,8 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				}
 				if (obj.quest_target && obj.quest_rewards) {
 					// ar
-					const reward = JSON.parse(obj.quest_rewards)[0];
-					if (!shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true)) continue;
+					const reward = parseQuestReward(obj.quest_rewards);
+					if (!reward || !shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true)) continue;
 					showThis = true
 
 					const mapId = obj.mapId + "-quest-" + obj.quest_timestamp;

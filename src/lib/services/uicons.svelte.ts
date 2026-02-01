@@ -198,11 +198,11 @@ export function getIconReward(type: RewardType, info: { item_id?: number, pokemo
 			rewardType = "sticker";
 			break;
 		case RewardType.MEGA_ENERGY:
-			return getIconPokemon(data.info);
+			// return getIconPokemon(info);
 			// wwm-uicons doesn't have mega energy, just using normal mega instead
-			// rewardType = "mega_resource";
-			// id = data.info.pokemon_id;
-			// break;
+			rewardType = "mega_resource";
+			id = info.pokemon_id;
+			break;
 		case RewardType.INCIDENT:
 			rewardType = "incident";
 			break;

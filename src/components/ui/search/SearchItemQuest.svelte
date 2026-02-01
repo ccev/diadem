@@ -16,9 +16,9 @@
 
 <SearchItem
 	{result}
-	identifier={m.pogo_quest()}
+	identifier={m.pogo_quests()}
 	onselect={() => {
 		setActiveSearchQuest(result.item.name, result.item.reward)
 	}}
-	imageUrl={resize(getIconReward(result.item.reward), { width: 64 })}
+	imageUrl={resize(getIconReward(result.item.reward.type, result.item.reward.info), { width: 64 })}
 />
