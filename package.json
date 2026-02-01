@@ -37,6 +37,7 @@
 		"@inlang/paraglide-js": "^2.6.0",
 		"@isaacs/ttlcache": "^1.4.1",
 		"@node-rs/argon2": "^2.0.2",
+		"@nozbe/microfuzz": "^1.0.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@sveltejs/adapter-cloudflare": "^4.9.0",

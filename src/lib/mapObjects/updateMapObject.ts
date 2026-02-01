@@ -14,6 +14,7 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
 
@@ -42,32 +43,40 @@ export async function fetchMapObjects<T extends MapData>(
 	return await response.json();
 }
 
-export async function updateMapObject(type: MapObjectType, removeOld: boolean = true) {
+export async function updateMapObject(
+	type: MapObjectType,
+	removeOld: boolean = true,
+	filterOverwrite: AnyFilter | undefined = undefined
+) {
 	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return;
 
 	let filter: AnyFilter | undefined = undefined;
 
-	if (type === MapObjectType.POKEMON) {
-		filter = getUserSettings().filters.pokemon;
-	} else if (type === MapObjectType.POKESTOP) {
-		filter = getUserSettings().filters.pokestop;
-	} else if (type === MapObjectType.GYM) {
-		filter = getUserSettings().filters.gym;
-	} else if (type === MapObjectType.STATION) {
-		filter = getUserSettings().filters.station;
-	} else if (type === MapObjectType.S2_CELL) {
-		filter = getUserSettings().filters.s2cell;
-	} else if (type === MapObjectType.NEST) {
-		filter = getUserSettings().filters.nest;
-	} else if (type === MapObjectType.SPAWNPOINT) {
-		filter = getUserSettings().filters.spawnpoint;
-	} else if (type === MapObjectType.ROUTE) {
-		filter = getUserSettings().filters.route;
-	} else if (type === MapObjectType.TAPPABLE) {
-		filter = getUserSettings().filters.tappable;
+	if (filterOverwrite) {
+		filter = filterOverwrite;
 	} else {
-		console.log("unknown type while udpating map objects!");
-		return;
+		if (type === MapObjectType.POKEMON) {
+			filter = getUserSettings().filters.pokemon;
+		} else if (type === MapObjectType.POKESTOP) {
+			filter = getUserSettings().filters.pokestop;
+		} else if (type === MapObjectType.GYM) {
+			filter = getUserSettings().filters.gym;
+		} else if (type === MapObjectType.STATION) {
+			filter = getUserSettings().filters.station;
+		} else if (type === MapObjectType.S2_CELL) {
+			filter = getUserSettings().filters.s2cell;
+		} else if (type === MapObjectType.NEST) {
+			filter = getUserSettings().filters.nest;
+		} else if (type === MapObjectType.SPAWNPOINT) {
+			filter = getUserSettings().filters.spawnpoint;
+		} else if (type === MapObjectType.ROUTE) {
+			filter = getUserSettings().filters.route;
+		} else if (type === MapObjectType.TAPPABLE) {
+			filter = getUserSettings().filters.tappable;
+		} else {
+			console.log("unknown type while udpating map objects!");
+			return;
+		}
 	}
 
 	if (!filter || !filter.enabled) {
@@ -108,10 +117,16 @@ export async function updateMapObject(type: MapObjectType, removeOld: boolean = 
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true) {
-	await Promise.all([
-		...allMapObjectTypes.map((type) => {
-			updateMapObject(type, removeOld);
-		}),
-		updateWeather()
-	]);
+	const activeSearch = getActiveSearch();
+
+	if (activeSearch) {
+		await updateMapObject(activeSearch.mapObject, removeOld, activeSearch.filter);
+	} else {
+		await Promise.all([
+			...allMapObjectTypes.map((type) => {
+				updateMapObject(type, removeOld);
+			}),
+			updateWeather()
+		]);
+	}
 }

@@ -18,5 +18,5 @@
 	class="rounded-sm p-2 {class_}"
 	{onclick}
 >
-	<X />
+	<X size="20" />
 </Button>

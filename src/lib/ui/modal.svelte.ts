@@ -2,6 +2,8 @@ import {
 	clearUpdateMapObjectsInterval,
 	resetUpdateMapObjectsInterval
 } from "@/lib/map/mapObjectsInterval";
+import { setCurrentSearchQuery } from "@/lib/services/search.svelte";
+import { resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte";
 
 export type OpenModals = {
 	search: boolean;
@@ -45,4 +47,10 @@ export function isOpenModal(modal: ModalType) {
 
 export function isAnyModalOpen() {
 	return Boolean(Object.values(openModals).some(Boolean));
+}
+
+export function closeSearchModal() {
+	closeModal("search")
+	setCurrentSearchQuery("")
+	resetActiveSearchFilter()
 }

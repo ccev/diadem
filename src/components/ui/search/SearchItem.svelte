@@ -1,52 +1,62 @@
 <script lang="ts">
-	import LucideIcon from '@/components/utils/LucideIcon.svelte';
-	import { Command } from "bits-ui";
+	import LucideIcon from "@/components/utils/LucideIcon.svelte";
 	import type { Snippet } from "svelte";
+	import type { FuzzyMatches, FuzzyResult } from "@nozbe/microfuzz";
+	import { type AnySearchEntry, highlightSearchMatches } from "@/lib/services/search.svelte";
+	import { Command } from "bits-ui";
+	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 
 	let {
 		onselect,
-		label,
-		value,
-		keywords = [],
-		iconName = undefined,
-		image = undefined,
-		labelSnippet = undefined
+		result,
+		imageUrl,
+		labelSnippet,
+		identifier
 	}: {
 		onselect: () => void,
-		label: string,
-		value: string,
-		keywords?: string[],
-		iconName?: string,
-		image?: string,
-		labelSnippet?: Snippet
+		result: FuzzyResult<AnySearchEntry>,
+		imageUrl?: string,
+		labelSnippet?: Snippet<[FuzzyMatches]>,
+		identifier: string
 	} = $props()
+
+	function onselectProxy() {
+		onselect()
+		getUserSettings().recentSearches = getUserSettings().recentSearches.filter(s => s.key !== result.item.key)
+		getUserSettings().recentSearches.unshift(result.item)
+		getUserSettings().recentSearches.slice(0, 20)
+		updateUserSettings()
+	}
 </script>
 
 <Command.Item
 	class="data-selected:bg-accent data-selected:text-accent-foreground py-1.5 px-2 rounded-sm cursor-pointer ring-offset-background focus-visible:ring-ring items-center gap-1.5 justify-center whitespace-nowrap text-sm font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-	onSelect={onselect}
-	{value}
+	onSelect={onselectProxy}
+	value={result.item.key}
 >
 	<div class="w-full flex gap-2 items-center text-start">
-		{#if iconName}
-			<LucideIcon size="16" name={iconName} />
+		{#if result.item.icon}
+			<LucideIcon class="shrink-0" size="16" name={result.item.icon} />
 		{/if}
-		{#if image}
+		{#if imageUrl || result.item.imageUrl}
 			<img
 				class="size-5 object-cover rounded-full"
-				src={image}
-				alt={label}
+				src={imageUrl ?? result.item.imageUrl}
+				alt={result.item.name}
 				loading="lazy"
 			>
 		{/if}
 		{#if labelSnippet}
 			<p>
-				{@render labelSnippet()}
+				{@render labelSnippet(result.matches)}
 			</p>
 		{:else}
-			<span>
-				{label}
+			<span {@attach highlightSearchMatches(result.matches)}>
+				{result.item.name}
 			</span>
 		{/if}
+		<span class="text-muted-foreground ml-auto shrink-1 overflow-x-hidden text-right font-normal!">
+			{identifier}
+		</span>
 	</div>
 </Command.Item>

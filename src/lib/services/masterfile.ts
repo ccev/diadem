@@ -44,7 +44,7 @@ export function getSpawnablePokemon(): {pokemon_id: number, form: number}[] {
 
 		const pokemonId = Number(strPokemonId)
 		if (!pokemon.unreleased && !blacklistBasePokemon.includes(pokemonId)) {
-			allPokemon.push({ pokemon_id: pokemonId, form: 0 })
+			allPokemon.push({ pokemon_id: pokemonId, form: pokemon.defaultFormId ?? 0 })
 		}
 
 		// specific pokemon to ignore the forms of
@@ -57,13 +57,14 @@ export function getSpawnablePokemon(): {pokemon_id: number, form: number}[] {
 				&& !form.name.includes("20")  // gets rid of year-specific forms
 				&& !(form.isCostume ?? false)
 				&& !form.unreleased
+				&& (Number(formId) !== (pokemon.defaultFormId ?? 0))
 			) {
 				allPokemon.push({ pokemon_id: pokemonId, form: Number(formId) })
 			}
 		}
 	}
 
-	return allPokemon
+	return [...allPokemon]
 }
 
 export function getMasterWeather(weatherId: string | number | undefined): MasterWeather | undefined {

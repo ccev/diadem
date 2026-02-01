@@ -6,6 +6,7 @@ export type MasterPokemon = {
 	legendary: boolean
 	mythical: boolean
 	ultraBeast: boolean
+	defaultFormId?: number
 }
 
 export type MasterWeather = {

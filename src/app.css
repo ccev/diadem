@@ -61,6 +61,7 @@
     --s2cell-polygon: rgba(94, 246, 242, 0.1);
     --s2cell-polygon-stroke: rgba(67, 216, 212, 0.5);
     --s2cell-polygon-selected: rgba(94, 246, 242, 0.4);
+    --search-highlight: var(--color-amber-100);
 }
 
 .dark {
@@ -103,6 +104,7 @@
     --tier-2: var(--color-blue-400);
     --tier-3: var(--color-cyan-400);
     --tier-4: var(--color-emerald-400);
+    --search-highlight: var(--color-indigo-950);
 }
 
 @theme inline {
@@ -149,6 +151,7 @@
     --color-tier-2: var(--tier-2);
     --color-tier-3: var(--tier-3);
     --color-tier-4: var(--tier-4);
+    --color-search-highlight: var(--search-highlight);
 }
 
 @layer base {

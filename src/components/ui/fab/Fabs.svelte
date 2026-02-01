@@ -1,34 +1,32 @@
 <script lang="ts">
-	import { getMap, resetMap } from '@/lib/map/map.svelte';
+	import { getMap, resetMap } from "@/lib/map/map.svelte";
 	import { isAnyModalOpen, isOpenModal, openModal } from "@/lib/ui/modal.svelte.js";
-	import Search from '@/components/ui/search/Search.svelte';
-	import BaseFab from '@/components/ui/fab/BaseFab.svelte';
-	import LocateFab from '@/components/ui/fab/LocateFab.svelte';
-	import {
-		ArrowBigDown,
-		ArrowBigUp,
-		ArrowBigUpDash,
-		ArrowUp,
-		ArrowUpFromDot, ChevronUp, MousePointer2, Navigation2,
-		Search as SearchIcon
-	} from 'lucide-svelte';
-	import { hasLoadedFeature, LoadedFeature } from '@/lib/services/initialLoad.svelte.js';
-	import { isSupportedFeature } from '@/lib/services/supportedFeatures';
-	import { getSkew, isMapSkewed } from '@/lib/map/mapSkew.svelte';
-	import { fade, scale, slide } from 'svelte/transition';
+	import Search from "@/components/ui/search/Search.svelte";
+	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
+	import LocateFab from "@/components/ui/fab/LocateFab.svelte";
+	import { Navigation2, Search as SearchIcon } from "lucide-svelte";
+	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
+	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
+	import { getSkew, isMapSkewed } from "@/lib/map/mapSkew.svelte";
+	import { slide, fade } from "svelte/transition";
+	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
+	import { initSearch } from "@/lib/services/search.svelte";
 
 	let isSearchAllowed = $derived(
-		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES)
+		!isSearchViewActive()
+		&& hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.MASTER_FILE)
 		&& (
 			hasLoadedFeature(LoadedFeature.KOJI) &&
-			isSupportedFeature('koji')
-		) || (
-			isSupportedFeature('geocoding')
+			isSupportedFeature("koji")
 		)
 	);
 
+	$effect(() => {
+		if (isSearchAllowed) initSearch()
+	})
+
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'k' && (e.metaKey || e.ctrlKey) && isSearchAllowed && !isAnyModalOpen()) {
+		if (e.key === "k" && (e.metaKey || e.ctrlKey) && isSearchAllowed && !isAnyModalOpen()) {
 			e.preventDefault();
 			openModal("search");
 		}
@@ -38,12 +36,13 @@
 <svelte:document onkeydown={handleKeydown} />
 
 {#if isOpenModal("search")}
-<Search />
+	<Search />
 {/if}
 
 <div
 	class="mx-2 gap-2 flex-col flex items-center"
 	hidden={!getMap()}
+	transition:fade={{ duration: 90 }}
 >
 	{#if isMapSkewed()}
 		<div transition:slide={{ duration: 120 }}>

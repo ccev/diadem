@@ -348,5 +348,14 @@
     "save": "Save",
     "cancel": "Cancel",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "searching_for": "Searching for",
+    "nothing_to_see_here": "Here you can search for anything",
+    "nothing_found": "Nothing came up",
+    "search_hint": "Try searching for pokémon, areas, addresses, gyms or quests",
+    "search_hint_no_address": "Try searching for pokémon, areas, gyms or quests",
+    "search_hint_no_area": "Try searching for pokémon, addresses, gyms or quests",
+    "search_hint_no_area_address": "Try searching for pokémon, pokéstops, gyms or quests",
+    "area": "Area",
+    "search_recent": "Recent"
 }

@@ -28,16 +28,21 @@
 	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
 	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
 	import InvasionFilterset from "@/components/menus/filters/filterset/invasion/InvasionFilterset.svelte";
+	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
+	import Card from "@/components/ui/Card.svelte";
+	import { Search } from "lucide-svelte";
+	import { isOpenModal } from "@/lib/ui/modal.svelte";
+	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
 		if (getCurrentSelectedData() && !isMenuSidebar()) {
-			openMenu(null)
+			openMenu(null);
 		}
-	})
+	});
 
-	let showCustomHome = $derived(getConfig().general.customHome && page.params.map !== "map")
-	const errorHref = getConfig().general.customHome ? '/' : ''
+	let showCustomHome = $derived(getConfig().general.customHome && page.params.map !== "map");
+	const errorHref = getConfig().general.customHome ? "/" : "";
 </script>
 
 <svelte:head>
@@ -73,21 +78,35 @@
 
 	<ContextMenu />
 
+	{#if isSearchViewActive()}
+		<div
+			class="fixed z-10 top-2 px-2 w-full pointer-events-none"
+		>
+			<ActiveSearchView />
+		</div>
+	{/if}
+
 	<WeatherOverview />
 
 	{#if isMenuSidebar()}
 		<div
 			class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full"
 		>
-			<div class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88">
-				{#if getOpenedMenu()}
-					<DesktopMenu />
+			<div
+				class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88"
+			>
+				{#if !isSearchViewActive()}
+					{#if getOpenedMenu()}
+						<DesktopMenu />
+					{/if}
+					<BottomNav />
 				{/if}
-				<BottomNav />
 			</div>
 
 			<div class="flex flex-col items-end gap-2 w-120 shrink basis-120">
-				<Fabs />
+				{#if !isSearchViewActive()}
+					<Fabs />
+				{/if}
 				<PopupContainer />
 			</div>
 		</div>
@@ -100,10 +119,14 @@
 			class:items-start={isUiLeft()}
 		>
 			{#if !getOpenedMenu()}
-				<Fabs />
+				{#if !isSearchViewActive()}
+					<Fabs />
+				{/if}
 				<PopupContainer />
 			{/if}
-			<BottomNav />
+			{#if !isSearchViewActive()}
+				<BottomNav />
+			{/if}
 		</div>
 	{/if}
 

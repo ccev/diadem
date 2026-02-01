@@ -14,6 +14,7 @@ import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { browser } from "$app/environment";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { AnySearchEntry } from "@/lib/services/search.svelte";
 
 export type UiconSetUS = {
 	id: string;
@@ -57,6 +58,7 @@ export type UserSettings = {
 		route: FilterRoute;
 		tappable: FilterTappable;
 	};
+	recentSearches: AnySearchEntry[];
 };
 
 export function getDefaultUserSettings(): UserSettings {
@@ -132,7 +134,8 @@ export function getDefaultUserSettings(): UserSettings {
 			spawnpoint: { category: "spawnpoint", ...defaultFilter() },
 			route: { category: "route", ...defaultFilter() },
 			tappable: { category: "tappable", ...defaultFilter() }
-		}
+		},
+		recentSearches: []
 	};
 }
 

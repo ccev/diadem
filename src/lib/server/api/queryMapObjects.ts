@@ -163,7 +163,7 @@ async function queryPokemon(
 			if (filter.pokemon)
 				query.pokemon = filter.pokemon.map((p) => {
 					const obj: { id: number; form?: number } = { id: p.pokemon_id };
-					if (p.form) obj.form = p.form;
+					if (p.form !== undefined && p.form !== null) obj.form = p.form;
 
 					return obj;
 				});

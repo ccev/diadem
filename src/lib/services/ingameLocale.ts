@@ -1,13 +1,7 @@
 import * as m from "@/lib/paraglide/messages";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { getLocale } from "@/lib/paraglide/runtime";
-import type { Pokemon } from "@/lib/features/filters/filtersets";
-
-export type PokemonLocaleName = {
-	name: string;
-	id: number;
-	evolutionId: number;
-};
+import { SearchableType, type SearchEntry } from "@/lib/services/search.svelte";
+import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -205,20 +199,4 @@ export function mGeneration(generationId?: number | string | null) {
  */
 export function mCharacter(characterId?: number | string | null) {
 	return mBasicId("character", characterId);
-}
-
-export function getAllPokemonNames() {
-	const pokemonNames: PokemonLocaleName[] = [];
-
-	for (const [key, name] of Object.entries(getIngameLocale())) {
-		if (!key.startsWith(prefixes.pokemon)) continue;
-		const parts = key.split("_");
-
-		pokemonNames.push({
-			name,
-			id: parseInt(parts[1]),
-			evolutionId: parseInt(parts?.[2]?.slice(1))
-		});
-	}
-	return pokemonNames;
 }

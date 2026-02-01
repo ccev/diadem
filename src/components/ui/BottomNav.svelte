@@ -1,21 +1,23 @@
 <script lang="ts">
-	import { CircleUserRound, Map, Settings2 } from 'lucide-svelte';
-	import Button from '@/components/ui/input/Button.svelte';
-	import * as m from '@/lib/paraglide/messages';
-	import { Avatar } from 'bits-ui';
-	import { getUserDetails } from '@/lib/services/user/userDetails.svelte.js';
-	import { getOpenedMenu, type MenuTypes, openMenu } from '@/lib/ui/menus.svelte.js';
-	import { hasLoadedFeature, LoadedFeature } from '@/lib/services/initialLoad.svelte.js';
+	import { CircleUserRound, Map, Settings2 } from "lucide-svelte";
+	import Button from "@/components/ui/input/Button.svelte";
+	import * as m from "@/lib/paraglide/messages";
+	import { Avatar } from "bits-ui";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
+	import { getOpenedMenu, type MenuTypes, openMenu } from "@/lib/ui/menus.svelte.js";
+	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
+	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
+	import { fade } from "svelte/transition";
 
 	function isSelected(type: MenuTypes) {
-		return type === getOpenedMenu()
+		return type === getOpenedMenu();
 	}
 
 	function onNavigate(type: MenuTypes) {
 		if (isSelected(type)) {
-			openMenu(null)
+			openMenu(null);
 		} else {
-			openMenu(type)
+			openMenu(type);
 		}
 	}
 
@@ -40,6 +42,7 @@
 <div
 	class="z-10 h-16 mx-2 min-w-44 text-sm grid grid-cols-2 divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
 	style="pointer-events: all"
+	transition:fade={{ duration: 90 }}
 >
 	{#each buttons as btn}
 		{@const Icon = btn.icon}
@@ -81,9 +84,3 @@
 		</Button>
 	{/each}
 </div>
-
-<style>
-	/*:global(.selected-stroke svg) {*/
-	/*	stroke-width: 2.5;*/
-	/*}*/
-</style>

@@ -22,6 +22,9 @@ importers:
       '@node-rs/argon2':
         specifier: ^2.0.2
         version: 2.0.2
+      '@nozbe/microfuzz':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@oslojs/crypto':
         specifier: ^1.0.1
         version: 1.0.1
@@ -1369,6 +1372,9 @@ packages:
   '@node-rs/argon2@2.0.2':
     resolution: {integrity: sha512-t64wIsPEtNd4aUPuTAyeL2ubxATCBGmeluaKXEMAFk/8w6AJIVVkeLKMBpgLW6LU2t5cQxT+env/c6jxbtTQBg==}
     engines: {node: '>= 10'}
+
+  '@nozbe/microfuzz@1.0.0':
+    resolution: {integrity: sha512-XKIg/guk+s1tkPTkHch9hfGOWgsKojT7BqSQddXTppOfVr3SWQhhTCqbgQaPTbppf9gc2kFeG0gpBZZ612UXHA==}
 
   '@oslojs/asn1@1.0.0':
     resolution: {integrity: sha512-zw/wn0sj0j0QKbIXfIlnEcTviaCzYOY3V5rAyjR6YtOByFtJiT574+8p9Wlach0lZH9fddD4yb9laEAIl4vXQA==}
@@ -4075,6 +4081,8 @@ snapshots:
       '@node-rs/argon2-win32-arm64-msvc': 2.0.2
       '@node-rs/argon2-win32-ia32-msvc': 2.0.2
       '@node-rs/argon2-win32-x64-msvc': 2.0.2
+
+  '@nozbe/microfuzz@1.0.0': {}
 
   '@oslojs/asn1@1.0.0':
     dependencies:
