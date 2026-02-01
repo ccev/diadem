@@ -10,10 +10,10 @@ import {
 	FiltersetRaidSchema
 } from "@/lib/features/filters/filtersetSchemas";
 import * as m from "@/lib/paraglide/messages";
-import { getLogger } from "@/lib/server/logging";
 import type { ZodSafeParseResult } from "zod";
+import { getLogger } from "@/lib/utils/logger";
 
-const log = getLogger("filtershare")
+const log = getLogger("filtershare");
 
 function decodeFilterset(
 	majorCategory: FilterCategory | string,
@@ -21,30 +21,30 @@ function decodeFilterset(
 	str: string
 ) {
 	const decoded: AnyFilterset = JSON.parse(decodeURIComponent(atob(str)));
-	log.info("Decoding filterset: %s", decoded)
+	log.info("Decoding filterset: %s", decoded);
 	decoded.id = getId();
 
-	let zodResult: ZodSafeParseResult<AnyFilterset> | undefined = undefined
+	let zodResult: ZodSafeParseResult<AnyFilterset> | undefined = undefined;
 
 	if (majorCategory === "pokemon") {
-		zodResult = FiltersetPokemonSchema.safeParse(decoded)
+		zodResult = FiltersetPokemonSchema.safeParse(decoded);
 	} else if (majorCategory === "gym" && subCategory === "raid") {
-		zodResult = FiltersetRaidSchema.safeParse(decoded)
+		zodResult = FiltersetRaidSchema.safeParse(decoded);
 	} else if (majorCategory === "pokestop" && subCategory === "invasion") {
-		zodResult = FiltersetInvasionSchema.safeParse(decoded)
+		zodResult = FiltersetInvasionSchema.safeParse(decoded);
 	}
 
-	if (!zodResult) return undefined
+	if (!zodResult) return undefined;
 
 	if (zodResult?.error) {
-		log.crit("Decoding failed!!", zodResult?.error)
-		return undefined
+		log.crit("Decoding failed!!", zodResult?.error);
+		return undefined;
 	}
 
-	const safe = zodResult.data
+	const safe = zodResult.data;
 
 	if (safe?.title?.message && !Object.keys(m).includes(safe.title.message)) {
-		log.crit("Tried to send invalid message!!", safe.title.message)
+		log.crit("Tried to send invalid message!!", safe.title.message);
 		return undefined;
 	}
 

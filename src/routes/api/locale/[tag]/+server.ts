@@ -1,8 +1,9 @@
 import { json } from "@sveltejs/kit";
 import { prefixes as localePrefixesObject } from "@/lib/services/ingameLocale";
 import TTLCache from "@isaacs/ttlcache";
-import { getLogger } from "@/lib/server/logging";
+import { getServerLogger } from "@/lib/server/logging";
 import { locales } from "@/lib/paraglide/runtime";
+import { getLogger } from "@/lib/utils/logger";
 
 type Locale = (typeof locales)[number];
 type RemoteLocale = { [key: string]: string };

@@ -1,8 +1,9 @@
 import { error } from "@sveltejs/kit";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import sharp, { type ResizeOptions } from "sharp";
-import { getLogger } from "@/lib/server/logging";
+import { getServerLogger } from "@/lib/server/logging";
 import { ALLOWED_WIDTHS } from "@/lib/services/assets";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("uicons");
 const CACHE_AGE = 86400 * 7; // 7 days
