@@ -48,7 +48,7 @@ type MinMax = {
 };
 
 type Pokemon = { pokemon_id: number; form: number };
-type QuestReward = { id: string; amount?: MinMax };
+type QuestReward = { id: string; amount?: number };
 
 export type FiltersetPokemon = BaseFilterset & {
 	pokemon?: Pokemon[];
@@ -75,8 +75,7 @@ export type FiltersetPokestopPlain = BaseFilterset & {
 export type FiltersetQuest = BaseFilterset & {
 	ar?: QuestArType;
 	rewardType?: RewardType;
-	title?: string;
-	target?: number;
+	tasks?: { title: string, target: number }[];
 	pokemon?: Pokemon[];
 	item?: QuestReward[];
 	megaResource?: QuestReward[];

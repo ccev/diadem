@@ -273,16 +273,17 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			if (showQuests) {
 				const questModifiers = getModifiers(userIconSet, "quest");
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
+					// no ar
 					const reward = JSON.parse(obj.alternative_quest_rewards)[0];
 
-					if (!shouldDisplayQuest(reward)) continue;
+					if (!shouldDisplayQuest(reward, obj.alternative_quest_title ?? "", obj.alternative_quest_title, false)) continue;
 					showThis = true
 
 					const mapId = obj.mapId + "-altquest-" + obj.alternative_quest_timestamp;
 
 					subFeatures.push(
 						getIconFeature(mapId, [obj.lon, obj.lat], {
-							imageUrl: getIconReward(reward),
+							imageUrl: getIconReward(reward.type, reward.info),
 							imageSize: questModifiers.scale,
 							selectedScale: selectedScale,
 							imageOffset: [
@@ -295,8 +296,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 					);
 				}
 				if (obj.quest_target && obj.quest_rewards) {
+					// ar
 					const reward = JSON.parse(obj.quest_rewards)[0];
-					if (!shouldDisplayQuest(reward)) continue;
+					if (!shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true)) continue;
 					showThis = true
 
 					const mapId = obj.mapId + "-quest-" + obj.quest_timestamp;
@@ -304,7 +306,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 					subFeatures.push(
 						getIconFeature(mapId, [obj.lon, obj.lat], {
-							imageUrl: getIconReward(reward),
+							imageUrl: getIconReward(reward.type, reward.info),
 							imageSize: questModifiers.scale,
 							selectedScale: selectedScale,
 							imageOffset: [

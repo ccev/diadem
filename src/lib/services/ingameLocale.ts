@@ -130,8 +130,10 @@ export function mQuest(questTitle?: string | null, target?: number | null) {
 		questTitle?.toLowerCase()?.replaceAll("_", " ") ?? m.unknown_quest()
 	);
 
+	const formattedNumber = target ? formatNumber(target) : ""
+
 	// insert the target into the quest text
-	questText = questText.replaceAll("%{amount_0}", "" + (target ?? ""));
+	questText = questText.replaceAll("%{amount_0}", formattedNumber);
 
 	return questText;
 }

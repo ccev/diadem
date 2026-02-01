@@ -1,6 +1,6 @@
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getQuestKey } from "@/lib/utils/pokestopUtils";
+import { getQuestKey, parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 type AllShinyStatsRow = {
 	pokemon_id: number;
@@ -180,15 +180,15 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allQuestStats.result) {
 		for (const row of allQuestStats.result) {
-			const questRewards: QuestReward[] = JSON.parse(row.quest_rewards);
-			if (questRewards.length !== 1) continue;
+			const questReward = parseQuestReward(row.quest_rewards)
+			if (!questReward) continue;
 
 			const key = getQuestKey(row.quest_rewards, row.quest_title, row.quest_target);
 			const count = Number(row[""][0]?.count ?? 0)
 			questsTotal += count;
 
 			quests[key] = {
-				reward: questRewards[0],
+				reward: questReward,
 				title: row.quest_title,
 				target: row.quest_target,
 				count: count

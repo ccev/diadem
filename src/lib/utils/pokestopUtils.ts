@@ -10,13 +10,14 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
+import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7;
 export const INCIDENT_DISPLAY_KECLEON = 8;
 export const INCIDENT_DISPLAY_CONTEST = 9;
 export const INCIDENT_DISPLAYS_INVASION = [1, 2, 3];
-export const INVASION_CHARACTER_LEADERS = [41, 42, 43, 44, 46]
+export const INVASION_CHARACTER_LEADERS = [41, 42, 43, 44, 46];
 
 export enum RewardType {
 	XP = 1,
@@ -38,7 +39,13 @@ export enum RewardType {
 }
 
 export function parseQuestReward(reward?: string | null) {
-	return JSON.parse(reward ?? "[]")[0] as QuestReward | undefined;
+	const parsed = JSON.parse(reward ?? "[]")[0] as QuestReward | undefined;
+	if (parsed && "form_id" in parsed.info) {
+		// @ts-ignore
+		parsed.info["form"] = parsed.info["form_id"];
+		delete parsed.info["form_id"];
+	}
+	return parsed;
 }
 
 export function getArTag(isAr: boolean) {
@@ -209,7 +216,7 @@ export function getDefaultPokestopFilter() {
 }
 
 export function shouldDisplayIncidient(incident: Incident) {
-	const timestamp = currentTimestamp()
+	const timestamp = currentTimestamp();
 
 	// only active incidents
 	if ((incident.expiration ?? 0) < timestamp) return false
@@ -228,21 +235,117 @@ export function shouldDisplayIncidient(incident: Incident) {
 		if (invasionFilters.length === 0) return true;
 
 		for (const invasionFilter of invasionFilters) {
-			if (invasionFilter.characters?.includes(incident.character)) return true
+			if (invasionFilter.characters?.includes(incident.character)) return true;
 		}
 	}
 
 	return false;
 }
 
-export function shouldDisplayQuest(reward: QuestReward) {
+export function shouldDisplayQuest(
+	reward: QuestReward,
+	title: string,
+	target: number,
+	isAr: boolean
+) {
 	if (isCurrentSelectedOverwrite()) return true;
 	const pokestopFilters = getUserSettings().filters.pokestop;
 	if (!pokestopFilters.enabled || !pokestopFilters.quest.enabled) return false;
 
-	// TODO quest display filters
+	const questFilters = pokestopFilters.quest.filters.filter((f) => f.enabled);
+	if (questFilters.length === 0) return true;
 
-	return true;
+	for (const questFilter of questFilters) {
+		if (questFilter.ar) {
+			if (questFilter.ar === QuestArType.AR && !isAr) continue;
+			if (questFilter.ar === QuestArType.NOAR && isAr) continue;
+		}
+
+		if (
+			questFilter.tasks &&
+			!questFilter.tasks.find((t) => t.title === title && t.target === target)
+		) {
+			continue;
+		}
+
+		if (
+			questFilter.stardust &&
+			reward.type === RewardType.STARDUST &&
+			reward.info.amount >= questFilter.stardust.min &&
+			reward.info.amount <= questFilter.stardust.max
+		) {
+			return true;
+		}
+
+		if (
+			questFilter.xp &&
+			reward.type === RewardType.XP &&
+			reward.info.amount >= questFilter.xp.min &&
+			reward.info.amount <= questFilter.xp.max
+		) {
+			return true;
+		}
+
+		if (
+			questFilter.pokemon &&
+			reward.type === RewardType.POKEMON &&
+			questFilter.pokemon.find(
+				(p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form
+			)
+		) {
+			return true;
+		}
+
+		if (
+			questFilter.item &&
+			reward.type === RewardType.ITEM &&
+			questFilter.item.find(
+				(i) =>
+					(i.id === reward.info.item_id.toString() && i.amount === undefined) ||
+					i.amount === reward.info.amount
+			)
+		) {
+			return true;
+		}
+
+		if (
+			questFilter.megaResource &&
+			reward.type === RewardType.MEGA_ENERGY &&
+			questFilter.megaResource.find(
+				(i) =>
+					(i.id === reward.info.pokemon_id.toString() && i.amount === undefined) ||
+					i.amount === reward.info.amount
+			)
+		) {
+			return true;
+		}
+
+		if (
+			questFilter.candy &&
+			reward.type === RewardType.CANDY &&
+			questFilter.candy.find(
+				(i) =>
+					(i.id === reward.info.pokemon_id.toString() && i.amount === undefined) ||
+					i.amount === reward.info.amount
+			)
+		) {
+			return true;
+		}
+
+		if (
+			questFilter.xlCandy &&
+			reward.type === RewardType.XL_CANDY &&
+			questFilter.xlCandy.find(
+				(i) =>
+					(i.id === reward.info.pokemon_id.toString() && i.amount === undefined) ||
+					i.amount === reward.info.amount
+			)
+		) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 export function shouldDisplayLure(data: Partial<PokestopData>) {

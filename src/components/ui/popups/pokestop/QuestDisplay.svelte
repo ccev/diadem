@@ -22,10 +22,10 @@
 	}: {
 		expanded: boolean
 		isAr: boolean
-		questRewards?: string
-		questTitle?: string
-		questTarget?: number
-		questTimestamp?: number
+		questRewards: string
+		questTitle: string
+		questTarget: number
+		questTimestamp: number
 	} = $props();
 
 	let reward: QuestReward | undefined = $derived(parseQuestReward(questRewards));
@@ -36,12 +36,12 @@
 	});
 </script>
 
-{#if questTarget && reward && shouldDisplayQuest(reward)}
+{#if questTarget && reward && shouldDisplayQuest(reward, questTitle, questTarget, isAr)}
 	<PokestopSection>
 		<div class="w-7 h-7 shrink-0">
 			{#if reward}
 				<ImagePopup
-					src={getIconReward(reward)}
+					src={getIconReward(reward.type, reward.info)}
 					alt={rewardText}
 					class="w-7 h-7"
 				/>

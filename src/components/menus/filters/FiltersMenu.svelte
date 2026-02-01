@@ -75,7 +75,7 @@
 		title={m.nests()}
 		mapObject={MapObjectType.NEST}
 		category="nest"
-		isFilterable={true}
+		isFilterable={false}
 	/>
 
 	<FilterSection

@@ -3,9 +3,10 @@ import type {
 	ActiveRaidStats,
 	MasterStats,
 	PokemonStatEntry,
+	QuestStats,
 	TotalPokemonStats
 } from "@/lib/server/api/queryStats";
-import { getQuestKey } from "@/lib/utils/pokestopUtils";
+import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 
 let masterStats: MasterStats | undefined = $state(undefined);
@@ -73,6 +74,40 @@ export function getQuestStatsForRewardFilter(reward: QuestReward) {
 }
 
 export function getQuestStatsForTask(title: string, target: number) {}
+
+export function getQuestStats() {
+	return Object.values(masterStats?.quests ?? {});
+}
+
+export function getQuestRewards<T extends RewardType>(
+	type: T
+): { reward: Extract<QuestReward, { type: T }>; tasks: { title: string; target: number }[] }[] {
+	const stats = getQuestStats().filter((q) => q.reward.type === type);
+
+	const groupedMap = new Map<
+		string,
+		{ reward: QuestReward; tasks: { title: string; target: number }[] }
+	>();
+
+	for (const current of stats) {
+		const key = JSON.stringify(current.reward);
+
+		const task = { title: current.title, target: current.target };
+
+		const existing = groupedMap.get(key);
+		if (existing) {
+			existing.tasks.push(task);
+		} else {
+			groupedMap.set(key, {
+				reward: current.reward,
+				tasks: [task]
+			});
+		}
+	}
+
+	// @ts-ignore too lazy to type this propery
+	return Array.from(groupedMap.values());
+}
 
 export function getActiveRaids(): ActiveRaidStats[] {
 	return masterStats?.activeRaids ?? [];

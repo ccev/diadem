@@ -358,8 +358,10 @@
     "search_hint_no_area_address": "Try searching for pokémon, pokéstops, gyms or quests",
     "area": "Area",
     "search_recent": "Recent",
-    "pokemon_candy": "{pokemon} Candy",
-    "pokemon_xl_candy": "{pokemon} Candy XL",
+    "x_quests": "{x} Quests",
+    "count_items": "{count} Items",
+    "tasks": "Tasks",
     "pokemon_mega_resource": "{pokemon} Mega Energy",
-    "x_quests": "{x} Quests"
+	"pokemon_candy": "{pokemon} Candy",
+	"pokemon_xl_candy": "{pokemon} Candy XL"
 }

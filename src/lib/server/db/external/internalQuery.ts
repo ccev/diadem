@@ -5,7 +5,7 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("query");
 
-const connection = mysql.createPool(getDbUri(getServerConfig().db));
+const connection = mysql.createPool({ uri: getDbUri(getServerConfig().db) });
 
 export async function query<T>(
 	sql: string,
