@@ -89,20 +89,22 @@
 	<Metadata title={m.nav_scout()} />
 </svelte:head>
 
-<Card class="py-4 px-2 mt-2">
-	<div class="flex flex-col gap-2">
-		<MenuTitle title={m.scout_area_size()} />
-		<SliderSteps
-			value={size}
-			onchange={updatePoints}
-			steps={[0, 1, 2]}
-			labels={{
-			0: "S",
-			1: "M",
-			2: "L"
-		}}
-		/>
-	</div>
+	<Card class="py-4 px-2 mt-2">
+		<div class="flex flex-col gap-2">
+			<MenuTitle title={m.scout_area_size()} />
+			<div data-vaul-no-drag>
+				<SliderSteps
+					value={size}
+					onchange={updatePoints}
+					steps={[0, 1, 2]}
+					labels={{
+					0: "S",
+					1: "M",
+					2: "L"
+				}}
+				/>
+			</div>
+		</div>
 
 	<div class="w-full text-center my-2 text-sm">
 		<p>

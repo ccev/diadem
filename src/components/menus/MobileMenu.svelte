@@ -6,18 +6,69 @@
 	import * as m from '@/lib/paraglide/messages';
 	import { Drawer } from 'diadem-vaul-svelte';
 
-	const isScout = $derived(getOpenedMenu() === 'scout');
+	type OpenedMenu = ReturnType<typeof getOpenedMenu>;
+
+	let open = $state(false);
+	let renderedMenu: OpenedMenu = $state(null);
+	let lastMenu: OpenedMenu = $state(null);
+	let closeTimer: ReturnType<typeof setTimeout> | null = null;
+
+	const isScout = $derived(renderedMenu === 'scout');
+
+	function finalizeClose() {
+		if (closeTimer) {
+			clearTimeout(closeTimer);
+			closeTimer = null;
+		}
+		renderedMenu = null;
+		openMenu(null);
+	}
+
+	function requestClose() {
+		open = false;
+
+		// Fallback: if `onOpenChangeComplete` doesn't fire reliably, still clear state after the close transition.
+		if (closeTimer) clearTimeout(closeTimer);
+		closeTimer = setTimeout(() => {
+			finalizeClose();
+		}, 600);
+	}
+
+	$effect(() => {
+		const menu = getOpenedMenu();
+		if (menu === lastMenu) return;
+
+		lastMenu = menu;
+
+		if (menu) {
+			if (closeTimer) {
+				clearTimeout(closeTimer);
+				closeTimer = null;
+			}
+			renderedMenu = menu;
+			open = true;
+		} else {
+			if (open) requestClose();
+			else renderedMenu = null;
+		}
+	});
 </script>
 
 <Drawer.Root
-	open={!!getOpenedMenu()}
-	onClose={() => openMenu(null)}
+	open={open}
+	onOpenChange={(next) => {
+		open = next;
+		if (!next) requestClose();
+	}}
+	onOpenChangeComplete={(next) => {
+		if (!next) finalizeClose();
+	}}
 	closeOnOutsideClick={false}
 >
 	<Drawer.Portal>
 		<Drawer.Content
 			class="after:h-0! duration-150! touch-auto! fixed z-10 w-full h-full overflow-y-scroll bottom-0 pointer-events-none overscroll-contain"
-			style="{getOpenedMenu() === 'scout' ? 'height: fit-content !important;' : '' }; -webkit-overflow-scrolling: touch; touch-action: pan-y;"
+			style="{isScout ? 'height: fit-content !important;' : '' }; -webkit-overflow-scrolling: touch; touch-action: pan-y;"
 		>
 			<div
 				class={`pb-20 px-2 pt-2 rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm pointer-events-auto ${
@@ -31,10 +82,10 @@
 							level="h1"
 							class="font-bold text-base tracking-tight mx-4"
 						>
-							{m['nav_' + getOpenedMenu()]()}
+							{renderedMenu ? m['nav_' + renderedMenu]() : ''}
 						</Drawer.Title>
 						<CloseButton
-							onclick={() => openMenu(null)}
+							onclick={requestClose}
 							class="mr-1 hover:bg-accent/90! active:bg-accent/90!"
 						/>
 					</div>
