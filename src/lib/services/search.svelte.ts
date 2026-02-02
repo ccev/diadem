@@ -1,6 +1,6 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { mItem, mPokemon, prefixes } from "@/lib/services/ingameLocale";
+import { mCharacter, mItem, mPokemon, prefixes } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
 	type FuzzyMatches,
 	type FuzzySearcher,
@@ -10,7 +10,7 @@ import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
 import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterfile";
-import { getActiveContests, getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
+import { getActiveCharacters, getActiveContests, getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getContestText, getRewardText, KECLEON_ID, RewardType } from "@/lib/utils/pokestopUtils";
 import { m } from "@/lib/paraglide/messages";
@@ -34,7 +34,8 @@ export enum SearchableType {
 	QUEST = "quest",
 	KECLEON = "kecleon",
 	CONTEST = "contest",
-	LURE = "lure"
+	LURE = "lure",
+	INVASION = "invasion"
 }
 
 export type SearchEntry = {
@@ -78,6 +79,11 @@ export type LureSearchEntry = SearchEntry & {
 	itemId: number;
 };
 
+export type InvasionSearchEntry = SearchEntry & {
+	type: SearchableType.INVASION;
+	characterId: number;
+};
+
 export type AnySearchEntry =
 	| PokemonSearchEntry
 	| AreaSearchEntry
@@ -85,6 +91,7 @@ export type AnySearchEntry =
 	| KecleonSearchEntry
 	| ContestSearchEntry
 	| LureSearchEntry
+	| InvasionSearchEntry
 
 let currentSearchQuery = $state("");
 
@@ -175,10 +182,21 @@ export function initSearch() {
 		} as LureSearchEntry
 	})
 
+	const invasionEntries = getActiveCharacters().map(character => {
+		return {
+			name: mCharacter(character.character),
+			category: "pogo_invasion",
+			key: "invasion-" + character.character,
+			type: SearchableType.INVASION,
+			characterId: character.character
+		} as InvasionSearchEntry
+	})
+
 	// order matters. sorted by priority
 	const allSearchResults = [
 		...areaEntries,
 		...kecleonEntries,
+		...invasionEntries,
 		...pokemonEntries,
 		...contestEntries,
 		...questEntries,

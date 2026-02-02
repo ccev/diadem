@@ -365,5 +365,6 @@
 	"pokemon_candy": "{pokemon} Candy",
 	"pokemon_xl_candy": "{pokemon} Candy XL",
     "kecleon_pokestops": "Kecleon Pokéstops",
-    "pogo_contests": "Showcases"
+    "pogo_contests": "Showcases",
+    "character_grunt": "Grunt: {character}"
 }

@@ -7,6 +7,7 @@ import { getDefaultPokestopFilter, RewardType, rewardTypeLabel } from "@/lib/uti
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import type {
 	FiltersetContest,
+	FiltersetInvasion,
 	FiltersetLure,
 	FiltersetQuest
 } from "@/lib/features/filters/filtersets";
@@ -61,6 +62,7 @@ export function setActiveSearch(newParams: ActiveSearchParams) {
 
 export function resetActiveSearchFilter() {
 	activeSearchSvelte = undefined;
+	deleteAllFeatures()
 	updateAllMapObjects().then();
 }
 
@@ -197,6 +199,27 @@ export function setActiveSearchLure(name: string, itemId: number) {
 	const filter = getDefaultPokestopFilter();
 	filter.lure.enabled = true;
 	filter.lure.filters = [filterset]
+	filter.enabled = true
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.POKESTOP,
+		filter: filter
+	});
+}
+
+export function setActiveSearchInvasion(name: string, chafracterId: number) {
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		characters: [chafracterId],
+	} as FiltersetInvasion;
+
+	const filter = getDefaultPokestopFilter();
+	filter.invasion.enabled = true;
+	filter.invasion.filters = [filterset]
 	filter.enabled = true
 
 	setActiveSearch({

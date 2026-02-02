@@ -2,13 +2,13 @@
 	import type { FuzzyResult } from "@nozbe/microfuzz";
 	import { type AnySearchEntry, SearchableType } from "@/lib/services/search.svelte";
 	import {
-		setActiveSearchContest,
+		setActiveSearchContest, setActiveSearchInvasion,
 		setActiveSearchKecleon, setActiveSearchLure,
 		setActiveSearchPokemon,
 		setActiveSearchQuest
 	} from "@/lib/features/activeSearch.svelte";
 	import { resize } from "@/lib/services/assets";
-	import { getIconPokemon, getIconPokestop, getIconReward } from "@/lib/services/uicons.svelte";
+	import { getIconInvasion, getIconPokemon, getIconPokestop, getIconReward } from "@/lib/services/uicons.svelte";
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
 	import { m } from "@/lib/paraglide/messages";
 	import { getFeatureJump } from "@/lib/utils/geo";
@@ -73,6 +73,14 @@
 				setActiveSearchLure(entry.name, entry.itemId)
 			}}
 			imageUrl={resize(getIconPokestop({ lure_id: entry.itemId, lure_expire_timestamp: Infinity }), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.INVASION}
+		<SearchItem
+			{result}
+			onselect={() => {
+				setActiveSearchInvasion(entry.name, entry.characterId)
+			}}
+			imageUrl={resize(getIconInvasion(entry.characterId, true), { width: 64 })}
 		/>
 	{/if}
 {/each}

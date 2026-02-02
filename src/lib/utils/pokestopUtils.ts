@@ -21,6 +21,7 @@ export const INCIDENT_DISPLAY_KECLEON = 8;
 export const INCIDENT_DISPLAY_CONTEST = 9;
 export const INCIDENT_DISPLAYS_INVASION = [1, 2, 3];
 export const INVASION_CHARACTER_LEADERS = [41, 42, 43, 44, 46];
+export const INVASION_CHARACTER_NOTYPES = [4, 5];
 export const KECLEON_ID = 352;
 
 export enum RewardType {

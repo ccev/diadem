@@ -3,6 +3,7 @@ import { getLocale } from "@/lib/paraglide/runtime";
 import { SearchableType, type SearchEntry } from "@/lib/services/search.svelte";
 import { getIconPokemon } from "@/lib/services/uicons.svelte";
 import { formatNumber } from "@/lib/utils/numberFormat";
+import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -131,7 +132,7 @@ export function mQuest(questTitle?: string | null, target?: number | null) {
 		questTitle?.toLowerCase()?.replaceAll("_", " ") ?? m.unknown_quest()
 	);
 
-	const formattedNumber = target ? formatNumber(target) : ""
+	const formattedNumber = target ? formatNumber(target) : "";
 
 	// insert the target into the quest text
 	questText = questText.replaceAll("%{amount_0}", formattedNumber);
@@ -201,5 +202,12 @@ export function mGeneration(generationId?: number | string | null) {
  * @param characterId
  */
 export function mCharacter(characterId?: number | string | null) {
-	return mBasicId("character", characterId);
+	const character = mBasicId("character", characterId);
+	if (
+		INVASION_CHARACTER_LEADERS.includes(Number(characterId)) ||
+		INVASION_CHARACTER_NOTYPES.includes(Number(characterId))
+	) {
+		return character;
+	}
+	return m.character_grunt({ character });
 }
