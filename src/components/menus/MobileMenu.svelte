@@ -4,7 +4,7 @@
 	import MenuContainer from '@/components/menus/MenuContainer.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import * as m from '@/lib/paraglide/messages';
-	import { Drawer } from 'vaul-svelte';
+	import { Drawer } from 'diadem-vaul-svelte';
 </script>
 
 <Drawer.Root
