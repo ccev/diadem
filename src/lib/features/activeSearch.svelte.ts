@@ -9,11 +9,13 @@ import type {
 	FiltersetContest,
 	FiltersetInvasion,
 	FiltersetLure,
-	FiltersetQuest
+	FiltersetQuest,
+	FiltersetRaid
 } from "@/lib/features/filters/filtersets";
 import * as m from "@/lib/paraglide/messages";
 import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 
 export type ActiveSearchParams = {
 	filter: AnyFilter;
@@ -208,13 +210,13 @@ export function setActiveSearchLure(name: string, itemId: number) {
 	});
 }
 
-export function setActiveSearchInvasion(name: string, chafracterId: number) {
+export function setActiveSearchInvasion(name: string, characterId: number) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		characters: [chafracterId],
+		characters: [characterId],
 	} as FiltersetInvasion;
 
 	const filter = getDefaultPokestopFilter();
@@ -225,6 +227,56 @@ export function setActiveSearchInvasion(name: string, chafracterId: number) {
 	setActiveSearch({
 		name,
 		mapObject: MapObjectType.POKESTOP,
+		filter: filter
+	});
+}
+
+export function setActiveSearchRaidBoss(name: string, pokemonId: number, formId: number | undefined) {
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		bosses: [{
+			pokemon_id: pokemonId
+		}],
+	} as FiltersetRaid;
+
+	// @ts-ignore
+	if (formId) filterset.bosses[0].form_id = formId
+
+	const filter = getDefaultGymFilter();
+	filter.gymPlain.enabled = false
+	filter.raid.enabled = true;
+	filter.raid.filters = [filterset]
+	filter.enabled = true
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.GYM,
+		filter: filter
+	});
+}
+
+export function setActiveSearchRaidLevel(name: string, level: number) {
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		levels: [level],
+	} as FiltersetRaid;
+
+	const filter = getDefaultGymFilter();
+	filter.gymPlain.enabled = false
+	filter.raid.enabled = true;
+	filter.raid.filters = [filterset]
+	filter.enabled = true
+	console.log(filter)
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.GYM,
 		filter: filter
 	});
 }

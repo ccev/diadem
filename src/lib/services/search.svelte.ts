@@ -1,6 +1,6 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { mCharacter, mItem, mPokemon, prefixes } from "@/lib/services/ingameLocale";
+import { mCharacter, mItem, mPokemon, mRaid, prefixes } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
 	type FuzzyMatches,
 	type FuzzySearcher,
@@ -10,7 +10,7 @@ import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
 import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterfile";
-import { getActiveCharacters, getActiveContests, getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
+import { getActiveCharacters, getActiveContests, getActiveQuestRewards, getActiveRaids } from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getContestText, getRewardText, KECLEON_ID, RewardType } from "@/lib/utils/pokestopUtils";
 import { m } from "@/lib/paraglide/messages";
@@ -19,6 +19,7 @@ import {
 	type MapObjectFeature,
 	MapObjectFeatureType
 } from "@/lib/map/featuresGen.svelte";
+import type { RaidFilterShow } from "@/lib/features/filters/filtersets";
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -35,7 +36,9 @@ export enum SearchableType {
 	KECLEON = "kecleon",
 	CONTEST = "contest",
 	LURE = "lure",
-	INVASION = "invasion"
+	INVASION = "invasion",
+	RAID_BOSS = "raid_boss",
+	RAID_LEVEL = "raid_level",
 }
 
 export type SearchEntry = {
@@ -84,6 +87,17 @@ export type InvasionSearchEntry = SearchEntry & {
 	characterId: number;
 };
 
+export type RaidBossSearchEntry = SearchEntry & {
+	type: SearchableType.RAID_BOSS;
+	pokemon_id: number
+	form_id: number
+};
+
+export type RaidLevelEntry = SearchEntry & {
+	type: SearchableType.RAID_LEVEL;
+	level: number;
+};
+
 export type AnySearchEntry =
 	| PokemonSearchEntry
 	| AreaSearchEntry
@@ -92,6 +106,8 @@ export type AnySearchEntry =
 	| ContestSearchEntry
 	| LureSearchEntry
 	| InvasionSearchEntry
+	| RaidBossSearchEntry
+	| RaidLevelEntry
 
 let currentSearchQuery = $state("");
 
@@ -139,7 +155,6 @@ export function initSearch() {
 			const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward;
 			let rewardName = getRewardText(reward);
 			if (reward.type === RewardType.POKEMON) {
-				if (reward.info.pokemon_id === 610) console.log(reward);
 				rewardName = m.x_quests({ x: rewardName });
 			}
 
@@ -192,12 +207,38 @@ export function initSearch() {
 		} as InvasionSearchEntry
 	})
 
+	const processedLevels: Set<number> = new Set()
+	const raidLevelEntries: RaidLevelEntry[] = []
+	const raidBossEntries = getActiveRaids().map(raidBoss => {
+		if (!processedLevels.has(raidBoss.level)) {
+			processedLevels.add(raidBoss.level)
+			raidLevelEntries.push({
+				name: mRaid(raidBoss.level, true),
+				category: "raids",
+				key: "raidlevel-" + raidBoss.level,
+				type: SearchableType.RAID_LEVEL,
+				level: raidBoss.level
+			})
+		}
+
+		return {
+			name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
+			category: "raids",
+			key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
+			type: SearchableType.RAID_BOSS,
+			pokemon_id: raidBoss.pokemon_id,
+			form_id: raidBoss.form
+		} as RaidBossSearchEntry
+	})
+
 	// order matters. sorted by priority
 	const allSearchResults = [
 		...areaEntries,
 		...kecleonEntries,
 		...invasionEntries,
 		...pokemonEntries,
+		...raidLevelEntries,
+		...raidBossEntries,
 		...contestEntries,
 		...questEntries,
 		...lureEntries

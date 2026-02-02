@@ -2,8 +2,11 @@ import type { GymData } from '@/lib/types/mapObjectData/gym';
 import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
 import { currentTimestamp } from '@/lib/utils/currentTimestamp';
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
+import type { FilterGym, FilterPokestop } from "@/lib/features/filters/filters";
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type RaidFilterType = "level" | "boss"
 export const GYM_SLOTS = 6;
@@ -49,6 +52,23 @@ export function isRaidHatched(data: GymData) {
 	return (data.raid_battle_timestamp ?? 0) < currentTimestamp()
 }
 
+export function getDefaultGymFilter(): FilterGym {
+	return {
+		category: "gym",
+		...defaultFilter(true),
+		gymPlain: { category: "gymPlain", ...defaultFilter(true) },
+		raid: { category: "raid", ...defaultFilter(true) }
+	}
+}
+
+export function getActiveGymFilter() {
+	const activeSearch = getActiveSearch();
+	if (activeSearch && activeSearch.mapObject === MapObjectType.GYM) {
+		return activeSearch.filter as FilterGym;
+	}
+	return getUserSettings().filters.gym;
+}
+
 export function shouldDisplayRaid(data: GymData) {
 	const timestamp = currentTimestamp()
 
@@ -58,7 +78,7 @@ export function shouldDisplayRaid(data: GymData) {
 	if (isCurrentSelectedOverwrite()) return true
 
 	// general disabling
-	const gymFilters = getUserSettings().filters.gym
+	const gymFilters = getActiveGymFilter()
 	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false
 
 	// yes if not filtersets

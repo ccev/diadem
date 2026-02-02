@@ -25,7 +25,7 @@ import {
 	shouldDisplayIncidient,
 	shouldDisplayQuest
 } from "@/lib/utils/pokestopUtils";
-import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
+import { getActiveGymFilter, getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
 import { geojson, s2 } from "s2js";
@@ -235,7 +235,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const showLures = getActivePokestopFilter().lure.enabled || isSelectedOverwrite;
 	const showQuests = getActivePokestopFilter().quest.enabled || isSelectedOverwrite;
 	const showInvasions = getActivePokestopFilter().invasion.enabled || isSelectedOverwrite;
-	const showAllGyms = getUserSettings().filters.gym.gymPlain.enabled || isSelectedOverwrite;
+	const showAllGyms = getActiveGymFilter().gymPlain.enabled || isSelectedOverwrite;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();

@@ -5,10 +5,16 @@
 		setActiveSearchContest, setActiveSearchInvasion,
 		setActiveSearchKecleon, setActiveSearchLure,
 		setActiveSearchPokemon,
-		setActiveSearchQuest
+		setActiveSearchQuest, setActiveSearchRaidBoss, setActiveSearchRaidLevel
 	} from "@/lib/features/activeSearch.svelte";
 	import { resize } from "@/lib/services/assets";
-	import { getIconInvasion, getIconPokemon, getIconPokestop, getIconReward } from "@/lib/services/uicons.svelte";
+	import {
+		getIconInvasion,
+		getIconPokemon,
+		getIconPokestop,
+		getIconRaidEgg,
+		getIconReward
+	} from "@/lib/services/uicons.svelte";
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
 	import { m } from "@/lib/paraglide/messages";
 	import { getFeatureJump } from "@/lib/utils/geo";
@@ -81,6 +87,22 @@
 				setActiveSearchInvasion(entry.name, entry.characterId)
 			}}
 			imageUrl={resize(getIconInvasion(entry.characterId, true), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.RAID_BOSS}
+		<SearchItem
+			{result}
+			onselect={() => {
+				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form_id)
+			}}
+			imageUrl={resize(getIconPokemon({ pokemon_id: entry.pokemon_id, form: entry.form_id }), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.RAID_LEVEL}
+		<SearchItem
+			{result}
+			onselect={() => {
+				setActiveSearchRaidLevel(entry.name, entry.level)
+			}}
+			imageUrl={resize(getIconRaidEgg(entry.level), { width: 64 })}
 		/>
 	{/if}
 {/each}

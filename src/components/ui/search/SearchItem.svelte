@@ -39,7 +39,7 @@
 		{/if}
 		{#if imageUrl || result.item.imageUrl}
 			<img
-				class="size-5 object-cover rounded-full"
+				class="size-5 object-contain rounded-full"
 				src={imageUrl ?? result.item.imageUrl}
 				alt={result.item.name}
 				loading="lazy"
