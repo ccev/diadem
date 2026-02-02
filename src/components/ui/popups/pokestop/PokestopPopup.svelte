@@ -24,8 +24,8 @@
 		hasFortActiveLure,
 		isIncidentContest,
 		isIncidentInvasion,
-		isIncidentKecleon, shouldDisplayIncidient, shouldDisplayLure
-	} from '@/lib/utils/pokestopUtils';
+		isIncidentKecleon, KECLEON_ID, shouldDisplayContest, shouldDisplayIncidient, shouldDisplayLure
+	} from "@/lib/utils/pokestopUtils";
 	import { isFortOutdated } from '@/lib/utils/gymUtils';
 	import { formatRatio } from "@/lib/utils/numberFormat";
 	import { getRarityLabel } from "@/lib/utils/pokemonUtils";
@@ -64,7 +64,7 @@
 
 {#snippet incidentSection(expanded: boolean)}
 	{#each data.incident as incident}
-		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncidient(incident)}
+		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncidient(incident, data)}
 			{#if isIncidentInvasion(incident)}
 				<PokestopSection>
 					<div class="w-7 h-7 shrink-0">
@@ -94,13 +94,13 @@
 				<PokestopSection>
 					<div class="w-7 h-7 shrink-0">
 						<ImagePopup
-							src={getIconPokemon({ pokemon_id: 352 })}
-							alt={mPokemon({ pokemon_id: 352 })}
+							src={getIconPokemon({ pokemon_id: KECLEON_ID })}
+							alt={mPokemon({ pokemon_id: KECLEON_ID })}
 							class="w-7"
 						/>
 					</div>
 					<div>
-						{mPokemon({ pokemon_id: 352 })}
+						{mPokemon({ pokemon_id: KECLEON_ID })}
 						<TimeWithCountdown
 							expireTime={incident.expiration}
 							showHours={false}

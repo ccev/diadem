@@ -5,19 +5,18 @@
 	import { type AnySearchEntry, highlightSearchMatches } from "@/lib/services/search.svelte";
 	import { Command } from "bits-ui";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
+	import { m } from "@/lib/paraglide/messages";
 
 	let {
 		onselect,
 		result,
 		imageUrl,
 		labelSnippet,
-		identifier
 	}: {
 		onselect: () => void,
 		result: FuzzyResult<AnySearchEntry>,
 		imageUrl?: string,
 		labelSnippet?: Snippet<[FuzzyMatches]>,
-		identifier: string
 	} = $props()
 
 	function onselectProxy() {
@@ -51,12 +50,15 @@
 				{@render labelSnippet(result.matches)}
 			</p>
 		{:else}
-			<span {@attach highlightSearchMatches(result.matches)}>
+			<span {@attach highlightSearchMatches(result.matches[0])}>
 				{result.item.name}
 			</span>
 		{/if}
-		<span class="text-muted-foreground ml-auto shrink-1 overflow-x-hidden text-right font-normal!">
-			{identifier}
+		<span
+			class="text-muted-foreground ml-auto shrink-1 overflow-x-hidden text-right font-normal!"
+			{@attach highlightSearchMatches(result.matches[1])}
+		>
+			{m[result.item.category]?.() ?? ""}
 		</span>
 	</div>
 </Command.Item>

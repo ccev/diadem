@@ -17,6 +17,13 @@ import {
 	INCIDENT_DISPLAYS_INVASION
 } from "@/lib/utils/pokestopUtils";
 import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+
+export function processRawPokestop(pokestop: PokestopData) {
+	if (pokestop.showcase_focus && (pokestop.showcase_expiry ?? 0) > currentTimestamp()) {
+		pokestop.contest_focus = JSON.parse(pokestop.showcase_focus)
+	}
+}
 
 export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | undefined) {
 	const boundsFilter = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 "
@@ -68,6 +75,13 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | un
 
 	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`
 
-	return [await query<PokestopData[]>(sqlQuery, values), undefined]
+	const result = await query<PokestopData[]>(sqlQuery, values)
+	if (result.result) {
+		for (const pokestop of result.result) {
+			processRawPokestop(pokestop)
+		}
+	}
+
+	return [result, undefined]
 }
 

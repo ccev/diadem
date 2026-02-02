@@ -3,24 +3,20 @@
 	import { onMount } from "svelte";
 	import { Nut, Search, Squirrel, X } from "lucide-svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { closeModal, closeSearchModal } from "@/lib/ui/modal.svelte.js";
+	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import ModalTop from "@/components/ui/modal/ModalTop.svelte";
 	import {
 		type AnySearchEntry,
 		getCurrentSearchQuery,
 		search,
-		SearchableType,
 		setCurrentSearchQuery
 	} from "@/lib/services/search.svelte";
-	import SearchItemPokemon from "@/components/ui/search/SearchItemPokemon.svelte";
-	import SearchItemArea from "@/components/ui/search/SearchItemArea.svelte";
-	import { Command } from "bits-ui";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-	import { Debounced } from "runed";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
 	import SearchResults from "@/components/ui/search/SearchResults.svelte";
+	import { Command } from "bits-ui";
 
 	let input: HTMLInputElement | undefined = $state();
 

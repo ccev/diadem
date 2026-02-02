@@ -329,7 +329,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 			let index = 0;
 			for (const incident of obj?.incident ?? []) {
-				if (shouldDisplayIncidient(incident)) {
+				if (shouldDisplayIncidient(incident, obj)) {
 					showThis = true
 				} else {
 					continue

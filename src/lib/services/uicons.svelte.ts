@@ -108,7 +108,7 @@ export function getIconPokestop(
 	let displayType: boolean | number = false;
 	for (const incident of data.incident ?? []) {
 		if (
-			shouldDisplayIncidient(incident) &&
+			shouldDisplayIncidient(incident, data) &&
 			incident.display_type &&
 			incident.expiration > currentTimestamp()
 		) {

@@ -7,6 +7,7 @@ import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import { FIELDS_NEST, FIELDS_ROUTE, FIELDS_TAPPABLE } from "@/lib/server/api/queryMapObjects";
+import { processRawPokestop } from "@/lib/server/api/queryPokestops";
 
 export async function querySingleMapObject(
 	type: MapObjectType,
@@ -58,12 +59,14 @@ async function querySingleGym(id: string) {
 }
 
 async function querySinglePokestop(id: string) {
-	return await query<PokestopData>(
+	const result = await query<PokestopData>(
 		"SELECT * FROM pokestop " +
 			"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
 			"WHERE pokestop.id = ?",
 		[id]
 	);
+	if (result.result) processRawPokestop(result.result)
+	return result
 }
 
 async function querySingleStation(id: string) {

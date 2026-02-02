@@ -1,4 +1,5 @@
 import type {
+	FiltersetContest,
 	FiltersetGymPlain,
 	FiltersetInvasion,
 	FiltersetLure,
@@ -98,7 +99,7 @@ export type FilterInvasion = BaseFilter & {
 
 export type FilterContest = BaseFilter & {
 	category: "contest";
-	filters: never[];
+	filters: FiltersetContest[];
 };
 
 export type FilterKecleon = BaseFilter & {

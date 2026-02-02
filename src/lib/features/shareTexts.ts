@@ -13,11 +13,18 @@ import {
 	isIncidentContest,
 	isIncidentInvasion,
 	isIncidentKecleon,
+	KECLEON_ID,
 	parseQuestReward
 } from "@/lib/utils/pokestopUtils";
 import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from "@/lib/utils/gymUtils";
+import {
+	getRaidPokemon,
+	GYM_SLOTS,
+	hasActiveRaid,
+	isFortOutdated,
+	isRaidHatched
+} from "@/lib/utils/gymUtils";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import { getMmSsFromSeconds } from "@/lib/utils/time";
@@ -45,7 +52,7 @@ export function getShareText(data: MapData): string {
 		case MapObjectType.ROUTE:
 			return getRouteShareText(data);
 		case MapObjectType.TAPPABLE:
-			return getTappableShareText(data)
+			return getTappableShareText(data);
 	}
 	// TODO: share texts for other map objects
 	return "";
@@ -130,9 +137,13 @@ function getPokestopShareText(data: PokestopData) {
 		if (isIncidentInvasion(incident)) {
 			invasionText += `🥷 ${mCharacter(incident.character)} (${timestampToLocalTime(incident.expiration, true)})\n`;
 		} else if (isIncidentKecleon(incident)) {
-			kecleonText += `🦎 ${mPokemon({ pokemon_id: 352 })} (${timestampToLocalTime(incident.expiration)})\n`;
-		} else if (isIncidentContest(incident)) {
-			contestText += `🏅 ${getContestText(data)} (${timestampToLocalTime(incident.expiration, true)})\n`;
+			kecleonText += `🦎 ${mPokemon({ pokemon_id: KECLEON_ID })} (${timestampToLocalTime(incident.expiration)})\n`;
+		} else if (
+			isIncidentContest(incident) &&
+			data.showcase_ranking_standard &&
+			data.contest_focus
+		) {
+			contestText += `🏅 ${getContestText(data.showcase_ranking_standard, data.contest_focus)} (${timestampToLocalTime(incident.expiration, true)})\n`;
 		}
 	});
 
@@ -176,15 +187,15 @@ function getStationShareText(data: StationData) {
 }
 
 function getNestShareText(data: NestData) {
-	let text = ""
+	let text = "";
 
 	if (data.name) {
 		text += `🌳 ${m.park_name()}: ${data.name}\n`;
 	}
 
-	text += `🔄 ${m.nest_avg()}: ${m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}\n`
+	text += `🔄 ${m.nest_avg()}: ${m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}\n`;
 
-	return text
+	return text;
 }
 
 function getSpawnpointShareText(data: SpawnpointData) {
@@ -199,19 +210,19 @@ function getSpawnpointShareText(data: SpawnpointData) {
 }
 
 function getRouteShareText(data: RouteData) {
-	let text = ""
+	let text = "";
 
-	return text
+	return text;
 }
 
 function getTappableShareText(data: TappableData) {
-	let text = ""
+	let text = "";
 
-	text += `🕜 ${m.popup_despawns()}: ${timestampToLocalTime(data.expire_timestamp, true)}\n`
+	text += `🕜 ${m.popup_despawns()}: ${timestampToLocalTime(data.expire_timestamp, true)}\n`;
 
 	if (!hasTimer(data)) {
-		text += `⚠️ ${m.time_is_estimated()}\n`
+		text += `⚠️ ${m.time_is_estimated()}\n`;
 	}
 
-	return text
+	return text;
 }

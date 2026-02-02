@@ -1,15 +1,24 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { mPokemon, prefixes } from "@/lib/services/ingameLocale";
-import createFuzzySearch, { type FuzzyMatches, type FuzzySearcher } from "@nozbe/microfuzz";
+import createFuzzySearch, {
+	type FuzzyMatches,
+	type FuzzySearcher,
+	type HighlightRanges
+} from "@nozbe/microfuzz";
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
 import { getSpawnablePokemon } from "@/lib/services/masterfile";
-import { getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
-import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
-import * as m from "@/lib/paraglide/messages";
+import { getActiveContests, getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import { getContestText, getRewardText, KECLEON_ID, RewardType } from "@/lib/utils/pokestopUtils";
+import { m } from "@/lib/paraglide/messages";
+import {
+	type MapObjectCircleFeature,
+	type MapObjectFeature,
+	MapObjectFeatureType
+} from "@/lib/map/featuresGen.svelte";
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -22,11 +31,14 @@ export enum SearchableType {
 	GYM = "gym",
 	POKESTOP = "pokestop",
 	STATION = "station",
-	QUEST = "quest"
+	QUEST = "quest",
+	KECLEON = "kecleon",
+	CONTEST = "contest"
 }
 
 export type SearchEntry = {
 	name: string;
+	category: keyof typeof m;
 	key: string;
 	icon?: string;
 	imageUrl?: string;
@@ -50,9 +62,24 @@ export type QuestSearchEntry = SearchEntry & {
 	type: SearchableType.QUEST;
 };
 
-export type AnySearchEntry = PokemonSearchEntry | AreaSearchEntry | QuestSearchEntry;
+export type KecleonSearchEntry = SearchEntry & {
+	type: SearchableType.KECLEON;
+};
 
-let currentSearchQuery = $state("")
+export type ContestSearchEntry = SearchEntry & {
+	rankingStandard: number,
+	focus: ContestFocus,
+	type: SearchableType.CONTEST;
+};
+
+export type AnySearchEntry =
+	| PokemonSearchEntry
+	| AreaSearchEntry
+	| QuestSearchEntry
+	| KecleonSearchEntry
+	| ContestSearchEntry
+
+let currentSearchQuery = $state("");
 
 let fuzzy: FuzzySearcher<AnySearchEntry>;
 
@@ -63,17 +90,18 @@ if (browser) {
 }
 
 export function getCurrentSearchQuery() {
-	return currentSearchQuery
+	return currentSearchQuery;
 }
 
 export function setCurrentSearchQuery(query: string) {
-	currentSearchQuery = query
+	currentSearchQuery = query;
 }
 
 export function initSearch() {
 	const pokemonEntries = getSpawnablePokemon(true).map((p) => {
 		return {
 			name: mPokemon(p),
+			category: "pogo_pokemon",
 			id: p.pokemon_id,
 			form: p.form,
 			key: "pokemon-" + p.pokemon_id + "-" + p.form,
@@ -84,6 +112,7 @@ export function initSearch() {
 	const areaEntries = getKojiGeofences().map((k) => {
 		return {
 			name: k.properties.name,
+			category: "area",
 			key: "area-" + k.properties.name,
 			type: SearchableType.AREA,
 			icon: k.properties.lucideIcon ?? areaIcon,
@@ -91,25 +120,53 @@ export function initSearch() {
 		} as AreaSearchEntry;
 	});
 
-	const questEntries = getActiveQuestRewards()?.map(r => {
-		const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward
-		let rewardName = getRewardText(reward)
-		if (reward.type === RewardType.POKEMON) {
-			if (reward.info.pokemon_id === 610) console.log(reward)
-			rewardName = m.x_quests({ x: rewardName })
-		}
+	const questEntries =
+		getActiveQuestRewards()?.map((r) => {
+			const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward;
+			let rewardName = getRewardText(reward);
+			if (reward.type === RewardType.POKEMON) {
+				if (reward.info.pokemon_id === 610) console.log(reward);
+				rewardName = m.x_quests({ x: rewardName });
+			}
 
+			return {
+				name: rewardName,
+				category: "pogo_quests",
+				key: "quest-" + JSON.stringify(reward),
+				type: SearchableType.QUEST,
+				reward
+			} as QuestSearchEntry;
+		}) ?? [];
+
+	const kecleonEntries = [
+		{
+			name: m.kecleon_pokestops(),
+			category: "pogo_pokestops",
+			key: "kecleon",
+			type: SearchableType.KECLEON
+		}
+	] as KecleonSearchEntry[];
+
+	const contestEntries = getActiveContests().map(contest => {
 		return {
-			name: rewardName,
-			key: "quest-" + JSON.stringify(reward),
-			type: SearchableType.QUEST,
-			reward
-		} as QuestSearchEntry
-	}) ?? []
+			name: getContestText(contest.ranking_standard, contest.focus),
+			category: "pogo_contests",
+			key: "contest-" + contest.ranking_standard + "-" + JSON.stringify(contest.focus),
+			type: SearchableType.CONTEST,
+			rankingStandard: contest.ranking_standard,
+			focus: contest.focus
+		} as ContestSearchEntry
+	})
 
 	// order matters. sorted by priority
-	const allSearchResults = [...areaEntries, ...pokemonEntries, ...questEntries];
-	fuzzy = createFuzzySearch(allSearchResults, { key: "name" });
+	const allSearchResults = [
+		...areaEntries,
+		...kecleonEntries,
+		...pokemonEntries,
+		...contestEntries,
+		...questEntries
+	];
+	fuzzy = createFuzzySearch(allSearchResults, { getText: e => [e.name, m[e.category]?.()] });
 }
 
 export function search(query: string, limit: boolean) {
@@ -118,10 +175,8 @@ export function search(query: string, limit: boolean) {
 	return results;
 }
 
-export function highlightSearchMatches(matches: FuzzyMatches): Attachment {
+export function highlightSearchMatches(match: HighlightRanges | null | undefined): Attachment {
 	return (element) => {
-		// only highlight first part of keys array
-		const match = matches[0];
 		if (!match) return;
 
 		const text = element.childNodes[0];

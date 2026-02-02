@@ -4,8 +4,8 @@ import { mItem, mPokemon } from "@/lib/services/ingameLocale";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { getDefaultPokestopFilter, RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
-import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { FiltersetContest, FiltersetQuest } from "@/lib/features/filters/filtersets";
 import * as m from "@/lib/paraglide/messages";
 import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
@@ -125,6 +125,53 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 	filter.quest.enabled = true;
 	filter.quest.filters = [filterset];
 	filter.enabled = true
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.POKESTOP,
+		filter: filter
+	});
+}
+
+export function setActiveSearchKecleon(name: string) {
+	const filter = getDefaultPokestopFilter();
+	filter.kecleon.enabled = true;
+	filter.enabled = true
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.POKESTOP,
+		filter: filter
+	});
+}
+
+export function setActiveSearchContest(name: string, rankingStandard: number, focus: ContestFocus) {
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		rankingStandard,
+	} as FiltersetContest;
+
+	if (focus.type === "pokemon") {
+		filterset.focus = {
+			pokemon_id: focus.pokemon_id,
+		}
+		if (focus.pokemon_form) {
+			filterset.focus.form_id = focus.pokemon_form
+		}
+	} else if (focus.type === "type") {
+		filterset.focus = {
+			type_id: focus.pokemon_type_1
+		}
+	}
+
+	const filter = getDefaultPokestopFilter();
+	filter.contest.enabled = true;
+	filter.contest.filters = [filterset];
+	filter.enabled = true
+
 	console.log(filter)
 
 	setActiveSearch({

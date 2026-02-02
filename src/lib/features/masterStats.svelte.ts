@@ -1,6 +1,7 @@
 import type {
 	ActiveInvasionCharacterStats,
 	ActiveRaidStats,
+	ContestStatsEntry,
 	MasterStats,
 	PokemonStatEntry,
 	QuestStats,
@@ -115,4 +116,8 @@ export function getActiveRaids(): ActiveRaidStats[] {
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
 	return masterStats?.activeCharacters ?? [];
+}
+
+export function getActiveContests(): ContestStatsEntry[] {
+	return masterStats?.activeContests ?? [];
 }

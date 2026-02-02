@@ -1,5 +1,5 @@
 import { query } from "@/lib/server/db/external/internalQuery";
-import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getQuestKey, parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 type AllShinyStatsRow = {
@@ -30,6 +30,14 @@ type QuestStatsRow = {
 		count: number;
 	}[];
 };
+
+type ContestStatsRow = {
+	ranking_standard: number;
+	focus: string;
+	"": {
+		count: number;
+	}[];
+}
 
 export type ActiveRaidStats = {
 	level: number;
@@ -73,6 +81,12 @@ export type TotalQuestStats = {
 	count: number;
 };
 
+export type ContestStatsEntry = {
+	ranking_standard: number;
+	focus: ContestFocus;
+	count: number;
+}
+
 export type MasterStats = {
 	totalPokemon: TotalPokemonStats;
 	pokemon: {
@@ -82,55 +96,66 @@ export type MasterStats = {
 	quests: QuestStats;
 	activeRaids: ActiveRaidStats[];
 	activeCharacters: ActiveInvasionCharacterStats[];
+	activeContests: ContestStatsEntry[];
 	generatedAt: number;
 };
 
 export async function queryMasterStats(): Promise<MasterStats> {
 	// TODO: timeframe
-	// TODO: this takes a while, and it's cached. but the cache is only filled when a user requests this. amybe there should instead be a cronjob
+	// TODO: there needs to be something like a cronjob to properly update stats in the background
+	// this takes a while, and is cached. but only ever invoked when a user requests for it
 
-	const [allShinyStats, allSpawnStats, allQuestStats, allRaidStats, allCharacterStats] = await Promise.all([
-		query<AllShinyStatsRow[]>(
-			"SELECT pokemon_id, form_id, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
-				"FROM pokemon_shiny_stats " +
-				"WHERE fence = 'world' " +
-				"GROUP BY pokemon_id, form_id "
-		),
-		query<AllSpawnStatsRow[]>(
-			"SELECT pokemon_id, form_id, SUM(count) as count, " +
-				"(SELECT SUM(count) FROM pokemon_stats WHERE fence = 'world') as total_spawns, " +
-				"COUNT(DISTINCT date) as days " +
-				"FROM pokemon_stats " +
-				"WHERE fence = 'world' " +
-				"GROUP BY pokemon_id, form_id " +
-				"HAVING count > 0"
-		),
-		query<QuestStatsRow[]>(
-			"SELECT q.quest_rewards, q.quest_title, q.quest_target, COUNT(*) AS count " +
-			"FROM ( " +
-			"SELECT quest_rewards, quest_title, quest_target " +
-			"FROM pokestop " +
-			"WHERE quest_title IS NOT NULL " +
-			"UNION ALL " +
-			"SELECT alternative_quest_rewards as quest_rewards, alternative_quest_title as quest_title, alternative_quest_target as quest_target " +
-			"FROM pokestop " +
-			"WHERE alternative_quest_title IS NOT NULL " +
-			") q " +
-			"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
-		),
-		query<ActiveRaidStats[]>(
-			"SELECT level, pokemon_id, form_id as form, count " +
-			"FROM raid_stats " +
-			"WHERE date = (SELECT MAX(date) FROM raid_stats) AND area = 'world' " +
-			"ORDER BY level ASC"
-		),
-		query<ActiveInvasionCharacterStats[]>(
-			"SELECT `character`, `count` " +
-			"FROM invasion_stats " +
-			"WHERE date = (SELECT MAX(date) FROM invasion_stats) AND area = 'world' " +
-			"ORDER BY `character` ASC"
-		)
-	]);
+	const [allShinyStats, allSpawnStats, allQuestStats, allRaidStats, allCharacterStats, allContestStats] =
+		await Promise.all([
+			query<AllShinyStatsRow[]>(
+				"SELECT pokemon_id, form_id, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
+					"FROM pokemon_shiny_stats " +
+					"WHERE fence = 'world' " +
+					"GROUP BY pokemon_id, form_id "
+			),
+			query<AllSpawnStatsRow[]>(
+				"SELECT pokemon_id, form_id, SUM(count) as count, " +
+					"(SELECT SUM(count) FROM pokemon_stats WHERE fence = 'world') as total_spawns, " +
+					"COUNT(DISTINCT date) as days " +
+					"FROM pokemon_stats " +
+					"WHERE fence = 'world' " +
+					"GROUP BY pokemon_id, form_id " +
+					"HAVING count > 0"
+			),
+			query<QuestStatsRow[]>(
+				"SELECT q.quest_rewards, q.quest_title, q.quest_target, COUNT(*) AS count " +
+					"FROM ( " +
+					"SELECT quest_rewards, quest_title, quest_target " +
+					"FROM pokestop " +
+					"WHERE quest_title IS NOT NULL " +
+					"UNION ALL " +
+					"SELECT alternative_quest_rewards as quest_rewards, alternative_quest_title as quest_title, alternative_quest_target as quest_target " +
+					"FROM pokestop " +
+					"WHERE alternative_quest_title IS NOT NULL " +
+					") q " +
+					"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
+			),
+			query<ActiveRaidStats[]>(
+				"SELECT level, pokemon_id, form_id as form, count " +
+					"FROM raid_stats " +
+					"WHERE date = (SELECT MAX(date) FROM raid_stats) AND area = 'world' " +
+					"ORDER BY level ASC"
+			),
+			query<ActiveInvasionCharacterStats[]>(
+				"SELECT `character`, `count` " +
+					"FROM invasion_stats " +
+					"WHERE date = (SELECT MAX(date) FROM invasion_stats) AND area = 'world' " +
+					"ORDER BY `character` ASC"
+			),
+			query<ContestStatsRow[]>(
+				"SELECT showcase_ranking_standard AS ranking_standard, showcase_focus AS focus, COUNT(*) as count " +
+				"FROM pokestop " +
+				"WHERE showcase_ranking_standard IS NOT NULL " +
+				"AND showcase_focus IS NOT NULL " +
+				"AND last_modified_timestamp >= UNIX_TIMESTAMP() - 86400 " +
+				"GROUP BY 1, 2"
+			)
+		]);
 
 	const pokemon: { [key: string]: PokemonStatEntry } = {};
 	let pokemonTotal = 0;
@@ -141,6 +166,8 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	let activeRaids: ActiveRaidStats[] = []
 	let activeCharacters: ActiveInvasionCharacterStats[] = []
+
+	const activeContests: ContestStatsEntry[] = []
 
 	if (allShinyStats.result) {
 		for (const row of allShinyStats.result) {
@@ -204,6 +231,17 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		activeCharacters = allCharacterStats.result
 	}
 
+	if (allContestStats.result) {
+		for (const row of allContestStats.result) {
+			const count = Number(row[""][0]?.count ?? 0)
+			activeContests.push({
+				ranking_standard: row.ranking_standard,
+				focus: JSON.parse(row.focus) as ContestFocus,
+				count
+			})
+		}
+	}
+
 	return {
 		totalPokemon: {
 			count: pokemonTotal,
@@ -216,6 +254,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		quests,
 		activeRaids,
 		activeCharacters,
+		activeContests,
 		generatedAt: Date.now()
 	};
 }

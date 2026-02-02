@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { UsersRound } from 'lucide-svelte';
-	import { getIconContest, getIconPokemon, getIconType } from '@/lib/services/uicons.svelte.js';
-	import { mAlignment, mGeneration, mPokemon, mType } from '@/lib/services/ingameLocale.js';
-	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
-	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
-	import type { ContestFocus, ContestRankings, Incident, PokestopData } from '@/lib/types/mapObjectData/pokestop.js';
-	import * as m from '@/lib/paraglide/messages';
-	import { CONTEST_SLOTS, getContestText } from '@/lib/utils/pokestopUtils';
-	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+	import { UsersRound } from "lucide-svelte";
+	import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte.js";
+	import { mAlignment, mGeneration, mPokemon, mType } from "@/lib/services/ingameLocale.js";
+	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
+	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import type { ContestFocus, ContestRankings, Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop.js";
+	import * as m from "@/lib/paraglide/messages";
+	import { CONTEST_SLOTS, getContestIcon, getContestText } from "@/lib/utils/pokestopUtils";
+	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 	let {
 		expanded,
@@ -18,28 +18,21 @@
 		expanded: boolean
 		incident: Incident
 		data: PokestopData
-	} = $props()
+	} = $props();
 
 	const defaultContestRankings: ContestRankings = {
 		total_entries: 0,
 		last_update: 0,
 		contest_entries: []
-	}
+	};
 
-	const contestRankings: ContestRankings = $derived(data?.showcase_rankings ? JSON.parse(data.showcase_rankings) : defaultContestRankings)
+	const contestRankings: ContestRankings = $derived(data?.showcase_rankings ? JSON.parse(data.showcase_rankings) : defaultContestRankings);
 
-	const image = $derived.by(() => {
-		if (data.showcase_pokemon_id) {
-			return getIconPokemon({ pokemon_id: data.showcase_pokemon_id, form: data.showcase_pokemon_form_id })
-		} else if (data.showcase_pokemon_type_id) {
-			return getIconType(data.showcase_pokemon_type_id)
-		}
-		getIconContest()
-	})
+	const image = $derived(getContestIcon(data.contest_focus));
 
-	const name: string = $derived(getContestText(data))
+	const name: string = $derived(data.showcase_ranking_standard && data.contest_focus ? getContestText(data.showcase_ranking_standard, data.contest_focus) : m.unknown_contest());
 
-	const hasNoDetails = $derived((data?.showcase_expiry ?? 0) < currentTimestamp())
+	const hasNoDetails = $derived((data?.showcase_expiry ?? 0) < currentTimestamp());
 </script>
 
 <div class="py-2 border-border border-b group-last:mb-2">

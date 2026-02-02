@@ -363,5 +363,7 @@
     "tasks": "Tasks",
     "pokemon_mega_resource": "{pokemon} Mega Energy",
 	"pokemon_candy": "{pokemon} Candy",
-	"pokemon_xl_candy": "{pokemon} Candy XL"
+	"pokemon_xl_candy": "{pokemon} Candy XL",
+    "kecleon_pokestops": "Kecleon Pokéstops",
+    "pogo_contests": "Showcases"
 }
