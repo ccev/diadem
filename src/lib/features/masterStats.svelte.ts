@@ -3,6 +3,8 @@ import type {
 	ActiveRaidStats,
 	ContestStatsEntry,
 	MasterStats,
+	MaxBattleStatsEntry,
+	NestStatsEntry,
 	PokemonStatEntry,
 	QuestStats,
 	TotalPokemonStats
@@ -120,4 +122,12 @@ export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
 
 export function getActiveContests(): ContestStatsEntry[] {
 	return masterStats?.activeContests ?? [];
+}
+
+export function getActiveMaxBattles(): MaxBattleStatsEntry[] {
+	return masterStats?.activeMaxBattles ?? [];
+}
+
+export function getActiveNests(): NestStatsEntry[] {
+	return masterStats?.activeNests ?? [];
 }

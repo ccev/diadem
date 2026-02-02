@@ -17,6 +17,7 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { AnySearchEntry } from "@/lib/services/search.svelte";
 import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
+import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
 
 export type UiconSetUS = {
 	id: string;
@@ -97,12 +98,7 @@ export function getDefaultUserSettings(): UserSettings {
 			pokemon: { category: "pokemon", ...defaultFilter() },
 			pokestop: getDefaultPokestopFilter(),
 			gym: getDefaultGymFilter(),
-			station: {
-				category: "station",
-				...defaultFilter(),
-				stationPlain: { category: "stationPlain", ...defaultFilter() },
-				maxBattle: { category: "maxBattle", ...defaultFilter() }
-			},
+			station: getDefaultStationFilter(),
 			// s2cell: { category: "s2cell", ...defaultFilter() },
 			s2cell: {
 				category: "s2cell",

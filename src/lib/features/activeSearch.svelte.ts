@@ -1,4 +1,9 @@
-import type { AnyFilter, FilterPokemon, FilterPokestop } from "@/lib/features/filters/filters";
+import type {
+	AnyFilter,
+	FilterNest,
+	FilterPokemon,
+	FilterPokestop
+} from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { mItem, mPokemon } from "@/lib/services/ingameLocale";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
@@ -9,6 +14,8 @@ import type {
 	FiltersetContest,
 	FiltersetInvasion,
 	FiltersetLure,
+	FiltersetMaxBattle,
+	FiltersetNest,
 	FiltersetQuest,
 	FiltersetRaid
 } from "@/lib/features/filters/filtersets";
@@ -16,6 +23,8 @@ import * as m from "@/lib/paraglide/messages";
 import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
+import { defaultFilter } from "@/lib/services/userSettings.svelte";
+import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
 
 export type ActiveSearchParams = {
 	filter: AnyFilter;
@@ -272,11 +281,57 @@ export function setActiveSearchRaidLevel(name: string, level: number) {
 	filter.raid.enabled = true;
 	filter.raid.filters = [filterset]
 	filter.enabled = true
-	console.log(filter)
 
 	setActiveSearch({
 		name,
 		mapObject: MapObjectType.GYM,
+		filter: filter
+	});
+}
+
+export function setActiveSearchMaxBattleBoss(name: string, pokemon_id: number, form: number, bread_mode: number) {
+	const pokemon = { pokemon_id, form_id: form, bread_mode }
+
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		bosses: [pokemon],
+	} as FiltersetMaxBattle;
+
+	const filter = getDefaultStationFilter();
+	filter.maxBattle.enabled = true;
+	filter.maxBattle.filters = [filterset]
+	filter.enabled = true
+
+	console.log(filter)
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.STATION,
+		filter: filter
+	});
+}
+
+export function setActiveSearchNest(name: string, pokemon_id: number, form: number) {
+	const filter = { category: "nest", ...defaultFilter(true) } as FilterNest
+
+	const pokemon = { pokemon_id, form_id: form }
+
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		pokemon: [pokemon]
+	} as FiltersetNest;
+
+	filter.filters.push(filterset)
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.NEST,
 		filter: filter
 	});
 }

@@ -10,7 +10,13 @@ import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
 import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterfile";
-import { getActiveCharacters, getActiveContests, getActiveQuestRewards, getActiveRaids } from "@/lib/features/masterStats.svelte";
+import {
+	getActiveCharacters,
+	getActiveContests,
+	getActiveMaxBattles, getActiveNests,
+	getActiveQuestRewards,
+	getActiveRaids
+} from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getContestText, getRewardText, KECLEON_ID, RewardType } from "@/lib/utils/pokestopUtils";
 import { m } from "@/lib/paraglide/messages";
@@ -39,6 +45,9 @@ export enum SearchableType {
 	INVASION = "invasion",
 	RAID_BOSS = "raid_boss",
 	RAID_LEVEL = "raid_level",
+	MAX_BATTLE_BOSS = "max_battle_boss",
+	MAX_BATTLE_LEVEL = "max_battle_level",
+	NEST = "nest"
 }
 
 export type SearchEntry = {
@@ -72,8 +81,8 @@ export type KecleonSearchEntry = SearchEntry & {
 };
 
 export type ContestSearchEntry = SearchEntry & {
-	rankingStandard: number,
-	focus: ContestFocus,
+	rankingStandard: number;
+	focus: ContestFocus;
 	type: SearchableType.CONTEST;
 };
 
@@ -89,13 +98,31 @@ export type InvasionSearchEntry = SearchEntry & {
 
 export type RaidBossSearchEntry = SearchEntry & {
 	type: SearchableType.RAID_BOSS;
-	pokemon_id: number
-	form_id: number
+	pokemon_id: number;
+	form_id: number;
 };
 
-export type RaidLevelEntry = SearchEntry & {
+export type RaidLevelSearchEntry = SearchEntry & {
 	type: SearchableType.RAID_LEVEL;
 	level: number;
+};
+
+export type MaxBattleBossSearchEntry = SearchEntry & {
+	type: SearchableType.MAX_BATTLE_BOSS;
+	pokemon_id: number;
+	form: number;
+	bread_mode: number;
+};
+
+export type MaxBattleLevelSearchEntry = SearchEntry & {
+	type: SearchableType.MAX_BATTLE_LEVEL;
+	level: number;
+};
+
+export type NestSearchEntry = SearchEntry & {
+	type: SearchableType.NEST;
+	pokemon_id: number;
+	form: number;
 };
 
 export type AnySearchEntry =
@@ -107,7 +134,10 @@ export type AnySearchEntry =
 	| LureSearchEntry
 	| InvasionSearchEntry
 	| RaidBossSearchEntry
-	| RaidLevelEntry
+	| RaidLevelSearchEntry
+	| MaxBattleBossSearchEntry
+	| MaxBattleLevelSearchEntry
+	| NestSearchEntry;
 
 let currentSearchQuery = $state("");
 
@@ -176,7 +206,7 @@ export function initSearch() {
 		}
 	] as KecleonSearchEntry[];
 
-	const contestEntries = getActiveContests().map(contest => {
+	const contestEntries = getActiveContests().map((contest) => {
 		return {
 			name: getContestText(contest.ranking_standard, contest.focus),
 			category: "pogo_contests",
@@ -184,41 +214,41 @@ export function initSearch() {
 			type: SearchableType.CONTEST,
 			rankingStandard: contest.ranking_standard,
 			focus: contest.focus
-		} as ContestSearchEntry
-	})
+		} as ContestSearchEntry;
+	});
 
-	const lureEntries = getAllLureModuleIds().map(lure => {
+	const lureEntries = getAllLureModuleIds().map((lure) => {
 		return {
 			name: mItem(lure),
 			category: "pogo_pokestops",
 			key: "lure-" + lure,
 			type: SearchableType.LURE,
 			itemId: lure
-		} as LureSearchEntry
-	})
+		} as LureSearchEntry;
+	});
 
-	const invasionEntries = getActiveCharacters().map(character => {
+	const invasionEntries = getActiveCharacters().map((character) => {
 		return {
 			name: mCharacter(character.character),
 			category: "pogo_invasion",
 			key: "invasion-" + character.character,
 			type: SearchableType.INVASION,
 			characterId: character.character
-		} as InvasionSearchEntry
-	})
+		} as InvasionSearchEntry;
+	});
 
-	const processedLevels: Set<number> = new Set()
-	const raidLevelEntries: RaidLevelEntry[] = []
-	const raidBossEntries = getActiveRaids().map(raidBoss => {
-		if (!processedLevels.has(raidBoss.level)) {
-			processedLevels.add(raidBoss.level)
+	const processedRaidLevels: Set<number> = new Set();
+	const raidLevelEntries: RaidLevelSearchEntry[] = [];
+	const raidBossEntries = getActiveRaids().map((raidBoss) => {
+		if (!processedRaidLevels.has(raidBoss.level)) {
+			processedRaidLevels.add(raidBoss.level);
 			raidLevelEntries.push({
 				name: mRaid(raidBoss.level, true),
 				category: "raids",
 				key: "raidlevel-" + raidBoss.level,
 				type: SearchableType.RAID_LEVEL,
 				level: raidBoss.level
-			})
+			});
 		}
 
 		return {
@@ -228,7 +258,43 @@ export function initSearch() {
 			type: SearchableType.RAID_BOSS,
 			pokemon_id: raidBoss.pokemon_id,
 			form_id: raidBoss.form
-		} as RaidBossSearchEntry
+		} as RaidBossSearchEntry;
+	});
+
+	// const processedMaxBattleLevels: Set<number> = new Set();
+	// const maxBattleLevelEntries: MaxBattleLevelSearchEntry[] = [];
+	const maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
+		// if (!processedMaxBattleLevels.has(maxBattle.level)) {
+		// 	processedMaxBattleLevels.add(maxBattle.level);
+		// 	maxBattleLevelEntries.push({
+		// 		name: m.x_star_max_battles({ level: maxBattle.level }),
+		// 		category: "max_battles",
+		// 		key: "maxbattlelevel-" + maxBattle.level,
+		// 		type: SearchableType.MAX_BATTLE_LEVEL,
+		// 		level: maxBattle.level
+		// 	});
+		// }
+
+		return {
+			name: m.pokemon_max_battles({ pokemon: mPokemon(maxBattle) }),
+			category: "max_battles",
+			key: "raidboss- " + maxBattle.pokemon_id + "-" + maxBattle.form + "-" + maxBattle.bread_mode,
+			type: SearchableType.MAX_BATTLE_BOSS,
+			pokemon_id: maxBattle.pokemon_id,
+			form: maxBattle.form,
+			bread_mode: maxBattle.bread_mode
+		} as MaxBattleBossSearchEntry;
+	});
+
+	const nestEntries = getActiveNests().map(nest => {
+		return {
+			name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
+			category: "nests",
+			key: "nest-" + nest.pokemon_id + "-" + nest.form,
+			type: SearchableType.NEST,
+			pokemon_id: nest.pokemon_id,
+			form: nest.form
+		} as NestSearchEntry
 	})
 
 	// order matters. sorted by priority
@@ -237,13 +303,16 @@ export function initSearch() {
 		...kecleonEntries,
 		...invasionEntries,
 		...pokemonEntries,
+		...nestEntries,
 		...raidLevelEntries,
 		...raidBossEntries,
+		// ...maxBattleLevelEntries,
+		...maxBattleBossEntries,
 		...contestEntries,
 		...questEntries,
 		...lureEntries
 	];
-	fuzzy = createFuzzySearch(allSearchResults, { getText: e => [e.name, m[e.category]?.()] });
+	fuzzy = createFuzzySearch(allSearchResults, { getText: (e) => [e.name, m[e.category]?.()] });
 }
 
 export function search(query: string, limit: boolean) {

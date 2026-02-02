@@ -10,13 +10,20 @@ import {
 } from "@/lib/services/uicons.svelte.js";
 import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-import { FORT_OUTDATED_SECONDS, SELECTED_MAP_OBJECT_SCALE, SPAWNPOINT_OUTDATED_SECONDS } from "@/lib/constants";
+import {
+	FORT_OUTDATED_SECONDS,
+	SELECTED_MAP_OBJECT_SCALE,
+	SPAWNPOINT_OUTDATED_SECONDS
+} from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
-import { getCurrentSelectedData, isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte.js";
+import {
+	getCurrentSelectedData,
+	isCurrentSelectedOverwrite
+} from "@/lib/mapObjects/currentSelectedState.svelte.js";
 import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getStationPokemon } from "@/lib/utils/stationUtils";
+import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtils";
 import {
 	getActivePokestopFilter,
 	hasFortActiveLure,
@@ -29,6 +36,7 @@ import { getActiveGymFilter, getRaidPokemon, shouldDisplayRaid } from "@/lib/uti
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
 import { geojson, s2 } from "s2js";
+import { shouldDisplayNest } from "@/lib/utils/nestUtils";
 
 export enum MapObjectFeatureType {
 	ICON = 0,
@@ -52,7 +60,7 @@ export type MapObjectPolygonProperties = {
 	fillColor: string;
 	strokeColor: string;
 	selectedFill: string;
-	isSelected: boolean
+	isSelected: boolean;
 };
 
 export type MapObjectCircleProperties = {
@@ -140,7 +148,7 @@ function getPolygonFeature(
 		},
 		properties: {
 			...properties,
-			type: MapObjectFeatureType.POLYGON,
+			type: MapObjectFeatureType.POLYGON
 		},
 		id
 	};
@@ -200,7 +208,7 @@ export function updateSelected(currentSelected: MapData | null) {
 			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
 				feature.properties.selectedScale = 1;
 			} else if (isFeaturePolygon(feature)) {
-				feature.properties.isSelected = false
+				feature.properties.isSelected = false;
 			}
 		}
 		selectedFeatures = [];
@@ -213,7 +221,7 @@ export function updateSelected(currentSelected: MapData | null) {
 			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
 				feature.properties.selectedScale = SELECTED_MAP_OBJECT_SCALE;
 			} else if (isFeaturePolygon(feature)) {
-				feature.properties.isSelected = true
+				feature.properties.isSelected = true;
 			}
 		}
 
@@ -247,9 +255,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	for (const [type, thisFeatures] of Object.entries(features)) {
 		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
 			if (
-				subFeatures.find(
-					(f) => f.properties?.expires && f.properties.expires < timestamp
-				) ||
+				subFeatures.find((f) => f.properties?.expires && f.properties.expires < timestamp) ||
 				!(existingId in mapObjects)
 			) {
 				delete features[type][existingId];
@@ -276,15 +282,24 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
 
 		if (obj.type === MapObjectType.POKESTOP) {
-			showThis = showAllPokestops || showLures && hasFortActiveLure(obj) || isSelected;
+			showThis = showAllPokestops || (showLures && hasFortActiveLure(obj)) || isSelected;
 			if (showQuests) {
 				const questModifiers = getModifiers(userIconSet, "quest");
 				if (obj.alternative_quest_target && obj.alternative_quest_rewards) {
 					// no ar
 					const reward = parseQuestReward(obj.alternative_quest_rewards);
 
-					if (!reward || !shouldDisplayQuest(reward, obj.alternative_quest_title ?? "", obj.alternative_quest_title, false)) continue;
-					showThis = true
+					if (
+						!reward ||
+						!shouldDisplayQuest(
+							reward,
+							obj.alternative_quest_title ?? "",
+							obj.alternative_quest_title,
+							false
+						)
+					)
+						continue;
+					showThis = true;
 
 					const mapId = obj.mapId + "-altquest-" + obj.alternative_quest_timestamp;
 
@@ -305,8 +320,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				if (obj.quest_target && obj.quest_rewards) {
 					// ar
 					const reward = parseQuestReward(obj.quest_rewards);
-					if (!reward || !shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true)) continue;
-					showThis = true
+					if (!reward || !shouldDisplayQuest(reward, obj.quest_title ?? "", obj.quest_target, true))
+						continue;
+					showThis = true;
 
 					const mapId = obj.mapId + "-quest-" + obj.quest_timestamp;
 					const spacing = subFeatures.length === 0 ? 0 : questModifiers.spacing;
@@ -330,12 +346,17 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			let index = 0;
 			for (const incident of obj?.incident ?? []) {
 				if (shouldDisplayIncidient(incident, obj)) {
-					showThis = true
+					showThis = true;
 				} else {
-					continue
+					continue;
 				}
 
-				if (!showInvasions || !incident.id || !isIncidentInvasion(incident) || incident.expiration < timestamp) {
+				if (
+					!showInvasions ||
+					!incident.id ||
+					!isIncidentInvasion(incident) ||
+					incident.expiration < timestamp
+				) {
 					continue;
 				}
 
@@ -411,121 +432,107 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			if (obj.expire_timestamp && obj.expire_timestamp < timestamp) continue;
 			expires = obj.expire_timestamp;
 		} else if (obj.type === MapObjectType.STATION) {
-			expires = obj.end_time;
-			if (obj.battle_pokemon_id) {
-				const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;
-				const maxBattleModifiers = getModifiers(userIconSet, "max_battle");
+			showThis = false
+			if (shouldDisplayStation(obj)) {
+				expires = obj.end_time;
+				showThis = true
+				if (obj.battle_pokemon_id) {
+					const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;
+					const maxBattleModifiers = getModifiers(userIconSet, "max_battle");
 
-				subFeatures.push(
-					getIconFeature(mapId, [obj.lon, obj.lat], {
-						imageUrl: getIconPokemon(getStationPokemon(obj)),
-						imageSize: maxBattleModifiers.scale,
-						selectedScale: selectedScale,
-						imageOffset: [
-							modifiers.offsetX + maxBattleModifiers.offsetX,
-							modifiers.offsetY + maxBattleModifiers.offsetY
-						],
-						id: obj.mapId,
-						expires: obj.end_time ?? null
-					})
-				);
+					subFeatures.push(
+						getIconFeature(mapId, [obj.lon, obj.lat], {
+							imageUrl: getIconPokemon(getStationPokemon(obj)),
+							imageSize: maxBattleModifiers.scale,
+							selectedScale: selectedScale,
+							imageOffset: [
+								modifiers.offsetX + maxBattleModifiers.offsetX,
+								modifiers.offsetY + maxBattleModifiers.offsetY
+							],
+							id: obj.mapId,
+							expires: obj.end_time ?? null
+						})
+					);
+				}
 			}
 		} else if (obj.type === MapObjectType.NEST) {
 			showThis = false;
 
-			// this is ugly code to transform mysqls's weird polygon format to geojson
-			let polygon: MultiPolygon["coordinates"];
-			if (Array.isArray(obj.polygon[0][0])) {
-				polygon = obj.polygon.map((polygon) =>
+			if (shouldDisplayNest(obj)) {
+				// this is ugly code to transform mysqls's weird polygon format to geojson
+				let polygon: MultiPolygon["coordinates"];
+				if (Array.isArray(obj.polygon[0][0])) {
+					polygon = obj.polygon.map((polygon) =>
+						// @ts-ignore
+						polygon.map((ring) => ring.map((p) => [p.x, p.y]))
+					);
+				} else {
 					// @ts-ignore
-					polygon.map((ring) => ring.map((p) => [p.x, p.y]))
+					polygon = [obj.polygon.map((ring) => ring.map((p) => [p.x, p.y]))];
+				}
+
+				subFeatures.push(
+					getIconFeature(obj.mapId, [obj.lon, obj.lat], {
+						imageUrl: getIconPokemon(obj),
+						id: obj.mapId,
+						imageSize: modifiers.scale,
+						selectedScale: selectedScale,
+						imageOffset: [modifiers.offsetX, modifiers.offsetY],
+						expires
+					})
 				);
-			} else {
-				// @ts-ignore
-				polygon = [obj.polygon.map((ring) => ring.map((p) => [p.x, p.y]))];
+
+				subFeatures.push(
+					getCircleFeature(obj.mapId, [obj.lon, obj.lat], {
+						id: obj.mapId,
+						strokeColor: styles.getPropertyValue("--nest-circle-stroke"),
+						fillColor: styles.getPropertyValue("--nest-circle"),
+						radius: 52 * modifiers.scale,
+						selectedScale: selectedScale
+					})
+				);
+				subFeatures.push(
+					getPolygonFeature(obj.mapId, polygon, {
+						id: obj.mapId,
+						strokeColor: styles.getPropertyValue("--nest-polygon-stroke"),
+						fillColor: styles.getPropertyValue("--nest-polygon"),
+						selectedFill: styles.getPropertyValue("--nest-polygon-selected"),
+						isSelected
+					})
+				);
 			}
-
-			subFeatures.push(
-				getIconFeature(obj.mapId, [obj.lon, obj.lat], {
-					imageUrl: getIconPokemon(obj),
-					id: obj.mapId,
-					imageSize: modifiers.scale,
-					selectedScale: selectedScale,
-					imageOffset: [modifiers.offsetX, modifiers.offsetY],
-					expires
-				})
-			);
-
-			// // right
-			// subFeatures.push(
-			// 	getIconFeature(obj.mapId, [obj.lon, obj.lat], {
-			// 		imageUrl: getIconPokemon(obj),
-			// 		id: obj.mapId,
-			// 		imageSize: modifiers.scale * 0.5,
-			// 		selectedScale: selectedScale,
-			// 		imageOffset: [modifiers.offsetX + 50, modifiers.offsetY - 10],
-			// 		expires
-			// 	})
-			// );
-			//
-			// // left
-			// subFeatures.push(
-			// 	getIconFeature(obj.mapId, [obj.lon, obj.lat], {
-			// 		imageUrl: getIconPokemon(obj),
-			// 		id: obj.mapId,
-			// 		imageSize: modifiers.scale * 0.5,
-			// 		selectedScale: selectedScale,
-			// 		imageOffset: [modifiers.offsetX - 50, modifiers.offsetY - 10],
-			// 		expires
-			// 	})
-			// );
+		} else if (obj.type === MapObjectType.SPAWNPOINT) {
+			showThis = false;
+			const isOutdated = obj.last_seen < timestamp - SPAWNPOINT_OUTDATED_SECONDS;
+			let cssVar = "--spawnpoint";
+			if (isOutdated) cssVar += "-inactive";
 
 			subFeatures.push(
 				getCircleFeature(obj.mapId, [obj.lon, obj.lat], {
 					id: obj.mapId,
-					strokeColor: styles.getPropertyValue("--nest-circle-stroke"),
-					fillColor: styles.getPropertyValue("--nest-circle"),
-					radius: 52 * modifiers.scale,
+					strokeColor: styles.getPropertyValue(cssVar + "-stroke"),
+					fillColor: styles.getPropertyValue(cssVar),
+					radius: 3,
 					selectedScale: selectedScale
 				})
 			);
-			subFeatures.push(
-				getPolygonFeature(obj.mapId, polygon, {
-					id: obj.mapId,
-					strokeColor: styles.getPropertyValue("--nest-polygon-stroke"),
-					fillColor: styles.getPropertyValue("--nest-polygon"),
-					selectedFill: styles.getPropertyValue("--nest-polygon-selected"),
-					isSelected
-				})
-			);
-		} else if (obj.type === MapObjectType.SPAWNPOINT) {
-			showThis = false
-			const isOutdated = obj.last_seen < timestamp - SPAWNPOINT_OUTDATED_SECONDS
-			let cssVar = "--spawnpoint"
-			if (isOutdated) cssVar += "-inactive"
-
-			subFeatures.push(getCircleFeature(obj.mapId, [obj.lon, obj.lat], {
-				id: obj.mapId,
-				strokeColor: styles.getPropertyValue(cssVar + "-stroke"),
-				fillColor: styles.getPropertyValue(cssVar),
-				radius: 3,
-				selectedScale: selectedScale
-			}))
 		} else if (obj.type === MapObjectType.ROUTE) {
 		} else if (obj.type === MapObjectType.TAPPABLE) {
 			if (obj.expire_timestamp && obj.expire_timestamp < timestamp) continue;
-			expires = obj.expire_timestamp
+			expires = obj.expire_timestamp;
 		} else if (obj.type === MapObjectType.S2_CELL) {
-			showThis = false
+			showThis = false;
 			const cell = s2.Cell.fromCellID(obj.cellId);
 			const polygon = geojson.toGeoJSON(cell) as Polygon;
-			subFeatures.push(getPolygonFeature(obj.mapId, [polygon.coordinates], {
-				id: obj.mapId,
-				strokeColor: styles.getPropertyValue("--s2cell-polygon-stroke"),
-				fillColor: styles.getPropertyValue("--s2cell-polygon"),
-				selectedFill: styles.getPropertyValue("--s2cell-polygon-selected"),
-				isSelected
-			}))
+			subFeatures.push(
+				getPolygonFeature(obj.mapId, [polygon.coordinates], {
+					id: obj.mapId,
+					strokeColor: styles.getPropertyValue("--s2cell-polygon-stroke"),
+					fillColor: styles.getPropertyValue("--s2cell-polygon"),
+					selectedFill: styles.getPropertyValue("--s2cell-polygon-selected"),
+					isSelected
+				})
+			);
 		}
 
 		// subFeatures.push(

@@ -125,9 +125,11 @@ export type FiltersetRaid = BaseFilterset & {
 
 export type FiltersetStationPlain = BaseFilterset & {};
 
+type BreadModePokemon = Pokemon & { bread_mode: number }
+
 export type FiltersetMaxBattle = BaseFilterset & {
 	levels?: number[];
-	bosses?: Pokemon[];
+	bosses?: BreadModePokemon[];
 	isActive?: boolean;
 	hasGmax?: boolean;
 };
@@ -136,7 +138,9 @@ export type FiltersetS2Cell = BaseFilterset & {
 	level?: number;
 };
 
-export type FiltersetNest = BaseFilterset & {}
+export type FiltersetNest = BaseFilterset & {
+	pokemon?: Pokemon[];
+}
 
 export type FiltersetSpawnpoint = BaseFilterset & {}
 

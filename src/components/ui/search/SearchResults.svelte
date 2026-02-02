@@ -3,7 +3,7 @@
 	import { type AnySearchEntry, SearchableType } from "@/lib/services/search.svelte";
 	import {
 		setActiveSearchContest, setActiveSearchInvasion,
-		setActiveSearchKecleon, setActiveSearchLure,
+		setActiveSearchKecleon, setActiveSearchLure, setActiveSearchMaxBattleBoss, setActiveSearchNest,
 		setActiveSearchPokemon,
 		setActiveSearchQuest, setActiveSearchRaidBoss, setActiveSearchRaidLevel
 	} from "@/lib/features/activeSearch.svelte";
@@ -103,6 +103,22 @@
 				setActiveSearchRaidLevel(entry.name, entry.level)
 			}}
 			imageUrl={resize(getIconRaidEgg(entry.level), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.MAX_BATTLE_BOSS}
+		<SearchItem
+			{result}
+			onselect={() => {
+				setActiveSearchMaxBattleBoss(entry.name, entry.pokemon_id, entry.form, entry.bread_mode)
+			}}
+			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.NEST}
+		<SearchItem
+			{result}
+			onselect={() => {
+				setActiveSearchNest(entry.name, entry.pokemon_id, entry.form)
+			}}
+			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>
 	{/if}
 {/each}
