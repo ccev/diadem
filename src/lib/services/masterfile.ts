@@ -79,3 +79,9 @@ export function getMasterWeather(weatherId: string | number | undefined): Master
 
 	return masterFile.weather["" + weatherId]
 }
+
+export function getAllLureModuleIds(): number[] {
+	return Object.keys(masterFile.items)
+		.filter(i => i.startsWith("5"))
+		.map(Number)
+}

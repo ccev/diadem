@@ -17,4 +17,5 @@ export type MasterWeather = {
 export type MasterFile = {
 	pokemon: { [key: string]: MasterPokemon }
 	weather: { [key: string]: MasterWeather }
+	items: { [key: string]: string}
 }

@@ -49,7 +49,12 @@ export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | un
 		if (filter.lure.enabled) {
 			for (const filterset of filter.lure.filters) {
 				if (filterset.items !== undefined) {
-					conditions.push("lure_id IN ? AND lure_expire_timestamp > UNIX_TIMESTAMP()")
+					let condition = "lure_expire_timestamp > UNIX_TIMESTAMP() AND lure_id IN "
+
+					// no sql injection pls
+					const items = filterset.items.filter(i => i >= 500 && i < 600)
+					condition += "(" + items.join(",") + ")"
+					conditions.push(condition)
 				}
 			}
 			if (filter.lure.filters.length === 0) {

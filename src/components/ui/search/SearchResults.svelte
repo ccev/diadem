@@ -3,12 +3,12 @@
 	import { type AnySearchEntry, SearchableType } from "@/lib/services/search.svelte";
 	import {
 		setActiveSearchContest,
-		setActiveSearchKecleon,
+		setActiveSearchKecleon, setActiveSearchLure,
 		setActiveSearchPokemon,
 		setActiveSearchQuest
 	} from "@/lib/features/activeSearch.svelte";
 	import { resize } from "@/lib/services/assets";
-	import { getIconPokemon, getIconReward } from "@/lib/services/uicons.svelte";
+	import { getIconPokemon, getIconPokestop, getIconReward } from "@/lib/services/uicons.svelte";
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
 	import { m } from "@/lib/paraglide/messages";
 	import { getFeatureJump } from "@/lib/utils/geo";
@@ -65,6 +65,14 @@
 				setActiveSearchContest(entry.name, entry.rankingStandard, entry.focus)
 			}}
 			imageUrl={resize(getContestIcon(entry.focus), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.LURE}
+		<SearchItem
+			{result}
+			onselect={() => {
+				setActiveSearchLure(entry.name, entry.itemId)
+			}}
+			imageUrl={resize(getIconPokestop({ lure_id: entry.itemId, lure_expire_timestamp: Infinity }), { width: 64 })}
 		/>
 	{/if}
 {/each}

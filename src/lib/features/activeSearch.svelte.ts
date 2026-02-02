@@ -5,7 +5,11 @@ import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { getDefaultPokestopFilter, RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import type { FiltersetContest, FiltersetQuest } from "@/lib/features/filters/filtersets";
+import type {
+	FiltersetContest,
+	FiltersetLure,
+	FiltersetQuest
+} from "@/lib/features/filters/filtersets";
 import * as m from "@/lib/paraglide/messages";
 import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
@@ -173,6 +177,27 @@ export function setActiveSearchContest(name: string, rankingStandard: number, fo
 	filter.enabled = true
 
 	console.log(filter)
+
+	setActiveSearch({
+		name,
+		mapObject: MapObjectType.POKESTOP,
+		filter: filter
+	});
+}
+
+export function setActiveSearchLure(name: string, itemId: number) {
+	const filterset = {
+		id: "searchOverwrite",
+		enabled: true,
+		title: { message: "unknown_filter" },
+		icon: { isUserSelected: false },
+		items: [itemId],
+	} as FiltersetLure;
+
+	const filter = getDefaultPokestopFilter();
+	filter.lure.enabled = true;
+	filter.lure.filters = [filterset]
+	filter.enabled = true
 
 	setActiveSearch({
 		name,

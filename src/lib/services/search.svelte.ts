@@ -1,6 +1,6 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { mPokemon, prefixes } from "@/lib/services/ingameLocale";
+import { mItem, mPokemon, prefixes } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
 	type FuzzyMatches,
 	type FuzzySearcher,
@@ -9,7 +9,7 @@ import createFuzzySearch, {
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
-import { getSpawnablePokemon } from "@/lib/services/masterfile";
+import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterfile";
 import { getActiveContests, getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getContestText, getRewardText, KECLEON_ID, RewardType } from "@/lib/utils/pokestopUtils";
@@ -33,7 +33,8 @@ export enum SearchableType {
 	STATION = "station",
 	QUEST = "quest",
 	KECLEON = "kecleon",
-	CONTEST = "contest"
+	CONTEST = "contest",
+	LURE = "lure"
 }
 
 export type SearchEntry = {
@@ -72,12 +73,18 @@ export type ContestSearchEntry = SearchEntry & {
 	type: SearchableType.CONTEST;
 };
 
+export type LureSearchEntry = SearchEntry & {
+	type: SearchableType.LURE;
+	itemId: number;
+};
+
 export type AnySearchEntry =
 	| PokemonSearchEntry
 	| AreaSearchEntry
 	| QuestSearchEntry
 	| KecleonSearchEntry
 	| ContestSearchEntry
+	| LureSearchEntry
 
 let currentSearchQuery = $state("");
 
@@ -158,13 +165,24 @@ export function initSearch() {
 		} as ContestSearchEntry
 	})
 
+	const lureEntries = getAllLureModuleIds().map(lure => {
+		return {
+			name: mItem(lure),
+			category: "pogo_pokestops",
+			key: "lure-" + lure,
+			type: SearchableType.LURE,
+			itemId: lure
+		} as LureSearchEntry
+	})
+
 	// order matters. sorted by priority
 	const allSearchResults = [
 		...areaEntries,
 		...kecleonEntries,
 		...pokemonEntries,
 		...contestEntries,
-		...questEntries
+		...questEntries,
+		...lureEntries
 	];
 	fuzzy = createFuzzySearch(allSearchResults, { getText: e => [e.name, m[e.category]?.()] });
 }
