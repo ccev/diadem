@@ -38,6 +38,7 @@
 	import { openMenu } from "@/lib/ui/menus.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
+	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -226,4 +227,5 @@
 
 	<MarkerCurrentLocation />
 	<MarkerContextMenu />
+	<MarkerSearchedLocation />
 </MapLibre>

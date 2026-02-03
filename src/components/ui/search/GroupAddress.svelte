@@ -4,7 +4,7 @@
 	import { flyTo } from '@/lib/map/utils';
 	import SearchItem from '@/components/ui/search/SearchItem.svelte';
 	import { Debounced, watch } from "runed";
-	import { type AddressData, geocode } from '@/lib/features/geocoding';
+	import { type AddressData, searchAddress } from '@/lib/features/geocoding';
 	import * as m from '@/lib/paraglide/messages';
 	import { closeModal } from '@/lib/ui/modal.svelte';
 	import { Coords } from "@/lib/utils/coordinates";
@@ -21,7 +21,7 @@
 	function searchAddress() {
 		if (searchQuery.length > 3) {
 			isLoading = true
-			geocode(searchQuery).then(a => {
+			searchAddress(searchQuery).then(a => {
 				addresses = a
 				isLoading = false
 			})
@@ -44,7 +44,7 @@
 				flyTo(Coords.infer(address.center), 14)
 				closeModal("search")
 			}}
-			value={"" + address.id}
+			value={address.id}
 			label={address.name}
 			iconName={"MapPin"}
 		/>

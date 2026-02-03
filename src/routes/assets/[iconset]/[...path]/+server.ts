@@ -4,9 +4,9 @@ import sharp, { type ResizeOptions } from "sharp";
 import { getServerLogger } from "@/lib/server/logging";
 import { ALLOWED_WIDTHS } from "@/lib/services/assets";
 import { getLogger } from "@/lib/utils/logger";
+import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 
 const log = getLogger("uicons");
-const CACHE_AGE = 86400 * 7; // 7 days
 
 export async function GET({ params, fetch, url }) {
 	const start = performance.now();
@@ -55,8 +55,8 @@ export async function GET({ params, fetch, url }) {
 
 		return new Response(webp, {
 			headers: {
+				...cacheHttpHeaders(),
 				"Content-Type": "image/webp",
-				"Cache-Control": `public, max-age=${CACHE_AGE}`
 			}
 		});
 	} catch (err) {

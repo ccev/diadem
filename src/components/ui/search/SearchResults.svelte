@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { FuzzyResult } from "@nozbe/microfuzz";
-	import { type AnySearchEntry, SearchableType } from "@/lib/services/search.svelte";
+	import { type AnySearchEntry, SearchableType, setSearchedLocation } from "@/lib/services/search.svelte";
 	import {
 		setActiveSearchContest, setActiveSearchInvasion,
 		setActiveSearchKecleon, setActiveSearchLure, setActiveSearchMaxBattleBoss, setActiveSearchNest,
@@ -9,7 +9,7 @@
 	} from "@/lib/features/activeSearch.svelte";
 	import { resize } from "@/lib/services/assets";
 	import {
-		getIconInvasion,
+		getIconInvasion, getIconItem,
 		getIconPokemon,
 		getIconPokestop,
 		getIconRaidEgg,
@@ -21,6 +21,8 @@
 	import { flyTo } from "@/lib/map/utils";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
 	import { getContestIcon, KECLEON_ID } from "@/lib/utils/pokestopUtils";
+	import { point } from "@turf/turf";
+	import { Coords } from "@/lib/utils/coordinates";
 
 	let {
 		results
@@ -45,6 +47,16 @@
 			onselect={() => {
 				const jumpTo = getFeatureJump(entry.feature)
 				flyTo(jumpTo.coords, jumpTo.zoom)
+				closeSearchModal()
+			}}
+		/>
+	{:else if entry.type === SearchableType.ADDRESS}
+		<SearchItem
+			{result}
+			onselect={() => {
+				const jumpTo = getFeatureJump(point(entry.point, undefined, { bbox: entry.bbox }))
+				flyTo(jumpTo.coords, jumpTo.zoom)
+				setSearchedLocation(jumpTo.coords)
 				closeSearchModal()
 			}}
 		/>
@@ -78,7 +90,7 @@
 			onselect={() => {
 				setActiveSearchLure(entry.name, entry.itemId)
 			}}
-			imageUrl={resize(getIconPokestop({ lure_id: entry.itemId, lure_expire_timestamp: Infinity }), { width: 64 })}
+			imageUrl={resize(getIconItem(entry.itemId), { width: 64 })}
 		/>
 	{:else if entry.type === SearchableType.INVASION}
 		<SearchItem

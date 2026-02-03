@@ -30,6 +30,7 @@ set this up yourself. But I'm not stopping you:
       reverse_proxy * 127.0.0.1:3900
     }
     ```
+
 ### Update
 1. `git pull`
 2. `./setup.sh && pnpm install && pnpm run build`
@@ -51,6 +52,16 @@ But I suggest adding your own caching rules, i.e. with Cloudflare:
 - In you CF dashboard, go to your domain -> Caching -> Cache rules -> Create rule
 - Set a name, and set `URI Full` | `wildcard` | `https://map.co/assets/*`
 - Optionally configure the caching rule and save
+
+### Address Search
+
+Diadem has a fully featured search function, that includes an address search.
+If you want to enable it, it's **highly** recommended to 
+[set up Pelias](https://github.com/pelias/docker). 
+Nominatim is also supported, but using it is highly discouraged.
+
+Setting up Pelias take a bit of effort, but should eventually replace Nominatim in the 
+Unown# Stack. [They also offer a hosted solution](https://geocode.earth/) that can be used instead.
 
 ## Contributing
 

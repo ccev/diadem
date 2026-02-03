@@ -14,7 +14,7 @@ export class Coords {
 		this.lon = lon;
 	}
 
-	static infer(coords: maplibre.LngLat | LatLon | number[]): Coords {
+	static infer(coords: maplibre.LngLat | maplibre.LngLatLike | LatLon | number[]): Coords {
 		if ("lng" in coords) {
 			return new Coords(coords.lat, coords.lng);
 		} else if ("lon" in coords) {

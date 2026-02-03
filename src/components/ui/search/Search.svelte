@@ -1,14 +1,14 @@
 ()
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { Nut, Search, Squirrel, X } from "lucide-svelte";
+	import { LoaderCircle, MapPin, Nut, Search, Squirrel, X } from "lucide-svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import ModalTop from "@/components/ui/modal/ModalTop.svelte";
 	import {
 		type AnySearchEntry,
-		getCurrentSearchQuery,
+		getCurrentSearchQuery, getCurrentSearchResults, getIsSearchingAddress,
 		search,
 		setCurrentSearchQuery
 	} from "@/lib/services/search.svelte";
@@ -28,7 +28,11 @@
 		return { item: i, score: 0, matches: [] };
 	}));
 
-	let results: FuzzyResult<AnySearchEntry>[] = $derived(search(getCurrentSearchQuery(), true));
+	let results = $derived(getCurrentSearchResults());
+
+	$effect(() => {
+		search(getCurrentSearchQuery(), true);
+	});
 
 	// const debounced = new Debounced(() => searchQuery, 80);
 	// const results = $derived(search(debounced.current, true))
@@ -78,8 +82,8 @@
 							<SearchResults results={recentSearches} />
 						</Command.GroupItems>
 					</Command.Group>
-				<!--this sometimes shows up even though there's results. extra check to avoid that-->
-				{:else if results.length === 0}
+					<!--this sometimes shows up even though there's results. extra check to avoid that-->
+				{:else if results.length === 0 && !getIsSearchingAddress()}
 					<Command.Empty>
 						<div
 							class="w-full flex gap-4 --justify-center items-center px-4 py-3 text-muted-foreground text-sm">
@@ -112,7 +116,20 @@
 						</div>
 					</Command.Empty>
 				{/if}
-				<SearchResults {results} />
+
+				<Command.Group class="mt-1">
+					<Command.GroupItems>
+						<SearchResults {results} />
+					</Command.GroupItems>
+				</Command.Group>
+
+				{#if getIsSearchingAddress()}
+					<div class="py-1.5 px-2 text-sm text-muted-foreground flex gap-2 items-center animate-pulse duration-1000">
+						<MapPin class="shrink-0" size="16" />
+
+						<span>{m.searching_for_addresses}</span>
+					</div>
+				{/if}
 			</Command.Viewport>
 		</Command.List>
 	</Command.Root>

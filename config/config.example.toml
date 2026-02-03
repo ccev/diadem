@@ -20,10 +20,16 @@ url = "http://127.0.0.1:8080"
 secret = "secret"
 projectName = "reactmap"
 
-# Optional nominatim integration. Uncomment to disable
-[server.nominatim]
-url = "http://127.0.0.1:500"
-basicAuth = ""
+# For address search, both Pelias and Nominatim are supported.
+# Using Pelias over Nominatim is highly recommended. Refer to the readme for more info.
+#
+#[server.pelias]
+#url = "https://api.geocode.earth/"
+#apiKey = "key"
+
+#[server.nominatim]
+#url = "http://127.0.0.1:500"
+#basicAuth = ""
 
 [server.auth]
 enabled = true

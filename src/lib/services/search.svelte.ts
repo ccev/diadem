@@ -2,7 +2,8 @@ import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { mCharacter, mItem, mPokemon, mRaid, prefixes } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
-	type FuzzyMatches,
+	fuzzyMatch,
+	type FuzzyMatches, type FuzzyResult,
 	type FuzzySearcher,
 	type HighlightRanges
 } from "@nozbe/microfuzz";
@@ -26,6 +27,9 @@ import {
 	MapObjectFeatureType
 } from "@/lib/map/featuresGen.svelte";
 import type { RaidFilterShow } from "@/lib/features/filters/filtersets";
+import { type AddressData, searchAddress } from "@/lib/features/geocoding";
+import { isSupportedFeature } from "@/lib/services/supportedFeatures";
+import type { BBox } from "geojson";
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -64,6 +68,13 @@ export type AreaSearchEntry = SearchEntry & {
 	feature: KojiFeature;
 	type: SearchableType.AREA;
 };
+
+export type AddressSearchEntry = SearchEntry & {
+	icon: string;
+	type: SearchableType.ADDRESS;
+	point: [number, number];
+	bbox: undefined | BBox
+}
 
 export type PokemonSearchEntry = SearchEntry & {
 	id: number;
@@ -137,9 +148,13 @@ export type AnySearchEntry =
 	| RaidLevelSearchEntry
 	| MaxBattleBossSearchEntry
 	| MaxBattleLevelSearchEntry
-	| NestSearchEntry;
+	| NestSearchEntry
+	| AddressSearchEntry
 
 let currentSearchQuery = $state("");
+let searchResults: FuzzyResult<AnySearchEntry>[] = $state([])
+let isSearchingAddress: boolean = $state(false)
+let searchedLocation: Coords | undefined = $state(undefined)
 
 let fuzzy: FuzzySearcher<AnySearchEntry>;
 
@@ -155,6 +170,30 @@ export function getCurrentSearchQuery() {
 
 export function setCurrentSearchQuery(query: string) {
 	currentSearchQuery = query;
+}
+
+export function getCurrentSearchResults() {
+	return searchResults
+}
+
+export function getIsSearchingAddress() {
+	return isSearchingAddress
+}
+
+export function setIsSearchingAddress(active: boolean) {
+	isSearchingAddress = active
+}
+
+export function setSearchedLocation(location: Coords) {
+	searchedLocation = location
+}
+
+export function resetSearchedLocation() {
+	searchedLocation = undefined
+}
+
+export function getSearchedLocation() {
+	return searchedLocation
 }
 
 export function initSearch() {
@@ -316,9 +355,43 @@ export function initSearch() {
 }
 
 export function search(query: string, limit: boolean) {
-	const results = fuzzy(query);
-	if (limit) return results.slice(0, searchLimit);
-	return results;
+	if (isSupportedFeature("geocoding")) {
+		searchAddress(query).then()
+	}
+
+	let results = fuzzy(query);
+	if (limit) results = results.slice(0, searchLimit);
+	searchResults = results
+}
+
+export function addAddressSearchResults(data: AddressData[], query: string) {
+	if (query !== currentSearchQuery) return  // outdated result
+
+	let results: FuzzyResult<AddressSearchEntry>[] = []
+
+	for (const address of data) {
+		const result = fuzzyMatch(address.name, query)
+		if (!result) continue
+
+		const item = {
+			name: address.name,
+			category: "address",
+			key: address.id,
+			icon: "MapPin",
+			point: address.center,
+			bbox: address.bbox,
+			type: SearchableType.ADDRESS,
+		} as AddressSearchEntry
+
+		const newResult: FuzzyResult<AddressSearchEntry> = {
+			...result,
+			item
+		}
+		results.push(newResult)
+	}
+
+	searchResults = searchResults.concat(results)
+	isSearchingAddress = false
 }
 
 export function highlightSearchMatches(match: HighlightRanges | null | undefined): Attachment {

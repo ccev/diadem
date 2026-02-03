@@ -19,6 +19,7 @@ import { setSkew } from '@/lib/map/mapSkew.svelte';
 import { clearSessionImageUrls } from "@/lib/map/featuresManage.svelte";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
+import { resetSearchedLocation } from "@/lib/services/search.svelte";
 
 export async function onMapMoveEnd() {
 	clearLoadMapObjectsInterval();
@@ -41,9 +42,10 @@ export function onTouchStart(e: maplibre.MapTouchEvent) {
 export async function onMapMoveStart() {
 	clearPressTimer();
 	clearUpdateMapObjectsInterval();
-	setAnimateLocationMarker(false)
-
 	resetLoadMapObjects();
+
+	setAnimateLocationMarker(false)
+	resetSearchedLocation()
 }
 
 export function onWindowFocus() {

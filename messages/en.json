@@ -370,5 +370,7 @@
     "pokemon_raids": "{pokemon} Raids",
     "x_star_max_battles": "{level}-Star Max Battles",
     "pokemon_max_battles": "{pokemon} Max Battles",
-    "pokemon_nests": "{pokemon} Nests"
+    "pokemon_nests": "{pokemon} Nests",
+    "address": "Address",
+    "searching_for_addresses": "Looking for addresses"
 }
