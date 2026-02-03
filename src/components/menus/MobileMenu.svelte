@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import { browser } from '$app/environment';
 	import { getOpenedMenu, openMenu } from '@/lib/ui/menus.svelte.js';
 	import MenuContainer from '@/components/menus/MenuContainer.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
@@ -7,6 +8,11 @@
 	import { Drawer } from 'diadem-vaul-svelte';
 
 	type OpenedMenu = ReturnType<typeof getOpenedMenu>;
+
+	const isMobileWebkit =
+		browser &&
+		(/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+			(navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1));
 
 	let open = $state(false);
 	let renderedMenu: OpenedMenu = $state(null);
@@ -67,7 +73,9 @@
 >
 	<Drawer.Portal>
 		<Drawer.Content
-			class="after:h-0! duration-150! touch-auto! fixed z-10 w-full h-full overflow-y-scroll bottom-0 pointer-events-none overscroll-contain"
+			class={`after:h-0! duration-150! touch-auto! fixed z-10 w-full h-full overflow-y-scroll bottom-0 ${
+				isMobileWebkit ? 'pointer-events-none' : 'pointer-events-none!'
+			} overscroll-contain`}
 			style="{isScout ? 'height: fit-content !important;' : '' }; -webkit-overflow-scrolling: touch; touch-action: pan-y;"
 		>
 			<div
