@@ -1,9 +1,11 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import {
 	bbox,
+	booleanPointInPolygon,
 	feature as makeFeature,
 	featureCollection,
 	intersect,
+	point,
 	polygon,
 	union
 } from "@turf/turf";
@@ -101,4 +103,37 @@ export function checkFeatureInBounds(
 		maxLon: result[2],
 		maxLat: result[3]
 	};
+}
+
+export function isPointInAllowedArea(
+	perms: Perms,
+	feature: FeaturesKey,
+	lat: number,
+	lon: number
+): boolean {
+	if (isFeatureInFeatureList(perms.everywhere, feature)) {
+		return true;
+	}
+
+	const start = performance.now();
+	const turfPoint = point([lon, lat]);
+
+	const isAllowed = perms.areas.some((area) => {
+		if (isFeatureInFeatureList(area.features, feature) && area.polygon) {
+			const poly = makeFeature(area.polygon);
+			return booleanPointInPolygon(turfPoint, poly);
+		}
+		return false;
+	});
+
+	log.debug(
+		"checked point permission | feature: %s | coords: %f,%f | allowed: %s | took: %fms",
+		feature,
+		lat,
+		lon,
+		isAllowed,
+		(performance.now() - start).toFixed(1)
+	);
+
+	return isAllowed;
 }

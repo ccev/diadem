@@ -12,11 +12,13 @@
 		result,
 		imageUrl,
 		labelSnippet,
+		fortImage = false
 	}: {
 		onselect: () => void,
 		result: FuzzyResult<AnySearchEntry>,
 		imageUrl?: string,
 		labelSnippet?: Snippet<[FuzzyMatches]>,
+		fortImage?: boolean
 	} = $props()
 
 	function onselectProxy() {
@@ -39,7 +41,10 @@
 		{/if}
 		{#if imageUrl || result.item.imageUrl}
 			<img
-				class="size-5 object-contain rounded-full"
+				class="size-5 shrink-0"
+				class:rounded-full={fortImage}
+				class:object-cover={fortImage}
+				class:object-contain={!fortImage}
 				src={imageUrl ?? result.item.imageUrl}
 				alt={result.item.name}
 				loading="lazy"

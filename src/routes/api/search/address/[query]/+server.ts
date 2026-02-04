@@ -6,7 +6,7 @@ import { getLogger } from "@/lib/utils/logger";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { searchAddress } from "@/lib/services/geocoding.server";
 
-const log = getLogger("nominatim");
+const log = getLogger("addrsearch");
 
 export async function GET({ params, url }) {
 	// this accepts raw input and puts it into the url to the external service.

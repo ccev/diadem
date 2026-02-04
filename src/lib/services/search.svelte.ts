@@ -3,7 +3,8 @@ import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { mCharacter, mItem, mPokemon, mRaid, prefixes } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
 	fuzzyMatch,
-	type FuzzyMatches, type FuzzyResult,
+	type FuzzyMatches,
+	type FuzzyResult,
 	type FuzzySearcher,
 	type HighlightRanges
 } from "@nozbe/microfuzz";
@@ -14,7 +15,8 @@ import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterf
 import {
 	getActiveCharacters,
 	getActiveContests,
-	getActiveMaxBattles, getActiveNests,
+	getActiveMaxBattles,
+	getActiveNests,
 	getActiveQuestRewards,
 	getActiveRaids
 } from "@/lib/features/masterStats.svelte";
@@ -30,6 +32,9 @@ import type { RaidFilterShow } from "@/lib/features/filters/filtersets";
 import { type AddressData, searchAddress } from "@/lib/features/geocoding";
 import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 import type { BBox } from "geojson";
+import { getBounds, getFixedBounds } from "@/lib/mapObjects/mapBounds";
+import { getMap } from "@/lib/map/map.svelte";
+import { openModal } from "@/lib/ui/modal.svelte";
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -73,7 +78,17 @@ export type AddressSearchEntry = SearchEntry & {
 	icon: string;
 	type: SearchableType.ADDRESS;
 	point: [number, number];
-	bbox: undefined | BBox
+	bbox: undefined | BBox;
+};
+
+export type PokestopSearchEntry = SearchEntry & {
+	imageUrl: string;
+	type: SearchableType.POKESTOP;
+}
+
+export type GymSearchEntry = SearchEntry & {
+	imageUrl: string;
+	type: SearchableType.GYM;
 }
 
 export type PokemonSearchEntry = SearchEntry & {
@@ -150,11 +165,24 @@ export type AnySearchEntry =
 	| MaxBattleLevelSearchEntry
 	| NestSearchEntry
 	| AddressSearchEntry
+	| GymSearchEntry
+	| PokestopSearchEntry
+
+export type RawFortSearchEntry = {
+	type: "p" | "g" | "s";
+	name: string;
+	id: string;
+	url: string;
+};
 
 let currentSearchQuery = $state("");
-let searchResults: FuzzyResult<AnySearchEntry>[] = $state([])
-let isSearchingAddress: boolean = $state(false)
-let searchedLocation: Coords | undefined = $state(undefined)
+let searchResults: FuzzyResult<AnySearchEntry>[] = $state([]);
+let isSearchingAddress: boolean = $state(false);
+let searchedLocation: Coords | undefined = $state(undefined);
+
+let fortData: { lat: string, lon: string, data: RawFortSearchEntry[] } = {
+	lat: "", lon: "", data: []
+}
 
 let fuzzy: FuzzySearcher<AnySearchEntry>;
 
@@ -173,27 +201,34 @@ export function setCurrentSearchQuery(query: string) {
 }
 
 export function getCurrentSearchResults() {
-	return searchResults
+	return searchResults;
 }
 
 export function getIsSearchingAddress() {
-	return isSearchingAddress
+	return isSearchingAddress;
 }
 
 export function setIsSearchingAddress(active: boolean) {
-	isSearchingAddress = active
+	isSearchingAddress = active;
 }
 
 export function setSearchedLocation(location: Coords) {
-	searchedLocation = location
+	searchedLocation = location;
 }
 
 export function resetSearchedLocation() {
-	searchedLocation = undefined
+	searchedLocation = undefined;
 }
 
 export function getSearchedLocation() {
-	return searchedLocation
+	return searchedLocation;
+}
+
+export function openSearchModal() {
+	openModal("search")
+
+	isSearchingAddress = false
+	getFortSearchEntries().then()
 }
 
 export function initSearch() {
@@ -325,7 +360,7 @@ export function initSearch() {
 		} as MaxBattleBossSearchEntry;
 	});
 
-	const nestEntries = getActiveNests().map(nest => {
+	const nestEntries = getActiveNests().map((nest) => {
 		return {
 			name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
 			category: "nests",
@@ -333,7 +368,27 @@ export function initSearch() {
 			type: SearchableType.NEST,
 			pokemon_id: nest.pokemon_id,
 			form: nest.form
-		} as NestSearchEntry
+		} as NestSearchEntry;
+	});
+
+	const fortEntries = fortData.data.map(fort => {
+		if (fort.type === "p") {
+			return {
+				name: fort.name,
+				imageUrl: fort.url,
+				type: SearchableType.POKESTOP,
+				key: fort.id,
+				category: "pogo_pokestop"
+			} as PokestopSearchEntry
+		} else if (fort.type === "g") {
+			return {
+				name: fort.name,
+				imageUrl: fort.url,
+				type: SearchableType.GYM,
+				key: fort.id,
+				category: "pogo_gym"
+			} as GymSearchEntry
+		}
 	})
 
 	// order matters. sorted by priority
@@ -341,6 +396,7 @@ export function initSearch() {
 		...areaEntries,
 		...kecleonEntries,
 		...invasionEntries,
+		...fortEntries,
 		...pokemonEntries,
 		...nestEntries,
 		...raidLevelEntries,
@@ -356,22 +412,22 @@ export function initSearch() {
 
 export function search(query: string, limit: boolean) {
 	if (isSupportedFeature("geocoding")) {
-		searchAddress(query).then()
+		searchAddress(query).then();
 	}
 
 	let results = fuzzy(query);
 	if (limit) results = results.slice(0, searchLimit);
-	searchResults = results
+	searchResults = results;
 }
 
 export function addAddressSearchResults(data: AddressData[], query: string) {
-	if (query !== currentSearchQuery) return  // outdated result
+	if (query !== currentSearchQuery) return; // outdated result
 
-	let results: FuzzyResult<AddressSearchEntry>[] = []
+	let results: FuzzyResult<AddressSearchEntry>[] = [];
 
 	for (const address of data) {
-		const result = fuzzyMatch(address.name, query)
-		if (!result) continue
+		const result = fuzzyMatch(address.name, query);
+		if (!result) continue;
 
 		const item = {
 			name: address.name,
@@ -380,18 +436,47 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 			icon: "MapPin",
 			point: address.center,
 			bbox: address.bbox,
-			type: SearchableType.ADDRESS,
-		} as AddressSearchEntry
+			type: SearchableType.ADDRESS
+		} as AddressSearchEntry;
 
 		const newResult: FuzzyResult<AddressSearchEntry> = {
 			...result,
 			item
-		}
-		results.push(newResult)
+		};
+		results.push(newResult);
 	}
 
-	searchResults = searchResults.concat(results)
-	isSearchingAddress = false
+	searchResults = searchResults.concat(results);
+	isSearchingAddress = false;
+}
+
+async function getFortSearchEntries() {
+	const map = getMap();
+	if (!map) return;
+
+	const center = map.getCenter()
+	const latKey = center.lat.toFixed(2)
+	const lonKey = center.lng.toFixed(2)
+	if (fortData.lat === latKey && fortData.lon === lonKey) {
+		return fortData.data
+	}
+
+	const bounds = getFixedBounds(8);
+	const response = await fetch("/api/search/forts", {
+		body: JSON.stringify(bounds),
+		method: "POST"
+	});
+
+	if (!response.ok) {
+		console.error("Couldn't fetch fort search entries")
+		return
+	}
+
+	const entries: RawFortSearchEntry[] = await response.json()
+	fortData.lat = latKey
+	fortData.lon = lonKey
+	fortData.data = entries
+	initSearch()
 }
 
 export function highlightSearchMatches(match: HighlightRanges | null | undefined): Attachment {

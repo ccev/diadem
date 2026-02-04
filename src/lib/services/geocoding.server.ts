@@ -4,7 +4,7 @@ import { error } from "@sveltejs/kit";
 import { getLogger } from "@/lib/utils/logger";
 import type { FeatureCollection, Point } from "geojson";
 
-const log = getLogger("search addr");
+const log = getLogger("addrsearch");
 
 type NominatimProps = {
 	geocoding: {

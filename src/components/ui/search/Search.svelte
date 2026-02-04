@@ -127,7 +127,7 @@
 					<div class="py-1.5 px-2 text-sm text-muted-foreground flex gap-2 items-center animate-pulse duration-1000">
 						<MapPin class="shrink-0" size="16" />
 
-						<span>{m.searching_for_addresses}</span>
+						<span>{m.searching_for_addresses()}</span>
 					</div>
 				{/if}
 			</Command.Viewport>

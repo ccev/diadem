@@ -23,6 +23,8 @@
 	import { getContestIcon, KECLEON_ID } from "@/lib/utils/pokestopUtils";
 	import { point } from "@turf/turf";
 	import { Coords } from "@/lib/utils/coordinates";
+	import { openMapObjectFromId } from "@/lib/features/directLinks.svelte";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		results
@@ -131,6 +133,24 @@
 				setActiveSearchNest(entry.name, entry.pokemon_id, entry.form)
 			}}
 			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
+		/>
+	{:else if entry.type === SearchableType.POKESTOP}
+		<SearchItem
+			{result}
+			fortImage={true}
+			onselect={() => {
+				openMapObjectFromId(MapObjectType.POKESTOP, entry.key)
+				closeSearchModal()
+			}}
+		/>
+	{:else if entry.type === SearchableType.GYM}
+		<SearchItem
+			{result}
+			fortImage={true}
+			onselect={() => {
+				openMapObjectFromId(MapObjectType.GYM, entry.key)
+				closeSearchModal()
+			}}
 		/>
 	{/if}
 {/each}

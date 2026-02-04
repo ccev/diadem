@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { CircleLayer, FillLayer, GeoJSON, LineLayer, MapLibre, SymbolLayer } from "svelte-maplibre";
+	import { CircleLayer, FillLayer, GeoJSON, LineLayer, MapLibre, Marker, SymbolLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
-	import { getDirectLinkObject } from "@/lib/features/directLinks.svelte.js";
+	import { getDirectLinkObject, openMapObject } from "@/lib/features/directLinks.svelte.js";
 	import { clickMapHandler, openPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
@@ -39,6 +39,8 @@
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
+	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
+	import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -96,18 +98,7 @@
 			const directLinkData = getDirectLinkObject();
 			if (directLinkData) {
 				if (directLinkData.id) {
-					openPopup(directLinkData, true);
-					addMapObjects([directLinkData], directLinkData.type, 1);
-
-					if (!map.getBounds().contains(Coords.infer(directLinkData).maplibre())) {
-						getUserSettings().mapPosition.center.lat = directLinkData.lat;
-						getUserSettings().mapPosition.center.lng = directLinkData.lon;
-						getUserSettings().mapPosition.zoom = 18;
-						updateUserSettings();
-
-						map.setCenter({ lat: directLinkData.lat, lng: directLinkData.lon });
-						map.setZoom(18);
-					}
+					openMapObject(directLinkData)
 				} else {
 					openToast(m.direct_link_not_found({ type: m["pogo_" + directLinkData.type]() }), 5000);
 				}
@@ -224,6 +215,19 @@
 			eventsIfTopMost={true}
 		/>
 	</GeoJSON>
+
+	<!--{#if getMap()}-->
+	<!--{@const fixedBounds = getFixedBounds(8)}-->
+
+	<!--<Marker lngLat={[fixedBounds.minLon, fixedBounds.minLat]}>-->
+	<!--	<div class="size-4 bg-red-400"></div>-->
+	<!--</Marker>-->
+
+	<!--<Marker lngLat={[fixedBounds.maxLon, fixedBounds.maxLat]}>-->
+	<!--	<div class="size-4 bg-red-400"></div>-->
+	<!--</Marker>-->
+	<!--{/if}-->
+
 
 	<MarkerCurrentLocation />
 	<MarkerContextMenu />

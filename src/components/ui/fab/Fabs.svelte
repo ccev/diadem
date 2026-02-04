@@ -10,7 +10,7 @@
 	import { getSkew, isMapSkewed } from "@/lib/map/mapSkew.svelte";
 	import { fade, slide } from "svelte/transition";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
-	import { initSearch } from "@/lib/services/search.svelte";
+	import { initSearch, openSearchModal } from "@/lib/services/search.svelte";
 
 	let isSearchAllowed = $derived(
 		!isSearchViewActive()
@@ -28,7 +28,7 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === "k" && (e.metaKey || e.ctrlKey) && isSearchAllowed && !isAnyModalOpen()) {
 			e.preventDefault();
-			openModal("search");
+			openSearchModal();
 		}
 	}
 </script>
@@ -60,7 +60,7 @@
 
 	{#if isSearchAllowed}
 		<BaseFab
-			onclick={() => openModal("search")}
+			onclick={() => openSearchModal()}
 		>
 			<SearchIcon size="24" />
 		</BaseFab>
