@@ -26,12 +26,12 @@ export async function POST({ request, locals }) {
 	let values: number[] = []
 
 	if (hasPokestops && pokestopBounds) {
-		queries.push("(SELECT 'p' AS type, name, id, url FROM pokestop " + whereBounds + " AND deleted = 0)")
+		queries.push("(SELECT 'p' AS type, name, id, url FROM pokestop " + whereBounds + " AND name IS NOT NULL AND deleted = 0)")
 		values = values.concat([pokestopBounds.minLat, pokestopBounds.maxLat, pokestopBounds.minLon, pokestopBounds.maxLon])
 	}
 
 	if (hasGyms && gymBounds) {
-		queries.push("(SELECT 'g' AS type, name, id, url FROM gym " + whereBounds + " AND deleted = 0)")
+		queries.push("(SELECT 'g' AS type, name, id, url FROM gym " + whereBounds + " AND name IS NOT NULL AND deleted = 0)")
 		values = values.concat([gymBounds.minLat, gymBounds.maxLat, gymBounds.minLon, gymBounds.maxLon])
 	}
 

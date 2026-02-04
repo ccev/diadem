@@ -304,7 +304,7 @@ export function initSearch() {
 
 	let lureEntries: LureSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
-		const lureEntries = getAllLureModuleIds().map((lure) => {
+		lureEntries = getAllLureModuleIds().map((lure) => {
 			return {
 				name: mItem(lure),
 				category: "pogo_pokestops",
@@ -317,7 +317,7 @@ export function initSearch() {
 
 	let invasionEntries: InvasionSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
-		const invasionEntries = getActiveCharacters().map((character) => {
+		invasionEntries = getActiveCharacters().map((character) => {
 			return {
 				name: mCharacter(character.character),
 				category: "pogo_invasion",
@@ -357,7 +357,7 @@ export function initSearch() {
 
 	let maxBattleBossEntries: MaxBattleBossSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.STATION)) {
-		const maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
+		maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
 			return {
 				name: m.pokemon_max_battles({ pokemon: mPokemon(maxBattle) }),
 				category: "max_battles",
@@ -373,7 +373,7 @@ export function initSearch() {
 
 	let nestEntries: NestSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.NEST)) {
-		const nestEntries = getActiveNests().map((nest) => {
+		nestEntries = getActiveNests().map((nest) => {
 			return {
 				name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
 				category: "nests",
@@ -410,7 +410,6 @@ export function initSearch() {
 		...areaEntries,
 		...kecleonEntries,
 		...invasionEntries,
-		...fortEntries,
 		...pokemonEntries,
 		...nestEntries,
 		...raidLevelEntries,
@@ -419,7 +418,8 @@ export function initSearch() {
 		...maxBattleBossEntries,
 		...contestEntries,
 		...questEntries,
-		...lureEntries
+		...lureEntries,
+		...fortEntries,
 	];
 	fuzzy = createFuzzySearch(allSearchResults, { getText: (e) => [e.name, m[e.category]?.()] });
 }
