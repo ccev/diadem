@@ -116,6 +116,7 @@ export type ServerConfig = {
 	pelias?: {
 		url: string
 		apiKey?: string
+		basicAuth?: string
 	}
 	log: Log
 	internalDb: DbCreds

@@ -57,13 +57,19 @@ async function peliaSearchAddress(
 		url += "&api_key=" + config.apiKey;
 	}
 
+	const headers: HeadersInit = {}
+	if (config.basicAuth) {
+		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
+	}
+
 	const response = await fetch(url, {
 		method: "GET",
-		signal: AbortSignal.timeout(2000)
+		signal: AbortSignal.timeout(2000),
+		headers
 	});
 
 	if (!response.ok) {
-		log.error("Pelia request failed: %s", await response.text());
+		log.error("Pelia request failed [%d] %s", response.status, await response.text());
 		return [];
 	}
 
