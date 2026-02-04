@@ -1,5 +1,4 @@
 import type { Coords } from "@/lib/utils/coordinates";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
 	fuzzyMatch,
@@ -356,7 +355,6 @@ export function initSearch() {
 		});
 	}
 
-
 	let maxBattleBossEntries: MaxBattleBossSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.STATION)) {
 		const maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
@@ -467,9 +465,9 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 }
 
 async function getFortSearchEntries() {
-	const hasPokestops = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKESTOP)
-	const hasGyms = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.GYM)
-	if (!hasGyms && !hasPokestops) return
+	const hasPokestops = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKESTOP);
+	const hasGyms = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.GYM);
+	if (!hasGyms && !hasPokestops) return;
 
 	const map = getMap();
 	if (!map) return;
@@ -516,73 +514,4 @@ export function highlightSearchMatches(match: HighlightRanges | null | undefined
 
 		return () => ranges.forEach((r) => highlight.delete(r));
 	};
-}
-
-let allPokemonNames: PokemonSearchEntry[] | undefined = undefined;
-
-/**
- * Sorts given array by .startswith(), then .includes()
- */
-export function sortSearchResults<T>(items: T[], query: string, selector: (item: T) => string) {
-	const q = query.toLowerCase();
-
-	return items
-		.filter((item) => selector(item).toLowerCase().includes(q))
-		.sort((a, b) => {
-			const nameA = selector(a).toLowerCase();
-			const nameB = selector(b).toLowerCase();
-
-			const startsWithA = nameA.startsWith(q);
-			const startsWithB = nameB.startsWith(q);
-
-			if (startsWithA && !startsWithB) return -1;
-			if (!startsWithA && startsWithB) return 1;
-
-			return nameA.localeCompare(nameB);
-		});
-}
-
-export type SearchPayload = {
-	name: string;
-	range: number;
-	center: {
-		lat: number;
-		lon: number;
-	};
-};
-
-export enum SearchType {
-	GYM = "gym",
-	POKESTOP = "pokestop",
-	POKEMON = "pokemon"
-}
-
-export async function searchExternal<T>(
-	type: SearchType,
-	name: string,
-	center: Coords
-): Promise<undefined | T[]> {
-	const payload: SearchPayload = {
-		name,
-		range: getUserSettings().searchRange,
-		center: center.internal()
-	};
-
-	const result = await fetch("/api/search/" + type, {
-		method: "POST",
-		body: JSON.stringify(payload)
-	});
-	if (!result.ok) {
-		console.error("Search failed!");
-		return;
-	}
-
-	return await result.json();
-}
-
-export function searchPokemon(query: string) {
-	if (allPokemonNames === undefined) {
-	}
-
-	return sortSearchResults(allPokemonNames, query, (p) => p.name);
 }
