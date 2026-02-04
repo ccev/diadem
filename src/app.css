@@ -177,3 +177,7 @@
 b {
     @apply font-semibold;
 }
+
+.lucide-icon {
+    flex-shrink: 0;
+}

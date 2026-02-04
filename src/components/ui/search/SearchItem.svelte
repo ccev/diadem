@@ -11,13 +11,11 @@
 		onselect,
 		result,
 		imageUrl,
-		labelSnippet,
 		fortImage = false
 	}: {
 		onselect: () => void,
 		result: FuzzyResult<AnySearchEntry>,
 		imageUrl?: string,
-		labelSnippet?: Snippet<[FuzzyMatches]>,
 		fortImage?: boolean
 	} = $props()
 
@@ -37,7 +35,7 @@
 >
 	<div class="w-full flex gap-2 items-center text-start">
 		{#if result.item.icon}
-			<LucideIcon class="shrink-0" size="16" name={result.item.icon} />
+			<LucideIcon class="shrink-0 size-4 mx-0.5" name={result.item.icon} />
 		{/if}
 		{#if imageUrl || result.item.imageUrl}
 			<img
@@ -50,17 +48,11 @@
 				loading="lazy"
 			>
 		{/if}
-		{#if labelSnippet}
-			<p>
-				{@render labelSnippet(result.matches)}
-			</p>
-		{:else}
-			<span {@attach highlightSearchMatches(result.matches[0])}>
-				{result.item.name}
-			</span>
-		{/if}
+		<span class="shrink-1 overflow-hidden text-ellipsis" {@attach highlightSearchMatches(result.matches[0])}>
+			{result.item.name}
+		</span>
 		<span
-			class="text-muted-foreground ml-auto shrink-1 overflow-x-hidden text-right font-normal!"
+			class="text-muted-foreground shrink-0 ml-auto overflow-x-hidden text-right font-normal!"
 			{@attach highlightSearchMatches(result.matches[1])}
 		>
 			{m[result.item.category]?.() ?? ""}

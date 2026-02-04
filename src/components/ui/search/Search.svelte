@@ -38,7 +38,11 @@
 	// const results = $derived(search(debounced.current, true))
 </script>
 
-<ModalTop modalType="search" onopenchange={() => setCurrentSearchQuery("")}>
+<ModalTop
+	class="w-[calc(100%-1rem)]! max-w-2xl!"
+	modalType="search"
+	onopenchange={() => setCurrentSearchQuery("")}
+>
 	<Command.Root
 		class="rounded-lg bg-card text-card-foreground max-h-[calc(100vh-1rem)] overflow-hidden"
 		shouldFilter={false}
@@ -54,7 +58,6 @@
 				spellcheck="false"
 				type="search"
 				class="placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 pr-2 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
-				style="width: min(calc(100vw - 1rem), 32rem)"
 			/>
 
 			<Button

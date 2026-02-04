@@ -6,10 +6,12 @@
 	import Modal from '@/components/ui/modal/Modal.svelte';
 
 	let {
+		class: class_ = "",
 		modalType,
 		children,
 		onopenchange = undefined
 	}: {
+		class?: string,
 		modalType: ModalType,
 		children?: Snippet
 		onopenchange?: Dialog.RootProps["onOpenChange"]
@@ -19,7 +21,7 @@
 <Modal
 	{modalType}
 	{onopenchange}
-	class="data-[state=closed]:slide-out-to-top-10 data-[state=open]:slide-in-from-top-10! zoom-in-100! zoom-out-100! top-2! translate-y-0!"
+	class="data-[state=closed]:slide-out-to-top-10 data-[state=open]:slide-in-from-top-10! zoom-in-100! zoom-out-100! top-2! translate-y-0! {class_}"
 >
 	{@render children?.()}
 </Modal>

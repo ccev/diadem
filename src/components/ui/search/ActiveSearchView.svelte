@@ -16,10 +16,10 @@
 <svelte:window {onkeydown} />
 
 <button
-	class="w-full mx-auto max-w-147 flex items-center gap-4 pointer-events-auto rounded-lg border bg-card text-card-foreground shadow-md cursor-pointer"
+	class="w-full max-w-2xl! mx-auto flex items-center gap-4 pointer-events-auto rounded-lg border bg-card text-card-foreground shadow-md cursor-pointer text-left"
 	onclick={resetActiveSearchFilter}
 >
-	<Search size="18" class="ml-4" />
+	<Search size="18" class="ml-4 shrink-0" />
 	<span class="my-4">
 		{m.searching_for()}
 		<b>{getActiveSearch()?.name}</b>
