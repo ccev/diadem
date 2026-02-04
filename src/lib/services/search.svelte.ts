@@ -1,9 +1,8 @@
 import type { Coords } from "@/lib/utils/coordinates";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { mCharacter, mItem, mPokemon, mRaid, prefixes } from "@/lib/services/ingameLocale";
+import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import createFuzzySearch, {
 	fuzzyMatch,
-	type FuzzyMatches,
 	type FuzzyResult,
 	type FuzzySearcher,
 	type HighlightRanges
@@ -21,20 +20,17 @@ import {
 	getActiveRaids
 } from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getContestText, getRewardText, KECLEON_ID, RewardType } from "@/lib/utils/pokestopUtils";
+import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
 import { m } from "@/lib/paraglide/messages";
-import {
-	type MapObjectCircleFeature,
-	type MapObjectFeature,
-	MapObjectFeatureType
-} from "@/lib/map/featuresGen.svelte";
-import type { RaidFilterShow } from "@/lib/features/filters/filtersets";
 import { type AddressData, searchAddress } from "@/lib/features/geocoding";
 import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 import type { BBox } from "geojson";
-import { getBounds, getFixedBounds } from "@/lib/mapObjects/mapBounds";
+import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 import { getMap } from "@/lib/map/map.svelte";
 import { openModal } from "@/lib/ui/modal.svelte";
+import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
@@ -84,12 +80,12 @@ export type AddressSearchEntry = SearchEntry & {
 export type PokestopSearchEntry = SearchEntry & {
 	imageUrl: string;
 	type: SearchableType.POKESTOP;
-}
+};
 
 export type GymSearchEntry = SearchEntry & {
 	imageUrl: string;
 	type: SearchableType.GYM;
-}
+};
 
 export type PokemonSearchEntry = SearchEntry & {
 	id: number;
@@ -166,7 +162,7 @@ export type AnySearchEntry =
 	| NestSearchEntry
 	| AddressSearchEntry
 	| GymSearchEntry
-	| PokestopSearchEntry
+	| PokestopSearchEntry;
 
 export type RawFortSearchEntry = {
 	type: "p" | "g" | "s";
@@ -180,9 +176,11 @@ let searchResults: FuzzyResult<AnySearchEntry>[] = $state([]);
 let isSearchingAddress: boolean = $state(false);
 let searchedLocation: Coords | undefined = $state(undefined);
 
-let fortData: { lat: string, lon: string, data: RawFortSearchEntry[] } = {
-	lat: "", lon: "", data: []
-}
+let fortData: { lat: string; lon: string; data: RawFortSearchEntry[] } = {
+	lat: "",
+	lon: "",
+	data: []
+};
 
 let fuzzy: FuzzySearcher<AnySearchEntry>;
 
@@ -225,23 +223,28 @@ export function getSearchedLocation() {
 }
 
 export function openSearchModal() {
-	openModal("search")
+	openModal("search");
 
-	isSearchingAddress = false
-	getFortSearchEntries().then()
+	isSearchingAddress = false;
+	getFortSearchEntries().then();
 }
 
 export function initSearch() {
-	const pokemonEntries = getSpawnablePokemon(true).map((p) => {
-		return {
-			name: mPokemon(p),
-			category: "pogo_pokemon",
-			id: p.pokemon_id,
-			form: p.form,
-			key: "pokemon-" + p.pokemon_id + "-" + p.form,
-			type: SearchableType.POKEMON
-		} as PokemonSearchEntry;
-	});
+	const permissions = getUserDetails().permissions;
+
+	let pokemonEntries: PokemonSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.POKEMON)) {
+		pokemonEntries = getSpawnablePokemon(true).map((p) => {
+			return {
+				name: mPokemon(p),
+				category: "pogo_pokemon",
+				id: p.pokemon_id,
+				form: p.form,
+				key: "pokemon-" + p.pokemon_id + "-" + p.form,
+				type: SearchableType.POKEMON
+			} as PokemonSearchEntry;
+		});
+	}
 
 	const areaEntries = getKojiGeofences().map((k) => {
 		return {
@@ -254,124 +257,137 @@ export function initSearch() {
 		} as AreaSearchEntry;
 	});
 
-	const questEntries =
-		getActiveQuestRewards()?.map((r) => {
-			const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward;
-			let rewardName = getRewardText(reward);
-			if (reward.type === RewardType.POKEMON) {
-				rewardName = m.x_quests({ x: rewardName });
+	let questEntries: QuestSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+		questEntries =
+			getActiveQuestRewards()?.map((r) => {
+				const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward;
+				let rewardName = getRewardText(reward);
+				if (reward.type === RewardType.POKEMON) {
+					rewardName = m.x_quests({ x: rewardName });
+				}
+
+				return {
+					name: rewardName,
+					category: "pogo_quests",
+					key: "quest-" + JSON.stringify(reward),
+					type: SearchableType.QUEST,
+					reward
+				} as QuestSearchEntry;
+			}) ?? [];
+	}
+
+	let kecleonEntries: KecleonSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+		kecleonEntries = [
+			{
+				name: m.kecleon_pokestops(),
+				category: "pogo_pokestops",
+				key: "kecleon",
+				type: SearchableType.KECLEON
 			}
+		] as KecleonSearchEntry[];
+	}
 
+	let contestEntries: ContestSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+		contestEntries = getActiveContests().map((contest) => {
 			return {
-				name: rewardName,
-				category: "pogo_quests",
-				key: "quest-" + JSON.stringify(reward),
-				type: SearchableType.QUEST,
-				reward
-			} as QuestSearchEntry;
-		}) ?? [];
+				name: getContestText(contest.ranking_standard, contest.focus),
+				category: "pogo_contests",
+				key: "contest-" + contest.ranking_standard + "-" + JSON.stringify(contest.focus),
+				type: SearchableType.CONTEST,
+				rankingStandard: contest.ranking_standard,
+				focus: contest.focus
+			} as ContestSearchEntry;
+		});
+	}
 
-	const kecleonEntries = [
-		{
-			name: m.kecleon_pokestops(),
-			category: "pogo_pokestops",
-			key: "kecleon",
-			type: SearchableType.KECLEON
-		}
-	] as KecleonSearchEntry[];
+	let lureEntries: LureSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+		const lureEntries = getAllLureModuleIds().map((lure) => {
+			return {
+				name: mItem(lure),
+				category: "pogo_pokestops",
+				key: "lure-" + lure,
+				type: SearchableType.LURE,
+				itemId: lure
+			} as LureSearchEntry;
+		});
+	}
 
-	const contestEntries = getActiveContests().map((contest) => {
-		return {
-			name: getContestText(contest.ranking_standard, contest.focus),
-			category: "pogo_contests",
-			key: "contest-" + contest.ranking_standard + "-" + JSON.stringify(contest.focus),
-			type: SearchableType.CONTEST,
-			rankingStandard: contest.ranking_standard,
-			focus: contest.focus
-		} as ContestSearchEntry;
-	});
-
-	const lureEntries = getAllLureModuleIds().map((lure) => {
-		return {
-			name: mItem(lure),
-			category: "pogo_pokestops",
-			key: "lure-" + lure,
-			type: SearchableType.LURE,
-			itemId: lure
-		} as LureSearchEntry;
-	});
-
-	const invasionEntries = getActiveCharacters().map((character) => {
-		return {
-			name: mCharacter(character.character),
-			category: "pogo_invasion",
-			key: "invasion-" + character.character,
-			type: SearchableType.INVASION,
-			characterId: character.character
-		} as InvasionSearchEntry;
-	});
+	let invasionEntries: InvasionSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+		const invasionEntries = getActiveCharacters().map((character) => {
+			return {
+				name: mCharacter(character.character),
+				category: "pogo_invasion",
+				key: "invasion-" + character.character,
+				type: SearchableType.INVASION,
+				characterId: character.character
+			} as InvasionSearchEntry;
+		});
+	}
 
 	const processedRaidLevels: Set<number> = new Set();
 	const raidLevelEntries: RaidLevelSearchEntry[] = [];
-	const raidBossEntries = getActiveRaids().map((raidBoss) => {
-		if (!processedRaidLevels.has(raidBoss.level)) {
-			processedRaidLevels.add(raidBoss.level);
-			raidLevelEntries.push({
-				name: mRaid(raidBoss.level, true),
+	let raidBossEntries: RaidBossSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.GYM)) {
+		raidBossEntries = getActiveRaids().map((raidBoss) => {
+			if (!processedRaidLevels.has(raidBoss.level)) {
+				processedRaidLevels.add(raidBoss.level);
+				raidLevelEntries.push({
+					name: mRaid(raidBoss.level, true),
+					category: "raids",
+					key: "raidlevel-" + raidBoss.level,
+					type: SearchableType.RAID_LEVEL,
+					level: raidBoss.level
+				});
+			}
+
+			return {
+				name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
 				category: "raids",
-				key: "raidlevel-" + raidBoss.level,
-				type: SearchableType.RAID_LEVEL,
-				level: raidBoss.level
-			});
-		}
+				key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
+				type: SearchableType.RAID_BOSS,
+				pokemon_id: raidBoss.pokemon_id,
+				form_id: raidBoss.form
+			} as RaidBossSearchEntry;
+		});
+	}
 
-		return {
-			name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
-			category: "raids",
-			key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
-			type: SearchableType.RAID_BOSS,
-			pokemon_id: raidBoss.pokemon_id,
-			form_id: raidBoss.form
-		} as RaidBossSearchEntry;
-	});
 
-	// const processedMaxBattleLevels: Set<number> = new Set();
-	// const maxBattleLevelEntries: MaxBattleLevelSearchEntry[] = [];
-	const maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
-		// if (!processedMaxBattleLevels.has(maxBattle.level)) {
-		// 	processedMaxBattleLevels.add(maxBattle.level);
-		// 	maxBattleLevelEntries.push({
-		// 		name: m.x_star_max_battles({ level: maxBattle.level }),
-		// 		category: "max_battles",
-		// 		key: "maxbattlelevel-" + maxBattle.level,
-		// 		type: SearchableType.MAX_BATTLE_LEVEL,
-		// 		level: maxBattle.level
-		// 	});
-		// }
+	let maxBattleBossEntries: MaxBattleBossSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.STATION)) {
+		const maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
+			return {
+				name: m.pokemon_max_battles({ pokemon: mPokemon(maxBattle) }),
+				category: "max_battles",
+				key:
+					"raidboss- " + maxBattle.pokemon_id + "-" + maxBattle.form + "-" + maxBattle.bread_mode,
+				type: SearchableType.MAX_BATTLE_BOSS,
+				pokemon_id: maxBattle.pokemon_id,
+				form: maxBattle.form,
+				bread_mode: maxBattle.bread_mode
+			} as MaxBattleBossSearchEntry;
+		});
+	}
 
-		return {
-			name: m.pokemon_max_battles({ pokemon: mPokemon(maxBattle) }),
-			category: "max_battles",
-			key: "raidboss- " + maxBattle.pokemon_id + "-" + maxBattle.form + "-" + maxBattle.bread_mode,
-			type: SearchableType.MAX_BATTLE_BOSS,
-			pokemon_id: maxBattle.pokemon_id,
-			form: maxBattle.form,
-			bread_mode: maxBattle.bread_mode
-		} as MaxBattleBossSearchEntry;
-	});
+	let nestEntries: NestSearchEntry[] = [];
+	if (hasFeatureAnywhere(permissions, MapObjectType.NEST)) {
+		const nestEntries = getActiveNests().map((nest) => {
+			return {
+				name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
+				category: "nests",
+				key: "nest-" + nest.pokemon_id + "-" + nest.form,
+				type: SearchableType.NEST,
+				pokemon_id: nest.pokemon_id,
+				form: nest.form
+			} as NestSearchEntry;
+		});
+	}
 
-	const nestEntries = getActiveNests().map((nest) => {
-		return {
-			name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
-			category: "nests",
-			key: "nest-" + nest.pokemon_id + "-" + nest.form,
-			type: SearchableType.NEST,
-			pokemon_id: nest.pokemon_id,
-			form: nest.form
-		} as NestSearchEntry;
-	});
-
-	const fortEntries = fortData.data.map(fort => {
+	const fortEntries = fortData.data.map((fort) => {
 		if (fort.type === "p") {
 			return {
 				name: fort.name,
@@ -379,7 +395,7 @@ export function initSearch() {
 				type: SearchableType.POKESTOP,
 				key: fort.id,
 				category: "pogo_pokestop"
-			} as PokestopSearchEntry
+			} as PokestopSearchEntry;
 		} else if (fort.type === "g") {
 			return {
 				name: fort.name,
@@ -387,9 +403,9 @@ export function initSearch() {
 				type: SearchableType.GYM,
 				key: fort.id,
 				category: "pogo_gym"
-			} as GymSearchEntry
+			} as GymSearchEntry;
 		}
-	})
+	});
 
 	// order matters. sorted by priority
 	const allSearchResults = [
@@ -451,14 +467,18 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 }
 
 async function getFortSearchEntries() {
+	const hasPokestops = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKESTOP)
+	const hasGyms = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.GYM)
+	if (!hasGyms && !hasPokestops) return
+
 	const map = getMap();
 	if (!map) return;
 
-	const center = map.getCenter()
-	const latKey = center.lat.toFixed(2)
-	const lonKey = center.lng.toFixed(2)
+	const center = map.getCenter();
+	const latKey = center.lat.toFixed(2);
+	const lonKey = center.lng.toFixed(2);
 	if (fortData.lat === latKey && fortData.lon === lonKey) {
-		return fortData.data
+		return fortData.data;
 	}
 
 	const bounds = getFixedBounds(8);
@@ -468,15 +488,15 @@ async function getFortSearchEntries() {
 	});
 
 	if (!response.ok) {
-		console.error("Couldn't fetch fort search entries")
-		return
+		console.error("Couldn't fetch fort search entries");
+		return;
 	}
 
-	const entries: RawFortSearchEntry[] = await response.json()
-	fortData.lat = latKey
-	fortData.lon = lonKey
-	fortData.data = entries
-	initSearch()
+	const entries: RawFortSearchEntry[] = await response.json();
+	fortData.lat = latKey;
+	fortData.lon = lonKey;
+	fortData.data = entries;
+	initSearch();
 }
 
 export function highlightSearchMatches(match: HighlightRanges | null | undefined): Attachment {

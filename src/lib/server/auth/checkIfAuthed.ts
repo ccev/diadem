@@ -5,7 +5,7 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import type { FeaturesKey, Perms } from "@/lib/utils/features";
 
 export function checkIfAuthed(user: User | null) {
-	return !isAuthRequired() || user;
+	return Boolean(!isAuthRequired() || user);
 }
 
 export function hasFeatureAnywhereServer(perms: Perms, feature: FeaturesKey, user: User | null) {

@@ -1,40 +1,53 @@
 import { error, json } from "@sveltejs/kit";
-import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
-import type { FeatureCollection, Point } from "geojson";
-import { getServerLogger } from "@/lib/server/logging";
 import { getLogger } from "@/lib/utils/logger";
-import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
-import { searchAddress } from "@/lib/services/geocoding.server";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
+import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 
 const log = getLogger("fortsearch");
 
-export async function POST({ params, url, request }) {
-	const bounds = await request.json() as Bounds
+export async function POST({ request, locals }) {
+	let hasPokestops = hasFeatureAnywhereServer(locals.perms, MapObjectType.POKESTOP, locals.user);
+	let hasGyms = hasFeatureAnywhereServer(locals.perms, MapObjectType.GYM, locals.user);
+	if (!hasPokestops && !hasGyms) error(401);
 
-	const whereBounds = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?"
-	const boundsValues = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	const bounds = (await request.json()) as Bounds;
 
-	const pokestopQuery = "(SELECT 'p' AS type, name, id, url FROM pokestop " + whereBounds + " AND deleted = 0)"
-	const gymQuery = "(SELECT 'g' AS type, name, id, url FROM gym " + whereBounds + " AND deleted = 0)"
-	// const stationQuery = "(SELECT 's' AS type, name, id, '' AS url FROM station " + whereBounds + ")"
-	// no stattion cuz who cares, and it's soo much data
+	const whereBounds = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?";
+
+	const pokestopBounds = checkFeatureInBounds(locals.perms, MapObjectType.POKESTOP, bounds);
+
+	const gymBounds = checkFeatureInBounds(locals.perms, MapObjectType.GYM, bounds);
+
+	const queries = []
+	let values: number[] = []
+
+	if (hasPokestops && pokestopBounds) {
+		queries.push("(SELECT 'p' AS type, name, id, url FROM pokestop " + whereBounds + " AND deleted = 0)")
+		values = values.concat([pokestopBounds.minLat, pokestopBounds.maxLat, pokestopBounds.minLon, pokestopBounds.maxLon])
+	}
+
+	if (hasGyms && gymBounds) {
+		queries.push("(SELECT 'g' AS type, name, id, url FROM gym " + whereBounds + " AND deleted = 0)")
+		values = values.concat([gymBounds.minLat, gymBounds.maxLat, gymBounds.minLon, gymBounds.maxLon])
+	}
+
+	if (queries.length === 0) error(401)
 
 	const result = await query<RawFortSearchEntry[]>(
-		[pokestopQuery, gymQuery].join(" UNION ALL ") + " ORDER BY name ASC",
-		Array(2).fill(boundsValues).flat()
-	)
+		queries.join(" UNION ALL ") + " ORDER BY name ASC",
+		values
+	);
 
 	if (result.error) {
-		log.error("Error while querying fort search: " + result.error)
-		error(500)
+		log.error("Error while querying fort search: " + result.error);
+		error(500);
 	}
 
 	log.info("Succcessfully serving %d fort results", result.result.length);
 
-	return json(
-		result.result
-	);
+	return json(result.result);
 }

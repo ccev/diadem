@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getMap, resetMap } from "@/lib/map/map.svelte";
-	import { isAnyModalOpen, isOpenModal, openModal } from "@/lib/ui/modal.svelte.js";
+	import { isAnyModalOpen, isOpenModal } from "@/lib/ui/modal.svelte.js";
 	import Search from "@/components/ui/search/Search.svelte";
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
 	import LocateFab from "@/components/ui/fab/LocateFab.svelte";
@@ -14,7 +14,14 @@
 
 	let isSearchAllowed = $derived(
 		!isSearchViewActive()
-		&& hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.MASTER_FILE, LoadedFeature.MASTER_STATS)
+		&& hasLoadedFeature(
+			LoadedFeature.SUPPORTED_FEATURES,
+			LoadedFeature.REMOTE_LOCALE,
+			LoadedFeature.ICON_SETS,
+			LoadedFeature.MASTER_FILE,
+			LoadedFeature.MASTER_STATS,
+			LoadedFeature.USER_DETAILS
+		)
 		&& (
 			hasLoadedFeature(LoadedFeature.KOJI) &&
 			isSupportedFeature("koji")
@@ -22,8 +29,8 @@
 	);
 
 	$effect(() => {
-		if (isSearchAllowed) initSearch()
-	})
+		if (isSearchAllowed) initSearch();
+	});
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === "k" && (e.metaKey || e.ctrlKey) && isSearchAllowed && !isAnyModalOpen()) {
