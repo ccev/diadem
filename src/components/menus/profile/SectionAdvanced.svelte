@@ -15,19 +15,6 @@
 	title={m.settings_advanced()}
 	Icon={Code}
 >
-	<div class="py-1 px-3 w-full">
-		<Slider
-			min={1_000}
-			max={50_000}
-			step={1_000}
-			title={m.settings_search_range_title()}
-			description={m.settings_search_range_description()}
-			value={getUserSettings().searchRange}
-			onchange={(v) => onSettingsChange("searchRange", v)}
-			label={m.x_km({ x: "%" })}
-		/>
-	</div>
-
 	<Toggle
 		title={m.settings_show_debug_title()}
 		description={m.settings_show_debug_description()}

@@ -292,8 +292,6 @@
 	"short_rank_great_league": "GL #{rank}",
 	"short_rank_ultra_league": "UL #{rank}",
 	"context_menu_share_position": "Share map position",
-	"settings_search_range_title": "Search Radius",
-	"settings_search_range_description": "The area around the map center to be searched while using the search menu",
 	"x_km": "{x}km",
 	"display_pokemon_notice": "This {pokemon} is hiding as a {display}",
 	"plain_pokestops": "Plain Pokéstops",

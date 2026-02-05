@@ -292,8 +292,6 @@
 	"short_rank_great_league": "SL #{rank}",
 	"short_rank_ultra_league": "HL #{rank}",
 	"context_menu_share_position": "Map Position teilen",
-	"settings_search_range_title": "Suchradius",
-	"settings_search_range_description": "Die Reichweite um die Map-Mitte, in der mit der Suchfunktion gesucht wird. ",
 	"x_km": "{x}km",
 	"display_pokemon_notice": "Das {pokemon} versteckt sich als {display}",
 	"plain_pokestops": "Reine Pokéstops",

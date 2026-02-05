@@ -49,7 +49,6 @@ export type UserSettings = {
 	loadMapObjectsPadding: number;
 	showDebugMenu: boolean;
 	mapIconSize: number;
-	searchRange: number;
 	filters: {
 		pokemon: FilterPokemon;
 		pokestop: FilterPokestop;
@@ -93,7 +92,6 @@ export function getDefaultUserSettings(): UserSettings {
 		loadMapObjectsPadding: 20,
 		showDebugMenu: false,
 		mapIconSize: 1,
-		searchRange: 20_000,
 		filters: {
 			pokemon: { category: "pokemon", ...defaultFilter() },
 			pokestop: getDefaultPokestopFilter(),
