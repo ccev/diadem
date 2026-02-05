@@ -8,10 +8,9 @@
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
-	import { getOpenedMenu, openMenu } from "@/lib/ui/menus.svelte.js";
+	import { closeMenu, getOpenedMenu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
 	import PopupContainer from "@/components/ui/popups/PopupContainer.svelte";
-	import MobileMenu from "@/components/menus/MobileMenu.svelte";
 	import DesktopMenu from "@/components/menus/DesktopMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import Metadata from "@/components/utils/Metadata.svelte";
@@ -33,11 +32,12 @@
 	import { Search } from "lucide-svelte";
 	import { isOpenModal } from "@/lib/ui/modal.svelte";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
+	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
 		if (getCurrentSelectedData() && !isMenuSidebar()) {
-			openMenu(null);
+			closeMenu()
 		}
 	});
 

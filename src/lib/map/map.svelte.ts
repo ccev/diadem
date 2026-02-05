@@ -1,5 +1,5 @@
 import maplibre from "maplibre-gl";
-import { openMenu } from "@/lib/ui/menus.svelte.js";
+import { closeMenu, openMenu } from "@/lib/ui/menus.svelte.js";
 
 let map: maplibre.Map | undefined = $state(undefined);
 
@@ -12,7 +12,7 @@ export function setMap(newMap: maplibre.Map | undefined) {
 }
 
 export function resetMap() {
-	openMenu(null);
+	closeMenu()
 	// closePopup();
 	map?.easeTo({
 		bearing: 0,

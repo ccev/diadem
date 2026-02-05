@@ -16,7 +16,7 @@
 		setScoutGeojson,
 		startScout
 	} from '@/lib/features/scout.svelte.js';
-	import { openMenu } from '@/lib/ui/menus.svelte.js';
+	import { closeMenu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { circle as makeCrircle } from '@turf/turf';
 	import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from '@/lib/constants';
 	import type { Feature, Polygon } from 'geojson';
@@ -50,7 +50,7 @@
 
 	async function scoutButton() {
 		const success = await startScout()
-		openMenu(null)
+		closeMenu()
 
 		if (success) {
 			openToast(m.scout_toast_success())
@@ -89,20 +89,22 @@
 	<Metadata title={m.nav_scout()} />
 </svelte:head>
 
-<Card class="py-4 px-2 mt-2">
-	<div class="flex flex-col gap-2">
-		<MenuTitle title={m.scout_area_size()} />
-		<SliderSteps
-			value={size}
-			onchange={updatePoints}
-			steps={[0, 1, 2]}
-			labels={{
-			0: "S",
-			1: "M",
-			2: "L"
-		}}
-		/>
-	</div>
+	<Card class="py-4 px-2 mt-2">
+		<div class="flex flex-col gap-2">
+			<MenuTitle title={m.scout_area_size()} />
+			<div data-vaul-no-drag>
+				<SliderSteps
+					value={size}
+					onchange={updatePoints}
+					steps={[0, 1, 2]}
+					labels={{
+					0: "S",
+					1: "M",
+					2: "L"
+				}}
+				/>
+			</div>
+		</div>
 
 	<div class="w-full text-center my-2 text-sm">
 		<p>

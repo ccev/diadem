@@ -35,7 +35,7 @@
 		openFiltersetModal
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
-	import { openMenu } from "@/lib/ui/menus.svelte";
+	import { Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
@@ -105,7 +105,7 @@
 			}
 
 			if (getCurrentSelectedFiltersetIsShared()) {
-				openMenu("filters");
+				openMenu(Menu.FILTERS);
 				filtersetPageReset();
 				tick().then(openFiltersetModal);
 			}

@@ -15,7 +15,7 @@
 	import { getIconType } from '@/lib/services/uicons.svelte.js';
 	import { watch } from 'runed';
 	import type { WeatherData } from '@/lib/types/mapObjectData/weather';
-	import { openMenu } from '@/lib/ui/menus.svelte.js';
+	import { closeMenu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { hasLoadedFeature, LoadedFeature } from '@/lib/services/initialLoad.svelte.js';
 	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
 	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
@@ -37,7 +37,7 @@
 
 	async function onClick() {
 		isClicked = !isClicked;
-		openMenu(null);
+		closeMenu();
 
 		if (isClicked && getMap()?.isMoving()) {
 			ignoreWatch = true;

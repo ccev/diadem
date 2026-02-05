@@ -11,7 +11,7 @@ import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { getMap } from "@/lib/map/map.svelte";
 import { MapObjectLayerId } from "@/lib/map/layers";
-import { openMenu } from "@/lib/ui/menus.svelte";
+import { closeMenu, openMenu } from "@/lib/ui/menus.svelte";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -64,7 +64,7 @@ export function clickMapHandler(event: MapMouseEvent) {
 	if (feature) {
 		openPopup(getMapObjects()[feature.properties.id])
 	} else {
-		openMenu(null)
+		closeMenu()
 		closePopup()
 	}
 }
