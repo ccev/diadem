@@ -32,7 +32,7 @@
 	import { Search } from "lucide-svelte";
 	import { isOpenModal } from "@/lib/ui/modal.svelte";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
-	import MobileMenu from "@/components/menus/MobileMenu.svelte";
+	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
