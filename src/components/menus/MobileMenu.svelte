@@ -12,6 +12,7 @@
 <Drawer.Root
 	open={Boolean(getOpenedMenu())}
 	onClose={() => openMenu(null)}
+	onOpenChangeComplete={() => openMenu(null)}
 	closeOnOutsideClick={false}
 	snapPoints={[0.62, 1]}
 	bind:activeSnapPoint
@@ -26,7 +27,10 @@
 						level={1}
 						class="font-bold text-base tracking-tight mx-4"
 					>
-						{m['nav_' + getOpenedMenu()]()}
+						{#if getOpenedMenu()}
+							{m['nav_' + getOpenedMenu()]()}
+						{/if}
+
 					</Drawer.Title>
 					<CloseButton
 						onclick={() => openMenu(null)}
