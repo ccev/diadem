@@ -16,6 +16,19 @@ import type { Perms } from "@/lib/utils/features";
 import { getServerLogger } from "@/lib/server/logging";
 import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerConfig } from "@/lib/services/config/config.server";
+import { paraglideMiddleware } from "@/lib/paraglide/server";
+import { sequence } from "@sveltejs/kit/hooks";
+
+const paraglideHandle: Handle = ({ event, resolve }) =>
+	paraglideMiddleware(
+		event.request,
+		({ request: localizedRequest, locale }) => {
+			event.request = localizedRequest;
+			return resolve(event, {
+				transformPageChunk: ({ html }) => html.replace("%lang%", locale),
+			});
+		},
+	);
 
 setServerLoggerFactory((name) => {
 	const winstonLogger = getServerLogger(name);
@@ -89,4 +102,4 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = handleAuth;
+export const handle: Handle = sequence(paraglideHandle, handleAuth);

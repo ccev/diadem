@@ -48,9 +48,7 @@
 		{@const Icon = btn.icon}
 
 		{#snippet icon()}
-			<div class:selected-stroke={isSelected(btn.type)}>
-				<Icon size="20" />
-			</div>
+			<Icon size="20" />
 		{/snippet}
 
 		<Button

@@ -40,5 +40,16 @@ export function backupShareUrl(url: string) {
 }
 
 export function hasTouch() {
-	return "ontouchstart" in window || (navigator?.maxTouchPoints ?? 0) > 0 || (navigator?.msMaxTouchPoints ?? 0) > 0;
+	return (
+		"ontouchstart" in window ||
+		(navigator?.maxTouchPoints ?? 0) > 0 ||
+		(navigator?.msMaxTouchPoints ?? 0) > 0
+	);
+}
+
+export function isMobileWebKit() {
+	return (
+		/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+		(navigator.userAgent.includes("Mac") && navigator.maxTouchPoints > 1)
+	);
 }

@@ -1,106 +1,61 @@
 <script lang="ts">
-	import { slide } from 'svelte/transition';
-	import { browser } from '$app/environment';
-	import { getOpenedMenu, openMenu } from '@/lib/ui/menus.svelte.js';
-	import MenuContainer from '@/components/menus/MenuContainer.svelte';
-	import CloseButton from '@/components/ui/CloseButton.svelte';
-	import * as m from '@/lib/paraglide/messages';
 	import { Drawer } from 'diadem-vaul-svelte';
+	import { getOpenedMenu, openMenu } from "@/lib/ui/menus.svelte.ts";
+	import MenuContainer from "@/components/menus/MenuContainer.svelte";
+	import CloseButton from "@/components/ui/CloseButton.svelte";
+	import { m } from "@/lib/paraglide/messages";
 
-	type OpenedMenu = ReturnType<typeof getOpenedMenu>;
-
-	const isMobileWebkit =
-		browser &&
-		(/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-			(navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1));
-
-	let open = $state(false);
-	let renderedMenu: OpenedMenu = $state(null);
-	let lastMenu: OpenedMenu = $state(null);
-	let closeTimer: ReturnType<typeof setTimeout> | null = null;
-
-	const isScout = $derived(renderedMenu === 'scout');
-
-	function finalizeClose() {
-		if (closeTimer) {
-			clearTimeout(closeTimer);
-			closeTimer = null;
-		}
-		renderedMenu = null;
-		openMenu(null);
-	}
-
-	function requestClose() {
-		open = false;
-
-		// Fallback: if `onOpenChangeComplete` doesn't fire reliably, still clear state after the close transition.
-		if (closeTimer) clearTimeout(closeTimer);
-		closeTimer = setTimeout(() => {
-			finalizeClose();
-		}, 600);
-	}
-
-	$effect(() => {
-		const menu = getOpenedMenu();
-		if (menu === lastMenu) return;
-
-		lastMenu = menu;
-
-		if (menu) {
-			if (closeTimer) {
-				clearTimeout(closeTimer);
-				closeTimer = null;
-			}
-			renderedMenu = menu;
-			open = true;
-		} else {
-			if (open) requestClose();
-			else renderedMenu = null;
-		}
-	});
+	let activeSnapPoint: number = $state(0.55)
+	let contentClass = $derived(activeSnapPoint === 1 ? "drawer-full" : "drawer-partial")
 </script>
 
 <Drawer.Root
-	open={open}
-	onOpenChange={(next) => {
-		open = next;
-		if (!next) requestClose();
-	}}
-	onOpenChangeComplete={(next) => {
-		if (!next) finalizeClose();
-	}}
+	open={Boolean(getOpenedMenu())}
+	onClose={() => openMenu(null)}
 	closeOnOutsideClick={false}
+	snapPoints={[0.62, 1]}
+	bind:activeSnapPoint
 >
 	<Drawer.Portal>
 		<Drawer.Content
-			class={`after:h-0! duration-150! touch-auto! fixed z-10 w-full h-full overflow-y-scroll bottom-0 ${
-				isMobileWebkit ? 'pointer-events-none' : 'pointer-events-none!'
-			} overscroll-contain`}
-			style="{isScout ? 'height: fit-content !important;' : '' }; -webkit-overflow-scrolling: touch; touch-action: pan-y;"
+			class="{contentClass} duration-150! fixed flex flex-col bottom-0 z-10 px-2 pt-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm"
 		>
-			<div
-				class={`pb-20 px-2 pt-2 rounded-t-xl border border-t-border bg-card/60 backdrop-blur-sm pointer-events-auto ${
-					isScout ? '' : 'mt-40 min-h-full'
-				}`}
-				out:slide={{ duration: 70, axis: 'y' }}
-			>
-				<div class="sticky top-2 z-20">
-					<div class="w-full py-1 flex items-center justify-between bg-card/60 backdrop-blur-sm rounded-lg border border-border">
-						<Drawer.Title
-							level="h1"
-							class="font-bold text-base tracking-tight mx-4"
-						>
-							{renderedMenu ? m['nav_' + renderedMenu]() : ''}
-						</Drawer.Title>
-						<CloseButton
-							onclick={requestClose}
-							class="mr-1 hover:bg-accent/90! active:bg-accent/90!"
-						/>
-					</div>
+			<div class="sticky top-2 z-20">
+				<div class="w-full py-1 flex items-center justify-between bg-card rounded-lg border border-border">
+					<Drawer.Title
+						level={1}
+						class="font-bold text-base tracking-tight mx-4"
+					>
+						{m['nav_' + getOpenedMenu()]()}
+					</Drawer.Title>
+					<CloseButton
+						onclick={() => openMenu(null)}
+						class="mr-1 hover:bg-accent/90! active:bg-accent/90!"
+					/>
 				</div>
+			</div>
 
+			<div
+				class="pb-20 content"
+			>
 				<MenuContainer />
 			</div>
 		</Drawer.Content>
 	</Drawer.Portal>
 </Drawer.Root>
+
+<style>
+	:global(.drawer-full) {
+        & .content {
+            overflow-y: auto;
+        }
+	}
+	:global(.drawer-partial) {
+        border-top-left-radius: calc(var(--radius) + 4px);
+        border-top-right-radius: calc(var(--radius) + 4px);
+
+		& .content {
+			overflow-y: hidden;
+		}
+	}
+</style>
