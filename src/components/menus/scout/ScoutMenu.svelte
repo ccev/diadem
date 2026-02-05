@@ -16,7 +16,7 @@
 		setScoutGeojson,
 		startScout
 	} from '@/lib/features/scout.svelte.js';
-	import { openMenu } from '@/lib/ui/menus.svelte.js';
+	import { closeMenu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { circle as makeCrircle } from '@turf/turf';
 	import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from '@/lib/constants';
 	import type { Feature, Polygon } from 'geojson';
@@ -50,7 +50,7 @@
 
 	async function scoutButton() {
 		const success = await startScout()
-		openMenu(null)
+		closeMenu()
 
 		if (success) {
 			openToast(m.scout_toast_success())

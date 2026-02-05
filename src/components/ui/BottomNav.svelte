@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { CircleUserRound, Map, Settings2 } from "lucide-svelte";
+	import { CircleUserRound, Settings2 } from "lucide-svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { Avatar } from "bits-ui";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
-	import { getOpenedMenu, type MenuTypes, openMenu } from "@/lib/ui/menus.svelte.js";
+	import { closeMenu, getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
-	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import { fade } from "svelte/transition";
+	import { Avatar } from "bits-ui";
 
-	function isSelected(type: MenuTypes) {
+	function isSelected(type: Menu) {
 		return type === getOpenedMenu();
 	}
 
-	function onNavigate(type: MenuTypes) {
+	function onNavigate(type: Menu) {
 		if (isSelected(type)) {
-			openMenu(null);
+			closeMenu();
 		} else {
 			openMenu(type);
 		}
@@ -24,17 +23,17 @@
 	const buttons: {
 		text: string,
 		icon: any,
-		type: MenuTypes
+		type: Menu
 	}[] = [
 		{
 			text: m.nav_filters(),
 			icon: Settings2,
-			type: "filters"
+			type: Menu.FILTERS
 		},
 		{
 			text: m.nav_profile(),
 			icon: CircleUserRound,
-			type: "profile"
+			type: Menu.PROFILE
 		}
 	];
 </script>

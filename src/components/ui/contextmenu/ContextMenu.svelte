@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { slide } from 'svelte/transition';
+	import { slide } from "svelte/transition";
 	import { Binoculars, Clipboard, Navigation, Pin } from "lucide-svelte";
-	import ContextMenuItem from '@/components/ui/contextmenu/ContextMenuItem.svelte';
-	import * as m from '@/lib/paraglide/messages';
+	import ContextMenuItem from "@/components/ui/contextmenu/ContextMenuItem.svelte";
+	import * as m from "@/lib/paraglide/messages";
 
-	import { getContextMenuEvent, getIsContextMenuOpen, setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
-	import { onClickOutside } from 'runed';
-	import { openMenu } from '@/lib/ui/menus.svelte.js';
-	import { setCurrentScoutCenter, setCurrentScoutCoords } from '@/lib/features/scout.svelte.js';
-	import { Coords } from '@/lib/utils/coordinates';
+	import { getContextMenuEvent, getIsContextMenuOpen, setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
+	import { onClickOutside } from "runed";
+	import { Menu, openMenu } from "@/lib/ui/menus.svelte.js";
+	import { setCurrentScoutCenter, setCurrentScoutCoords } from "@/lib/features/scout.svelte.js";
+	import { Coords } from "@/lib/utils/coordinates";
 	import {
 		backupShareUrl,
 		canBackupShare,
@@ -17,9 +17,9 @@
 		isMenuSidebar,
 		isUiLeft
 	} from "@/lib/utils/device";
-	import { getMapsUrl } from '@/lib/utils/mapUrl';
-	import { hasFeatureAnywhere } from '@/lib/services/user/checkPerm';
-	import { getUserDetails } from '@/lib/services/user/userDetails.svelte';
+	import { getMapsUrl } from "@/lib/utils/mapUrl";
+	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { getMap } from "@/lib/map/map.svelte";
 	import { Features } from "@/lib/utils/features";
 
@@ -76,7 +76,7 @@
 		const center = Coords.infer(event.lngLat)
 		setCurrentScoutCoords([center])
 		setCurrentScoutCenter(center)
-		openMenu("scout")
+		openMenu(Menu.SCOUT)
 	}
 
 	function shareMapPosition() {

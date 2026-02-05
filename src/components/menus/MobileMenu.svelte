@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Drawer } from 'diadem-vaul-svelte';
-	import { getOpenedMenu, openMenu } from "@/lib/ui/menus.svelte.ts";
+	import { closeMenu, getOpenedMenu, openMenu } from "@/lib/ui/menus.svelte.ts";
 	import MenuContainer from "@/components/menus/MenuContainer.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
 	import { m } from "@/lib/paraglide/messages";
@@ -11,8 +11,7 @@
 
 <Drawer.Root
 	open={Boolean(getOpenedMenu())}
-	onClose={() => openMenu(null)}
-	onOpenChangeComplete={() => openMenu(null)}
+	onOpenChangeComplete={closeMenu}
 	closeOnOutsideClick={false}
 	snapPoints={[0.62, 1]}
 	bind:activeSnapPoint
@@ -33,7 +32,7 @@
 
 					</Drawer.Title>
 					<CloseButton
-						onclick={() => openMenu(null)}
+						onclick={closeMenu}
 						class="mr-1 hover:bg-accent/90! active:bg-accent/90!"
 					/>
 				</div>

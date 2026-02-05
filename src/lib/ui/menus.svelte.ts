@@ -1,9 +1,17 @@
-export type MenuTypes = null | "profile" | "filters" | "scout"
+export enum Menu {
+	PROFILE = "profile",
+	FILTERS = "filters",
+	SCOUT = "scout"
+}
 
-let openedMenu: MenuTypes = $state(null)
+let openedMenu: Menu | null = $state(null)
 
-export function openMenu(type: MenuTypes) {
+export function openMenu(type: Menu) {
 	openedMenu = type
+}
+
+export function closeMenu() {
+	openedMenu = null
 }
 
 export function getOpenedMenu() {

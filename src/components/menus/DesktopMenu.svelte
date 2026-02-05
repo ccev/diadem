@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getOpenedMenu, openMenu } from '@/lib/ui/menus.svelte.js';
+	import { closeMenu, getOpenedMenu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import MenuContainer from '@/components/menus/MenuContainer.svelte';
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import { slide } from 'svelte/transition';
@@ -18,7 +18,7 @@
 			{m["nav_" + getOpenedMenu()]()}
 		</h1>
 		<CloseButton
-			onclick={() => openMenu(null)}
+			onclick={closeMenu}
 			class="mr-2"
 		/>
 	</div>
