@@ -35,7 +35,7 @@ export async function loadKojiGeofences() {
 
 	data.forEach(area => {
 		// @ts-ignore
-		const parent = areaMap.get(area.parent);
+		const parent = areaMap.get(area.properties.parent);
 		if (parent) {
 			parent.properties.children.push(area);
 			area.properties.parentName = parent.properties.name

@@ -8,21 +8,41 @@
 	import { flyTo, jumpTo } from "@/lib/map/utils";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
 	import { coverageMapActiveSnapPoint } from "@/lib/features/coverageMap.svelte";
+	import { SvelteSet } from "svelte/reactivity";
+	import {slide, fly} from "svelte/transition";
+
+	let expandedAreas: Set<number> = new SvelteSet()
 </script>
 
-{#snippet areaEntry(area: KojiFeature)}
-	<div
-		class="w-full flex py-2 items-center px-4 gap-3 text-sm font-medium"
-	>
-		<LucideIcon class="size-4" name={area.properties.lucideIcon ?? "Globe"} />
-		<span>{area.properties.name}</span>
+{#snippet areaTitle(area: KojiFeature)}
+	<LucideIcon class="size-4 ml-2" name={area.properties.lucideIcon ?? "Globe"} />
+	<span>{area.properties.name}</span>
+{/snippet}
 
-		{#if area.properties.children.length > 0}
-			<ChevronRight
-				size="16"
-				class="transition-[rotate] mt-px"
-				style="rotate: {false ? '90deg' : '0deg'}"
-			/>
+{#snippet areaEntry(area: KojiFeature)}
+	{@const isExpanded = expandedAreas.has(area.properties.id)}
+	<div
+		class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium"
+	>
+		{#if area.properties.children.length === 0}
+			{@render areaTitle(area)}
+		{:else}
+			<Button
+				class="gap-3! pl-0!"
+				size="sm"
+				variant="ghost"
+				onclick={() => {
+					const existed = expandedAreas.delete(area.properties.id)
+					if (!existed) expandedAreas.add(area.properties.id)
+				}}
+			>
+				{@render areaTitle(area)}
+				<ChevronRight
+					size="16"
+					class="transition-[rotate] mt-px"
+					style="rotate: {isExpanded ? '90deg' : '0deg'}"
+				/>
+			</Button>
 		{/if}
 
 		<Button
@@ -37,15 +57,24 @@
 		>
 			View
 		</Button>
-
-		<!--{#each area.children as child}-->
-		<!--	{@render areaEntry(child)}-->
-		<!--{/each}-->
 	</div>
+
+	{#if isExpanded}
+		<div
+			class="text-muted-foreground text-sm px-4 py-2 space-y-2"
+			transition:slide={{duration: 150 }}
+		>
+			{#each area.properties.children as child (child.properties.id)}
+				<p>
+					{child.properties.name}
+				</p>
+			{/each}
+		</div>
+	{/if}
 {/snippet}
 
 <div class="space-y-2">
-	<Card class="overflow-hidden py-1 divide-y divide-border">
+	<Card class="overflow-hidden --divide-y divide-border">
 		{#each getKojiGeofences() as area (area.properties.id)}
 			{#if !area.properties.parent}
 				{@render areaEntry(area)}
