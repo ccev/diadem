@@ -370,5 +370,8 @@
     "pokemon_max_battles": "{pokemon} Max Battles",
     "pokemon_nests": "{pokemon} Nests",
     "address": "Address",
-    "searching_for_addresses": "Looking for addresses"
+    "searching_for_addresses": "Looking for addresses",
+    "nav_tools": "Tools",
+    "nav_coveragemap": "Coverage Map",
+    "back_to_map": "Back to map"
 }

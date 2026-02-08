@@ -15,6 +15,7 @@ import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
+import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
 
@@ -117,6 +118,8 @@ export async function updateMapObject(
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true) {
+	if (getIsCoverageMapActive()) return
+
 	const activeSearch = getActiveSearch();
 
 	if (activeSearch) {

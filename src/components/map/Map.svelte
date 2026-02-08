@@ -41,6 +41,9 @@
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
+	import { getCoverageMapAreas, getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
+	import { featureCollection } from "@turf/turf";
+	import { getKojiGeofences } from "@/lib/features/koji";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -153,6 +156,12 @@
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
 	<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
+
+	<GeometryLayer
+		id={MapSourceId.COVERAGE_MAP_AREAS}
+		data={getCoverageMapAreas()}
+		show={getIsCoverageMapActive}
+	/>
 
 	<GeoJSON
 		id={MapSourceId.MAP_OBJECTS}

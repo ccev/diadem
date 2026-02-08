@@ -22,6 +22,7 @@
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { getMap } from "@/lib/map/map.svelte";
 	import { Features } from "@/lib/utils/features";
+	import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 	let div = $state<HTMLDivElement>()
 	let style: string = $state("")
@@ -121,7 +122,7 @@
 		target="_blank"
 	/>
 
-	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT)}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT) && !getIsCoverageMapActive()}
 		<ContextMenuItem
 			Icon={Binoculars}
 			label={m.context_menu_scout_location()}

@@ -16,10 +16,18 @@ export function isWebglSupported() {
 	return false;
 }
 
-export function flyTo(center: Coords, zoom: number) {
+export function jumpTo(center: Coords, zoom: number) {
 	closePopup();
 	getMap()?.setCenter(center.maplibre());
 	getMap()?.setZoom(zoom);
 	getMap()?.setBearing(0);
 	getMap()?.setPitch(0);
+}
+
+export function flyTo(center: Coords, zoom: number) {
+	closePopup();
+	getMap()?.flyTo({
+		center,
+		zoom,
+	})
 }

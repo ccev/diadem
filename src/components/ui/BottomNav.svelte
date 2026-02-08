@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CircleUserRound, Settings2 } from "lucide-svelte";
+	import { CircleUserRound, PocketKnife, Settings2 } from "lucide-svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
@@ -31,6 +31,11 @@
 			type: Menu.FILTERS
 		},
 		{
+			text: m.nav_tools(),
+			icon: PocketKnife,
+			type: Menu.TOOLS
+		},
+		{
 			text: m.nav_profile(),
 			icon: CircleUserRound,
 			type: Menu.PROFILE
@@ -39,7 +44,7 @@
 </script>
 
 <div
-	class="z-10 h-16 mx-2 min-w-44 text-sm grid grid-cols-2 divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
+	class="z-10 h-16 mx-2 min-w-64 text-sm grid grid-cols-3 divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
 	style="pointer-events: all"
 	transition:fade={{ duration: 90 }}
 >
@@ -73,8 +78,7 @@
 			{/if}
 
 			<span
-				class:font-semibold={isSelected(btn.type)}
-				class:tracking-light={isSelected(btn.type)}
+				class:font-bold={isSelected(btn.type)}
 			>
 				{btn.text}
 			</span>

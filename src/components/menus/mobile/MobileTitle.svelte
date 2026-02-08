@@ -5,7 +5,7 @@
 	import { m } from "@/lib/paraglide/messages";
 </script>
 
-<div class="sticky top-2 z-20">
+<div class="sticky top-2 z-20 mb-2">
 	<div class="w-full py-1 flex items-center justify-between bg-card rounded-lg border border-border">
 		<Drawer.Title
 			level={1}

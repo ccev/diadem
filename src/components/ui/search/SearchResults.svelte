@@ -18,7 +18,7 @@
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
 	import { m } from "@/lib/paraglide/messages";
 	import { getFeatureJump } from "@/lib/utils/geo";
-	import { flyTo } from "@/lib/map/utils";
+	import { jumpTo } from "@/lib/map/utils";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
 	import { getContestIcon, KECLEON_ID } from "@/lib/utils/pokestopUtils";
 	import { point } from "@turf/turf";
@@ -47,8 +47,8 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				const jumpTo = getFeatureJump(entry.feature)
-				flyTo(jumpTo.coords, jumpTo.zoom)
+				const params = getFeatureJump(entry.feature)
+				jumpTo(params.coords, params.zoom)
 				closeSearchModal()
 			}}
 		/>
@@ -56,9 +56,9 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				const jumpTo = getFeatureJump(point(entry.point, undefined, { bbox: entry.bbox }))
-				flyTo(jumpTo.coords, jumpTo.zoom)
-				setSearchedLocation(jumpTo.coords)
+				const params = getFeatureJump(point(entry.point, undefined, { bbox: entry.bbox }))
+				jumpTo(params.coords, params.zoom)
+				setSearchedLocation(params.coords)
 				closeSearchModal()
 			}}
 		/>

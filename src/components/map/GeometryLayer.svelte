@@ -6,11 +6,13 @@
 	let {
 		id,
 		data = undefined,
-		reactive = true
+		reactive = true,
+		show = true
 	}: {
 		id: MapSourceId,
 		data?: FeatureCollection,
-		reactive?: Readonly<boolean>
+		reactive?: Readonly<boolean>,
+		show?: boolean | (() => boolean)
 	} = $props();
 
 	let lastWasEmpty = true
@@ -34,15 +36,17 @@
 		features: []
 	}}
 >
-	<FillLayer
-		paint={{
-		  'fill-color': ["get", "fillColor"],
-		  'fill-opacity': 0.5,
-		}}
-	/>
-	<LineLayer
-		layout={{ 'line-cap': 'round', 'line-join': 'round' }}
-		paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 2 }}
-	/>
+	{#if typeof show === 'function' ? show() : show}
+		<FillLayer
+			paint={{
+			  'fill-color': ["get", "fillColor"],
+			  'fill-opacity': 0.5,
+			}}
+		/>
+		<LineLayer
+			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 2 }}
+		/>
+	{/if}
 
 </GeoJSON>

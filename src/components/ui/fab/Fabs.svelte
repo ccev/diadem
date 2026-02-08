@@ -11,6 +11,7 @@
 	import { fade, slide } from "svelte/transition";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import { initSearch, openSearchModal } from "@/lib/services/search.svelte";
+	import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 	let isSearchAllowed = $derived(
 		!isSearchViewActive()
@@ -26,6 +27,7 @@
 			hasLoadedFeature(LoadedFeature.KOJI) &&
 			isSupportedFeature("koji")
 		)
+		&& !getIsCoverageMapActive()
 	);
 
 	$effect(() => {

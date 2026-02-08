@@ -19,11 +19,11 @@ Before this becomes ready for production, documentation is lacking, and for now 
 set this up yourself. But I'm not stopping you:
 
 1. `git clone https://github.com/ccev/diadem && cd `
-1. `./setup.sh`, then fill out config/config.toml
-2. `pnpm run db:push`
+2. `./setup.sh`, then fill out config/config.toml
 3. `pnpm install` && `pnpm run build`
-4. Start with pm2: `PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"`
-5. Set up a reverse proxy, I use caddy with this config:
+4. `pnpm run db:push`
+5. Start with pm2: `PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"`
+6. Set up a reverse proxy, I use caddy with this config:
     ```
     map.co {
       root * /path/diadem/build

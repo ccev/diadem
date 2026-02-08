@@ -22,7 +22,7 @@
 			class="mr-2"
 		/>
 	</div>
-	<div class="px-2">
+	<div class="px-2 mt-2">
 		<MenuContainer />
 	</div>
 </div>

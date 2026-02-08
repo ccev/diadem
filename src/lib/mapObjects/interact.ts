@@ -12,6 +12,7 @@ import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { getMap } from "@/lib/map/map.svelte";
 import { MapObjectLayerId } from "@/lib/map/layers";
 import { closeMenu, openMenu } from "@/lib/ui/menus.svelte";
+import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -64,7 +65,10 @@ export function clickMapHandler(event: MapMouseEvent) {
 	if (feature) {
 		openPopup(getMapObjects()[feature.properties.id])
 	} else {
-		closeMenu()
+		if (!getIsCoverageMapActive()) {
+			closeMenu()
+		}
+
 		closePopup()
 	}
 }

@@ -1,24 +1,36 @@
 <script lang="ts">
-	import { Drawer } from 'diadem-vaul-svelte';
-	import { closeMenu, getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.ts";
+	import { Drawer } from "diadem-vaul-svelte";
+	import {
+		closeMenu,
+		getOpenedMenu,
+		Menu,
+		onMenuDrawerOpenChangeComplete,
+		resetJustChangedMenus
+	} from "@/lib/ui/menus.svelte";
 	import MenuContainer from "@/components/menus/MenuContainer.svelte";
 	import MobileTitle from "@/components/menus/mobile/MobileTitle.svelte";
+	import { onMount } from "svelte";
 
 	let {
-		menus
+		menus,
 	}: {
 		menus: (Menu | null)[]
-	} = $props()
+	} = $props();
 
-	let activeSnapPoint: number = $state(0.55)
-	let contentClass = $derived(activeSnapPoint === 1 ? "drawer-full" : "drawer-partial")
+	const snapPoints = [0.62, 1];
+	let initialSnapPoint = 0;
+
+	let activeSnapPoint: number | string = $state(snapPoints[initialSnapPoint]);
+	let contentClass = $derived(activeSnapPoint === snapPoints[snapPoints.length - 1] ? "drawer-full" : "drawer-partial");
+
+	onMount(() => resetJustChangedMenus());
 </script>
 
 <Drawer.Root
 	open={menus.includes(getOpenedMenu())}
-	onOpenChangeComplete={closeMenu}
+	onOpenChangeComplete={onMenuDrawerOpenChangeComplete}
 	closeOnOutsideClick={false}
-	snapPoints={[0.62, 1]}
+	{snapPoints}
 	bind:activeSnapPoint
 >
 	<Drawer.Portal>
@@ -42,6 +54,7 @@
             overflow-y: auto;
         }
     }
+
     :global(.drawer-partial) {
         border-top-left-radius: calc(var(--radius) + 4px);
         border-top-right-radius: calc(var(--radius) + 4px);

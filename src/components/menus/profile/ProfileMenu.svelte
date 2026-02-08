@@ -7,7 +7,7 @@
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 </script>
 
-<div class="space-y-2 mt-2">
+<div class="space-y-2">
 	<SignInButton />
 
 	{#if isSupportedFeature("auth")}

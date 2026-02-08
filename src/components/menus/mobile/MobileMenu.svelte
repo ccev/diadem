@@ -1,15 +1,10 @@
 <script lang="ts">
-	import { Drawer } from 'diadem-vaul-svelte';
-	import { closeMenu, getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.ts";
-	import MenuContainer from "@/components/menus/MenuContainer.svelte";
-	import CloseButton from "@/components/ui/CloseButton.svelte";
-	import { m } from "@/lib/paraglide/messages";
+	import { Menu } from "@/lib/ui/menus.svelte";
 	import MobileMenuMain from "@/components/menus/mobile/MobileMenuMain.svelte";
 	import MobileMenuStatic from "@/components/menus/mobile/MobileMenuStatic.svelte";
-
-	let menu = $derived(getOpenedMenu())
+	import MobileMenuCoverageMap from "@/components/menus/mobile/MobileMenuCoverageMap.svelte";
 </script>
 
-<MobileMenuMain menus={[Menu.FILTERS, Menu.PROFILE]} />
-
+<MobileMenuMain menus={[Menu.FILTERS, Menu.PROFILE, Menu.TOOLS]} />
+<MobileMenuCoverageMap />
 <MobileMenuStatic menus={[Menu.SCOUT]} />

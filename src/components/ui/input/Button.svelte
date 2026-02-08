@@ -24,7 +24,8 @@
 			'border-input bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground border',
 		secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/80',
 		ghost: 'hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground',
-		link: 'text-primary underline-offset-4 hover:underline active:underline'
+		link: 'text-primary underline-offset-4 hover:underline active:underline',
+		"": ""
 	};
 
 	const sizes = {

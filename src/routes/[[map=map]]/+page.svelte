@@ -33,6 +33,8 @@
 	import { isOpenModal } from "@/lib/ui/modal.svelte";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
 	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
+	import { getIsCoverageMapActive, showCoverageMapTitle } from "@/lib/features/coverageMap.svelte";
+	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu
@@ -95,10 +97,10 @@
 			<div
 				class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88"
 			>
-				{#if !isSearchViewActive()}
-					{#if getOpenedMenu()}
-						<DesktopMenu />
-					{/if}
+				{#if getOpenedMenu()}
+					<DesktopMenu />
+				{/if}
+				{#if !isSearchViewActive() && !getIsCoverageMapActive()}
 					<BottomNav />
 				{/if}
 			</div>
@@ -124,10 +126,14 @@
 				{/if}
 				<PopupContainer />
 			{/if}
-			{#if !isSearchViewActive()}
+			{#if !isSearchViewActive() && !getIsCoverageMapActive()}
 				<BottomNav />
 			{/if}
 		</div>
+
+		{#if showCoverageMapTitle()}
+			<CoverageMapTitle />
+		{/if}
 	{/if}
 
 	<Map />

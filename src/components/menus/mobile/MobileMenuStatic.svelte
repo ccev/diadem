@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { Drawer } from 'diadem-vaul-svelte';
-	import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte.ts";
+	import {
+		closeMenu,
+		getOpenedMenu,
+		Menu,
+		onMenuDrawerOpenChangeComplete,
+		resetJustChangedMenus
+	} from "@/lib/ui/menus.svelte.ts";
 	import MenuContainer from "@/components/menus/MenuContainer.svelte";
 	import MobileTitle from "@/components/menus/mobile/MobileTitle.svelte";
+	import { onMount } from "svelte";
 
 	let {
 		menus
@@ -10,11 +17,12 @@
 		menus: (Menu | null)[]
 	} = $props()
 
+	onMount(() => resetJustChangedMenus())
 </script>
 
 <Drawer.Root
 	open={menus.includes(getOpenedMenu())}
-	onOpenChangeComplete={closeMenu}
+	onOpenChangeComplete={onMenuDrawerOpenChangeComplete}
 	closeOnOutsideClick={false}
 >
 	<Drawer.Portal>

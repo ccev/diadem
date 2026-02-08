@@ -19,7 +19,7 @@
 	<Metadata title={m.nav_filters()} />
 </svelte:head>
 
-<div class="mt-2 space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
+<div class="space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
 	<SignInButton />
 	<FilterSection
 		requiredPermission="pokemon"
