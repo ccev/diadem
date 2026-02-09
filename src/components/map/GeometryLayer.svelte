@@ -13,7 +13,7 @@
 		fillId = undefined,
 		strokeId = undefined
 	}: {
-		id: MapSourceId,
+		id: string,
 		data?: FeatureCollection,
 		reactive?: Readonly<boolean>,
 		show?: boolean | (() => boolean),
@@ -47,9 +47,9 @@
 		<FillLayer
 			id={fillId}
 			paint={{
-		  'fill-color': ["get", "fillColor"],
-		  'fill-opacity': 0.5,
-		}}
+			  'fill-color': ["get", "fillColor"],
+			  'fill-opacity': 0.5,
+			}}
 		/>
 		<LineLayer
 			id={strokeId}

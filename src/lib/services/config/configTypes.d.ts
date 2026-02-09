@@ -84,11 +84,27 @@ export type MapStyle = {
 	default?: "dark" | "light"
 }
 
+type MapPositions = {
+	styleLat: number
+	styleLon: number
+	styleZoom: number
+	coverageLat: number
+	coverageLon: number
+	coverageZoom: number
+}
+
 export type ClientConfig = {
 	mapStyles: MapStyle[]
 	uiconSets: UiconSet[]
 	general: General,
 	discord: ClientDiscord,
+	mapPositions: MapPositions,
+	tools: {
+		showToolsMenu: boolean
+		coverageMap: boolean
+		scout: boolean
+		stats: boolean
+	}
 }
 
 export type ServerConfig = {

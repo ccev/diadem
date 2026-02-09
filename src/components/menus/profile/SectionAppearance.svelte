@@ -88,8 +88,12 @@
 			{#each getConfig().mapStyles as mapStyle (mapStyle.id)}
 				<SelectGroupItem class="overflow-hidden" value={mapStyle.id}>
 					<MapLibre
-						center={[9.979, 53.563]}
-						zoom={12}
+						center={[
+							getConfig().mapPositions.styleLat ?? 9.979,
+							getConfig().mapPositions.styleLon ?? 53.563
+						]}
+						zoom={getConfig().mapPositions.styleZoom ?? 12}
+						filterLayers={l => l.type !== "symbol"}
 						class="w-20 h-18 border-b-2 border-accent"
 						style={mapStyle.url}
 						attributionControl={false}
@@ -97,9 +101,8 @@
 						zoomOnDoubleClick={false}
 					/>
 					<span class="pb-1">
-							{mapStyle.name}
-						</span>
-
+						{mapStyle.name}
+					</span>
 				</SelectGroupItem>
 			{/each}
 		</RadioGroup>

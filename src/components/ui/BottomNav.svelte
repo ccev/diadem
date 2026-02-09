@@ -7,6 +7,7 @@
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import { fade } from "svelte/transition";
 	import { Avatar } from "bits-ui";
+	import { getConfig } from "@/lib/services/config/config";
 
 	function isSelected(type: Menu) {
 		return type === getOpenedMenu();
@@ -24,28 +25,32 @@
 		text: string,
 		icon: any,
 		type: Menu
-	}[] = [
-		{
-			text: m.nav_filters(),
-			icon: Settings2,
-			type: Menu.FILTERS
-		},
-		{
+	}[] = []
+
+	buttons.push({
+		text: m.nav_filters(),
+		icon: Settings2,
+		type: Menu.FILTERS
+	})
+
+	if (getConfig().tools?.showToolsMenu) {
+		buttons.push({
 			text: m.nav_tools(),
 			icon: PocketKnife,
 			type: Menu.TOOLS
-		},
-		{
-			text: m.nav_profile(),
-			icon: CircleUserRound,
-			type: Menu.PROFILE
-		}
-	];
+		})
+	}
+
+	buttons.push({
+		text: m.nav_profile(),
+		icon: CircleUserRound,
+		type: Menu.PROFILE
+	})
 </script>
 
 <div
-	class="z-10 h-16 mx-2 min-w-64 text-sm grid grid-cols-3 divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
-	style="pointer-events: all"
+	class="z-10 h-16 mx-2 text-sm grid divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
+	style="pointer-events: all; grid-template-columns: repeat({buttons.length}, minmax(0, 1fr));"
 	transition:fade={{ duration: 90 }}
 >
 	{#each buttons as btn}
@@ -58,7 +63,7 @@
 		<Button
 			variant="ghost"
 			size=""
-			class="flex px-2 pt-0.5 justify-center items-center flex-col text-sm bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground first:rounded-l-lg last:rounded-r-lg"
+			class="min-w-21! flex px-2 pt-0.5 justify-center items-center flex-col text-sm bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground first:rounded-l-lg last:rounded-r-lg"
 			onclick={() => onNavigate(btn.type)}
 			disabled={!hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.SUPPORTED_FEATURES)}
 		>

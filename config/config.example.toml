@@ -111,6 +111,31 @@ defaultLat = 51.516855
 defaultLon = -0.080500
 defaultZoom = 15
 
+# Tools are extra functionality that go beyond what a pogo map should do.
+# You can configure them here.
+# Note that certain tools may be disabled if they're not set up or users lack permissions.
+[client.tools]
+# Whether to show the tools menu as a whole
+showToolsMenu = true
+
+coverageMap = true
+scout = true
+stats = true
+
+# Map Positions for various maps in the UI
+[client.mapPositions]
+# Profile Menu - Map Style Preview Maps
+# You may change them if you have a style without tiles in Germany
+styleLat = 53.563
+styleLon = 9.979
+styleZoom = 12
+
+# Tooles Menu - Coverage Map - Background Map
+# Would generally recommend to set this to a position where you have areas
+coverageLat = 53.563
+coverageLon = 9.979
+coverageZoom = 5.5
+
 ### Map Styles
 
 [[client.mapStyles]]
