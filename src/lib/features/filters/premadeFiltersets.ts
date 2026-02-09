@@ -37,7 +37,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 				}
 			},
 			title: "filter_template_rank1_ultra",
-			pvpRankGreat: { min: 1, max: 1 }
+			pvpRankUltra: { min: 1, max: 1 }
 		}),
 		filterset<FiltersetPokemon>({
 			emoji: "🗑️",
