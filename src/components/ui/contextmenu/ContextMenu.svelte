@@ -23,36 +23,37 @@
 	import { getMap } from "@/lib/map/map.svelte";
 	import { Features } from "@/lib/utils/features";
 	import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
+	import { getConfig } from "@/lib/services/config/config";
 
-	let div = $state<HTMLDivElement>()
-	let style: string = $state("")
-	let mapsUrl: string = $state("")
+	let div = $state<HTMLDivElement>();
+	let style: string = $state("");
+	let mapsUrl: string = $state("");
 
-	const spacing = 4
+	const spacing = 4;
 
-	onClickOutside(() => div, () => setIsContextMenuOpen(false))
+	onClickOutside(() => div, () => setIsContextMenuOpen(false));
 
 	$effect(() => {
-		if (!div) return
-		if (!getContextMenuEvent()) return
-		if (!isMenuSidebar()) return
+		if (!div) return;
+		if (!getContextMenuEvent()) return;
+		if (!isMenuSidebar()) return;
 
-		const event = getContextMenuEvent()
-		if (!event) return
+		const event = getContextMenuEvent();
+		if (!event) return;
 
-		mapsUrl = getMapsUrl(event.lngLat.lat, event.lngLat.lng)
+		mapsUrl = getMapsUrl(event.lngLat.lat, event.lngLat.lng);
 
 		const { innerWidth, innerHeight } = window;
-		const offsetWidth = div.getBoundingClientRect().width
-		const offsetHeight = div.getBoundingClientRect().height
-		let x = event.point.x
-		let y = event.point.y
+		const offsetWidth = div.getBoundingClientRect().width;
+		const offsetHeight = div.getBoundingClientRect().height;
+		let x = event.point.x;
+		let y = event.point.y;
 
 		if (!isUiLeft()) {
-			x -= offsetWidth
+			x -= offsetWidth;
 		}
 		if (x <= spacing) {
-			x = spacing
+			x = spacing;
 		}
 		if (x + offsetWidth > innerWidth + spacing) {
 			x = innerWidth - offsetWidth - spacing;
@@ -60,40 +61,39 @@
 		if (y + offsetHeight > innerHeight + spacing) {
 			y = innerHeight - offsetHeight - spacing;
 		}
-		style = `top: ${y}px; left: ${x}px;`
-	})
+		style = `top: ${y}px; left: ${x}px;`;
+	});
 
 	function copyCoords() {
-		const event = getContextMenuEvent()
-		if (!event) return
+		const event = getContextMenuEvent();
+		if (!event) return;
 
-		copyToClipboard("" + event.lngLat.lat + "," + event.lngLat.lng)
+		copyToClipboard("" + event.lngLat.lat + "," + event.lngLat.lng);
 	}
 
 	function openScout() {
-		const event = getContextMenuEvent()
-		if (!event) return
+		const event = getContextMenuEvent();
+		if (!event) return;
 
-		const center = Coords.infer(event.lngLat)
-		setCurrentScoutCoords([center])
-		setCurrentScoutCenter(center)
-		openMenu(Menu.SCOUT)
+		const center = Coords.infer(event.lngLat);
+		setCurrentScoutCoords([center]);
+		setCurrentScoutCenter(center);
+		openMenu(Menu.SCOUT);
 	}
 
 	function shareMapPosition() {
-		const event = getContextMenuEvent()
-		if (!event) return
+		const event = getContextMenuEvent();
+		if (!event) return;
 
-		const center = Coords.infer(event.lngLat)
-		const zoom = getMap()?.getZoom()
-		console.log(zoom)
+		const center = Coords.infer(event.lngLat);
+		const zoom = getMap()?.getZoom();
 
-		const url = new URL(window.location.href)
-		url.searchParams.set("lat", center.lat.toString())
-		url.searchParams.set("lon", center.lon.toString())
-		if (zoom) url.searchParams.set("zoom", zoom.toString())
+		const url = new URL(window.location.href);
+		url.searchParams.set("lat", center.lat.toString());
+		url.searchParams.set("lon", center.lon.toString());
+		if (zoom) url.searchParams.set("zoom", zoom.toString());
 
-		backupShareUrl(url.toString())
+		backupShareUrl(url.toString());
 	}
 </script>
 
@@ -122,7 +122,7 @@
 		target="_blank"
 	/>
 
-	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT) && !getIsCoverageMapActive()}
+	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT) && getConfig().tools.scout && !getIsCoverageMapActive()}
 		<ContextMenuItem
 			Icon={Binoculars}
 			label={m.context_menu_scout_location()}

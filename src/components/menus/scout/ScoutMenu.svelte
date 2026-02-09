@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getConfig } from "@/lib/services/config/config";
 	import * as m from "@/lib/paraglide/messages";
 	import Card from "@/components/ui/Card.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
@@ -8,7 +7,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import {
 		getCoords,
-		getCurrentScoutData,
+		getCurrentScoutData, getScoutGeojsons,
 		getScoutQueue,
 		resetCurrentScoutData,
 		type ScoutGeoProperties,
@@ -16,7 +15,7 @@
 		setScoutGeojson,
 		startScout
 	} from "@/lib/features/scout.svelte.js";
-	import { closeMenu, openMenu } from "@/lib/ui/menus.svelte.js";
+	import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte.js";
 	import { circle as makeCrircle } from "@turf/turf";
 	import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from "@/lib/constants";
 	import type { Feature, Polygon } from "geojson";
@@ -35,7 +34,6 @@
 	});
 
 	onDestroy(() => {
-		resetCurrentScoutData();
 		if (interval) clearInterval(interval);
 	});
 
@@ -60,26 +58,10 @@
 	}
 
 	function updatePoints(newSize: 0 | 1 | 2) {
-		console.debug("update points");
-		size = newSize;
-
+		size = newSize
 		setCurrentScoutCoords(getCoords(getCurrentScoutData().center, size));
 
-		const smallPoints: Feature<Polygon, ScoutGeoProperties>[] = [];
-		const bigPoints: Feature<Polygon, ScoutGeoProperties>[] = [];
-		getCurrentScoutData().coords.forEach(c => {
-			const smallCircle = makeCrircle([c.lon, c.lat], RADIUS_POKEMON / 1000) as Feature<Polygon, ScoutGeoProperties>;
-			smallCircle.properties.fillColor = "#DAB2FFFF";
-			smallCircle.properties.strokeColor = "#DAB2FFFF";
-			smallPoints.push(smallCircle);
-
-			if (size === 1 && bigPoints.length > 0) return;  // only draw the middle circle in M
-
-			const bigCircle = makeCrircle([c.lon, c.lat], RADIUS_SCOUT_GMO / 1000) as Feature<Polygon, ScoutGeoProperties>;
-			bigCircle.properties.fillColor = "#DFF2FEFF";
-			bigCircle.properties.strokeColor = "#DFF2FEFF";
-			bigPoints.push(bigCircle);
-		});
+		const [ smallPoints, bigPoints ] = getScoutGeojsons(getCurrentScoutData().coords, size)
 
 		setScoutGeojson(smallPoints, bigPoints);
 	}

@@ -6,18 +6,21 @@
 		Menu,
 		onMenuDrawerOpenChangeComplete,
 		resetJustChangedMenus
-	} from "@/lib/ui/menus.svelte.ts";
+	} from "@/lib/ui/menus.svelte";
 	import MenuContainer from "@/components/menus/MenuContainer.svelte";
 	import MobileTitle from "@/components/menus/mobile/MobileTitle.svelte";
 	import { onMount } from "svelte";
+	import ScoutMenu from "@/components/menus/scout/ScoutMenu.svelte";
 
 	let {
-		menus
+		menus,
 	}: {
 		menus: (Menu | null)[]
 	} = $props()
 
-	onMount(() => resetJustChangedMenus())
+	onMount(() => {
+		resetJustChangedMenus()
+	})
 </script>
 
 <Drawer.Root

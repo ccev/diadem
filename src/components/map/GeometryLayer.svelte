@@ -13,7 +13,7 @@
 		fillId = undefined,
 		strokeId = undefined
 	}: {
-		id: string,
+		id: MapSourceId,
 		data?: FeatureCollection,
 		reactive?: Readonly<boolean>,
 		show?: boolean | (() => boolean),

@@ -1,23 +1,22 @@
-import { getConfig } from '@/lib/services/config/config';
-import type { MapMouseEvent } from 'maplibre-gl';
-import type { LayerClickInfo } from 'svelte-maplibre';
-import type { MapObjectFeature, MapObjectIconFeature } from "@/lib/map/featuresGen.svelte.js";
-import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-import { getCurrentSelectedData, setCurrentSelectedData } from '@/lib/mapObjects/currentSelectedState.svelte';
-
-import { setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
-import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+import { getConfig } from "@/lib/services/config/config";
+import type { MapMouseEvent } from "maplibre-gl";
+import type { MapObjectFeature } from "@/lib/map/featuresGen.svelte.js";
+import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+import { getCurrentSelectedData, setCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { getMap } from "@/lib/map/map.svelte";
 import { CoverageMapLayerId, MapObjectLayerId } from "@/lib/map/layers";
-import { closeMenu, openMenu } from "@/lib/ui/menus.svelte";
+import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import {
 	type CoverageMapAreaProperties,
-	getIsCoverageMapActive, setClickedCoverageMapAreas
+	getIsCoverageMapActive,
+	setClickedCoverageMapAreas
 } from "@/lib/features/coverageMap.svelte";
-import type { KojiFeature } from "@/lib/features/koji";
 import type { Feature, Polygon } from "geojson";
+import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
+import { Coords } from "@/lib/utils/coordinates";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -71,6 +70,8 @@ export function clickMapHandler(event: MapMouseEvent) {
 		} else {
 			setClickedCoverageMapAreas(areas)
 		}
+	} else if (getOpenedMenu() === Menu.SCOUT) {
+		setCurrentScoutCenter(Coords.infer(event.lngLat));
 	} else {
 		const features = map.queryRenderedFeatures(event.point, {
 			layers: Object.values(MapObjectLayerId)

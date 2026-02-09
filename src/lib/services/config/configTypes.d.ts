@@ -91,6 +91,9 @@ type MapPositions = {
 	coverageLat: number
 	coverageLon: number
 	coverageZoom: number
+	scoutLat: number
+	scoutLon: number
+	scoutZoom: number
 }
 
 export type ClientConfig = {

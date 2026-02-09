@@ -136,6 +136,12 @@ coverageLat = 53.563
 coverageLon = 9.979
 coverageZoom = 5.5
 
+# Tools Menu - Scout - Background Map
+# Would generally recommend to set this to a position where you have areas
+scoutLat = 53.563
+scoutLon = 9.979
+scoutZoom = 10.5
+
 ### Map Styles
 
 [[client.mapStyles]]

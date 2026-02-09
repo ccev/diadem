@@ -2,6 +2,7 @@ import type { Feature, FeatureCollection, Polygon } from "geojson";
 import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from "@/lib/constants";
 import { destination, point } from "@turf/turf";
 import { Coords, type LatLon } from "@/lib/utils/coordinates";
+import { circle as makeCrircle } from "@turf/turf";
 
 export type ScoutRequest = {
 	coords: LatLon[];
@@ -99,4 +100,31 @@ export function getCoords(center: Coords, size: 0 | 1 | 2) {
 			return Coords.infer(coords);
 		})
 	);
+}
+
+export function getScoutGeojsons(coords: Coords[], size: 0 | 1 | 2) {
+	const smallPoints: Feature<Polygon, ScoutGeoProperties>[] = [];
+	const bigPoints: Feature<Polygon, ScoutGeoProperties>[] = [];
+	coords.forEach((c) => {
+		const smallCircle = makeCrircle([c.lon, c.lat], RADIUS_POKEMON / 1000) as Feature<
+			Polygon,
+			ScoutGeoProperties
+		>;
+		smallCircle.properties.fillColor = "#DAB2FFFF";
+		smallCircle.properties.strokeColor = "#DAB2FFFF";
+		smallPoints.push(smallCircle);
+
+		if (size === 1 && bigPoints.length > 0) return; // only draw the middle circle in M
+
+		const bigCircle = makeCrircle([c.lon, c.lat], RADIUS_SCOUT_GMO / 1000) as Feature<
+			Polygon,
+			ScoutGeoProperties
+		>;
+		bigCircle.properties.fillColor = "#DFF2FEFF";
+		bigCircle.properties.strokeColor = "#DFF2FEFF";
+		bigPoints.push(bigCircle);
+	});
+
+	console.log(smallPoints)
+	return [ smallPoints, bigPoints ]
 }

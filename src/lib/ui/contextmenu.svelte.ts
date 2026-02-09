@@ -1,7 +1,7 @@
-import maplibre from 'maplibre-gl';
-import { getOpenedMenu } from '@/lib/ui/menus.svelte.js';
-import { setCurrentScoutCenter } from '@/lib/features/scout.svelte.js';
-import { Coords } from '@/lib/utils/coordinates';
+import maplibre from "maplibre-gl";
+import { getOpenedMenu, Menu } from "@/lib/ui/menus.svelte.js";
+import { setCurrentScoutCenter } from "@/lib/features/scout.svelte.js";
+import { Coords } from "@/lib/utils/coordinates";
 
 export let pressTimer: NodeJS.Timeout[] = [];
 export const longPressDuration = 500;
@@ -27,9 +27,9 @@ export function setContextMenuEvent(event: maplibre.MapTouchEvent | maplibre.Map
 }
 
 export function onContextMenu(event: maplibre.MapTouchEvent | maplibre.MapMouseEvent) {
-	if (getOpenedMenu() === "scout") {
-		setCurrentScoutCenter(Coords.infer(event.lngLat))
-		return
+	if (getOpenedMenu() === Menu.SCOUT) {
+		setCurrentScoutCenter(Coords.infer(event.lngLat));
+		return;
 	}
 
 	setContextMenuEvent(event);

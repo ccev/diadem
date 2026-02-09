@@ -35,7 +35,7 @@
 		openFiltersetModal
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
-	import { Menu, openMenu } from "@/lib/ui/menus.svelte";
+	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
@@ -154,8 +154,16 @@
 	oncontextmenu={onContextMenu}
 >
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
-	<GeometryLayer id={MapSourceId.SCOUT_BIG_POINTS} data={getCurrentScoutData().bigPoints} />
-	<GeometryLayer id={MapSourceId.SCOUT_SMALL_POINTS} data={getCurrentScoutData().smallPoints} />
+	<GeometryLayer
+		show={() => getOpenedMenu() === Menu.SCOUT}
+		id={MapSourceId.SCOUT_BIG_POINTS}
+		data={getCurrentScoutData().bigPoints}
+	/>
+	<GeometryLayer
+		show={() => getOpenedMenu() === Menu.SCOUT}
+		id={MapSourceId.SCOUT_SMALL_POINTS}
+		data={getCurrentScoutData().smallPoints}
+	/>
 
 	<GeometryLayer
 		id={MapSourceId.COVERAGE_MAP_AREAS}
