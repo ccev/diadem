@@ -42,8 +42,8 @@
 
 			{@const coords = getCoords(
 				new Coords(
-					(getConfig().mapPositions.scoutLat ?? 9.979) - 0.01,
-					(getConfig().mapPositions.scoutLon ?? 53.563) + 0.04),
+					(getConfig().mapPositions.scoutLat ?? 53.563) - 0.01,
+					(getConfig().mapPositions.scoutLon ?? 9.979) + 0.04),
 				2)}
 			{@const [ smallPoints, bigPoints ] = getScoutGeojsons(coords, 2)}
 			<MapLibre
