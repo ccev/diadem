@@ -4,6 +4,7 @@
 	import CloseButton from '@/components/ui/CloseButton.svelte';
 	import { slide } from 'svelte/transition';
 	import * as m from '@/lib/paraglide/messages';
+	import { closeCoverageMap, getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 </script>
 
 <div
@@ -18,7 +19,13 @@
 			{m["nav_" + getOpenedMenu()]()}
 		</h1>
 		<CloseButton
-			onclick={closeMenu}
+			onclick={() => {
+				if (getIsCoverageMapActive()) {
+					closeCoverageMap()
+				} else {
+					closeMenu()
+				}
+			}}
 			class="mr-2"
 		/>
 	</div>
