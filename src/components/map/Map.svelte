@@ -15,7 +15,7 @@
 		onMapMove,
 		onMapMoveEnd,
 		onMapMoveStart,
-		onMapStyleDataLoading,
+		onMapStyleDataLoading, onMapStyleLoad,
 		onTouchStart,
 		onWindowFocus
 	} from "@/lib/map/events";
@@ -36,7 +36,7 @@
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { Menu, openMenu } from "@/lib/ui/menus.svelte";
-	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
+	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
@@ -161,6 +161,8 @@
 		id={MapSourceId.COVERAGE_MAP_AREAS}
 		data={getCoverageMapAreas()}
 		show={getIsCoverageMapActive}
+		fillId={CoverageMapLayerId.POLYGON_FILL}
+		strokeId={CoverageMapLayerId.POLYGON_STROKE}
 	/>
 
 	<GeoJSON

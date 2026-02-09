@@ -2,10 +2,12 @@
 	import { m } from "@/lib/paraglide/messages";
 	import { closeMenu } from "@/lib/ui/menus.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
-	import { closeCoverageMap } from "@/lib/features/coverageMap.svelte";
+	import { closeCoverageMap, getClickedCoverageMapAreas } from "@/lib/features/coverageMap.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowLeft } from "lucide-svelte";
 	import { slide, fade, fly } from "svelte/transition";
+	import Card from "@/components/ui/Card.svelte";
+	import {flip} from "svelte/animate";
 </script>
 
 <div

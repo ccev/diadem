@@ -12,7 +12,7 @@ import {
 	resetUpdateMapObjectsInterval
 } from '@/lib/map/mapObjectsInterval';
 import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte.js';
-import { getMap } from '@/lib/map/map.svelte';
+import { addMapStyleVersion, getMap, getMapStyleVersion } from '@/lib/map/map.svelte';
 import { setAnimateLocationMarker } from '@/lib/map/geolocate.svelte';
 import type { MapMoveEvent } from 'svelte-maplibre';
 import { setSkew } from '@/lib/map/mapSkew.svelte';
@@ -63,4 +63,9 @@ export function onMapStyleDataLoading() {
 	// so we need to re-fetch images as these are tied to the style
 	clearSessionImageUrls()
 	updateFeatures(getMapObjects())
+	getMap()?.once("styledata", onMapStyleLoad)
+}
+
+export function onMapStyleLoad() {
+	addMapStyleVersion()
 }

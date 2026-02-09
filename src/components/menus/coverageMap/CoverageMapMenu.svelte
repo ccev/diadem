@@ -74,7 +74,7 @@
 {/snippet}
 
 <div class="space-y-2">
-	<Card class="overflow-hidden --divide-y divide-border">
+	<Card class="overflow-hidden">
 		{#each getKojiGeofences() as area (area.properties.id)}
 			{#if !area.properties.parent}
 				{@render areaEntry(area)}

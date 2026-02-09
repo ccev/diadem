@@ -12,6 +12,7 @@ import {
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getMap } from "@/lib/map/map.svelte";
 
 export function onSettingsChange<K extends keyof UserSettings>(key: K, value: UserSettings[K]) {
 	getUserSettings()[key] = value;

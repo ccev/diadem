@@ -10,9 +10,14 @@ import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { getMap } from "@/lib/map/map.svelte";
-import { MapObjectLayerId } from "@/lib/map/layers";
+import { CoverageMapLayerId, MapObjectLayerId } from "@/lib/map/layers";
 import { closeMenu, openMenu } from "@/lib/ui/menus.svelte";
-import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
+import {
+	type CoverageMapAreaProperties,
+	getIsCoverageMapActive, setClickedCoverageMapAreas
+} from "@/lib/features/coverageMap.svelte";
+import type { KojiFeature } from "@/lib/features/koji";
+import type { Feature, Polygon } from "geojson";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -55,20 +60,30 @@ export function clickMapHandler(event: MapMouseEvent) {
 	const map = getMap()
 	if (!map) return
 
-	const features = map.queryRenderedFeatures(event.point, {
-		layers: Object.values(MapObjectLayerId)
-	})
+	if (getIsCoverageMapActive()) {
+		// @ts-ignore this is ok
+		const areas = map.queryRenderedFeatures(event.point, {
+			layers: [CoverageMapLayerId.POLYGON_FILL]
+		}) as Feature<Polygon, CoverageMapAreaProperties>[]
 
-	// @ts-ignore
-	const feature = features[0] as MapObjectFeature
-
-	if (feature) {
-		openPopup(getMapObjects()[feature.properties.id])
-	} else {
-		if (!getIsCoverageMapActive()) {
-			closeMenu()
+		if (areas.length === 0) {
+			setClickedCoverageMapAreas(undefined)
+		} else {
+			setClickedCoverageMapAreas(areas)
 		}
+	} else {
+		const features = map.queryRenderedFeatures(event.point, {
+			layers: Object.values(MapObjectLayerId)
+		})
 
-		closePopup()
+		// @ts-ignore
+		const feature = features[0] as MapObjectFeature
+
+		if (feature) {
+			openPopup(getMapObjects()[feature.properties.id])
+		} else {
+			closeMenu()
+			closePopup()
+		}
 	}
 }

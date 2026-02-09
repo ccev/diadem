@@ -17,6 +17,11 @@ export enum MapObjectLayerId {
 	POLYGON_STROKE = "mapObjectPolygonStroke",
 }
 
+export enum CoverageMapLayerId {
+	POLYGON_FILL = "coverageMapPolygonFill",
+	POLYGON_STROKE = "coverageMapPolygonStroke",
+}
+
 export function updateMapGeojsonSource(sourceId: MapSourceId, data: GeoJsonType) {
 	const map = getMap()
 	if (!map) return
