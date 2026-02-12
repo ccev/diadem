@@ -82,6 +82,13 @@ export type MapStyle = {
 	name: string
 	url: string
 	default?: "dark" | "light"
+	colors?: "dark" | "light"
+	raster?: {
+		min: number,
+		max: number,
+		tileSize: number
+	}
+	attribution?: string
 }
 
 type MapPositions = {

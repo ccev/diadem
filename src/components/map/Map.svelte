@@ -44,6 +44,7 @@
 	import { getCoverageMapAreas, getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 	import { featureCollection } from "@turf/turf";
 	import { getKojiGeofences } from "@/lib/features/koji";
+	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -146,7 +147,7 @@
 	center={[initialMapPosition.center.lng, initialMapPosition.center.lat]}
 	zoom={initialMapPosition.zoom}
 	class="h-screen overflow-hidden"
-	style={getUserSettings().mapStyle.url}
+	style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 	attributionControl={false}
 	interactive={!isAnyModalOpen()}
 	onmoveend={onMapMoveEnd}

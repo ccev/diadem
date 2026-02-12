@@ -16,6 +16,7 @@
 	import { mode } from "mode-watcher";
 	import { setThemeMode } from "@/lib/services/themeMode";
 	import { getLocale, setLocale } from "@/lib/paraglide/runtime";
+	import { getMapStyle } from "@/lib/utils/mapStyle";
 
 	export const languages = [
 		{
@@ -95,7 +96,7 @@
 						zoom={getConfig().mapPositions.styleZoom ?? 12}
 						filterLayers={l => l.type !== "symbol"}
 						class="w-20 h-18 border-b-2 border-accent"
-						style={mapStyle.url}
+						style={getMapStyle(mapStyle)}
 						attributionControl={false}
 						interactive={false}
 						zoomOnDoubleClick={false}
