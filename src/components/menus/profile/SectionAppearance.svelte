@@ -89,8 +89,8 @@
 				<SelectGroupItem class="overflow-hidden" value={mapStyle.id}>
 					<MapLibre
 						center={[
-							getConfig().mapPositions.styleLat ?? 9.979,
-							getConfig().mapPositions.styleLon ?? 53.563
+							getConfig().mapPositions.styleLon ?? 9.979,
+							getConfig().mapPositions.styleLat ?? 53.563
 						]}
 						zoom={getConfig().mapPositions.styleZoom ?? 12}
 						filterLayers={l => l.type !== "symbol"}
