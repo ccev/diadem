@@ -36,7 +36,7 @@
 	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import {
 		getPokemonSize,
-		getRank,
+		getBestRank,
 		getRarityLabel,
 		hasTimer,
 		showGreat,
@@ -48,12 +48,28 @@
 	import { formatPercentage, formatRatio } from "@/lib/utils/numberFormat";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 	import { resize } from "@/lib/services/assets";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import type { FilterPokemon } from "@/lib/features/filters/filters";
 
 	let data: PokemonData = $derived(getMapObjects()[getCurrentSelectedMapId()] as PokemonData ?? getCurrentSelectedData() as PokemonData);
 
 	// let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 
 	let stats: PokemonStats | undefined = $derived(getMasterPokemonStats(data.pokemon_id, data.form ?? 0));
+
+	function getMaxPvpRank(filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra", filter: FilterPokemon) {
+		const ranks = [POKEMON_MIN_RANK]
+		const filters = filter.filters.filter((f) => f.enabled);
+		for (const filter of filters) {
+			if (filter[filterAttribute]) {
+				ranks.push(filter[filterAttribute].max)
+			}
+		}
+		return Math.max(...ranks)
+	}
+	let maxLittleRank = $derived(getMaxPvpRank("pvpRankLittle", getUserSettings().filters.pokemon))
+	let maxGreatRank = $derived(getMaxPvpRank("pvpRankGreat", getUserSettings().filters.pokemon))
+	let maxUltraRank = $derived(getMaxPvpRank("pvpRankUltra", getUserSettings().filters.pokemon))
 </script>
 
 <svelte:head>
@@ -131,21 +147,21 @@
 	{#if showLittle(data)}
 		<IconValue Icon={Trophy}>
 			{m.league_rank({ league: m.little_league() })}:
-			<b>#{getRank(data, "little")}</b>
+			<b>#{getBestRank(data, "little")}</b>
 		</IconValue>
 	{/if}
 
 	{#if showGreat(data)}
 		<IconValue Icon={Trophy}>
 			{m.league_rank({ league: m.great_league() })}:
-			<b>#{getRank(data, "great")}</b>
+			<b>#{getBestRank(data, "great")}</b>
 		</IconValue>
 	{/if}
 
 	{#if showUltra(data)}
 		<IconValue Icon={Trophy}>
 			{m.league_rank({ league: m.ultra_league() })}:
-			<b>#{getRank(data, "ultra")}</b>
+			<b>#{getBestRank(data, "ultra")}</b>
 		</IconValue>
 	{/if}
 
@@ -276,17 +292,17 @@
 			PVP Rankings:
 			<div class="mb-3 space-y-1">
 				{#each (data.pvp?.little ?? []) as entry (entry.rank)}
-					{#if (entry.rank ?? 100000) <= POKEMON_MIN_RANK}
+					{#if (entry.rank ?? 100000) <= maxLittleRank}
 						<PvpEntry data={entry} league="little" />
 					{/if}
 				{/each}
 				{#each data.pvp?.great ?? [] as entry (entry.rank)}
-					{#if (entry.rank ?? 100000) <= POKEMON_MIN_RANK}
+					{#if (entry.rank ?? 100000) <= maxGreatRank}
 						<PvpEntry data={entry} league="great" />
 					{/if}
 				{/each}
 				{#each (data.pvp?.ultra ?? []) as entry (entry.rank)}
-					{#if (entry.rank ?? 100000) <= POKEMON_MIN_RANK}
+					{#if (entry.rank ?? 100000) <= maxUltraRank}
 						<PvpEntry data={entry} league="ultra" />
 					{/if}
 				{/each}

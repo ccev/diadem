@@ -1,6 +1,7 @@
 import { POKEMON_MIN_RANK } from "@/lib/constants";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import * as m from "@/lib/paraglide/messages";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 export const pokemonSizes = {
 	1: "XXS",
@@ -17,20 +18,41 @@ export function hasTimer(data: {
 	return data.expire_timestamp && data.expire_timestamp_verified;
 }
 
-export function getRank(data: PokemonData, league: "little" | "great" | "ultra") {
-	return data.pvp?.[league]?.[0]?.rank ?? 0;
+export function getBestRank(data: PokemonData, league: "little" | "great" | "ultra") {
+	const ranks = data.pvp?.[league]?.map(l => l.rank) ?? [0]
+	const best = Math.min(...ranks)
+	if (!Number.isInteger(best)) return 0
+	return best
+}
+
+function showPvp(bestRank: number, filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra") {
+	const always = bestRank > 0 && bestRank <= POKEMON_MIN_RANK;
+	if (always) return true;
+
+	const filters = getUserSettings().filters.pokemon.filters.filter((f) => f.enabled);
+	for (const filter of filters) {
+		if (filter[filterAttribute]) {
+			if (bestRank >= filter[filterAttribute].min && bestRank <= filter[filterAttribute].max) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 export function showLittle(data: PokemonData) {
-	return getRank(data, "little") > 0 && getRank(data, "little") <= POKEMON_MIN_RANK;
+	const bestRank = getBestRank(data, "little")
+	return showPvp(bestRank, "pvpRankLittle")
 }
 
 export function showGreat(data: PokemonData) {
-	return getRank(data, "great") > 0 && getRank(data, "great") <= POKEMON_MIN_RANK;
+	const bestRank = getBestRank(data, "great");
+	return showPvp(bestRank, "pvpRankGreat");
 }
 
 export function showUltra(data: PokemonData) {
-	return getRank(data, "ultra") > 0 && getRank(data, "ultra") <= POKEMON_MIN_RANK;
+	const bestRank = getBestRank(data, "ultra");
+	return showPvp(bestRank, "pvpRankUltra");
 }
 
 export function getPokemonSize(size: number) {

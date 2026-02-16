@@ -1,7 +1,7 @@
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import * as m from "@/lib/paraglide/messages";
 import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
-import { getRank, hasTimer, showGreat, showLittle, showUltra } from "@/lib/utils/pokemonUtils";
+import { getBestRank, hasTimer, showGreat, showLittle, showUltra } from "@/lib/utils/pokemonUtils";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { StationData } from "@/lib/types/mapObjectData/station";
@@ -108,15 +108,15 @@ function getPokemonShareText(data: PokemonData) {
 	}
 
 	if (showLittle(data)) {
-		text += `🏆 ${m.league_rank({ league: m.little_league() })}: ${getRank(data, "little")}\n`;
+		text += `🏆 ${m.league_rank({ league: m.little_league() })}: ${getBestRank(data, "little")}\n`;
 	}
 
 	if (showGreat(data)) {
-		text += `🏆 ${m.league_rank({ league: m.great_league() })}: ${getRank(data, "great")}\n`;
+		text += `🏆 ${m.league_rank({ league: m.great_league() })}: ${getBestRank(data, "great")}\n`;
 	}
 
 	if (showUltra(data)) {
-		text += `🏆 ${m.league_rank({ league: m.ultra_league() })}: ${getRank(data, "ultra")}\n`;
+		text += `🏆 ${m.league_rank({ league: m.ultra_league() })}: ${getBestRank(data, "ultra")}\n`;
 	}
 
 	return text;
