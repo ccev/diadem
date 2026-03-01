@@ -11,6 +11,7 @@
 	import { SvelteSet } from "svelte/reactivity";
 	import {slide, fly} from "svelte/transition";
 	import { onDestroy } from "svelte";
+	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 
 	let expandedAreas: Set<number> = new SvelteSet()
 </script>
@@ -76,11 +77,13 @@
 
 <div class="space-y-2">
 	<Card class="overflow-hidden">
-		{#each getKojiGeofences() as area (area.properties.id)}
-			{#if !area.properties.parent}
-				{@render areaEntry(area)}
-			{/if}
-		{/each}
+		{#if hasLoadedFeature(LoadedFeature.KOJI)}
+			{#each getKojiGeofences() as area (area.properties.id)}
+				{#if !area.properties.parent}
+					{@render areaEntry(area)}
+				{/if}
+			{/each}
+		{/if}
 	</Card>
 
 </div>
