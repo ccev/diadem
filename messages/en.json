@@ -382,5 +382,6 @@
     "cell_level": "S2 Cell Level",
     "redirect_title": "Bringing you to {goal}",
     "redirect_button": "Click here if that didn't work",
-    "filter_template_legendary_birds": "Legendary Birds"
+    "filter_template_legendary_birds": "Legendary Birds",
+    "species_quick_filter_selected": "Selected"
 }
