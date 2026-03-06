@@ -1,19 +1,23 @@
-import { generateCodeVerifier, generateState } from 'arctic';
-import { getDiscordAuth } from '@/lib/server/auth/discord';
+import type { RequestEvent } from "@sveltejs/kit";
+import { isAuthFeatureEnabled, signOut as signOutFromAuth } from "@/lib/server/auth/betterAuth";
+import { getServerLogger } from "@/lib/server/logging";
 
-import type { RequestEvent } from '@sveltejs/kit';
-import { deleteSessionTokenCookie, invalidateSession } from '@/lib/server/auth/auth';
+const authLogger = getServerLogger("auth");
 
-const SCOPES = ['identify', 'guilds.members.read'];
+async function handleSignOut(event: RequestEvent) {
+	if (!isAuthFeatureEnabled()) return new Response(null, { status: 404 });
 
-export async function GET(event: RequestEvent): Promise<Response> {
-	const discord = getDiscordAuth();
-	if (!discord) return new Response(null, { status: 404 });
+	const didSignOut = await signOutFromAuth(event);
+	if (!didSignOut) {
+		authLogger.error("Better Auth sign-out failed", {
+			path: event.url.pathname
+		});
+		return new Response(null, { status: 500 });
+	}
 
-	if (!event.locals.session) return new Response(null, { status: 401 });
+	return new Response(null, { status: 204 });
+}
 
-	await invalidateSession(event.locals.session.id)  
-	deleteSessionTokenCookie(event)
-	await discord.revokeToken(event.locals.session.discordToken)
-	return new Response()
+export async function POST(event: RequestEvent): Promise<Response> {
+	return handleSignOut(event);
 }

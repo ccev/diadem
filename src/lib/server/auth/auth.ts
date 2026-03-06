@@ -1,60 +1,30 @@
-import type { RequestEvent } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-import { sha256 } from '@oslojs/crypto/sha2';
-import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '@/lib/server/db/internal';
-import * as table from '@/lib/server/db/internal/schema';
+import { eq } from "drizzle-orm";
+import { encodeBase32LowerCase } from "@oslojs/encoding";
+import { db } from "@/lib/server/db/internal";
+import * as table from "@/lib/server/db/internal/schema";
 
+import type { User } from "@/lib/server/db/internal/schema";
 import type { Perms } from "@/lib/utils/features";
 
-const DAY_IN_MS = 1000 * 60 * 60 * 24;
-
-export const sessionCookieName = 'auth-session';
-
-export async function getUserFromDiscordId(discordId: string) {
-	const [result] = await db
-		.select({ user: { id: table.user.id } })
-		.from(table.user)
-		.where(eq(table.user.discordId, discordId));
-
-	if (!result) return;
-
-	return result.user;
+function getDefaultPerms(): Perms {
+	return { everywhere: [], areas: [] };
 }
 
-export async function createUserFromDiscordId(discordId: string) {
-	const userId = generateUserId();
-	const defaultPerms: Perms = { areas: [], features: [] };
-	const r = await db
-		.insert(table.user)
-		.values({ id: userId, discordId, permissions: defaultPerms, userSettings: {} });
-	return userId;
-}
+function parsePermissions(rawPermissions: unknown): Perms {
+	try {
+		const parsed = typeof rawPermissions === "string" ? JSON.parse(rawPermissions) : rawPermissions;
+		if (!parsed || typeof parsed !== "object") {
+			return getDefaultPerms();
+		}
 
-export async function makeNewSession(event: RequestEvent, userId: string, accessToken: string, refreshToken: string, expiresAt: Date) {
-	const sessionToken = generateSessionToken();
-
-	const session = await createSession(sessionToken, userId, accessToken, refreshToken, expiresAt);
-	setSessionTokenCookie(event, sessionToken, session.expiresAt);
-}
-
-export function generateSessionToken() {
-	const bytes = crypto.getRandomValues(new Uint8Array(18));
-	return encodeBase64url(bytes);
-}
-
-export async function createSession(token: string, userId: string, accessToken: string, refreshToken: string, expiresAt: Date) {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const session: table.Session = {
-		id: sessionId,
-		userId,
-		expiresAt,
-		discordToken: accessToken,
-		discordRefreshToken: refreshToken,
-		discordLastRefresh: new Date(Date.now()),
-	};
-	await db.insert(table.session).values(session);
-	return session;
+		const perms = parsed as Partial<Perms>;
+		return {
+			everywhere: Array.isArray(perms.everywhere) ? perms.everywhere : [],
+			areas: Array.isArray(perms.areas) ? perms.areas : []
+		};
+	} catch {
+		return getDefaultPerms();
+	}
 }
 
 function generateUserId() {
@@ -63,70 +33,66 @@ function generateUserId() {
 	return encodeBase32LowerCase(bytes);
 }
 
+function coerceUser(result: typeof table.user.$inferSelect): User {
+	return {
+		...result,
+		permissions: parsePermissions(result.permissions)
+	};
+}
+
+function isDuplicateUserError(error: unknown) {
+	if (!error || typeof error !== "object") return false;
+
+	const mysqlError = error as { code?: string; errno?: number };
+	return mysqlError.code === "ER_DUP_ENTRY" || mysqlError.errno === 1062;
+}
+
+export async function getUserFromDiscordId(discordId: string) {
+	const [result] = await db.select().from(table.user).where(eq(table.user.discordId, discordId));
+
+	if (!result) return null;
+
+	return coerceUser(result);
+}
+
+export async function createUserFromDiscordId(discordId: string) {
+	const userId = generateUserId();
+	const now = new Date();
+	await db
+		.insert(table.user)
+		.values({
+			id: userId,
+			name: `discord-${discordId}`,
+			email: `${discordId}@discord.diadem.local`,
+			emailVerified: true,
+			discordId,
+			permissions: getDefaultPerms(),
+			userSettings: {},
+			createdAt: now,
+			updatedAt: now
+		});
+	return userId;
+}
+
+export async function getOrCreateUserFromDiscordId(discordId: string) {
+	let user = await getUserFromDiscordId(discordId);
+	if (user) return user;
+
+	try {
+		await createUserFromDiscordId(discordId);
+	} catch (error) {
+		if (!isDuplicateUserError(error)) {
+			throw error;
+		}
+	}
+
+	user = await getUserFromDiscordId(discordId);
+	if (!user) {
+		throw new Error(`failed to create user for Discord id ${discordId}`);
+	}
+	return user;
+}
+
 export async function setPermissions(userId: string, permissions: Perms) {
-	const u = await db
-		.update(table.user)
-		.set({ permissions: permissions })
-		.where(eq(table.user.id, userId));
-}
-
-export async function validateSessionToken(token: string) {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [result] = await db
-		.select({
-			user: {
-				id: table.user.id,
-				permissions: table.user.permissions,
-				discordId: table.user.discordId,
-				discordToken: table.session.discordToken
-			},
-			session: table.session
-		})
-		.from(table.session)
-		.innerJoin(table.user, eq(table.session.userId, table.user.id))
-		.where(eq(table.session.id, sessionId));
-
-	if (!result) {
-		return { session: null, user: null };
-	}
-	const { session, user } = result;
-
-	const sessionExpired = Date.now() >= session.expiresAt.getTime();
-	if (sessionExpired) {
-		await db.delete(table.session).where(eq(table.session.id, session.id));
-		return { session: null, user: null };
-	}
-
-	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
-	if (renewSession) {
-		// TODO: renew session
-		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(table.session)
-			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.session.id, session.id));
-	}
-
-	if (user) {
-		user.permissions = JSON.parse((user.permissions as string) ?? '[]');
-	}
-
-	return { session, user };
-}
-
-export async function invalidateSession(sessionId: string) {
-	await db.delete(table.session).where(eq(table.session.id, sessionId));
-}
-
-export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
-	event.cookies.set(sessionCookieName, token, {
-		expires: expiresAt,
-		path: '/'
-	});
-}
-
-export function deleteSessionTokenCookie(event: RequestEvent) {
-	event.cookies.delete(sessionCookieName, {
-		path: '/'
-	});
+	await db.update(table.user).set({ permissions }).where(eq(table.user.id, userId));
 }
