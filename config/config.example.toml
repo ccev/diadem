@@ -34,11 +34,19 @@ projectName = "reactmap"
 [server.auth]
 enabled = true
 optional = true
+# Required when auth is enabled.
+# Used to sign/encrypt auth cookies and tokens. Use a cryptographically random value (min 32 chars; 64+ recommended).
+# secret = ""
+# Required when auth is enabled. Public app URL (scheme + host only), e.g. "https://map.co"
+# Used for Better Auth callback/origin validation and stable cookie handling.
+# baseUrl = ""
 
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "https://map.co/login/discord/callback"
+# Optional explicit override for Discord callback URL.
+# If omitted, Better Auth builds it from baseUrl as: <base>/api/auth/callback/discord
+redirectUri = "https://map.co/api/auth/callback/discord"
 
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
@@ -221,4 +229,3 @@ url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Hal
 
 base = { scale = 0.25 }
 pokemon = { scale = 0.4 }
-
