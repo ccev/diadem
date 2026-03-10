@@ -106,6 +106,21 @@ export type SqlExaminedResult = {
 	examined: number;
 }[];
 
+const DITTO_ID = 132;
+
+function getGolbatPokemonFilter(
+	pokemon: { pokemon_id: number; form?: number | null }
+): { id: number; form?: number } {
+	const filter: { id: number; form?: number } = { id: pokemon.pokemon_id };
+
+	// Ditto disguises can report varying forms, but Ditto filters should match all of them.
+	if (pokemon.pokemon_id !== DITTO_ID && pokemon.form !== undefined && pokemon.form !== null) {
+		filter.form = pokemon.form;
+	}
+
+	return filter;
+}
+
 export async function queryMapObjects<Data extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
@@ -160,13 +175,7 @@ async function queryPokemon(
 	if (enabledFilters.length > 0) {
 		golbatQueries = enabledFilters.map((filter) => {
 			const query: GolbatPokemonQuery = {};
-			if (filter.pokemon)
-				query.pokemon = filter.pokemon.map((p) => {
-					const obj: { id: number; form?: number } = { id: p.pokemon_id };
-					if (p.form !== undefined && p.form !== null) obj.form = p.form;
-
-					return obj;
-				});
+			if (filter.pokemon) query.pokemon = filter.pokemon.map(getGolbatPokemonFilter);
 			if (filter.iv) query.iv = filter.iv;
 			if (filter.ivAtk) query.atk_iv = filter.ivAtk;
 			if (filter.ivDef) query.def_iv = filter.ivDef;
