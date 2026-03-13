@@ -122,7 +122,7 @@ export type InvasionSearchEntry = SearchEntry & {
 export type RaidBossSearchEntry = SearchEntry & {
 	type: SearchableType.RAID_BOSS;
 	pokemon_id: number;
-	form_id: number;
+	form: number;
 };
 
 export type RaidLevelSearchEntry = SearchEntry & {
@@ -352,7 +352,7 @@ export function initSearch() {
 				key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
 				type: SearchableType.RAID_BOSS,
 				pokemon_id: raidBoss.pokemon_id,
-				form_id: raidBoss.form
+				form: raidBoss.form
 			} as RaidBossSearchEntry;
 		});
 	}

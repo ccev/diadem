@@ -167,7 +167,9 @@ async function queryPokemon(
 				for (const filterPokemon of filter.pokemon) {
 					const pokemonQuery: GolbatPokemonSpecies = { id: filterPokemon.pokemon_id }
 
+					// @ts-ignore backward compat; used to be form_id, now form
 					const form = filterPokemon.form_id ?? filterPokemon?.form
+
 					if (form) {
 						pokemonQuery.form = form
 						const masterPokemon = getMasterPokemon(filterPokemon.pokemon_id);

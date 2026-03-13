@@ -176,7 +176,7 @@ export function setActiveSearchContest(name: string, rankingStandard: number, fo
 			pokemon_id: focus.pokemon_id,
 		}
 		if (focus.pokemon_form) {
-			filterset.focus.form_id = focus.pokemon_form
+			filterset.focus.form = focus.pokemon_form
 		}
 	} else if (focus.type === "type") {
 		filterset.focus = {
@@ -251,8 +251,7 @@ export function setActiveSearchRaidBoss(name: string, pokemonId: number, formId:
 		}],
 	} as FiltersetRaid;
 
-	// @ts-ignore
-	if (formId) filterset.bosses[0].form_id = formId
+	if (formId) filterset.bosses[0].form = formId
 
 	const filter = getDefaultGymFilter();
 	filter.gymPlain.enabled = false
@@ -290,7 +289,7 @@ export function setActiveSearchRaidLevel(name: string, level: number) {
 }
 
 export function setActiveSearchMaxBattleBoss(name: string, pokemon_id: number, form: number, bread_mode: number) {
-	const pokemon = { pokemon_id, form_id: form, bread_mode }
+	const pokemon = { pokemon_id, form, bread_mode }
 
 	const filterset = {
 		id: "searchOverwrite",
@@ -317,7 +316,7 @@ export function setActiveSearchMaxBattleBoss(name: string, pokemon_id: number, f
 export function setActiveSearchNest(name: string, pokemon_id: number, form: number) {
 	const filter = { category: "nest", ...defaultFilter(true) } as FilterNest
 
-	const pokemon = { pokemon_id, form_id: form }
+	const pokemon = { pokemon_id, form }
 
 	const filterset = {
 		id: "searchOverwrite",

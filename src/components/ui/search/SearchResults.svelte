@@ -106,9 +106,9 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form_id)
+				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form)
 			}}
-			imageUrl={resize(getIconPokemon({ pokemon_id: entry.pokemon_id, form: entry.form_id }), { width: 64 })}
+			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>
 	{:else if entry.type === SearchableType.RAID_LEVEL}
 		<SearchItem

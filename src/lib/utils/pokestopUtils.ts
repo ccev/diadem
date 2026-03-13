@@ -47,7 +47,7 @@ export function parseQuestReward(reward?: string | null) {
 	const parsed = JSON.parse(reward ?? "[]")[0] as QuestReward | undefined;
 	if (parsed && "form_id" in parsed.info) {
 		// @ts-ignore
-		parsed.info["form"] = parsed.info["form_id"];
+		parsed.info.form = parsed.info["form_id"];
 		delete parsed.info["form_id"];
 	}
 	return parsed;
@@ -311,7 +311,7 @@ export function shouldDisplayQuest(
 			questFilter.pokemon &&
 			reward.type === RewardType.POKEMON &&
 			questFilter.pokemon.find(
-				(p) => p.pokemon_id === reward.info.pokemon_id && p.form_id === reward.info.form_id
+				(p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form
 			)
 		) {
 			return true;
@@ -402,7 +402,7 @@ export function shouldDisplayContest(data: Partial<PokestopData>) {
 			return false
 		}
 
-		if (contestFilter.focus.form_id && contestFilter.focus.form_id !== data.showcase_pokemon_form_id) {
+		if (contestFilter.focus.form && contestFilter.focus.form !== data.showcase_pokemon_form_id) {
 			return false
 		}
 

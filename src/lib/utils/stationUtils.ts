@@ -61,7 +61,7 @@ export function shouldDisplayStation(station: StationData) {
 			filterset.bosses !== undefined &&
 			filterset.bosses.find(
 				(p) => p.pokemon_id === station.battle_pokemon_id
-					&& p.form_id === station.battle_pokemon_form
+					&& p.form === station.battle_pokemon_form
 					&& p.bread_mode === station.battle_pokemon_bread_mode
 			)
 		) {

@@ -211,7 +211,7 @@ export type QuestRewardQuest = {
 
 export type QuestRewardPokemon = {
 	type: 7
-	info: Partial<PokemonData & { form_id: number }>
+	info: Partial<PokemonData>
 }
 
 export type QuestRewardPokecoin = {

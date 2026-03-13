@@ -4,7 +4,7 @@ import { getQuestKey, parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 type AllShinyStatsRow = {
 	pokemon_id: number;
-	form_id: number;
+	form: number;
 	"": {
 		shinies: string;
 		total: string;
@@ -14,7 +14,7 @@ type AllShinyStatsRow = {
 
 type AllSpawnStatsRow = {
 	pokemon_id: number;
-	form_id: number;
+	form: number;
 	"": {
 		count: string;
 		total_spawns: string;
@@ -150,18 +150,18 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		allNestsStats
 	] = await Promise.all([
 		query<AllShinyStatsRow[]>(
-			"SELECT pokemon_id, form_id, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
+			"SELECT pokemon_id, form_id AS form, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
 				"FROM pokemon_shiny_stats " +
 				"WHERE fence = 'world' " +
-				"GROUP BY pokemon_id, form_id "
+				"GROUP BY pokemon_id, form "
 		),
 		query<AllSpawnStatsRow[]>(
-			"SELECT pokemon_id, form_id, SUM(count) as count, " +
+			"SELECT pokemon_id, form_id AS form, SUM(count) as count, " +
 				"(SELECT SUM(count) FROM pokemon_stats WHERE fence = 'world') as total_spawns, " +
 				"COUNT(DISTINCT date) as days " +
 				"FROM pokemon_stats " +
 				"WHERE fence = 'world' " +
-				"GROUP BY pokemon_id, form_id " +
+				"GROUP BY pokemon_id, form " +
 				"HAVING count > 0"
 		),
 		query<QuestStatsRow[]>(
@@ -178,7 +178,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
 		),
 		query<ActiveRaidStats[]>(
-			"SELECT level, pokemon_id, form_id as form, count " +
+			"SELECT level, pokemon_id, form_id AS form, count " +
 				"FROM raid_stats " +
 				"WHERE date = (SELECT MAX(date) FROM raid_stats) AND area = 'world' " +
 				"ORDER BY level ASC"
@@ -229,7 +229,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allShinyStats.result) {
 		for (const row of allShinyStats.result) {
-			const key = `${row.pokemon_id}-${row.form_id}`;
+			const key = `${row.pokemon_id}-${row.form}`;
 			if (!pokemon[key]) {
 				pokemon[key] = {};
 			}
@@ -244,7 +244,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	if (allSpawnStats.result) {
 		for (const row of allSpawnStats.result) {
-			const key = `${row.pokemon_id}-${row.form_id}`;
+			const key = `${row.pokemon_id}-${row.form}`;
 			if (!pokemon[key]) {
 				pokemon[key] = {};
 			}
