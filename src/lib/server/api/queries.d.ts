@@ -1,7 +1,9 @@
 import type { MinMax } from "@/lib/features/filters/filtersets";
 
+export type GolbatPokemonSpecies = { id: number; form?: number };
+
 export type GolbatPokemonQuery = {
-	pokemon?: { id: number; form?: number }[];
+	pokemon?: GolbatPokemonSpecies[];
 	iv?: MinMax;
 	atk_iv?: MinMax;
 	def_iv?: MinMax;

@@ -1,5 +1,6 @@
 import type { MasterFile, MasterPokemon, MasterWeather } from '@/lib/types/masterfile';
 import { getMasterStats, getPokemonStats } from "@/lib/features/masterStats.svelte";
+import { browser } from "$app/environment";
 
 const url = "/api/pogodata"
 let masterFile: MasterFile
@@ -7,6 +8,10 @@ let masterFile: MasterFile
 export async function loadMasterFile() {
 	const result = await fetch(url)
 	masterFile = await result.json()
+}
+
+export function overwriteMasterfile(newMaster: MasterFile) {
+	masterFile = newMaster
 }
 
 export function defaultProp(obj: any | undefined, key: any, fallback: any): any {

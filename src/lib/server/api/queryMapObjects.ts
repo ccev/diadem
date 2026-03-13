@@ -12,7 +12,7 @@ import type {
 	FilterTappable
 } from "@/lib/features/filters/filters";
 import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
-import type { GolbatPokemonQuery } from "@/lib/server/api/queries";
+import type { GolbatPokemonQuery, GolbatPokemonSpecies } from "@/lib/server/api/queries";
 import {
 	LIMIT_NEST,
 	LIMIT_POKEMON,
@@ -31,6 +31,7 @@ import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { getServerConfig } from "@/lib/services/config/config.server";
+import { getMasterPokemon } from "@/lib/services/masterfile";
 
 export const FIELDS_NEST = [
 	"nest_id as id",
@@ -160,13 +161,40 @@ async function queryPokemon(
 	if (enabledFilters.length > 0) {
 		golbatQueries = enabledFilters.map((filter) => {
 			const query: GolbatPokemonQuery = {};
-			if (filter.pokemon)
-				query.pokemon = filter.pokemon.map((p) => {
-					const obj: { id: number; form?: number } = { id: p.pokemon_id };
-					if (p.form !== undefined && p.form !== null) obj.form = p.form;
+			if (filter.pokemon) {
+				query.pokemon = []
 
-					return obj;
-				});
+				for (const filterPokemon of filter.pokemon) {
+					const pokemonQuery: GolbatPokemonSpecies = { id: filterPokemon.pokemon_id }
+
+					const form = filterPokemon.form_id ?? filterPokemon?.form
+					if (form) {
+						pokemonQuery.form = form
+						const masterPokemon = getMasterPokemon(filterPokemon.pokemon_id);
+
+						if (masterPokemon && masterPokemon.defaultFormId) {
+							// this is supposed to prevent issues with tracking normal forms (0 vs NORMAL form)
+							// master pokemon may not be initialized on very early fetches, but that shouldn't be a problem
+							if (form === 0 && masterPokemon.defaultFormId !== 0) {
+								// when form is 0, add NORMAL form id
+								query.pokemon.push({
+									id: filterPokemon.pokemon_id,
+									form: masterPokemon.defaultFormId
+								})
+							} else if (form === masterPokemon.defaultFormId && form !== 0) {
+								// when form is NORMAL, add 0
+								query.pokemon.push({
+									id: filterPokemon.pokemon_id,
+									form: 0
+								});
+							}
+						}
+					}
+
+					query.pokemon.push(pokemonQuery)
+				}
+			}
+
 			if (filter.iv) query.iv = filter.iv;
 			if (filter.ivAtk) query.atk_iv = filter.ivAtk;
 			if (filter.ivDef) query.def_iv = filter.ivDef;
