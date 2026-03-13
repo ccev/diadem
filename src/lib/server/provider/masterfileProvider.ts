@@ -12,28 +12,8 @@ export class MasterfileProvider extends BaseDataProvider<MasterFile> {
 		super(REFRESH_MASTERFILE);
 	}
 
-	public async refresh(): Promise<MasterFile> {
-		log.info("Updating masterfile");
-
-		let data: MasterFile | undefined = undefined;
-		while (!data) {
-			const response = await fetch(url);
-
-			if (!response.ok) {
-				log.crit(
-					"Couldn't fetch masterfile from %s | %d (%s)",
-					url,
-					response.status,
-					await response.text()
-				);
-				await sleep(1000 * 60);
-				continue;
-			}
-
-			data = (await response.json()) as MasterFile;
-		}
-
-		log.info("Updated masterfile");
+	protected async query(): Promise<MasterFile> {
+		const data = await this.fetchData(url, log, "masterfile") as MasterFile
 
 		return {
 			pokemon: data.pokemon,

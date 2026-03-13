@@ -3,9 +3,11 @@ import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider
 import { locales } from "@/lib/paraglide/runtime";
 
 export async function GET({ params }) {
-	if (!locales.includes(params.tag)) {
+	const locale = params.tag as typeof locales[number]
+
+	if (!locales.includes(locale)) {
 		error(404);
 	}
 
-	return json(await remoteLocaleProvider.getRemoteLocale(params.tag));
+	return json(await remoteLocaleProvider.getSingle(locale));
 }

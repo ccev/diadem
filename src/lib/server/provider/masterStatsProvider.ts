@@ -12,11 +12,11 @@ export class MasterstatsProvider extends BaseDataProvider<MasterStats> {
 		super(REFRESH_MASTER_STATS);
 	}
 
-	public async refresh(): Promise<MasterStats> {
+	protected async query(): Promise<MasterStats> {
 		log.info("Updating master stats");
-		const data = await queryMasterStats()
+		const data = await queryMasterStats();
 		log.info("Updated master stats");
-		return data
+		return data;
 	}
 }
 

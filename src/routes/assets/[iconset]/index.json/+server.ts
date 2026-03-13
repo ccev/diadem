@@ -12,7 +12,7 @@ export async function GET({ params }) {
 		error(404, "Unknown Icon Set");
 	}
 
-	const index = await uiconsIndexProvider.getIndex(iconSetId);
+	const index = await uiconsIndexProvider.getSingle(iconSetId);
 
 	if (!index) {
 		error(500, "Fetching index.json failed");
