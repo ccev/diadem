@@ -124,29 +124,29 @@ export function rewardTypeLabel(rewardType: RewardType) {
 		case RewardType.CANDY:
 			return m.candy();
 		case RewardType.AVATAR_CLOTHING:
-			return "Avatar Clothing";
+			return m.reward_avatar_clothing();
 		case RewardType.QUEST:
-			return "Quest";
+			return m.reward_quest();
 		case RewardType.POKEMON:
 			return m.pogo_pokemon();
 		case RewardType.POKECOINS:
-			return "Pokecoins";
+			return m.reward_pokecoins();
 		case RewardType.XL_CANDY:
 			return m.xl_candy();
 		case RewardType.LEVEL_CAP:
-			return "Level Cap";
+			return m.reward_level_cap();
 		case RewardType.STICKER:
-			return "Sticker";
+			return m.reward_sticker();
 		case RewardType.MEGA_ENERGY:
 			return m.mega_energy();
 		case RewardType.INCIDENT:
-			return "Incident";
+			return m.reward_incident();
 		case RewardType.PLAYER_ATTRIBUTE:
-			return "Player Attribute";
+			return m.reward_player_attribute();
 		case RewardType.EVENT_BADGE:
-			return "Event Badge";
+			return m.reward_event_badge();
 		case RewardType.POKEMON_EGG:
-			return "Egg";
+			return m.reward_egg();
 		default:
 			return "";
 	}
@@ -247,7 +247,12 @@ export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<Pok
 	if (!pokestopFilters.enabled) return false;
 
 	if (pokestopFilters.goldPokestop.enabled && isIncidentGold(incident)) return true;
-	if (pokestopFilters.contest.enabled && isIncidentContest(incident) && shouldDisplayContest(pokestop)) return true;
+	if (
+		pokestopFilters.contest.enabled &&
+		isIncidentContest(incident) &&
+		shouldDisplayContest(pokestop)
+	)
+		return true;
 	if (pokestopFilters.kecleon.enabled && isIncidentKecleon(incident)) return true;
 
 	if (pokestopFilters.invasion.enabled && isIncidentInvasion(incident)) {
@@ -398,16 +403,22 @@ export function shouldDisplayContest(data: Partial<PokestopData>) {
 			return false;
 		}
 
-		if (contestFilter.focus.pokemon_id && contestFilter.focus.pokemon_id !== data.showcase_pokemon_id) {
-			return false
+		if (
+			contestFilter.focus.pokemon_id &&
+			contestFilter.focus.pokemon_id !== data.showcase_pokemon_id
+		) {
+			return false;
 		}
 
 		if (contestFilter.focus.form && contestFilter.focus.form !== data.showcase_pokemon_form_id) {
-			return false
+			return false;
 		}
 
-		if (contestFilter.focus.type_id && contestFilter.focus.type_id !== data.showcase_pokemon_type_id) {
-			return false
+		if (
+			contestFilter.focus.type_id &&
+			contestFilter.focus.type_id !== data.showcase_pokemon_type_id
+		) {
+			return false;
 		}
 	}
 

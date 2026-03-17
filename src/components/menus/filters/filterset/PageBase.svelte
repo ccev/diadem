@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { fly } from 'svelte/transition';
-	import { getFiltersetPageTransition } from '@/lib/features/filters/filtersetPages.svelte';
-	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte';
-	import { filterTitle } from '@/lib/features/filters/filtersetUtils';
-	import FiltersetIcon from '@/lib/features/filters/FiltersetIcon.svelte';
-	import type { Snippet } from 'svelte';
+	import { fly } from "svelte/transition";
+	import { getFiltersetPageTransition } from "@/lib/features/filters/filtersetPages.svelte";
+	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
+	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
+	import type { Snippet } from "svelte";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
 		base
 	}: {
-		base: Snippet
+		base: Snippet;
 	} = $props();
 
 	const filterset = getCurrentSelectedFilterset();
@@ -20,9 +21,7 @@
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
-	<div
-		class="flex gap-4 items-center px-2 mt-4"
-	>
+	<div class="flex gap-4 items-center px-2 mt-4">
 		<FiltersetIcon filterset={$state.snapshot(getCurrentSelectedFilterset()?.data)} size={8} />
 		<span class="text-lg font-semibold">
 			{filterTitle($state.snapshot(getCurrentSelectedFilterset()?.data))}
@@ -31,7 +30,7 @@
 
 	<div class="flex items-center gap-4 my-3">
 		<div class="bg-border h-px w-full"></div>
-		<span class="text-muted-foreground text-sm whitespace-nowrap">Attributes</span>
+		<span class="text-muted-foreground text-sm whitespace-nowrap">{m.filter_attributes()}</span>
 		<div class="bg-border h-px w-full"></div>
 	</div>
 
