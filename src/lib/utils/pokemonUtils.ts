@@ -34,6 +34,65 @@ const typeNames = new Map([
 	[18, "fairy"]
 ]);
 
+// NORMAL_FORMS are a relict from when shadows and purified
+// were different forms. Every shadow-available species
+// got a normal form. Nowadays, base species can appear
+// as both form = 0 and form = NORMAL (the number differs per species)
+// in order to tackle this, diadem converts: <NORMAL_FORM -> 0>
+//
+// however, some pokemon (like unown or burmy) have no "base species".
+// in this case, it makes sense to actually keep the NORMAL_FORM.
+// They shouldn't be available as form = 0, but just to make sure,
+// they're converted: <0 -> NORMAL_FORM>
+export const reverseNormalizedFormPokemonIds = new Set([
+	201, // unown
+	327, // spinda
+	412, // burmy
+	413, // wormadam
+	421, // cherrim
+	422, // shellos
+	423, // gastrodon
+	492, // shaymin
+	493, // arceus
+	550, // basculin
+	585, // deerling
+	586, // sawsbuck
+	641, // tornadus
+	642, // thundurus
+	645, // landorus
+	647, // keldeo
+	648, // meloetta
+	664, // scatterbug
+	665, // spewpa
+	666, // vivillon
+	669, // flabebe
+	670, // floette
+	671, // florges
+	676, // furfrou
+	710, // pumpkaboo
+	711, // gourgeist
+	718, // zygarde
+	741, // oricorio
+	773, // silvally
+	774, // minior
+	849, // toxtricity
+	854, // sinistea
+	855, // polteageist
+	875, // eicue
+	877, // morpeko
+	888, // zacian
+	889, // zamazenta
+	892, // urshifu
+	905, // enamorus
+	925, // maushold
+	931, // squawkabilly
+	964, // palafin
+	978, // tatsugiri
+	982, // dudunsparce
+	1012, // poltchageist
+	1013, // sinistcha
+]);
+
 export function hasTimer(data: {
 	expire_timestamp: number | null | undefined;
 	expire_timestamp_verified: number | boolean | null | undefined;
@@ -42,13 +101,16 @@ export function hasTimer(data: {
 }
 
 export function getBestRank(data: PokemonData, league: "little" | "great" | "ultra") {
-	const ranks = data.pvp?.[league]?.map(l => l.rank) ?? [0]
-	const best = Math.min(...ranks)
-	if (!Number.isInteger(best)) return 0
-	return best
+	const ranks = data.pvp?.[league]?.map((l) => l.rank) ?? [0];
+	const best = Math.min(...ranks);
+	if (!Number.isInteger(best)) return 0;
+	return best;
 }
 
-function showPvp(bestRank: number, filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra") {
+function showPvp(
+	bestRank: number,
+	filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra"
+) {
 	const always = bestRank > 0 && bestRank <= POKEMON_MIN_RANK;
 	if (always) return true;
 
@@ -64,8 +126,8 @@ function showPvp(bestRank: number, filterAttribute: "pvpRankLittle" | "pvpRankGr
 }
 
 export function showLittle(data: PokemonData) {
-	const bestRank = getBestRank(data, "little")
-	return showPvp(bestRank, "pvpRankLittle")
+	const bestRank = getBestRank(data, "little");
+	return showPvp(bestRank, "pvpRankLittle");
 }
 
 export function showGreat(data: PokemonData) {
@@ -104,21 +166,28 @@ export function getRarityLabel(count: number, totalSpawns: number) {
 }
 
 export function typeIdToText(typeId: number | undefined) {
-	if (!typeId) return "normal"
-	return typeNames.get(typeId) ?? "normal"
+	if (!typeId) return "normal";
+	return typeNames.get(typeId) ?? "normal";
 }
 
 export function masterPokemonToTypeText(masterPokemon: MasterPokemon) {
 	return typeIdToText(masterPokemon?.types?.[1] ?? masterPokemon?.types?.[0]);
 }
 
-export function getNormalizedForm(pokemonId: number | undefined | null, formId: number | undefined | null) {
-	if (!pokemonId) return formId ?? 0
+export function getNormalizedForm(
+	pokemonId: number | undefined | null,
+	formId: number | undefined | null
+) {
+	if (!pokemonId) return formId ?? 0;
 
 	const masterPokemon = getMasterPokemon(pokemonId);
-	if (masterPokemon && masterPokemon.defaultFormId && masterPokemon.defaultFormId === formId) {
+	if (!masterPokemon) return formId ?? 0
+
+	if (reverseNormalizedFormPokemonIds.has(pokemonId) && !formId) {
+		formId = masterPokemon.defaultFormId
+	} else if (masterPokemon.defaultFormId && masterPokemon.defaultFormId === formId) {
 		formId = 0;
 	}
 
-	return formId ?? 0
+	return formId ?? 0;
 }

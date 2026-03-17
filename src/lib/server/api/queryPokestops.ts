@@ -16,77 +16,105 @@ import {
 	INCIDENT_DISPLAY_KECLEON,
 	INCIDENT_DISPLAYS_INVASION
 } from "@/lib/utils/pokestopUtils";
-import type { PokestopData } from '@/lib/types/mapObjectData/pokestop';
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 export function processRawPokestop(pokestop: PokestopData) {
 	if (pokestop.showcase_focus && (pokestop.showcase_expiry ?? 0) > currentTimestamp()) {
-		pokestop.contest_focus = JSON.parse(pokestop.showcase_focus)
+		pokestop.contest_focus = JSON.parse(pokestop.showcase_focus);
+
+		if (pokestop.contest_focus?.type === "pokemon") {
+			pokestop.contest_focus.pokemon_form = getNormalizedForm(
+				pokestop.contest_focus.pokemon_id,
+				pokestop.contest_focus.pokemon_form
+			);
+		}
+	}
+
+	pokestop.showcase_pokemon_form_id = getNormalizedForm(
+		pokestop.showcase_pokemon_id,
+		pokestop.showcase_pokemon_form_id
+	);
+
+	for (const incident of pokestop.incident) {
+		if (!incident || !incident.id) continue
+		incident.slot_1_form = getNormalizedForm(incident.slot_1_pokemon_id, incident.slot_1_form)
+		incident.slot_2_form = getNormalizedForm(incident.slot_2_pokemon_id, incident.slot_3_form)
+		incident.slot_3_form = getNormalizedForm(incident.slot_2_pokemon_id, incident.slot_3_form)
 	}
 }
 
 export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | undefined) {
-	const boundsFilter = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 "
-	const boundsValues = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
+	const boundsFilter = "WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND deleted = 0 ";
+	const boundsValues = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon];
 
-	let sqlQuery = "" +
+	let sqlQuery =
+		"" +
 		"SELECT * FROM pokestop " +
-		"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " + boundsFilter
+		"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
+		boundsFilter;
 
-	const conditions: string[] = []
-	const values: any[] = [...boundsValues]
+	const conditions: string[] = [];
+	const values: any[] = [...boundsValues];
 
 	if (filter && !filter.pokestopPlain.enabled) {
 		if (filter.contest.enabled) {
-			conditions.push(`incident.display_type = ${INCIDENT_DISPLAY_CONTEST} AND incident.expiration > UNIX_TIMESTAMP()`)
+			conditions.push(
+				`incident.display_type = ${INCIDENT_DISPLAY_CONTEST} AND incident.expiration > UNIX_TIMESTAMP()`
+			);
 		}
 		if (filter.goldPokestop.enabled) {
-			conditions.push(`incident.display_type = ${INCIDENT_DISPLAY_GOLD} AND incident.expiration > UNIX_TIMESTAMP()`)
+			conditions.push(
+				`incident.display_type = ${INCIDENT_DISPLAY_GOLD} AND incident.expiration > UNIX_TIMESTAMP()`
+			);
 		}
 		if (filter.kecleon.enabled) {
-			conditions.push(`incident.display_type = ${INCIDENT_DISPLAY_KECLEON} AND incident.expiration > UNIX_TIMESTAMP()`)
+			conditions.push(
+				`incident.display_type = ${INCIDENT_DISPLAY_KECLEON} AND incident.expiration > UNIX_TIMESTAMP()`
+			);
 		}
 		if (filter.lure.enabled) {
 			for (const filterset of filter.lure.filters) {
 				if (filterset.items !== undefined) {
-					let condition = "lure_expire_timestamp > UNIX_TIMESTAMP() AND lure_id IN "
+					let condition = "lure_expire_timestamp > UNIX_TIMESTAMP() AND lure_id IN ";
 
 					// no sql injection pls
-					const items = filterset.items.filter(i => i >= 500 && i < 600)
-					condition += "(" + items.join(",") + ")"
-					conditions.push(condition)
+					const items = filterset.items.filter((i) => i >= 500 && i < 600);
+					condition += "(" + items.join(",") + ")";
+					conditions.push(condition);
 				}
 			}
 			if (filter.lure.filters.length === 0) {
-				conditions.push("lure_id != 0 AND lure_expire_timestamp > UNIX_TIMESTAMP()")
+				conditions.push("lure_id != 0 AND lure_expire_timestamp > UNIX_TIMESTAMP()");
 			}
 		}
 		if (filter.quest.enabled) {
-			const questFilters = filter.quest.filters.filter(f => f.enabled)
-			if (questFilters.length === 0) conditions.push("alternative_quest_rewards IS NOT NULL OR quest_rewards IS NOT NULL")
+			const questFilters = filter.quest.filters.filter((f) => f.enabled);
+			if (questFilters.length === 0)
+				conditions.push("alternative_quest_rewards IS NOT NULL OR quest_rewards IS NOT NULL");
 		}
 		if (filter.invasion.enabled) {
 			conditions.push(
 				`incident.display_type IN (${INCIDENT_DISPLAYS_INVASION.join(",")}) AND incident.expiration > UNIX_TIMESTAMP()`
-			)
+			);
 		}
 	}
 
 	if (conditions.length > 0) {
-		sqlQuery += "AND ("
-		sqlQuery += conditions.join(" OR ")
-		sqlQuery += ") "
+		sqlQuery += "AND (";
+		sqlQuery += conditions.join(" OR ");
+		sqlQuery += ") ";
 	}
 
-	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`
+	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`;
 
-	const result = await query<PokestopData[]>(sqlQuery, values)
+	const result = await query<PokestopData[]>(sqlQuery, values);
 	if (result.result) {
 		for (const pokestop of result.result) {
-			processRawPokestop(pokestop)
+			processRawPokestop(pokestop);
 		}
 	}
 
-	return [result, undefined]
+	return [result, undefined];
 }
-

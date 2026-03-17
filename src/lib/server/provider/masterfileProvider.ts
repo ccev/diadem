@@ -68,11 +68,6 @@ export class MasterfileProvider extends BaseDataProvider<MasterFile> {
 		const rawData = await this.fetchData(url, log, "masterfile")
 		const data = JSON.parse(rawData) as RawMasterFile
 
-		// default unown form should be 0, not F
-		if (data.pokemon["201"]) {
-			data.pokemon["201"].defaultFormId = 0
-		}
-
 		const masterFile = {
 			pokemon: {},
 			items: Object.keys(data.items),

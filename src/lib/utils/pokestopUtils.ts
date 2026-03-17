@@ -14,6 +14,7 @@ import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7;
@@ -47,7 +48,7 @@ export function parseQuestReward(reward?: string | null) {
 	const parsed = JSON.parse(reward ?? "[]")[0] as QuestReward | undefined;
 	if (parsed && "form_id" in parsed.info) {
 		// @ts-ignore
-		parsed.info.form = parsed.info["form_id"];
+		parsed.info.form = getNormalizedForm(parsed.info.pokemon_id, parsed.info["form_id"]);
 		delete parsed.info["form_id"];
 	}
 	return parsed;

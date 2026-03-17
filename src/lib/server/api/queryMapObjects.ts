@@ -32,6 +32,7 @@ import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getMasterPokemon } from "@/lib/services/masterfile";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 export const FIELDS_NEST = [
 	"nest_id as id",
@@ -238,6 +239,7 @@ async function queryPokemon(
 		for (const pokemon of result.pokemon) {
 			pokemon.shiny = false;
 			pokemon.username = null;
+			pokemon.form = getNormalizedForm(pokemon.pokemon_id, pokemon.form)
 		}
 		return {
 			result: {
@@ -255,7 +257,7 @@ async function queryPokemon(
 }
 
 async function queryStations(bounds: Bounds, filter: FilterStation | undefined) {
-	return await query<StationData[]>(
+	const { error, result } = await query<StationData[]>(
 		"SELECT * FROM station " +
 			"WHERE lat BETWEEN ? AND ? " +
 			"AND lon BETWEEN ? AND ? " +
@@ -264,6 +266,11 @@ async function queryStations(bounds: Bounds, filter: FilterStation | undefined) 
 			LIMIT_STATION,
 		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
 	);
+
+	for (const station of result) {
+		station.battle_pokemon_form = getNormalizedForm(station.battle_pokemon_id, station.battle_pokemon_form)
+	}
+	return { error, result };
 }
 
 async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
@@ -293,6 +300,7 @@ async function queryNests(bounds: Bounds, filter: FilterNest | undefined) {
 		if (nest.name === defaultName) {
 			nest.name = null;
 		}
+		nest.pokemon_form = getNormalizedForm(nest.pokemon_id, nest.pokemon_form)
 	}
 	return { error, result }
 }
@@ -310,7 +318,7 @@ async function querySpawnpoints(bounds: Bounds, filter: FilterSpawnpoint | undef
 }
 
 async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
-	return await query<RouteData[]>(
+	const { error, result } = await query<RouteData[]>(
 		"SELECT  " +
 			FIELDS_ROUTE +
 			" FROM route " +
@@ -320,6 +328,7 @@ async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined) {
 			LIMIT_ROUTE,
 		[bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon]
 	);
+	return { error, result };
 }
 
 async function queryTappables(bounds: Bounds, filter: FilterTappable | undefined) {
