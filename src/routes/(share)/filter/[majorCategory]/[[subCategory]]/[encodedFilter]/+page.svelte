@@ -114,14 +114,12 @@
 	});
 </script>
 
-<svelte:head>
-	{#if !browser && data}
-		<Metadata
-			title={title}
-			embedTitle={title}
-			description={text}
-		/>
-	{/if}
-</svelte:head>
+{#if !browser && data}
+	<Metadata
+		title={title}
+		embedTitle={title}
+		description={text}
+	/>
+{/if}
 
 <RedirectFlash goal={title} />

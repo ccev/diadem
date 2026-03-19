@@ -48,9 +48,7 @@
 	const errorHref = getConfig().general.customHome ? "/" : "";
 </script>
 
-<svelte:head>
-	<Metadata />
-</svelte:head>
+<Metadata />
 
 {#if !isOnMap()}
 	<Home />

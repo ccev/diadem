@@ -38,15 +38,13 @@
 	});
 </script>
 
-<svelte:head>
-	{#if !browser && data}
-		<Metadata
-			title={title}
-			embedTitle={title}
-			description={getShareText(data)}
-			thumbnail={thumbnail}
-		/>
-	{/if}
-</svelte:head>
+{#if !browser && data}
+	<Metadata
+		title={title}
+		embedTitle={title}
+		description={getShareText(data)}
+		thumbnail={thumbnail}
+	/>
+{/if}
 
 <RedirectFlash goal={title} />

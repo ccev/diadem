@@ -13,9 +13,7 @@
 	onMount(() => load().then());
 </script>
 
-<svelte:head>
-	<Metadata />
-</svelte:head>
+<Metadata />
 
 {#if getIsToastOpen()}
 	<Toast />

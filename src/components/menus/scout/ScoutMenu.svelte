@@ -67,9 +67,7 @@
 	}
 </script>
 
-<svelte:head>
-	<Metadata title={m.nav_scout()} />
-</svelte:head>
+<Metadata title={m.nav_scout()} />
 
 <Card class="py-4 px-2">
 	<div class="flex flex-col gap-2">

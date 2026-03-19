@@ -122,11 +122,11 @@ export function getActiveRaids(): ActiveRaidStats[] {
 }
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
-	return Object.values(masterStats?.activeCharacters) ?? [];
+	return Object.values(masterStats?.activeCharacters ?? {});
 }
 
 export function getActiveContests(): ContestStatsEntry[] {
-	return masterStats?.activeContests ?? [];
+	return Object.values(masterStats?.activeContests ?? {});
 }
 
 export function getActiveMaxBattles(): MaxBattleStatsEntry[] {

@@ -34,9 +34,7 @@
 	let data: PokestopData = $derived(getMapObjects()[getCurrentSelectedMapId()] as PokestopData ?? getCurrentSelectedData() as PokestopData)
 </script>
 
-<svelte:head>
-	<Metadata title={data.name ?? m.pogo_pokestop()} />
-</svelte:head>
+<Metadata title={data.name ?? m.pogo_pokestop()} />
 
 {#snippet lureSection()}
 	{#if shouldDisplayLure(data)}

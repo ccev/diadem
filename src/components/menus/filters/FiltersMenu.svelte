@@ -8,9 +8,7 @@
 	import { Features } from "@/lib/utils/features";
 </script>
 
-<svelte:head>
-	<Metadata title={m.nav_filters()} />
-</svelte:head>
+<Metadata title={m.nav_filters()} />
 
 <div class="space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
 	<SignInButton />

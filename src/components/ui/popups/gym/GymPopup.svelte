@@ -31,9 +31,7 @@
 	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? '[]'));
 </script>
 
-<svelte:head>
-	<Metadata title={data.name ?? m.pogo_gym()} />
-</svelte:head>
+<Metadata title={data.name ?? m.pogo_gym()} />
 
 {#snippet raidDisplay(expanded: boolean)}
 	{#if shouldDisplayRaid(data)}

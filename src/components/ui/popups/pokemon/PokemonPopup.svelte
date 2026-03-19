@@ -72,9 +72,7 @@
 	let maxUltraRank = $derived(getMaxPvpRank("pvpRankUltra", getUserSettings().filters.pokemon))
 </script>
 
-<svelte:head>
-	<Metadata title={mPokemon(data)} />
-</svelte:head>
+<Metadata title={mPokemon(data)} />
 
 {#snippet timer()}
 	<IconValue Icon={hasTimer(data) ? Clock : ClockAlert}>

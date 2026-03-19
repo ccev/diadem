@@ -107,15 +107,15 @@ function getPokemonShareText(data: PokemonData) {
 		text += `📚 ${m.pogo_ivs()}: ${data.iv.toFixed(1)}% (${data.atk_iv ?? "?"}/${data.def_iv ?? "?"}/${data.sta_iv ?? "?"})\n`;
 	}
 
-	if (showLittle(data)) {
+	if (showLittle(data, true)) {
 		text += `🏆 ${m.league_rank({ league: m.little_league() })}: ${getBestRank(data, "little")}\n`;
 	}
 
-	if (showGreat(data)) {
+	if (showGreat(data, true)) {
 		text += `🏆 ${m.league_rank({ league: m.great_league() })}: ${getBestRank(data, "great")}\n`;
 	}
 
-	if (showUltra(data)) {
+	if (showUltra(data, true)) {
 		text += `🏆 ${m.league_rank({ league: m.ultra_league() })}: ${getBestRank(data, "ultra")}\n`;
 	}
 

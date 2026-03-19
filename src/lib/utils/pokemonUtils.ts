@@ -109,10 +109,11 @@ export function getBestRank(data: PokemonData, league: "little" | "great" | "ult
 
 function showPvp(
 	bestRank: number,
-	filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra"
+	filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra",
+	ignoreFilters: boolean = false
 ) {
 	const always = bestRank > 0 && bestRank <= POKEMON_MIN_RANK;
-	if (always) return true;
+	if (always || ignoreFilters) return true;
 
 	const filters = getUserSettings().filters.pokemon.filters.filter((f) => f.enabled);
 	for (const filter of filters) {
@@ -125,19 +126,19 @@ function showPvp(
 	return false;
 }
 
-export function showLittle(data: PokemonData) {
+export function showLittle(data: PokemonData, ignoreFilters: boolean = false) {
 	const bestRank = getBestRank(data, "little");
-	return showPvp(bestRank, "pvpRankLittle");
+	return showPvp(bestRank, "pvpRankLittle", ignoreFilters);
 }
 
-export function showGreat(data: PokemonData) {
+export function showGreat(data: PokemonData, ignoreFilters: boolean = false) {
 	const bestRank = getBestRank(data, "great");
-	return showPvp(bestRank, "pvpRankGreat");
+	return showPvp(bestRank, "pvpRankGreat", ignoreFilters);
 }
 
-export function showUltra(data: PokemonData) {
+export function showUltra(data: PokemonData, ignoreFilters: boolean = false) {
 	const bestRank = getBestRank(data, "ultra");
-	return showPvp(bestRank, "pvpRankUltra");
+	return showPvp(bestRank, "pvpRankUltra", ignoreFilters);
 }
 
 export function getPokemonSize(size: number) {

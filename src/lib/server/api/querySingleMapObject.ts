@@ -59,34 +59,34 @@ async function querySingleGym(id: string) {
 }
 
 async function querySinglePokestop(id: string) {
-	const result = await query<PokestopData>(
+	const result = await query<PokestopData[]>(
 		"SELECT * FROM pokestop " +
 			"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
 			"WHERE pokestop.id = ?",
 		[id]
 	);
-	if (result.result) processRawPokestop(result.result)
+	if (result.result && result.result[0]) processRawPokestop(result.result[0])
 	return result
 }
 
 async function querySingleStation(id: string) {
-	return await query<StationData>("SELECT * FROM station " + "WHERE station.id = ?", [id]);
+	return await query<StationData[]>("SELECT * FROM station " + "WHERE station.id = ?", [id]);
 }
 
 async function querySingleNest(id: string) {
-	return await query<NestData>("SELECT " + FIELDS_NEST + " FROM nests WHERE nest_id = ?", [id]);
+	return await query<NestData[]>("SELECT " + FIELDS_NEST + " FROM nests WHERE nest_id = ?", [id]);
 }
 
 async function querySingleSpawnpoint(id: string) {
-	return await query<SpawnpointData>("SELECT * FROM spawnpoint WHERE id = ?", [id]);
+	return await query<SpawnpointData[]>("SELECT * FROM spawnpoint WHERE id = ?", [id]);
 }
 
 async function querySingleRoute(id: string) {
-	return await query<SpawnpointData>("SELECT " + FIELDS_ROUTE + " FROM route WHERE id = ?", [id]);
+	return await query<SpawnpointData[]>("SELECT " + FIELDS_ROUTE + " FROM route WHERE id = ?", [id]);
 }
 
 async function querySingleTappable(id: string) {
-	return await query<SpawnpointData>("SELECT " + FIELDS_TAPPABLE + " FROM tappable WHERE id = ?", [
+	return await query<SpawnpointData[]>("SELECT " + FIELDS_TAPPABLE + " FROM tappable WHERE id = ?", [
 		id
 	]);
 }

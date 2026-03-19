@@ -15,10 +15,8 @@
 	updateUserSettings()
 </script>
 
-<svelte:head>
-	<Metadata
-		title={data.name}
-	/>
-</svelte:head>
+<Metadata
+	title={data.name}
+/>
 
 <RedirectFlash goal={data.name} />
