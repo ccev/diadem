@@ -12,7 +12,10 @@
 		"lint": "prettier --check .",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
 		"@inlang/paraglide-js": "2.6.0",
@@ -21,6 +24,7 @@
 		"@sveltejs/kit": "^2.55.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@types/node": "^18",
+		"@vitest/coverage-v8": "4.1.0",
 		"drizzle-kit": "^0.30.5",
 		"postcss": "^8.4.49",
 		"prettier": "^3.3.2",
@@ -30,7 +34,8 @@
 		"tailwindcss": "^4.2.1",
 		"tw-animate-css": "^1.4.0",
 		"typescript": "^5.0.0",
-		"vite": "^8.0.0"
+		"vite": "^8.0.0",
+		"vitest": "^4.1.0"
 	},
 	"dependencies": {
 		"@inlang/paraglide-js": "^2.6.0",

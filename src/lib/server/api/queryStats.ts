@@ -179,7 +179,7 @@ export type MasterStats = {
 	generatedAt: number;
 };
 
-function extractPokemonIdFromLeekduckImage(imageUrl: string): {
+export function extractPokemonIdFromLeekduckImage(imageUrl: string): {
 	pokemonId: number;
 	formId: number;
 } {
@@ -214,7 +214,7 @@ function extractPokemonIdFromLeekduckImage(imageUrl: string): {
 	}
 }
 
-function getInvasionCharacterId(name: string, type: string): number | null {
+export function getInvasionCharacterId(name: string, type: string): number | null {
 	const nameLower = name.toLowerCase();
 
 	if (nameLower.includes("giovanni")) return 44;

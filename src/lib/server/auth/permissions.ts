@@ -23,7 +23,7 @@ function addFeatures(featureArray: FeaturesKey[], features: FeaturesKey[] | unde
 	});
 }
 
-function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | undefined) {
+export function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | undefined) {
 	if (rule.areas && !geofences) return;
 
 	if (rule.areas) {
