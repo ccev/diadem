@@ -17,7 +17,11 @@
 		color?: string
 	} = $props();
 
-	let pageTitle = $derived(getConfig().general.mapName + (title ? ` | ${title}` : ""));
+	let config = $derived(getConfig());
+	let general = $derived(config.general);
+	let pageTitle = $derived(general.mapName + (title ? ` | ${title}` : ""));
+	let effectiveDescription = $derived(description ?? general.description);
+	let effectiveThumbnail = $derived(thumbnail ?? general.image);
 </script>
 
 <svelte:head>
@@ -25,18 +29,18 @@
 	<meta property="og:title" content={embedTitle ? embedTitle : pageTitle}>
 	<meta name="twitter:title" content={embedTitle ? embedTitle : pageTitle}>
 
-	<meta property="og:site_name" content={getConfig().general.mapName}>
-	<meta name="twitter:site" content={getConfig().general.mapName}>
+	<meta property="og:site_name" content={general.mapName}>
+	<meta name="twitter:site" content={general.mapName}>
 
-
-	{#if description}
-		<meta property="og:description" content={description}>
-		<meta name="twitter:description" content={description}>
+	{#if effectiveDescription}
+		<meta name="description" content={effectiveDescription}>
+		<meta property="og:description" content={effectiveDescription}>
+		<meta name="twitter:description" content={effectiveDescription}>
 	{/if}
 
-	{#if thumbnail}
-		<meta property="og:image" content={thumbnail} />
-		<meta name="twitter:image:src" content={thumbnail}>
+	{#if effectiveThumbnail && !image}
+		<meta property="og:image" content={effectiveThumbnail} />
+		<meta name="twitter:image:src" content={effectiveThumbnail}>
 	{/if}
 
 	{#if image}

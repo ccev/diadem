@@ -38,6 +38,11 @@ type General = {
 	defaultZoom?: number
 	minZoom?: number
 	maxZoom?: number
+	url?: string
+	image?: string
+	description?: string
+	allowCrawlers?: boolean
+	disallowedPaths?: string[]
 }
 
 export type DbCreds = {

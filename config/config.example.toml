@@ -115,6 +115,15 @@ defaultZoom = 15
 #minZoom = 0
 #maxZoom = 20
 
+# Values to be used in search engine entries and social media previews
+url = ""  # i.e. "https://malt.ee"
+image = ""  # Full url to a thumbnail to be used in social media links
+description = ""
+
+# robots.txt
+allowCrawlers = false
+disallowedPaths = []  # ["/custom"] would disallow crawlers from indexing any page under /custom
+
 # Tools are extra functionality that go beyond what a pogo map should do.
 # You can configure them here.
 # Note that certain tools may be disabled if they're not set up or users lack permissions.

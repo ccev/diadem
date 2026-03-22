@@ -17,6 +17,9 @@ import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
 import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
+import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
+import { setConfig } from "@/lib/services/config/config";
+import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
 
 const paraglideHandle: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
@@ -88,6 +91,10 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 };
 
 export const init: ServerInit = async () => {
+	// set config for ssr
+	const config = getClientConfig()
+	setConfig(config)
+
 	setServerLoggerFactory((name) => {
 		const winstonLogger = getServerLogger(name);
 		return {
@@ -103,4 +110,70 @@ export const init: ServerInit = async () => {
 	await initDiadem();
 };
 
-export const handle: Handle = sequence(paraglideHandle, handleAuth);
+const handleSeo: Handle = async ({ event, resolve }) => {
+	const general = getClientConfig().general;
+
+	return resolve(event, {
+		transformPageChunk: ({ html }) => {
+			const metaTags: string[] = [];
+
+			const addMeta = (identifier: string, tag: string) => {
+				if (!html.includes(identifier)) metaTags.push(tag);
+			};
+
+			const isNonindexPath = getDisallowedPaths().some((p) =>
+				event.url.pathname.startsWith(p)
+			);
+			if (!general.allowCrawlers) {
+				addMeta('name="robots"', '<meta name="robots" content="noindex, nofollow">');
+			} else if (isNonindexPath) {
+				addMeta('name="robots"', '<meta name="robots" content="noindex, follow">');
+			} else {
+				addMeta('name="robots"', '<meta name="robots" content="index, follow">');
+			}
+
+			if (general.description) {
+				addMeta(
+					'name="description"',
+					`<meta name="description" content="${general.description}">`
+				);
+				addMeta(
+					'property="og:description"',
+					`<meta property="og:description" content="${general.description}">`
+				);
+			}
+			if (general.image) {
+				addMeta(
+					'property="og:image"',
+					`<meta property="og:image" content="${general.image}">`
+				);
+				addMeta(
+					'name="twitter:image:src"',
+					`<meta name="twitter:image:src" content="${general.image}">`
+				);
+				addMeta(
+					'name="twitter:card"',
+					'<meta name="twitter:card" content="summary_large_image">'
+				);
+			}
+			if (general.url) {
+				addMeta('rel="canonical"', `<link rel="canonical" href="${general.url}">`);
+				addMeta(
+					'property="og:url"',
+					`<meta property="og:url" content="${general.url}">`
+				);
+			}
+
+			addMeta(
+				'property="og:site_name"',
+				`<meta property="og:site_name" content="${general.mapName}">`
+			);
+			addMeta('property="og:type"', '<meta property="og:type" content="website">');
+
+			if (metaTags.length === 0) return html;
+			return html.replace('</head>', metaTags.join('\n') + '\n</head>');
+		}
+	});
+};
+
+export const handle: Handle = sequence(paraglideHandle, handleAuth, handleSeo);
