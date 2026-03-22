@@ -221,4 +221,19 @@
 	"xl_candy": "Doce XL",
 	"redirect_notice": "Você está sendo redirecionado automaticamente para {goal}. Clique aqui se isso não funcionar.",
 	"language_spanish": "Espanhol"
+	"language_spanish": "Espanhol",
+	"modifier_visual": "Visual",
+	"modifier_glow": "Brilho",
+	"modifier_glow_color": "Cor do brilho",
+	"modifier_glow_size": "Tamanho do brilho",
+	"modifier_glow_intensity": "Intensidade do brilho",
+	"modifier_background": "Fundo",
+	"modifier_background_color": "Cor de fundo",
+	"modifier_background_intensity": "Intensidade do fundo",
+	"modifier_scale": "Escala",
+	"modifier_rotation": "Rotação",
+	"modifier_priority_hint": "Se varios filtros corresponderem, o ultimo filtro ativado controla o visual.",
+	"modifier_none": "Nenhum",
+	"modifier_show_badge": "Mostrar emblema",
+	"modifier_show_label": "Mostrar rótulo"
 }

@@ -22,10 +22,23 @@
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import PokemonFilterDisplay from "@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetPokemon
 		| undefined;
+
+	let previewIconUrl = $derived.by(() => {
+		const pokemon = data?.pokemon;
+		const selected = pokemon?.[pokemon.length - 1];
+		if (!selected) return undefined;
+		return getIconPokemon({
+			pokemon_id: selected.pokemon_id,
+			form: selected.form
+		});
+	});
 </script>
 
 <FiltersetModal
@@ -36,7 +49,7 @@
 	titleShared={m.shared_pokemon_filter()}
 	titleNew={m.filterset_title_new_pokemon()}
 	titleEdit={m.filterset_title_edit_pokemon()}
-	height={134}
+	height={156}
 >
 	{#snippet base()}
 		{#if data}
@@ -200,6 +213,15 @@
 									max
 								)}
 						/>
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
+
+			<AttributesOverview>
+				<Attribute label={m.modifier_visual()}>
+					<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} compact />
+					{#snippet page(thisData: FiltersetPokemon)}
+						<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} />
 					{/snippet}
 				</Attribute>
 			</AttributesOverview>

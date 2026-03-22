@@ -15,7 +15,12 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 		filterset<FiltersetPokemon>({
 			emoji: "💯",
 			title: "filter_template_hundo",
-			iv: { min: 100, max: 100 }
+			iv: { min: 100, max: 100 },
+			modifiers: {
+				glow: {
+					color: "#ef4444"
+				}
+			}
 		}),
 		filterset<FiltersetPokemon>({
 			uicon: {
@@ -26,7 +31,12 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 				}
 			},
 			title: "filter_template_rank1_great",
-			pvpRankGreat: { min: 1, max: 1 }
+			pvpRankGreat: { min: 1, max: 1 },
+			modifiers: {
+				glow: {
+					color: "#3b82f6"
+				}
+			}
 		}),
 		filterset<FiltersetPokemon>({
 			uicon: {
@@ -37,7 +47,12 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 				}
 			},
 			title: "filter_template_rank1_ultra",
-			pvpRankUltra: { min: 1, max: 1 }
+			pvpRankUltra: { min: 1, max: 1 },
+			modifiers: {
+				glow: {
+					color: "#3b82f6"
+				}
+			}
 		}),
 		filterset<FiltersetPokemon>({
 			emoji: "🗑️",
@@ -157,6 +172,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 type BaseParams = {
 	emoji?: BaseFilterset["icon"]["emoji"];
 	uicon?: BaseFilterset["icon"]["uicon"];
+	modifiers?: BaseFilterset["modifiers"];
 	title: BaseFilterset["title"]["message"];
 };
 
@@ -166,7 +182,7 @@ type Params<Filterset extends AnyFilterset> = BaseParams &
 function filterset<Filterset extends AnyFilterset>(options: Params<Filterset>): Filterset {
 	const { title, uicon, emoji, ...rest } = options;
 
-	const data: Filterset = {
+	const data = {
 		id: getId(),
 		icon: {
 			isUserSelected: false
@@ -176,7 +192,7 @@ function filterset<Filterset extends AnyFilterset>(options: Params<Filterset>): 
 		},
 		enabled: true,
 		...rest
-	};
+	} as Filterset;
 	if (uicon) data.icon.uicon = uicon;
 	if (emoji) data.icon.emoji = emoji;
 

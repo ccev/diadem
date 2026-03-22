@@ -13,18 +13,31 @@
 	} from "@/lib/features/filters/makeAttributeChipLabel";
 	import Card from "@/components/ui/Card.svelte";
 	import RaidTypeAttribute from "@/components/menus/filters/filterset/raid/RaidTypeAttribute.svelte";
-	import type { RaidFilterType } from "@/lib/utils/gymUtils";
+	import { RaidLevel, type RaidFilterType } from "@/lib/utils/gymUtils";
 	import HatchedLevelAttribute from "@/components/menus/filters/filterset/raid/HatchedLevelAttribute.svelte";
 	import RaidLevelAttribute from "@/components/menus/filters/filterset/raid/RaidLevelAttribute.svelte";
 	import RaidBossAttribute from "@/components/menus/filters/filterset/raid/RaidBossAttribute.svelte";
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
+	import { getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte";
 
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetRaid
 		| undefined;
 
 	let filterType: RaidFilterType = $derived(Object.hasOwn(data ?? {}, "bosses") ? "boss" : "level");
+
+	function getModifierPreviewIcon(filterset: FiltersetRaid) {
+		const bosses = filterset.bosses;
+		const boss = bosses?.[bosses.length - 1];
+		if (boss) {
+			return getIconPokemon({ pokemon_id: boss.pokemon_id, form: boss.form });
+		}
+
+		return getIconRaidEgg(filterset.levels?.[0] ?? RaidLevel.LEGENDARY);
+	}
 </script>
 
 <FiltersetModal
@@ -36,7 +49,7 @@
 	titleShared={m.shared_raid_filter()}
 	titleNew={m.new_raid_filter()}
 	titleEdit={m.edit_raid_filter()}
-	height={136}
+	height={156}
 >
 	{#snippet base()}
 		{#if data}
@@ -98,6 +111,20 @@
 					</Attribute>
 				</AttributesOverview>
 			{/if}
+
+			<AttributesOverview>
+				<Attribute label={m.modifier_visual()}>
+					<ModifierPreview
+						modifiers={data.modifiers}
+						iconUrl={getModifierPreviewIcon(data)}
+						filterset={data}
+						compact
+					/>
+					{#snippet page(thisData: FiltersetRaid)}
+						<ModifiersAttribute data={thisData} iconUrl={getModifierPreviewIcon(thisData)} />
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
 		{/if}
 	{/snippet}
 </FiltersetModal>

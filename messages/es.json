@@ -221,4 +221,19 @@
 	"xl_candy": "Caramelo XL",
 	"redirect_notice": "Se le redirigirá automáticamente a {goal}. Haga clic aquí si no funcionó.",
 	"language_spanish": "Español"
+	"language_spanish": "Español",
+	"modifier_visual": "Visual",
+	"modifier_glow": "Brillo",
+	"modifier_glow_color": "Color del brillo",
+	"modifier_glow_size": "Tamaño del brillo",
+	"modifier_glow_intensity": "Intensidad del brillo",
+	"modifier_background": "Fondo",
+	"modifier_background_color": "Color de fondo",
+	"modifier_background_intensity": "Intensidad del fondo",
+	"modifier_scale": "Escala",
+	"modifier_rotation": "Rotación",
+	"modifier_priority_hint": "Si coinciden varios filtros, el ultimo filtro habilitado controla el aspecto visual.",
+	"modifier_none": "Ninguno",
+	"modifier_show_badge": "Mostrar insignia",
+	"modifier_show_label": "Mostrar etiqueta"
 }

@@ -17,7 +17,7 @@
 	import { mCharacter } from "@/lib/services/ingameLocale";
 	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
 	import { resize } from "@/lib/services/assets";
-	import { getIconInvasion } from "@/lib/services/uicons.svelte";
+	import { getIconInvasion, getIconPokemon } from "@/lib/services/uicons.svelte";
 	import {
 		InvasionFilterType,
 		makeAttributeCharacterLabel
@@ -26,13 +26,14 @@
 	import InvasionFilterDisplay from "@/components/menus/filters/filterset/invasion/InvasionFilterDisplay.svelte";
 	import InvasionTypeAttribute from "@/components/menus/filters/filterset/invasion/InvasionTypeAttribute.svelte";
 	import Card from "@/components/ui/Card.svelte";
+	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
 
 	type Pokemon = { pokemon_id: number; form: number; alignment?: number };
 
 	let data: FiltersetInvasion | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetInvasion
 		| undefined;
-
 	let filterType: InvasionFilterType = $derived(
 		Object.hasOwn(data ?? {}, "rewards")
 			? InvasionFilterType.REWARDS
@@ -87,6 +88,18 @@
 
 		if (thisData.rewards?.length === 0) delete thisData.rewards;
 	}
+
+	function getModifierPreviewIcon(filterset: FiltersetInvasion) {
+		const rewards = filterset.rewards;
+		const reward = rewards?.[rewards.length - 1];
+		if (reward) {
+			return getIconPokemon({ pokemon_id: reward.pokemon_id, form: reward.form });
+		}
+
+		const characters = filterset.characters;
+		const character = characters?.[characters.length - 1];
+		return getIconInvasion(character ?? 4, true);
+	}
 </script>
 
 <FiltersetModal
@@ -98,7 +111,7 @@
 	titleShared={m.shared_invasion_filter()}
 	titleNew={m.new_invasion_filter()}
 	titleEdit={m.edit_invasion_filter()}
-	height={136}
+	height={156}
 >
 	{#snippet base()}
 		{#if data}
@@ -170,6 +183,20 @@
 					</Attribute>
 				</AttributesOverview>
 			{/if}
+
+			<AttributesOverview>
+				<Attribute label={m.modifier_visual()}>
+					<ModifierPreview
+						modifiers={data.modifiers}
+						iconUrl={getModifierPreviewIcon(data)}
+						filterset={data}
+						compact
+					/>
+					{#snippet page(thisData: FiltersetInvasion)}
+						<ModifiersAttribute data={thisData} iconUrl={getModifierPreviewIcon(thisData)} />
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
 		{/if}
 	{/snippet}
 </FiltersetModal>
