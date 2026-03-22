@@ -13,24 +13,47 @@
 	import { mCharacter } from "@/lib/services/ingameLocale";
 	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
 	import { resize } from "@/lib/services/assets";
-	import { getIconInvasion } from "@/lib/services/uicons.svelte";
-	import { InvasionFilterType, makeAttributeCharacterLabel } from "@/lib/features/filters/filterUtilsInvasion";
+	import { getIconInvasion, getIconPokemon } from "@/lib/services/uicons.svelte";
+	import {
+		InvasionFilterType,
+		makeAttributeCharacterLabel
+	} from "@/lib/features/filters/filterUtilsInvasion";
 	import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 	import InvasionFilterDisplay from "@/components/menus/filters/filterset/invasion/InvasionFilterDisplay.svelte";
+	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
 
-	let data: FiltersetInvasion | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetInvasion | undefined;
+	let data: FiltersetInvasion | undefined = $derived(getCurrentSelectedFilterset()?.data) as
+		| FiltersetInvasion
+		| undefined;
 
-	let filterType: InvasionFilterType = $derived(Object.hasOwn(data ?? {}, "rewards") ? InvasionFilterType.REWARDS : InvasionFilterType.CHARACTERS);
+	let filterType: InvasionFilterType = $derived(
+		Object.hasOwn(data ?? {}, "rewards")
+			? InvasionFilterType.REWARDS
+			: InvasionFilterType.CHARACTERS
+	);
 
 	function getCharacters() {
 		return getActiveCharacters()
-			.map(item => item.character)
+			.map((item) => item.character)
 			.sort((a, b) => {
 				const aIsLeader = INVASION_CHARACTER_LEADERS.includes(a);
 				const bIsLeader = INVASION_CHARACTER_LEADERS.includes(b);
 
 				return Number(bIsLeader) - Number(aIsLeader);
 			});
+	}
+
+	function getModifierPreviewIcon(filterset: FiltersetInvasion) {
+		const rewards = filterset.rewards;
+		const reward = rewards?.[rewards.length - 1];
+		if (reward) {
+			return getIconPokemon({ pokemon_id: reward.pokemon_id, form: reward.form });
+		}
+
+		const characters = filterset.characters;
+		const character = characters?.[characters.length - 1];
+		return getIconInvasion(character ?? 4, true);
 	}
 </script>
 
@@ -43,7 +66,7 @@
 	titleShared={m.shared_invasion_filter()}
 	titleNew={m.new_invasion_filter()}
 	titleEdit={m.edit_invasion_filter()}
-	height={136}
+	height={156}
 >
 	{#snippet base()}
 		{#if data}
@@ -78,7 +101,7 @@
 							onremove={() => delete data.characters}
 						/>
 						{#snippet page(thisData: FiltersetInvasion)}
-							<div class="overflow-y-auto h-118  flex flex-wrap -mx-4 px-4 mt-2">
+							<div class="overflow-y-auto h-118 flex flex-wrap -mx-4 px-4 mt-2">
 								{#each getCharacters() as character (character)}
 									<LongSelectItem
 										isSelected={thisData.characters?.includes(character) ?? false}
@@ -87,7 +110,7 @@
 												if (!thisData.characters) thisData.characters = [];
 												thisData.characters.push(character);
 											} else {
-												thisData.characters = thisData.characters?.filter(c => c !== character);
+												thisData.characters = thisData.characters?.filter((c) => c !== character);
 											}
 
 											if (thisData.characters?.length === 0) delete thisData.characters;
@@ -98,7 +121,7 @@
 											alt={mCharacter(character)}
 											src={resize(getIconInvasion(character, true), { width: 64 })}
 											loading="lazy"
-										>
+										/>
 										<span>
 											{mCharacter(character)}
 										</span>
@@ -109,6 +132,20 @@
 					</Attribute>
 				</AttributesOverview>
 			{/if}
+
+			<AttributesOverview>
+				<Attribute label={m.modifier_visual()}>
+					<ModifierPreview
+						modifiers={data.modifiers}
+						iconUrl={getModifierPreviewIcon(data)}
+						filterset={data}
+						compact
+					/>
+					{#snippet page(thisData: FiltersetInvasion)}
+						<ModifiersAttribute data={thisData} iconUrl={getModifierPreviewIcon(thisData)} />
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
 		{/if}
 	{/snippet}
 </FiltersetModal>

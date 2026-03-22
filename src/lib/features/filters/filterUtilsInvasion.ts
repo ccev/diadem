@@ -32,7 +32,25 @@ export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 		uicon: { category: IconCategory.INVASION, params: { character: 4 } }
 	}); // male grunt as default
 
-	if (filter.characters) {
+	if (filter.rewards && filter.rewards.length > 0) {
+		const firstReward = filter.rewards[0];
+		if (filter.rewards.length === 1) {
+			title.message = mPokemon(firstReward);
+		} else {
+			title.message = "count_pokemon";
+			title.params = { count: filter.rewards.length.toString() };
+		}
+
+		setFilterIcon(filter, {
+			uicon: {
+				category: IconCategory.POKEMON,
+				params: {
+					pokemon_id: firstReward.pokemon_id,
+					form: firstReward.form
+				}
+			}
+		});
+	} else if (filter.characters) {
 		if (filter.characters.length === 1) {
 			if (
 				INVASION_CHARACTER_LEADERS.includes(filter.characters[0]) ||

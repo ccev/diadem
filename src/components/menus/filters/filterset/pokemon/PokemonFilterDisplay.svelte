@@ -13,12 +13,21 @@
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
 	let {
 		data
 	}: {
 		data: FiltersetPokemon
 	} = $props()
+
+	let previewIconUrl = $derived.by(() => {
+		const pokemon = data?.pokemon;
+		const selected = pokemon?.[pokemon.length - 1];
+		if (!selected) return undefined;
+		return getIconPokemon({ pokemon_id: selected.pokemon_id, form: selected.form });
+	});
 </script>
 
 <FilterDisplay class="max-h-96">
@@ -55,5 +64,16 @@
 			label={m.pokemon_gender()}
 			value={data.gender.map(getGenderLabel).join(", ")}
 		/>
+	{/if}
+
+	{#if data.modifiers}
+		<div class="flex items-center gap-4 w-full">
+			<div class="bg-border h-px w-full"></div>
+			<span class="text-muted-foreground text-sm whitespace-nowrap">{m.modifier_visual()}</span>
+			<div class="bg-border h-px w-full"></div>
+		</div>
+		<div class="w-full">
+			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
+		</div>
 	{/if}
 </FilterDisplay>

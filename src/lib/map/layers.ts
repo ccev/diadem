@@ -7,11 +7,13 @@ export enum MapSourceId {
 	SELECTED_WEATHER = "selectedWeather",
 	SCOUT_BIG_POINTS = "scoutBigPoints",
 	SCOUT_SMALL_POINTS = "scoutSmallPoints",
-	COVERAGE_MAP_AREAS = "coverageMapAreas"
+	COVERAGE_MAP_AREAS = "coverageMapAreas",
 }
 
 export enum MapObjectLayerId {
+	ICONS_UNDERLAY = "mapObjectIconsUnderlay",
 	ICONS = "mapObjectIcons",
+	ICONS_BADGE = "mapObjectIconsBadge",
 	CIRCLES = "mapObjectCircles",
 	POLYGON_FILL = "mapObjectPolygonFill",
 	POLYGON_STROKE = "mapObjectPolygonStroke",
