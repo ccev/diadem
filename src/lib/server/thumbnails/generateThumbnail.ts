@@ -4,22 +4,21 @@ import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 import { html } from "satori-html";
 import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
+import { dev } from "$app/environment";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("thumbnail");
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 let interRegular: Buffer;
 let interBold: Buffer;
 
 function loadFonts() {
 	if (!interRegular || !interBold) {
-		const fontsDir = join(__dirname, "./");
+		const base = dev ? "static" : "build/client";
+		const fontsDir = join(process.cwd(), base, "fonts");
 		interRegular = readFileSync(join(fontsDir, "Inter-Regular.ttf"));
 		interBold = readFileSync(join(fontsDir, "Inter-Bold.ttf"));
 	}

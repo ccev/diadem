@@ -48,7 +48,7 @@
 	}
 </script>
 
-<div class="w-full h-full bg-zinc-50 text-zinc-950 flex text-base">
+<div class="w-full h-full bg-zinc-50 text-zinc-900 flex text-base">
 	<div class="flex flex-col flex-1 px-6 pb-9 pt-8">
 		{#if icon}
 			<img
@@ -67,7 +67,7 @@
 			{getTitle()}
 		</p>
 
-		<div class="flex items-center h-fit mt-auto" style:gap="0.5rem">
+		<div class="flex items-center mt-auto" style:gap="0.5rem">
 			<img src={favicon} alt="logo" class="w-8 h-8 rounded-lg" />
 			<span class="text-lg font-bold">
 				{mapName}
