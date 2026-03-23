@@ -68,6 +68,7 @@ type RaidStatsRow = {
 	level: number;
 	pokemon_id: number;
 	form: number;
+	temp_evolution_id: number,
 	"": {
 		count: number;
 	}[];
@@ -77,6 +78,7 @@ export type ActiveRaidStats = {
 	level: number;
 	pokemon_id: number;
 	form: number;
+	temp_evolution_id: number;
 	count: number;
 };
 
@@ -172,7 +174,7 @@ export type MasterStats = {
 	quests: QuestStats;
 	activeRaids: ActiveRaidStats[];
 	activeCharacters: ActiveInvasionCharacterStats[];
-	activeContests: { [key: string]: ContestStatsEntry };
+	activeContests: ContestStatsEntry[];
 	activeMaxBattles: MaxBattleStatsEntry[];
 	activeNests: NestStatsEntry[];
 	activeEggs: EggStats[];
@@ -317,10 +319,10 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
 		),
 		query<RaidStatsRow[]>(
-			"SELECT level, pokemon_id, form_id AS form, SUM(count) AS count " +
+			"SELECT level, pokemon_id, form_id AS form, temp_evo_id AS temp_evolution_id, SUM(count) AS count " +
 				"FROM raid_stats " +
 				"WHERE date >= CURDATE() - INTERVAL 1 DAY AND area = 'world' " +
-				"GROUP BY 1, 2, 3 " +
+				"GROUP BY 1, 2, 3, 4 " +
 				"ORDER BY level ASC"
 		),
 		query<InvasionStatsRow[]>(
@@ -468,6 +470,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				level: row.level,
 				pokemon_id: row.pokemon_id,
 				form,
+				temp_evolution_id: row.temp_evolution_id,
 				count
 			});
 		}

@@ -126,7 +126,7 @@ export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
 }
 
 export function getActiveContests(): ContestStatsEntry[] {
-	return Object.values(masterStats?.activeContests ?? {});
+	return masterStats?.activeContests ?? [];
 }
 
 export function getActiveMaxBattles(): MaxBattleStatsEntry[] {
