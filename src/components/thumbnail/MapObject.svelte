@@ -49,7 +49,10 @@
 </script>
 
 <div class="w-full h-full bg-zinc-50 text-zinc-900 flex text-base">
-	<div class="flex flex-col flex-1 px-6 pl-8 pb-9 pt-8">
+	<div
+		class="flex flex-col flex-1 px-6 pl-8 pb-9 pt-8"
+		class:pt-6={fullImage}
+	>
 		<div class="flex flex-col flex-1 justify-center h-full">
 			{#if icon}
 				<img
@@ -64,8 +67,15 @@
 				{m["pogo_" + data.type]()}
 			</p>
 
-			<p class="text-3xl my-0 mt-1 min-h-24 max-h-45 overflow-hidden">
-				{getTitle()}
+			<p
+				class="text-3xl my-0 mt-1"
+				style:text-overflow="ellipsis"
+				style="overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;"
+			>
+				{getTitle().trim()}
 			</p>
 		</div>
 
