@@ -28,12 +28,7 @@
 	} = $props();
 
 	function getShareUrl() {
-		let url = window.location.origin + getCurrentPath();
-		const locale = getLocale()
-		if (locale !== getConfig().general.defaultLocale) {
-			url += "?lang=" + locale
-		}
-		return url
+		return window.location.origin + getCurrentPath() + "?lang=" + getLocale()
 	}
 </script>
 
