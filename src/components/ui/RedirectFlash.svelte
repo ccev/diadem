@@ -20,6 +20,7 @@
 		onclick?: () => void
 	} = $props();
 
+	// svelte-ignore state_referenced_locally
 	if (browser && redirect) {
 		tick().then(() => {
 			goto(href);
