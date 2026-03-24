@@ -1,6 +1,28 @@
 import { z } from "zod";
 import { IconCategory } from "@/lib/features/filters/icons";
 
+const FiltersetModifiersSchema = z
+	.object({
+		glow: z
+			.object({
+				color: z.string(),
+				radius: z.number().positive().optional(),
+				opacity: z.number().min(0).max(1).optional()
+			})
+			.optional(),
+		scale: z.number().positive().optional(),
+		rotation: z.number().min(0).max(360).optional(),
+		background: z
+			.object({
+				color: z.string(),
+				opacity: z.number().min(0).max(1).optional()
+			})
+			.optional(),
+		showBadge: z.boolean().optional(),
+		showLabel: z.string().optional()
+	})
+	.optional();
+
 const BaseFiltersetSchema = z.object({
 	id: z.string(),
 	title: z.object({
@@ -17,6 +39,7 @@ const BaseFiltersetSchema = z.object({
 			params: z.record(z.string(), z.any())
 		}).optional()
 	}),
+	modifiers: FiltersetModifiersSchema
 });
 
 const MinMaxSchema = z.object({

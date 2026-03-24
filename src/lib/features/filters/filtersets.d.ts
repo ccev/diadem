@@ -29,6 +29,22 @@ export type FiltersetTitle = {
 	title?: string;
 } & Message;
 
+export type FiltersetModifiers = {
+	glow?: {
+		color: string;
+		radius?: number;
+		opacity?: number;
+	};
+	scale?: number;
+	rotation?: number;
+	background?: {
+		color: string;
+		opacity?: number;
+	};
+	showBadge?: boolean;
+	showLabel?: string;
+};
+
 export type BaseFilterset = {
 	id: string;
 	title: FiltersetTitle;
@@ -41,9 +57,10 @@ export type BaseFilterset = {
 			params: { [key: string]: any };
 		};
 	};
+	modifiers?: FiltersetModifiers;
 };
 
-type MinMax = {
+export type MinMax = {
 	min: number;
 	max: number;
 };
@@ -92,7 +109,7 @@ export type FiltersetInvasion = BaseFilterset & {
 };
 
 export type FiltersetLure = BaseFilterset & {
-	items: number[];
+	items: number[]
 };
 
 // this is only used for search and therefore very simplified

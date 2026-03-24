@@ -12,12 +12,27 @@
 	import { getAttributeLabelAr } from "@/lib/features/filters/filterUtilsQuest";
 	import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import { RewardType } from "@/lib/utils/pokestopUtils";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
 	let {
 		data
 	}: {
 		data: FiltersetQuest
 	} = $props();
+
+	let previewIconUrl = $derived.by(() => {
+		if (data.rewardType === RewardType.POKEMON) {
+			const pokemon = data.pokemon?.[data.pokemon.length - 1];
+			if (pokemon) return getIconReward(RewardType.POKEMON, { pokemon_id: pokemon.pokemon_id, form: pokemon.form });
+			return getIconPokemon({ pokemon_id: 0, form: 0 });
+		}
+		if (data.rewardType === RewardType.ITEM) {
+			const item = data.item?.[0];
+			if (item) return getIconReward(RewardType.ITEM, { item_id: Number(item.id), amount: item.amount });
+		}
+		return getIconPokemon({ pokemon_id: 0, form: 0 });
+	});
 </script>
 
 <FilterDisplay>
@@ -121,5 +136,16 @@
 
 	{#if data.xp}
 		<AttributeDisplay label={m.xp()} value={makeAttributeRangeLabel(data.xp, 0, 50_000)} />
+	{/if}
+
+	{#if data.modifiers}
+		<div class="flex items-center gap-4 w-full">
+			<div class="bg-border h-px w-full"></div>
+			<span class="text-muted-foreground text-sm whitespace-nowrap">{m.modifier_visual()}</span>
+			<div class="bg-border h-px w-full"></div>
+		</div>
+		<div class="w-full">
+			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
+		</div>
 	{/if}
 </FilterDisplay>

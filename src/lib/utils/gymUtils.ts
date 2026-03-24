@@ -107,7 +107,10 @@ export function shouldDisplayRaid(data: GymData) {
 
 		// check if boss should be shown
 		for (const boss of filter.bosses ?? []) {
-			if (boss.pokemon_id === data.raid_pokemon_id && (!boss.form || boss.form === data.raid_pokemon_form)) {
+			if (
+				boss.pokemon_id === data.raid_pokemon_id &&
+				boss.form === (data.raid_pokemon_form ?? 0)
+			) {
 				return true
 			}
 		}

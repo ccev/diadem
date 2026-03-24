@@ -1,29 +1,44 @@
 <script lang="ts">
-	import FiltersetModal from '@/components/menus/filters/filterset/FiltersetModal.svelte';
-	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
-	import Attribute from '@/components/menus/filters/filterset/Attribute.svelte';
-	import AttributesOverview from '@/components/menus/filters/filterset/AttributesOverview.svelte';
-	import SliderRange from '@/components/ui/input/slider/SliderRange.svelte';
-	import type { FiltersetPokemon } from '@/lib/features/filters/filtersets';
-	import { makeAttributePokemonLabel } from '@/lib/features/filters/makeAttributeChipLabel';
-	import { getCurrentSelectedFilterset } from '@/lib/features/filters/filtersetPageData.svelte.js';
-	import * as m from '@/lib/paraglide/messages';
-	import AppearanceAttribute from '@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte';
-	import { changeAttributeMinMax } from '@/lib/features/filters/filtersetUtils';
-	import AppearanceChips from '@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte';
-	import IvChips from '@/components/menus/filters/filterset/pokemon/IvChips.svelte';
-	import IvAttribute from '@/components/menus/filters/filterset/pokemon/IvAttribute.svelte';
-	import SpeciesAttribute from '@/components/menus/filters/filterset/pokemon/SpeciesAttribute.svelte';
+	import FiltersetModal from "@/components/menus/filters/filterset/FiltersetModal.svelte";
+	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
+	import Attribute from "@/components/menus/filters/filterset/Attribute.svelte";
+	import AttributesOverview from "@/components/menus/filters/filterset/AttributesOverview.svelte";
+	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
+	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
+	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
+	import * as m from "@/lib/paraglide/messages";
+	import AppearanceAttribute from "@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte";
+	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
+	import AppearanceChips from "@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte";
+	import IvChips from "@/components/menus/filters/filterset/pokemon/IvChips.svelte";
+	import IvAttribute from "@/components/menus/filters/filterset/pokemon/IvAttribute.svelte";
+	import SpeciesAttribute from "@/components/menus/filters/filterset/pokemon/SpeciesAttribute.svelte";
 	import {
 		getAttributeLabelCp,
 		getAttributeLabelLevel,
 		getAttributeLabelRank,
 		pokemonBounds
-	} from '@/lib/features/filters/filterUtilsPokemon';
-	import PokemonFilterDisplay from '@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte';
+	} from "@/lib/features/filters/filterUtilsPokemon";
+	import PokemonFilterDisplay from "@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
+	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
-	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetPokemon | undefined;
+	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
+		| FiltersetPokemon
+		| undefined;
+
+	let previewIconUrl = $derived.by(() => {
+		const pokemon = data?.pokemon;
+		const selected = pokemon?.[pokemon.length - 1];
+		if (!selected) return undefined;
+		return getIconPokemon({
+			pokemon_id: selected.pokemon_id,
+			form: selected.form
+		});
+	});
 </script>
 
 <FiltersetModal
@@ -34,7 +49,7 @@
 	titleShared={m.shared_pokemon_filter()}
 	titleNew={m.filterset_title_new_pokemon()}
 	titleEdit={m.filterset_title_edit_pokemon()}
-	height={134}
+	height={156}
 >
 	{#snippet base()}
 		{#if data}
@@ -65,7 +80,11 @@
 				<Attribute label={m.pogo_ivs()}>
 					<IvChips {data} ivBounds={pokemonBounds.iv} percBounds={pokemonBounds.ivProduct} />
 					{#snippet page(thisData: FiltersetPokemon)}
-						<IvAttribute data={thisData} ivBounds={pokemonBounds.iv} percBounds={pokemonBounds.ivProduct} />
+						<IvAttribute
+							data={thisData}
+							ivBounds={pokemonBounds.iv}
+							percBounds={pokemonBounds.ivProduct}
+						/>
 					{/snippet}
 				</Attribute>
 				<Attribute label={m.cp()}>
@@ -81,7 +100,15 @@
 							title={m.cp()}
 							valueMin={thisData.cp?.min ?? pokemonBounds.cp.min}
 							valueMax={thisData.cp?.max ?? pokemonBounds.cp.max}
-							onchange={([min, max]) => changeAttributeMinMax(thisData, "cp", pokemonBounds.cp.min, pokemonBounds.cp.max, min, max)}
+							onchange={([min, max]) =>
+								changeAttributeMinMax(
+									thisData,
+									"cp",
+									pokemonBounds.cp.min,
+									pokemonBounds.cp.max,
+									min,
+									max
+								)}
 						/>
 					{/snippet}
 				</Attribute>
@@ -98,7 +125,15 @@
 							title={m.level()}
 							valueMin={thisData.level?.min ?? pokemonBounds.level.min}
 							valueMax={thisData.level?.max ?? pokemonBounds.level.max}
-							onchange={([min, max]) => changeAttributeMinMax(thisData, "level", pokemonBounds.level.min, pokemonBounds.level.max, min, max)}
+							onchange={([min, max]) =>
+								changeAttributeMinMax(
+									thisData,
+									"level",
+									pokemonBounds.level.min,
+									pokemonBounds.level.max,
+									min,
+									max
+								)}
 						/>
 					{/snippet}
 				</Attribute>
@@ -118,7 +153,15 @@
 							title={m.little_league_rank()}
 							valueMin={thisData.pvpRankLittle?.min ?? pokemonBounds.rank.min}
 							valueMax={thisData.pvpRankLittle?.max ?? pokemonBounds.rank.max}
-							onchange={([min, max]) => changeAttributeMinMax(thisData, "pvpRankLittle", pokemonBounds.rank.min, pokemonBounds.rank.max, min, max)}
+							onchange={([min, max]) =>
+								changeAttributeMinMax(
+									thisData,
+									"pvpRankLittle",
+									pokemonBounds.rank.min,
+									pokemonBounds.rank.max,
+									min,
+									max
+								)}
 						/>
 					{/snippet}
 				</Attribute>
@@ -135,7 +178,15 @@
 							title={m.great_league_rank()}
 							valueMin={thisData.pvpRankGreat?.min ?? pokemonBounds.rank.min}
 							valueMax={thisData.pvpRankGreat?.max ?? pokemonBounds.rank.max}
-							onchange={([min, max]) => changeAttributeMinMax(thisData, "pvpRankGreat", pokemonBounds.rank.min, pokemonBounds.rank.max, min, max)}
+							onchange={([min, max]) =>
+								changeAttributeMinMax(
+									thisData,
+									"pvpRankGreat",
+									pokemonBounds.rank.min,
+									pokemonBounds.rank.max,
+									min,
+									max
+								)}
 						/>
 					{/snippet}
 				</Attribute>
@@ -152,8 +203,25 @@
 							title={m.ultra_league_rank()}
 							valueMin={thisData.pvpRankUltra?.min ?? pokemonBounds.rank.min}
 							valueMax={thisData.pvpRankUltra?.max ?? pokemonBounds.rank.max}
-							onchange={([min, max]) => changeAttributeMinMax(thisData, "pvpRankUltra", pokemonBounds.rank.min, pokemonBounds.rank.max, min, max)}
+							onchange={([min, max]) =>
+								changeAttributeMinMax(
+									thisData,
+									"pvpRankUltra",
+									pokemonBounds.rank.min,
+									pokemonBounds.rank.max,
+									min,
+									max
+								)}
 						/>
+					{/snippet}
+				</Attribute>
+			</AttributesOverview>
+
+			<AttributesOverview>
+				<Attribute label={m.modifier_visual()}>
+					<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} compact />
+					{#snippet page(thisData: FiltersetPokemon)}
+						<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} />
 					{/snippet}
 				</Attribute>
 			</AttributesOverview>
