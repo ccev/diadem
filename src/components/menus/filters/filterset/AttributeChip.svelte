@@ -39,7 +39,7 @@
 			border: '--color-amber-200',
 			dark: {
 				text: '--color-indigo-100',
-				bg: '--color-indigo-900',
+				bg: '--color-indigo-950',
 				border: '--color-indigo-800',
 			}
 		}

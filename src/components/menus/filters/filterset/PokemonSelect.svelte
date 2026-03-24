@@ -1,34 +1,31 @@
-<script lang="ts">
+<script lang="ts" generics="P extends Partial<PokemonData>">
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { resize } from "@/lib/services/assets";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
-
-	type Pokemon = { pokemon_id: number; form: number; alignment?: number }
+	import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 
 	let {
 		pokemonList,
 		selected,
-		onselect
+		onselect,
+		getKey = (pokemon: P) => `${pokemon.pokemon_id}-${pokemon.form}`
 	}: {
-		pokemonList: Pokemon[]
-		selected: Pokemon[]
-		onselect: (pokemon: Pokemon, isSelected: boolean) => void
+		pokemonList: P[]
+		selected: P[]
+		onselect: (pokemon: P, isSelected: boolean) => void,
+		getKey?: (pokemon: P) => string
 	} = $props();
 
 	// TODO: style pokemon select better
 	const isCompact = false;
 
-	function pokemonValue(pokemon: Pokemon) {
-		return `${pokemon.pokemon_id}-${pokemon.form}`;
-	}
-
-	let selectedValues = $derived(selected.map(p => pokemonValue(p)) ?? []);
+	let selectedValues = $derived(selected.map(p => getKey(p)) ?? []);
 </script>
 
-{#each pokemonList as pokemon (`${pokemon.pokemon_id}-${pokemon.form}`)}
+{#each pokemonList as pokemon (getKey(pokemon))}
 	<LongSelectItem
-		isSelected={selectedValues.includes(pokemonValue(pokemon))}
+		isSelected={selectedValues.includes(getKey(pokemon))}
 		onselect={(isSelected) => {
 			onselect(pokemon, isSelected)
 		}}

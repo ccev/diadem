@@ -34,10 +34,11 @@
 	<div class="font-semibold text-left py-2">
 		{label}
 	</div>
+	<div class="flex w-full items-center justify-between">
+		<div class="ml-1 flex gap-1 overflow-x-hidden">
+			{@render children?.()}
+		</div>
 
-	<div class="ml-1 flex gap-1 overflow-x-hidden">
-		{@render children?.()}
+		<ChevronRight size="18" />
 	</div>
-
-	<ChevronRight size="18" />
 </Button>

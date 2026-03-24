@@ -28,6 +28,6 @@
 	<Switch
 		checked={value}
 		aria-hidden="true"
-		tabindex="-1"
+		tabindex={-1}
 	/>
 </Button>

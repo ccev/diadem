@@ -1,19 +1,20 @@
-import type { StationData } from '@/lib/types/mapObjectData/station';
-import { mPokemon } from '@/lib/services/ingameLocale';
-import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
-import * as m from '@/lib/paraglide/messages';
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import { mPokemon } from "@/lib/services/ingameLocale";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import * as m from "@/lib/paraglide/messages";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { FilterNest, FilterStation } from "@/lib/features/filters/filters";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveNestFilter } from "@/lib/utils/nestUtils";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 export const STATION_SLOTS = 40;
 
 export function getStationTitle(data: StationData) {
-	if (data.battle_pokemon_id) return mPokemon(getStationPokemon(data))
-	return data.name ?? m.pogo_station()
+	if (data.battle_pokemon_id) return mPokemon(getStationPokemon(data));
+	return data.name ?? m.pogo_station();
 }
 
 export function getStationPokemon(data: StationData): Partial<PokemonData> {
@@ -35,7 +36,7 @@ export function getDefaultStationFilter() {
 		...defaultFilter(),
 		stationPlain: { category: "stationPlain", ...defaultFilter() },
 		maxBattle: { category: "maxBattle", ...defaultFilter() }
-	} as FilterStation
+	} as FilterStation;
 }
 
 export function getActiveStationFilter() {
@@ -51,18 +52,30 @@ export function shouldDisplayStation(station: StationData) {
 
 	const stationFilter = getActiveStationFilter();
 	if (!stationFilter.enabled) return false;
-	if (stationFilter.stationPlain.enabled) return true
+	if (stationFilter.stationPlain.enabled) return true;
 
 	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
 	if (maxBattleFilters.length === 0) return true;
 
 	for (const filterset of maxBattleFilters) {
+		if (filterset.bosses === undefined && !filterset.isActive && !filterset.hasGmax) {
+			return true;
+		}
+
+		if (filterset.isActive) {
+			const isActive = (!station.is_inactive) && (station.start_time ?? 0) < currentTimestamp() && (station.end_time ?? 0) > currentTimestamp();
+			if (!isActive) continue;
+		}
+
+		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
+
 		if (
 			filterset.bosses !== undefined &&
 			filterset.bosses.find(
-				(p) => p.pokemon_id === station.battle_pokemon_id
-					&& p.form === station.battle_pokemon_form
-					&& p.bread_mode === station.battle_pokemon_bread_mode
+				(p) =>
+					p.pokemon_id === station.battle_pokemon_id &&
+					p.form === station.battle_pokemon_form &&
+					(p.bread_mode === undefined || p.bread_mode === station.battle_pokemon_bread_mode)
 			)
 		) {
 			return true;

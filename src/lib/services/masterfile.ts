@@ -72,11 +72,11 @@ export function getSpawnablePokemon(
 		if (pokemon.mythical || pokemon.ultraBeast) continue;
 
 		const pokemonId = Number(strPokemonId);
-		const defaultForm = pokemon.defaultFormId ?? 0;
+		// const defaultForm = pokemon.defaultFormId ?? 0;
 
 		if (!pokemon.unreleased && !blacklistBasePokemon.includes(pokemonId)) {
-			if (!onlyActive || getPokemonStats(pokemonId, defaultForm)?.entry) {
-				allPokemon.push({ pokemon_id: pokemonId, form: defaultForm });
+			if (!onlyActive || getPokemonStats(pokemonId, 0)?.entry) {
+				allPokemon.push({ pokemon_id: pokemonId, form: 0 });
 			}
 		}
 
@@ -87,11 +87,11 @@ export function getSpawnablePokemon(
 			const formId = Number(formIdRaw);
 			if (
 				form.name !== "Normal" &&
+				form.name !== "Unset" &&
 				!form.name.includes("Costume") &&
 				!form.name.includes("20") && // gets rid of year-specific forms
 				!(form.isCostume ?? false) &&
 				!form.unreleased &&
-				formId !== defaultForm &&
 				(!onlyActive || getPokemonStats(pokemonId, formId)?.entry)
 			) {
 				allPokemon.push({ pokemon_id: pokemonId, form: formId });

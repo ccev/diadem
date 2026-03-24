@@ -149,9 +149,12 @@ export function getIconGym(
 }
 
 export function getIconStation(
-	data: Partial<StationData>,
+	data: Partial<StationData> | boolean,
 	iconSet: string = getUserSettings().uiconSet.station.id
 ) {
+	if (typeof data === "boolean") {
+		return iconSets[iconSet].station(data ?? false)
+	}
 	return iconSets[iconSet].station((data.start_time ?? 0) < currentTimestamp());
 }
 

@@ -27,13 +27,17 @@
 	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
 	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
 	import InvasionFilterset from "@/components/menus/filters/filterset/invasion/InvasionFilterset.svelte";
+	import MaxBattleFilterset from "@/components/menus/filters/filterset/maxBattle/MaxBattleFilterset.svelte";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import Card from "@/components/ui/Card.svelte";
 	import { Search } from "lucide-svelte";
 	import { isOpenModal } from "@/lib/ui/modal.svelte.js";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
 	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
-	import { getIsCoverageMapActive, showCoverageMapTitle } from "@/lib/features/coverageMap.svelte.js";
+	import {
+		getIsCoverageMapActive,
+		showCoverageMapTitle
+	} from "@/lib/features/coverageMap.svelte.js";
 	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
 	import { fly } from "svelte/transition";
 	import { isOnMap } from "@/lib/utils/getMapPath";
@@ -55,15 +59,13 @@
 {:else if !isWebglSupported()}
 	<ErrorPage
 		error={m.error_webgl_unavailable()}
-		description={isWebglSupported() === null ? m.webgl_disabled_error() : m.webgl_unsupported_error()}
+		description={isWebglSupported() === null
+			? m.webgl_disabled_error()
+			: m.webgl_unsupported_error()}
 		href={errorHref}
 	/>
 {:else if hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES) && isSupportedFeature("showFullscreenLogin")}
-	<ErrorPage
-		error={m.discord_block_title()}
-		description={m.discord_block_desc()}
-		href={errorHref}
-	>
+	<ErrorPage error={m.discord_block_title()} description={m.discord_block_desc()} href={errorHref}>
 		{#snippet extraButtons()}
 			<Button href="/login/discord" tag="a">
 				<DiscordIcon class="fill-primary-foreground w-3.5 shrink-0" />
@@ -76,13 +78,12 @@
 	<QuestFilterset />
 	<RaidFilterset />
 	<InvasionFilterset />
+	<MaxBattleFilterset />
 
 	<ContextMenu />
 
 	{#if isSearchViewActive()}
-		<div
-			class="fixed z-10 top-2 px-2 w-full pointer-events-none"
-		>
+		<div class="fixed z-10 top-2 px-2 w-full pointer-events-none">
 			<ActiveSearchView />
 		</div>
 	{/if}
@@ -90,9 +91,7 @@
 	<WeatherOverview />
 
 	{#if isMenuSidebar()}
-		<div
-			class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full"
-		>
+		<div class="fixed z-10 bottom-2 w-full flex pointer-events-none items-end h-full">
 			<div
 				class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88"
 			>
@@ -131,10 +130,7 @@
 		</div>
 
 		{#if showCoverageMapTitle()}
-			<div
-				class="fixed top-2 z-20 w-full px-2"
-				transition:fly={{ duration: 90, y: -14 }}
-			>
+			<div class="fixed top-2 z-20 w-full px-2" transition:fly={{ duration: 90, y: -14 }}>
 				<CoverageMapTitle />
 			</div>
 		{/if}
@@ -142,5 +138,3 @@
 
 	<Map />
 {/if}
-
-

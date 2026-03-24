@@ -1,7 +1,11 @@
 import { closeModal, type ModalType, openModal } from "@/lib/ui/modal.svelte";
 import type { AnyFilterset, BaseFilterset } from "@/lib/features/filters/filtersets";
 import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
-import { getUserSettings, updateUserSettings, type UserSettings } from "@/lib/services/userSettings.svelte";
+import {
+	getUserSettings,
+	updateUserSettings,
+	type UserSettings
+} from "@/lib/services/userSettings.svelte";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { FiltersetPokemonSchema } from "@/lib/features/filters/filtersetSchemas";
 import { getId } from "@/lib/utils/uuid";
@@ -11,14 +15,14 @@ import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 type DataGeneric<M extends keyof UserSettings["filters"]> = {
-	majorCategory: M
+	majorCategory: M;
 	subCategory: keyof UserSettings["filters"][M] | undefined;
 	selectedAttribute: AnyFilterset | undefined;
 	inEdit: boolean;
 	isShared: boolean;
 	data: AnyFilterset;
-}
-export type SelectedFiltersetData = DataGeneric<keyof UserSettings["filters"]>
+};
+export type SelectedFiltersetData = DataGeneric<keyof UserSettings["filters"]>;
 
 let filtersetPageData: SelectedFiltersetData | undefined = $state(undefined);
 
@@ -30,7 +34,14 @@ export function setCurrentSelectedFilterset(
 	isShared: boolean = false
 ) {
 	// @ts-ignore my IDE doesn't allow the correct subCategory as defined in DataGeneric here, so this is easier with autocomplete
-	filtersetPageData = { majorCategory, subCategory, data, inEdit, isShared, selectedAttribute: undefined };
+	filtersetPageData = {
+		majorCategory,
+		subCategory,
+		data,
+		inEdit,
+		isShared,
+		selectedAttribute: undefined
+	};
 }
 
 export function resetCurrentSelectedFilterset() {
@@ -42,29 +53,27 @@ export function getCurrentSelectedFilterset() {
 }
 
 function getFilter<Filterset extends AnyFilter>(): Filterset | undefined {
-	const selectedFilterset = getCurrentSelectedFilterset()
-	if (!selectedFilterset) return
+	const selectedFilterset = getCurrentSelectedFilterset();
+	if (!selectedFilterset) return;
 
-	const majorFilterset = getUserSettings().filters[selectedFilterset.majorCategory]
+	const majorFilterset = getUserSettings().filters[selectedFilterset.majorCategory];
 	if (selectedFilterset.subCategory) {
 		// @ts-ignore
-		return majorFilterset[selectedFilterset.subCategory] as Filterset
+		return majorFilterset[selectedFilterset.subCategory] as Filterset;
 	}
 	// @ts-ignore
-	return majorFilterset as Filterset
+	return majorFilterset as Filterset;
 }
 
 export function existsCurrentSelectedFilterset() {
-	return getFilter()?.filters.some(
-		(f) => f.id === getCurrentSelectedFilterset()?.data.id
-	) ?? false;
+	return getFilter()?.filters.some((f) => f.id === getCurrentSelectedFilterset()?.data.id) ?? false;
 }
 
 export function getCurrentSelectedFiltersetIsEmpty() {
-	const filterset = getCurrentSelectedFilterset()
-	if (!filterset) return true
+	const filterset = getCurrentSelectedFilterset();
+	if (!filterset) return true;
 
-	return Object.keys(filterset.data).length <= Object.keys(getNewFilterset()).length
+	return Object.keys(filterset.data).length <= Object.keys(getNewFilterset()).length;
 }
 
 export function getCurrentSelectedFiltersetInEdit() {
@@ -76,38 +85,34 @@ export function getCurrentSelectedFiltersetIsShared() {
 }
 
 export function saveSelectedFilterset(mapObject: MapObjectType) {
-	const filterset = filtersetPageData?.data
-	if (!filterset) return
-	const filter = getFilter()
-	if (!filter) return
+	const filterset = filtersetPageData?.data;
+	if (!filterset) return;
+	const filter = getFilter();
+	if (!filter) return;
 
 	const exists = filter.filters.some((f) => f.id === filterset.id) ?? false;
 	if (exists) {
-		filter.filters = filter.filters.map((f) =>
-			f.id === filterset.id ? filterset : f
-		);
+		filter.filters = filter.filters.map((f) => (f.id === filterset.id ? filterset : f));
 	} else {
 		// @ts-ignore
-		filter.filters.push(filterset)
+		filter.filters.push(filterset);
 	}
 
 	updateUserSettings();
-	deleteAllFeaturesOfType(mapObject)
+	deleteAllFeaturesOfType(mapObject);
 	updateAllMapObjects().then();
 }
 
 export function deleteCurrentSelectedFilterset(mapObject: MapObjectType) {
-	const filterset = filtersetPageData?.data
-	if (!filterset) return
-	const filter = getFilter()
-	if (!filter) return
+	const filterset = filtersetPageData?.data;
+	if (!filterset) return;
+	const filter = getFilter();
+	if (!filter) return;
 
-	filter.filters = filter.filters.filter(
-		(f) => f.id !== filterset.id
-	);
+	filter.filters = filter.filters.filter((f) => f.id !== filterset.id);
 
 	updateUserSettings();
-	deleteAllFeaturesOfType(mapObject)
+	deleteAllFeaturesOfType(mapObject);
 	updateAllMapObjects().then();
 }
 
@@ -131,15 +136,16 @@ export function saveCurrentSelectedAttribute() {
 }
 
 export function updateDetailsCurrentSelectedFilterset() {
-	const filterset = getCurrentSelectedFilterset()
-	if (filterset) generateFilterDetails(filterset.majorCategory, filterset.subCategory, filterset.data)
+	const filterset = getCurrentSelectedFilterset();
+	if (filterset)
+		generateFilterDetails(filterset.majorCategory, filterset.subCategory, filterset.data);
 }
 
 export function toggleFilterset(filterset: AnyFilterset, mapObject: MapObjectType) {
-	filterset.enabled = !filterset.enabled
+	filterset.enabled = !filterset.enabled;
 
 	updateUserSettings();
-	deleteAllFeaturesOfType(mapObject)
+	deleteAllFeaturesOfType(mapObject);
 	updateAllMapObjects().then();
 }
 
@@ -168,18 +174,20 @@ export function getCurrentSelectedFiltersetEncoded() {
 }
 
 export function openFiltersetModal() {
-	const filterset = getCurrentSelectedFilterset()
-	if (!filterset) return
+	const filterset = getCurrentSelectedFilterset();
+	if (!filterset) return;
 
-	const { majorCategory, subCategory } = filterset
+	const { majorCategory, subCategory } = filterset;
 
 	if (majorCategory === "pokemon") {
-		openModal("filtersetPokemon")
+		openModal("filtersetPokemon");
 	} else if (majorCategory === "pokestop" && subCategory === "quest") {
-		openModal("filtersetQuest")
+		openModal("filtersetQuest");
 	} else if (majorCategory === "gym" && subCategory === "raid") {
-		openModal("filtersetRaid")
+		openModal("filtersetRaid");
 	} else if (majorCategory === "pokestop" && subCategory === "invasion") {
-		openModal("filtersetInvasion")
+		openModal("filtersetInvasion");
+	} else if (majorCategory === "station" && subCategory === "maxBattle") {
+		openModal("filtersetMaxBattle");
 	}
 }

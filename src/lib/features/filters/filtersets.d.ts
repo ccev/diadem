@@ -38,7 +38,7 @@ export type BaseFilterset = {
 		emoji?: string;
 		uicon?: {
 			category: IconCategory;
-			params: { [key: string]: any };
+			params: { [key: string]: any } | any;
 		};
 	};
 };
@@ -125,7 +125,7 @@ export type FiltersetRaid = BaseFilterset & {
 
 export type FiltersetStationPlain = BaseFilterset & {};
 
-type BreadModePokemon = Pokemon & { bread_mode: number }
+type BreadModePokemon = Pokemon & { bread_mode: number | undefined }
 
 export type FiltersetMaxBattle = BaseFilterset & {
 	levels?: number[];

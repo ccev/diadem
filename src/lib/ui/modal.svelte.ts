@@ -15,6 +15,7 @@ export type OpenModals = {
 	filtersetQuest: boolean;
 	filtersetInvasion: boolean;
 	filtersetRaid: boolean;
+	filtersetMaxBattle: boolean;
 };
 export type ModalType = keyof OpenModals;
 
@@ -26,10 +27,11 @@ let openModals: OpenModals = $state({
 	filtersetPlainPokestop: false,
 	filtersetQuest: false,
 	filtersetInvasion: false,
-	filtersetRaid: false
+	filtersetRaid: false,
+	filtersetMaxBattle: false
 });
 
-let selectOptions: Snippet | undefined = $state(undefined)
+let selectOptions: Snippet | undefined = $state(undefined);
 
 export function openModal(modal: ModalType) {
 	openModals[modal] = true;
@@ -37,13 +39,13 @@ export function openModal(modal: ModalType) {
 }
 
 export function openSelectModal(options: Snippet) {
-	selectOptions = options
-	openModal("select")
+	selectOptions = options;
+	openModal("select");
 }
 
 export function closeModal(modal: ModalType) {
 	openModals[modal] = false;
-	selectOptions = undefined
+	selectOptions = undefined;
 
 	if (!isAnyModalOpen()) {
 		resetUpdateMapObjectsInterval();
@@ -59,11 +61,11 @@ export function isAnyModalOpen() {
 }
 
 export function closeSearchModal() {
-	closeModal("search")
-	setCurrentSearchQuery("")
-	resetActiveSearchFilter()
+	closeModal("search");
+	setCurrentSearchQuery("");
+	resetActiveSearchFilter();
 }
 
 export function getSelectOptions() {
-	return selectOptions
+	return selectOptions;
 }

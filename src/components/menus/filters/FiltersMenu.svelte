@@ -33,7 +33,7 @@
 			{ title: m.lures(), category: "lure", filterable: false },
 			{ title: m.contests(), category: "contest", filterable: false },
 			{ title: m.kecleon(), category: "kecleon", filterable: false },
-			{ title: m.golden_pokestops(), category: "goldPokestop", filterable: false },
+			{ title: m.golden_pokestops(), category: "goldPokestop", filterable: false }
 		]}
 	/>
 
@@ -45,7 +45,7 @@
 		isFilterable={false}
 		subCategories={[
 			{ title: m.plain_gyms(), category: "gymPlain", filterable: false },
-			{ title: m.raids(), category: "raid", filterModal: "filtersetRaid" },
+			{ title: m.raids(), category: "raid", filterModal: "filtersetRaid" }
 		]}
 	/>
 
@@ -57,7 +57,7 @@
 		isFilterable={false}
 		subCategories={[
 			{ title: m.plain_stations(), category: "stationPlain", filterable: false },
-			{ title: m.max_battles(), category: "maxBattle", filterable: false },
+			{ title: m.max_battles(), category: "maxBattle", filterModal: "filtersetMaxBattle" }
 		]}
 	/>
 

@@ -1,4 +1,4 @@
-import { getIconInvasion, getIconItem, getIconLeague, getIconPokemon, getIconRaidEgg } from '@/lib/services/uicons.svelte';
+import { getIconInvasion, getIconItem, getIconLeague, getIconPokemon, getIconRaidEgg, getIconStation } from '@/lib/services/uicons.svelte';
 
 export enum IconCategory {
 	POKEMON = "pokemon",
@@ -36,6 +36,8 @@ export function getIcon(category: IconCategory, params: Params) {
 		return getIconLeague(params.league)
 	} else if (category === IconCategory.INVASION) {
 		return getIconInvasion(params.character, true)
+	} else if (category === IconCategory.STATION) {
+		return getIconStation(params)
 	}
 
 	return getIconPokemon({ pokemon_id: 0 })
