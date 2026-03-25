@@ -343,15 +343,26 @@ async function querySpawnpoints(bounds: Bounds, filter: FilterSpawnpoint | undef
 }
 
 async function queryRoutes(bounds: Bounds, filter: FilterRoute | undefined, polygon: Feature<Polygon | MultiPolygon> | null) {
-	const spatial = buildSpatialFilter(polygon, bounds);
+	let sql: string;
+	let values: any[];
+
+	if (polygon) {
+		const geom = JSON.stringify(polygon.geometry);
+		sql = "(ST_Contains(ST_GeomFromGeoJSON(?), Point(start_lon, start_lat)) OR ST_Contains(ST_GeomFromGeoJSON(?), Point(end_lon, end_lat)))";
+		values = [geom, geom];
+	} else {
+		sql = "((start_lat BETWEEN ? AND ? AND start_lon BETWEEN ? AND ?) OR (end_lat BETWEEN ? AND ? AND end_lon BETWEEN ? AND ?))";
+		values = [bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon, bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon];
+	}
+
 	const { error, result } = await query<RouteData[]>(
-		"SELECT  " +
+		"SELECT " +
 			FIELDS_ROUTE +
 			" FROM route " +
-			"WHERE " + spatial.sql + " " +
+			"WHERE " + sql + " " +
 			"LIMIT " +
 			LIMIT_ROUTE,
-		spatial.values
+		values
 	);
 	return { error, result };
 }

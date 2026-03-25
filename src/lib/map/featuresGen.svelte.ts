@@ -37,6 +37,8 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { resize } from "@/lib/services/assets";
 import { geojson, s2 } from "s2js";
 import { shouldDisplayNest } from "@/lib/utils/nestUtils";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import { showRoutePaths, clearRoutePaths, getRouteAnchorFortId } from "@/lib/map/routePaths.svelte";
 
 export enum MapObjectFeatureType {
 	ICON = 0,
@@ -52,6 +54,8 @@ export type MapObjectIconProperties = {
 	selectedScale: number;
 	imageOffset?: number[];
 	expires: number | null;
+	routeCount?: number;
+	fortId?: string;
 };
 
 export type MapObjectPolygonProperties = {
@@ -89,6 +93,23 @@ type Features = {
 let features: Features = getEmptyFeatures();
 
 let selectedFeatures: MapObjectFeature[] = [];
+
+export type RouteLocationGroup = { lat: number; lon: number; routes: RouteData[] };
+// Keyed by fort_id — merges routes that start AND end at the same fort
+let routeFortGroups = new Map<string, RouteLocationGroup>();
+
+export function getRoutesAtFort(fortId: string): RouteData[] {
+	return routeFortGroups.get(fortId)?.routes ?? [];
+}
+
+export function getRouteFortGroupForRoute(route: RouteData): RouteLocationGroup | undefined {
+	// Check start fort first, then end fort
+	const startGroup = routeFortGroups.get(route.start_fort_id);
+	if (startGroup && startGroup.routes.includes(route)) return startGroup;
+	const endGroup = routeFortGroups.get(route.end_fort_id);
+	if (endGroup && endGroup.routes.includes(route)) return endGroup;
+	return undefined;
+}
 
 function getEmptyFeatures(): Features {
 	return allMapObjectTypes.reduce((acc, val) => {
@@ -226,6 +247,15 @@ export function updateSelected(currentSelected: MapData | null) {
 		}
 
 		selectedFeatures = thisFeatures;
+
+		if (currentSelected.type === MapObjectType.ROUTE) {
+			const route = currentSelected as RouteData;
+			const fortId = getRouteAnchorFortId();
+			const group = fortId ? routeFortGroups.get(fortId) : getRouteFortGroupForRoute(route);
+			showRoutePaths(group?.routes ?? [route], route.mapId);
+		}
+	} else {
+		clearRoutePaths();
 	}
 
 	updateMapObjectsGeoJson(getFlattenedFeatures());
@@ -250,6 +280,37 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const selectedMapId = getCurrentSelectedData()?.mapId ?? "";
 	// const allCurrentMapIds = Object.keys(mapObjects);
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
+
+	// Group routes by fort — a fort can be both a start and end location
+	routeFortGroups = new Map<string, RouteLocationGroup>();
+	for (const obj of Object.values(mapObjects)) {
+		if (obj.type !== MapObjectType.ROUTE) continue;
+		const route = obj as RouteData;
+
+		if (!routeFortGroups.has(route.start_fort_id)) {
+			routeFortGroups.set(route.start_fort_id, {
+				lat: route.start_lat, lon: route.start_lon, routes: []
+			});
+		}
+		const startGroup = routeFortGroups.get(route.start_fort_id)!;
+		if (!startGroup.routes.includes(route)) startGroup.routes.push(route);
+
+		if (route.reversible === 1) {
+			if (!routeFortGroups.has(route.end_fort_id)) {
+				routeFortGroups.set(route.end_fort_id, {
+					lat: route.end_lat, lon: route.end_lon, routes: []
+				});
+			}
+			const endGroup = routeFortGroups.get(route.end_fort_id)!;
+			if (!endGroup.routes.includes(route)) endGroup.routes.push(route);
+		}
+	}
+
+	// Track which forts already have an icon (to avoid duplicates from multiple routes)
+	const routeFortIconCreated = new Set<string>();
+
+	// Route icons depend on full group counts, so always regenerate them
+	features[MapObjectType.ROUTE] = {};
 
 	for (const [type, thisFeatures] of Object.entries(features)) {
 		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
@@ -528,6 +589,45 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				})
 			);
 		} else if (obj.type === MapObjectType.ROUTE) {
+			showThis = false;
+			const route = obj as RouteData;
+
+			// Create one icon per fort (first route to claim it wins)
+			if (!routeFortIconCreated.has(route.start_fort_id)) {
+				routeFortIconCreated.add(route.start_fort_id);
+				const group = routeFortGroups.get(route.start_fort_id)!;
+				const count = group.routes.length;
+				subFeatures.push(
+					getIconFeature(obj.mapId + "-start", [route.start_lon, route.start_lat], {
+						imageUrl: "/route_icon.svg",
+						id: obj.mapId,
+						imageSize: modifiers.scale,
+						selectedScale: selectedScale,
+						imageOffset: [0, 0],
+						expires: null,
+						fortId: route.start_fort_id,
+						...(count > 1 ? { routeCount: count } : {})
+					})
+				);
+			}
+
+			if (route.reversible === 1 && !routeFortIconCreated.has(route.end_fort_id)) {
+				routeFortIconCreated.add(route.end_fort_id);
+				const group = routeFortGroups.get(route.end_fort_id)!;
+				const count = group.routes.length;
+				subFeatures.push(
+					getIconFeature(obj.mapId + "-end", [route.end_lon, route.end_lat], {
+						imageUrl: "/route_icon.svg",
+						id: obj.mapId,
+						imageSize: modifiers.scale,
+						selectedScale: selectedScale,
+						imageOffset: [0, 0],
+						expires: null,
+						fortId: route.end_fort_id,
+						...(count > 1 ? { routeCount: count } : {})
+					})
+				);
+			}
 		} else if (obj.type === MapObjectType.TAPPABLE) {
 			if (obj.expire_timestamp && obj.expire_timestamp < timestamp) continue;
 			expires = obj.expire_timestamp;

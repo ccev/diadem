@@ -7,7 +7,8 @@ import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { getMap } from "@/lib/map/map.svelte";
-import { CoverageMapLayerId, MapObjectLayerId } from "@/lib/map/layers";
+import { CoverageMapLayerId, MapObjectLayerId, RoutePathLayerId } from "@/lib/map/layers";
+import { setRouteAnchorFortId } from "@/lib/map/routePaths.svelte";
 import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import {
 	type CoverageMapAreaProperties,
@@ -73,6 +74,18 @@ export function clickMapHandler(event: MapMouseEvent) {
 	} else if (getOpenedMenu() === Menu.SCOUT) {
 		setCurrentScoutCenter(Coords.infer(event.lngLat));
 	} else {
+		// Check route path lines first (keep existing anchor fort)
+		const routePathFeatures = map.queryRenderedFeatures(event.point, {
+			layers: [RoutePathLayerId.LINE]
+		})
+		if (routePathFeatures.length > 0) {
+			const mapId = routePathFeatures[0].properties?.mapId
+			if (mapId && getMapObjects()[mapId]) {
+				openPopup(getMapObjects()[mapId])
+				return
+			}
+		}
+
 		const features = map.queryRenderedFeatures(event.point, {
 			layers: Object.values(MapObjectLayerId)
 		})
@@ -81,6 +94,10 @@ export function clickMapHandler(event: MapMouseEvent) {
 		const feature = features[0] as MapObjectFeature
 
 		if (feature) {
+			// Set anchor fort when clicking a route icon
+			if ('fortId' in feature.properties && feature.properties.fortId) {
+				setRouteAnchorFortId(feature.properties.fortId as string)
+			}
 			openPopup(getMapObjects()[feature.properties.id])
 		} else {
 			closeMenu()

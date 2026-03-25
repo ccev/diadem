@@ -36,7 +36,7 @@
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
-	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
+	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId, RoutePathLayerId } from "@/lib/map/layers";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
@@ -182,6 +182,25 @@
 	/>
 
 	<GeoJSON
+		id={MapSourceId.ROUTE_PATHS}
+		data={{
+			type: 'FeatureCollection',
+			features: []
+		}}
+	>
+		<LineLayer
+			id={RoutePathLayerId.LINE}
+			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+			paint={{
+				'line-color': ['case', ['get', 'isSelected'], '#FF6600', '#888888'],
+				'line-width': ['case', ['get', 'isSelected'], 4, 2],
+				'line-opacity': ['case', ['get', 'isSelected'], 0.9, 0.4]
+			}}
+			hoverCursor="pointer"
+		/>
+	</GeoJSON>
+
+	<GeoJSON
 		id={MapSourceId.MAP_OBJECTS}
 		data={{
 			type: 'FeatureCollection',
@@ -237,7 +256,17 @@
 					getUserSettings().mapIconSize
 				],
 				"icon-allow-overlap": true,
-				"icon-offset": ["get", "imageOffset"]
+				"icon-offset": ["get", "imageOffset"],
+				"text-field": ["case", ["has", "routeCount"], ["to-string", ["get", "routeCount"]], ""],
+				"text-offset": [0, 1.5],
+				"text-size": 12,
+				"text-allow-overlap": true,
+				"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]
+			}}
+			paint={{
+				"text-color": "#ffffff",
+				"text-halo-color": "#000000",
+				"text-halo-width": 1.5
 			}}
 			eventsIfTopMost={true}
 		/>

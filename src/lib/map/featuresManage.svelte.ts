@@ -41,6 +41,19 @@ export function getMapObjectsGeoJson() {
 	return mapObjectsGeoJson;
 }
 
+async function loadSvgImage(url: string): Promise<HTMLImageElement> {
+	const response = await fetch(url);
+	const svgText = await response.text();
+	const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgText);
+	const img = new Image();
+	img.src = dataUrl;
+	await new Promise<void>((resolve, reject) => {
+		img.onload = () => resolve();
+		img.onerror = reject;
+	});
+	return img;
+}
+
 async function addMapImage(url: string) {
 	const map = getMap();
 	if (!map) return;
@@ -50,8 +63,12 @@ async function addMapImage(url: string) {
 
 	let imageData = getLoadedImages()[url];
 	if (!imageData) {
-		const image = await map.loadImage(url);
-		imageData = image.data;
+		if (url.includes(".svg")) {
+			imageData = await loadSvgImage(url);
+		} else {
+			const image = await map.loadImage(url);
+			imageData = image.data;
+		}
 		setLoadedImage(url, imageData);
 	}
 
