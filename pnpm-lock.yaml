@@ -13,6 +13,9 @@ importers:
 
   .:
     dependencies:
+      '@fragaria/address-formatter':
+        specifier: ^6.7.1
+        version: 6.7.1
       '@inlang/paraglide-js':
         specifier: ^2.6.0
         version: 2.6.0
@@ -834,6 +837,10 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@fragaria/address-formatter@6.7.1':
+    resolution: {integrity: sha512-ttCuFClh1dlZTljgkGvwGdUDHlq3WsfHi6S641uzjAY0S4NOrYksECqKW6J1JFbBhBcQRs+DO7ujA49A2sVA/Q==}
+    engines: {node: '>=20.0.0'}
 
   '@img/colour@1.0.0':
     resolution: {integrity: sha512-A5P/LfWGFSl6nsckYtjw9da+19jB8hkJ6ACTGcDfEJ0aE+l2n2El7dsVM7UVHZQ9s2lmYMWlrS21YLy2IR1LUw==}
@@ -3904,6 +3911,10 @@ snapshots:
       '@floating-ui/utils': 0.2.11
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@fragaria/address-formatter@6.7.1':
+    dependencies:
+      mustache: 4.2.0
 
   '@img/colour@1.0.0': {}
 

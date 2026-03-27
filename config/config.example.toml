@@ -21,8 +21,11 @@ secret = "secret"
 projectName = "reactmap"
 
 # For address search, both Pelias and Nominatim are supported.
-# Using Pelias over Nominatim is highly recommended. Refer to the readme for more info.
-#
+# Using Photon is highly recommended. Refer to the readme for more info.
+
+#[server.photon]
+#url = "https://photon.komoot.io/"  # You can use their public api, but consider self-hosting; it's pretty easy
+
 #[server.pelias]
 #url = "https://api.geocode.earth/"
 #apiKey = "key"

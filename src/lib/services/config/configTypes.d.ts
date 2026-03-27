@@ -159,6 +159,10 @@ export type ServerConfig = {
 		apiKey?: string;
 		basicAuth?: string;
 	};
+	photon?: {
+		url: string;
+		basicAuth?: string;
+	};
 	log: Log;
 	internalDb: DbCreds;
 	auth: Auth;

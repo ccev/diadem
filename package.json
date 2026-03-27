@@ -33,6 +33,7 @@
 		"vite": "^8.0.0"
 	},
 	"dependencies": {
+		"@fragaria/address-formatter": "^6.7.1",
 		"@inlang/paraglide-js": "^2.6.0",
 		"@isaacs/ttlcache": "^1.4.1",
 		"@node-rs/argon2": "^2.0.2",
