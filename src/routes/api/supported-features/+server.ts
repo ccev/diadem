@@ -8,7 +8,8 @@ export async function GET({ locals }) {
 		koji: !!config.koji && !!config.koji.url,
 		geocoding:
 			(!!config.nominatim && !!config.nominatim.url)
-			|| (!!config.pelias && !!config.pelias.url),
+			|| (!!config.pelias && !!config.pelias.url)
+			|| (!!config.photon && !!config.photon.url),
 		auth: !!config.auth?.enabled,
 		authRequired: isAuthRequired(),
 		showFullscreenLogin: isAuthRequired() && !locals.user

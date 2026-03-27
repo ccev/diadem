@@ -142,7 +142,7 @@ async function photonSearchAddress(
 
 			return {
 				name: label,
-				id: p.osm_id,
+				id: p.osm_id.toString(),
 				center: f.geometry.coordinates,
 				bbox: p.extent
 			};
