@@ -22,6 +22,8 @@ import { setConfig } from "@/lib/services/config/config";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
 import { locales, serverAsyncLocalStorage, setLocale } from "@/lib/paraglide/runtime";
 
+process.title = "Diadem"
+
 const paraglideHandle: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
 		event.request = localizedRequest;
