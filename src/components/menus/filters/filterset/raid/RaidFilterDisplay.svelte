@@ -1,30 +1,20 @@
 <script lang="ts">
 	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
-	import Seperator from "@/components/ui/Seperator.svelte";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
 	import HorizontalScrollDisplay from "@/components/menus/filters/filterset/display/HorizontalScrollDisplay.svelte";
 	import HorizontalScrollElement from "@/components/menus/filters/filterset/display/HorizontalScrollElement.svelte";
 	import { resize } from "@/lib/services/assets";
-	import { getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte";
+	import { getIconRaidEgg } from "@/lib/services/uicons.svelte";
 	import { mRaid } from "@/lib/services/ingameLocale";
 	import { makeAttributeRaidShowLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import * as m from "@/lib/paraglide/messages";
-	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
-	import { RaidLevel } from "@/lib/utils/gymUtils";
-
 	let {
 		data
 	}: {
 		data: FiltersetRaid
 	} = $props();
-
-	let previewIconUrl = $derived.by(() => {
-		const boss = data.bosses?.[data.bosses.length - 1];
-		if (boss) return getIconPokemon({ pokemon_id: boss.pokemon_id, form: boss.form });
-		return getIconRaidEgg(data.levels?.[0] ?? RaidLevel.LEGENDARY);
-	});
 </script>
 
 <FilterDisplay>
@@ -51,10 +41,4 @@
 		{/each}
 	{/if}
 
-	{#if data.modifiers}
-		<Seperator text={m.modifier_visual()} />
-		<div class="w-full">
-			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
-		</div>
-	{/if}
 </FilterDisplay>

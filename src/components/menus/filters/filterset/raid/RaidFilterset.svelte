@@ -19,25 +19,11 @@
 	import RaidBossAttribute from "@/components/menus/filters/filterset/raid/RaidBossAttribute.svelte";
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
-	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
-	import { getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte";
-
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetRaid
 		| undefined;
 
 	let filterType: RaidFilterType = $derived(Object.hasOwn(data ?? {}, "bosses") ? "boss" : "level");
-
-	function getModifierPreviewIcon(filterset: FiltersetRaid) {
-		const bosses = filterset.bosses;
-		const boss = bosses?.[bosses.length - 1];
-		if (boss) {
-			return getIconPokemon({ pokemon_id: boss.pokemon_id, form: boss.form });
-		}
-
-		return getIconRaidEgg(filterset.levels?.[0] ?? RaidLevel.LEGENDARY);
-	}
 </script>
 
 <FiltersetModal
@@ -112,19 +98,6 @@
 				</AttributesOverview>
 			{/if}
 
-			<AttributesOverview>
-				<Attribute label={m.modifier_visual()}>
-					<ModifierPreview
-						modifiers={data.modifiers}
-						iconUrl={getModifierPreviewIcon(data)}
-						filterset={data}
-						compact
-					/>
-					{#snippet page(thisData: FiltersetRaid)}
-						<ModifiersAttribute data={thisData} iconUrl={getModifierPreviewIcon(thisData)} />
-					{/snippet}
-				</Attribute>
-			</AttributesOverview>
 		{/if}
 	{/snippet}
 </FiltersetModal>

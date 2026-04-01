@@ -13,8 +13,6 @@
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
-	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
 	let {
 		data

@@ -2,11 +2,10 @@
 	import { fly } from "svelte/transition";
 	import { getFiltersetPageTransition } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
-	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
+	import { filterTitle, getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { Snippet } from "svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import Seperator from "@/components/ui/Seperator.svelte";
 
@@ -19,12 +18,7 @@
 	let filterset = $derived(getCurrentSelectedFilterset());
 	let data = $derived(filterset?.data);
 
-	let previewIconUrl = $derived.by(() => {
-		const pokemon = data?.pokemon;
-		const selected = pokemon?.[pokemon.length - 1];
-		if (!selected) return undefined;
-		return getIconPokemon({ pokemon_id: selected.pokemon_id, form: selected.form });
-	});
+	let previewIconUrl = $derived(data ? getModifierPreviewIcon(data) : undefined);
 </script>
 
 <div

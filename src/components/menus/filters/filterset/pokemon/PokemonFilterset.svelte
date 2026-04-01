@@ -22,10 +22,6 @@
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import PokemonFilterDisplay from "@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import ModifiersAttribute from "@/components/menus/filters/filterset/modifiers/ModifiersAttribute.svelte";
-	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
-
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetPokemon
 		| undefined;
