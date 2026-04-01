@@ -19,7 +19,7 @@
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import ModifiersAttribute from "./modifiers/ModifiersAttribute.svelte";
 	import { type AnyFilterset, type FiltersetPokemon } from "@/lib/features/filters/filtersets";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
+	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
 	import AttributeChip from "./AttributeChip.svelte";
 
 	let {
@@ -30,15 +30,7 @@
 
 	let data = $state.snapshot(getCurrentSelectedFilterset()?.data);
 
-	let previewIconUrl = $derived.by(() => {
-		const pokemon = data?.pokemon;
-		const selected = pokemon?.[pokemon.length - 1];
-		if (!selected) return undefined;
-		return getIconPokemon({
-			pokemon_id: selected.pokemon_id,
-			form: selected.form
-		});
-	});
+	let previewIconUrl = $derived(data ? getModifierPreviewIcon(data) : undefined);
 </script>
 
 {#snippet editDetailsPage(thisData: AnyFilterset)}

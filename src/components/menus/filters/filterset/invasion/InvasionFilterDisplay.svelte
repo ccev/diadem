@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { FiltersetInvasion } from "@/lib/features/filters/filtersets";
-	import Seperator from "@/components/ui/Seperator.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
 	import HorizontalScrollDisplay from "@/components/menus/filters/filterset/display/HorizontalScrollDisplay.svelte";
@@ -9,21 +8,12 @@
 	import { getIconInvasion } from "@/lib/services/uicons.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
 	import * as m from "@/lib/paraglide/messages";
-	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 
 	let {
 		data
 	}: {
 		data: FiltersetInvasion;
 	} = $props();
-
-	let previewIconUrl = $derived.by(() => {
-		const reward = data.rewards?.[data.rewards.length - 1];
-		if (reward) return getIconPokemon({ pokemon_id: reward.pokemon_id, form: reward.form });
-		const character = data.characters?.[data.characters.length - 1];
-		return getIconInvasion(character ?? 4, true);
-	});
 </script>
 
 <FilterDisplay>
@@ -45,10 +35,4 @@
 		</HorizontalScrollDisplay>
 	{/if}
 
-	{#if data.modifiers}
-		<Seperator text={m.modifier_visual()} />
-		<div class="w-full">
-			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
-		</div>
-	{/if}
 </FilterDisplay>
