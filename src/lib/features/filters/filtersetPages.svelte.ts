@@ -7,19 +7,20 @@ import {
 	getNewFilterset,
 	saveCurrentSelectedAttribute,
 	saveSelectedFilterset,
-	setCurrentSelectedFilterset, updateDetailsCurrentSelectedFilterset
+	setCurrentSelectedFilterset,
+	updateDetailsCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
-import type { AnyFilterset } from '@/lib/features/filters/filtersets';
+import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type FiltersetPage = "base" | "new" | "overview" | "attribute";
-export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>
+export type FiltersetSnippet<T extends AnyFilterset> = Snippet<[T]>;
 type PageEvents = "newFilter" | "save" | "close" | "reset" | "editAttribute" | "edit" | "select";
 
-let isFilterPageBack = $state(false)
-let isFilterPageReset = $state(false)
-let hasSelectedSuggestedFilter = false
+let isFilterPageBack = $state(false);
+let isFilterPageReset = $state(false);
+let hasSelectedSuggestedFilter = false;
 
 let attributePageDetails: {
 	snippet?: FiltersetSnippet<AnyFilterset>;
@@ -35,20 +36,20 @@ let attributePageDetails: {
 });
 
 function pageBack(page: FiltersetPage) {
-	isFilterPageBack = true
-	return page
+	isFilterPageBack = true;
+	return page;
 }
 
 function pageForward(page: FiltersetPage) {
-	isFilterPageBack = false
-	return page
+	isFilterPageBack = false;
+	return page;
 }
 
 function resetPages() {
-	isFilterPageReset = true
-	hasSelectedSuggestedFilter = false
-	setTimeout(() => isFilterPageReset = false, 100)
-	return getCurrentSelectedFiltersetInEdit() ? "base" : "new"
+	isFilterPageReset = true;
+	hasSelectedSuggestedFilter = false;
+	setTimeout(() => (isFilterPageReset = false), 100);
+	return getCurrentSelectedFiltersetInEdit() ? "base" : "new";
 }
 
 const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
@@ -112,11 +113,11 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 		reset: resetPages,
 		close: () => {
 			if (attributePageDetails.previousDetails.length) {
-				console.log("depth 1")
-				const last = attributePageDetails.previousDetails.pop()
-				attributePageDetails.label = last?.label
-				attributePageDetails.snippet = last?.snippet
-				return pageBack("attribute")
+				console.log("depth 1");
+				const last = attributePageDetails.previousDetails.pop();
+				attributePageDetails.label = last?.label;
+				attributePageDetails.snippet = last?.snippet;
+				return pageBack("attribute");
 			}
 
 			return pageBack("overview");
@@ -138,49 +139,52 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 			attributePageDetails.previousDetails.push({
 				label: attributePageDetails.label,
 				snippet: attributePageDetails.snippet
-			})
-			return pageForward("attribute")
+			});
+			return pageForward("attribute");
 		}
 	}
 });
 
 export function filtersetPageReset() {
-	pageStates.send("reset")
+	pageStates.send("reset");
 }
 
 export function filtersetPageNew() {
-	pageStates.send("newFilter")
+	pageStates.send("newFilter");
 }
 
 export function filtersetPageEditAttribute() {
-	pageStates.send("editAttribute")
+	pageStates.send("editAttribute");
 }
 
 export function filtersetPageClose(modalType: ModalType) {
-	pageStates.send("close", modalType)
+	pageStates.send("close", modalType);
 }
 
 export function filtersetPageSave(modalType: ModalType, mapObject: MapObjectType) {
-	pageStates.send("save", modalType, mapObject)
+	pageStates.send("save", modalType, mapObject);
 }
 
 export function filtersetPageSaveSimple() {
-	pageStates.send("save")
+	pageStates.send("save");
 }
 
 export function filtersetPageEdit() {
-	pageStates.send("edit")
+	pageStates.send("edit");
 }
 
 export function filtersetPageSelect() {
-	pageStates.send("select")
+	pageStates.send("select");
 }
 
 export function getCurrentFiltersetPage() {
 	return pageStates.current;
 }
 
-export function setCurrentAttributePage<T extends AnyFilterset>(snippet: FiltersetSnippet<T>, label: string) {
+export function setCurrentAttributePage<T extends AnyFilterset>(
+	snippet: FiltersetSnippet<T>,
+	label: string
+) {
 	attributePageDetails = {
 		snippet: snippet as FiltersetSnippet<AnyFilterset>,
 		label,
@@ -193,9 +197,9 @@ export function getCurrentAttributePage() {
 }
 
 export function getFiltersetPageTransition() {
-	const duration = isFilterPageReset ? 0 : 100
+	const duration = isFilterPageReset ? 0 : 100;
 	return {
-		out: {duration, x: isFilterPageBack ? 80 : -80},
-		in: {duration, x: isFilterPageBack ? -80 : 80}
-	}
+		out: { duration, x: isFilterPageBack ? 80 : -80 },
+		in: { duration, x: isFilterPageBack ? -80 : 80 }
+	};
 }

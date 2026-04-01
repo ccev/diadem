@@ -7,13 +7,15 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import {
-		filtersetPageEditAttribute, getFiltersetPageTransition,
+		filtersetPageEditAttribute,
+		getFiltersetPageTransition,
 		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { Pencil } from "lucide-svelte";
 	import IconPicker from "@/components/menus/filters/filterset/iconpicker/IconPicker.svelte";
-	import {fly} from "svelte/transition";
+	import { fly } from "svelte/transition";
+	import PageAttribute from "./PageAttribute.svelte";
 
 	let {
 		data
@@ -22,7 +24,7 @@
 	} = $props();
 
 	function openIconPicker() {
-		filtersetPageEditAttribute()
+		filtersetPageEditAttribute();
 		setCurrentAttributePage(iconPickerPage, m.details());
 	}
 </script>
@@ -31,11 +33,7 @@
 	<IconPicker data={thisData} />
 {/snippet}
 
-<div
-	class="w-full absolute top-0"
-	in:fly={getFiltersetPageTransition().in}
-	out:fly={getFiltersetPageTransition().out}
->
+<div>
 	<MenuTitle title={m.filter_icon()} />
 	<div class="flex justify-center">
 		<div class="relative">
@@ -60,7 +58,7 @@
 		title={m.filter_name()}
 		value={filterTitle($state.snapshot(data))}
 		onchange={(e) => {
-		data.title.title = e.target?.value ?? "";
-	}}
+			data.title.title = e.target?.value ?? "";
+		}}
 	/>
 </div>

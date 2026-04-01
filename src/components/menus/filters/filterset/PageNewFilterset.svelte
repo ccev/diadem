@@ -30,11 +30,7 @@
 	let premades = $derived(premadeFiltersets[majorCategory] ?? premadeFiltersets[subCategory] ?? []);
 </script>
 
-<div
-	class="w-full absolute top-0 pb-20 h-full"
-	in:fly={getFiltersetPageTransition().in}
-	out:fly={getFiltersetPageTransition().out}
->
+<div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
 	<Button variant="secondary" size="lg" class="w-full" onclick={filtersetPageNew}>
 		<CirclePlus size="18" />
 		<span>
@@ -50,7 +46,7 @@
 		<div class="bg-border h-px w-full"></div>
 	</div>
 
-	<div class="overflow-y-auto h-full -mx-4 px-4">
+	<div class="h-full -mx-4 px-4">
 		<div class="flex flex-col gap-1">
 			{#each premades as filterset}
 				<Button

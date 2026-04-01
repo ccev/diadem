@@ -11,10 +11,7 @@
 	} = $props();
 </script>
 
-<div
-	class="grid w-full justify-start"
-	style:grid-template-columns="repeat(auto-fill, minmax(2.25rem, 1fr))"
->
+<div class="grid" style:grid-template-columns="repeat(auto-fill, minmax(2.25rem, 1fr))">
 	{#each items as item (item.key)}
 		<button
 			class="rounded-sm cursor-pointer hover:bg-accent active:bg-accent size-9 text-center"

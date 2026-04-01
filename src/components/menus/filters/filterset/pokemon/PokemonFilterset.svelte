@@ -29,16 +29,6 @@
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetPokemon
 		| undefined;
-
-	let previewIconUrl = $derived.by(() => {
-		const pokemon = data?.pokemon;
-		const selected = pokemon?.[pokemon.length - 1];
-		if (!selected) return undefined;
-		return getIconPokemon({
-			pokemon_id: selected.pokemon_id,
-			form: selected.form
-		});
-	});
 </script>
 
 <FiltersetModal
@@ -213,15 +203,6 @@
 									max
 								)}
 						/>
-					{/snippet}
-				</Attribute>
-			</AttributesOverview>
-
-			<AttributesOverview>
-				<Attribute label={m.modifier_visual()}>
-					<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} compact />
-					{#snippet page(thisData: FiltersetPokemon)}
-						<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} />
 					{/snippet}
 				</Attribute>
 			</AttributesOverview>

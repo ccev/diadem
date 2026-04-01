@@ -3,7 +3,8 @@
 	import { IconCategory } from "@/lib/features/filters/icons";
 	import {
 		filtersetPageSave,
-		filtersetPageSaveSimple, getFiltersetPageTransition
+		filtersetPageSaveSimple,
+		getFiltersetPageTransition
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import Tabs from "@/components/ui/input/Tabs.svelte";
 	import IconGrid from "./IconGrid.svelte";
@@ -13,11 +14,12 @@
 		PICKER_TABS,
 		getAllIconsByTab,
 		getAllSearchableEmojis,
-		isValidSingleEmoji,
+		isValidSingleEmoji
 	} from "./iconPickerData";
 	import * as m from "@/lib/paraglide/messages";
-	import {fly} from "svelte/transition";
+	import { fly } from "svelte/transition";
 	import { mAny } from "@/lib/utils/anyMessage";
+	import PageAttribute from "../PageAttribute.svelte";
 
 	let {
 		data
@@ -80,30 +82,25 @@
 			data.icon = { isUserSelected: true, uicon: { category: item.category, params: item.params } };
 			delete data.icon.emoji;
 		}
-		filtersetPageSaveSimple()
+		filtersetPageSaveSimple();
 	}
 </script>
 
-<div
-	class="w-full absolute top-0"
-	in:fly={getFiltersetPageTransition().in}
-	out:fly={getFiltersetPageTransition().out}
->
+<div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
 	<input
-		class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring w-full h-11 rounded-md border px-3 py-2 text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 mb-2"
+		class="mt-1 border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring w-full h-11 rounded-md border px-3 py-2 text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 mb-2"
 		type="search"
 		placeholder={m.icon_search_placeholder()}
 		value={searchQuery}
-		oninput={(e) => searchQuery = e.currentTarget.value}
+		oninput={(e) => (searchQuery = e.currentTarget.value)}
 	/>
 
 	{#if !searchQuery.trim()}
 		<Tabs
-			tabs={PICKER_TABS.map(t => ({ value: t.id, label: mAny(t.labelKey) }))}
+			tabs={PICKER_TABS.map((t) => ({ value: t.id, label: mAny(t.labelKey) }))}
 			bind:value={activeTab}
 		/>
 	{/if}
 
 	<IconGrid items={displayItems} onselect={selectItem} />
 </div>
-
