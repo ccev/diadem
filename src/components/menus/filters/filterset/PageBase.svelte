@@ -6,6 +6,9 @@
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { Snippet } from "svelte";
 	import * as m from "@/lib/paraglide/messages";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte";
+	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
+	import Seperator from "@/components/ui/Seperator.svelte";
 
 	let {
 		base
@@ -13,7 +16,15 @@
 		base: Snippet;
 	} = $props();
 
-	const filterset = getCurrentSelectedFilterset();
+	let filterset = $derived(getCurrentSelectedFilterset());
+	let data = $derived(filterset?.data);
+
+	let previewIconUrl = $derived.by(() => {
+		const pokemon = data?.pokemon;
+		const selected = pokemon?.[pokemon.length - 1];
+		if (!selected) return undefined;
+		return getIconPokemon({ pokemon_id: selected.pokemon_id, form: selected.form });
+	});
 </script>
 
 <div
@@ -28,11 +39,14 @@
 		</span>
 	</div>
 
-	<div class="flex items-center gap-4 my-3">
-		<div class="bg-border h-px w-full"></div>
-		<span class="text-muted-foreground text-sm whitespace-nowrap">{m.filter_attributes()}</span>
-		<div class="bg-border h-px w-full"></div>
-	</div>
+	{#if data.modifiers}
+		<Seperator class="my-3" text="Map Preview" />
+		<div class="w-full">
+			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
+		</div>
+	{/if}
+
+	<Seperator class="my-3" text={m.filter_attributes()} />
 
 	{#if filterset?.data}
 		<div class="overflow-y-auto">

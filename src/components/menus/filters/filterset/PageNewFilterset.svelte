@@ -13,6 +13,7 @@
 	} from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
+	import Seperator from "@/components/ui/Seperator.svelte";
 	import { premadeFiltersets } from "@/lib/features/filters/premadeFiltersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getId } from "@/lib/utils/uuid";
@@ -38,13 +39,7 @@
 		</span>
 	</Button>
 
-	<div class="flex items-center gap-4 my-3">
-		<div class="bg-border h-px w-full"></div>
-		<span class="text-muted-foreground text-sm whitespace-nowrap">
-			{m.or_select_suggested_filter()}
-		</span>
-		<div class="bg-border h-px w-full"></div>
-	</div>
+	<Seperator class="my-3" text={m.or_select_suggested_filter()} />
 
 	<div class="h-full -mx-4 px-4">
 		<div class="flex flex-col gap-1">

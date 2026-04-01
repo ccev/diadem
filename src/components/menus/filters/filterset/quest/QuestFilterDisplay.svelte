@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
+	import Seperator from "@/components/ui/Seperator.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
 	import HorizontalScrollDisplay from "@/components/menus/filters/filterset/display/HorizontalScrollDisplay.svelte";
@@ -171,11 +172,7 @@
 	{/if}
 
 	{#if data.modifiers}
-		<div class="flex items-center gap-4 w-full">
-			<div class="bg-border h-px w-full"></div>
-			<span class="text-muted-foreground text-sm whitespace-nowrap">{m.modifier_visual()}</span>
-			<div class="bg-border h-px w-full"></div>
-		</div>
+		<Seperator text={m.modifier_visual()} />
 		<div class="w-full">
 			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
 		</div>
