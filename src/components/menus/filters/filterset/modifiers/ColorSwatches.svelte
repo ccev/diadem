@@ -10,17 +10,17 @@
 	} = $props();
 </script>
 
-<div class="flex flex-wrap gap-2">
-	{#each MODIFIER_COLORS as color}
+<div class="flex w-full justify-between gap-1 px-1 max-w-sm mt-1 mb-3">
+	{#each Object.values(MODIFIER_COLORS) as color}
+		<!-- <div class="bg-green-400 w-full aspect-square"></div> -->
 		<button
 			type="button"
-			class="size-7 rounded-full border-2 cursor-pointer shrink-0 transition-shadow"
+			class="aspect-square w-full max-w-8 rounded-full border-2 cursor-pointer transition-shadow"
 			class:ring-2={selected === color}
 			class:ring-primary={selected === color}
 			aria-label={`Select ${color}`}
 			title={color}
 			style:background-color={color}
-			style:border-color={color === "#eab308" ? "var(--color-amber-500)" : color}
 			onclick={() => onchange(color)}
 		></button>
 	{/each}

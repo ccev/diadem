@@ -40,6 +40,7 @@ export type FiltersetModifiers = {
 	background?: {
 		color: string;
 		opacity?: number;
+		radius?: number;
 	};
 	showBadge?: boolean;
 	showLabel?: string;
@@ -109,7 +110,7 @@ export type FiltersetInvasion = BaseFilterset & {
 };
 
 export type FiltersetLure = BaseFilterset & {
-	items: number[]
+	items: number[];
 };
 
 // this is only used for search and therefore very simplified
