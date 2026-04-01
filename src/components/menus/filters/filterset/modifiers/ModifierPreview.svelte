@@ -144,7 +144,7 @@
 	});
 </script>
 
-<div class="rounded-md border border-border overflow-hidden w-full h-44 {class_}">
+<div class="rounded-md border border-border overflow-hidden w-full h-40 {class_}">
 	{#key getUserSettings().mapStyle.id}
 		<MapLibre
 			bind:map

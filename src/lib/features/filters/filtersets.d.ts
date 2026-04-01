@@ -40,6 +40,7 @@ export type FiltersetModifiers = {
 	background?: {
 		color: string;
 		opacity?: number;
+		radius?: number;
 	};
 	showBadge?: boolean;
 	showLabel?: string;
@@ -93,7 +94,7 @@ export type FiltersetPokestopPlain = BaseFilterset & {
 export type FiltersetQuest = BaseFilterset & {
 	ar?: QuestArType;
 	rewardType?: RewardType;
-	tasks?: { title: string, target: number }[];
+	tasks?: { title: string; target: number }[];
 	pokemon?: Pokemon[];
 	item?: QuestReward[];
 	megaResource?: QuestReward[];
@@ -105,24 +106,24 @@ export type FiltersetQuest = BaseFilterset & {
 
 export type FiltersetInvasion = BaseFilterset & {
 	characters?: number[];
-	rewards?: Pokemon[]
+	rewards?: Pokemon[];
 };
 
 export type FiltersetLure = BaseFilterset & {
-	items: number[]
+	items: number[];
 };
 
 // this is only used for search and therefore very simplified
 export type FiltersetContest = BaseFilterset & {
 	rankingStandard: number;
 	focus: {
-		pokemon_id?: number,
-		form?: number,
-		type_id?: number
+		pokemon_id?: number;
+		form?: number;
+		type_id?: number;
 	};
 };
 
-export type FiltersetRoute = BaseFilterset & {}
+export type FiltersetRoute = BaseFilterset & {};
 
 export type FiltersetGymPlain = BaseFilterset & {
 	isSponsored?: boolean;
@@ -142,7 +143,7 @@ export type FiltersetRaid = BaseFilterset & {
 
 export type FiltersetStationPlain = BaseFilterset & {};
 
-type BreadModePokemon = Pokemon & { bread_mode: number | undefined }
+type BreadModePokemon = Pokemon & { bread_mode: number | undefined };
 
 export type FiltersetMaxBattle = BaseFilterset & {
 	levels?: number[];
@@ -153,8 +154,8 @@ export type FiltersetMaxBattle = BaseFilterset & {
 
 export type FiltersetNest = BaseFilterset & {
 	pokemon?: Pokemon[];
-}
+};
 
-export type FiltersetSpawnpoint = BaseFilterset & {}
+export type FiltersetSpawnpoint = BaseFilterset & {};
 
-export type FiltersetTappable = BaseFilterset & {}
+export type FiltersetTappable = BaseFilterset & {};
