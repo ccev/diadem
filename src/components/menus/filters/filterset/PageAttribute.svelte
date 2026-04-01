@@ -20,11 +20,7 @@
 	});
 </script>
 
-<div
-	class="w-full absolute top-0 pb-20 h-full overflow-y-auto"
-	in:fly={getFiltersetPageTransition().in}
-	out:fly={getFiltersetPageTransition().out}
->
+<div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
 	{#if getCurrentSelectedAttribute()}
 		{@render getCurrentAttributePage().snippet?.(getCurrentSelectedAttribute())}
 	{/if}

@@ -17,7 +17,7 @@
 </script>
 
 <div
-	class="w-full absolute top-0 h-full flex flex-col"
+	class="flex flex-col"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >

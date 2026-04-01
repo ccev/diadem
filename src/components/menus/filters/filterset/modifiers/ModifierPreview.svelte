@@ -23,24 +23,28 @@
 		modifiers = undefined,
 		iconUrl = undefined,
 		filterset = undefined,
-		compact = false
+		compact = false,
+		class: class_ = ""
 	}: {
 		modifiers?: FiltersetModifiers;
 		iconUrl?: string;
 		filterset?: AnyFilterset;
 		compact?: boolean;
+		class?: string;
 	} = $props();
 
 	let badgeIconUrl = $derived.by(() => {
 		if (!filterset?.icon) return undefined;
 		if (filterset.icon.uicon) {
-			return resize(getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params), { width: 64 });
+			return resize(getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params), {
+				width: 64
+			});
 		}
 		if (filterset.icon.emoji) return getEmojiImageUrl(filterset.icon.emoji);
 		return undefined;
 	});
 
-	const previewZoom = 18;
+	const previewZoom = 16;
 	const companionPokemon = [
 		{ pokemon_id: 1, form: 0 },
 		{ pokemon_id: 4, form: 0 },
@@ -97,9 +101,7 @@
 		return [currentCenter.lng, currentCenter.lat] as PreviewCenter;
 	});
 
-	let previewStyle = $derived(
-		getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))
-	);
+	let previewStyle = $derived(getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id)));
 
 	let companionLayout = $derived(getPokemonPreviewLayout());
 	let focusIconUrl = $derived.by(() => {
@@ -142,23 +144,14 @@
 	});
 </script>
 
-<div
-	class="rounded-md border border-border overflow-hidden"
-	class:h-14={compact}
-	class:w-20={compact}
-	class:shrink-0={compact}
-	class:h-44={!compact}
-	class:w-full={!compact}
->
+<div class="rounded-md border border-border overflow-hidden w-full h-44 {class_}">
 	{#key getUserSettings().mapStyle.id}
 		<MapLibre
 			bind:map
 			center={previewCenter}
 			zoom={previewZoom}
 			style={previewStyle}
-			filterLayers={(layer) =>
-				layer.type !== "symbol" || layer.id.startsWith("modifierPreview")
-			}
+			filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}
 			class="size-full"
 			attributionControl={false}
 			interactive={false}
@@ -173,11 +166,7 @@
 					layout={{
 						"icon-image": ["get", "imageUrl"],
 						"icon-overlap": "always",
-						"icon-size": [
-							"*",
-							["get", "imageSize"],
-							getUserSettings().mapIconSize
-						],
+						"icon-size": ["*", ["get", "imageSize"], getUserSettings().mapIconSize],
 						"icon-allow-overlap": true,
 						"icon-offset": ["get", "imageOffset"]
 					}}
@@ -189,11 +178,7 @@
 					layout={{
 						"icon-image": ["get", "imageUrl"],
 						"icon-overlap": "always",
-						"icon-size": [
-							"*",
-							["get", "imageSize"],
-							getUserSettings().mapIconSize
-						],
+						"icon-size": ["*", ["get", "imageSize"], getUserSettings().mapIconSize],
 						"icon-allow-overlap": true,
 						"icon-offset": ["get", "imageOffset"],
 						"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
@@ -217,11 +202,7 @@
 					layout={{
 						"icon-image": ["get", "imageUrl"],
 						"icon-overlap": "always",
-						"icon-size": [
-							"*",
-							["get", "imageSize"],
-							getUserSettings().mapIconSize
-						],
+						"icon-size": ["*", ["get", "imageSize"], getUserSettings().mapIconSize],
 						"icon-allow-overlap": true,
 						"icon-offset": ["get", "imageOffset"]
 					}}

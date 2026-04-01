@@ -47,12 +47,14 @@ type ModifierPreviewFeatureCollectionArgs = {
 };
 
 const companionPositions = [
-	{ bearing: 295, distanceMeters: 24 },
-	{ bearing: 80, distanceMeters: 22 },
-	{ bearing: 220, distanceMeters: 15 }
+	// { bearing: 295, distanceMeters: 1000 },
+	// { bearing: 80, distanceMeters: 800 },
+	// { bearing: 220, distanceMeters: 600 }
 ] as const;
 
-function getPreviewFeature(marker: PreviewMarker): Feature<Point, ModifierPreviewFeatureProperties> {
+function getPreviewFeature(
+	marker: PreviewMarker
+): Feature<Point, ModifierPreviewFeatureProperties> {
 	return {
 		type: "Feature",
 		geometry: {
@@ -74,8 +76,13 @@ function getPreviewFeature(marker: PreviewMarker): Feature<Point, ModifierPrevie
 	};
 }
 
-function getCompanionCoordinates(center: Point["coordinates"], bearing: number, distanceMeters: number) {
-	return destination(point(center), distanceMeters / 1000, bearing).geometry.coordinates as Point["coordinates"];
+function getCompanionCoordinates(
+	center: Point["coordinates"],
+	bearing: number,
+	distanceMeters: number
+) {
+	return destination(point(center), distanceMeters / 1000, bearing).geometry
+		.coordinates as Point["coordinates"];
 }
 
 export function buildModifierPreviewFeatureCollection({
@@ -88,7 +95,10 @@ export function buildModifierPreviewFeatureCollection({
 	companionIconUrls,
 	companionImageSize,
 	companionImageOffset
-}: ModifierPreviewFeatureCollectionArgs): FeatureCollection<Point, ModifierPreviewFeatureProperties> {
+}: ModifierPreviewFeatureCollectionArgs): FeatureCollection<
+	Point,
+	ModifierPreviewFeatureProperties
+> {
 	const features: Feature<Point, ModifierPreviewFeatureProperties>[] = [];
 	const focusImageSize = focusBaseImageSize * (modifiers?.scale ?? 1);
 

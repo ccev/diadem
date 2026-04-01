@@ -70,7 +70,7 @@
 	</Button>
 </div>
 
-<div class="overflow-y-auto h-96 flex flex-wrap -mx-4 px-4">
+<div class="overflow-y-auto flex flex-wrap -mx-4 px-4">
 	<PokemonSelect
 		pokemonList={filteredPokemon}
 		selected={data?.pokemon ?? []}
