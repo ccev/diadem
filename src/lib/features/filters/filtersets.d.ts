@@ -55,7 +55,7 @@ export type BaseFilterset = {
 		emoji?: string;
 		uicon?: {
 			category: IconCategory;
-			params: { [key: string]: any } | any;
+			params: Record<string, any>;
 		};
 	};
 	modifiers?: FiltersetModifiers;

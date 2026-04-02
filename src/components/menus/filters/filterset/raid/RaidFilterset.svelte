@@ -35,7 +35,6 @@
 	titleShared={m.shared_raid_filter()}
 	titleNew={m.new_raid_filter()}
 	titleEdit={m.edit_raid_filter()}
-	height={156}
 >
 	{#snippet base()}
 		{#if data}

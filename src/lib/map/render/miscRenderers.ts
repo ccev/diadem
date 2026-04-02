@@ -6,7 +6,7 @@ import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import { SPAWNPOINT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtils";
-import { getModifiers, withVisualTransform } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform, combineOffsets } from "@/lib/map/modifierLayout";
 import { getMatchingMaxBattleFilterset } from "@/lib/features/filters/matchFilterset";
 import { geojson, s2 } from "s2js";
 import {
@@ -41,10 +41,7 @@ export function renderStation(obj: StationData, ctx: RenderContext): RenderResul
 				imageUrl: getIconPokemon(getStationPokemon(obj)),
 				imageSize: maxBattleVisual.imageSize,
 				selectedScale: ctx.selectedScale,
-				imageOffset: [
-					ctx.modifiers.offsetX + maxBattleModifiers.offsetX,
-					ctx.modifiers.offsetY + maxBattleModifiers.offsetY
-				],
+				imageOffset: combineOffsets(ctx.modifiers, maxBattleModifiers),
 				imageRotation: maxBattleVisual.imageRotation,
 				textLabel: getTextLabel(matchingFilterset?.modifiers),
 				expires: obj.end_time ?? null,

@@ -38,3 +38,11 @@ export function withVisualTransform(
 
 	return { imageSize, imageRotation };
 }
+
+export function combineOffsets(
+	base: { offsetX: number; offsetY: number },
+	sub: { offsetX: number; offsetY: number },
+	extraY = 0
+): number[] {
+	return [base.offsetX + sub.offsetX, base.offsetY + sub.offsetY + extraY];
+}

@@ -27,11 +27,9 @@ export function changeAttributeMinMax(
 	max: number
 ) {
 	if (min === minBounds && max === maxBounds) {
-		// @ts-ignore
-		delete data?.[attribute];
+		delete (data as Record<string, unknown>)[attribute];
 	} else {
-		// @ts-ignore
-		data[attribute] = { min, max };
+		(data as Record<string, unknown>)[attribute] = { min, max };
 	}
 }
 

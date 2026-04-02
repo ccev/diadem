@@ -29,7 +29,6 @@
 	titleShared={m.shared_quest_filter()}
 	titleNew={m.new_quest_filter()}
 	titleEdit={m.edit_quest_filter()}
-	height={156}
 >
 	{#snippet base()}
 		{#if data}

@@ -1,4 +1,5 @@
 import type {
+	BaseFilterset,
 	FiltersetInvasion,
 	FiltersetMaxBattle,
 	FiltersetPokemon,
@@ -15,6 +16,18 @@ import {
 	matchesQuestFilterset,
 	matchesRaidFilterset
 } from "@/lib/features/filters/filtersetMatchers";
+
+function findMatchingFilterset<T extends BaseFilterset>(
+	filtersets: T[],
+	matches: (filterset: T) => boolean
+): T | undefined {
+	for (let i = 0; i < filtersets.length; i += 1) {
+		const filterset = filtersets[i];
+		if (!filterset.enabled) continue;
+		if (matches(filterset)) return filterset;
+	}
+	return undefined;
+}
 
 function matchesPokemonSpecies(
 	filterPokemon: FiltersetPokemon["pokemon"] | undefined,
@@ -103,30 +116,15 @@ function matchesPokemonFilterset(filterset: FiltersetPokemon, pokemon: PokemonDa
 }
 
 export function getMatchingPokemonFilterset(pokemon: PokemonData, filtersets: FiltersetPokemon[]) {
-	for (let i = 0; i < filtersets.length; i += 1) {
-		const filterset = filtersets[i];
-		if (!filterset.enabled) continue;
-		if (matchesPokemonFilterset(filterset, pokemon)) return filterset;
-	}
-	return undefined;
+	return findMatchingFilterset(filtersets, (fs) => matchesPokemonFilterset(fs, pokemon));
 }
 
 export function getMatchingRaidFilterset(raidData: GymData, filtersets: FiltersetRaid[]) {
-	for (let i = 0; i < filtersets.length; i += 1) {
-		const filterset = filtersets[i];
-		if (!filterset.enabled) continue;
-		if (matchesRaidFilterset(filterset, raidData)) return filterset;
-	}
-	return undefined;
+	return findMatchingFilterset(filtersets, (fs) => matchesRaidFilterset(fs, raidData));
 }
 
 export function getMatchingInvasionFilterset(incident: Incident, filtersets: FiltersetInvasion[]) {
-	for (let i = 0; i < filtersets.length; i += 1) {
-		const filterset = filtersets[i];
-		if (!filterset.enabled) continue;
-		if (matchesInvasionFilterset(filterset, incident)) return filterset;
-	}
-	return undefined;
+	return findMatchingFilterset(filtersets, (fs) => matchesInvasionFilterset(fs, incident));
 }
 
 export function getMatchingQuestFilterset(
@@ -136,22 +134,14 @@ export function getMatchingQuestFilterset(
 	isAr: boolean,
 	filtersets: FiltersetQuest[]
 ) {
-	for (let i = 0; i < filtersets.length; i += 1) {
-		const filterset = filtersets[i];
-		if (!filterset.enabled) continue;
-		if (matchesQuestFilterset(filterset, reward, title, target, isAr)) return filterset;
-	}
-	return undefined;
+	return findMatchingFilterset(filtersets, (fs) =>
+		matchesQuestFilterset(fs, reward, title, target, isAr)
+	);
 }
 
 export function getMatchingMaxBattleFilterset(
 	station: StationData,
 	filtersets: FiltersetMaxBattle[]
 ) {
-	for (let i = 0; i < filtersets.length; i += 1) {
-		const filterset = filtersets[i];
-		if (!filterset.enabled) continue;
-		if (matchesMaxBattleFilterset(filterset, station)) return filterset;
-	}
-	return undefined;
+	return findMatchingFilterset(filtersets, (fs) => matchesMaxBattleFilterset(fs, station));
 }

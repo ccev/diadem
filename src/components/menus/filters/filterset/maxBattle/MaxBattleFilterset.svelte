@@ -26,7 +26,6 @@
 	titleShared={m.shared_max_battle_filter()}
 	titleNew={m.new_max_battle_filter()}
 	titleEdit={m.edit_max_battle_filter()}
-	height={136}
 >
 	{#snippet base()}
 		{#if data}

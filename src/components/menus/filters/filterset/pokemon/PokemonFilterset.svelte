@@ -35,7 +35,6 @@
 	titleShared={m.shared_pokemon_filter()}
 	titleNew={m.filterset_title_new_pokemon()}
 	titleEdit={m.filterset_title_edit_pokemon()}
-	height={156}
 >
 	{#snippet base()}
 		{#if data}

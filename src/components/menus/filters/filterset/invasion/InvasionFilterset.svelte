@@ -98,7 +98,6 @@
 	titleShared={m.shared_invasion_filter()}
 	titleNew={m.new_invasion_filter()}
 	titleEdit={m.edit_invasion_filter()}
-	height={156}
 >
 	{#snippet base()}
 		{#if data}

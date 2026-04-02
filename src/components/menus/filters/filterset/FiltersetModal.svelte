@@ -31,7 +31,6 @@
 		subCategory = undefined,
 		overview,
 		base,
-		height = 130
 	}: {
 		modalType: ModalType;
 		mapObject: MapObjectType;
@@ -43,7 +42,6 @@
 		subCategory?: FilterCategory;
 		overview: Snippet;
 		base: Snippet;
-		height?: number;
 	} = $props();
 
 	let modalTitle = $derived.by(() => {
