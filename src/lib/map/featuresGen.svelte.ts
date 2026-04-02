@@ -234,14 +234,15 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		if (!result) continue;
 
-		const { subFeatures, showThis, expires, overwriteIcon, pokemonRenderStateKey } = result;
+		let { subFeatures, showThis, expires, overwriteIcon, pokemonRenderStateKey } = result;
 		iconFiltersetModifiers = result.iconFiltersetModifiers ?? iconFiltersetModifiers;
 		matchedFiltersetIcon = result.matchedFiltersetIcon ?? matchedFiltersetIcon;
 
 		if (showThis) {
 			const iconVisual = withVisualTransform(modifiers.scale, iconFiltersetModifiers);
+			const mapObjectFeatures: MapObjectFeature[] = [];
 
-			addOverlayIconAndBadge(subFeatures, obj.mapId, obj.mapId, [obj.lon, obj.lat], {
+			addOverlayIconAndBadge(mapObjectFeatures, obj.mapId, obj.mapId, [obj.lon, obj.lat], {
 				imageUrl: overwriteIcon ?? getIconForMap(obj),
 				imageSize: iconVisual.imageSize,
 				selectedScale,
@@ -253,10 +254,12 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				filtersetModifiers: iconFiltersetModifiers,
 				filtersetIcon: matchedFiltersetIcon
 			});
+
+			subFeatures = [...subFeatures, ...mapObjectFeatures];
 		}
 
 		features[obj.type][obj.mapId] = subFeatures;
-		if (obj.mapId === selectedMapId) selectedFeatures = [...selectedFeatures, ...subFeatures];
+		if (obj.mapId === selectedMapId) selectedFeatures = [...subFeatures, ...selectedFeatures];
 	}
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }

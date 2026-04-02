@@ -229,38 +229,11 @@
 			eventsIfTopMost={true}
 		/>
 		<MapObjectSymbolLayer
-			id={MapObjectLayerId.ICONS_BADGE}
-			hoverCursor="pointer"
-			filter={[
-				"all",
-				["==", ["get", "type"], MapObjectFeatureType.ICON],
-				["==", ["coalesce", ["get", "isUnderlay"], false], false],
-				["==", ["coalesce", ["get", "isAttachedBadge"], false], true]
-			]}
-			eventsIfTopMost={true}
-		/>
-		<MapObjectSymbolLayer
 			id={MapObjectLayerId.ICONS}
-			beforeId={MapObjectLayerId.ICONS_BADGE}
 			hoverCursor="pointer"
-			filter={[
-				"all",
-				["==", ["get", "type"], MapObjectFeatureType.ICON],
-				["==", ["coalesce", ["get", "isUnderlay"], false], false],
-				["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
-			]}
+			filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
 			eventsIfTopMost={true}
 			withLabel={true}
-		/>
-		<MapObjectSymbolLayer
-			id={MapObjectLayerId.ICONS_UNDERLAY}
-			beforeId={MapObjectLayerId.ICONS}
-			filter={[
-				"all",
-				["==", ["get", "type"], MapObjectFeatureType.ICON],
-				["==", ["coalesce", ["get", "isUnderlay"], false], true]
-			]}
-			interactive={false}
 		/>
 	</GeoJSON>
 

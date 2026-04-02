@@ -162,22 +162,24 @@ export function addOverlayIconAndBadge(
 	}
 ) {
 	const effectiveOverlayOffset = overlayImageOffset ?? imageOffset;
-
-	addModifierOverlayFeatures(
-		subFeatures,
-		featureId,
-		mapId,
-		coordinates,
-		selectedScale,
-		imageSize,
-		filtersetModifiers,
-		effectiveOverlayOffset,
-		imageRotation
-	);
+	const overlayFeatures: MapObjectFeature[] = [];
 
 	const TEXT_SIZE = 11;
 	const textOffset =
 		textLabel !== undefined ? [0, 2.2 + effectiveOverlayOffset[1] / TEXT_SIZE] : undefined;
+
+	addFiltersetBadgeFeature(
+		subFeatures,
+		`${featureId}-badge`,
+		mapId,
+		coordinates,
+		filtersetModifiers,
+		filtersetIcon,
+		imageSize,
+		selectedScale,
+		{ offsetX: effectiveOverlayOffset[0], offsetY: effectiveOverlayOffset[1] },
+		expires
+	);
 
 	subFeatures.push(
 		getIconFeature(featureId, coordinates, {
@@ -194,18 +196,19 @@ export function addOverlayIconAndBadge(
 		})
 	);
 
-	addFiltersetBadgeFeature(
-		subFeatures,
-		`${featureId}-badge`,
+	addModifierOverlayFeatures(
+		overlayFeatures,
+		featureId,
 		mapId,
 		coordinates,
-		filtersetModifiers,
-		filtersetIcon,
-		imageSize,
 		selectedScale,
-		{ offsetX: effectiveOverlayOffset[0], offsetY: effectiveOverlayOffset[1] },
-		expires
+		imageSize,
+		filtersetModifiers,
+		effectiveOverlayOffset,
+		imageRotation
 	);
+
+	subFeatures.push(...overlayFeatures);
 }
 
 // QuestReward is a wide discriminated union — keep loose typing to avoid narrowing at each call site

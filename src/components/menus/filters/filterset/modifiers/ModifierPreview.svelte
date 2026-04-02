@@ -293,34 +293,9 @@
 		>
 			<GeoJSON id="modifierPreview" data={previewFeatures}>
 				<MapObjectSymbolLayer
-					id="modifierPreviewBadge"
-					filter={[
-						"all",
-						["==", ["get", "type"], MapObjectFeatureType.ICON],
-						["==", ["coalesce", ["get", "isUnderlay"], false], false],
-						["==", ["coalesce", ["get", "isAttachedBadge"], false], true]
-					]}
-				/>
-				<MapObjectSymbolLayer
 					id="modifierPreviewIcons"
-					beforeId="modifierPreviewBadge"
-					filter={[
-						"all",
-						["==", ["get", "type"], MapObjectFeatureType.ICON],
-						["==", ["coalesce", ["get", "isUnderlay"], false], false],
-						["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
-					]}
+					filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
 					withLabel={true}
-				/>
-				<MapObjectSymbolLayer
-					id="modifierPreviewUnderlay"
-					beforeId="modifierPreviewIcons"
-					filter={[
-						"all",
-						["==", ["get", "type"], MapObjectFeatureType.ICON],
-						["==", ["coalesce", ["get", "isUnderlay"], false], true]
-					]}
-					interactive={false}
 				/>
 			</GeoJSON>
 		</MapLibre>

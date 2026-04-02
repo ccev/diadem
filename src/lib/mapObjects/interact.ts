@@ -80,8 +80,11 @@ export function clickMapHandler(event: MapMouseEvent) {
 			layers: Object.values(MapObjectLayerId)
 		});
 
-		// @ts-ignore
-		const feature = features[0] as MapObjectFeature;
+		const mapFeatures = features as unknown as MapObjectFeature[];
+		const feature =
+			mapFeatures.find(
+				(feature) => !("isUnderlay" in feature.properties) || !feature.properties.isUnderlay
+			) ?? mapFeatures[0];
 
 		if (feature) {
 			openPopup(getMapObjects()[feature.properties.id]);

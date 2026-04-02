@@ -74,7 +74,6 @@ export function buildModifierPreviewFeatureCollection({
 		);
 	}
 
-	// Badge (uses pre-resolved URL from the caller)
 	if (modifiers?.showBadge && badgeIconUrl) {
 		const badgeAnchorOffset = overlayOffset ?? focusImageOffset;
 		subFeatures.push(
