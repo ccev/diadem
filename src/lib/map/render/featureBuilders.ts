@@ -66,17 +66,11 @@ export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjec
  * To keep an icon at a fixed screen position while rotating around its own center,
  * we counter-rotate the offset so it cancels out the rotation MapLibre applies.
  */
-function counterRotateOffset(
-	offset: number[],
-	rotationDeg: number
-): number[] {
+function counterRotateOffset(offset: number[], rotationDeg: number): number[] {
 	const rad = (-rotationDeg * Math.PI) / 180;
 	const cos = Math.cos(rad);
 	const sin = Math.sin(rad);
-	return [
-		offset[0] * cos - offset[1] * sin,
-		offset[0] * sin + offset[1] * cos
-	];
+	return [offset[0] * cos - offset[1] * sin, offset[0] * sin + offset[1] * cos];
 }
 
 export function getIconFeature(
@@ -90,11 +84,7 @@ export function getIconFeature(
 	}
 
 	let imageOffset = properties.imageOffset;
-	if (
-		imageOffset &&
-		properties.imageRotation &&
-		(imageOffset[0] !== 0 || imageOffset[1] !== 0)
-	) {
+	if (imageOffset && properties.imageRotation && (imageOffset[0] !== 0 || imageOffset[1] !== 0)) {
 		imageOffset = counterRotateOffset(imageOffset, properties.imageRotation);
 	}
 

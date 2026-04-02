@@ -9,11 +9,7 @@ import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtil
 import { getModifiers, withVisualTransform, combineOffsets } from "@/lib/map/modifierLayout";
 import { getMatchingMaxBattleFilterset } from "@/lib/features/filters/matchFilterset";
 import { geojson, s2 } from "s2js";
-import {
-	getCircleFeature,
-	getPolygonFeature,
-	type MapObjectFeature
-} from "./featureBuilders";
+import { getCircleFeature, getPolygonFeature, type MapObjectFeature } from "./featureBuilders";
 import { addOverlayIconAndBadge, getTextLabel } from "./modifierFeatures";
 import type { RenderContext, RenderResult } from "./renderTypes";
 
@@ -28,10 +24,7 @@ export function renderStation(obj: StationData, ctx: RenderContext): RenderResul
 		if (obj.battle_pokemon_id) {
 			const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;
 			const maxBattleModifiers = getModifiers(ctx.userIconSet, "max_battle");
-			const matchingFilterset = getMatchingMaxBattleFilterset(
-				obj,
-				ctx.maxBattleFiltersets
-			);
+			const matchingFilterset = getMatchingMaxBattleFilterset(obj, ctx.maxBattleFiltersets);
 			const maxBattleVisual = withVisualTransform(
 				maxBattleModifiers.scale,
 				matchingFilterset?.modifiers

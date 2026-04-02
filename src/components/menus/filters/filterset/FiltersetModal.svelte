@@ -30,7 +30,7 @@
 		majorCategory,
 		subCategory = undefined,
 		overview,
-		base,
+		base
 	}: {
 		modalType: ModalType;
 		mapObject: MapObjectType;

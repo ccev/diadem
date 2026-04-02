@@ -11,7 +11,8 @@ import type { RenderContext, RenderResult } from "./renderTypes";
 
 export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 	const subFeatures: MapObjectFeature[] = [];
-	let showThis = ctx.showAllGyms || shouldDisplayRaid(obj) || ctx.isSelected || ctx.isSelectedOverwrite;
+	let showThis =
+		ctx.showAllGyms || shouldDisplayRaid(obj) || ctx.isSelected || ctx.isSelectedOverwrite;
 	let overwriteIcon: string | undefined = undefined;
 
 	const matchingRaidFilterset = shouldDisplayRaid(obj)
@@ -22,10 +23,11 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 		overwriteIcon = getIconGym({ team_id: 0 });
 	} else if (shouldDisplayRaid(obj)) {
 		const isHatched = !!obj.raid_pokemon_id;
-		const modKey = isHatched ? "raid_pokemon" as const : "raid_egg" as const;
-		const fullSlotKey = isHatched ? "raid_pokemon_6" as const : "raid_egg_6" as const;
+		const modKey = isHatched ? ("raid_pokemon" as const) : ("raid_egg" as const);
+		const fullSlotKey = isHatched ? ("raid_pokemon_6" as const) : ("raid_egg_6" as const);
 
-		const mapId = obj.mapId + (isHatched ? "-raidpokemon-" : "-raidegg-") + obj.raid_spawn_timestamp;
+		const mapId =
+			obj.mapId + (isHatched ? "-raidpokemon-" : "-raidegg-") + obj.raid_spawn_timestamp;
 		let raidModifiers = getModifiers(ctx.userIconSet, modKey);
 
 		if (obj.availble_slots === 0 && ctx.userIconSet?.[fullSlotKey]) {
