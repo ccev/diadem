@@ -103,8 +103,7 @@ function matchesPokemonFilterset(filterset: FiltersetPokemon, pokemon: PokemonDa
 }
 
 export function getMatchingPokemonFilterset(pokemon: PokemonData, filtersets: FiltersetPokemon[]) {
-	// Visual precedence follows list order: later enabled matches override earlier ones.
-	for (let i = filtersets.length - 1; i >= 0; i -= 1) {
+	for (let i = 0; i < filtersets.length; i += 1) {
 		const filterset = filtersets[i];
 		if (!filterset.enabled) continue;
 		if (matchesPokemonFilterset(filterset, pokemon)) return filterset;
@@ -113,7 +112,7 @@ export function getMatchingPokemonFilterset(pokemon: PokemonData, filtersets: Fi
 }
 
 export function getMatchingRaidFilterset(raidData: GymData, filtersets: FiltersetRaid[]) {
-	for (let i = filtersets.length - 1; i >= 0; i -= 1) {
+	for (let i = 0; i < filtersets.length; i += 1) {
 		const filterset = filtersets[i];
 		if (!filterset.enabled) continue;
 		if (matchesRaidFilterset(filterset, raidData)) return filterset;
@@ -122,7 +121,7 @@ export function getMatchingRaidFilterset(raidData: GymData, filtersets: Filterse
 }
 
 export function getMatchingInvasionFilterset(incident: Incident, filtersets: FiltersetInvasion[]) {
-	for (let i = filtersets.length - 1; i >= 0; i -= 1) {
+	for (let i = 0; i < filtersets.length; i += 1) {
 		const filterset = filtersets[i];
 		if (!filterset.enabled) continue;
 		if (matchesInvasionFilterset(filterset, incident)) return filterset;
@@ -137,7 +136,7 @@ export function getMatchingQuestFilterset(
 	isAr: boolean,
 	filtersets: FiltersetQuest[]
 ) {
-	for (let i = filtersets.length - 1; i >= 0; i -= 1) {
+	for (let i = 0; i < filtersets.length; i += 1) {
 		const filterset = filtersets[i];
 		if (!filterset.enabled) continue;
 		if (matchesQuestFilterset(filterset, reward, title, target, isAr)) return filterset;
@@ -149,7 +148,7 @@ export function getMatchingMaxBattleFilterset(
 	station: StationData,
 	filtersets: FiltersetMaxBattle[]
 ) {
-	for (let i = filtersets.length - 1; i >= 0; i -= 1) {
+	for (let i = 0; i < filtersets.length; i += 1) {
 		const filterset = filtersets[i];
 		if (!filterset.enabled) continue;
 		if (matchesMaxBattleFilterset(filterset, station)) return filterset;
