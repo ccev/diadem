@@ -46,6 +46,21 @@ export function buildModifierPreviewFeatureCollection({
 	// For quests/invasions/pokemon, anchor overlays on the focus icon.
 	const overlayOffset = hasBase && overlayOnBase ? baseImageOffset : undefined;
 
+	if (modifiers?.showBadge && badgeIconUrl) {
+		const badgeAnchorOffset = overlayOffset ?? focusImageOffset;
+		subFeatures.push(
+			getIconFeature(`${PREVIEW_MAP_ID}-badge`, center, {
+				id: PREVIEW_MAP_ID,
+				imageUrl: badgeIconUrl,
+				imageSize: focusVisual.imageSize * BADGE_SCALE_RATIO,
+				selectedScale: 1,
+				imageOffset: getBadgeOffset(badgeAnchorOffset[0], badgeAnchorOffset[1]),
+				isAttachedBadge: true,
+				expires: null
+			})
+		);
+	}
+
 	// Focus icon with overlay features (glow/background) — uses same helper as main map
 	addOverlayIconAndBadge(subFeatures, `${PREVIEW_MAP_ID}-focus`, PREVIEW_MAP_ID, center, {
 		imageUrl: focusIconUrl,
@@ -69,21 +84,6 @@ export function buildModifierPreviewFeatureCollection({
 				imageSize: baseImageSize,
 				selectedScale: 1,
 				imageOffset: baseImageOffset,
-				expires: null
-			})
-		);
-	}
-
-	if (modifiers?.showBadge && badgeIconUrl) {
-		const badgeAnchorOffset = overlayOffset ?? focusImageOffset;
-		subFeatures.push(
-			getIconFeature(`${PREVIEW_MAP_ID}-badge`, center, {
-				id: PREVIEW_MAP_ID,
-				imageUrl: badgeIconUrl,
-				imageSize: focusVisual.imageSize * BADGE_SCALE_RATIO,
-				selectedScale: 1,
-				imageOffset: getBadgeOffset(badgeAnchorOffset[0], badgeAnchorOffset[1]),
-				isAttachedBadge: true,
 				expires: null
 			})
 		);

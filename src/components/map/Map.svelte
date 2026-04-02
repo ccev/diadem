@@ -233,7 +233,6 @@
 			hoverCursor="pointer"
 			filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
 			eventsIfTopMost={true}
-			withLabel={true}
 		/>
 	</GeoJSON>
 

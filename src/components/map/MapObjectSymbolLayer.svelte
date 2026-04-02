@@ -6,26 +6,21 @@
 	let {
 		id,
 		filter,
-		beforeId = undefined,
 		hoverCursor = undefined,
 		eventsIfTopMost = false,
-		interactive = true,
-		withLabel = false
+		interactive = true
 	}: {
 		id: string;
 		filter: ExpressionSpecification;
-		beforeId?: string;
 		hoverCursor?: string;
 		eventsIfTopMost?: boolean;
 		interactive?: boolean;
-		withLabel?: boolean;
 	} = $props();
 </script>
 
 <SymbolLayer
 	{id}
 	{filter}
-	{beforeId}
 	{hoverCursor}
 	{eventsIfTopMost}
 	{interactive}
@@ -41,30 +36,22 @@
 		"icon-allow-overlap": true,
 		"icon-offset": ["get", "imageOffset"],
 		"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
-		...(withLabel
-			? {
-					"text-field": ["coalesce", ["get", "textLabel"], ""],
-					"text-anchor": "top",
-					"text-offset": ["coalesce", ["get", "textOffset"], ["literal", [0, 2.2]]],
-					"text-size": 11,
-					"text-allow-overlap": true,
-					"text-font": [
-						"IBM Plex Sans",
-						"Open Sans",
-						"Noto Sans",
-						"Arial Unicode MS Bold",
-						"sans-serif"
-					]
-				}
-			: {})
+		"text-field": ["coalesce", ["get", "textLabel"], ""],
+		"text-anchor": "top",
+		"text-offset": ["coalesce", ["get", "textOffset"], ["literal", [0, 2.2]]],
+		"text-size": 11,
+		"text-allow-overlap": true,
+		"text-font": [
+			"IBM Plex Sans",
+			"Open Sans",
+			"Noto Sans",
+			"Arial Unicode MS Bold",
+			"sans-serif"
+		]
 	}}
 	paint={{
-		...(withLabel
-			? {
-					"text-color": "#ffffff",
-					"text-halo-color": "#000000",
-					"text-halo-width": 1.5
-				}
-			: {})
+		"text-color": "#ffffff",
+		"text-halo-color": "#000000",
+		"text-halo-width": 1.5
 	}}
 />

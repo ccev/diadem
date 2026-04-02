@@ -246,6 +246,7 @@
 		if (pokemonIcon) return pokemonIcon;
 		return getIconPokemon({ pokemon_id: 25, form: 0 });
 	});
+
 	let previewFeatures = $derived.by(() => {
 		if (!focusIconUrl) return emptyFeatureCollection;
 
@@ -295,7 +296,6 @@
 				<MapObjectSymbolLayer
 					id="modifierPreviewIcons"
 					filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
-					withLabel={true}
 				/>
 			</GeoJSON>
 		</MapLibre>
