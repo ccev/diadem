@@ -1,13 +1,5 @@
 <script lang="ts">
-	import {
-		CircleLayer,
-		FillLayer,
-		GeoJSON,
-		LineLayer,
-		MapLibre,
-		Marker,
-		SymbolLayer
-	} from "svelte-maplibre";
+	import { CircleLayer, FillLayer, GeoJSON, LineLayer, MapLibre, Marker } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
 	import { getDirectLinkObject, openMapObject } from "@/lib/features/directLinks.svelte.js";
@@ -49,6 +41,9 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
+	import ModifierUnderlayLayer from "@/components/map/ModifierUnderlayLayer.svelte";
+	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
+	import ModifierBadgeLayer from "@/components/map/ModifierBadgeLayer.svelte";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
@@ -235,63 +230,7 @@
 			}}
 			eventsIfTopMost={true}
 		/>
-		<SymbolLayer
-			id={MapObjectLayerId.ICONS_UNDERLAY}
-			interactive={false}
-			filter={[
-				"all",
-				["==", ["get", "type"], MapObjectFeatureType.ICON],
-				["==", ["coalesce", ["get", "isUnderlay"], false], true]
-			]}
-			layout={{
-				"icon-image": ["get", "imageUrl"],
-				"icon-overlap": "always",
-				"icon-size": [
-					"*",
-					["get", "imageSize"],
-					["get", "selectedScale"],
-					getUserSettings().mapIconSize
-				],
-				"icon-allow-overlap": true,
-				"icon-offset": ["get", "imageOffset"]
-			}}
-		/>
-		<SymbolLayer
-			id={MapObjectLayerId.ICONS}
-			hoverCursor="pointer"
-			filter={[
-				"all",
-				["==", ["get", "type"], MapObjectFeatureType.ICON],
-				["==", ["coalesce", ["get", "isUnderlay"], false], false],
-				["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
-			]}
-			layout={{
-				"icon-image": ["get", "imageUrl"],
-				"icon-overlap": "always",
-				"icon-size": [
-					"*",
-					["get", "imageSize"],
-					["get", "selectedScale"],
-					getUserSettings().mapIconSize
-				],
-				"icon-allow-overlap": true,
-				"icon-offset": ["get", "imageOffset"],
-				"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
-				"text-field": ["coalesce", ["get", "textLabel"], ""],
-				"text-anchor": "top",
-				"text-offset": [0, 2.2],
-				"text-size": 11,
-				"text-allow-overlap": true,
-				"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]
-			}}
-			paint={{
-				"text-color": "#ffffff",
-				"text-halo-color": "#000000",
-				"text-halo-width": 1.5
-			}}
-			eventsIfTopMost={true}
-		/>
-		<SymbolLayer
+		<ModifierBadgeLayer
 			id={MapObjectLayerId.ICONS_BADGE}
 			hoverCursor="pointer"
 			filter={[
@@ -300,20 +239,28 @@
 				["==", ["coalesce", ["get", "isUnderlay"], false], false],
 				["==", ["coalesce", ["get", "isAttachedBadge"], false], true]
 			]}
-			layout={{
-				"icon-image": ["get", "imageUrl"],
-				"icon-overlap": "always",
-				"icon-size": [
-					"*",
-					["get", "imageSize"],
-					["get", "selectedScale"],
-					getUserSettings().mapIconSize
-				],
-				"icon-allow-overlap": true,
-				"icon-offset": ["get", "imageOffset"],
-				"icon-rotate": ["coalesce", ["get", "imageRotation"], 0]
-			}}
 			eventsIfTopMost={true}
+		/>
+		<MapObjectIconLayer
+			id={MapObjectLayerId.ICONS}
+			beforeId={MapObjectLayerId.ICONS_BADGE}
+			hoverCursor="pointer"
+			filter={[
+				"all",
+				["==", ["get", "type"], MapObjectFeatureType.ICON],
+				["==", ["coalesce", ["get", "isUnderlay"], false], false],
+				["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
+			]}
+			eventsIfTopMost={true}
+		/>
+		<ModifierUnderlayLayer
+			id={MapObjectLayerId.ICONS_UNDERLAY}
+			beforeId={MapObjectLayerId.ICONS}
+			filter={[
+				"all",
+				["==", ["get", "type"], MapObjectFeatureType.ICON],
+				["==", ["coalesce", ["get", "isUnderlay"], false], true]
+			]}
 		/>
 	</GeoJSON>
 

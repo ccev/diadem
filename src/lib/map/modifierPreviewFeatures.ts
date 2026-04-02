@@ -1,5 +1,4 @@
 import type { Feature, FeatureCollection, Point } from "geojson";
-import { destination, point } from "@turf/turf";
 import type { FiltersetModifiers } from "@/lib/features/filters/filtersets";
 import {
 	MODIFIER_BACKGROUND_OPACITY,
@@ -22,6 +21,7 @@ export type ModifierPreviewFeatureProperties = {
 	imageOffset?: number[];
 	imageRotation?: number;
 	textLabel?: string;
+	selectedScale?: number;
 };
 
 type PreviewMarker = {
@@ -41,16 +41,7 @@ type ModifierPreviewFeatureCollectionArgs = {
 	focusImageOffset: number[];
 	modifiers?: FiltersetModifiers;
 	badgeIconUrl?: string;
-	companionIconUrls: string[];
-	companionImageSize: number;
-	companionImageOffset: number[];
 };
-
-const companionPositions = [
-	// { bearing: 295, distanceMeters: 1000 },
-	// { bearing: 80, distanceMeters: 800 },
-	// { bearing: 220, distanceMeters: 600 }
-] as const;
 
 function getPreviewFeature(
 	marker: PreviewMarker
@@ -71,18 +62,10 @@ function getPreviewFeature(
 			}),
 			...(marker.textLabel !== undefined && {
 				textLabel: marker.textLabel
-			})
+			}),
+			selectedScale: 1
 		}
 	};
-}
-
-function getCompanionCoordinates(
-	center: Point["coordinates"],
-	bearing: number,
-	distanceMeters: number
-) {
-	return destination(point(center), distanceMeters / 1000, bearing).geometry
-		.coordinates as Point["coordinates"];
 }
 
 export function buildModifierPreviewFeatureCollection({
@@ -91,10 +74,7 @@ export function buildModifierPreviewFeatureCollection({
 	focusBaseImageSize,
 	focusImageOffset,
 	modifiers,
-	badgeIconUrl,
-	companionIconUrls,
-	companionImageSize,
-	companionImageOffset
+	badgeIconUrl
 }: ModifierPreviewFeatureCollectionArgs): FeatureCollection<
 	Point,
 	ModifierPreviewFeatureProperties
@@ -159,25 +139,6 @@ export function buildModifierPreviewFeatureCollection({
 				imageSize: focusImageSize * BADGE_SCALE_RATIO,
 				imageOffset: getBadgeOffset(focusImageOffset[0], focusImageOffset[1]),
 				layer: "badge"
-			})
-		);
-	}
-
-	for (const [index, imageUrl] of companionIconUrls.entries()) {
-		const companionPosition = companionPositions[index];
-		if (!companionPosition) break;
-
-		features.push(
-			getPreviewFeature({
-				coordinates: getCompanionCoordinates(
-					center,
-					companionPosition.bearing,
-					companionPosition.distanceMeters
-				),
-				imageUrl,
-				imageSize: companionImageSize,
-				imageOffset: companionImageOffset,
-				layer: "icon"
 			})
 		);
 	}
