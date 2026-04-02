@@ -15,6 +15,21 @@ import {
 } from "@/lib/map/modifierOverlayIcons";
 import { type MapObjectFeature, getIconFeature } from "./featureBuilders";
 
+/**
+ * MapLibre multiplies icon-offset by icon-size to get pixel offset.
+ * Overlays (glow/background) have a larger imageSize than the icon,
+ * so we must scale their offset inversely to keep them centered on the icon.
+ */
+function scaleOffsetForSize(
+	offset: number[],
+	iconSize: number,
+	overlaySize: number
+): number[] {
+	if (overlaySize === 0 || iconSize === overlaySize) return offset;
+	const ratio = iconSize / overlaySize;
+	return [offset[0] * ratio, offset[1] * ratio];
+}
+
 export function addModifierOverlayFeatures(
 	subFeatures: MapObjectFeature[],
 	mapFeatureId: string,
@@ -23,11 +38,13 @@ export function addModifierOverlayFeatures(
 	selectedScale: number,
 	imageSize: number,
 	filtersetModifiers: FiltersetModifiers | undefined,
-	imageOffset: number[] = [0, 0]
+	imageOffset: number[] = [0, 0],
+	imageRotation?: number
 ) {
 	if (!filtersetModifiers) return;
 
 	if (filtersetModifiers.background) {
+		const bgSize = getModifierOverlayImageSize(imageSize, 1.1);
 		subFeatures.push(
 			getIconFeature(`${mapFeatureId}-background`, coordinates, {
 				id: mapId,
@@ -36,9 +53,10 @@ export function addModifierOverlayFeatures(
 					filtersetModifiers.background.color,
 					filtersetModifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
 				),
-				imageSize: getModifierOverlayImageSize(imageSize, 1.1),
+				imageSize: bgSize,
 				selectedScale,
-				imageOffset,
+				imageOffset: scaleOffsetForSize(imageOffset, imageSize, bgSize),
+				...(imageRotation !== undefined && { imageRotation }),
 				isUnderlay: true,
 				expires: null
 			})
@@ -46,6 +64,10 @@ export function addModifierOverlayFeatures(
 	}
 
 	if (filtersetModifiers.glow) {
+		const glowSize = getModifierOverlayImageSize(
+			imageSize,
+			filtersetModifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
+		);
 		subFeatures.push(
 			getIconFeature(`${mapFeatureId}-glow`, coordinates, {
 				id: mapId,
@@ -54,12 +76,10 @@ export function addModifierOverlayFeatures(
 					filtersetModifiers.glow.color,
 					filtersetModifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY
 				),
-				imageSize: getModifierOverlayImageSize(
-					imageSize,
-					filtersetModifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
-				),
+				imageSize: glowSize,
 				selectedScale,
-				imageOffset,
+				imageOffset: scaleOffsetForSize(imageOffset, imageSize, glowSize),
+				...(imageRotation !== undefined && { imageRotation }),
 				isUnderlay: true,
 				expires: null
 			})
@@ -126,7 +146,8 @@ export function addOverlayIconAndBadge(
 		expires,
 		filtersetModifiers,
 		filtersetIcon,
-		renderStateKey
+		renderStateKey,
+		overlayImageOffset
 	}: {
 		imageUrl: string;
 		imageSize: number;
@@ -138,8 +159,12 @@ export function addOverlayIconAndBadge(
 		filtersetModifiers: FiltersetModifiers | undefined;
 		filtersetIcon: BaseFilterset["icon"] | undefined;
 		renderStateKey?: string;
+		/** When set, glow/background/badge anchor to this offset instead of the icon's offset. */
+		overlayImageOffset?: number[];
 	}
 ) {
+	const effectiveOverlayOffset = overlayImageOffset ?? imageOffset;
+
 	addModifierOverlayFeatures(
 		subFeatures,
 		featureId,
@@ -148,8 +173,15 @@ export function addOverlayIconAndBadge(
 		selectedScale,
 		imageSize,
 		filtersetModifiers,
-		imageOffset
+		effectiveOverlayOffset,
+		imageRotation
 	);
+
+	const TEXT_SIZE = 11;
+	const textOffset =
+		textLabel !== undefined
+			? [0, 2.2 + effectiveOverlayOffset[1] / TEXT_SIZE]
+			: undefined;
 
 	subFeatures.push(
 		getIconFeature(featureId, coordinates, {
@@ -160,6 +192,7 @@ export function addOverlayIconAndBadge(
 			imageOffset,
 			...(imageRotation !== undefined && { imageRotation }),
 			...(textLabel !== undefined && { textLabel }),
+			...(textOffset !== undefined && { textOffset }),
 			...(renderStateKey !== undefined && { renderStateKey }),
 			expires
 		})
@@ -174,7 +207,7 @@ export function addOverlayIconAndBadge(
 		filtersetIcon,
 		imageSize,
 		selectedScale,
-		{ offsetX: imageOffset[0], offsetY: imageOffset[1] },
+		{ offsetX: effectiveOverlayOffset[0], offsetY: effectiveOverlayOffset[1] },
 		expires
 	);
 }

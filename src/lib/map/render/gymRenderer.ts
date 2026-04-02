@@ -48,7 +48,8 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 				textLabel: getTextLabel(matchingRaidFilterset?.modifiers),
 				expires: obj.raid_end_timestamp ?? null,
 				filtersetModifiers: matchingRaidFilterset?.modifiers,
-				filtersetIcon: matchingRaidFilterset?.icon
+				filtersetIcon: matchingRaidFilterset?.icon,
+				overlayImageOffset: [ctx.modifiers.offsetX, ctx.modifiers.offsetY]
 			});
 		} else {
 			const mapId = obj.mapId + "-raidegg-" + obj.raid_spawn_timestamp;
@@ -76,7 +77,8 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 				textLabel: getTextLabel(matchingRaidFilterset?.modifiers),
 				expires: obj.raid_battle_timestamp ?? null,
 				filtersetModifiers: matchingRaidFilterset?.modifiers,
-				filtersetIcon: matchingRaidFilterset?.icon
+				filtersetIcon: matchingRaidFilterset?.icon,
+				overlayImageOffset: [ctx.modifiers.offsetX, ctx.modifiers.offsetY]
 			});
 		}
 	}

@@ -2,6 +2,7 @@ import type { UiconSet } from "@/lib/services/config/configTypes";
 import type {
 	BaseFilterset,
 	FiltersetInvasion,
+	FiltersetMaxBattle,
 	FiltersetModifiers,
 	FiltersetPokemon,
 	FiltersetQuest,
@@ -22,6 +23,7 @@ export type RenderContext = {
 	raidFiltersets: FiltersetRaid[];
 	questFiltersets: FiltersetQuest[];
 	invasionFiltersets: FiltersetInvasion[];
+	maxBattleFiltersets: FiltersetMaxBattle[];
 	showAllPokestops: boolean;
 	showLures: boolean;
 	showQuests: boolean;

@@ -7,7 +7,7 @@ import {
 	type MapObjectFeature,
 	getIconFeature
 } from "./render/featureBuilders";
-import { addModifierOverlayFeatures, getTextLabel } from "./render/modifierFeatures";
+import { addOverlayIconAndBadge, getTextLabel } from "./render/modifierFeatures";
 
 type ModifierPreviewFeatureCollectionArgs = {
 	center: Point["coordinates"];
@@ -19,6 +19,8 @@ type ModifierPreviewFeatureCollectionArgs = {
 	baseIconUrl?: string;
 	baseImageSize?: number;
 	baseImageOffset?: number[];
+	/** When true, glow/background/badge anchor on the base icon (e.g. raids, max battles). */
+	overlayOnBase?: boolean;
 };
 
 const PREVIEW_MAP_ID = "preview";
@@ -32,73 +34,57 @@ export function buildModifierPreviewFeatureCollection({
 	badgeIconUrl,
 	baseIconUrl,
 	baseImageSize,
-	baseImageOffset
+	baseImageOffset,
+	overlayOnBase = false
 }: ModifierPreviewFeatureCollectionArgs): FeatureCollection<Point> {
 	const subFeatures: MapObjectFeature[] = [];
 	const hasBase = baseIconUrl && baseImageSize !== undefined && baseImageOffset;
 
-	// Determine the anchor point: base icon center for composites, focus icon for simple
-	const anchorSize = hasBase ? baseImageSize : focusBaseImageSize;
-	const anchorOffset = hasBase ? baseImageOffset : focusImageOffset;
+	const focusVisual = withVisualTransform(focusBaseImageSize, modifiers);
 
-	const visual = withVisualTransform(anchorSize, modifiers);
+	// For overlayOnBase composites (raids, max battles), anchor overlays on the base icon.
+	// For quests/invasions/pokemon, anchor overlays on the focus icon.
+	const overlayOffset =
+		hasBase && overlayOnBase ? baseImageOffset : undefined;
 
-	// Overlay features (background/glow) centered on anchor
-	addModifierOverlayFeatures(
-		subFeatures,
-		PREVIEW_MAP_ID,
-		PREVIEW_MAP_ID,
-		center,
-		1,
-		visual.imageSize,
-		modifiers,
-		anchorOffset
-	);
+	// Focus icon with overlay features (glow/background) — uses same helper as main map
+	addOverlayIconAndBadge(subFeatures, `${PREVIEW_MAP_ID}-focus`, PREVIEW_MAP_ID, center, {
+		imageUrl: focusIconUrl,
+		imageSize: focusVisual.imageSize,
+		selectedScale: 1,
+		imageOffset: focusImageOffset,
+		imageRotation: focusVisual.imageRotation,
+		textLabel: getTextLabel(modifiers),
+		expires: null,
+		filtersetModifiers: modifiers,
+		filtersetIcon: undefined,
+		overlayImageOffset: overlayOffset
+	});
 
-	// Base icon (composites only)
+	// Base icon (composites only, renders behind focus) — no rotation/scale from filterset
 	if (hasBase) {
 		subFeatures.push(
 			getIconFeature(`${PREVIEW_MAP_ID}-base`, center, {
 				id: PREVIEW_MAP_ID,
 				imageUrl: baseIconUrl,
-				imageSize: visual.imageSize,
+				imageSize: baseImageSize,
 				selectedScale: 1,
 				imageOffset: baseImageOffset,
-				...(visual.imageRotation !== undefined && { imageRotation: visual.imageRotation }),
 				expires: null
 			})
 		);
 	}
 
-	// Focus icon
-	const focusVisual = hasBase
-		? withVisualTransform(focusBaseImageSize, modifiers)
-		: visual;
-
-	subFeatures.push(
-		getIconFeature(`${PREVIEW_MAP_ID}-focus`, center, {
-			id: PREVIEW_MAP_ID,
-			imageUrl: focusIconUrl,
-			imageSize: focusVisual.imageSize,
-			selectedScale: 1,
-			imageOffset: focusImageOffset,
-			...(focusVisual.imageRotation !== undefined && {
-				imageRotation: focusVisual.imageRotation
-			}),
-			textLabel: getTextLabel(modifiers),
-			expires: null
-		})
-	);
-
-	// Badge
+	// Badge (uses pre-resolved URL from the caller)
 	if (modifiers?.showBadge && badgeIconUrl) {
+		const badgeAnchorOffset = overlayOffset ?? focusImageOffset;
 		subFeatures.push(
 			getIconFeature(`${PREVIEW_MAP_ID}-badge`, center, {
 				id: PREVIEW_MAP_ID,
 				imageUrl: badgeIconUrl,
-				imageSize: visual.imageSize * BADGE_SCALE_RATIO,
+				imageSize: focusVisual.imageSize * BADGE_SCALE_RATIO,
 				selectedScale: 1,
-				imageOffset: getBadgeOffset(anchorOffset[0], anchorOffset[1]),
+				imageOffset: getBadgeOffset(badgeAnchorOffset[0], badgeAnchorOffset[1]),
 				isAttachedBadge: true,
 				expires: null
 			})

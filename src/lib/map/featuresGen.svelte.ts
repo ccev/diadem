@@ -11,6 +11,7 @@ import { getCurrentUiconSetDetailsAllTypes, getIconForMap } from "@/lib/services
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActivePokestopFilter, hasFortActiveLure } from "@/lib/utils/pokestopUtils";
 import { getActiveGymFilter } from "@/lib/utils/gymUtils";
+import { getActiveStationFilter } from "@/lib/utils/stationUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { BaseFilterset, FiltersetModifiers } from "@/lib/features/filters/filtersets";
 import { getMatchingPokemonFilterset } from "@/lib/features/filters/matchFilterset";
@@ -126,6 +127,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	const raidFiltersets = getActiveGymFilter().raid.filters;
 	const questFiltersets = getActivePokestopFilter().quest.filters;
 	const invasionFiltersets = getActivePokestopFilter().invasion.filters;
+	const maxBattleFiltersets = getActiveStationFilter().maxBattle.filters;
 
 	const iconSets = getCurrentUiconSetDetailsAllTypes();
 	const timestamp = currentTimestamp();
@@ -190,6 +192,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			raidFiltersets,
 			questFiltersets,
 			invasionFiltersets,
+			maxBattleFiltersets,
 			showAllPokestops,
 			showLures,
 			showQuests,
