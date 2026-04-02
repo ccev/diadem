@@ -5,12 +5,8 @@ import { getIconGym, getIconPokemon, getIconRaidEgg } from "@/lib/services/uicon
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
 import { getModifiers, withVisualTransform } from "@/lib/map/modifierLayout";
 import { getMatchingRaidFilterset } from "@/lib/features/filters/matchFilterset";
-import { getIconFeature, type MapObjectFeature } from "./featureBuilders";
-import {
-	addModifierOverlayFeatures,
-	addFiltersetBadgeFeature,
-	getTextLabel
-} from "./modifierFeatures";
+import { type MapObjectFeature } from "./featureBuilders";
+import { addOverlayIconAndBadge, getTextLabel } from "./modifierFeatures";
 import type { RenderContext, RenderResult } from "./renderTypes";
 
 export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
@@ -43,46 +39,17 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 				matchingRaidFilterset?.modifiers
 			);
 
-			addModifierOverlayFeatures(
-				subFeatures,
-				mapId,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				ctx.selectedScale,
-				raidVisual.imageSize,
-				matchingRaidFilterset?.modifiers,
-				raidImageOffset
-			);
-
-			{
-				const raidLabel = getTextLabel(matchingRaidFilterset?.modifiers);
-				subFeatures.push(
-					getIconFeature(mapId, [obj.lon, obj.lat], {
-						imageUrl: getIconPokemon(getRaidPokemon(obj)),
-						imageSize: raidVisual.imageSize,
-						selectedScale: ctx.selectedScale,
-						imageOffset: raidImageOffset,
-						...(raidVisual.imageRotation !== undefined && {
-							imageRotation: raidVisual.imageRotation
-						}),
-						...(raidLabel !== undefined && { textLabel: raidLabel }),
-						id: obj.mapId,
-						expires: obj.raid_end_timestamp ?? null
-					})
-				);
-			}
-			addFiltersetBadgeFeature(
-				subFeatures,
-				`${mapId}-badge`,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				matchingRaidFilterset?.modifiers,
-				matchingRaidFilterset?.icon,
-				raidVisual.imageSize,
-				ctx.selectedScale,
-				{ offsetX: raidImageOffset[0], offsetY: raidImageOffset[1] },
-				obj.raid_end_timestamp ?? null
-			);
+			addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
+				imageUrl: getIconPokemon(getRaidPokemon(obj)),
+				imageSize: raidVisual.imageSize,
+				selectedScale: ctx.selectedScale,
+				imageOffset: raidImageOffset,
+				imageRotation: raidVisual.imageRotation,
+				textLabel: getTextLabel(matchingRaidFilterset?.modifiers),
+				expires: obj.raid_end_timestamp ?? null,
+				filtersetModifiers: matchingRaidFilterset?.modifiers,
+				filtersetIcon: matchingRaidFilterset?.icon
+			});
 		} else {
 			const mapId = obj.mapId + "-raidegg-" + obj.raid_spawn_timestamp;
 			let raidModifiers = getModifiers(ctx.userIconSet, "raid_egg");
@@ -100,46 +67,17 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 				matchingRaidFilterset?.modifiers
 			);
 
-			addModifierOverlayFeatures(
-				subFeatures,
-				mapId,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				ctx.selectedScale,
-				raidVisual.imageSize,
-				matchingRaidFilterset?.modifiers,
-				raidImageOffset
-			);
-
-			{
-				const raidLabel = getTextLabel(matchingRaidFilterset?.modifiers);
-				subFeatures.push(
-					getIconFeature(mapId, [obj.lon, obj.lat], {
-						imageUrl: getIconRaidEgg(obj.raid_level ?? 0),
-						imageSize: raidVisual.imageSize,
-						selectedScale: ctx.selectedScale,
-						imageOffset: raidImageOffset,
-						...(raidVisual.imageRotation !== undefined && {
-							imageRotation: raidVisual.imageRotation
-						}),
-						...(raidLabel !== undefined && { textLabel: raidLabel }),
-						id: obj.mapId,
-						expires: obj.raid_battle_timestamp ?? null
-					})
-				);
-			}
-			addFiltersetBadgeFeature(
-				subFeatures,
-				`${mapId}-badge`,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				matchingRaidFilterset?.modifiers,
-				matchingRaidFilterset?.icon,
-				raidVisual.imageSize,
-				ctx.selectedScale,
-				{ offsetX: raidImageOffset[0], offsetY: raidImageOffset[1] },
-				obj.raid_battle_timestamp ?? null
-			);
+			addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
+				imageUrl: getIconRaidEgg(obj.raid_level ?? 0),
+				imageSize: raidVisual.imageSize,
+				selectedScale: ctx.selectedScale,
+				imageOffset: raidImageOffset,
+				imageRotation: raidVisual.imageRotation,
+				textLabel: getTextLabel(matchingRaidFilterset?.modifiers),
+				expires: obj.raid_battle_timestamp ?? null,
+				filtersetModifiers: matchingRaidFilterset?.modifiers,
+				filtersetIcon: matchingRaidFilterset?.icon
+			});
 		}
 	}
 

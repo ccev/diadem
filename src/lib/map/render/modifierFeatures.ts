@@ -111,6 +111,74 @@ export function addFiltersetBadgeFeature(
 	);
 }
 
+export function addOverlayIconAndBadge(
+	subFeatures: MapObjectFeature[],
+	featureId: string,
+	mapId: string,
+	coordinates: Point["coordinates"],
+	{
+		imageUrl,
+		imageSize,
+		selectedScale,
+		imageOffset,
+		imageRotation,
+		textLabel,
+		expires,
+		filtersetModifiers,
+		filtersetIcon,
+		renderStateKey
+	}: {
+		imageUrl: string;
+		imageSize: number;
+		selectedScale: number;
+		imageOffset: number[];
+		imageRotation?: number;
+		textLabel?: string;
+		expires: number | null;
+		filtersetModifiers: FiltersetModifiers | undefined;
+		filtersetIcon: BaseFilterset["icon"] | undefined;
+		renderStateKey?: string;
+	}
+) {
+	addModifierOverlayFeatures(
+		subFeatures,
+		featureId,
+		mapId,
+		coordinates,
+		selectedScale,
+		imageSize,
+		filtersetModifiers,
+		imageOffset
+	);
+
+	subFeatures.push(
+		getIconFeature(featureId, coordinates, {
+			imageUrl,
+			id: mapId,
+			imageSize,
+			selectedScale,
+			imageOffset,
+			...(imageRotation !== undefined && { imageRotation }),
+			...(textLabel !== undefined && { textLabel }),
+			...(renderStateKey !== undefined && { renderStateKey }),
+			expires
+		})
+	);
+
+	addFiltersetBadgeFeature(
+		subFeatures,
+		`${featureId}-badge`,
+		mapId,
+		coordinates,
+		filtersetModifiers,
+		filtersetIcon,
+		imageSize,
+		selectedScale,
+		{ offsetX: imageOffset[0], offsetY: imageOffset[1] },
+		expires
+	);
+}
+
 // QuestReward is a wide discriminated union — keep loose typing to avoid narrowing at each call site
 export function getRewardIconInfo(reward: { info: { [key: string]: any } }) {
 	return {
