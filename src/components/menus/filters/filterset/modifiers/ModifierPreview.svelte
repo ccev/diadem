@@ -1,21 +1,26 @@
 <script lang="ts">
-	import { GeoJSON, MapLibre, SymbolLayer } from "svelte-maplibre";
+	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
+	import ModifierBadgeLayer from "@/components/map/ModifierBadgeLayer.svelte";
+	import ModifierUnderlayLayer from "@/components/map/ModifierUnderlayLayer.svelte";
 	import type { AnyFilterset, FiltersetModifiers } from "@/lib/features/filters/filtersets";
-	import type maplibre from "maplibre-gl";
+	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
 	import { ensureMapImages } from "@/lib/map/images";
+	import { getMap } from "@/lib/map/map.svelte";
+	import { getEmojiImageUrl } from "@/lib/map/modifierOverlayIcons";
 	import {
 		buildModifierPreviewFeatureCollection,
 		type ModifierPreviewFeatureProperties
 	} from "@/lib/map/modifierPreviewFeatures";
-	import { getMap } from "@/lib/map/map.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import { getUserSettings } from "@/lib/services/userSettings.svelte";
-	import { getIconPokemon, getUiconSetDetails } from "@/lib/services/uicons.svelte";
-	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
-	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
-	import { getEmojiImageUrl } from "@/lib/map/modifierOverlayIcons";
 	import { resize } from "@/lib/services/assets";
+	import { getConfig } from "@/lib/services/config/config";
+	import { getDefaultMapStyle } from "@/lib/services/themeMode";
+	import { getIconPokemon, getUiconSetDetails } from "@/lib/services/uicons.svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
+	import type maplibre from "maplibre-gl";
+	import { GeoJSON, MapLibre } from "svelte-maplibre";
 
 	type PreviewCenter = [number, number];
 
@@ -43,13 +48,6 @@
 		if (filterset.icon.emoji) return getEmojiImageUrl(filterset.icon.emoji);
 		return undefined;
 	});
-
-	const previewZoom = 16;
-	const companionPokemon = [
-		{ pokemon_id: 1, form: 0 },
-		{ pokemon_id: 4, form: 0 },
-		{ pokemon_id: 7, form: 0 }
-	] as const;
 
 	const emptyFeatureCollection: FeatureCollection<Point, ModifierPreviewFeatureProperties> = {
 		type: "FeatureCollection",
@@ -101,9 +99,7 @@
 		return [currentCenter.lng, currentCenter.lat] as PreviewCenter;
 	});
 
-	let previewStyle = $derived(getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id)));
-
-	let companionLayout = $derived(getPokemonPreviewLayout());
+	let pokemonLayout = $derived(getPokemonPreviewLayout());
 	let focusIconUrl = $derived.by(() => {
 		let url: string;
 		if (filterset?.icon?.uicon?.category === IconCategory.POKEMON) {
@@ -115,25 +111,16 @@
 		}
 		return resize(url, { width: 64 });
 	});
-	let companionIconUrls = $derived(
-		companionPokemon.map((pokemon) =>
-			resize(getIconPokemon({ pokemon_id: pokemon.pokemon_id, form: pokemon.form }), { width: 64 })
-		)
-	);
-
 	let previewFeatures = $derived.by(() => {
 		if (!focusIconUrl) return emptyFeatureCollection;
 
 		return buildModifierPreviewFeatureCollection({
 			center: previewCenter,
 			focusIconUrl,
-			focusBaseImageSize: companionLayout.imageSize,
-			focusImageOffset: companionLayout.imageOffset,
+			focusBaseImageSize: pokemonLayout.imageSize,
+			focusImageOffset: pokemonLayout.imageOffset,
 			modifiers,
-			badgeIconUrl,
-			companionIconUrls,
-			companionImageSize: companionLayout.imageSize,
-			companionImageOffset: companionLayout.imageOffset
+			badgeIconUrl
 		});
 	});
 
@@ -148,9 +135,13 @@
 	{#key getUserSettings().mapStyle.id}
 		<MapLibre
 			bind:map
-			center={previewCenter}
-			zoom={previewZoom}
-			style={previewStyle}
+			center={getMap()?.getCenter() ??
+				getUserSettings().mapPosition.center ?? [
+					getConfig().general.defaultLon,
+					getConfig().general.defaultLat
+				]}
+			zoom={16}
+			style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 			filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}
 			class="size-full"
 			attributionControl={false}
@@ -159,53 +150,16 @@
 			onload={onMapLoad}
 		>
 			<GeoJSON id="modifierPreview" data={previewFeatures}>
-				<SymbolLayer
-					id="modifierPreviewUnderlay"
-					interactive={false}
-					filter={["==", ["get", "layer"], "underlay"]}
-					layout={{
-						"icon-image": ["get", "imageUrl"],
-						"icon-overlap": "always",
-						"icon-size": ["*", ["get", "imageSize"], getUserSettings().mapIconSize],
-						"icon-allow-overlap": true,
-						"icon-offset": ["get", "imageOffset"]
-					}}
-				/>
-				<SymbolLayer
+				<ModifierBadgeLayer id="modifierPreviewBadge" filter={["==", ["get", "layer"], "badge"]} />
+				<MapObjectIconLayer
 					id="modifierPreviewIcons"
-					interactive={false}
+					beforeId="modifierPreviewBadge"
 					filter={["==", ["get", "layer"], "icon"]}
-					layout={{
-						"icon-image": ["get", "imageUrl"],
-						"icon-overlap": "always",
-						"icon-size": ["*", ["get", "imageSize"], getUserSettings().mapIconSize],
-						"icon-allow-overlap": true,
-						"icon-offset": ["get", "imageOffset"],
-						"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
-						"text-field": ["coalesce", ["get", "textLabel"], ""],
-						"text-anchor": "top",
-						"text-offset": [0, 2.2],
-						"text-size": 11,
-						"text-allow-overlap": true,
-						"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]
-					}}
-					paint={{
-						"text-color": "#ffffff",
-						"text-halo-color": "#000000",
-						"text-halo-width": 1.5
-					}}
 				/>
-				<SymbolLayer
-					id="modifierPreviewBadge"
-					interactive={false}
-					filter={["==", ["get", "layer"], "badge"]}
-					layout={{
-						"icon-image": ["get", "imageUrl"],
-						"icon-overlap": "always",
-						"icon-size": ["*", ["get", "imageSize"], getUserSettings().mapIconSize],
-						"icon-allow-overlap": true,
-						"icon-offset": ["get", "imageOffset"]
-					}}
+				<ModifierUnderlayLayer
+					id="modifierPreviewUnderlay"
+					beforeId="modifierPreviewIcons"
+					filter={["==", ["get", "layer"], "underlay"]}
 				/>
 			</GeoJSON>
 		</MapLibre>
