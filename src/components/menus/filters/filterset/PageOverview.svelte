@@ -19,6 +19,7 @@
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import ModifiersAttribute from "./modifiers/ModifiersAttribute.svelte";
 	import { type AnyFilterset, type FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
 	import AttributeChip from "./AttributeChip.svelte";
 
@@ -28,7 +29,10 @@
 		overview: Snippet;
 	} = $props();
 
-	let data = $state.snapshot(getCurrentSelectedFilterset()?.data);
+	let selectedFilterset = getCurrentSelectedFilterset();
+	let data = $state.snapshot(selectedFilterset?.data);
+	let majorCategory = selectedFilterset?.majorCategory as FilterCategory | undefined;
+	let subCategory = selectedFilterset?.subCategory as FilterCategory | undefined;
 
 	let previewIconUrl = $derived(data ? getModifierPreviewIcon(data) : undefined);
 </script>
@@ -38,7 +42,7 @@
 {/snippet}
 
 {#snippet editVisualPage(thisData: AnyFilterset)}
-	<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} />
+	<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} {majorCategory} {subCategory} />
 {/snippet}
 
 <div
@@ -81,6 +85,8 @@
 				modifiers={data.modifiers}
 				iconUrl={previewIconUrl}
 				filterset={data}
+				{majorCategory}
+				{subCategory}
 			/>
 			<Pencil class="ml-auto shrink-0 absolute right-4 top-1/2 -translate-y-1/2" size="14" />
 		</Button>

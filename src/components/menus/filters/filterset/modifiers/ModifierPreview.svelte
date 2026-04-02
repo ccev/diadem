@@ -2,20 +2,25 @@
 	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
 	import ModifierBadgeLayer from "@/components/map/ModifierBadgeLayer.svelte";
 	import ModifierUnderlayLayer from "@/components/map/ModifierUnderlayLayer.svelte";
-	import type { AnyFilterset, FiltersetModifiers } from "@/lib/features/filters/filtersets";
+	import type {
+		AnyFilterset,
+		FiltersetModifiers,
+		FiltersetRaid
+	} from "@/lib/features/filters/filtersets";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
 	import { ensureMapImages } from "@/lib/map/images";
 	import { getMap } from "@/lib/map/map.svelte";
+	import { getModifiers } from "@/lib/map/modifierLayout";
 	import { getEmojiImageUrl } from "@/lib/map/modifierOverlayIcons";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import {
 		buildModifierPreviewFeatureCollection,
 		type ModifierPreviewFeatureProperties
 	} from "@/lib/map/modifierPreviewFeatures";
-	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { resize } from "@/lib/services/assets";
 	import { getConfig } from "@/lib/services/config/config";
-	import { getDefaultMapStyle } from "@/lib/services/themeMode";
-	import { getIconPokemon, getUiconSetDetails } from "@/lib/services/uicons.svelte";
+	import { getIconPokemon, getIconStation, getUiconSetDetails } from "@/lib/services/uicons.svelte";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
@@ -28,13 +33,15 @@
 		modifiers = undefined,
 		iconUrl = undefined,
 		filterset = undefined,
-		compact = false,
+		majorCategory = undefined,
+		subCategory = undefined,
 		class: class_ = ""
 	}: {
 		modifiers?: FiltersetModifiers;
 		iconUrl?: string;
 		filterset?: AnyFilterset;
-		compact?: boolean;
+		majorCategory?: FilterCategory;
+		subCategory?: FilterCategory;
 		class?: string;
 	} = $props();
 
@@ -56,24 +63,105 @@
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
-	function getPokemonPreviewLayout() {
-		const iconSet = getUiconSetDetails(getUserSettings().uiconSet.pokemon.id);
-		const baseModifier = iconSet?.base;
-		const pokemonModifier = iconSet?.[MapObjectType.POKEMON];
+	/** Whether the current raid filterset shows a boss pokemon (true) or egg (false). */
+	function isRaidBoss(): boolean {
+		if (!filterset) return false;
+		return "bosses" in filterset && Boolean((filterset as FiltersetRaid).bosses?.length);
+	}
 
-		let imageSize = 0.25;
-		let offsetX = 0;
-		let offsetY = 0;
+	function getPreviewLayout() {
+		const effectiveCategory = subCategory ?? majorCategory;
 
-		if (pokemonModifier && typeof pokemonModifier === "object") {
-			imageSize = pokemonModifier.scale ?? baseModifier?.scale ?? imageSize;
-			offsetX = pokemonModifier.offsetX ?? baseModifier?.offsetX ?? offsetX;
-			offsetY = pokemonModifier.offsetY ?? baseModifier?.offsetY ?? offsetY;
+		if (effectiveCategory === "raid") {
+			const gymIconSet = getUiconSetDetails(getUserSettings().uiconSet.gym.id);
+			const baseMod = getModifiers(gymIconSet, MapObjectType.GYM);
+
+			let focusImageSize: number;
+			let overlayOffsetX: number;
+			let overlayOffsetY: number;
+
+			if (isRaidBoss()) {
+				// Boss: pokemonModifiers.scale × raidModifiers.scale, offset from raid_pokemon
+				const pokemonMod = getModifiers(gymIconSet, MapObjectType.POKEMON);
+				const raidMod = getModifiers(gymIconSet, "raid_pokemon");
+				focusImageSize = pokemonMod.scale * raidMod.scale;
+				overlayOffsetX = raidMod.offsetX;
+				overlayOffsetY = raidMod.offsetY;
+			} else {
+				// Egg: raidModifiers.scale only, offset from raid_egg
+				const raidMod = getModifiers(gymIconSet, "raid_egg");
+				focusImageSize = raidMod.scale;
+				overlayOffsetX = raidMod.offsetX;
+				overlayOffsetY = raidMod.offsetY;
+			}
+
+			return {
+				baseIconUrl: resize(getIcon(IconCategory.GYM, { team_id: 0 }), { width: 64 }),
+				baseImageSize: baseMod.scale,
+				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
+				focusImageSize,
+				focusImageOffset: [baseMod.offsetX + overlayOffsetX, baseMod.offsetY + overlayOffsetY]
+			};
 		}
 
+		if (effectiveCategory === "quest") {
+			const pokestopIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokestop.id);
+			const baseMod = getModifiers(pokestopIconSet, MapObjectType.POKESTOP);
+			const questMod = getModifiers(pokestopIconSet, "quest");
+
+			return {
+				baseIconUrl: resize(getIcon(IconCategory.POKESTOP, {}), { width: 64 }),
+				baseImageSize: baseMod.scale,
+				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
+				focusImageSize: questMod.scale,
+				focusImageOffset: [baseMod.offsetX + questMod.offsetX, baseMod.offsetY + questMod.offsetY]
+			};
+		}
+
+		if (effectiveCategory === "invasion") {
+			const pokestopIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokestop.id);
+			const baseMod = getModifiers(pokestopIconSet, MapObjectType.POKESTOP);
+			const invasionMod = getModifiers(pokestopIconSet, "invasion");
+
+			return {
+				baseIconUrl: resize(getIcon(IconCategory.POKESTOP, {}), { width: 64 }),
+				baseImageSize: baseMod.scale,
+				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
+				focusImageSize: invasionMod.scale,
+				focusImageOffset: [
+					baseMod.offsetX + invasionMod.offsetX,
+					baseMod.offsetY + invasionMod.offsetY
+				]
+			};
+		}
+
+		if (effectiveCategory === "maxBattle") {
+			const stationIconSet = getUiconSetDetails(getUserSettings().uiconSet.station.id);
+			const baseMod = getModifiers(stationIconSet, MapObjectType.STATION);
+			const maxBattleMod = getModifiers(stationIconSet, "max_battle");
+
+			return {
+				baseIconUrl: resize(getIconStation(false), { width: 64 }),
+				baseImageSize: baseMod.scale,
+				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
+				focusImageSize: maxBattleMod.scale,
+				focusImageOffset: [
+					baseMod.offsetX + maxBattleMod.offsetX,
+					baseMod.offsetY + maxBattleMod.offsetY
+				]
+			};
+		}
+
+		// Default: pokemon (no base icon)
+		const pokemonIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokemon.id);
+		const pokemonMod = getModifiers(pokemonIconSet, MapObjectType.POKEMON);
+
 		return {
-			imageSize,
-			imageOffset: [offsetX, offsetY]
+			baseIconUrl: undefined,
+			baseImageSize: undefined,
+			baseImageOffset: undefined,
+			focusImageSize: pokemonMod.scale,
+			focusImageOffset: [pokemonMod.offsetX, pokemonMod.offsetY]
 		};
 	}
 
@@ -99,7 +187,7 @@
 		return [currentCenter.lng, currentCenter.lat] as PreviewCenter;
 	});
 
-	let pokemonLayout = $derived(getPokemonPreviewLayout());
+	let layout = $derived(getPreviewLayout());
 	let focusIconUrl = $derived.by(() => {
 		let url: string;
 		if (filterset?.icon?.uicon?.category === IconCategory.POKEMON) {
@@ -117,10 +205,13 @@
 		return buildModifierPreviewFeatureCollection({
 			center: previewCenter,
 			focusIconUrl,
-			focusBaseImageSize: pokemonLayout.imageSize,
-			focusImageOffset: pokemonLayout.imageOffset,
+			focusBaseImageSize: layout.focusImageSize,
+			focusImageOffset: layout.focusImageOffset,
 			modifiers,
-			badgeIconUrl
+			badgeIconUrl,
+			baseIconUrl: layout.baseIconUrl,
+			baseImageSize: layout.baseImageSize,
+			baseImageOffset: layout.baseImageOffset
 		});
 	});
 

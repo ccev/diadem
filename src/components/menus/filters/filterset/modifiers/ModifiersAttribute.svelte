@@ -15,16 +15,21 @@
 		MODIFIER_GLOW_OPACITY,
 		MODIFIER_GLOW_RADIUS
 	} from "@/lib/features/filters/modifierPresets";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import { slide } from "svelte/transition";
 	import { formatPercentage } from "@/lib/utils/numberFormat";
 
 	let {
 		data,
-		iconUrl = undefined
+		iconUrl = undefined,
+		majorCategory = undefined,
+		subCategory = undefined
 	}: {
 		data: AnyFilterset;
 		iconUrl?: string;
+		majorCategory?: FilterCategory;
+		subCategory?: FilterCategory;
 	} = $props();
 
 	type VisualMode = "none" | "glow" | "background";
@@ -57,7 +62,7 @@
 </script>
 
 <div class="sticky top-0 pt-1 z-10">
-	<ModifierPreview modifiers={data.modifiers} {iconUrl} filterset={data} />
+	<ModifierPreview modifiers={data.modifiers} {iconUrl} filterset={data} {majorCategory} {subCategory} />
 </div>
 
 <div class="divide-y divide-border *:py-6 *:px-1">

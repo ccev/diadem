@@ -41,6 +41,9 @@ type ModifierPreviewFeatureCollectionArgs = {
 	focusImageOffset: number[];
 	modifiers?: FiltersetModifiers;
 	badgeIconUrl?: string;
+	baseIconUrl?: string;
+	baseImageSize?: number;
+	baseImageOffset?: number[];
 };
 
 function getPreviewFeature(
@@ -74,73 +77,164 @@ export function buildModifierPreviewFeatureCollection({
 	focusBaseImageSize,
 	focusImageOffset,
 	modifiers,
-	badgeIconUrl
+	badgeIconUrl,
+	baseIconUrl,
+	baseImageSize,
+	baseImageOffset
 }: ModifierPreviewFeatureCollectionArgs): FeatureCollection<
 	Point,
 	ModifierPreviewFeatureProperties
 > {
 	const features: Feature<Point, ModifierPreviewFeatureProperties>[] = [];
-	const focusImageSize = focusBaseImageSize * (modifiers?.scale ?? 1);
+	const hasBase = baseIconUrl && baseImageSize !== undefined && baseImageOffset;
+	const scale = modifiers?.scale ?? 1;
+	const rotation = modifiers?.rotation ?? 0;
 
-	if (modifiers?.background) {
+	if (hasBase) {
+		// Composite mode: scale + rotation affect the whole map object as one
+		// unit, pivoting around the base icon center.
+		const scaledBaseSize = baseImageSize * scale;
+		const scaledFocusSize = focusBaseImageSize * scale;
+
+		if (modifiers?.background) {
+			features.push(
+				getPreviewFeature({
+					coordinates: center,
+					imageUrl: getModifierOverlayIconUrl(
+						"background",
+						modifiers.background.color,
+						modifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
+					),
+					imageSize: getModifierOverlayImageSize(scaledBaseSize, 1.1),
+					imageOffset: baseImageOffset,
+					imageRotation: rotation || undefined,
+					layer: "underlay"
+				})
+			);
+		}
+
+		if (modifiers?.glow) {
+			features.push(
+				getPreviewFeature({
+					coordinates: center,
+					imageUrl: getModifierOverlayIconUrl(
+						"glow",
+						modifiers.glow.color,
+						modifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY
+					),
+					imageSize: getModifierOverlayImageSize(
+						scaledBaseSize,
+						modifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
+					),
+					imageOffset: baseImageOffset,
+					imageRotation: rotation || undefined,
+					layer: "underlay"
+				})
+			);
+		}
+
 		features.push(
 			getPreviewFeature({
 				coordinates: center,
-				imageUrl: getModifierOverlayIconUrl(
-					"background",
-					modifiers.background.color,
-					modifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
-				),
-				imageSize: getModifierOverlayImageSize(focusImageSize, 1.1),
+				imageUrl: baseIconUrl,
+				imageSize: scaledBaseSize,
+				imageOffset: baseImageOffset,
+				imageRotation: rotation || undefined,
+				layer: "icon"
+			})
+		);
+
+		const textLabel = modifiers?.showLabel ?? undefined;
+
+		features.push(
+			getPreviewFeature({
+				coordinates: center,
+				imageUrl: focusIconUrl,
+				imageSize: scaledFocusSize,
 				imageOffset: focusImageOffset,
-				layer: "underlay"
+				imageRotation: rotation || undefined,
+				textLabel,
+				layer: "icon"
 			})
 		);
-	}
 
-	if (modifiers?.glow) {
+		if (modifiers?.showBadge && badgeIconUrl) {
+			features.push(
+				getPreviewFeature({
+					coordinates: center,
+					imageUrl: badgeIconUrl,
+					imageSize: scaledBaseSize * BADGE_SCALE_RATIO,
+					imageOffset: getBadgeOffset(baseImageOffset[0], baseImageOffset[1]),
+					layer: "badge"
+				})
+			);
+		}
+	} else {
+		// Simple mode: no base icon, modifiers apply directly to the focus icon.
+		const focusImageSize = focusBaseImageSize * scale;
+
+		if (modifiers?.background) {
+			features.push(
+				getPreviewFeature({
+					coordinates: center,
+					imageUrl: getModifierOverlayIconUrl(
+						"background",
+						modifiers.background.color,
+						modifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
+					),
+					imageSize: getModifierOverlayImageSize(focusImageSize, 1.1),
+					imageOffset: focusImageOffset,
+					imageRotation: rotation || undefined,
+					layer: "underlay"
+				})
+			);
+		}
+
+		if (modifiers?.glow) {
+			features.push(
+				getPreviewFeature({
+					coordinates: center,
+					imageUrl: getModifierOverlayIconUrl(
+						"glow",
+						modifiers.glow.color,
+						modifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY
+					),
+					imageSize: getModifierOverlayImageSize(
+						focusImageSize,
+						modifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
+					),
+					imageOffset: focusImageOffset,
+					imageRotation: rotation || undefined,
+					layer: "underlay"
+				})
+			);
+		}
+
+		const textLabel = modifiers?.showLabel ?? undefined;
+
 		features.push(
 			getPreviewFeature({
 				coordinates: center,
-				imageUrl: getModifierOverlayIconUrl(
-					"glow",
-					modifiers.glow.color,
-					modifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY
-				),
-				imageSize: getModifierOverlayImageSize(
-					focusImageSize,
-					modifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
-				),
+				imageUrl: focusIconUrl,
+				imageSize: focusImageSize,
 				imageOffset: focusImageOffset,
-				layer: "underlay"
+				imageRotation: rotation || undefined,
+				textLabel,
+				layer: "icon"
 			})
 		);
-	}
 
-	const textLabel = modifiers?.showLabel ?? undefined;
-
-	features.push(
-		getPreviewFeature({
-			coordinates: center,
-			imageUrl: focusIconUrl,
-			imageSize: focusImageSize,
-			imageOffset: focusImageOffset,
-			imageRotation: modifiers?.rotation ?? undefined,
-			textLabel,
-			layer: "icon"
-		})
-	);
-
-	if (modifiers?.showBadge && badgeIconUrl) {
-		features.push(
-			getPreviewFeature({
-				coordinates: center,
-				imageUrl: badgeIconUrl,
-				imageSize: focusImageSize * BADGE_SCALE_RATIO,
-				imageOffset: getBadgeOffset(focusImageOffset[0], focusImageOffset[1]),
-				layer: "badge"
-			})
-		);
+		if (modifiers?.showBadge && badgeIconUrl) {
+			features.push(
+				getPreviewFeature({
+					coordinates: center,
+					imageUrl: badgeIconUrl,
+					imageSize: focusImageSize * BADGE_SCALE_RATIO,
+					imageOffset: getBadgeOffset(focusImageOffset[0], focusImageOffset[1]),
+					layer: "badge"
+				})
+			);
+		}
 	}
 
 	return {

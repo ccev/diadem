@@ -6,6 +6,7 @@
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { Snippet } from "svelte";
 	import * as m from "@/lib/paraglide/messages";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import Seperator from "@/components/ui/Seperator.svelte";
 
@@ -36,7 +37,7 @@
 	{#if data.modifiers}
 		<Seperator class="my-3" text="Map Preview" />
 		<div class="w-full">
-			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} />
+			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} majorCategory={filterset?.majorCategory as FilterCategory | undefined} subCategory={filterset?.subCategory as FilterCategory | undefined} />
 		</div>
 	{/if}
 
