@@ -16,6 +16,10 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { FiltersetInvasion } from "@/lib/features/filters/filtersets";
+import {
+	getMatchingInvasionFilterset,
+	getMatchingQuestFilterset
+} from "@/lib/features/filters/matchFilterset";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7;
@@ -290,13 +294,7 @@ export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<Pok
 		const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
 		if (invasionFilters.length === 0) return true;
 
-		for (const invasionFilter of invasionFilters) {
-			if (invasionFilter.characters?.includes(incident.character)) return true;
-
-			if (invasionFilter.rewards && matchesInvasionRewards(invasionFilter.rewards, incident)) {
-				return true;
-			}
-		}
+		return Boolean(getMatchingInvasionFilterset(incident, invasionFilters));
 	}
 
 	return false;
@@ -316,111 +314,7 @@ export function shouldDisplayQuest(
 	const questFilters = pokestopFilter.quest.filters.filter((f) => f.enabled);
 	if (questFilters.length === 0) return true;
 
-	for (const questFilter of questFilters) {
-		if (questFilter.ar) {
-			if (questFilter.ar === QuestArType.AR && !isAr) continue;
-			if (questFilter.ar === QuestArType.NOAR && isAr) continue;
-		}
-
-		if (questFilter.rewardType && questFilter.rewardType !== reward.type) continue;
-
-		if (
-			questFilter.tasks &&
-			!questFilter.tasks.find((t) => t.title === title && t.target === target)
-		) {
-			continue;
-		}
-
-		const hasRewardMatcher = Boolean(
-			questFilter.stardust ||
-				questFilter.xp ||
-				questFilter.pokemon ||
-				questFilter.item ||
-				questFilter.megaResource ||
-				questFilter.candy ||
-				questFilter.xlCandy
-		);
-
-		if (questFilter.rewardType && !hasRewardMatcher) return true;
-
-		if (
-			questFilter.stardust &&
-			reward.type === RewardType.STARDUST &&
-			reward.info.amount >= questFilter.stardust.min &&
-			reward.info.amount <= questFilter.stardust.max
-		) {
-			return true;
-		}
-
-		if (
-			questFilter.xp &&
-			reward.type === RewardType.XP &&
-			reward.info.amount >= questFilter.xp.min &&
-			reward.info.amount <= questFilter.xp.max
-		) {
-			return true;
-		}
-
-		if (
-			questFilter.pokemon &&
-			reward.type === RewardType.POKEMON &&
-			questFilter.pokemon.find(
-				(p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form
-			)
-		) {
-			return true;
-		}
-
-		if (
-			questFilter.item &&
-			reward.type === RewardType.ITEM &&
-			questFilter.item.find(
-				(i) =>
-					i.id === reward.info.item_id.toString() &&
-					(i.amount === undefined || i.amount === reward.info.amount)
-			)
-		) {
-			return true;
-		}
-
-		if (
-			questFilter.megaResource &&
-			reward.type === RewardType.MEGA_ENERGY &&
-			questFilter.megaResource.find(
-				(i) =>
-					i.id === reward.info.pokemon_id.toString() &&
-					(i.amount === undefined || i.amount === reward.info.amount)
-			)
-		) {
-			return true;
-		}
-
-		if (
-			questFilter.candy &&
-			reward.type === RewardType.CANDY &&
-			questFilter.candy.find(
-				(i) =>
-					i.id === reward.info.pokemon_id.toString() &&
-					(i.amount === undefined || i.amount === reward.info.amount)
-			)
-		) {
-			return true;
-		}
-
-		if (
-			questFilter.xlCandy &&
-			reward.type === RewardType.XL_CANDY &&
-			questFilter.xlCandy.find(
-				(i) =>
-					i.id === reward.info.pokemon_id.toString() &&
-					(i.amount === undefined || i.amount === reward.info.amount)
-			)
-		) {
-			return true;
-		}
-	}
-
-	return false;
+	return Boolean(getMatchingQuestFilterset(reward, title, target, isAr, questFilters));
 }
 
 export function shouldDisplayLure(data: Partial<PokestopData>) {

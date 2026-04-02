@@ -9,6 +9,7 @@ import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svel
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveNestFilter } from "@/lib/utils/nestUtils";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { getMatchingMaxBattleFilterset } from "@/lib/features/filters/matchFilterset";
 
 export const STATION_SLOTS = 40;
 
@@ -66,42 +67,5 @@ export function shouldDisplayStation(station: StationData) {
 	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
 	if (maxBattleFilters.length === 0) return true;
 
-	for (const filterset of maxBattleFilters) {
-		if (
-			filterset.bosses === undefined &&
-			!filterset.isActive &&
-			!filterset.hasGmax &&
-			(!filterset.levels || filterset.levels.length === 0)
-		) {
-			return true;
-		}
-
-		if (filterset.isActive && !isMaxBattleActive(station)) continue;
-
-		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
-
-		if (
-			filterset.levels &&
-			filterset.levels.length > 0 &&
-			(!station.battle_level || !filterset.levels.includes(station.battle_level))
-		) {
-			continue;
-		}
-
-		if (
-			filterset.bosses !== undefined &&
-			filterset.bosses.find(
-				(p) =>
-					p.pokemon_id === station.battle_pokemon_id &&
-					p.form === station.battle_pokemon_form &&
-					(p.bread_mode === undefined || p.bread_mode === station.battle_pokemon_bread_mode)
-			)
-		) {
-			return true;
-		}
-
-		if (filterset.isActive || filterset.hasGmax || filterset.levels?.length) return true;
-	}
-
-	return false;
+	return Boolean(getMatchingMaxBattleFilterset(station, maxBattleFilters));
 }

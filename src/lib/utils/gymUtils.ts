@@ -1,14 +1,15 @@
-import type { GymData } from '@/lib/types/mapObjectData/gym';
-import type { PokemonData } from '@/lib/types/mapObjectData/pokemon';
-import { currentTimestamp } from '@/lib/utils/currentTimestamp';
+import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { FilterGym, FilterPokestop } from "@/lib/features/filters/filters";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getMatchingRaidFilterset } from "@/lib/features/filters/matchFilterset";
 
-export type RaidFilterType = "level" | "boss"
+export type RaidFilterType = "level" | "boss";
 export const GYM_SLOTS = 6;
 
 export enum RaidLevel {
@@ -22,9 +23,11 @@ export enum RaidLevel {
 	MEGA_LEGENDARY = 7,
 	PRIMAL = 10,
 	ULTRA_BEAST = 8,
-	ELITE = 9,
+	ELITE = 9
 }
-export const RAID_LEVELS = Object.values(RaidLevel).filter(v => typeof v === "number") as number[]
+export const RAID_LEVELS = Object.values(RaidLevel).filter(
+	(v) => typeof v === "number"
+) as number[];
 
 export function getRaidPokemon(gym: GymData): Partial<PokemonData> {
 	return {
@@ -45,11 +48,11 @@ export function isFortOutdated(updated?: number) {
 }
 
 export function hasActiveRaid(data: GymData) {
-	return (data.raid_end_timestamp ?? 0) > currentTimestamp()
+	return (data.raid_end_timestamp ?? 0) > currentTimestamp();
 }
 
 export function isRaidHatched(data: GymData) {
-	return (data.raid_battle_timestamp ?? 0) < currentTimestamp()
+	return (data.raid_battle_timestamp ?? 0) < currentTimestamp();
 }
 
 export function getDefaultGymFilter(): FilterGym {
@@ -58,7 +61,7 @@ export function getDefaultGymFilter(): FilterGym {
 		...defaultFilter(true),
 		gymPlain: { category: "gymPlain", ...defaultFilter(true) },
 		raid: { category: "raid", ...defaultFilter(true) }
-	}
+	};
 }
 
 export function getActiveGymFilter() {
@@ -70,51 +73,22 @@ export function getActiveGymFilter() {
 }
 
 export function shouldDisplayRaid(data: GymData) {
-	const timestamp = currentTimestamp()
+	const timestamp = currentTimestamp();
 
 	// only active raids
-	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false
+	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false;
 
-	if (isCurrentSelectedOverwrite(data.mapId)) return true
+	if (isCurrentSelectedOverwrite(data.mapId)) return true;
 
 	// general disabling
-	const gymFilters = getActiveGymFilter()
-	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false
+	const gymFilters = getActiveGymFilter();
+	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false;
 
 	// yes if not filtersets
-	if (gymFilters.raid.filters === undefined) return true
+	if (gymFilters.raid.filters === undefined) return true;
 
-	const filters = gymFilters.raid.filters.filter(f => f.enabled)
-	if (filters.length === 0) return true
+	const filters = gymFilters.raid.filters.filter((f) => f.enabled);
+	if (filters.length === 0) return true;
 
-	const isEgg = !data.raid_pokemon_id
-
-	for (const filter of filters) {
-		if (filter.show) {
-			// skip if hatch state shouldn't be shown
-			if (filter.show.includes("egg") && !isEgg) continue
-			if (filter.show.includes("boss") && isEgg) continue
-
-			// return true if this is the only attribute
-			if (!filter.levels && !filter.bosses) {
-				if (filter.show.includes("egg") && isEgg) return true
-				if (filter.show.includes("boss") && !isEgg) return true
-			}
-		}
-
-		// respect level filters
-		if (filter.levels?.includes(data.raid_level)) return true
-
-		// check if boss should be shown
-		for (const boss of filter.bosses ?? []) {
-			if (
-				boss.pokemon_id === data.raid_pokemon_id &&
-				boss.form === (data.raid_pokemon_form ?? 0)
-			) {
-				return true
-			}
-		}
-	}
-
-	return false
+	return Boolean(getMatchingRaidFilterset(data, filters));
 }
