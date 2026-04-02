@@ -1,38 +1,13 @@
-import type { Feature, FeatureCollection, Point } from "geojson";
+import type { FeatureCollection, Point } from "geojson";
 import type { FiltersetModifiers } from "@/lib/features/filters/filtersets";
+import { withVisualTransform } from "@/lib/map/modifierLayout";
+import { BADGE_SCALE_RATIO, getBadgeOffset } from "@/lib/map/modifierOverlayIcons";
 import {
-	MODIFIER_BACKGROUND_OPACITY,
-	MODIFIER_GLOW_OPACITY,
-	MODIFIER_GLOW_RADIUS
-} from "@/lib/features/filters/modifierPresets";
-import {
-	getModifierOverlayIconUrl,
-	getModifierOverlayImageSize,
-	BADGE_SCALE_RATIO,
-	getBadgeOffset
-} from "@/lib/map/modifierOverlayIcons";
-
-type PreviewFeatureLayer = "underlay" | "icon" | "badge";
-
-export type ModifierPreviewFeatureProperties = {
-	layer: PreviewFeatureLayer;
-	imageUrl: string;
-	imageSize: number;
-	imageOffset?: number[];
-	imageRotation?: number;
-	textLabel?: string;
-	selectedScale?: number;
-};
-
-type PreviewMarker = {
-	coordinates: Point["coordinates"];
-	imageUrl: string;
-	imageSize: number;
-	imageOffset: number[];
-	imageRotation?: number;
-	textLabel?: string;
-	layer: PreviewFeatureLayer;
-};
+	type MapObjectIconFeature,
+	type MapObjectFeature,
+	getIconFeature
+} from "./render/featureBuilders";
+import { addModifierOverlayFeatures, getTextLabel } from "./render/modifierFeatures";
 
 type ModifierPreviewFeatureCollectionArgs = {
 	center: Point["coordinates"];
@@ -46,30 +21,7 @@ type ModifierPreviewFeatureCollectionArgs = {
 	baseImageOffset?: number[];
 };
 
-function getPreviewFeature(
-	marker: PreviewMarker
-): Feature<Point, ModifierPreviewFeatureProperties> {
-	return {
-		type: "Feature",
-		geometry: {
-			type: "Point",
-			coordinates: marker.coordinates
-		},
-		properties: {
-			layer: marker.layer,
-			imageUrl: marker.imageUrl,
-			imageSize: marker.imageSize,
-			imageOffset: marker.imageOffset,
-			...(marker.imageRotation !== undefined && {
-				imageRotation: marker.imageRotation
-			}),
-			...(marker.textLabel !== undefined && {
-				textLabel: marker.textLabel
-			}),
-			selectedScale: 1
-		}
-	};
-}
+const PREVIEW_MAP_ID = "preview";
 
 export function buildModifierPreviewFeatureCollection({
 	center,
@@ -81,164 +33,80 @@ export function buildModifierPreviewFeatureCollection({
 	baseIconUrl,
 	baseImageSize,
 	baseImageOffset
-}: ModifierPreviewFeatureCollectionArgs): FeatureCollection<
-	Point,
-	ModifierPreviewFeatureProperties
-> {
-	const features: Feature<Point, ModifierPreviewFeatureProperties>[] = [];
+}: ModifierPreviewFeatureCollectionArgs): FeatureCollection<Point> {
+	const subFeatures: MapObjectFeature[] = [];
 	const hasBase = baseIconUrl && baseImageSize !== undefined && baseImageOffset;
-	const scale = modifiers?.scale ?? 1;
-	const rotation = modifiers?.rotation ?? 0;
 
+	// Determine the anchor point: base icon center for composites, focus icon for simple
+	const anchorSize = hasBase ? baseImageSize : focusBaseImageSize;
+	const anchorOffset = hasBase ? baseImageOffset : focusImageOffset;
+
+	const visual = withVisualTransform(anchorSize, modifiers);
+
+	// Overlay features (background/glow) centered on anchor
+	addModifierOverlayFeatures(
+		subFeatures,
+		PREVIEW_MAP_ID,
+		PREVIEW_MAP_ID,
+		center,
+		1,
+		visual.imageSize,
+		modifiers,
+		anchorOffset
+	);
+
+	// Base icon (composites only)
 	if (hasBase) {
-		// Composite mode: scale + rotation affect the whole map object as one
-		// unit, pivoting around the base icon center.
-		const scaledBaseSize = baseImageSize * scale;
-		const scaledFocusSize = focusBaseImageSize * scale;
-
-		if (modifiers?.background) {
-			features.push(
-				getPreviewFeature({
-					coordinates: center,
-					imageUrl: getModifierOverlayIconUrl(
-						"background",
-						modifiers.background.color,
-						modifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
-					),
-					imageSize: getModifierOverlayImageSize(scaledBaseSize, 1.1),
-					imageOffset: baseImageOffset,
-					imageRotation: rotation || undefined,
-					layer: "underlay"
-				})
-			);
-		}
-
-		if (modifiers?.glow) {
-			features.push(
-				getPreviewFeature({
-					coordinates: center,
-					imageUrl: getModifierOverlayIconUrl(
-						"glow",
-						modifiers.glow.color,
-						modifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY
-					),
-					imageSize: getModifierOverlayImageSize(
-						scaledBaseSize,
-						modifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
-					),
-					imageOffset: baseImageOffset,
-					imageRotation: rotation || undefined,
-					layer: "underlay"
-				})
-			);
-		}
-
-		features.push(
-			getPreviewFeature({
-				coordinates: center,
+		subFeatures.push(
+			getIconFeature(`${PREVIEW_MAP_ID}-base`, center, {
+				id: PREVIEW_MAP_ID,
 				imageUrl: baseIconUrl,
-				imageSize: scaledBaseSize,
+				imageSize: visual.imageSize,
+				selectedScale: 1,
 				imageOffset: baseImageOffset,
-				imageRotation: rotation || undefined,
-				layer: "icon"
+				...(visual.imageRotation !== undefined && { imageRotation: visual.imageRotation }),
+				expires: null
 			})
 		);
+	}
 
-		const textLabel = modifiers?.showLabel ?? undefined;
+	// Focus icon
+	const focusVisual = hasBase
+		? withVisualTransform(focusBaseImageSize, modifiers)
+		: visual;
 
-		features.push(
-			getPreviewFeature({
-				coordinates: center,
-				imageUrl: focusIconUrl,
-				imageSize: scaledFocusSize,
-				imageOffset: focusImageOffset,
-				imageRotation: rotation || undefined,
-				textLabel,
-				layer: "icon"
+	subFeatures.push(
+		getIconFeature(`${PREVIEW_MAP_ID}-focus`, center, {
+			id: PREVIEW_MAP_ID,
+			imageUrl: focusIconUrl,
+			imageSize: focusVisual.imageSize,
+			selectedScale: 1,
+			imageOffset: focusImageOffset,
+			...(focusVisual.imageRotation !== undefined && {
+				imageRotation: focusVisual.imageRotation
+			}),
+			textLabel: getTextLabel(modifiers),
+			expires: null
+		})
+	);
+
+	// Badge
+	if (modifiers?.showBadge && badgeIconUrl) {
+		subFeatures.push(
+			getIconFeature(`${PREVIEW_MAP_ID}-badge`, center, {
+				id: PREVIEW_MAP_ID,
+				imageUrl: badgeIconUrl,
+				imageSize: visual.imageSize * BADGE_SCALE_RATIO,
+				selectedScale: 1,
+				imageOffset: getBadgeOffset(anchorOffset[0], anchorOffset[1]),
+				isAttachedBadge: true,
+				expires: null
 			})
 		);
-
-		if (modifiers?.showBadge && badgeIconUrl) {
-			features.push(
-				getPreviewFeature({
-					coordinates: center,
-					imageUrl: badgeIconUrl,
-					imageSize: scaledBaseSize * BADGE_SCALE_RATIO,
-					imageOffset: getBadgeOffset(baseImageOffset[0], baseImageOffset[1]),
-					layer: "badge"
-				})
-			);
-		}
-	} else {
-		// Simple mode: no base icon, modifiers apply directly to the focus icon.
-		const focusImageSize = focusBaseImageSize * scale;
-
-		if (modifiers?.background) {
-			features.push(
-				getPreviewFeature({
-					coordinates: center,
-					imageUrl: getModifierOverlayIconUrl(
-						"background",
-						modifiers.background.color,
-						modifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
-					),
-					imageSize: getModifierOverlayImageSize(focusImageSize, 1.1),
-					imageOffset: focusImageOffset,
-					imageRotation: rotation || undefined,
-					layer: "underlay"
-				})
-			);
-		}
-
-		if (modifiers?.glow) {
-			features.push(
-				getPreviewFeature({
-					coordinates: center,
-					imageUrl: getModifierOverlayIconUrl(
-						"glow",
-						modifiers.glow.color,
-						modifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY
-					),
-					imageSize: getModifierOverlayImageSize(
-						focusImageSize,
-						modifiers.glow.radius ?? MODIFIER_GLOW_RADIUS
-					),
-					imageOffset: focusImageOffset,
-					imageRotation: rotation || undefined,
-					layer: "underlay"
-				})
-			);
-		}
-
-		const textLabel = modifiers?.showLabel ?? undefined;
-
-		features.push(
-			getPreviewFeature({
-				coordinates: center,
-				imageUrl: focusIconUrl,
-				imageSize: focusImageSize,
-				imageOffset: focusImageOffset,
-				imageRotation: rotation || undefined,
-				textLabel,
-				layer: "icon"
-			})
-		);
-
-		if (modifiers?.showBadge && badgeIconUrl) {
-			features.push(
-				getPreviewFeature({
-					coordinates: center,
-					imageUrl: badgeIconUrl,
-					imageSize: focusImageSize * BADGE_SCALE_RATIO,
-					imageOffset: getBadgeOffset(focusImageOffset[0], focusImageOffset[1]),
-					layer: "badge"
-				})
-			);
-		}
 	}
 
 	return {
-		type: "FeatureCollection",
-		features
+		type: "FeatureCollection" as const,
+		features: subFeatures as MapObjectIconFeature[]
 	};
 }

@@ -12,13 +12,8 @@ import {
 	getMatchingQuestFilterset,
 	getMatchingInvasionFilterset
 } from "@/lib/features/filters/matchFilterset";
-import { getIconFeature, type MapObjectFeature } from "./featureBuilders";
-import {
-	addModifierOverlayFeatures,
-	addFiltersetBadgeFeature,
-	getTextLabel,
-	getRewardIconInfo
-} from "./modifierFeatures";
+import { type MapObjectFeature } from "./featureBuilders";
+import { addOverlayIconAndBadge, getTextLabel, getRewardIconInfo } from "./modifierFeatures";
 import type { RenderContext, RenderResult } from "./renderTypes";
 
 export function renderPokestop(obj: PokestopData, ctx: RenderContext): RenderResult | null {
@@ -65,46 +60,17 @@ export function renderPokestop(obj: PokestopData, ctx: RenderContext): RenderRes
 				ctx.modifiers.offsetY + questModifiers.offsetY
 			];
 
-			addModifierOverlayFeatures(
-				subFeatures,
-				mapId,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				ctx.selectedScale,
-				questVisual.imageSize,
-				matchingQuestFilterset?.modifiers,
-				questImageOffset
-			);
-
-			{
-				const questLabel = getTextLabel(matchingQuestFilterset?.modifiers);
-				subFeatures.push(
-					getIconFeature(mapId, [obj.lon, obj.lat], {
-						imageUrl: getIconReward(reward.type, getRewardIconInfo(reward)),
-						imageSize: questVisual.imageSize,
-						selectedScale: ctx.selectedScale,
-						imageOffset: questImageOffset,
-						...(questVisual.imageRotation !== undefined && {
-							imageRotation: questVisual.imageRotation
-						}),
-						...(questLabel !== undefined && { textLabel: questLabel }),
-						id: obj.mapId,
-						expires: obj.alternative_quest_expiry ?? null
-					})
-				);
-			}
-			addFiltersetBadgeFeature(
-				subFeatures,
-				`${mapId}-badge`,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				matchingQuestFilterset?.modifiers,
-				matchingQuestFilterset?.icon,
-				questVisual.imageSize,
-				ctx.selectedScale,
-				{ offsetX: questImageOffset[0], offsetY: questImageOffset[1] },
-				obj.alternative_quest_expiry ?? null
-			);
+			addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
+				imageUrl: getIconReward(reward.type, getRewardIconInfo(reward)),
+				imageSize: questVisual.imageSize,
+				selectedScale: ctx.selectedScale,
+				imageOffset: questImageOffset,
+				imageRotation: questVisual.imageRotation,
+				textLabel: getTextLabel(matchingQuestFilterset?.modifiers),
+				expires: obj.alternative_quest_expiry ?? null,
+				filtersetModifiers: matchingQuestFilterset?.modifiers,
+				filtersetIcon: matchingQuestFilterset?.icon
+			});
 		}
 		if (obj.quest_target && obj.quest_rewards) {
 			// ar
@@ -134,46 +100,17 @@ export function renderPokestop(obj: PokestopData, ctx: RenderContext): RenderRes
 				ctx.modifiers.offsetY + questModifiers.offsetY + spacing
 			];
 
-			addModifierOverlayFeatures(
-				subFeatures,
-				mapId,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				ctx.selectedScale,
-				questVisual.imageSize,
-				matchingQuestFilterset?.modifiers,
-				questImageOffset
-			);
-
-			{
-				const questLabel = getTextLabel(matchingQuestFilterset?.modifiers);
-				subFeatures.push(
-					getIconFeature(mapId, [obj.lon, obj.lat], {
-						imageUrl: getIconReward(reward.type, getRewardIconInfo(reward)),
-						imageSize: questVisual.imageSize,
-						selectedScale: ctx.selectedScale,
-						imageOffset: questImageOffset,
-						...(questVisual.imageRotation !== undefined && {
-							imageRotation: questVisual.imageRotation
-						}),
-						...(questLabel !== undefined && { textLabel: questLabel }),
-						id: obj.mapId,
-						expires: obj.quest_expiry ?? null
-					})
-				);
-			}
-			addFiltersetBadgeFeature(
-				subFeatures,
-				`${mapId}-badge`,
-				obj.mapId,
-				[obj.lon, obj.lat],
-				matchingQuestFilterset?.modifiers,
-				matchingQuestFilterset?.icon,
-				questVisual.imageSize,
-				ctx.selectedScale,
-				{ offsetX: questImageOffset[0], offsetY: questImageOffset[1] },
-				obj.quest_expiry ?? null
-			);
+			addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
+				imageUrl: getIconReward(reward.type, getRewardIconInfo(reward)),
+				imageSize: questVisual.imageSize,
+				selectedScale: ctx.selectedScale,
+				imageOffset: questImageOffset,
+				imageRotation: questVisual.imageRotation,
+				textLabel: getTextLabel(matchingQuestFilterset?.modifiers),
+				expires: obj.quest_expiry ?? null,
+				filtersetModifiers: matchingQuestFilterset?.modifiers,
+				filtersetIcon: matchingQuestFilterset?.icon
+			});
 		}
 	}
 
@@ -212,46 +149,17 @@ export function renderPokestop(obj: PokestopData, ctx: RenderContext): RenderRes
 			ctx.modifiers.offsetY + invasionModifiers.offsetY + index * invasionModifiers.spacing
 		];
 
-		addModifierOverlayFeatures(
-			subFeatures,
-			mapId,
-			obj.mapId,
-			[obj.lon, obj.lat],
-			ctx.selectedScale,
-			invasionVisual.imageSize,
-			matchingInvasionFilterset?.modifiers,
-			invasionImageOffset
-		);
-
-		{
-			const invasionLabel = getTextLabel(matchingInvasionFilterset?.modifiers);
-			subFeatures.push(
-				getIconFeature(mapId, [obj.lon, obj.lat], {
-					imageUrl: getIconInvasion(incident.character, incident.confirmed),
-					imageSize: invasionVisual.imageSize,
-					selectedScale: ctx.selectedScale,
-					imageOffset: invasionImageOffset,
-					...(invasionVisual.imageRotation !== undefined && {
-						imageRotation: invasionVisual.imageRotation
-					}),
-					...(invasionLabel !== undefined && { textLabel: invasionLabel }),
-					id: obj.mapId,
-					expires: incident.expiration
-				})
-			);
-		}
-		addFiltersetBadgeFeature(
-			subFeatures,
-			`${mapId}-badge`,
-			obj.mapId,
-			[obj.lon, obj.lat],
-			matchingInvasionFilterset?.modifiers,
-			matchingInvasionFilterset?.icon,
-			invasionVisual.imageSize,
-			ctx.selectedScale,
-			{ offsetX: invasionImageOffset[0], offsetY: invasionImageOffset[1] },
-			incident.expiration
-		);
+		addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
+			imageUrl: getIconInvasion(incident.character, incident.confirmed),
+			imageSize: invasionVisual.imageSize,
+			selectedScale: ctx.selectedScale,
+			imageOffset: invasionImageOffset,
+			imageRotation: invasionVisual.imageRotation,
+			textLabel: getTextLabel(matchingInvasionFilterset?.modifiers),
+			expires: incident.expiration,
+			filtersetModifiers: matchingInvasionFilterset?.modifiers,
+			filtersetIcon: matchingInvasionFilterset?.icon
+		});
 		index += 1;
 	}
 

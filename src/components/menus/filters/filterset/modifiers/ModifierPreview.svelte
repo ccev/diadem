@@ -14,11 +14,8 @@
 	import { getModifiers } from "@/lib/map/modifierLayout";
 	import { getEmojiImageUrl } from "@/lib/map/modifierOverlayIcons";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import {
-		buildModifierPreviewFeatureCollection,
-		type ModifierPreviewFeatureProperties
-	} from "@/lib/map/modifierPreviewFeatures";
-	import { resize } from "@/lib/services/assets";
+	import { buildModifierPreviewFeatureCollection } from "@/lib/map/modifierPreviewFeatures";
+	import { MapObjectFeatureType } from "@/lib/map/render/featureBuilders";
 	import { getConfig } from "@/lib/services/config/config";
 	import { getIconPokemon, getIconStation, getUiconSetDetails } from "@/lib/services/uicons.svelte";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
@@ -48,15 +45,13 @@
 	let badgeIconUrl = $derived.by(() => {
 		if (!filterset?.icon) return undefined;
 		if (filterset.icon.uicon) {
-			return resize(getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params), {
-				width: 64
-			});
+			return getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params);
 		}
 		if (filterset.icon.emoji) return getEmojiImageUrl(filterset.icon.emoji);
 		return undefined;
 	});
 
-	const emptyFeatureCollection: FeatureCollection<Point, ModifierPreviewFeatureProperties> = {
+	const emptyFeatureCollection: FeatureCollection<Point> = {
 		type: "FeatureCollection",
 		features: []
 	};
@@ -96,7 +91,7 @@
 			}
 
 			return {
-				baseIconUrl: resize(getIcon(IconCategory.GYM, { team_id: 0 }), { width: 64 }),
+				baseIconUrl: getIcon(IconCategory.GYM, { team_id: 0 }),
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
 				focusImageSize,
@@ -110,7 +105,7 @@
 			const questMod = getModifiers(pokestopIconSet, "quest");
 
 			return {
-				baseIconUrl: resize(getIcon(IconCategory.POKESTOP, {}), { width: 64 }),
+				baseIconUrl: getIcon(IconCategory.POKESTOP, {}),
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
 				focusImageSize: questMod.scale,
@@ -124,7 +119,7 @@
 			const invasionMod = getModifiers(pokestopIconSet, "invasion");
 
 			return {
-				baseIconUrl: resize(getIcon(IconCategory.POKESTOP, {}), { width: 64 }),
+				baseIconUrl: getIcon(IconCategory.POKESTOP, {}),
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
 				focusImageSize: invasionMod.scale,
@@ -141,7 +136,7 @@
 			const maxBattleMod = getModifiers(stationIconSet, "max_battle");
 
 			return {
-				baseIconUrl: resize(getIconStation(false), { width: 64 }),
+				baseIconUrl: getIconStation(false),
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
 				focusImageSize: maxBattleMod.scale,
@@ -169,7 +164,9 @@
 		if (!map) return;
 		await ensureMapImages(
 			map,
-			previewFeatures.features.map((feature) => feature.properties.imageUrl)
+			previewFeatures.features.map(
+				(feature) => (feature.properties as { imageUrl: string }).imageUrl
+			)
 		);
 	}
 
@@ -197,7 +194,7 @@
 		} else {
 			url = getIconPokemon({ pokemon_id: 25, form: 0 });
 		}
-		return resize(url, { width: 64 });
+		return url;
 	});
 	let previewFeatures = $derived.by(() => {
 		if (!focusIconUrl) return emptyFeatureCollection;
@@ -241,16 +238,33 @@
 			onload={onMapLoad}
 		>
 			<GeoJSON id="modifierPreview" data={previewFeatures}>
-				<ModifierBadgeLayer id="modifierPreviewBadge" filter={["==", ["get", "layer"], "badge"]} />
+				<ModifierBadgeLayer
+					id="modifierPreviewBadge"
+					filter={[
+						"all",
+						["==", ["get", "type"], MapObjectFeatureType.ICON],
+						["==", ["coalesce", ["get", "isUnderlay"], false], false],
+						["==", ["coalesce", ["get", "isAttachedBadge"], false], true]
+					]}
+				/>
 				<MapObjectIconLayer
 					id="modifierPreviewIcons"
 					beforeId="modifierPreviewBadge"
-					filter={["==", ["get", "layer"], "icon"]}
+					filter={[
+						"all",
+						["==", ["get", "type"], MapObjectFeatureType.ICON],
+						["==", ["coalesce", ["get", "isUnderlay"], false], false],
+						["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
+					]}
 				/>
 				<ModifierUnderlayLayer
 					id="modifierPreviewUnderlay"
 					beforeId="modifierPreviewIcons"
-					filter={["==", ["get", "layer"], "underlay"]}
+					filter={[
+						"all",
+						["==", ["get", "type"], MapObjectFeatureType.ICON],
+						["==", ["coalesce", ["get", "isUnderlay"], false], true]
+					]}
 				/>
 			</GeoJSON>
 		</MapLibre>

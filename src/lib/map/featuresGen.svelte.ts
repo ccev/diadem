@@ -12,7 +12,6 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActivePokestopFilter, hasFortActiveLure } from "@/lib/utils/pokestopUtils";
 import { getActiveGymFilter } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { getBadgeOffset, BADGE_SCALE_RATIO } from "@/lib/map/modifierOverlayIcons";
 import type { BaseFilterset, FiltersetModifiers } from "@/lib/features/filters/filtersets";
 import { getMatchingPokemonFilterset } from "@/lib/features/filters/matchFilterset";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
@@ -28,14 +27,9 @@ import {
 	type MapObjectFeature,
 	isFeatureIcon,
 	isFeatureCircle,
-	isFeaturePolygon,
-	getIconFeature
+	isFeaturePolygon
 } from "./render/featureBuilders";
-import {
-	addModifierOverlayFeatures,
-	resolveFiltersetBadgeIconUrl,
-	getTextLabel
-} from "./render/modifierFeatures";
+import { addOverlayIconAndBadge, getTextLabel } from "./render/modifierFeatures";
 import type { RenderContext, RenderResult } from "./render/renderTypes";
 import { renderPokestop } from "./render/pokestopRenderer";
 import { renderGym } from "./render/gymRenderer";
@@ -239,54 +233,19 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		if (showThis) {
 			const iconVisual = withVisualTransform(modifiers.scale, iconFiltersetModifiers);
-			addModifierOverlayFeatures(
-				subFeatures,
-				obj.mapId,
-				obj.mapId,
-				[obj.lon, obj.lat],
+
+			addOverlayIconAndBadge(subFeatures, obj.mapId, obj.mapId, [obj.lon, obj.lat], {
+				imageUrl: overwriteIcon ?? getIconForMap(obj),
+				imageSize: iconVisual.imageSize,
 				selectedScale,
-				iconVisual.imageSize,
-				iconFiltersetModifiers
-			);
-
-			const textLabel = getTextLabel(iconFiltersetModifiers);
-
-			subFeatures.push(
-				getIconFeature(obj.mapId, [obj.lon, obj.lat], {
-					imageUrl: overwriteIcon ?? getIconForMap(obj),
-					id: obj.mapId,
-					imageSize: iconVisual.imageSize,
-					selectedScale: selectedScale,
-					imageOffset: [modifiers.offsetX, modifiers.offsetY],
-					...(iconVisual.imageRotation !== undefined && {
-						imageRotation: iconVisual.imageRotation
-					}),
-					...(pokemonRenderStateKey !== undefined && {
-						renderStateKey: pokemonRenderStateKey
-					}),
-					...(textLabel !== undefined && { textLabel }),
-					expires
-				})
-			);
-
-			if (iconFiltersetModifiers?.showBadge && matchedFiltersetIcon) {
-				const badgeOffset = getBadgeOffset(modifiers.offsetX, modifiers.offsetY);
-				const badgeSize = iconVisual.imageSize * BADGE_SCALE_RATIO;
-				const badgeUrl = resolveFiltersetBadgeIconUrl(matchedFiltersetIcon);
-				if (badgeUrl) {
-					subFeatures.push(
-						getIconFeature(`${obj.mapId}-filterset-badge`, [obj.lon, obj.lat], {
-							imageUrl: badgeUrl,
-							id: obj.mapId,
-							imageSize: badgeSize,
-							selectedScale: selectedScale,
-							imageOffset: badgeOffset,
-							isAttachedBadge: true,
-							expires
-						})
-					);
-				}
-			}
+				imageOffset: [modifiers.offsetX, modifiers.offsetY],
+				imageRotation: iconVisual.imageRotation,
+				textLabel: getTextLabel(iconFiltersetModifiers),
+				renderStateKey: pokemonRenderStateKey,
+				expires,
+				filtersetModifiers: iconFiltersetModifiers,
+				filtersetIcon: matchedFiltersetIcon
+			});
 		}
 
 		features[obj.type][obj.mapId] = subFeatures;
