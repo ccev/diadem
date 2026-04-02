@@ -1,7 +1,5 @@
 <script lang="ts">
-	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
-	import ModifierBadgeLayer from "@/components/map/ModifierBadgeLayer.svelte";
-	import ModifierUnderlayLayer from "@/components/map/ModifierUnderlayLayer.svelte";
+	import MapObjectSymbolLayer from "@/components/map/MapObjectSymbolLayer.svelte";
 	import type {
 		AnyFilterset,
 		FiltersetInvasion,
@@ -99,10 +97,7 @@
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
 				focusImageSize: pokemonMod.scale * raidMod.scale,
-				focusImageOffset: [
-					baseMod.offsetX + raidMod.offsetX,
-					baseMod.offsetY + raidMod.offsetY
-				]
+				focusImageOffset: [baseMod.offsetX + raidMod.offsetX, baseMod.offsetY + raidMod.offsetY]
 			};
 		}
 
@@ -220,7 +215,10 @@
 			// Check if characters are set
 			const invasion = filterset as FiltersetInvasion | undefined;
 			if (invasion?.characters?.length) {
-				return getIcon(IconCategory.INVASION, { character: invasion.characters[0], confirmed: true });
+				return getIcon(IconCategory.INVASION, {
+					character: invasion.characters[0],
+					confirmed: true
+				});
 			}
 			return getIcon(IconCategory.INVASION, { character: 4, confirmed: true });
 		}
@@ -294,7 +292,7 @@
 			onload={onMapLoad}
 		>
 			<GeoJSON id="modifierPreview" data={previewFeatures}>
-				<ModifierBadgeLayer
+				<MapObjectSymbolLayer
 					id="modifierPreviewBadge"
 					filter={[
 						"all",
@@ -303,7 +301,7 @@
 						["==", ["coalesce", ["get", "isAttachedBadge"], false], true]
 					]}
 				/>
-				<MapObjectIconLayer
+				<MapObjectSymbolLayer
 					id="modifierPreviewIcons"
 					beforeId="modifierPreviewBadge"
 					filter={[
@@ -312,8 +310,9 @@
 						["==", ["coalesce", ["get", "isUnderlay"], false], false],
 						["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
 					]}
+					withLabel={true}
 				/>
-				<ModifierUnderlayLayer
+				<MapObjectSymbolLayer
 					id="modifierPreviewUnderlay"
 					beforeId="modifierPreviewIcons"
 					filter={[
@@ -321,6 +320,7 @@
 						["==", ["get", "type"], MapObjectFeatureType.ICON],
 						["==", ["coalesce", ["get", "isUnderlay"], false], true]
 					]}
+					interactive={false}
 				/>
 			</GeoJSON>
 		</MapLibre>

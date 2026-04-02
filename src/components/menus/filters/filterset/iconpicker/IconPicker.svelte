@@ -2,7 +2,6 @@
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import { IconCategory } from "@/lib/features/filters/icons";
 	import {
-		filtersetPageSave,
 		filtersetPageSaveSimple,
 		getFiltersetPageTransition
 	} from "@/lib/features/filters/filtersetPages.svelte";
@@ -19,7 +18,6 @@
 	import * as m from "@/lib/paraglide/messages";
 	import { fly } from "svelte/transition";
 	import { mAny } from "@/lib/utils/anyMessage";
-	import PageAttribute from "../PageAttribute.svelte";
 
 	let {
 		data

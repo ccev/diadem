@@ -14,14 +14,11 @@
 	import EditDetails from "@/components/menus/filters/filterset/EditDetails.svelte";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
-	import AttributesOverview from "./AttributesOverview.svelte";
-	import Attribute from "./Attribute.svelte";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import ModifiersAttribute from "./modifiers/ModifiersAttribute.svelte";
-	import { type AnyFilterset, type FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
-	import AttributeChip from "./AttributeChip.svelte";
 
 	let {
 		overview
@@ -90,45 +87,7 @@
 			/>
 			<Pencil class="ml-auto shrink-0 absolute right-4 top-1/2 -translate-y-1/2" size="14" />
 		</Button>
-		<!-- <Button
-			class="w-full! h-fit! block! justify-start px-4! py-2! gap-2 group rounded-none!"
-			variant="ghost"
-			onclick={() => {
-				setCurrentAttributePage(editVisualPage, m.modifier_visual());
-				filtersetPageEditAttribute();
-			}}
-		>
-			<AttributeChip label="Red Glow" isEmpty={false} onremove={() => delete data.pokemon} />
-		</Button> -->
-		<!-- <div
-			class="w-full text-sm divide-y-border divide-y grid"
-			style="grid-template-columns: auto 1fr auto"
-		>
-			<Attribute label="Map Visuals" showLabel={false}>
-				<AttributeChip label="Red Glow" isEmpty={false} onremove={() => delete data.pokemon} />
-				{#snippet page(thisData: FiltersetPokemon)}
-					<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} />
-				{/snippet}
-			</Attribute>
-		</div> -->
 	</Card>
-
-	<!-- <ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} /> -->
-
-	<!-- <AttributesOverview>
-		<Attribute label="">
-			<ModifierPreview
-				modifiers={data.modifiers}
-				iconUrl={previewIconUrl}
-				filterset={data}
-				compact
-			/>
-			<AttributeChip label="Red Glow" isEmpty={false} onremove={() => delete data.pokemon} />
-			{#snippet page(thisData: FiltersetPokemon)}
-				<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} />
-			{/snippet}
-		</Attribute>
-	</AttributesOverview> -->
 
 	<div class="space-y-3 mt-6">
 		{@render overview()}

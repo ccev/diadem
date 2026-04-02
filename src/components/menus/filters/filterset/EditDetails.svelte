@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
-	import Input from "@/components/ui/input/Input.svelte";
 	import TextInput from "@/components/ui/input/TextInput.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
@@ -8,14 +7,11 @@
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import {
 		filtersetPageEditAttribute,
-		getFiltersetPageTransition,
 		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { Pencil } from "lucide-svelte";
 	import IconPicker from "@/components/menus/filters/filterset/iconpicker/IconPicker.svelte";
-	import { fly } from "svelte/transition";
-	import PageAttribute from "./PageAttribute.svelte";
 
 	let {
 		data

@@ -11,6 +11,7 @@ import type { Incident, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
 import { RewardType, matchesInvasionRewards } from "@/lib/utils/pokestopUtils";
+import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 function matchesPokemonSpecies(
 	filterPokemon: FiltersetPokemon["pokemon"] | undefined,
@@ -289,6 +290,31 @@ export function getMatchingQuestFilterset(
 
 function matchesMaxBattleFilterset(filterset: FiltersetMaxBattle, station: StationData) {
 	if (
+		filterset.bosses === undefined &&
+		!filterset.isActive &&
+		!filterset.hasGmax &&
+		(!filterset.levels || filterset.levels.length === 0)
+	) {
+		return true;
+	}
+
+	if (filterset.isActive && !isMaxBattleActive(station)) {
+		return false;
+	}
+
+	if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) {
+		return false;
+	}
+
+	if (
+		filterset.levels &&
+		filterset.levels.length > 0 &&
+		(!station.battle_level || !filterset.levels.includes(station.battle_level))
+	) {
+		return false;
+	}
+
+	if (
 		filterset.bosses &&
 		filterset.bosses.length > 0 &&
 		!filterset.bosses.some(
@@ -300,7 +326,12 @@ function matchesMaxBattleFilterset(filterset: FiltersetMaxBattle, station: Stati
 	) {
 		return false;
 	}
-	return true;
+
+	if (filterset.bosses && filterset.bosses.length > 0) {
+		return true;
+	}
+
+	return Boolean(filterset.isActive || filterset.hasGmax || filterset.levels?.length);
 }
 
 export function getMatchingMaxBattleFilterset(

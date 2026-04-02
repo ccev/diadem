@@ -41,9 +41,7 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
-	import ModifierUnderlayLayer from "@/components/map/ModifierUnderlayLayer.svelte";
-	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
-	import ModifierBadgeLayer from "@/components/map/ModifierBadgeLayer.svelte";
+	import MapObjectSymbolLayer from "@/components/map/MapObjectSymbolLayer.svelte";
 	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
@@ -230,7 +228,7 @@
 			}}
 			eventsIfTopMost={true}
 		/>
-		<ModifierBadgeLayer
+		<MapObjectSymbolLayer
 			id={MapObjectLayerId.ICONS_BADGE}
 			hoverCursor="pointer"
 			filter={[
@@ -241,7 +239,7 @@
 			]}
 			eventsIfTopMost={true}
 		/>
-		<MapObjectIconLayer
+		<MapObjectSymbolLayer
 			id={MapObjectLayerId.ICONS}
 			beforeId={MapObjectLayerId.ICONS_BADGE}
 			hoverCursor="pointer"
@@ -252,8 +250,9 @@
 				["==", ["coalesce", ["get", "isAttachedBadge"], false], false]
 			]}
 			eventsIfTopMost={true}
+			withLabel={true}
 		/>
-		<ModifierUnderlayLayer
+		<MapObjectSymbolLayer
 			id={MapObjectLayerId.ICONS_UNDERLAY}
 			beforeId={MapObjectLayerId.ICONS}
 			filter={[
@@ -261,6 +260,7 @@
 				["==", ["get", "type"], MapObjectFeatureType.ICON],
 				["==", ["coalesce", ["get", "isUnderlay"], false], true]
 			]}
+			interactive={false}
 		/>
 	</GeoJSON>
 

@@ -15,7 +15,6 @@ import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-import { getInvasionCatchable, hasInvasionLineup } from "@/lib/features/masterStats.svelte";
 import type { FiltersetInvasion } from "@/lib/features/filters/filtersets";
 
 export const CONTEST_SLOTS = 200;
@@ -267,21 +266,6 @@ export function getActivePokestopFilter() {
 	return getUserSettings().filters.pokestop;
 }
 
-function matchesInvasionRewardFilter(
-	incident: Incident,
-	filterRewards: { pokemon_id: number; form: number }[]
-) {
-	if (!hasInvasionLineup(incident.character)) return false;
-
-	const catchableRewards = getInvasionCatchable(incident.character) ?? [];
-
-	return filterRewards.some((reward) =>
-		catchableRewards.some(
-			(catchable) => catchable.pokemon_id === reward.pokemon_id && catchable.form === reward.form
-		)
-	);
-}
-
 export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<PokestopData>) {
 	const timestamp = currentTimestamp();
 
@@ -309,7 +293,7 @@ export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<Pok
 		for (const invasionFilter of invasionFilters) {
 			if (invasionFilter.characters?.includes(incident.character)) return true;
 
-			if (invasionFilter.rewards && matchesInvasionRewardFilter(incident, invasionFilter.rewards)) {
+			if (invasionFilter.rewards && matchesInvasionRewards(invasionFilter.rewards, incident)) {
 				return true;
 			}
 		}

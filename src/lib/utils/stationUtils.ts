@@ -67,13 +67,26 @@ export function shouldDisplayStation(station: StationData) {
 	if (maxBattleFilters.length === 0) return true;
 
 	for (const filterset of maxBattleFilters) {
-		if (filterset.bosses === undefined && !filterset.isActive && !filterset.hasGmax) {
+		if (
+			filterset.bosses === undefined &&
+			!filterset.isActive &&
+			!filterset.hasGmax &&
+			(!filterset.levels || filterset.levels.length === 0)
+		) {
 			return true;
 		}
 
 		if (filterset.isActive && !isMaxBattleActive(station)) continue;
 
 		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
+
+		if (
+			filterset.levels &&
+			filterset.levels.length > 0 &&
+			(!station.battle_level || !filterset.levels.includes(station.battle_level))
+		) {
+			continue;
+		}
 
 		if (
 			filterset.bosses !== undefined &&
@@ -87,7 +100,7 @@ export function shouldDisplayStation(station: StationData) {
 			return true;
 		}
 
-		if (filterset.isActive || filterset.hasGmax) return true;
+		if (filterset.isActive || filterset.hasGmax || filterset.levels?.length) return true;
 	}
 
 	return false;

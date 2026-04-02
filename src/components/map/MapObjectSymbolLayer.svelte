@@ -8,13 +8,17 @@
 		filter,
 		beforeId = undefined,
 		hoverCursor = undefined,
-		eventsIfTopMost = false
+		eventsIfTopMost = false,
+		interactive = true,
+		withLabel = false
 	}: {
 		id: string;
 		filter: ExpressionSpecification;
 		beforeId?: string;
 		hoverCursor?: string;
 		eventsIfTopMost?: boolean;
+		interactive?: boolean;
+		withLabel?: boolean;
 	} = $props();
 </script>
 
@@ -24,6 +28,7 @@
 	{beforeId}
 	{hoverCursor}
 	{eventsIfTopMost}
+	{interactive}
 	layout={{
 		"icon-image": ["get", "imageUrl"],
 		"icon-overlap": "always",
@@ -36,16 +41,24 @@
 		"icon-allow-overlap": true,
 		"icon-offset": ["get", "imageOffset"],
 		"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
-		"text-field": ["coalesce", ["get", "textLabel"], ""],
-		"text-anchor": "top",
-		"text-offset": ["coalesce", ["get", "textOffset"], ["literal", [0, 2.2]]],
-		"text-size": 11,
-		"text-allow-overlap": true,
-		"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]
+		...(withLabel
+			? {
+					"text-field": ["coalesce", ["get", "textLabel"], ""],
+					"text-anchor": "top",
+					"text-offset": ["coalesce", ["get", "textOffset"], ["literal", [0, 2.2]]],
+					"text-size": 11,
+					"text-allow-overlap": true,
+					"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]
+				}
+			: {})
 	}}
 	paint={{
-		"text-color": "#ffffff",
-		"text-halo-color": "#000000",
-		"text-halo-width": 1.5
+		...(withLabel
+			? {
+					"text-color": "#ffffff",
+					"text-halo-color": "#000000",
+					"text-halo-width": 1.5
+				}
+			: {})
 	}}
 />
