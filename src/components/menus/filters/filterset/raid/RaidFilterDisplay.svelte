@@ -13,7 +13,7 @@
 	let {
 		data
 	}: {
-		data: FiltersetRaid
+		data: FiltersetRaid;
 	} = $props();
 </script>
 
@@ -29,7 +29,7 @@
 						class="w-7"
 						src={resize(getIconRaidEgg(raidLevel), { width: 64 })}
 						alt={mRaid(raidLevel, true)}
-					>
+					/>
 					{mRaid(raidLevel, true)}
 				</HorizontalScrollElement>
 			{/each}
@@ -40,5 +40,4 @@
 			<AttributeDisplay label={m.raid_show()} value={makeAttributeRaidShowLabel(show)} />
 		{/each}
 	{/if}
-
 </FilterDisplay>

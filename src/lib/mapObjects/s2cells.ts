@@ -6,7 +6,7 @@ import type { Feature, Polygon } from "geojson";
 import type { CellID } from "s2js/dist/s2/cellid";
 import type { MapObjectPolygonProperties } from "@/lib/map/featuresGen.svelte";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
-import { LIMIT_S2_CELLS } from '@/lib/constants';
+import { LIMIT_S2_CELLS } from "@/lib/constants";
 
 export type S2CellProperties = {
 	level: number;
@@ -17,7 +17,11 @@ export type S2CellFeature = Feature<Polygon, S2CellProperties>;
 const DEGREE = Math.PI / 180;
 
 export function getCoveringS2Cells(bounds: Bounds, level: number): s2.CellUnion {
-	const regionCoverer = new s2.RegionCoverer({ minLevel: level, maxLevel: level, maxCells: LIMIT_S2_CELLS });
+	const regionCoverer = new s2.RegionCoverer({
+		minLevel: level,
+		maxLevel: level,
+		maxCells: LIMIT_S2_CELLS
+	});
 
 	const region = new s2.Rect(
 		new r1.Interval(bounds.minLat * DEGREE, bounds.maxLat * DEGREE),
@@ -51,8 +55,8 @@ export function cellToFeature(
 }
 
 export function getS2CellMapObjects(bounds: Bounds, filter: FilterS2Cell) {
-	const map = getMap()
-	if (map && filter.level > (map.getZoom() + 4)) return []
+	const map = getMap();
+	if (map && filter.level > map.getZoom() + 4) return [];
 
 	const cells = getCoveringS2Cells(bounds, filter.level);
 

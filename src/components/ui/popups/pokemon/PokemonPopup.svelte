@@ -13,7 +13,8 @@
 		CircleSmall,
 		Clock,
 		ClockAlert,
-		Crown, Flower,
+		Crown,
+		Flower,
 		LibraryBig,
 		MapPinX,
 		Mars,
@@ -22,7 +23,8 @@
 		SearchCheck,
 		SearchX,
 		Sparkles,
-		Swords, Telescope,
+		Swords,
+		Telescope,
 		Trophy,
 		Venus
 	} from "lucide-svelte";
@@ -33,7 +35,10 @@
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 	import { POKEMON_MIN_RANK } from "@/lib/constants";
 	import PvpEntry from "@/components/ui/popups/pokemon/PvpEntry.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import {
 		getPokemonSize,
 		getBestRank,
@@ -44,32 +49,43 @@
 		showUltra
 	} from "@/lib/utils/pokemonUtils";
 	import Metadata from "@/components/utils/Metadata.svelte";
-	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "@/lib/features/masterStats.svelte";
+	import {
+		getPokemonStats as getMasterPokemonStats,
+		type PokemonStats
+	} from "@/lib/features/masterStats.svelte";
 	import { formatPercentage, formatRatio } from "@/lib/utils/numberFormat";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 	import { resize } from "@/lib/services/assets";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import type { FilterPokemon } from "@/lib/features/filters/filters";
 
-	let data: PokemonData = $derived(getMapObjects()[getCurrentSelectedMapId()] as PokemonData ?? getCurrentSelectedData() as PokemonData);
+	let data: PokemonData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
+			(getCurrentSelectedData() as PokemonData)
+	);
 
 	// let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
 
-	let stats: PokemonStats | undefined = $derived(getMasterPokemonStats(data.pokemon_id, data.form ?? 0));
+	let stats: PokemonStats | undefined = $derived(
+		getMasterPokemonStats(data.pokemon_id, data.form ?? 0)
+	);
 
-	function getMaxPvpRank(filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra", filter: FilterPokemon) {
-		const ranks = [POKEMON_MIN_RANK]
+	function getMaxPvpRank(
+		filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra",
+		filter: FilterPokemon
+	) {
+		const ranks = [POKEMON_MIN_RANK];
 		const filters = filter.filters.filter((f) => f.enabled);
 		for (const filter of filters) {
 			if (filter[filterAttribute]) {
-				ranks.push(filter[filterAttribute].max)
+				ranks.push(filter[filterAttribute].max);
 			}
 		}
-		return Math.max(...ranks)
+		return Math.max(...ranks);
 	}
-	let maxLittleRank = $derived(getMaxPvpRank("pvpRankLittle", getUserSettings().filters.pokemon))
-	let maxGreatRank = $derived(getMaxPvpRank("pvpRankGreat", getUserSettings().filters.pokemon))
-	let maxUltraRank = $derived(getMaxPvpRank("pvpRankUltra", getUserSettings().filters.pokemon))
+	let maxLittleRank = $derived(getMaxPvpRank("pvpRankLittle", getUserSettings().filters.pokemon));
+	let maxGreatRank = $derived(getMaxPvpRank("pvpRankGreat", getUserSettings().filters.pokemon));
+	let maxUltraRank = $derived(getMaxPvpRank("pvpRankUltra", getUserSettings().filters.pokemon));
 </script>
 
 <Metadata title={mPokemon(data)} />
@@ -141,7 +157,6 @@
 		</IconValue>
 	{/if}
 
-
 	{#if showLittle(data)}
 		<IconValue Icon={Trophy}>
 			{m.league_rank({ league: m.little_league() })}:
@@ -170,7 +185,7 @@
 				class="w-4 shrink-0"
 				src={resize(getIconPokemon(displayPokemon), { width: 64 })}
 				alt={mPokemon(displayPokemon)}
-			>
+			/>
 			<span class="ml-1.5">
 				{m.display_pokemon_notice({ pokemon: mPokemon(data), display: mPokemon(displayPokemon) })}
 			</span>
@@ -181,11 +196,7 @@
 <BasePopup lat={data.lat} lon={data.lon}>
 	{#snippet image()}
 		<div class="w-12 shrink-0">
-			<ImagePopup
-				alt={mPokemon(data)}
-				src={getIconPokemon(data)}
-				class="w-12 h-12"
-			/>
+			<ImagePopup alt={mPokemon(data)} src={getIconPokemon(data)} class="w-12 h-12" />
 		</div>
 	{/snippet}
 
@@ -219,10 +230,7 @@
 	{#snippet content()}
 		{#if stats && stats.entry}
 			{@const entry = stats.entry}
-			<StatsDisplay
-				days={stats.total.days}
-				total={entry?.shiny?.total ?? entry?.spawns?.count}
-			>
+			<StatsDisplay days={stats.total.days} total={entry?.shiny?.total ?? entry?.spawns?.count}>
 				{#if entry.shiny && entry.shiny.shinies > 0}
 					<IconValue Icon={Sparkles}>
 						{m.shiny_rate()}:
@@ -275,7 +283,6 @@
 		<!--	{/await}-->
 		<!--{/if}-->
 
-
 		<!--{shinyRate}-->
 		<!--{#if shinyRate}-->
 		<!--	<IconValue Icon={Sparkles}>-->
@@ -289,7 +296,7 @@
 		{#if showLittle(data) || showGreat(data) || showUltra(data)}
 			PVP Rankings:
 			<div class="mb-3 space-y-1">
-				{#each (data.pvp?.little ?? []) as entry (entry.rank)}
+				{#each data.pvp?.little ?? [] as entry (entry.rank)}
 					{#if (entry.rank ?? 100000) <= maxLittleRank}
 						<PvpEntry data={entry} league="little" />
 					{/if}
@@ -299,7 +306,7 @@
 						<PvpEntry data={entry} league="great" />
 					{/if}
 				{/each}
-				{#each (data.pvp?.ultra ?? []) as entry (entry.rank)}
+				{#each data.pvp?.ultra ?? [] as entry (entry.rank)}
 					{#if (entry.rank ?? 100000) <= maxUltraRank}
 						<PvpEntry data={entry} league="ultra" />
 					{/if}
@@ -312,9 +319,7 @@
 				{m.popup_pokemon_is_strong()}
 			</IconValue>
 		{/if}
-		<IconValue
-			Icon={getWeatherIcon(data.weather)}
-		>
+		<IconValue Icon={getWeatherIcon(data.weather)}>
 			{#if data.weather}
 				{m.weather_boost()}:
 				<b>{mWeather(data.weather)}</b>
@@ -360,17 +365,18 @@
 
 		{#if data.first_seen_timestamp !== data.updated}
 			<IconValue Icon={SearchCheck}>
-				{m.last_seen()}: <b>
-				<Countdown expireTime={data.updated} />
-			</b>
+				{m.last_seen()}:
+				<b>
+					<Countdown expireTime={data.updated} />
+				</b>
 			</IconValue>
 		{/if}
 
 		<IconValue Icon={Search}>
-			{m.first_seen()}: <b>
+			{m.first_seen()}:
+			<b>
 				<Countdown expireTime={data.first_seen_timestamp} />
 			</b>
 		</IconValue>
-
 	{/snippet}
 </BasePopup>

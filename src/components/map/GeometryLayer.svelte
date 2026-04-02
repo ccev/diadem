@@ -13,12 +13,12 @@
 		fillId = undefined,
 		strokeId = undefined
 	}: {
-		id: MapSourceId,
-		data?: FeatureCollection,
-		reactive?: Readonly<boolean>,
-		show?: boolean | (() => boolean),
-		fillId?: any,
-		strokeId?: any
+		id: MapSourceId;
+		data?: FeatureCollection;
+		reactive?: Readonly<boolean>;
+		show?: boolean | (() => boolean);
+		fillId?: any;
+		strokeId?: any;
 	} = $props();
 
 	let lastWasEmpty = true;
@@ -28,7 +28,7 @@
 
 	if (makeEffect) {
 		$effect(() => {
-			getMapStyleVersion()
+			getMapStyleVersion();
 			if (data.features.length === 0 && lastWasEmpty) return;
 			lastWasEmpty = data.features.length === 0;
 			updateMapGeojsonSource(id, data);
@@ -39,23 +39,22 @@
 <GeoJSON
 	{id}
 	data={{
-		type: 'FeatureCollection',
+		type: "FeatureCollection",
 		features: []
 	}}
 >
-	{#if typeof show === 'function' ? show() : show}
+	{#if typeof show === "function" ? show() : show}
 		<FillLayer
 			id={fillId}
 			paint={{
-			  'fill-color': ["get", "fillColor"],
-			  'fill-opacity': 0.5,
+				"fill-color": ["get", "fillColor"],
+				"fill-opacity": 0.5
 			}}
 		/>
 		<LineLayer
 			id={strokeId}
-			layout={{ 'line-cap': 'round', 'line-join': 'round' }}
-			paint={{ 'line-color': ["get", "strokeColor"], 'line-width': 2 }}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
 		/>
 	{/if}
-
 </GeoJSON>

@@ -13,7 +13,7 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 import type { FeatureCollection, Polygon } from "geojson";
-import { Features } from '@/lib/utils/features';
+import { Features } from "@/lib/utils/features";
 
 const WEATHER_CELL_LEVEL = 10;
 const UPDATE_INTERVAL = 5 * 60 * 1000;
@@ -25,14 +25,14 @@ const weatherCache: TTLCache<string, WeatherData> = new TTLCache({
 	ttl: UPDATE_INTERVAL
 });
 let currentWeather: WeatherData | undefined = $state(undefined);
-let lastSelectedWeatherWasEmpty = true
+let lastSelectedWeatherWasEmpty = true;
 
 export function getCurrentWeather() {
 	return currentWeather;
 }
 
 export function updateCurrentWeatherFeatures(show: boolean) {
-	if (!show && lastSelectedWeatherWasEmpty) return
+	if (!show && lastSelectedWeatherWasEmpty) return;
 
 	const data: FeatureCollection<Polygon, S2CellProperties> = {
 		type: "FeatureCollection",
@@ -41,9 +41,9 @@ export function updateCurrentWeatherFeatures(show: boolean) {
 
 	if (currentWeather && show) {
 		data.features = [cellToFeature(currentWeather.cellId, CELL_COLOR, CELL_COLOR, "weathercell")];
-		lastSelectedWeatherWasEmpty = false
+		lastSelectedWeatherWasEmpty = false;
 	} else {
-		lastSelectedWeatherWasEmpty = true
+		lastSelectedWeatherWasEmpty = true;
 	}
 
 	updateMapGeojsonSource(MapSourceId.SELECTED_WEATHER, data);

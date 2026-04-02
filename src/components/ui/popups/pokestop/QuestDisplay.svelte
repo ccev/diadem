@@ -9,7 +9,12 @@
 	import { CircleAlert, Clock } from "lucide-svelte";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
-	import { getArTag, getRewardText, parseQuestReward, shouldDisplayQuest } from "@/lib/utils/pokestopUtils";
+	import {
+		getArTag,
+		getRewardText,
+		parseQuestReward,
+		shouldDisplayQuest
+	} from "@/lib/utils/pokestopUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 
 	let {
@@ -21,13 +26,13 @@
 		questTimestamp,
 		pokestop
 	}: {
-		expanded: boolean
-		isAr: boolean
-		questRewards: string
-		questTitle: string
-		questTarget: number
-		questTimestamp: number
-		pokestop: PokestopData
+		expanded: boolean;
+		isAr: boolean;
+		questRewards: string;
+		questTitle: string;
+		questTarget: number;
+		questTimestamp: number;
+		pokestop: PokestopData;
 	} = $props();
 
 	let reward: QuestReward | undefined = $derived(parseQuestReward(questRewards));
@@ -51,7 +56,9 @@
 		</div>
 		<div>
 			{#if !expanded}
-				<span class="text-sm font-semibold border-border border rounded-full px-3 mr-1 py-1 whitespace-nowrap">
+				<span
+					class="text-sm font-semibold border-border border rounded-full px-3 mr-1 py-1 whitespace-nowrap"
+				>
 					{getArTag(isAr)}
 				</span>
 				<span>

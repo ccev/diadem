@@ -12,16 +12,18 @@
 	import { onMount } from "svelte";
 
 	let {
-		menus,
+		menus
 	}: {
-		menus: (Menu | null)[]
+		menus: (Menu | null)[];
 	} = $props();
 
 	const snapPoints = [0.62, 1];
 	let initialSnapPoint = 0;
 
 	let activeSnapPoint: number | string = $state(snapPoints[initialSnapPoint]);
-	let contentClass = $derived(activeSnapPoint === snapPoints[snapPoints.length - 1] ? "drawer-full" : "drawer-partial");
+	let contentClass = $derived(
+		activeSnapPoint === snapPoints[snapPoints.length - 1] ? "drawer-full" : "drawer-partial"
+	);
 
 	onMount(() => resetJustChangedMenus());
 </script>
@@ -39,9 +41,7 @@
 		>
 			<MobileTitle />
 
-			<div
-				class="pb-20 content"
-			>
+			<div class="pb-20 content">
 				<MenuContainer />
 			</div>
 		</Drawer.Content>
@@ -49,18 +49,18 @@
 </Drawer.Root>
 
 <style>
-    :global(.drawer-full) {
-        & .content {
-            overflow-y: auto;
-        }
-    }
+	:global(.drawer-full) {
+		& .content {
+			overflow-y: auto;
+		}
+	}
 
-    :global(.drawer-partial) {
-        border-top-left-radius: calc(var(--radius) + 4px);
-        border-top-right-radius: calc(var(--radius) + 4px);
+	:global(.drawer-partial) {
+		border-top-left-radius: calc(var(--radius) + 4px);
+		border-top-right-radius: calc(var(--radius) + 4px);
 
-        & .content {
-            overflow-y: hidden;
-        }
-    }
+		& .content {
+			overflow-y: hidden;
+		}
+	}
 </style>

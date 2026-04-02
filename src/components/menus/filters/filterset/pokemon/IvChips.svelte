@@ -1,18 +1,21 @@
 <script lang="ts">
-	import { makeAttributeRangeLabel } from '@/lib/features/filters/makeAttributeChipLabel';
-	import * as m from '@/lib/paraglide/messages';
-	import AttributeChip from '@/components/menus/filters/filterset/AttributeChip.svelte';
-	import type { FiltersetPokemon, MinMax } from '@/lib/features/filters/filtersets';
-	import { getAttributeLabelIvProduct, getAttributeLabelIvValues } from '@/lib/features/filters/filterUtilsPokemon';
+	import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
+	import * as m from "@/lib/paraglide/messages";
+	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
+	import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
+	import {
+		getAttributeLabelIvProduct,
+		getAttributeLabelIvValues
+	} from "@/lib/features/filters/filterUtilsPokemon";
 
 	let {
 		data,
 		ivBounds,
 		percBounds
 	}: {
-		data: FiltersetPokemon
-		ivBounds: MinMax
-		percBounds: MinMax
+		data: FiltersetPokemon;
+		ivBounds: MinMax;
+		percBounds: MinMax;
 	} = $props();
 </script>
 

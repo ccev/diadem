@@ -1,20 +1,18 @@
 <script lang="ts">
-	import { Slider, type ThumbItem, type TickItem } from 'bits-ui';
+	import { Slider, type ThumbItem, type TickItem } from "bits-ui";
 
 	let {
 		thumbItems,
 		tickItems,
 		labels = undefined
 	}: {
-		thumbItems: ThumbItem[],
-		tickItems: TickItem[],
-		labels?: { [key: number]: string }
-	} = $props()
+		thumbItems: ThumbItem[];
+		tickItems: TickItem[];
+		labels?: { [key: number]: string };
+	} = $props();
 </script>
 
-<span
-	class="relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full bg-accent"
->
+<span class="relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full bg-accent">
 	<Slider.Range class="bg-foreground absolute h-full z-1" />
 </span>
 

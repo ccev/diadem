@@ -58,10 +58,7 @@ export async function load() {
 		loadingWrapper(updateSupportedFeatures(), LoadedFeature.SUPPORTED_FEATURES),
 		loadingWrapper(loadMasterStats(), LoadedFeature.MASTER_STATS),
 		loadingWrapper(updateUserDetails(), LoadedFeature.USER_DETAILS),
-		loadingWrapper(
-			loadRemoteLocale(getLocale()),
-			LoadedFeature.REMOTE_LOCALE
-		),
+		loadingWrapper(loadRemoteLocale(getLocale()), LoadedFeature.REMOTE_LOCALE)
 	]);
 
 	if (browser) {

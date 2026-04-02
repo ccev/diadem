@@ -16,11 +16,11 @@ export type MasterPokemon = {
 };
 
 export type MasterWeather = {
-	types: number[]
-}
+	types: number[];
+};
 
 export type MasterFile = {
-	pokemon: { [key: string]: MasterPokemon }
-	weather: { [key: string]: MasterWeather }
-	items: string[]
-}
+	pokemon: { [key: string]: MasterPokemon };
+	weather: { [key: string]: MasterWeather };
+	items: string[];
+};

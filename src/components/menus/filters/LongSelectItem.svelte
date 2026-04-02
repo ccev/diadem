@@ -4,16 +4,15 @@
 	let {
 		isSelected = $bindable(),
 		onselect,
-		children,
+		children
 	}: {
-		isSelected: boolean,
-		onselect: (isSelected: boolean) => void,
-		children: Snippet
+		isSelected: boolean;
+		onselect: (isSelected: boolean) => void;
+		children: Snippet;
 	} = $props();
 
 	const isCompact = false;
 </script>
-
 
 <button
 	class="p-1 flex flex-col items-center text-sm cursor-pointer hover:bg-accent"
@@ -25,8 +24,8 @@
 	class:bg-sky-100={isSelected}
 	class:dark:bg-indigo-950={isSelected}
 	onclick={() => {
-		isSelected = !isSelected
-		onselect(isSelected)
+		isSelected = !isSelected;
+		onselect(isSelected);
 	}}
 >
 	{@render children()}

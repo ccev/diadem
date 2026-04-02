@@ -67,13 +67,13 @@ export function isSearchViewActive() {
 
 export function setActiveSearch(newParams: ActiveSearchParams) {
 	activeSearchSvelte = newParams;
-	deleteAllFeatures()
+	deleteAllFeatures();
 	updateAllMapObjects().then();
 }
 
 export function resetActiveSearchFilter() {
 	activeSearchSvelte = undefined;
-	deleteAllFeatures()
+	deleteAllFeatures();
 	updateAllMapObjects().then();
 }
 
@@ -116,32 +116,32 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 
 	switch (reward.type) {
 		case RewardType.ITEM:
-			filterset.item = [{ id: reward.info.item_id.toString() }]
-			break
+			filterset.item = [{ id: reward.info.item_id.toString() }];
+			break;
 		case RewardType.CANDY:
-			filterset.candy = [{ id: reward.info.pokemon_id.toString() }]
-			break
+			filterset.candy = [{ id: reward.info.pokemon_id.toString() }];
+			break;
 		case RewardType.POKEMON:
-			filterset.pokemon = [reward.info]
-			break
+			filterset.pokemon = [reward.info];
+			break;
 		case RewardType.XL_CANDY:
-			filterset.xlCandy = [{ id: reward.info.pokemon_id.toString() }]
-			break
+			filterset.xlCandy = [{ id: reward.info.pokemon_id.toString() }];
+			break;
 		case RewardType.MEGA_ENERGY:
-			filterset.megaResource = [{ id: reward.info.pokemon_id.toString() }]
-			break
+			filterset.megaResource = [{ id: reward.info.pokemon_id.toString() }];
+			break;
 		case RewardType.XP:
-			filterset.xp = { min: 0, max: Infinity }
+			filterset.xp = { min: 0, max: Infinity };
 			break;
 		case RewardType.STARDUST:
-			filterset.stardust = { min: 0, max: Infinity }
+			filterset.stardust = { min: 0, max: Infinity };
 			break;
 	}
 
 	const filter = getDefaultPokestopFilter();
 	filter.quest.enabled = true;
 	filter.quest.filters = [filterset];
-	filter.enabled = true
+	filter.enabled = true;
 
 	setActiveSearch({
 		name,
@@ -153,7 +153,7 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 export function setActiveSearchKecleon(name: string) {
 	const filter = getDefaultPokestopFilter();
 	filter.kecleon.enabled = true;
-	filter.enabled = true
+	filter.enabled = true;
 
 	setActiveSearch({
 		name,
@@ -168,28 +168,28 @@ export function setActiveSearchContest(name: string, rankingStandard: number, fo
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		rankingStandard,
+		rankingStandard
 	} as FiltersetContest;
 
 	if (focus.type === "pokemon") {
 		filterset.focus = {
-			pokemon_id: focus.pokemon_id,
-		}
+			pokemon_id: focus.pokemon_id
+		};
 		if (focus.pokemon_form) {
-			filterset.focus.form = focus.pokemon_form
+			filterset.focus.form = focus.pokemon_form;
 		}
 	} else if (focus.type === "type") {
 		filterset.focus = {
 			type_id: focus.pokemon_type_1
-		}
+		};
 	}
 
 	const filter = getDefaultPokestopFilter();
 	filter.contest.enabled = true;
 	filter.contest.filters = [filterset];
-	filter.enabled = true
+	filter.enabled = true;
 
-	console.log(filter)
+	console.log(filter);
 
 	setActiveSearch({
 		name,
@@ -204,13 +204,13 @@ export function setActiveSearchLure(name: string, itemId: number) {
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		items: [itemId],
+		items: [itemId]
 	} as FiltersetLure;
 
 	const filter = getDefaultPokestopFilter();
 	filter.lure.enabled = true;
-	filter.lure.filters = [filterset]
-	filter.enabled = true
+	filter.lure.filters = [filterset];
+	filter.enabled = true;
 
 	setActiveSearch({
 		name,
@@ -225,13 +225,13 @@ export function setActiveSearchInvasion(name: string, characterId: number) {
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		characters: [characterId],
+		characters: [characterId]
 	} as FiltersetInvasion;
 
 	const filter = getDefaultPokestopFilter();
 	filter.invasion.enabled = true;
-	filter.invasion.filters = [filterset]
-	filter.enabled = true
+	filter.invasion.filters = [filterset];
+	filter.enabled = true;
 
 	setActiveSearch({
 		name,
@@ -240,24 +240,30 @@ export function setActiveSearchInvasion(name: string, characterId: number) {
 	});
 }
 
-export function setActiveSearchRaidBoss(name: string, pokemonId: number, formId: number | undefined) {
+export function setActiveSearchRaidBoss(
+	name: string,
+	pokemonId: number,
+	formId: number | undefined
+) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		bosses: [{
-			pokemon_id: pokemonId
-		}],
+		bosses: [
+			{
+				pokemon_id: pokemonId
+			}
+		]
 	} as FiltersetRaid;
 
-	if (formId) filterset.bosses[0].form = formId
+	if (formId) filterset.bosses[0].form = formId;
 
 	const filter = getDefaultGymFilter();
-	filter.gymPlain.enabled = false
+	filter.gymPlain.enabled = false;
 	filter.raid.enabled = true;
-	filter.raid.filters = [filterset]
-	filter.enabled = true
+	filter.raid.filters = [filterset];
+	filter.enabled = true;
 
 	setActiveSearch({
 		name,
@@ -272,14 +278,14 @@ export function setActiveSearchRaidLevel(name: string, level: number) {
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		levels: [level],
+		levels: [level]
 	} as FiltersetRaid;
 
 	const filter = getDefaultGymFilter();
-	filter.gymPlain.enabled = false
+	filter.gymPlain.enabled = false;
 	filter.raid.enabled = true;
-	filter.raid.filters = [filterset]
-	filter.enabled = true
+	filter.raid.filters = [filterset];
+	filter.enabled = true;
 
 	setActiveSearch({
 		name,
@@ -288,23 +294,28 @@ export function setActiveSearchRaidLevel(name: string, level: number) {
 	});
 }
 
-export function setActiveSearchMaxBattleBoss(name: string, pokemon_id: number, form: number, bread_mode: number) {
-	const pokemon = { pokemon_id, form, bread_mode }
+export function setActiveSearchMaxBattleBoss(
+	name: string,
+	pokemon_id: number,
+	form: number,
+	bread_mode: number
+) {
+	const pokemon = { pokemon_id, form, bread_mode };
 
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		bosses: [pokemon],
+		bosses: [pokemon]
 	} as FiltersetMaxBattle;
 
 	const filter = getDefaultStationFilter();
 	filter.maxBattle.enabled = true;
-	filter.maxBattle.filters = [filterset]
-	filter.enabled = true
+	filter.maxBattle.filters = [filterset];
+	filter.enabled = true;
 
-	console.log(filter)
+	console.log(filter);
 
 	setActiveSearch({
 		name,
@@ -314,9 +325,9 @@ export function setActiveSearchMaxBattleBoss(name: string, pokemon_id: number, f
 }
 
 export function setActiveSearchNest(name: string, pokemon_id: number, form: number) {
-	const filter = { category: "nest", ...defaultFilter(true) } as FilterNest
+	const filter = { category: "nest", ...defaultFilter(true) } as FilterNest;
 
-	const pokemon = { pokemon_id, form }
+	const pokemon = { pokemon_id, form };
 
 	const filterset = {
 		id: "searchOverwrite",
@@ -326,7 +337,7 @@ export function setActiveSearchNest(name: string, pokemon_id: number, form: numb
 		pokemon: [pokemon]
 	} as FiltersetNest;
 
-	filter.filters.push(filterset)
+	filter.filters.push(filterset);
 
 	setActiveSearch({
 		name,

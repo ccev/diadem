@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Slider } from 'bits-ui';
-	import SliderCommon from '@/components/ui/input/slider/SliderCommon.svelte';
+	import { Slider } from "bits-ui";
+	import SliderCommon from "@/components/ui/input/slider/SliderCommon.svelte";
 
 	let {
 		onchange,
@@ -8,10 +8,10 @@
 		steps,
 		labels
 	}: {
-		onchange: (value: number) => void,
-		value: number,
-		steps: number[],
-		labels: { [key: number]: string }
+		onchange: (value: number) => void;
+		value: number;
+		steps: number[];
+		labels: { [key: number]: string };
 	} = $props();
 </script>
 
@@ -25,11 +25,7 @@
 		onValueChange={onchange}
 	>
 		{#snippet children({ tickItems, thumbItems })}
-			<SliderCommon
-				{tickItems}
-				{thumbItems}
-				{labels}
-			/>
+			<SliderCommon {tickItems} {thumbItems} {labels} />
 		{/snippet}
 	</Slider.Root>
 </div>

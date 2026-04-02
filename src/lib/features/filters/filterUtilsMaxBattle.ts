@@ -16,7 +16,9 @@ export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): Filt
 	if (filter.bosses && filter.bosses.length > 0) {
 		if (filter.bosses.length === 1) {
 			title.message = "filter_template_pokemon_max_battles";
-			title.params = { pokemon: mPokemon({ pokemon_id: filter.bosses[0].pokemon_id, form: filter.bosses[0].form }) };
+			title.params = {
+				pokemon: mPokemon({ pokemon_id: filter.bosses[0].pokemon_id, form: filter.bosses[0].form })
+			};
 
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.POKEMON, params: filter.bosses[0] }

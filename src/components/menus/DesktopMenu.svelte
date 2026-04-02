@@ -13,9 +13,7 @@
 	transition:slide={{ duration: 70, axis: "x" }}
 >
 	{#if getIsCoverageMapActive()}
-		<div
-			class="w-full pt-1 pb-2 px-2 sticky top-[7px] flex items-center justify-between z-10"
-		>
+		<div class="w-full pt-1 pb-2 px-2 sticky top-[7px] flex items-center justify-between z-10">
 			<CoverageMapTitle />
 		</div>
 	{:else}
@@ -27,12 +25,12 @@
 			</h1>
 			<CloseButton
 				onclick={() => {
-				if (getIsCoverageMapActive()) {
-					closeCoverageMap()
-				} else {
-					closeMenu()
-				}
-			}}
+					if (getIsCoverageMapActive()) {
+						closeCoverageMap();
+					} else {
+						closeMenu();
+					}
+				}}
 				class="mr-2"
 			/>
 		</div>

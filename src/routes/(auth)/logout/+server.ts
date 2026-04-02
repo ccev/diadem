@@ -1,10 +1,10 @@
-import { generateCodeVerifier, generateState } from 'arctic';
-import { getDiscordAuth } from '@/lib/server/auth/discord';
+import { generateCodeVerifier, generateState } from "arctic";
+import { getDiscordAuth } from "@/lib/server/auth/discord";
 
-import type { RequestEvent } from '@sveltejs/kit';
-import { deleteSessionTokenCookie, invalidateSession } from '@/lib/server/auth/auth';
+import type { RequestEvent } from "@sveltejs/kit";
+import { deleteSessionTokenCookie, invalidateSession } from "@/lib/server/auth/auth";
 
-const SCOPES = ['identify', 'guilds.members.read'];
+const SCOPES = ["identify", "guilds.members.read"];
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const discord = getDiscordAuth();
@@ -12,8 +12,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	if (!event.locals.session) return new Response(null, { status: 401 });
 
-	await invalidateSession(event.locals.session.id)  
-	deleteSessionTokenCookie(event)
-	await discord.revokeToken(event.locals.session.discordToken)
-	return new Response()
+	await invalidateSession(event.locals.session.id);
+	deleteSessionTokenCookie(event);
+	await discord.revokeToken(event.locals.session.discordToken);
+	return new Response();
 }

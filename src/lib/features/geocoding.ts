@@ -17,39 +17,36 @@ let abortController: AbortController | undefined = undefined;
 let debounceTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
 export async function searchAddress(query: string) {
-	if (query.length <= 2) return
+	if (query.length <= 2) return;
 
-	setIsSearchingAddress(true)
+	setIsSearchingAddress(true);
 
 	const lang = getLocale();
 
 	if (debounceTimer) clearTimeout(debounceTimer);
 
-	let data: AddressData[] = []
+	let data: AddressData[] = [];
 
 	debounceTimer = setTimeout(async () => {
 		if (abortController) abortController.abort();
 		abortController = new AbortController();
 
-		let lat = ""
-		let lon = ""
-		const center = getMap()?.getCenter()
+		let lat = "";
+		let lon = "";
+		const center = getMap()?.getCenter();
 		if (center) {
 			// 1 decimal is enough precision for address search, allows results to be cached
-			lat = center.lat.toFixed(1)
-			lon = center.lng.toFixed(1)
+			lat = center.lat.toFixed(1);
+			lon = center.lng.toFixed(1);
 		}
 
-		let url = "/api/search/address/" + encodeURIComponent(query) + "?lang=" + lang
+		let url = "/api/search/address/" + encodeURIComponent(query) + "?lang=" + lang;
 		if (lat && lon) {
-			url += `&lat=${lat}&lon=${lon}`
+			url += `&lat=${lat}&lon=${lon}`;
 		}
 
 		try {
-			const result = await fetch(
-				url,
-				{ signal: abortController.signal }
-			);
+			const result = await fetch(url, { signal: abortController.signal });
 
 			if (!result.ok) {
 				console.error("Address request failed!");
@@ -57,8 +54,7 @@ export async function searchAddress(query: string) {
 			}
 
 			data = await result.json();
-			addAddressSearchResults(data, query)
-
+			addAddressSearchResults(data, query);
 		} catch (error: any) {
 			if (error.name !== "AbortError") {
 				console.error("Error while searching for address", error);

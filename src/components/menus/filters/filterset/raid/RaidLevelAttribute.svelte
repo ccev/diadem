@@ -10,7 +10,7 @@
 	let {
 		data
 	}: {
-		data: FiltersetRaid
+		data: FiltersetRaid;
 	} = $props();
 </script>
 
@@ -21,23 +21,19 @@
 	values={data.levels?.map(String) ?? []}
 	onchange={(values) => {
 		if (values.length > 0) {
-			data.levels = values.map(Number).sort((a, b) => a - b)
+			data.levels = values.map(Number).sort((a, b) => a - b);
 		} else {
-			delete data.levels
+			delete data.levels;
 		}
 	}}
 >
 	{#each RAID_LEVELS as raidLevel}
-		<SelectGroupItem
-			class="w-full h-16!"
-			type="toggle"
-			value={raidLevel.toString()}
-		>
+		<SelectGroupItem class="w-full h-16!" type="toggle" value={raidLevel.toString()}>
 			<img
 				class="w-5"
 				src={resize(getIconRaidEgg(raidLevel), { width: 64 })}
 				alt={mRaid(raidLevel, true)}
-			>
+			/>
 			{mRaid(raidLevel, true)}
 		</SelectGroupItem>
 	{/each}

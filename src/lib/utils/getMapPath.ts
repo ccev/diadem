@@ -4,11 +4,11 @@ import { getConfig } from "@/lib/services/config/config";
 
 export function getMapPath(config: ClientConfig, suffix: string = "") {
 	if (config.general.customHome) {
-		let path = "/map"
-		if (suffix) path += suffix
-		return path
+		let path = "/map";
+		if (suffix) path += suffix;
+		return path;
 	}
-	return suffix ? suffix : "/"
+	return suffix ? suffix : "/";
 }
 
 export function isOnMap() {

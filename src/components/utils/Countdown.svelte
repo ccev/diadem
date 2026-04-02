@@ -7,8 +7,8 @@
 		expireTime,
 		showHours = false
 	}: {
-		expireTime: number | null | undefined,
-		showHours?: boolean
+		expireTime: number | null | undefined;
+		showHours?: boolean;
 	} = $props();
 
 	let id: symbol | undefined = $state(undefined);

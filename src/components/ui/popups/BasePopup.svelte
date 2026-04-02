@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { isPopupExpanded } from '@/lib/ui/expandedPopups.js';
-	import PopupButtons from '@/components/ui/popups/common/PopupButtons.svelte';
-	import Card from '@/components/ui/Card.svelte';
-	import { X } from 'lucide-svelte';
-	import type { Snippet } from 'svelte';
-	import { slide } from 'svelte/transition';
-	import { cubicIn, cubicOut } from 'svelte/easing';
-	import Button from '@/components/ui/input/Button.svelte';
-	import CloseButton from '@/components/ui/CloseButton.svelte';
-	import { closePopup } from '@/lib/mapObjects/interact';
+	import { isPopupExpanded } from "@/lib/ui/expandedPopups.js";
+	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
+	import Card from "@/components/ui/Card.svelte";
+	import { X } from "lucide-svelte";
+	import type { Snippet } from "svelte";
+	import { slide } from "svelte/transition";
+	import { cubicIn, cubicOut } from "svelte/easing";
+	import Button from "@/components/ui/input/Button.svelte";
+	import CloseButton from "@/components/ui/CloseButton.svelte";
+	import { closePopup } from "@/lib/mapObjects/interact";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	let {
@@ -19,23 +19,19 @@
 		description = undefined,
 		content = undefined
 	}: {
-		lat: number,
-		lon: number,
-		heightCol?: string,
-		heightExp?: string,
-		image: Snippet,
-		title: Snippet,
-		description?: Snippet,
-		content?: Snippet
-	} = $props()
-
+		lat: number;
+		lon: number;
+		heightCol?: string;
+		heightExp?: string;
+		image: Snippet;
+		title: Snippet;
+		description?: Snippet;
+		content?: Snippet;
+	} = $props();
 </script>
 
 <Card class="h-full relative overflow-hidden py-4 mx-2 @container">
-	<CloseButton
-		class="absolute right-2 top-2"
-		onclick={closePopup}
-	/>
+	<CloseButton class="absolute right-2 top-2" onclick={closePopup} />
 	<div class="flex pl-6 pr-3 w-full items-center mb-2">
 		{@render image()}
 		<div class="w-full h-fit ml-4 max-h-full">
@@ -43,12 +39,11 @@
 				{@render title()}
 			</div>
 
-
 			{#if !isPopupExpanded(getCurrentSelectedData()?.type)}
 				<div
 					class="mt-1"
-					in:slide={{duration: 90, easing: cubicOut}}
-					out:slide={{duration: 90, easing: cubicIn}}
+					in:slide={{ duration: 90, easing: cubicOut }}
+					out:slide={{ duration: 90, easing: cubicIn }}
 				>
 					{@render description?.()}
 				</div>
@@ -60,8 +55,8 @@
 		<div
 			class="px-6 overflow-y-auto"
 			style="max-height: calc(100vh - 14rem);"
-		 	in:slide={{duration: 90, easing: cubicIn}}
-			out:slide={{duration: 90, easing: cubicOut}}
+			in:slide={{ duration: 90, easing: cubicIn }}
+			out:slide={{ duration: 90, easing: cubicOut }}
 		>
 			{@render content?.()}
 		</div>

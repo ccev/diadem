@@ -14,7 +14,12 @@ import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtils
 import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
 import { generateInvasionFilterDetails } from "@/lib/features/filters/filterUtilsInvasion";
 import { generateMaxBattleFilterDetails } from "@/lib/features/filters/filterUtilsMaxBattle";
-import { getIconInvasion, getIconPokemon, getIconRaidEgg, getIconReward } from "@/lib/services/uicons.svelte";
+import {
+	getIconInvasion,
+	getIconPokemon,
+	getIconRaidEgg,
+	getIconReward
+} from "@/lib/services/uicons.svelte";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 
@@ -101,26 +106,41 @@ export function getModifierPreviewIcon(data: AnyFilterset): string | undefined {
 		const quest = data as FiltersetQuest;
 		if (quest.rewardType === RewardType.POKEMON) {
 			const pokemon = quest.pokemon?.[quest.pokemon.length - 1];
-			if (pokemon) return getIconReward(RewardType.POKEMON, { pokemon_id: pokemon.pokemon_id, form: pokemon.form });
+			if (pokemon)
+				return getIconReward(RewardType.POKEMON, {
+					pokemon_id: pokemon.pokemon_id,
+					form: pokemon.form
+				});
 			return getIconPokemon({ pokemon_id: 0, form: 0 });
 		}
 		if (quest.rewardType === RewardType.ITEM) {
 			const item = quest.item?.[0];
-			if (item) return getIconReward(RewardType.ITEM, { item_id: Number(item.id), amount: item.amount });
+			if (item)
+				return getIconReward(RewardType.ITEM, { item_id: Number(item.id), amount: item.amount });
 		}
 		if (quest.rewardType === RewardType.STARDUST) {
-			return getIconReward(RewardType.STARDUST, { amount: quest.stardust?.max ?? quest.stardust?.min });
+			return getIconReward(RewardType.STARDUST, {
+				amount: quest.stardust?.max ?? quest.stardust?.min
+			});
 		}
 		if (quest.rewardType === RewardType.XP) {
 			return getIconReward(RewardType.XP, { amount: quest.xp?.max ?? quest.xp?.min });
 		}
 		if (quest.rewardType === RewardType.MEGA_ENERGY) {
 			const megaResource = quest.megaResource?.[0];
-			if (megaResource) return getIconReward(RewardType.MEGA_ENERGY, { pokemon_id: Number(megaResource.id), amount: megaResource.amount });
+			if (megaResource)
+				return getIconReward(RewardType.MEGA_ENERGY, {
+					pokemon_id: Number(megaResource.id),
+					amount: megaResource.amount
+				});
 		}
 		if (quest.rewardType === RewardType.CANDY) {
 			const candy = quest.candy?.[0];
-			if (candy) return getIconReward(RewardType.CANDY, { pokemon_id: Number(candy.id), amount: candy.amount });
+			if (candy)
+				return getIconReward(RewardType.CANDY, {
+					pokemon_id: Number(candy.id),
+					amount: candy.amount
+				});
 		}
 		return undefined;
 	}

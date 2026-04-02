@@ -65,8 +65,8 @@ async function querySinglePokestop(id: string) {
 			"WHERE pokestop.id = ?",
 		[id]
 	);
-	if (result.result && result.result[0]) processRawPokestop(result.result[0])
-	return result
+	if (result.result && result.result[0]) processRawPokestop(result.result[0]);
+	return result;
 }
 
 async function querySingleStation(id: string) {
@@ -86,7 +86,8 @@ async function querySingleRoute(id: string) {
 }
 
 async function querySingleTappable(id: string) {
-	return await query<SpawnpointData[]>("SELECT " + FIELDS_TAPPABLE + " FROM tappable WHERE id = ?", [
-		id
-	]);
+	return await query<SpawnpointData[]>(
+		"SELECT " + FIELDS_TAPPABLE + " FROM tappable WHERE id = ?",
+		[id]
+	);
 }

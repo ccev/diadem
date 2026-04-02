@@ -10,31 +10,27 @@
 		filterset,
 		size
 	}: {
-		filterset: AnyFilterset | undefined,
-		size: number
+		filterset: AnyFilterset | undefined;
+		size: number;
 	} = $props();
 
 	let rem = $derived(size / 4);
 </script>
 
-<div
-	class="flex items-center justify-center shrink-0"
-	style:width="{rem}rem"
->
+<div class="flex items-center justify-center shrink-0" style:width="{rem}rem">
 	{#if filterset?.icon?.uicon}
 		{#if hasLoadedFeature(LoadedFeature.ICON_SETS)}
 			<img
-				src={resize(getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params), { width: 64 })}
+				src={resize(getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params), {
+					width: 64
+				})}
 				alt={filterTitle(filterset)}
 				class="size-full"
-			>
+			/>
 		{/if}
 	{:else if filterset?.icon?.emoji}
-		<span
-			style:font-size="{rem}rem"
-		>
+		<span style:font-size="{rem}rem">
 			{filterset.icon.emoji}
 		</span>
 	{/if}
 </div>
-

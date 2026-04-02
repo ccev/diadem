@@ -9,20 +9,19 @@
 		max,
 		step = 1,
 		title,
-		onchange = () => {
-		},
+		onchange = () => {},
 		valueMin = $bindable(),
 		valueMax = $bindable(),
 		labels = undefined
 	}: {
-		min: number,
-		max: number,
-		step?: number
-		title: string,
-		onchange?: (value: number[]) => void,
-		valueMin: number,
-		valueMax: number,
-		labels?: { [key: number]: string }
+		min: number;
+		max: number;
+		step?: number;
+		title: string;
+		onchange?: (value: number[]) => void;
+		valueMin: number;
+		valueMax: number;
+		labels?: { [key: number]: string };
 	} = $props();
 </script>
 
@@ -42,31 +41,36 @@
 			</div>
 		{:else}
 			<div class="ml-auto flex gap-1">
-
-			<Input
-				class="w-20 text-center"
-				type="number"
-				value={valueMin}
-				onchange={(e) => {
-					valueMin = Number(e.target?.value ?? min)
-					onchange([valueMin, valueMax])
-				}}
-			/>
-			<Input
-				class="w-20 text-center"
-				type="number"
-				value={valueMax}
-				onchange={(e) => {
-					valueMax = Number(e.target?.value ?? max)
-					onchange([valueMin, valueMax])
-				}}
-			/>
+				<Input
+					class="w-20 text-center"
+					type="number"
+					value={valueMin}
+					onchange={(e) => {
+						valueMin = Number(e.target?.value ?? min);
+						onchange([valueMin, valueMax]);
+					}}
+				/>
+				<Input
+					class="w-20 text-center"
+					type="number"
+					value={valueMax}
+					onchange={(e) => {
+						valueMax = Number(e.target?.value ?? max);
+						onchange([valueMin, valueMax]);
+					}}
+				/>
 			</div>
 		{/if}
 	</div>
 
 	<Slider.Root
-		bind:value={() => [valueMin, valueMax], (v) => {valueMin = v[0]; valueMax = v[1]}}
+		bind:value={
+			() => [valueMin, valueMax],
+			(v) => {
+				valueMin = v[0];
+				valueMax = v[1];
+			}
+		}
 		type="multiple"
 		class="relative flex w-full touch-none select-none items-center"
 		{step}
@@ -75,11 +79,7 @@
 		onValueChange={onchange}
 	>
 		{#snippet children({ thumbItems, tickItems })}
-			<SliderCommon
-				{tickItems}
-				{thumbItems}
-				{labels}
-			/>
+			<SliderCommon {tickItems} {thumbItems} {labels} />
 		{/snippet}
 	</Slider.Root>
 </div>

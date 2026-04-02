@@ -31,7 +31,7 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-const createFuzzySearch = microfuzz?.default ?? microfuzz
+const createFuzzySearch = microfuzz?.default ?? microfuzz;
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";

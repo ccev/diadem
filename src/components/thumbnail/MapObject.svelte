@@ -20,8 +20,8 @@
 	}: {
 		staticmap: string | null;
 		icon: string | null;
-		data: MapData
-		fullImage: boolean
+		data: MapData;
+		fullImage: boolean;
 	} = $props();
 
 	const mapName = getClientConfig().general.mapName;
@@ -51,10 +51,7 @@
 </script>
 
 <div class="w-full h-full bg-zinc-50 text-zinc-900 flex text-base">
-	<div
-		class="flex flex-col flex-1 px-6 pl-8 pb-9 pt-8"
-		class:pt-6={fullImage}
-	>
+	<div class="flex flex-col flex-1 px-6 pl-8 pb-9 pt-8" class:pt-6={fullImage}>
 		<div class="flex flex-col flex-1 justify-center h-full">
 			{#if icon}
 				<img
@@ -64,7 +61,7 @@
 					class:border={fullImage}
 					class:rounded-full={fullImage}
 					style:object-fit="cover"
-				>
+				/>
 			{/if}
 			<p class="text-zinc-500 font-bold text-lg uppercase my-0 mt-2">
 				{m["pogo_" + data.type]()}
@@ -101,5 +98,4 @@
 			/>
 		</div>
 	{/if}
-
 </div>

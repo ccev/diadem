@@ -1,4 +1,4 @@
-import type { ParamMatcher } from '@sveltejs/kit';
+import type { ParamMatcher } from "@sveltejs/kit";
 
 import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 

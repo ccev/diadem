@@ -1,20 +1,26 @@
 <script lang="ts">
-	import type { StationData } from '@/lib/types/mapObjectData/station';
-	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import { getIconPokemon, getIconStation } from '@/lib/services/uicons.svelte.js';
-	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import * as m from '@/lib/paraglide/messages';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-	import { mPokemon } from '@/lib/services/ingameLocale';
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
-	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
-	import { Clock, ClockArrowDown, ClockArrowUp, MapPinned, Star, UsersRound } from 'lucide-svelte';
-	import TimeWithCountdown from '@/components/ui/popups/common/TimeWithCountdown.svelte';
-	import Countdown from '@/components/utils/Countdown.svelte';
-	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
-	import { getStationPokemon, getStationTitle, STATION_SLOTS } from '@/lib/utils/stationUtils';
+	import type { StationData } from "@/lib/types/mapObjectData/station";
+	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
+	import { getIconPokemon, getIconStation } from "@/lib/services/uicons.svelte.js";
+	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
+	import * as m from "@/lib/paraglide/messages";
+	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+	import { mPokemon } from "@/lib/services/ingameLocale";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import { Clock, ClockArrowDown, ClockArrowUp, MapPinned, Star, UsersRound } from "lucide-svelte";
+	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
+	import Countdown from "@/components/utils/Countdown.svelte";
+	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+	import { getStationPokemon, getStationTitle, STATION_SLOTS } from "@/lib/utils/stationUtils";
 
-	let data: StationData = $derived(getMapObjects()[getCurrentSelectedMapId()] as StationData ?? getCurrentSelectedData() as StationData)
+	let data: StationData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as StationData) ??
+			(getCurrentSelectedData() as StationData)
+	);
 </script>
 
 {#snippet basicInfo()}
@@ -36,17 +42,13 @@
 	{#snippet image()}
 		<div class="w-12 h-12 shrink-0">
 			{#if data.battle_pokemon_id}
-			<ImagePopup
-				alt={mPokemon(getStationPokemon(data))}
-				src={getIconPokemon(getStationPokemon(data))}
-				class="w-12 h-12"
-			/>
+				<ImagePopup
+					alt={mPokemon(getStationPokemon(data))}
+					src={getIconPokemon(getStationPokemon(data))}
+					class="w-12 h-12"
+				/>
 			{:else}
-			<ImagePopup
-				alt={m.pogo_station()}
-				src={getIconStation(data)}
-				class="w-12"
-			/>
+				<ImagePopup alt={m.pogo_station()} src={getIconStation(data)} class="w-12" />
 			{/if}
 		</div>
 	{/snippet}
@@ -73,10 +75,11 @@
 				{m.x_start_max_battle({ level: data.battle_level ?? 0 })}
 			</IconValue>
 			<IconValue Icon={UsersRound}>
-				Stationed: <b>{data.total_stationed_pokemon}</b>/{STATION_SLOTS} (Gmax: <b>{data.total_stationed_gmax}</b>)
+				Stationed: <b>{data.total_stationed_pokemon}</b>/{STATION_SLOTS} (Gmax:
+				<b>{data.total_stationed_gmax}</b>)
 			</IconValue>
 
-	<!--		<StationedPokemonDisplay stationed={data.stationed_pokemon} />-->
+			<!--		<StationedPokemonDisplay stationed={data.stationed_pokemon} />-->
 		{/if}
 
 		<IconValue Icon={Clock}>

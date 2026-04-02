@@ -1,14 +1,14 @@
 <script lang="ts">
 	import type { Component, Snippet } from "svelte";
-	import type { LucideIcon } from '@/lib/types/lucide';
+	import type { LucideIcon } from "@/lib/types/lucide";
 
 	let {
 		Icon,
-		children,
+		children
 	}: {
-		Icon: LucideIcon | Component,
-		children: Snippet,
-	} = $props()
+		Icon: LucideIcon | Component;
+		children: Snippet;
+	} = $props();
 </script>
 
 <div class="flex">

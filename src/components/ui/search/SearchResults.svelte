@@ -1,15 +1,26 @@
 <script lang="ts">
 	import type { FuzzyResult } from "@nozbe/microfuzz";
-	import { type AnySearchEntry, SearchableType, setSearchedLocation } from "@/lib/services/search.svelte";
 	import {
-		setActiveSearchContest, setActiveSearchInvasion,
-		setActiveSearchKecleon, setActiveSearchLure, setActiveSearchMaxBattleBoss, setActiveSearchNest,
+		type AnySearchEntry,
+		SearchableType,
+		setSearchedLocation
+	} from "@/lib/services/search.svelte";
+	import {
+		setActiveSearchContest,
+		setActiveSearchInvasion,
+		setActiveSearchKecleon,
+		setActiveSearchLure,
+		setActiveSearchMaxBattleBoss,
+		setActiveSearchNest,
 		setActiveSearchPokemon,
-		setActiveSearchQuest, setActiveSearchRaidBoss, setActiveSearchRaidLevel
+		setActiveSearchQuest,
+		setActiveSearchRaidBoss,
+		setActiveSearchRaidLevel
 	} from "@/lib/features/activeSearch.svelte";
 	import { resize } from "@/lib/services/assets";
 	import {
-		getIconInvasion, getIconItem,
+		getIconInvasion,
+		getIconItem,
 		getIconPokemon,
 		getIconPokestop,
 		getIconRaidEgg,
@@ -29,8 +40,8 @@
 	let {
 		results
 	}: {
-		results: FuzzyResult<AnySearchEntry>[]
-	} = $props()
+		results: FuzzyResult<AnySearchEntry>[];
+	} = $props();
 </script>
 
 {#each results as result}
@@ -39,7 +50,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchPokemon(entry.name, { pokemon_id: entry.id, form: entry.form })
+				setActiveSearchPokemon(entry.name, { pokemon_id: entry.id, form: entry.form });
 			}}
 			imageUrl={resize(getIconPokemon({ pokemon_id: entry.id, form: entry.form }), { width: 64 })}
 		/>
@@ -47,26 +58,26 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				const params = getFeatureJump(entry.feature)
-				jumpTo(params.coords, params.zoom)
-				closeSearchModal()
+				const params = getFeatureJump(entry.feature);
+				jumpTo(params.coords, params.zoom);
+				closeSearchModal();
 			}}
 		/>
 	{:else if entry.type === SearchableType.ADDRESS}
 		<SearchItem
 			{result}
 			onselect={() => {
-				const params = getFeatureJump(point(entry.point, undefined, { bbox: entry.bbox }))
-				jumpTo(params.coords, params.zoom)
-				setSearchedLocation(params.coords)
-				closeSearchModal()
+				const params = getFeatureJump(point(entry.point, undefined, { bbox: entry.bbox }));
+				jumpTo(params.coords, params.zoom);
+				setSearchedLocation(params.coords);
+				closeSearchModal();
 			}}
 		/>
 	{:else if entry.type === SearchableType.QUEST}
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchQuest(entry.name, entry.reward)
+				setActiveSearchQuest(entry.name, entry.reward);
 			}}
 			imageUrl={resize(getIconReward(entry.reward.type, entry.reward.info), { width: 64 })}
 		/>
@@ -74,7 +85,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchKecleon(entry.name)
+				setActiveSearchKecleon(entry.name);
 			}}
 			imageUrl={resize(getIconPokemon({ pokemon_id: KECLEON_ID }), { width: 64 })}
 		/>
@@ -82,7 +93,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchContest(entry.name, entry.rankingStandard, entry.focus)
+				setActiveSearchContest(entry.name, entry.rankingStandard, entry.focus);
 			}}
 			imageUrl={resize(getContestIcon(entry.focus), { width: 64 })}
 		/>
@@ -90,7 +101,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchLure(entry.name, entry.itemId)
+				setActiveSearchLure(entry.name, entry.itemId);
 			}}
 			imageUrl={resize(getIconItem(entry.itemId), { width: 64 })}
 		/>
@@ -98,7 +109,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchInvasion(entry.name, entry.characterId)
+				setActiveSearchInvasion(entry.name, entry.characterId);
 			}}
 			imageUrl={resize(getIconInvasion(entry.characterId, true), { width: 64 })}
 		/>
@@ -106,7 +117,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form)
+				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form);
 			}}
 			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>
@@ -114,7 +125,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchRaidLevel(entry.name, entry.level)
+				setActiveSearchRaidLevel(entry.name, entry.level);
 			}}
 			imageUrl={resize(getIconRaidEgg(entry.level), { width: 64 })}
 		/>
@@ -122,7 +133,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchMaxBattleBoss(entry.name, entry.pokemon_id, entry.form, entry.bread_mode)
+				setActiveSearchMaxBattleBoss(entry.name, entry.pokemon_id, entry.form, entry.bread_mode);
 			}}
 			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>
@@ -130,7 +141,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchNest(entry.name, entry.pokemon_id, entry.form)
+				setActiveSearchNest(entry.name, entry.pokemon_id, entry.form);
 			}}
 			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>
@@ -139,8 +150,8 @@
 			{result}
 			fortImage={true}
 			onselect={() => {
-				openMapObjectFromId(MapObjectType.POKESTOP, entry.key)
-				closeSearchModal()
+				openMapObjectFromId(MapObjectType.POKESTOP, entry.key);
+				closeSearchModal();
 			}}
 		/>
 	{:else if entry.type === SearchableType.GYM}
@@ -148,8 +159,8 @@
 			{result}
 			fortImage={true}
 			onselect={() => {
-				openMapObjectFromId(MapObjectType.GYM, entry.key)
-				closeSearchModal()
+				openMapObjectFromId(MapObjectType.GYM, entry.key);
+				closeSearchModal();
 			}}
 		/>
 	{/if}

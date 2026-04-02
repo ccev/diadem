@@ -3,7 +3,7 @@ import type { AddressData } from "@/lib/features/geocoding";
 import { error } from "@sveltejs/kit";
 import { getLogger } from "@/lib/utils/logger";
 import type { FeatureCollection, Point } from "geojson";
-import addressFormatter from "@fragaria/address-formatter"
+import addressFormatter from "@fragaria/address-formatter";
 
 const log = getLogger("addrsearch");
 
@@ -31,8 +31,8 @@ type PhotonProps = {
 	state?: string;
 	country?: string;
 	postcode?: string;
-	extent: [number, number, number, number]
-	[key: string]: any
+	extent: [number, number, number, number];
+	[key: string]: any;
 };
 
 type PeliasProps = {
@@ -51,7 +51,7 @@ export async function searchAddress(
 		return await photonSearchAddress(query, language, lat, lon, null);
 	} else if (config.pelias && config.pelias.url) {
 		return await peliasSearchAddress(query, language, lat, lon);
-	}  else if (config.nominatim && config.nominatim.url) {
+	} else if (config.nominatim && config.nominatim.url) {
 		return await nominatimSearchAddress(query, language);
 	}
 
@@ -75,10 +75,10 @@ async function photonSearchAddress(
 	}
 
 	if (zoom) {
-		url += "&zoom=" + zoom
+		url += "&zoom=" + zoom;
 	}
 
-	const headers: HeadersInit = {}
+	const headers: HeadersInit = {};
 	if (config.basicAuth) {
 		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
 	}
@@ -108,10 +108,10 @@ async function photonSearchAddress(
 
 	return (
 		data?.features?.map((f) => {
-			const p = f.properties
+			const p = f.properties;
 
 			if (p.name && p.type) {
-				p[p.type] = p.name
+				p[p.type] = p.name;
 			}
 
 			let formattedAddressParts = addressFormatter.format(
@@ -136,7 +136,7 @@ async function photonSearchAddress(
 			);
 
 			if (!["city", "county", "state", "country"].includes(p.type ?? "")) {
-				formattedAddressParts = formattedAddressParts.slice(0, -1)
+				formattedAddressParts = formattedAddressParts.slice(0, -1);
 			}
 
 			const label = formattedAddressParts.join(", ");
@@ -170,7 +170,7 @@ async function peliasSearchAddress(
 		url += "&api_key=" + config.apiKey;
 	}
 
-	const headers: HeadersInit = {}
+	const headers: HeadersInit = {};
 	if (config.basicAuth) {
 		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
 	}

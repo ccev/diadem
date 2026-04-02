@@ -1,12 +1,8 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import {Locate} from 'lucide-svelte';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { Locate } from "lucide-svelte";
 
-	let {
-		children,
-		class: class_ = "",
-		...rest
-	} = $props()
+	let { children, class: class_ = "", ...rest } = $props();
 </script>
 
 <Button

@@ -12,22 +12,14 @@ export async function GET({ params, url }) {
 	// this accepts raw input and puts it into the url to the external service.
 	// it's up to them to validate it.
 	const lang = url.searchParams.get("lang") ?? getClientConfig().general.defaultLocale;
-	const lat = url.searchParams.get("lat")
-	const lon = url.searchParams.get("lon")
+	const lat = url.searchParams.get("lat");
+	const lon = url.searchParams.get("lon");
 
-	const result = await searchAddress(
-		params.query,
-		lang,
-		lat,
-		lon
-	)
+	const result = await searchAddress(params.query, lang, lat, lon);
 
 	log.info("Succcessfully serving address search results");
 
-	return json(
-		result,
-		{
-			headers: cacheHttpHeaders()
-		}
-	);
+	return json(result, {
+		headers: cacheHttpHeaders()
+	});
 }

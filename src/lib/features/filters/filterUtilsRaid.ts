@@ -76,7 +76,9 @@ export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid 
 		}
 	} else if (filter.bosses && filter.bosses.length > 0) {
 		if (filter.bosses.length === 1) {
-			setFilterIcon(filter, { uicon: { category: IconCategory.POKEMON, params: filter.bosses[0] } });
+			setFilterIcon(filter, {
+				uicon: { category: IconCategory.POKEMON, params: filter.bosses[0] }
+			});
 
 			title.message = "filter_template_pokemon_raids";
 			// TODO: this shuld be called in filterTitle, not here. for proper i18n

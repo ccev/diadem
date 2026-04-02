@@ -97,7 +97,6 @@
 					</Attribute>
 				</AttributesOverview>
 			{/if}
-
 		{/if}
 	{/snippet}
 </FiltersetModal>

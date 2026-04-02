@@ -125,5 +125,5 @@ export function getScoutGeojsons(coords: Coords[], size: 0 | 1 | 2) {
 		bigPoints.push(bigCircle);
 	});
 
-	return [ smallPoints, bigPoints ]
+	return [smallPoints, bigPoints];
 }

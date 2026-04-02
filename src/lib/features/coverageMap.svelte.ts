@@ -16,25 +16,25 @@ import { getConfig } from "@/lib/services/config/config";
 export type CoverageMapAreaProperties = {
 	fillColor: string;
 	strokeColor: string;
-} & KojiFeature["properties"]
+} & KojiFeature["properties"];
 
 export const coverageMapSnapPoints = ["120px", 1];
 
 let isCoverageMapActive = $state(false);
-let activeSnapPoint = $state(coverageMapSnapPoints[0])
-let clickedAreas: KojiFeature[] | undefined = $state(undefined)
+let activeSnapPoint = $state(coverageMapSnapPoints[0]);
+let clickedAreas: KojiFeature[] | undefined = $state(undefined);
 
 export function getIsCoverageMapActive() {
 	return isCoverageMapActive;
 }
 
 export function openCoverageMap(onRoot: boolean = false) {
-	let link = getMapPath(getConfig(), "/coverage")
-	if (onRoot) link = "/coverage"
+	let link = getMapPath(getConfig(), "/coverage");
+	if (onRoot) link = "/coverage";
 
-	pushState(link, {})
+	pushState(link, {});
 	isCoverageMapActive = true;
-	setJustChangedMenus()
+	setJustChangedMenus();
 	openMenu(Menu.COVERAGE_MAP);
 	deleteAllFeatures();
 	clearAllMapObjects();
@@ -49,8 +49,8 @@ export function closeCoverageMap() {
 export function getCoverageMapAreas(): FeatureCollection<Polygon, CoverageMapAreaProperties> {
 	if (hasLoadedFeature(LoadedFeature.KOJI)) {
 		const styles = getComputedStyle(document.documentElement);
-		const fillColor = styles.getPropertyValue("--coverage-polygon-stroke")
-		const strokeColor = styles.getPropertyValue("--coverage-polygon-fill")
+		const fillColor = styles.getPropertyValue("--coverage-polygon-stroke");
+		const strokeColor = styles.getPropertyValue("--coverage-polygon-fill");
 		return featureCollection(
 			getKojiGeofences().map((g, i) => {
 				return {
@@ -66,31 +66,31 @@ export function getCoverageMapAreas(): FeatureCollection<Polygon, CoverageMapAre
 		);
 	}
 
-	return featureCollection([])
+	return featureCollection([]);
 }
 
 export function showCoverageMapTitle() {
-	return isCoverageMapActive && activeSnapPoint !== 1
+	return isCoverageMapActive && activeSnapPoint !== 1;
 }
 
 export function setClickedCoverageMapAreas(areas: KojiFeature[] | undefined) {
-	clickedAreas = areas
+	clickedAreas = areas;
 }
 
 export function getClickedCoverageMapAreas() {
-	return clickedAreas
+	return clickedAreas;
 }
 
 export const coverageMapActiveSnapPoint = {
 	get value() {
-		return activeSnapPoint
+		return activeSnapPoint;
 	},
 
 	set value(newValue: string | number) {
-		activeSnapPoint = newValue
+		activeSnapPoint = newValue;
 	},
 
 	reset() {
-		activeSnapPoint = coverageMapSnapPoints[0]
+		activeSnapPoint = coverageMapSnapPoints[0];
 	}
-}
+};

@@ -22,5 +22,5 @@ export function buildUrl(base: string, options: UrlOptions = {}) {
 		});
 	}
 
-	return url
+	return url;
 }

@@ -1,11 +1,11 @@
-import type { ClientConfig } from '@/lib/services/config/configTypes';
+import type { ClientConfig } from "@/lib/services/config/configTypes";
 
-let config: ClientConfig
+let config: ClientConfig;
 
 export function setConfig(newConfig: ClientConfig) {
-	config = newConfig
+	config = newConfig;
 }
 
 export function getConfig() {
-	return config
+	return config;
 }

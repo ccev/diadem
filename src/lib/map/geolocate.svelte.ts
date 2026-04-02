@@ -1,32 +1,32 @@
 import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
-import { getMap } from '@/lib/map/map.svelte';
-import type { LngLatLike } from 'maplibre-gl';
-import { tick } from 'svelte';
+import { getMap } from "@/lib/map/map.svelte";
+import type { LngLatLike } from "maplibre-gl";
+import { tick } from "svelte";
 
 let geolocationEnabled: boolean = $state(false);
 let isFetchingLocation: boolean = $state(false);
-let animateLocationMarker: boolean = $state(false)
-let currentLocation: undefined | LngLatLike = $state(undefined)
+let animateLocationMarker: boolean = $state(false);
+let currentLocation: undefined | LngLatLike = $state(undefined);
 
 export function getIsGeolocationEnabled() {
-	return geolocationEnabled
+	return geolocationEnabled;
 }
 
 export function getIsFetchingLocation() {
-	return isFetchingLocation
+	return isFetchingLocation;
 }
 
 export function getCurrentLocation() {
-	return currentLocation
+	return currentLocation;
 }
 
 export function getAnimateLocationMarker() {
-	return animateLocationMarker
+	return animateLocationMarker;
 }
 
 export function setAnimateLocationMarker(state: boolean) {
-	animateLocationMarker = state
+	animateLocationMarker = state;
 }
 
 async function getGeolocationPermissionsState() {
@@ -61,40 +61,40 @@ export async function updateGeolocationEnabled(showResult: boolean = false) {
 }
 
 export function updateLocation() {
-	isFetchingLocation = true
+	isFetchingLocation = true;
 	navigator?.geolocation?.getCurrentPosition(
 		(s) => {
-			console.debug(s)
-			isFetchingLocation = false
+			console.debug(s);
+			isFetchingLocation = false;
 
-			const map = getMap()
-			if (!map) return
+			const map = getMap();
+			if (!map) return;
 
 			currentLocation = {
 				lng: s.coords.longitude,
 				lat: s.coords.latitude
-			}
+			};
 			map.flyTo({
 				center: [s.coords.longitude, s.coords.latitude],
 				zoom: 14.5
-			})
-			tick().then(() => animateLocationMarker = true)
+			});
+			tick().then(() => (animateLocationMarker = true));
 		},
 		(e) => {
 			if (e.code === 1) {
-				openToast(m.locate_error_perms())
+				openToast(m.locate_error_perms());
 			} else if (e.code === 2) {
-				openToast(m.locate_error_timeout())
+				openToast(m.locate_error_timeout());
 			} else {
-				openToast(m.locate_error_unknown())
+				openToast(m.locate_error_unknown());
 			}
 
-			geolocationEnabled = false
-			isFetchingLocation = false
-			currentLocation = undefined
+			geolocationEnabled = false;
+			isFetchingLocation = false;
+			currentLocation = undefined;
 		},
 		{
 			enableHighAccuracy: true
 		}
-	)
+	);
 }

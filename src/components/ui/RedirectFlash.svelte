@@ -14,10 +14,10 @@
 		redirect = true,
 		onclick = undefined
 	}: {
-		goal: string,
-		href?: string,
-		redirect?: boolean
-		onclick?: () => void
+		goal: string;
+		href?: string;
+		redirect?: boolean;
+		onclick?: () => void;
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -29,18 +29,9 @@
 </script>
 
 {#if browser}
-	<ErrorPage
-		error={m.redirect_title({ goal })}
-		href=""
-		linkLabel=""
-	>
+	<ErrorPage error={m.redirect_title({ goal })} href="" linkLabel="">
 		{#snippet extraButtons()}
-			<Button
-				variant="outline"
-				tag="a"
-				{href}
-				{onclick}
-			>
+			<Button variant="outline" tag="a" {href} {onclick}>
 				{m.redirect_button()}
 			</Button>
 		{/snippet}

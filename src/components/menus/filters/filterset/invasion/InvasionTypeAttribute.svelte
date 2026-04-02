@@ -11,8 +11,8 @@
 		data,
 		filterType = $bindable()
 	}: {
-		data: FiltersetInvasion
-		filterType: InvasionFilterType
+		data: FiltersetInvasion;
+		filterType: InvasionFilterType;
 	} = $props();
 </script>
 
@@ -25,30 +25,22 @@
 		childCount={2}
 		value={filterType}
 		onValueChange={(value: InvasionFilterType) => {
-			filterType = value
+			filterType = value;
 
 			if (value === InvasionFilterType.CHARACTERS) {
-				delete data.rewards
+				delete data.rewards;
 			} else {
-				delete data.characters
+				delete data.characters;
 			}
 
-			updateDetailsCurrentSelectedFilterset()
+			updateDetailsCurrentSelectedFilterset();
 		}}
 		class="w-full"
 	>
-		<SelectGroupItem
-			type="radio"
-			value={InvasionFilterType.CHARACTERS}
-			class="p-2 w-full"
-		>
+		<SelectGroupItem type="radio" value={InvasionFilterType.CHARACTERS} class="p-2 w-full">
 			{m.invasion_filter_by_character()}
 		</SelectGroupItem>
-		<SelectGroupItem
-			type="radio"
-			value={InvasionFilterType.REWARDS}
-			class="p-2 w-full"
-		>
+		<SelectGroupItem type="radio" value={InvasionFilterType.REWARDS} class="p-2 w-full">
 			{m.invasion_filter_by_reward()}
 		</SelectGroupItem>
 	</RadioGroup>

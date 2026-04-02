@@ -23,11 +23,11 @@
 		filterModal,
 		mapObject
 	}: {
-		filter: AnyFilterset
-		majorCategory: SelectedFiltersetData["majorCategory"],
-		subCategory?: FilterCategory,
-		filterModal: ModalType
-		mapObject: MapObjectType
+		filter: AnyFilterset;
+		majorCategory: SelectedFiltersetData["majorCategory"];
+		subCategory?: FilterCategory;
+		filterModal: ModalType;
+		mapObject: MapObjectType;
 	} = $props();
 </script>
 
@@ -36,9 +36,9 @@
 	variant="outline"
 	size="lg"
 	onclick={() => {
-		setCurrentSelectedFilterset(majorCategory, subCategory, filter, true)
-		filtersetPageReset()
-		openModal(filterModal)
+		setCurrentSelectedFilterset(majorCategory, subCategory, filter, true);
+		filtersetPageReset();
+		openModal(filterModal);
 	}}
 >
 	<div
@@ -72,8 +72,8 @@
 		variant="outline"
 		size="icon"
 		onclick={(e) => {
-			e.stopPropagation()
-			toggleFilterset(filter, mapObject)
+			e.stopPropagation();
+			toggleFilterset(filter, mapObject);
 		}}
 	>
 		{#if filter.enabled}

@@ -11,7 +11,8 @@ import type { RenderContext, RenderResult } from "./renderTypes";
 
 export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 	const subFeatures: MapObjectFeature[] = [];
-	let showThis = ctx.showAllGyms || shouldDisplayRaid(obj) || ctx.isSelected || ctx.isSelectedOverwrite;
+	let showThis =
+		ctx.showAllGyms || shouldDisplayRaid(obj) || ctx.isSelected || ctx.isSelectedOverwrite;
 	let overwriteIcon: string | undefined = undefined;
 
 	const matchingRaidFilterset = shouldDisplayRaid(obj)
@@ -63,10 +64,7 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 				ctx.modifiers.offsetX + raidModifiers.offsetX,
 				ctx.modifiers.offsetY + raidModifiers.offsetY
 			];
-			const raidVisual = withVisualTransform(
-				raidModifiers.scale,
-				matchingRaidFilterset?.modifiers
-			);
+			const raidVisual = withVisualTransform(raidModifiers.scale, matchingRaidFilterset?.modifiers);
 
 			addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
 				imageUrl: getIconRaidEgg(obj.raid_level ?? 0),

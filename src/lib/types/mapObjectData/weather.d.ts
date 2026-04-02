@@ -1,4 +1,4 @@
-import type { CellID } from 's2js/dist/s2/cellid';
+import type { CellID } from "s2js/dist/s2/cellid";
 
 export type WeatherData = {
 	id: number;

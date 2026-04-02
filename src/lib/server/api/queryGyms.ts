@@ -7,7 +7,11 @@ import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
-export async function queryGyms(bounds: Bounds, filter: FilterGym | undefined, polygon: Feature<Polygon | MultiPolygon> | null = null) {
+export async function queryGyms(
+	bounds: Bounds,
+	filter: FilterGym | undefined,
+	polygon: Feature<Polygon | MultiPolygon> | null = null
+) {
 	const spatial = buildSpatialFilter(polygon, bounds);
 
 	let sqlQuery = "SELECT * FROM gym WHERE " + spatial.sql + " AND deleted = 0 ";
@@ -21,7 +25,7 @@ export async function queryGyms(bounds: Bounds, filter: FilterGym | undefined, p
 	const { error, result } = await query<GymData[]>(sqlQuery, spatial.values);
 
 	for (const gym of result) {
-		gym.raid_pokemon_form = getNormalizedForm(gym.raid_pokemon_id, gym.raid_pokemon_form)
+		gym.raid_pokemon_form = getNormalizedForm(gym.raid_pokemon_id, gym.raid_pokemon_form);
 	}
 
 	return [{ error, result }, undefined];

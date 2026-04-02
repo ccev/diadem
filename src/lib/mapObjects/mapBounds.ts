@@ -40,7 +40,7 @@ export function getBounds(
 ): Bounds {
 	const map = getMap();
 
-	if (!map) return emptyBounds
+	if (!map) return emptyBounds;
 
 	const bounds = map.getBounds();
 
@@ -68,7 +68,7 @@ export function getBounds(
 
 export function getFixedBounds(km: number): Bounds {
 	const map = getMap();
-	if (!map) return emptyBounds
+	if (!map) return emptyBounds;
 
 	const mapCenter = map.getCenter();
 	const center = turf.point([mapCenter.lng, mapCenter.lat]);
@@ -77,7 +77,7 @@ export function getFixedBounds(km: number): Bounds {
 		steps: 4
 	});
 
-	if (!square) return emptyBounds
+	if (!square) return emptyBounds;
 
 	const bbox = turf.bbox(square);
 

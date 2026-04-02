@@ -10,8 +10,8 @@
 		data,
 		filterType = $bindable()
 	}: {
-		data: FiltersetRaid
-		filterType: RaidFilterType
+		data: FiltersetRaid;
+		filterType: RaidFilterType;
 	} = $props();
 </script>
 
@@ -24,31 +24,23 @@
 		childCount={2}
 		value={filterType}
 		onValueChange={(value: RaidFilterType) => {
-			filterType = value
+			filterType = value;
 
 			if (value === "level") {
-				delete data.bosses
+				delete data.bosses;
 			} else {
-				delete data.levels
-				delete data.show
+				delete data.levels;
+				delete data.show;
 			}
 
-			updateDetailsCurrentSelectedFilterset()
+			updateDetailsCurrentSelectedFilterset();
 		}}
 		class="w-full"
 	>
-		<SelectGroupItem
-			type="radio"
-			value="level"
-			class="p-2 w-full"
-		>
+		<SelectGroupItem type="radio" value="level" class="p-2 w-full">
 			{m.raid_filter_by_level()}
 		</SelectGroupItem>
-		<SelectGroupItem
-			type="radio"
-			value="boss"
-			class="p-2 w-full"
-		>
+		<SelectGroupItem type="radio" value="boss" class="p-2 w-full">
 			{m.raid_filter_by_boss()}
 		</SelectGroupItem>
 	</RadioGroup>

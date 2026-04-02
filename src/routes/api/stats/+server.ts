@@ -6,9 +6,8 @@ import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
 
 export async function GET() {
-
 	try {
-		const stats = await masterstatsProvider.get()
+		const stats = await masterstatsProvider.get();
 		return json(stats);
 	} catch (e) {
 		return json({

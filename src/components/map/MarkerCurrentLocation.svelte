@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Marker } from 'svelte-maplibre';
-	import { getAnimateLocationMarker, getCurrentLocation } from '@/lib/map/geolocate.svelte';
+	import { Marker } from "svelte-maplibre";
+	import { getAnimateLocationMarker, getCurrentLocation } from "@/lib/map/geolocate.svelte";
 </script>
 
 {#if getCurrentLocation()}

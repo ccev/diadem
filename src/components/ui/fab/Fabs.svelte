@@ -14,20 +14,18 @@
 	import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
 	let isSearchAllowed = $derived(
-		!isSearchViewActive()
-		&& hasLoadedFeature(
-			LoadedFeature.SUPPORTED_FEATURES,
-			LoadedFeature.REMOTE_LOCALE,
-			LoadedFeature.ICON_SETS,
-			LoadedFeature.MASTER_FILE,
-			LoadedFeature.MASTER_STATS,
-			LoadedFeature.USER_DETAILS
-		)
-		&& (
+		!isSearchViewActive() &&
+			hasLoadedFeature(
+				LoadedFeature.SUPPORTED_FEATURES,
+				LoadedFeature.REMOTE_LOCALE,
+				LoadedFeature.ICON_SETS,
+				LoadedFeature.MASTER_FILE,
+				LoadedFeature.MASTER_STATS,
+				LoadedFeature.USER_DETAILS
+			) &&
 			hasLoadedFeature(LoadedFeature.KOJI) &&
-			isSupportedFeature("koji")
-		)
-		&& !getIsCoverageMapActive()
+			isSupportedFeature("koji") &&
+			!getIsCoverageMapActive()
 	);
 
 	$effect(() => {
@@ -55,10 +53,7 @@
 >
 	{#if isMapSkewed()}
 		<div transition:slide={{ duration: 120 }}>
-			<BaseFab
-				onclick={() => resetMap()}
-				class="rounded-full!"
-			>
+			<BaseFab onclick={() => resetMap()} class="rounded-full!">
 				<Navigation2
 					size="24"
 					style="transform: rotateX({getSkew().pitch}deg) rotateZ({-getSkew().bearing}deg);"
@@ -68,13 +63,10 @@
 	{/if}
 
 	{#if isSearchAllowed}
-		<BaseFab
-			onclick={() => openSearchModal()}
-		>
+		<BaseFab onclick={() => openSearchModal()}>
 			<SearchIcon size="24" />
 		</BaseFab>
 	{/if}
 
 	<LocateFab />
-
 </div>

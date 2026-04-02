@@ -1,4 +1,3 @@
-()
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { LoaderCircle, MapPin, Nut, Search, Squirrel, X } from "lucide-svelte";
@@ -8,7 +7,9 @@
 	import ModalTop from "@/components/ui/modal/ModalTop.svelte";
 	import {
 		type AnySearchEntry,
-		getCurrentSearchQuery, getCurrentSearchResults, getIsSearchingAddress,
+		getCurrentSearchQuery,
+		getCurrentSearchResults,
+		getIsSearchingAddress,
 		search,
 		setCurrentSearchQuery
 	} from "@/lib/services/search.svelte";
@@ -24,9 +25,11 @@
 		input?.focus();
 	});
 
-	let recentSearches: FuzzyResult<AnySearchEntry>[] = $derived(getUserSettings().recentSearches.map(i => {
-		return { item: i, score: 0, matches: [] };
-	}));
+	let recentSearches: FuzzyResult<AnySearchEntry>[] = $derived(
+		getUserSettings().recentSearches.map((i) => {
+			return { item: i, score: 0, matches: [] };
+		})
+	);
 
 	let results = $derived(getCurrentSearchResults());
 
@@ -38,6 +41,7 @@
 	// const results = $derived(search(debounced.current, true))
 </script>
 
+()
 <ModalTop
 	class="w-[calc(100%-1rem)]! max-w-2xl!"
 	modalType="search"
@@ -60,19 +64,12 @@
 				class="placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 pr-2 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
 			/>
 
-			<Button
-				variant="ghost"
-				size=""
-				class="rounded-md p-2 mr-1"
-				onclick={closeSearchModal}
-			>
+			<Button variant="ghost" size="" class="rounded-md p-2 mr-1" onclick={closeSearchModal}>
 				<X size="20" class="opacity-50" />
 			</Button>
 		</div>
 
-		<Command.List
-			class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200"
-		>
+		<Command.List class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200">
 			<Command.Viewport>
 				{#if !getCurrentSearchQuery() && recentSearches.length > 0}
 					<Command.Group>
@@ -89,7 +86,8 @@
 				{:else if results.length === 0 && !getIsSearchingAddress()}
 					<Command.Empty>
 						<div
-							class="w-full flex gap-4 --justify-center items-center px-4 py-3 text-muted-foreground text-sm">
+							class="w-full flex gap-4 --justify-center items-center px-4 py-3 text-muted-foreground text-sm"
+						>
 							{#if getCurrentSearchQuery()}
 								<Nut size="24" class="rotate-24" />
 							{:else}
@@ -127,7 +125,9 @@
 				</Command.Group>
 
 				{#if getIsSearchingAddress()}
-					<div class="py-1.5 px-2 text-sm text-muted-foreground flex gap-2 items-center animate-pulse duration-1000">
+					<div
+						class="py-1.5 px-2 text-sm text-muted-foreground flex gap-2 items-center animate-pulse duration-1000"
+					>
 						<MapPin class="shrink-0" size="16" />
 
 						<span>{m.searching_for_addresses()}</span>
@@ -139,7 +139,7 @@
 </ModalTop>
 
 <style>
-    :global(::highlight(search-highlight)) {
-        background-color: var(--color-search-highlight);
-    }
+	:global(::highlight(search-highlight)) {
+		background-color: var(--color-search-highlight);
+	}
 </style>

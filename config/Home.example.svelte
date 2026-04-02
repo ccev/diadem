@@ -1,7 +1,4 @@
 <script lang="ts">
-
 </script>
 
-<div>
-	Home Page
-</div>
+<div>Home Page</div>

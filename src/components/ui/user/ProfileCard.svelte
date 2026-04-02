@@ -1,15 +1,14 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import { getUserDetails } from '@/lib/services/user/userDetails.svelte.js';
-	import { getLoginLink } from '@/lib/services/user/login';
-	import * as m from '@/lib/paraglide/messages';
-	import LogOutButton from '@/components/ui/user/LogOutButton.svelte';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
+	import { getLoginLink } from "@/lib/services/user/login";
+	import * as m from "@/lib/paraglide/messages";
+	import LogOutButton from "@/components/ui/user/LogOutButton.svelte";
 	// noinspection ES6UnusedImports
-	import { Avatar } from 'bits-ui';
-	import DiscordIcon from '@/components/icons/DiscordIcon.svelte';
-	import { Link2Off, LogOut } from 'lucide-svelte';
-	import { getConfig } from '@/lib/services/config/config';
-
+	import { Avatar } from "bits-ui";
+	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
+	import { Link2Off, LogOut } from "lucide-svelte";
+	import { getConfig } from "@/lib/services/config/config";
 
 	let details = $derived(getUserDetails().details);
 	let isLoggingOut = $state(false);
@@ -24,9 +23,7 @@
 			<Avatar.Root
 				class="shrink-0 bg-muted text-muted-foreground h-12 w-12 rounded-full text-lg uppercase"
 			>
-				<div
-					class="flex h-full w-full items-center justify-center overflow-hidden rounded-full"
-				>
+				<div class="flex h-full w-full items-center justify-center overflow-hidden rounded-full">
 					<Avatar.Image src={details.avatarUrl} alt={details.displayName} />
 					<Avatar.Fallback>
 						{details.displayName?.[0]}
@@ -40,18 +37,12 @@
 				</b>
 				<br />
 				<span class="text-muted-foreground">
-				{details.username}
-			</span>
+					{details.username}
+				</span>
 			</p>
 			<div class="flex-1 flex justify-end">
 				{#if !getUserDetails().isGuildMember}
-					<Button
-						tag="a"
-						href={getConfig().discord.serverLink}
-						class="mr-2"
-					>
-						Join Server
-					</Button>
+					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2">Join Server</Button>
 				{/if}
 				<LogOutButton class="" size="icon" variant="outline" title={m.signout()} bind:isLoggingOut>
 					<!--{m.signout()}-->

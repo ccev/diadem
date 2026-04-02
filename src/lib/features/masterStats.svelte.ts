@@ -138,9 +138,7 @@ export function hasInvasionLineup(character: number): boolean {
 	return lineup.first.length > 0 || lineup.second.length > 0 || lineup.third.length > 0;
 }
 
-export function getInvasionCatchable(
-	character: number
-): InvasionPokemonStats[] | undefined {
+export function getInvasionCatchable(character: number): InvasionPokemonStats[] | undefined {
 	const lineup = getInvasionLineup(character);
 	if (!lineup) return undefined;
 
@@ -159,7 +157,9 @@ export function getInvasionCatchable(
 	return Array.from(unique.values());
 }
 
-export function getInvasionPokemon(characterSlot: Partial<InvasionPokemonStats>): Partial<PokemonData> {
+export function getInvasionPokemon(
+	characterSlot: Partial<InvasionPokemonStats>
+): Partial<PokemonData> {
 	return {
 		pokemon_id: characterSlot.pokemon_id,
 		form: characterSlot.form,

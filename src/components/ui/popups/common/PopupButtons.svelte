@@ -16,12 +16,12 @@
 		lat,
 		lon
 	}: {
-		lat: number,
-		lon: number
+		lat: number;
+		lon: number;
 	} = $props();
 
 	function getShareUrl() {
-		return window.location.origin + getCurrentPath() + "?lang=" + getLocale()
+		return window.location.origin + getCurrentPath() + "?lang=" + getLocale();
 	}
 </script>
 
@@ -53,11 +53,7 @@
 	</Button>
 
 	{#if canBackupShare({ url: getShareUrl() })}
-		<Button
-			variant="outline"
-			tag="button"
-			onclick={() => backupShareUrl(getShareUrl())}
-		>
+		<Button variant="outline" tag="button" onclick={() => backupShareUrl(getShareUrl())}>
 			<Share2 size="18" />
 			<span class="@max-[406px]:hidden">
 				{m.popup_share()}

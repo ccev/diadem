@@ -4,19 +4,19 @@ import { query } from "@/lib/server/db/external/internalQuery";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 
 export type LiveStats = {
-	pokemon: number
-	gyms: number
-	pokestops: number
-}
+	pokemon: number;
+	gyms: number;
+	pokestops: number;
+};
 
 export type FortLiveStats = {
-	pokestops: number
-	gyms: number
-}
+	pokestops: number;
+	gyms: number;
+};
 
 type CountResult = {
-	count: number
-}
+	count: number;
+};
 
 export async function queryLivePokemonStats() {
 	// TODO: add count endpoint to golbat
@@ -32,23 +32,23 @@ export async function queryLivePokemonStats() {
 		limit: 0,
 		filters: [
 			{
-				pokemon: [],
+				pokemon: []
 			}
 		]
 	};
 	const result = await getMultiplePokemon(body);
 
-	return result?.total ?? 0
+	return result?.total ?? 0;
 }
 
 export async function queryLiveFortStats(): Promise<FortLiveStats> {
 	const [pokestopResult, gymResult] = await Promise.all([
 		query<CountResult[]>("SELECT COUNT(*) AS count FROM pokestop"),
-		query<CountResult[]>("SELECT COUNT(*) AS count FROM gym"),
-	])
+		query<CountResult[]>("SELECT COUNT(*) AS count FROM gym")
+	]);
 
 	return {
 		pokestops: pokestopResult.result[0]?.count ?? 0,
 		gyms: gymResult.result[0]?.count ?? 0
-	}
+	};
 }

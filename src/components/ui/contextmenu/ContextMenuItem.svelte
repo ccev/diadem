@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import type { Snippet } from 'svelte';
-	import type { LucideIcon } from '@/lib/types/lucide';
+	import Button from "@/components/ui/input/Button.svelte";
+	import type { Snippet } from "svelte";
+	import type { LucideIcon } from "@/lib/types/lucide";
 
-	import { setIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
+	import { setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 
-	import { isMenuSidebar } from '@/lib/utils/device';
+	import { isMenuSidebar } from "@/lib/utils/device";
 
 	let {
 		Icon,
@@ -14,15 +14,15 @@
 		onclick = undefined,
 		...rest
 	}: {
-		Icon: LucideIcon,
-		label: string,
-		tag?: "a" | "button",
-		onclick?: () => void,
-	} = $props()
+		Icon: LucideIcon;
+		label: string;
+		tag?: "a" | "button";
+		onclick?: () => void;
+	} = $props();
 
 	function onClick() {
-		if (onclick) onclick()
-		setIsContextMenuOpen(false)
+		if (onclick) onclick();
+		setIsContextMenuOpen(false);
 	}
 </script>
 

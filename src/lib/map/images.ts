@@ -22,7 +22,5 @@ export async function ensureMapImage(map: maplibre.Map, url: string) {
 }
 
 export async function ensureMapImages(map: maplibre.Map, urls: string[]) {
-	await Promise.all(
-		[...new Set(urls.filter(Boolean))].map((url) => ensureMapImage(map, url))
-	);
+	await Promise.all([...new Set(urls.filter(Boolean))].map((url) => ensureMapImage(map, url)));
 }

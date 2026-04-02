@@ -2,12 +2,12 @@
 	let {
 		class: class_ = "",
 		title,
-		description = "",
+		description = ""
 	}: {
-		class?: string,
-		title: string,
-		description?: string,
-	} = $props()
+		class?: string;
+		title: string;
+		description?: string;
+	} = $props();
 </script>
 
 <div class="whitespace-normal {class_}">

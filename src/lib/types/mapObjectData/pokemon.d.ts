@@ -1,20 +1,20 @@
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type PvpStats = {
-	cap: number
-	cp: number
-	form: number
-	level: number
-	percentage: number
-	pokemon: number
-	rank: number
-	value: number
-}
+	cap: number;
+	cp: number;
+	form: number;
+	level: number;
+	percentage: number;
+	pokemon: number;
+	rank: number;
+	value: number;
+};
 
 export type PokemonData = {
 	id: string;
-	type: MapObjectType.POKEMON
-	mapId: string
+	type: MapObjectType.POKEMON;
+	mapId: string;
 	pokestop_id: string | null;
 	spawn_id: number | null;
 	lat: number;
@@ -44,20 +44,27 @@ export type PokemonData = {
 	expire_timestamp_verified: boolean;
 	display_pokemon_id: number | null;
 	is_ditto: boolean;
-	seen_type: 'wild' | 'encounter' | 'nearby_stop'| 'nearby_cell' | 'lure_wild' | 'lure_encounter' | null;
+	seen_type:
+		| "wild"
+		| "encounter"
+		| "nearby_stop"
+		| "nearby_cell"
+		| "lure_wild"
+		| "lure_encounter"
+		| null;
 	shiny: boolean | null;
 	username: string | null;
 	capture1: number | null;
 	capture2: number | null;
 	capture3: number | null;
 	pvp: {
-		little?: PvpStats[]
-		great?: PvpStats[]
-		ultra?: PvpStats[]
-	}
+		little?: PvpStats[];
+		great?: PvpStats[];
+		ultra?: PvpStats[];
+	};
 	is_event: number;
 	temp_evolution_id?: number;
 	alignment?: number;
 	bread_mode?: number;
-	strong: number | null
+	strong: number | null;
 };

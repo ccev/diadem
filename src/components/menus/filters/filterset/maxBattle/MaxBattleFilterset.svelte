@@ -51,12 +51,12 @@
 				<AttributeToggle
 					label={m.max_battle_only_show_active()}
 					value={data.isActive ?? false}
-					onchange={v => data.isActive = v}
+					onchange={(v) => (data.isActive = v)}
 				/>
 				<AttributeToggle
 					label={m.max_battle_has_gmax()}
 					value={data.hasGmax ?? false}
-					onchange={v => data.hasGmax = v}
+					onchange={(v) => (data.hasGmax = v)}
 				/>
 			</AttributesOverview>
 		{/if}

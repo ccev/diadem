@@ -13,18 +13,20 @@
 		imageUrl,
 		fortImage = false
 	}: {
-		onselect: () => void,
-		result: FuzzyResult<AnySearchEntry>,
-		imageUrl?: string,
-		fortImage?: boolean
-	} = $props()
+		onselect: () => void;
+		result: FuzzyResult<AnySearchEntry>;
+		imageUrl?: string;
+		fortImage?: boolean;
+	} = $props();
 
 	function onselectProxy() {
-		onselect()
-		getUserSettings().recentSearches = getUserSettings().recentSearches.filter(s => s.key !== result.item.key)
-		getUserSettings().recentSearches.unshift(result.item)
-		getUserSettings().recentSearches.slice(0, 20)
-		updateUserSettings()
+		onselect();
+		getUserSettings().recentSearches = getUserSettings().recentSearches.filter(
+			(s) => s.key !== result.item.key
+		);
+		getUserSettings().recentSearches.unshift(result.item);
+		getUserSettings().recentSearches.slice(0, 20);
+		updateUserSettings();
 	}
 </script>
 
@@ -46,9 +48,12 @@
 				src={imageUrl ?? result.item.imageUrl}
 				alt={result.item.name}
 				loading="lazy"
-			>
+			/>
 		{/if}
-		<span class="shrink-1 overflow-hidden text-ellipsis" {@attach highlightSearchMatches(result.matches[0])}>
+		<span
+			class="shrink-1 overflow-hidden text-ellipsis"
+			{@attach highlightSearchMatches(result.matches[0])}
+		>
 			{result.item.name}
 		</span>
 		<span

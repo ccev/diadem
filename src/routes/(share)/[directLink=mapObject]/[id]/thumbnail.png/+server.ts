@@ -42,7 +42,7 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 
 	let iconset = getDefaultIconSet(iconType).id;
 	let iconUrl = getIconForMap(data, iconset);
-	let staticMapIcon = iconUrl
+	let staticMapIcon = iconUrl;
 
 	let fullImage = false;
 	if ((data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) && data.url) {

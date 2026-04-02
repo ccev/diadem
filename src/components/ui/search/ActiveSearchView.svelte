@@ -4,11 +4,11 @@
 	import { getActiveSearch, resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
 	import { m } from "@/lib/paraglide/messages";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
-	import {slide} from "svelte/transition";
+	import { slide } from "svelte/transition";
 
 	function onkeydown(e: KeyboardEvent) {
 		if (e.key === "Escape") {
-			resetActiveSearchFilter()
+			resetActiveSearchFilter();
 		}
 	}
 </script>
@@ -29,8 +29,8 @@
 		variant="ghost"
 		size="icon"
 		onclick={() => {
-			resetActiveSearchFilter()
-			closeSearchModal()
+			resetActiveSearchFilter();
+			closeSearchModal();
 		}}
 	>
 		<X size="20" />

@@ -21,9 +21,9 @@ export async function GET({ params, fetch, url }) {
 		error(401, "Invalid width");
 	}
 
-	let format: typeof ALLOWED_FORMATS[number] = "webp"
+	let format: (typeof ALLOWED_FORMATS)[number] = "webp";
 	if (formatParam && ALLOWED_FORMATS.includes(formatParam as typeof format)) {
-		format = formatParam as typeof format
+		format = formatParam as typeof format;
 	}
 
 	const iconSet = config.uiconSets.find((s) => s.id === iconSetId);
@@ -40,7 +40,7 @@ export async function GET({ params, fetch, url }) {
 		}
 		const fetchDone = performance.now();
 
-		let sharpImage = sharp(Buffer.from(await res.arrayBuffer()))
+		let sharpImage = sharp(Buffer.from(await res.arrayBuffer()));
 		if (width) {
 			sharpImage = sharpImage.resize({
 				width: Number(width),
@@ -49,9 +49,9 @@ export async function GET({ params, fetch, url }) {
 		}
 
 		if (format === "webp") {
-			sharpImage = sharpImage.webp()
+			sharpImage = sharpImage.webp();
 		} else if (format === "png") {
-			sharpImage = sharpImage.png()
+			sharpImage = sharpImage.png();
 		}
 
 		log.info(

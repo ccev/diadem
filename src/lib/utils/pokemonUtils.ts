@@ -90,7 +90,7 @@ export const reverseNormalizedFormPokemonIds = new Set([
 	978, // tatsugiri
 	982, // dudunsparce
 	1012, // poltchageist
-	1013, // sinistcha
+	1013 // sinistcha
 ]);
 
 export function hasTimer(data: {
@@ -182,7 +182,7 @@ export function getNormalizedForm(
 	if (!pokemonId) return formId ?? 0;
 
 	const masterPokemon = getMasterPokemon(pokemonId);
-	if (!masterPokemon) return formId ?? 0
+	if (!masterPokemon) return formId ?? 0;
 
 	if (reverseNormalizedFormPokemonIds.has(pokemonId)) {
 		if (formId === 0) {

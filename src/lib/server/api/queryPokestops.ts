@@ -47,13 +47,19 @@ export function processRawPokestop(pokestop: PokestopData) {
 	}
 }
 
-export async function queryPokestops(bounds: Bounds, filter: FilterPokestop | undefined, polygon: Feature<Polygon | MultiPolygon> | null = null) {
+export async function queryPokestops(
+	bounds: Bounds,
+	filter: FilterPokestop | undefined,
+	polygon: Feature<Polygon | MultiPolygon> | null = null
+) {
 	const spatial = buildSpatialFilter(polygon, bounds, "Point(pokestop.lon, pokestop.lat)");
 
 	let sqlQuery =
 		"SELECT * FROM pokestop " +
 		"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
-		"WHERE " + spatial.sql + " AND deleted = 0 ";
+		"WHERE " +
+		spatial.sql +
+		" AND deleted = 0 ";
 
 	const conditions: string[] = [];
 	const values: any[] = [...spatial.values];

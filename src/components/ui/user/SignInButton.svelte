@@ -1,18 +1,18 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import { getLoginLink } from '@/lib/services/user/login';
-	import DiscordIcon from '@/components/icons/DiscordIcon.svelte';
-	import { X } from 'lucide-svelte';
-	import * as m from '@/lib/paraglide/messages';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { getLoginLink } from "@/lib/services/user/login";
+	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
+	import { X } from "lucide-svelte";
+	import * as m from "@/lib/paraglide/messages";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 
 	let show = $derived(
-		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS)
-		&& isSupportedFeature("auth")
-		&& !getUserDetails().details
-	)
+		hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES, LoadedFeature.USER_DETAILS) &&
+			isSupportedFeature("auth") &&
+			!getUserDetails().details
+	);
 </script>
 
 {#if show}

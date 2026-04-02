@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Card from '@/components/ui/Card.svelte';
-	import type { Snippet } from 'svelte';
+	import Card from "@/components/ui/Card.svelte";
+	import type { Snippet } from "svelte";
 
 	let {
 		class: class_ = "",
@@ -8,11 +8,11 @@
 		value = undefined,
 		children = undefined
 	}: {
-		class?: string
-		label: string
-		value?: string
-		children?: Snippet
-	} = $props()
+		class?: string;
+		label: string;
+		value?: string;
+		children?: Snippet;
+	} = $props();
 </script>
 
 <Card class="w-fit px-5 py-3 {class_}">
