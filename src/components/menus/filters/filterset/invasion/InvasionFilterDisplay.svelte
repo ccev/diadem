@@ -34,5 +34,4 @@
 			{/each}
 		</HorizontalScrollDisplay>
 	{/if}
-
 </FilterDisplay>

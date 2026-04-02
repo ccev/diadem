@@ -86,7 +86,6 @@
 
 		if (thisData.rewards?.length === 0) delete thisData.rewards;
 	}
-
 </script>
 
 <FiltersetModal
@@ -170,7 +169,6 @@
 					</Attribute>
 				</AttributesOverview>
 			{/if}
-
 		{/if}
 	{/snippet}
 </FiltersetModal>

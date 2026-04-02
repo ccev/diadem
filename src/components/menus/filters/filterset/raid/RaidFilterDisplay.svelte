@@ -40,5 +40,4 @@
 			<AttributeDisplay label={m.raid_show()} value={makeAttributeRaidShowLabel(show)} />
 		{/each}
 	{/if}
-
 </FilterDisplay>

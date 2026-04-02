@@ -20,11 +20,7 @@ import { type MapObjectFeature, getIconFeature } from "./featureBuilders";
  * Overlays (glow/background) have a larger imageSize than the icon,
  * so we must scale their offset inversely to keep them centered on the icon.
  */
-function scaleOffsetForSize(
-	offset: number[],
-	iconSize: number,
-	overlaySize: number
-): number[] {
+function scaleOffsetForSize(offset: number[], iconSize: number, overlaySize: number): number[] {
 	if (overlaySize === 0 || iconSize === overlaySize) return offset;
 	const ratio = iconSize / overlaySize;
 	return [offset[0] * ratio, offset[1] * ratio];
@@ -97,7 +93,9 @@ export function resolveFiltersetBadgeIconUrl(icon: BaseFilterset["icon"]): strin
 	return undefined;
 }
 
-export function getTextLabel(filtersetModifiers: FiltersetModifiers | undefined): string | undefined {
+export function getTextLabel(
+	filtersetModifiers: FiltersetModifiers | undefined
+): string | undefined {
 	if (!filtersetModifiers?.showLabel) return undefined;
 	return filtersetModifiers.showLabel;
 }
@@ -179,9 +177,7 @@ export function addOverlayIconAndBadge(
 
 	const TEXT_SIZE = 11;
 	const textOffset =
-		textLabel !== undefined
-			? [0, 2.2 + effectiveOverlayOffset[1] / TEXT_SIZE]
-			: undefined;
+		textLabel !== undefined ? [0, 2.2 + effectiveOverlayOffset[1] / TEXT_SIZE] : undefined;
 
 	subFeatures.push(
 		getIconFeature(featureId, coordinates, {

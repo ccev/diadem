@@ -37,7 +37,13 @@
 	{#if data.modifiers}
 		<Seperator class="my-3" text="Map Preview" />
 		<div class="w-full">
-			<ModifierPreview modifiers={data.modifiers} iconUrl={previewIconUrl} filterset={data} majorCategory={filterset?.majorCategory as FilterCategory | undefined} subCategory={filterset?.subCategory as FilterCategory | undefined} />
+			<ModifierPreview
+				modifiers={data.modifiers}
+				iconUrl={previewIconUrl}
+				filterset={data}
+				majorCategory={filterset?.majorCategory as FilterCategory | undefined}
+				subCategory={filterset?.subCategory as FilterCategory | undefined}
+			/>
 		</div>
 	{/if}
 
