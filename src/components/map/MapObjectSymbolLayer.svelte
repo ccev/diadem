@@ -48,7 +48,7 @@
 					"text-offset": ["coalesce", ["get", "textOffset"], ["literal", [0, 2.2]]],
 					"text-size": 11,
 					"text-allow-overlap": true,
-					"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]
+					"text-font": ["IBM Plex Sans", "Open Sans", "Noto Sans", "Arial Unicode MS Bold", "sans-serif"]
 				}
 			: {})
 	}}

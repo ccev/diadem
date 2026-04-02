@@ -36,7 +36,7 @@
 	</div>
 
 	{#if data.modifiers}
-		<Separator class="my-3" text="Map Preview" />
+		<Separator class="my-3" text={m.modifier_map_preview()} />
 		<div class="w-full">
 			<ModifierPreview
 				modifiers={data.modifiers}

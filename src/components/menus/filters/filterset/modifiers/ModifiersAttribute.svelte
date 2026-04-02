@@ -124,7 +124,7 @@
 	</div>
 
 	<div>
-		<MenuTitle title="Background" />
+		<MenuTitle title={m.modifier_background()} />
 		<RadioGroup
 			value={visualMode}
 			onValueChange={(mode) => {
@@ -159,7 +159,7 @@
 			<SelectGroupItem class="p-2 w-full" value="glow">
 				{m.modifier_glow()}
 			</SelectGroupItem>
-			<SelectGroupItem class="p-2 w-full" value="background">Circle</SelectGroupItem>
+			<SelectGroupItem class="p-2 w-full" value="background">{m.modifier_background_circle()}</SelectGroupItem>
 		</RadioGroup>
 		{#if visualMode !== "none"}
 			<div class="pt-3 space-y-2" transition:slide={{ duration: 70 }}>

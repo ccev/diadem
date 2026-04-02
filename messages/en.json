@@ -449,16 +449,14 @@
 	"poi_station_inactive": "Power Spot (Inactive)",
 	"modifier_visual": "Visual",
 	"modifier_glow": "Glow",
-	"modifier_glow_color": "Glow color",
-	"modifier_glow_size": "Glow size",
 	"modifier_glow_intensity": "Glow intensity",
 	"modifier_background": "Background",
-	"modifier_background_color": "Background color",
-	"modifier_background_intensity": "Background intensity",
+	"modifier_background_circle": "Circle",
+	"modifier_background_intensity": "Circle intensity",
 	"modifier_scale": "Scale",
 	"modifier_rotation": "Rotation",
-	"modifier_priority_hint": "If multiple filters match, the last enabled filter controls the visual.",
 	"modifier_none": "None",
 	"modifier_show_badge": "Show Badge",
-	"modifier_show_label": "Show Label"
+	"modifier_show_label": "Show Label",
+	"modifier_map_preview": "Map Preview"
 }
