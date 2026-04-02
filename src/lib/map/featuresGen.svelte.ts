@@ -36,7 +36,12 @@ import { renderPokestop } from "./render/pokestopRenderer";
 import { renderGym } from "./render/gymRenderer";
 import { renderPokemon, shouldRegeneratePokemonFeatures } from "./render/pokemonRenderer";
 import { renderNest } from "./render/nestRenderer";
-import { renderStation, renderSpawnpoint, renderTappable, renderS2Cell } from "./render/miscRenderers";
+import {
+	renderStation,
+	renderSpawnpoint,
+	renderTappable,
+	renderS2Cell
+} from "./render/miscRenderers";
 
 // Re-export types and guards for existing consumers
 export {
@@ -157,18 +162,23 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		let matchedFiltersetIcon: BaseFilterset["icon"] | undefined = undefined;
 
 		if (obj.type === MapObjectType.POKEMON) {
-			const matchedFilterset = getMatchingPokemonFilterset(
-				obj as PokemonData,
-				pokemonFiltersets
-			);
+			const matchedFilterset = getMatchingPokemonFilterset(obj as PokemonData, pokemonFiltersets);
 			iconFiltersetModifiers = matchedFilterset?.modifiers;
 			matchedFiltersetIcon = matchedFilterset?.icon;
-			if (!shouldRegeneratePokemonFeatures(
-				obj as PokemonData,
-				iconFiltersetModifiers,
-				features[MapObjectType.POKEMON]
-			)) continue;
-		} else if (features[obj.type][obj.mapId]) {
+			if (
+				!shouldRegeneratePokemonFeatures(
+					obj as PokemonData,
+					iconFiltersetModifiers,
+					features[MapObjectType.POKEMON]
+				)
+			)
+				continue;
+		} else if (
+			features[obj.type][obj.mapId] &&
+			obj.type !== MapObjectType.POKESTOP &&
+			obj.type !== MapObjectType.GYM &&
+			obj.type !== MapObjectType.STATION
+		) {
 			continue;
 		}
 
@@ -224,13 +234,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		if (!result) continue;
 
-		const {
-			subFeatures,
-			showThis,
-			expires,
-			overwriteIcon,
-			pokemonRenderStateKey
-		} = result;
+		const { subFeatures, showThis, expires, overwriteIcon, pokemonRenderStateKey } = result;
 		iconFiltersetModifiers = result.iconFiltersetModifiers ?? iconFiltersetModifiers;
 		matchedFiltersetIcon = result.matchedFiltersetIcon ?? matchedFiltersetIcon;
 

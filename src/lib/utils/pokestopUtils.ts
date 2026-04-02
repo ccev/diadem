@@ -15,7 +15,10 @@ import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-import type { FiltersetInvasion } from "@/lib/features/filters/filtersets";
+import {
+	getIncidentRewardPokemon,
+	matchesInvasionRewards
+} from "@/lib/features/filters/matchHelpers";
 import {
 	getMatchingInvasionFilterset,
 	getMatchingQuestFilterset
@@ -84,35 +87,6 @@ export function isIncidentKecleon(incident: Incident) {
 
 export function isIncidentContest(incident: Incident) {
 	return incident.display_type === INCIDENT_DISPLAY_CONTEST;
-}
-
-export function getIncidentRewardPokemon(incident: Incident) {
-	const rewardPokemon: { pokemon_id?: number; form?: number | null }[] = [
-		{ pokemon_id: incident.slot_1_pokemon_id, form: incident.slot_1_form },
-		{ pokemon_id: incident.slot_2_pokemon_id, form: incident.slot_2_form },
-		{ pokemon_id: incident.slot_3_pokemon_id, form: incident.slot_3_form }
-	];
-
-	return rewardPokemon.filter((pokemon): pokemon is { pokemon_id: number; form?: number | null } =>
-		Boolean(pokemon.pokemon_id)
-	);
-}
-
-export function matchesInvasionRewards(
-	rewards: FiltersetInvasion["rewards"] | undefined,
-	incident: Incident
-) {
-	if (!rewards || rewards.length === 0) return false;
-
-	const rewardPokemon = getIncidentRewardPokemon(incident);
-	if (rewardPokemon.length === 0) return false;
-
-	return rewards.some((reward) => {
-		return rewardPokemon.some((pokemon) => {
-			if (pokemon.pokemon_id !== reward.pokemon_id) return false;
-			return reward.form === (pokemon.form ?? 0);
-		});
-	});
 }
 
 export function getRewardText(reward: QuestReward) {

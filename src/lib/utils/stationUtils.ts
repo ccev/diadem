@@ -8,8 +8,8 @@ import type { FilterNest, FilterStation } from "@/lib/features/filters/filters";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveNestFilter } from "@/lib/utils/nestUtils";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getMatchingMaxBattleFilterset } from "@/lib/features/filters/matchFilterset";
+import { isMaxBattleActive as isMaxBattleActiveMatch } from "@/lib/features/filters/matchHelpers";
 
 export const STATION_SLOTS = 40;
 
@@ -19,12 +19,7 @@ export function getStationTitle(data: StationData) {
 }
 
 export function isMaxBattleActive(data: Partial<StationData>) {
-	return Boolean(
-		!data.is_inactive &&
-			data.is_battle_available &&
-			(data.start_time ?? 0) < currentTimestamp() &&
-			(data.end_time ?? 0) > currentTimestamp()
-	);
+	return isMaxBattleActiveMatch(data);
 }
 
 export function getStationPokemon(data: StationData): Partial<PokemonData> {

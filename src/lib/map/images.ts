@@ -1,15 +1,29 @@
 import type maplibre from "maplibre-gl";
 import { getLoadedImages, setLoadedImage } from "@/lib/map/loadedImages.svelte";
 
-const pendingImageLoads = new Map<string, Promise<void>>();
+const pendingImageLoads = new WeakMap<maplibre.Map, Map<string, Promise<void>>>();
+
+function getPendingMap(map: maplibre.Map) {
+	let pendingForMap = pendingImageLoads.get(map);
+	if (!pendingForMap) {
+		pendingForMap = new Map<string, Promise<void>>();
+		pendingImageLoads.set(map, pendingForMap);
+	}
+	return pendingForMap;
+}
 
 export async function ensureMapImage(map: maplibre.Map, url: string) {
 	if (!url) return;
 	if (map.hasImage(url)) return;
 
-	const pending = pendingImageLoads.get(url);
+	const pendingForMap = getPendingMap(map);
+	const pending = pendingForMap.get(url);
 	if (pending) {
 		await pending;
+		if (!map.hasImage(url)) {
+			const imageData = getLoadedImages()[url];
+			if (imageData) map.addImage(url, imageData);
+		}
 		return;
 	}
 
@@ -30,11 +44,11 @@ export async function ensureMapImage(map: maplibre.Map, url: string) {
 		}
 	})();
 
-	pendingImageLoads.set(url, loadPromise);
+	pendingForMap.set(url, loadPromise);
 	try {
 		await loadPromise;
 	} finally {
-		pendingImageLoads.delete(url);
+		pendingForMap.delete(url);
 	}
 }
 
