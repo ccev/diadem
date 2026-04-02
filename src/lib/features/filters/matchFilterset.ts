@@ -1,5 +1,6 @@
 import type {
 	FiltersetInvasion,
+	FiltersetMaxBattle,
 	FiltersetPokemon,
 	FiltersetQuest,
 	FiltersetRaid
@@ -7,6 +8,7 @@ import type {
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import type { Incident, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { StationData } from "@/lib/types/mapObjectData/station";
 import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
 import { RewardType, matchesInvasionRewards } from "@/lib/utils/pokestopUtils";
 
@@ -281,6 +283,34 @@ export function getMatchingQuestFilterset(
 		const filterset = filtersets[i];
 		if (!filterset.enabled) continue;
 		if (matchesQuestFilterset(filterset, reward, title, target, isAr)) return filterset;
+	}
+	return undefined;
+}
+
+function matchesMaxBattleFilterset(filterset: FiltersetMaxBattle, station: StationData) {
+	if (
+		filterset.bosses &&
+		filterset.bosses.length > 0 &&
+		!filterset.bosses.some(
+			(p) =>
+				p.pokemon_id === station.battle_pokemon_id &&
+				p.form === station.battle_pokemon_form &&
+				(p.bread_mode === undefined || p.bread_mode === station.battle_pokemon_bread_mode)
+		)
+	) {
+		return false;
+	}
+	return true;
+}
+
+export function getMatchingMaxBattleFilterset(
+	station: StationData,
+	filtersets: FiltersetMaxBattle[]
+) {
+	for (let i = filtersets.length - 1; i >= 0; i -= 1) {
+		const filterset = filtersets[i];
+		if (!filterset.enabled) continue;
+		if (matchesMaxBattleFilterset(filterset, station)) return filterset;
 	}
 	return undefined;
 }

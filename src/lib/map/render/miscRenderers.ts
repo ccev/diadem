@@ -6,14 +6,15 @@ import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import { SPAWNPOINT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtils";
-import { getModifiers } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform } from "@/lib/map/modifierLayout";
+import { getMatchingMaxBattleFilterset } from "@/lib/features/filters/matchFilterset";
 import { geojson, s2 } from "s2js";
 import {
-	getIconFeature,
 	getCircleFeature,
 	getPolygonFeature,
 	type MapObjectFeature
 } from "./featureBuilders";
+import { addOverlayIconAndBadge, getTextLabel } from "./modifierFeatures";
 import type { RenderContext, RenderResult } from "./renderTypes";
 
 export function renderStation(obj: StationData, ctx: RenderContext): RenderResult {
@@ -27,20 +28,30 @@ export function renderStation(obj: StationData, ctx: RenderContext): RenderResul
 		if (obj.battle_pokemon_id) {
 			const mapId = obj.mapId + "-maxbattle-" + obj.battle_pokemon_id;
 			const maxBattleModifiers = getModifiers(ctx.userIconSet, "max_battle");
-
-			subFeatures.push(
-				getIconFeature(mapId, [obj.lon, obj.lat], {
-					imageUrl: getIconPokemon(getStationPokemon(obj)),
-					imageSize: maxBattleModifiers.scale,
-					selectedScale: ctx.selectedScale,
-					imageOffset: [
-						ctx.modifiers.offsetX + maxBattleModifiers.offsetX,
-						ctx.modifiers.offsetY + maxBattleModifiers.offsetY
-					],
-					id: obj.mapId,
-					expires: obj.end_time ?? null
-				})
+			const matchingFilterset = getMatchingMaxBattleFilterset(
+				obj,
+				ctx.maxBattleFiltersets
 			);
+			const maxBattleVisual = withVisualTransform(
+				maxBattleModifiers.scale,
+				matchingFilterset?.modifiers
+			);
+
+			addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
+				imageUrl: getIconPokemon(getStationPokemon(obj)),
+				imageSize: maxBattleVisual.imageSize,
+				selectedScale: ctx.selectedScale,
+				imageOffset: [
+					ctx.modifiers.offsetX + maxBattleModifiers.offsetX,
+					ctx.modifiers.offsetY + maxBattleModifiers.offsetY
+				],
+				imageRotation: maxBattleVisual.imageRotation,
+				textLabel: getTextLabel(matchingFilterset?.modifiers),
+				expires: obj.end_time ?? null,
+				filtersetModifiers: matchingFilterset?.modifiers,
+				filtersetIcon: matchingFilterset?.icon,
+				overlayImageOffset: [ctx.modifiers.offsetX, ctx.modifiers.offsetY]
+			});
 		}
 	}
 

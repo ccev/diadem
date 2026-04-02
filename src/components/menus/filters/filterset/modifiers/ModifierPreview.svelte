@@ -4,7 +4,10 @@
 	import ModifierUnderlayLayer from "@/components/map/ModifierUnderlayLayer.svelte";
 	import type {
 		AnyFilterset,
+		FiltersetInvasion,
+		FiltersetMaxBattle,
 		FiltersetModifiers,
+		FiltersetQuest,
 		FiltersetRaid
 	} from "@/lib/features/filters/filtersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
@@ -17,7 +20,12 @@
 	import { buildModifierPreviewFeatureCollection } from "@/lib/map/modifierPreviewFeatures";
 	import { MapObjectFeatureType } from "@/lib/map/render/featureBuilders";
 	import { getConfig } from "@/lib/services/config/config";
-	import { getIconPokemon, getIconStation, getUiconSetDetails } from "@/lib/services/uicons.svelte";
+	import {
+		getIconPokemon,
+		getIconRaidEgg,
+		getIconStation,
+		getUiconSetDetails
+	} from "@/lib/services/uicons.svelte";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
@@ -58,10 +66,21 @@
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
-	/** Whether the current raid filterset shows a boss pokemon (true) or egg (false). */
-	function isRaidBoss(): boolean {
-		if (!filterset) return false;
-		return "bosses" in filterset && Boolean((filterset as FiltersetRaid).bosses?.length);
+	/** Try to resolve a pokemon icon from the filterset's uicon or its data. */
+	function getPokemonIconFromFilterset(): string | undefined {
+		if (!filterset) return undefined;
+		// 1. If the filterset uicon is type POKEMON, use that
+		if (filterset.icon?.uicon?.category === IconCategory.POKEMON) {
+			return getIcon(IconCategory.POKEMON, filterset.icon.uicon.params);
+		}
+		// 2. If the filterset has pokemon data, use the first one
+		if ("pokemon" in filterset && filterset.pokemon?.length) {
+			return getIconPokemon(filterset.pokemon[0]);
+		}
+		if ("bosses" in filterset && (filterset as FiltersetRaid | FiltersetMaxBattle).bosses?.length) {
+			return getIconPokemon((filterset as FiltersetRaid | FiltersetMaxBattle).bosses![0]);
+		}
+		return undefined;
 	}
 
 	function getPreviewLayout() {
@@ -71,31 +90,19 @@
 			const gymIconSet = getUiconSetDetails(getUserSettings().uiconSet.gym.id);
 			const baseMod = getModifiers(gymIconSet, MapObjectType.GYM);
 
-			let focusImageSize: number;
-			let overlayOffsetX: number;
-			let overlayOffsetY: number;
-
-			if (isRaidBoss()) {
-				// Boss: pokemonModifiers.scale × raidModifiers.scale, offset from raid_pokemon
-				const pokemonMod = getModifiers(gymIconSet, MapObjectType.POKEMON);
-				const raidMod = getModifiers(gymIconSet, "raid_pokemon");
-				focusImageSize = pokemonMod.scale * raidMod.scale;
-				overlayOffsetX = raidMod.offsetX;
-				overlayOffsetY = raidMod.offsetY;
-			} else {
-				// Egg: raidModifiers.scale only, offset from raid_egg
-				const raidMod = getModifiers(gymIconSet, "raid_egg");
-				focusImageSize = raidMod.scale;
-				overlayOffsetX = raidMod.offsetX;
-				overlayOffsetY = raidMod.offsetY;
-			}
+			// Always use raid_pokemon layout for the preview (shows boss in front)
+			const pokemonMod = getModifiers(gymIconSet, MapObjectType.POKEMON);
+			const raidMod = getModifiers(gymIconSet, "raid_pokemon");
 
 			return {
 				baseIconUrl: getIcon(IconCategory.GYM, { team_id: 0 }),
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
-				focusImageSize,
-				focusImageOffset: [baseMod.offsetX + overlayOffsetX, baseMod.offsetY + overlayOffsetY]
+				focusImageSize: pokemonMod.scale * raidMod.scale,
+				focusImageOffset: [
+					baseMod.offsetX + raidMod.offsetX,
+					baseMod.offsetY + raidMod.offsetY
+				]
 			};
 		}
 
@@ -186,18 +193,66 @@
 
 	let layout = $derived(getPreviewLayout());
 	let focusIconUrl = $derived.by(() => {
-		let url: string;
-		if (filterset?.icon?.uicon?.category === IconCategory.POKEMON) {
-			url = getIcon(IconCategory.POKEMON, filterset.icon.uicon.params);
-		} else if (iconUrl) {
-			url = iconUrl;
-		} else {
-			url = getIconPokemon({ pokemon_id: 25, form: 0 });
+		const effectiveCategory = subCategory ?? majorCategory;
+
+		// Quest: show POKEMON, ITEM uicon, or first pokemon from data, or Pikachu
+		if (effectiveCategory === "quest") {
+			const uicon = filterset?.icon?.uicon;
+			if (uicon?.category === IconCategory.POKEMON || uicon?.category === IconCategory.ITEM) {
+				return getIcon(uicon.category, uicon.params);
+			}
+			const pokemonIcon = getPokemonIconFromFilterset();
+			if (pokemonIcon) return pokemonIcon;
+			// Check for item rewards in the quest filterset
+			const quest = filterset as FiltersetQuest | undefined;
+			if (quest?.item?.length) {
+				return getIcon(IconCategory.ITEM, { item: quest.item[0].id });
+			}
+			return getIconPokemon({ pokemon_id: 25, form: 0 });
 		}
-		return url;
+
+		// Invasion: show INVASION uicon, or default grunt
+		if (effectiveCategory === "invasion") {
+			const uicon = filterset?.icon?.uicon;
+			if (uicon?.category === IconCategory.INVASION) {
+				return getIcon(IconCategory.INVASION, uicon.params);
+			}
+			// Check if characters are set
+			const invasion = filterset as FiltersetInvasion | undefined;
+			if (invasion?.characters?.length) {
+				return getIcon(IconCategory.INVASION, { character: invasion.characters[0], confirmed: true });
+			}
+			return getIcon(IconCategory.INVASION, { character: 4, confirmed: true });
+		}
+
+		// Raid: show RAID uicon, or first boss, or level 5 egg
+		if (effectiveCategory === "raid") {
+			const uicon = filterset?.icon?.uicon;
+			if (uicon?.category === IconCategory.RAID) {
+				return getIcon(IconCategory.RAID, uicon.params);
+			}
+			const pokemonIcon = getPokemonIconFromFilterset();
+			if (pokemonIcon) return pokemonIcon;
+			return getIconRaidEgg(5);
+		}
+
+		// Max Battle: show POKEMON uicon, or first boss, or Pikachu
+		if (effectiveCategory === "maxBattle") {
+			const pokemonIcon = getPokemonIconFromFilterset();
+			if (pokemonIcon) return pokemonIcon;
+			return getIconPokemon({ pokemon_id: 25, form: 0 });
+		}
+
+		// Pokemon (default): show POKEMON uicon, or first pokemon, or Pikachu
+		const pokemonIcon = getPokemonIconFromFilterset();
+		if (pokemonIcon) return pokemonIcon;
+		return getIconPokemon({ pokemon_id: 25, form: 0 });
 	});
 	let previewFeatures = $derived.by(() => {
 		if (!focusIconUrl) return emptyFeatureCollection;
+
+		const effectiveCategory = subCategory ?? majorCategory;
+		const overlayOnBase = effectiveCategory === "raid" || effectiveCategory === "maxBattle";
 
 		return buildModifierPreviewFeatureCollection({
 			center: previewCenter,
@@ -208,7 +263,8 @@
 			badgeIconUrl,
 			baseIconUrl: layout.baseIconUrl,
 			baseImageSize: layout.baseImageSize,
-			baseImageOffset: layout.baseImageOffset
+			baseImageOffset: layout.baseImageOffset,
+			overlayOnBase
 		});
 	});
 

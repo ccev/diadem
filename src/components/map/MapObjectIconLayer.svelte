@@ -38,7 +38,7 @@
 		"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
 		"text-field": ["coalesce", ["get", "textLabel"], ""],
 		"text-anchor": "top",
-		"text-offset": [0, 2.2],
+		"text-offset": ["coalesce", ["get", "textOffset"], ["literal", [0, 2.2]]],
 		"text-size": 11,
 		"text-allow-overlap": true,
 		"text-font": ["Open Sans Bold", "Arial Unicode MS Bold"]

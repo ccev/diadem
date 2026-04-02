@@ -18,6 +18,7 @@ export type MapObjectIconProperties = {
 	isUnderlay?: boolean;
 	isAttachedBadge?: boolean;
 	textLabel?: string;
+	textOffset?: number[];
 	renderStateKey?: string;
 	expires: number | null;
 };
@@ -60,6 +61,24 @@ export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjec
 	return feature.properties.type === MapObjectFeatureType.POLYGON;
 }
 
+/**
+ * MapLibre applies icon-offset in the rotated coordinate space.
+ * To keep an icon at a fixed screen position while rotating around its own center,
+ * we counter-rotate the offset so it cancels out the rotation MapLibre applies.
+ */
+function counterRotateOffset(
+	offset: number[],
+	rotationDeg: number
+): number[] {
+	const rad = (-rotationDeg * Math.PI) / 180;
+	const cos = Math.cos(rad);
+	const sin = Math.sin(rad);
+	return [
+		offset[0] * cos - offset[1] * sin,
+		offset[0] * sin + offset[1] * cos
+	];
+}
+
 export function getIconFeature(
 	id: string,
 	coordinates: Point["coordinates"],
@@ -68,6 +87,15 @@ export function getIconFeature(
 	let imageUrl = properties.imageUrl;
 	if (!imageUrl.startsWith("data:")) {
 		imageUrl = resize(imageUrl, { width: 64 });
+	}
+
+	let imageOffset = properties.imageOffset;
+	if (
+		imageOffset &&
+		properties.imageRotation &&
+		(imageOffset[0] !== 0 || imageOffset[1] !== 0)
+	) {
+		imageOffset = counterRotateOffset(imageOffset, properties.imageRotation);
 	}
 
 	return {
@@ -79,6 +107,7 @@ export function getIconFeature(
 		properties: {
 			...properties,
 			imageUrl,
+			imageOffset,
 			type: MapObjectFeatureType.ICON
 		},
 		id
