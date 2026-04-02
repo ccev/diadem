@@ -7,13 +7,14 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import {
-		filtersetPageEditAttribute, getFiltersetPageTransition,
+		filtersetPageEditAttribute,
+		getFiltersetPageTransition,
 		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { Pencil } from "lucide-svelte";
 	import IconPicker from "@/components/menus/filters/filterset/iconpicker/IconPicker.svelte";
-	import {fly} from "svelte/transition";
+	import { fly } from "svelte/transition";
 
 	let {
 		data
@@ -22,7 +23,7 @@
 	} = $props();
 
 	function openIconPicker() {
-		filtersetPageEditAttribute()
+		filtersetPageEditAttribute();
 		setCurrentAttributePage(iconPickerPage, m.details());
 	}
 </script>
@@ -60,7 +61,7 @@
 		title={m.filter_name()}
 		value={filterTitle($state.snapshot(data))}
 		onchange={(e) => {
-		data.title.title = e.target?.value ?? "";
-	}}
+			data.title.title = e.target?.value ?? "";
+		}}
 	/>
 </div>

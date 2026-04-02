@@ -1,4 +1,4 @@
-import  { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { openPopup } from "@/lib/mapObjects/interact";
 import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { Coords } from "@/lib/utils/coordinates";
@@ -23,8 +23,8 @@ export function openMapObject(data: MapData, alwaysFly: boolean = false) {
 	openPopup(data, true);
 	addMapObjects([data], data.type, 1);
 
-	const map = getMap()
-	if (!map) return
+	const map = getMap();
+	if (!map) return;
 
 	if (alwaysFly || !map.getBounds().contains(Coords.infer(data).maplibre())) {
 		getUserSettings().mapPosition.center.lat = data.lat;
@@ -38,11 +38,11 @@ export function openMapObject(data: MapData, alwaysFly: boolean = false) {
 }
 
 export async function openMapObjectFromId(type: MapObjectType, id: string) {
-	const response = await fetch("/api/" + type + "/" + id)
+	const response = await fetch("/api/" + type + "/" + id);
 	if (!response.ok) {
 		openToast(m.direct_link_not_found({ type: m["pogo_" + type]() }), 1000);
-		return
+		return;
 	}
-	const data: MapData = await response.json()
-	openMapObject(data, true)
+	const data: MapData = await response.json();
+	openMapObject(data, true);
 }

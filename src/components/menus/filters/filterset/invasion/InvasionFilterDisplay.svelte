@@ -12,7 +12,7 @@
 	let {
 		data
 	}: {
-		data: FiltersetInvasion
+		data: FiltersetInvasion;
 	} = $props();
 </script>
 
@@ -28,7 +28,7 @@
 						class="w-7"
 						src={resize(getIconInvasion(character, true), { width: 64 })}
 						alt={mCharacter(character)}
-					>
+					/>
 					{mCharacter(character)}
 				</HorizontalScrollElement>
 			{/each}

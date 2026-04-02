@@ -16,7 +16,7 @@ let mapObjectsGeoJson: FeatureCollection<
 	features: []
 };
 
-let sessionImageUrls= new Set<string>();
+let sessionImageUrls = new Set<string>();
 
 export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 	mapObjectsGeoJson = { type: "FeatureCollection", features };

@@ -13,7 +13,11 @@ export function getMapObjects() {
 	return mapObjectsState;
 }
 
-export function addMapObjects(mapObjects: Partial<MapData>[], type: MapObjectType, examined: number) {
+export function addMapObjects(
+	mapObjects: Partial<MapData>[],
+	type: MapObjectType,
+	examined: number
+) {
 	const newState: MapObjectsStateType = {};
 
 	// adds missing mapId and type to map objects

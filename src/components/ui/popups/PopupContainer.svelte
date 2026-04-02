@@ -22,14 +22,14 @@
 		[MapObjectType.TAPPABLE]: TappablePopup
 	};
 
-	let PopupComponent = $derived(popupComponents[getCurrentSelectedData()?.type])
+	let PopupComponent = $derived(popupComponents[getCurrentSelectedData()?.type]);
 </script>
 
 {#if PopupComponent}
 	<div
 		class="w-full max-w-120 z-10"
 		style="pointer-events: all"
-		transition:slide={{duration: 50}}
+		transition:slide={{ duration: 50 }}
 	>
 		<PopupComponent />
 	</div>

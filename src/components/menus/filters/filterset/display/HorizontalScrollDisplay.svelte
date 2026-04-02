@@ -6,15 +6,12 @@
 		label,
 		children
 	}: {
-		label: string
-		children: Snippet
+		label: string;
+		children: Snippet;
 	} = $props();
 </script>
 
-<AttributeDisplay
-	{label}
-	class="w-full pb-0!"
->
+<AttributeDisplay {label} class="w-full pb-0!">
 	<div class="flex overflow-x-auto gap-2 pb-3 mt-2">
 		{@render children()}
 	</div>

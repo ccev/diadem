@@ -11,7 +11,11 @@
 		getAttributeLabelRank,
 		getAttributeLabelSize
 	} from "@/lib/features/filters/filterUtilsPokemon";
-	import type { FiltersetInvasion, FiltersetPokemon, FiltersetRaid } from "@/lib/features/filters/filtersets";
+	import type {
+		FiltersetInvasion,
+		FiltersetPokemon,
+		FiltersetRaid
+	} from "@/lib/features/filters/filtersets";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import {
@@ -104,10 +108,10 @@
 		} else if (data.majorCategory === "pokestop" && data.subCategory === "invasion") {
 			const filterset = data.filterset as FiltersetInvasion;
 			if (filterset.characters) {
-				text += `${m.grunts()}: ${makeAttributeCharacterLabel(filterset.characters)}\n`
+				text += `${m.grunts()}: ${makeAttributeCharacterLabel(filterset.characters)}\n`;
 			}
 			if (filterset.rewards) {
-				text += `${m.rewards()}: ${makeAttributePokemonLabel(filterset.rewards)}\n`
+				text += `${m.rewards()}: ${makeAttributePokemonLabel(filterset.rewards)}\n`;
 			}
 		}
 		return text;
@@ -115,11 +119,7 @@
 </script>
 
 {#if !browser && data}
-	<Metadata
-		title={title}
-		embedTitle={title}
-		description={text}
-	/>
+	<Metadata {title} embedTitle={title} description={text} />
 {/if}
 
 <RedirectFlash goal={title} />

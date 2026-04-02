@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Button from '@/components/ui/input/Button.svelte';
-	import { X } from 'lucide-svelte';
-	import * as m from '@/lib/paraglide/messages';
+	import Button from "@/components/ui/input/Button.svelte";
+	import { X } from "lucide-svelte";
+	import * as m from "@/lib/paraglide/messages";
 	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 
 	let {
@@ -10,42 +10,42 @@
 		color = "yellow",
 		onremove = () => {}
 	}: {
-		label?: string,
-		isEmpty: boolean,
-		color?: 'yellow' | 'muted',
-		onremove?: () => void
+		label?: string;
+		isEmpty: boolean;
+		color?: "yellow" | "muted";
+		onremove?: () => void;
 	} = $props();
 
 	function onclick(event: MouseEvent) {
 		event.stopPropagation();
-		onremove()
-		updateDetailsCurrentSelectedFilterset()
+		onremove();
+		updateDetailsCurrentSelectedFilterset();
 	}
 
 	const colors = {
 		muted: {
-			text: '--color-slate-500',
-			bg: '--color-slate-100',
-			border: '--color-slate-200',
+			text: "--color-slate-500",
+			bg: "--color-slate-100",
+			border: "--color-slate-200",
 			dark: {
-				text: '--color-zinc-400',
-				bg: '--color-zinc-900',
-				border: '--color-zinc-800',
+				text: "--color-zinc-400",
+				bg: "--color-zinc-900",
+				border: "--color-zinc-800"
 			}
 		},
 		yellow: {
-			text: '--color-amber-900',
-			bg: '--color-amber-100',
-			border: '--color-amber-200',
+			text: "--color-amber-900",
+			bg: "--color-amber-100",
+			border: "--color-amber-200",
 			dark: {
-				text: '--color-indigo-100',
-				bg: '--color-indigo-950',
-				border: '--color-indigo-800',
+				text: "--color-indigo-100",
+				bg: "--color-indigo-950",
+				border: "--color-indigo-800"
 			}
 		}
 	};
 
-	let actualColor = $derived(colors[isEmpty ? "muted" : color])
+	let actualColor = $derived(colors[isEmpty ? "muted" : color]);
 </script>
 
 <div
@@ -79,23 +79,25 @@
 </div>
 
 <style>
-    .attribute-chip {
-        background-color: var(--color-attr-chip-bg);
-        color: var(--color-attr-chip-text);
-        border-color: var(--color-attr-chip-border);
-    }
+	.attribute-chip {
+		background-color: var(--color-attr-chip-bg);
+		color: var(--color-attr-chip-text);
+		border-color: var(--color-attr-chip-border);
+	}
 
-    :global(.dark .attribute-chip) {
-        background-color: var(--color-attr-chip-dark-bg);
-        color: var(--color-attr-chip-dark-text);
-        border-color: var(--color-attr-chip-dark-border);
-    }
+	:global(.dark .attribute-chip) {
+		background-color: var(--color-attr-chip-dark-bg);
+		color: var(--color-attr-chip-dark-text);
+		border-color: var(--color-attr-chip-dark-border);
+	}
 
-    :global(.attribute-chip-button:hover), :global(.attribute-chip-button:active) {
-        background-color: color-mix(in oklab, var(--color-attr-chip-border) 50%, transparent);
-    }
+	:global(.attribute-chip-button:hover),
+	:global(.attribute-chip-button:active) {
+		background-color: color-mix(in oklab, var(--color-attr-chip-border) 50%, transparent);
+	}
 
-    :global(.dark .attribute-chip-button:hover), :global(.dark .attribute-chip-button:active) {
-        background-color: color-mix(in oklab, var(--color-attr-chip-dark-border) 90%, transparent);
-    }
+	:global(.dark .attribute-chip-button:hover),
+	:global(.dark .attribute-chip-button:active) {
+		background-color: color-mix(in oklab, var(--color-attr-chip-dark-border) 90%, transparent);
+	}
 </style>

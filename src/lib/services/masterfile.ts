@@ -128,9 +128,9 @@ export function calculateCp(
 	iv: [number, number, number] = [15, 15, 15]
 ) {
 	const multiplier = cpMultipliers[level];
-	const stats = getMasterPokemon(pokemonId, formId)
+	const stats = getMasterPokemon(pokemonId, formId);
 
-	if (!multiplier || !stats) return undefined
+	if (!multiplier || !stats) return undefined;
 
 	const attack = stats.baseAtk + iv[0];
 	const defense = stats.baseDef + iv[1];

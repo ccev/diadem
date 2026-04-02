@@ -1,15 +1,15 @@
-import type { RequestEvent } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-import { sha256 } from '@oslojs/crypto/sha2';
-import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '@/lib/server/db/internal';
-import * as table from '@/lib/server/db/internal/schema';
+import type { RequestEvent } from "@sveltejs/kit";
+import { eq } from "drizzle-orm";
+import { sha256 } from "@oslojs/crypto/sha2";
+import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from "@oslojs/encoding";
+import { db } from "@/lib/server/db/internal";
+import * as table from "@/lib/server/db/internal/schema";
 
 import type { Perms } from "@/lib/utils/features";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-export const sessionCookieName = 'auth-session';
+export const sessionCookieName = "auth-session";
 
 export async function getUserFromDiscordId(discordId: string) {
 	const [result] = await db
@@ -31,7 +31,13 @@ export async function createUserFromDiscordId(discordId: string) {
 	return userId;
 }
 
-export async function makeNewSession(event: RequestEvent, userId: string, accessToken: string, refreshToken: string, expiresAt: Date) {
+export async function makeNewSession(
+	event: RequestEvent,
+	userId: string,
+	accessToken: string,
+	refreshToken: string,
+	expiresAt: Date
+) {
 	const sessionToken = generateSessionToken();
 
 	const session = await createSession(sessionToken, userId, accessToken, refreshToken, expiresAt);
@@ -43,7 +49,13 @@ export function generateSessionToken() {
 	return encodeBase64url(bytes);
 }
 
-export async function createSession(token: string, userId: string, accessToken: string, refreshToken: string, expiresAt: Date) {
+export async function createSession(
+	token: string,
+	userId: string,
+	accessToken: string,
+	refreshToken: string,
+	expiresAt: Date
+) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const session: table.Session = {
 		id: sessionId,
@@ -51,7 +63,7 @@ export async function createSession(token: string, userId: string, accessToken: 
 		expiresAt,
 		discordToken: accessToken,
 		discordRefreshToken: refreshToken,
-		discordLastRefresh: new Date(Date.now()),
+		discordLastRefresh: new Date(Date.now())
 	};
 	await db.insert(table.session).values(session);
 	return session;
@@ -108,7 +120,7 @@ export async function validateSessionToken(token: string) {
 	}
 
 	if (user) {
-		user.permissions = JSON.parse((user.permissions as string) ?? '[]');
+		user.permissions = JSON.parse((user.permissions as string) ?? "[]");
 	}
 
 	return { session, user };
@@ -121,12 +133,12 @@ export async function invalidateSession(sessionId: string) {
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
-		path: '/'
+		path: "/"
 	});
 }
 
 export function deleteSessionTokenCookie(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
-		path: '/'
+		path: "/"
 	});
 }

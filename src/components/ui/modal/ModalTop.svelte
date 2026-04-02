@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { Dialog, type WithoutChild } from 'bits-ui';
-	import { closeModal, isOpenModal, type ModalType, openModal } from '@/lib/ui/modal.svelte.js';
-	import Button from '@/components/ui/input/Button.svelte';
-	import Modal from '@/components/ui/modal/Modal.svelte';
+	import type { Snippet } from "svelte";
+	import { Dialog, type WithoutChild } from "bits-ui";
+	import { closeModal, isOpenModal, type ModalType, openModal } from "@/lib/ui/modal.svelte.js";
+	import Button from "@/components/ui/input/Button.svelte";
+	import Modal from "@/components/ui/modal/Modal.svelte";
 
 	let {
 		class: class_ = "",
@@ -11,10 +11,10 @@
 		children,
 		onopenchange = undefined
 	}: {
-		class?: string,
-		modalType: ModalType,
-		children?: Snippet
-		onopenchange?: Dialog.RootProps["onOpenChange"]
+		class?: string;
+		modalType: ModalType;
+		children?: Snippet;
+		onopenchange?: Dialog.RootProps["onOpenChange"];
 	} = $props();
 </script>
 

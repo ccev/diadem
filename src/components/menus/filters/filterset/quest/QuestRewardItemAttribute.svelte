@@ -15,10 +15,17 @@
 
 	let { data }: { data: FiltersetQuest } = $props();
 
-	let rewards = $derived(getQuestRewards(RewardType.ITEM).sort((a, b) => a.reward.info.item_id - b.reward.info.item_id || a.reward.info.amount - b.reward.info.amount));
+	let rewards = $derived(
+		getQuestRewards(RewardType.ITEM).sort(
+			(a, b) =>
+				a.reward.info.item_id - b.reward.info.item_id || a.reward.info.amount - b.reward.info.amount
+		)
+	);
 
 	function isSelected(reward: Extract<QuestReward, { type: RewardType.ITEM }>["info"]) {
-		return Boolean(data.item?.find(r => r.id === reward.item_id.toString() && r.amount === reward.amount));
+		return Boolean(
+			data.item?.find((r) => r.id === reward.item_id.toString() && r.amount === reward.amount)
+		);
 	}
 </script>
 
@@ -26,15 +33,15 @@
 	class="h-114 overflow-y-auto flex flex-col gap-2! w-full grid-cols-1! p-1"
 	orientation="vertical"
 	evenColumns={false}
-	values={data.item?.map(i => `${i.id}-${i.amount}`) ?? []}
+	values={data.item?.map((i) => `${i.id}-${i.amount}`) ?? []}
 	onchange={(values) => {
-		if (!data.item) data.item = []
-		data.item = values.map(v => {
-			const [ id, amount ] = v.split("-")
-			return { id, amount: Number(amount) }
-		})
+		if (!data.item) data.item = [];
+		data.item = values.map((v) => {
+			const [id, amount] = v.split("-");
+			return { id, amount: Number(amount) };
+		});
 
-		if (data.item.length === 0) delete data.item
+		if (data.item.length === 0) delete data.item;
 
 		// if (selected) {
 		// 	data.item = data.item?.filter(i => i.id !== reward.item_id.toString() || i.amount !== reward.amount) ?? []
@@ -67,33 +74,25 @@
 						class="w-7"
 						src={resize(getIconItem(reward.item_id, reward.amount), { width: 64 })}
 						alt={name}
-					>
+					/>
 					<p class="font-semibold text-base text-left">
 						{name}
 					</p>
 				</div>
 
 				{#if selected}
-					<div
-						class="flex flex-col gap-1 mt-2 pl-3 pr-2"
-						transition:slide={{ duration: 70 }}
-					>
+					<div class="flex flex-col gap-1 mt-2 pl-3 pr-2" transition:slide={{ duration: 70 }}>
 						{#each quest.tasks as task}
-							<Button
-								variant="outline"
-								class="text-left w-full gap-3 justify-start"
-							>
+							<Button variant="outline" class="text-left w-full gap-3 justify-start">
 								<Check size="16" />
 								<span>
 									{mQuest(task.title, task.target)}
 								</span>
 							</Button>
-
 						{/each}
 					</div>
 				{/if}
 			</div>
-
 		</SelectGroupItem>
 	{/each}
 </ToggleGroup>

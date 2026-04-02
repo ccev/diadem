@@ -1,24 +1,27 @@
 <script lang="ts">
-	import { ChevronDown, ChevronRight, Eye, EyeClosed, FunnelPlus } from 'lucide-svelte';
-	import type { AnyFilter, FilterCategory } from '@/lib/features/filters/filters';
-	import Switch from '@/components/ui/input/Switch.svelte';
-	import Button from '@/components/ui/input/Button.svelte';
+	import { ChevronDown, ChevronRight, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
+	import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
+	import Switch from "@/components/ui/input/Switch.svelte";
+	import Button from "@/components/ui/input/Button.svelte";
 
-	import { slide } from 'svelte/transition';
-	import Filterset from '@/components/menus/filters/Filterset.svelte';
-	import { type ModalType, openModal } from '@/lib/ui/modal.svelte.js';
-	import { filtersetPageNew, filtersetPageReset } from '@/lib/features/filters/filtersetPages.svelte';
+	import { slide } from "svelte/transition";
+	import Filterset from "@/components/menus/filters/Filterset.svelte";
+	import { type ModalType, openModal } from "@/lib/ui/modal.svelte.js";
+	import {
+		filtersetPageNew,
+		filtersetPageReset
+	} from "@/lib/features/filters/filtersetPages.svelte";
 	import {
 		getNewFilterset,
 		type SelectedFiltersetData,
 		setCurrentSelectedFilterset
-	} from '@/lib/features/filters/filtersetPageData.svelte';
-	import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte';
-	import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
-	import * as m from '@/lib/paraglide/messages';
-	import { getMapObjectCounts } from '@/lib/mapObjects/mapObjectsState.svelte';
-	import { formatNumberCompact } from '@/lib/utils/numberFormat';
-	import { tick } from 'svelte';
+	} from "@/lib/features/filters/filtersetPageData.svelte";
+	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
+	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+	import * as m from "@/lib/paraglide/messages";
+	import { getMapObjectCounts } from "@/lib/mapObjects/mapObjectsState.svelte";
+	import { formatNumberCompact } from "@/lib/utils/numberFormat";
+	import { tick } from "svelte";
 	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
 	import { mAny } from "@/lib/utils/anyMessage";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
@@ -36,17 +39,17 @@
 		isFilterable = true,
 		expanded = $bindable(false)
 	}: {
-		majorCategory: SelectedFiltersetData["majorCategory"],
-		subCategory?: FilterCategory,
-		title: string,
-		onEnabledChange: (thisCategory: FilterCategory, value: boolean) => void,
-		filter: AnyFilter,
-		mapObject: MapObjectType,
-		filterModal?: ModalType | undefined,
-		isExpandable?: boolean,
-		isFilterable?: boolean,
-		subCategories?: FilterCategory[],
-		expanded?: boolean
+		majorCategory: SelectedFiltersetData["majorCategory"];
+		subCategory?: FilterCategory;
+		title: string;
+		onEnabledChange: (thisCategory: FilterCategory, value: boolean) => void;
+		filter: AnyFilter;
+		mapObject: MapObjectType;
+		filterModal?: ModalType | undefined;
+		isExpandable?: boolean;
+		isFilterable?: boolean;
+		subCategories?: FilterCategory[];
+		expanded?: boolean;
 	} = $props();
 
 	let isEnabled: boolean = $derived(filter.enabled);
@@ -64,15 +67,15 @@
 
 	function onToggleAll() {
 		const shouldEnable = allFiltersetsDisabled;
-		let filter = getUserSettings().filters[majorCategory]
+		let filter = getUserSettings().filters[majorCategory];
 
 		// @ts-ignore
-		if (subCategory) filter = filter[subCategory]
+		if (subCategory) filter = filter[subCategory];
 		// @ts-ignore
-		filter.filters = filter.filters.map((filterset) => ({ ...filterset, enabled: shouldEnable }))
+		filter.filters = filter.filters.map((filterset) => ({ ...filterset, enabled: shouldEnable }));
 
 		updateUserSettings();
-		deleteAllFeaturesOfType(mapObject)
+		deleteAllFeaturesOfType(mapObject);
 		tick().then(() => updateAllMapObjects().then());
 	}
 </script>
@@ -93,15 +96,10 @@
 	{/if}
 {/snippet}
 
-<div
-	class="py-2 pr-4 pl-0"
-	class:py-0!={isEnabled && isFilterable && !hasAnyFilterset}
->
+<div class="py-2 pr-4 pl-0" class:py-0!={isEnabled && isFilterable && !hasAnyFilterset}>
 	<div class="flex gap-2 justify-start items-center whitespace-normal">
 		{#if !isExpandable}
-			<div
-				class="pl-4 py-2"
-			>
+			<div class="pl-4 py-2">
 				<p class="font-semibold text-base">
 					{title}
 				</p>
@@ -115,19 +113,18 @@
 					{/if}
 				{/if}
 			</div>
-
 		{:else}
 			<Button
 				class="flex-col gap-0! items-start! w-full! h-fit"
 				variant="ghost"
-				onclick={() => expanded = !expanded}
+				onclick={() => (expanded = !expanded)}
 			>
 				<div class="flex items-center justify-start! h-fit! gap-1 flex-1">
 					<p class="font-semibold text-base">
 						{title}
 					</p>
 					{#if isExpandable}
-							<ChevronRight
+						<ChevronRight
 							size="16"
 							class="transition-[rotate] mt-px"
 							style="rotate: {expanded ? '90deg' : '0deg'}"
@@ -139,13 +136,10 @@
 					{@render showingCount()}
 				{/if}
 			</Button>
-
 		{/if}
 		<!--		<span class="text-sm text-muted-foreground">67</span>-->
 
 		<div class="flex gap-1 ml-auto items-center">
-
-
 			<!--		{#if isFilterable && !hasAnyFilterset && isEnabled}-->
 			<!--			<Button class="" variant="outline" size="sm" onclick={placeholderAddFilter}>-->
 			<!--				<FunnelPlus size="14" />-->
@@ -153,34 +147,29 @@
 			<!--			</Button>-->
 			<!--		{/if}-->
 
-			<Switch class="" bind:checked={isEnabled} onCheckedChange={v => onEnabledChange(subCategory, v)} />
+			<Switch
+				class=""
+				bind:checked={isEnabled}
+				onCheckedChange={(v) => onEnabledChange(subCategory, v)}
+			/>
 		</div>
 	</div>
 
 	{#if isEnabled && isFilterable}
 		{#if hasAnyFilterset && filterModal}
-			<div
-				class="w-full my-1 flex flex-col gap-1 pl-2"
-				transition:slide={{ duration: 90 }}
-			>
+			<div class="w-full my-1 flex flex-col gap-1 pl-2" transition:slide={{ duration: 90 }}>
 				{#each filter.filters ?? [] as filterset (filterset.id)}
 					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} {mapObject} />
 				{/each}
 			</div>
 
 			<div class="flex justify-between ml-2" class:mb-0.5={hasAnyFilterset}>
-
 				<Button class="" variant="ghost" size="sm" onclick={onAddFilter}>
 					<FunnelPlus size="14" />
 					<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
 				</Button>
 				{#if hasAnyFilterset}
-					<Button
-						class=""
-						variant="ghost"
-						size="sm"
-						onclick={onToggleAll}
-					>
+					<Button class="" variant="ghost" size="sm" onclick={onToggleAll}>
 						{#if allFiltersetsDisabled}
 							<Eye size="16" />
 							<span>{m.enable_filters()}</span>
@@ -214,7 +203,6 @@
 <!--			<ChevronDown size="20" />-->
 <!--		</Button>-->
 <!--	{/if}-->
-
 
 <!--	{#if showFiltered}-->
 <!--		<RadioGroup-->
@@ -254,7 +242,6 @@
 <!--	{:else}-->
 
 <!--		<Switch />-->
-
 
 <!--	{/if}-->
 <!--</div>-->

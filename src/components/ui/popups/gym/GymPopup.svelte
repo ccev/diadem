@@ -1,22 +1,25 @@
 <script lang="ts">
-	import type { GymData, GymDefender, Rsvp } from '@/lib/types/mapObjectData/gym';
-	import BasePopup from '@/components/ui/popups/BasePopup.svelte';
-	import { getIconGym, getIconPokemon, getIconRaidEgg } from '@/lib/services/uicons.svelte.js';
-	import ImagePopup from '@/components/ui/popups/common/ImagePopup.svelte';
-	import * as m from '@/lib/paraglide/messages';
-	import FortImage from '@/components/ui/popups/common/FortImage.svelte';
-	import { mMove, mPokemon, mRaid } from '@/lib/services/ingameLocale';
-	import Countdown from '@/components/utils/Countdown.svelte';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte.js';
-	import { ClockAlert, Smartphone, Trees, UserRoundCheck, UsersRound } from 'lucide-svelte';
-	import IconValue from '@/components/ui/popups/common/IconValue.svelte';
-	import UpdatedTimes from '@/components/ui/popups/common/UpdatedTimes.svelte';
-	import FortPowerUp from '@/components/ui/popups/common/FortPowerUp.svelte';
-	import GymDefenderOverview from '@/components/ui/popups/gym/GymDefenderOverview.svelte';
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
-	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
-	import { currentTimestamp } from '@/lib/utils/currentTimestamp';
-	import Metadata from '@/components/utils/Metadata.svelte';
+	import type { GymData, GymDefender, Rsvp } from "@/lib/types/mapObjectData/gym";
+	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
+	import { getIconGym, getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte.js";
+	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
+	import * as m from "@/lib/paraglide/messages";
+	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
+	import { mMove, mPokemon, mRaid } from "@/lib/services/ingameLocale";
+	import Countdown from "@/components/utils/Countdown.svelte";
+	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+	import { ClockAlert, Smartphone, Trees, UserRoundCheck, UsersRound } from "lucide-svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
+	import FortPowerUp from "@/components/ui/popups/common/FortPowerUp.svelte";
+	import GymDefenderOverview from "@/components/ui/popups/gym/GymDefenderOverview.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
+	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
 		getRaidPokemon,
 		GYM_SLOTS,
@@ -26,18 +29,18 @@
 		shouldDisplayRaid
 	} from "@/lib/utils/gymUtils";
 
-	let data: GymData = $derived(getMapObjects()[getCurrentSelectedMapId()] as GymData ?? getCurrentSelectedData() as GymData);
-	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? '[]'));
-	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? '[]'));
+	let data: GymData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as GymData) ?? (getCurrentSelectedData() as GymData)
+	);
+	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? "[]"));
+	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? "[]"));
 </script>
 
 <Metadata title={data.name ?? m.pogo_gym()} />
 
 {#snippet raidDisplay(expanded: boolean)}
 	{#if shouldDisplayRaid(data)}
-		<div
-			class="flex gap-2 items-center border-border border-b pb-2 mb-2"
-		>
+		<div class="flex gap-2 items-center border-border border-b pb-2 mb-2">
 			{#if data.raid_pokemon_id}
 				<div class="w-8 shrink-0">
 					<ImagePopup
@@ -58,12 +61,9 @@
 
 			<div>
 				<div class="flex gap-1 items-center">
-				<span
-					class="font-semibold whitespace-nowrap"
-					class:font-semibold={!data.raid_pokemon_id}
-				>
-					{mRaid(data.raid_level)}
-				</span>
+					<span class="font-semibold whitespace-nowrap" class:font-semibold={!data.raid_pokemon_id}>
+						{mRaid(data.raid_level)}
+					</span>
 
 					{#if data.raid_pokemon_id}
 						<b class="whitespace-nowrap">
@@ -103,12 +103,15 @@
 				{/if}
 
 				{#if rsvps && expanded}
-					<div class="grid items-center w-full justify-start mt-1.5" style="grid-template-columns: repeat(3, auto)">
+					<div
+						class="grid items-center w-full justify-start mt-1.5"
+						style="grid-template-columns: repeat(3, auto)"
+					>
 						{#each rsvps as rsvp (rsvp.timeslot)}
 							<UserRoundCheck size="16" class="mr-1.5" />
 							<b class="mr-1.5">{timestampToLocalTime(rsvp.timeslot / 1000)}</b>
 							<span>
-								{m.rsvp_entry({going: rsvp.going_count, maybe: rsvp.maybe_count})}
+								{m.rsvp_entry({ going: rsvp.going_count, maybe: rsvp.maybe_count })}
 							</span>
 						{/each}
 					</div>
@@ -167,7 +170,7 @@
 			{@render raidDisplay(true)}
 			{@render memberOverview()}
 			{#if !isFortOutdated(data.updated) && defenders}
-				<GymDefenderOverview defenders={defenders} />
+				<GymDefenderOverview {defenders} />
 			{/if}
 
 			{#if data.ar_scan_eligible}

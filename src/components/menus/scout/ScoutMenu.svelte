@@ -7,7 +7,8 @@
 	import { onDestroy, onMount } from "svelte";
 	import {
 		getCoords,
-		getCurrentScoutData, getScoutGeojsons,
+		getCurrentScoutData,
+		getScoutGeojsons,
 		getScoutQueue,
 		resetCurrentScoutData,
 		type ScoutGeoProperties,
@@ -58,10 +59,10 @@
 	}
 
 	function updatePoints(newSize: 0 | 1 | 2) {
-		size = newSize
+		size = newSize;
 		setCurrentScoutCoords(getCoords(getCurrentScoutData().center, size));
 
-		const [ smallPoints, bigPoints ] = getScoutGeojsons(getCurrentScoutData().coords, size)
+		const [smallPoints, bigPoints] = getScoutGeojsons(getCurrentScoutData().coords, size);
 
 		setScoutGeojson(smallPoints, bigPoints);
 	}
@@ -95,5 +96,4 @@
 	<Button variant="default" size="lg" class="w-full" onclick={scoutButton}>
 		{m.scout_start()}
 	</Button>
-
 </Card>

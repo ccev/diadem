@@ -232,20 +232,29 @@ const LEAGUE_VALUES: League[] = [League.LITTLE, League.GREAT, League.ULTRA, Leag
 
 function getLeagueLabel(league: League): string {
 	switch (league) {
-		case League.LITTLE: return m.little_league();
-		case League.GREAT: return m.great_league();
-		case League.ULTRA: return m.ultra_league();
-		case League.MASTER: return m.master_league();
+		case League.LITTLE:
+			return m.little_league();
+		case League.GREAT:
+			return m.great_league();
+		case League.ULTRA:
+			return m.ultra_league();
+		case League.MASTER:
+			return m.master_league();
 	}
 }
 
 function getTeamLabel(teamId: number): string {
 	switch (teamId) {
-		case 0: return m.team_neutral();
-		case 1: return m.team_mystic();
-		case 2: return m.team_valor();
-		case 3: return m.team_instinct();
-		default: return m.team_neutral();
+		case 0:
+			return m.team_neutral();
+		case 1:
+			return m.team_mystic();
+		case 2:
+			return m.team_valor();
+		case 3:
+			return m.team_instinct();
+		default:
+			return m.team_neutral();
 	}
 }
 
@@ -301,7 +310,7 @@ export function getRaidIcons(): IconPickerItem[] {
 			label: mRaid(level),
 			category: IconCategory.RAID,
 			params: { level, hatched: false }
-		},
+		}
 	]);
 }
 

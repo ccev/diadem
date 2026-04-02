@@ -23,7 +23,7 @@ function createBrowserLogger(name: string): Logger {
 		info: (message, ...args) => console.info(prefix, message, ...args),
 		warning: (message, ...args) => console.warn(prefix, message, ...args),
 		error: (message, ...args) => console.error(prefix, message, ...args),
-		crit: (message, ...args) => console.error(prefix, message, ...args),
+		crit: (message, ...args) => console.error(prefix, message, ...args)
 	};
 }
 

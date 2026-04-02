@@ -1,68 +1,68 @@
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type GymData = {
-	id: string
-	mapId: string
-	type: MapObjectType.GYM
-	lat: number
-	lon: number
-	name?: string
-	url?: string
-	last_modified_timestamp?: number
-	raid_end_timestamp?: number
-	raid_spawn_timestamp?: number
-	raid_battle_timestamp?: number
-	updated: number
-	raid_pokemon_id?: number
-	guarding_pokemon_id?: number
-	guarding_pokemon_display?: string
-	availble_slots?: number
-	team_id?: number
-	raid_level?: number
-	enabled?: number
-	ex_raid_eligible?: number
-	in_battle?: number
-	raid_pokemon_move_1?: number
-	raid_pokemon_move_2?: number
-	raid_pokemon_form?: number
-	raid_pokemon_cp?: number
-	raid_is_exclusive?: number
-	cell_id?: bigint
-	deleted: number
-	total_cp?: number
-	first_seen_timestamp: number
-	raid_pokemon_gender?: number
-	sponsor_id?: number
-	partner_id?: string
-	raid_pokemon_costume?: number
-	raid_pokemon_evolution?: number
-	ar_scan_eligible?: number
-	power_up_level?: number
-	power_up_points?: number
-	power_up_end_timestamp?: number
-	description?: string
-	raid_pokemon_alignment?: number
-	defenders?: string
-	rsvps?: string
-}
+	id: string;
+	mapId: string;
+	type: MapObjectType.GYM;
+	lat: number;
+	lon: number;
+	name?: string;
+	url?: string;
+	last_modified_timestamp?: number;
+	raid_end_timestamp?: number;
+	raid_spawn_timestamp?: number;
+	raid_battle_timestamp?: number;
+	updated: number;
+	raid_pokemon_id?: number;
+	guarding_pokemon_id?: number;
+	guarding_pokemon_display?: string;
+	availble_slots?: number;
+	team_id?: number;
+	raid_level?: number;
+	enabled?: number;
+	ex_raid_eligible?: number;
+	in_battle?: number;
+	raid_pokemon_move_1?: number;
+	raid_pokemon_move_2?: number;
+	raid_pokemon_form?: number;
+	raid_pokemon_cp?: number;
+	raid_is_exclusive?: number;
+	cell_id?: bigint;
+	deleted: number;
+	total_cp?: number;
+	first_seen_timestamp: number;
+	raid_pokemon_gender?: number;
+	sponsor_id?: number;
+	partner_id?: string;
+	raid_pokemon_costume?: number;
+	raid_pokemon_evolution?: number;
+	ar_scan_eligible?: number;
+	power_up_level?: number;
+	power_up_points?: number;
+	power_up_end_timestamp?: number;
+	description?: string;
+	raid_pokemon_alignment?: number;
+	defenders?: string;
+	rsvps?: string;
+};
 
 export type GymDefender = {
-	pokemon_id: number
-	form: number
-	gender: number
-	shiny: boolean
-	deployed_ms: number
-	deployed_time: number
-	battles_won: number
-	battles_lost: number
-	times_fed: number
-	motivation_now: number
-	cp_now: number
-	cp_when_deployed: number
-}
+	pokemon_id: number;
+	form: number;
+	gender: number;
+	shiny: boolean;
+	deployed_ms: number;
+	deployed_time: number;
+	battles_won: number;
+	battles_lost: number;
+	times_fed: number;
+	motivation_now: number;
+	cp_now: number;
+	cp_when_deployed: number;
+};
 
 export type Rsvp = {
-	timeslot: number
-	going_count: number
-	maybe_count: number
-}
+	timeslot: number;
+	going_count: number;
+	maybe_count: number;
+};

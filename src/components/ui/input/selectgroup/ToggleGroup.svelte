@@ -1,31 +1,28 @@
 <script lang="ts">
-	import { ToggleGroup } from 'bits-ui';
-	import type { Snippet } from 'svelte';
-	import SelectGroup from '@/components/ui/input/selectgroup/SelectGroup.svelte';
+	import { ToggleGroup } from "bits-ui";
+	import type { Snippet } from "svelte";
+	import SelectGroup from "@/components/ui/input/selectgroup/SelectGroup.svelte";
 
 	let {
 		childCount = 3,
-		class: class_ = '',
+		class: class_ = "",
 		children = undefined,
 		evenColumns = true,
 		onchange = () => {},
 		values = $bindable(),
 		orientation = "horizontal"
 	}: {
-		childCount?: number
-		class?: string
-		children?: Snippet
-		onchange?: (values: string[]) => void
-		evenColumns?: boolean,
-		values: string[],
-		orientation?: "horizontal" | "vertical"
+		childCount?: number;
+		class?: string;
+		children?: Snippet;
+		onchange?: (values: string[]) => void;
+		evenColumns?: boolean;
+		values: string[];
+		orientation?: "horizontal" | "vertical";
 	} = $props();
 </script>
 
-<SelectGroup
-	{childCount}
-	{evenColumns}
->
+<SelectGroup {childCount} {evenColumns}>
 	<ToggleGroup.Root
 		bind:value={values}
 		onValueChange={onchange}

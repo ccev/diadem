@@ -42,8 +42,7 @@ export function checkFeatureInBounds(
 	feature: FeaturesKey,
 	bounds: Bounds
 ): PermittedBounds | null {
-	if (isFeatureInFeatureList(perms.everywhere, feature))
-		return { bounds, polygon: null };
+	if (isFeatureInFeatureList(perms.everywhere, feature)) return { bounds, polygon: null };
 
 	const start = performance.now();
 
@@ -74,15 +73,16 @@ export function checkFeatureInBounds(
 	// Find intersection of viewport with each permitted area and collect results
 	let combinedIntersection: Feature<Polygon | MultiPolygon> | null = null;
 	for (const permittedPolygon of permittedPolygons) {
-		const areaIntersection = intersect(
-			featureCollection([viewportPolygon, permittedPolygon])
-		);
+		const areaIntersection = intersect(featureCollection([viewportPolygon, permittedPolygon]));
 		if (areaIntersection) {
 			if (!combinedIntersection) {
 				combinedIntersection = areaIntersection as Feature<Polygon | MultiPolygon>;
 			} else {
 				combinedIntersection = union(
-					featureCollection([combinedIntersection, areaIntersection as Feature<Polygon | MultiPolygon>])
+					featureCollection([
+						combinedIntersection,
+						areaIntersection as Feature<Polygon | MultiPolygon>
+					])
 				) as Feature<Polygon | MultiPolygon> | null;
 			}
 		}

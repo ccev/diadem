@@ -68,7 +68,7 @@ type RaidStatsRow = {
 	level: number;
 	pokemon_id: number;
 	form: number;
-	temp_evolution_id: number,
+	temp_evolution_id: number;
 	"": {
 		count: number;
 	}[];

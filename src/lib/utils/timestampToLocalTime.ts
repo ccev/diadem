@@ -1,17 +1,17 @@
-import { time } from '@/lib/utils/time';
-import * as m from '@/lib/paraglide/messages';
+import { time } from "@/lib/utils/time";
+import * as m from "@/lib/paraglide/messages";
 
 export function timestampToLocalTime(
 	timestamp: number | null | undefined,
 	showDate: boolean = false,
 	showSeconds: boolean = true
 ) {
-	if (!timestamp) return '';
+	if (!timestamp) return "";
 
 	const date = new Date(timestamp * 1000);
 	const timeString = date.toLocaleTimeString(undefined, {
-		hour: '2-digit',
-		minute: '2-digit'
+		hour: "2-digit",
+		minute: "2-digit"
 	});
 
 	if (showDate) {

@@ -6,10 +6,9 @@
 		checked = $bindable(),
 		...rest
 	}: {
-		class?: string
-		checked?: boolean
-	} & SwitchPrimitive.RootProps = $props()
-
+		class?: string;
+		checked?: boolean;
+	} & SwitchPrimitive.RootProps = $props();
 </script>
 
 <SwitchPrimitive.Root

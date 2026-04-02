@@ -9,5 +9,5 @@ export function checkIfAuthed(user: User | null) {
 }
 
 export function hasFeatureAnywhereServer(perms: Perms, feature: FeaturesKey, user: User | null) {
-	return checkIfAuthed(user) && hasFeatureAnywhere(perms, feature)
+	return checkIfAuthed(user) && hasFeatureAnywhere(perms, feature);
 }

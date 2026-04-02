@@ -343,8 +343,8 @@
 	"filter_template_invasion_giovanni": "Giovanni",
 	"create_new": "Neu erstellen",
 	"or_select_suggested_filter": "oder vorgeschlagen Filter wählen",
-    "save": "Speichern",
-    "cancel": "Abbrechen",
-    "edit": "Bearbeiten",
-    "delete": "Löschen"
+	"save": "Speichern",
+	"cancel": "Abbrechen",
+	"edit": "Bearbeiten",
+	"delete": "Löschen"
 }

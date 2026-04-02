@@ -1,18 +1,18 @@
 <script lang="ts">
-	import Card from '@/components/ui/Card.svelte';
-	import type { Snippet } from 'svelte';
-	import type { LucideIcon } from '@/lib/types/lucide';
-	import * as m from '@/lib/paraglide/messages';
-	import { Image } from 'lucide-svelte';
+	import Card from "@/components/ui/Card.svelte";
+	import type { Snippet } from "svelte";
+	import type { LucideIcon } from "@/lib/types/lucide";
+	import * as m from "@/lib/paraglide/messages";
+	import { Image } from "lucide-svelte";
 
 	let {
 		title,
 		Icon,
 		children
 	}: {
-		title?: string,
-		Icon?: LucideIcon
-		children: Snippet
+		title?: string;
+		Icon?: LucideIcon;
+		children: Snippet;
 	} = $props();
 </script>
 

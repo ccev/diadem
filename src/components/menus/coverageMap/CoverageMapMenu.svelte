@@ -9,11 +9,11 @@
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
 	import { closeCoverageMap, coverageMapActiveSnapPoint } from "@/lib/features/coverageMap.svelte";
 	import { SvelteSet } from "svelte/reactivity";
-	import {slide, fly} from "svelte/transition";
+	import { slide, fly } from "svelte/transition";
 	import { onDestroy } from "svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 
-	let expandedAreas: Set<number> = new SvelteSet()
+	let expandedAreas: Set<number> = new SvelteSet();
 </script>
 
 {#snippet areaTitle(area: KojiFeature)}
@@ -23,9 +23,7 @@
 
 {#snippet areaEntry(area: KojiFeature)}
 	{@const isExpanded = expandedAreas.has(area.properties.id)}
-	<div
-		class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium"
-	>
+	<div class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium">
 		{#if area.properties.children.length === 0}
 			{@render areaTitle(area)}
 		{:else}
@@ -34,8 +32,8 @@
 				size="sm"
 				variant="ghost"
 				onclick={() => {
-					const existed = expandedAreas.delete(area.properties.id)
-					if (!existed) expandedAreas.add(area.properties.id)
+					const existed = expandedAreas.delete(area.properties.id);
+					if (!existed) expandedAreas.add(area.properties.id);
 				}}
 			>
 				{@render areaTitle(area)}
@@ -52,9 +50,9 @@
 			size="sm"
 			variant="secondary"
 			onclick={() => {
-				coverageMapActiveSnapPoint.reset()
-				const params = getFeatureJump(area, true)
-				flyTo(params.coords, params.zoom)
+				coverageMapActiveSnapPoint.reset();
+				const params = getFeatureJump(area, true);
+				flyTo(params.coords, params.zoom);
 			}}
 		>
 			View
@@ -64,7 +62,7 @@
 	{#if isExpanded}
 		<div
 			class="text-muted-foreground text-sm px-4 py-2 space-y-2"
-			transition:slide={{duration: 150 }}
+			transition:slide={{ duration: 150 }}
 		>
 			{#each area.properties.children as child (child.properties.id)}
 				<p>
@@ -85,5 +83,4 @@
 			{/each}
 		{/if}
 	</Card>
-
 </div>

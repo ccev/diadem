@@ -22,7 +22,11 @@ async function getFeatures(thisFetch: typeof fetch): Promise<KojiFeatures | unde
 	});
 
 	if (!response.ok) {
-		log.error("Koji error while fetching features: %d (%s)", response.status, await response.text());
+		log.error(
+			"Koji error while fetching features: %d (%s)",
+			response.status,
+			await response.text()
+		);
 		return;
 	}
 
@@ -39,12 +43,16 @@ async function getReferences(thisFetch: typeof fetch): Promise<KojiReference[] |
 	});
 
 	if (!response.ok) {
-		log.error("Koji error while fetching references: %d (%s)", response.status, await response.text());
+		log.error(
+			"Koji error while fetching references: %d (%s)",
+			response.status,
+			await response.text()
+		);
 		return;
 	}
 
 	const data = await response.json();
-	return data?.data?? [];
+	return data?.data ?? [];
 }
 
 export async function fetchKojiGeofences(
@@ -56,27 +64,32 @@ export async function fetchKojiGeofences(
 		return;
 	}
 
-	thisFetch = thisFetch ?? fetch
-	const [features, references] = await Promise.all([getFeatures(thisFetch), getReferences(thisFetch)])
+	thisFetch = thisFetch ?? fetch;
+	const [features, references] = await Promise.all([
+		getFeatures(thisFetch),
+		getReferences(thisFetch)
+	]);
 
 	if (!features || !references) {
-		return
+		return;
 	}
 
 	if (features.length !== references.length) {
-		log.crit("This should not happen, your koji area references and features are not the same length! The map may not behave right")
+		log.crit(
+			"This should not happen, your koji area references and features are not the same length! The map may not behave right"
+		);
 
 		for (const [index, feature] of features.entries()) {
-			feature.properties.id = index
-			feature.properties.parent = null
+			feature.properties.id = index;
+			feature.properties.parent = null;
 		}
-		return features
+		return features;
 	}
 
 	for (const [index, feature] of features.entries()) {
-		const reference = references[index]
-		feature.properties.id = reference.id
-		feature.properties.parent = reference.parent
+		const reference = references[index];
+		feature.properties.id = reference.id;
+		feature.properties.parent = reference.parent;
 	}
-	return features
+	return features;
 }

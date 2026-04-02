@@ -8,7 +8,8 @@
 	import * as m from "@/lib/paraglide/messages";
 	import {
 		getInvasionCatchable,
-		getInvasionLineup, getInvasionPokemon,
+		getInvasionLineup,
+		getInvasionPokemon,
 		hasInvasionLineup
 	} from "@/lib/features/masterStats.svelte";
 	import type { InvasionPokemonStats } from "@/lib/server/api/queryStats";
@@ -38,9 +39,7 @@
 {#snippet lineupSlot(slotLineup: InvasionPokemonStats[], num: number | undefined)}
 	<div class="flex gap-1">
 		{#if num}
-			<div
-				class="border border-border rounded-sm flex justify-center items-center h-9 px-1.5"
-			>
+			<div class="border border-border rounded-sm flex justify-center items-center h-9 px-1.5">
 				<p class="text-sm text-muted-foreground">
 					#{num}
 				</p>
@@ -57,10 +56,7 @@
 			{#each slotLineup as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 				{@const pokemon = getInvasionPokemon(slotMon)}
 				<div class="p-1 size-8">
-					<ImagePopup
-						src={getIconPokemon(pokemon)}
-						alt={mPokemon(pokemon)}
-					/>
+					<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 				</div>
 			{/each}
 		</div>
@@ -96,7 +92,6 @@
 				</p>
 				{@render lineupSlot(catchables, undefined, false)}
 			{/if}
-
 		{/if}
 
 		{#if !hasLineup && expanded && hasLoadedFeature(LoadedFeature.MASTER_STATS)}
@@ -110,12 +105,7 @@
 		{#if hasLineup && !expanded && catchables.length === 1}
 			{@const reward = getInvasionPokemon(catchables[0])}
 			<div class="flex gap-2 mt-0.5">
-
-				<ImagePopup
-					src={getIconPokemon(reward)}
-					alt={mPokemon(reward)}
-					class="w-7"
-				/>
+				<ImagePopup src={getIconPokemon(reward)} alt={mPokemon(reward)} class="w-7" />
 				<span>
 					{m.invasion_reward()}: <b>{mPokemon(reward)}</b>
 				</span>
@@ -123,13 +113,11 @@
 		{/if}
 
 		{#if hasLineup && expanded}
-
 			<div class="mt-1.5 space-y-1">
 				{@render lineupSlot(lineup?.first ?? [], 1)}
 				{@render lineupSlot(lineup?.second ?? [], 2)}
 				{@render lineupSlot(lineup?.third ?? [], 3)}
 			</div>
-
 		{/if}
 	{/snippet}
 </PokestopSection>

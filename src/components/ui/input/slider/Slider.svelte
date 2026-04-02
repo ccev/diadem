@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Slider } from 'bits-ui';
-	import NumberInput from '@/components/ui/input/NumberInput.svelte';
-	import Input from '@/components/ui/input/Input.svelte';
-	import SliderCommon from '@/components/ui/input/slider/SliderCommon.svelte';
+	import { Slider } from "bits-ui";
+	import NumberInput from "@/components/ui/input/NumberInput.svelte";
+	import Input from "@/components/ui/input/Input.svelte";
+	import SliderCommon from "@/components/ui/input/slider/SliderCommon.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
 
 	let {
@@ -16,15 +16,15 @@
 		labels = undefined,
 		label
 	}: {
-		min: number,
-		max: number,
-		step?: number
-		title: string,
-		description?: string,
-		onchange?: (value: number) => void,
-		value: number,
-		labels?: { [key: number]: string },
-		label?: string
+		min: number;
+		max: number;
+		step?: number;
+		title: string;
+		description?: string;
+		onchange?: (value: number) => void;
+		value: number;
+		labels?: { [key: number]: string };
+		label?: string;
 	} = $props();
 </script>
 
@@ -42,8 +42,8 @@
 				type="number"
 				{value}
 				onchange={(e) => {
-					value = Number(e.target?.value ?? value)
-					onchange(value)
+					value = Number(e.target?.value ?? value);
+					onchange(value);
 				}}
 			/>
 		{/if}
@@ -60,22 +60,18 @@
 			onValueChange={onchange}
 		>
 			{#snippet children({ thumbItems, tickItems })}
-				<SliderCommon
-					{tickItems}
-					{thumbItems}
-					{labels}
-				/>
+				<SliderCommon {tickItems} {thumbItems} {labels} />
 			{/snippet}
 		</Slider.Root>
 
-<!--		<div class="shrink-0 border rounded-md px-3 py-1 w-18 text-center">-->
-<!--			{#if labels}-->
-<!--				{labels[value] ?? value / step}-->
-<!--			{:else if label}-->
-<!--				{label.replace("%", (value / step).toString())}-->
-<!--			{:else}-->
-<!--				{value / step}-->
-<!--			{/if}-->
-<!--		</div>-->
+		<!--		<div class="shrink-0 border rounded-md px-3 py-1 w-18 text-center">-->
+		<!--			{#if labels}-->
+		<!--				{labels[value] ?? value / step}-->
+		<!--			{:else if label}-->
+		<!--				{label.replace("%", (value / step).toString())}-->
+		<!--			{:else}-->
+		<!--				{value / step}-->
+		<!--			{/if}-->
+		<!--		</div>-->
 	</div>
 </div>

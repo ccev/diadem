@@ -1,7 +1,7 @@
-import type { PageLoad } from './$types';
-import { openToast } from '@/lib/ui/toasts.svelte.js';
-import { redirect } from '@sveltejs/kit';
-import * as m from '@/lib/paraglide/messages';
+import type { PageLoad } from "./$types";
+import { openToast } from "@/lib/ui/toasts.svelte.js";
+import { redirect } from "@sveltejs/kit";
+import * as m from "@/lib/paraglide/messages";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { getConfig } from "@/lib/services/config/config";
 

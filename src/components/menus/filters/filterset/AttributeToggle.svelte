@@ -7,11 +7,10 @@
 		value = $bindable(),
 		onchange = undefined
 	}: {
-		label: string,
-		value: boolean,
-		onchange?: (value: boolean) => void
+		label: string;
+		value: boolean;
+		onchange?: (value: boolean) => void;
 	} = $props();
-
 </script>
 
 <Button
@@ -19,18 +18,13 @@
 	class="rounded-none! grid! grid-cols-subgrid w-full px-4! py-1! h-fit! items-center"
 	style="grid-column: 1 / -1"
 	onclick={() => {
-		value = !value
-		if (onchange) onchange(value)
+		value = !value;
+		if (onchange) onchange(value);
 	}}
 >
 	<div class="font-semibold text-left py-2">
 		{label}
 	</div>
 
-	<Switch
-		class="ml-auto"
-		checked={value}
-		aria-hidden="true"
-		tabindex={-1}
-	/>
+	<Switch class="ml-auto" checked={value} aria-hidden="true" tabindex={-1} />
 </Button>

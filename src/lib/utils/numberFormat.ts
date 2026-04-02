@@ -6,8 +6,11 @@ import { getLocale } from "@/lib/paraglide/runtime";
  * @param options Optional Intl.NumberFormat options
  * @returns Formatted number string (e.g., "1,000,000.34")
  */
-export function formatNumber(value: number | null | undefined, options?: Intl.NumberFormatOptions): string {
-	if (value === null || value === undefined || isNaN(value)) return 'N/A';
+export function formatNumber(
+	value: number | null | undefined,
+	options?: Intl.NumberFormatOptions
+): string {
+	if (value === null || value === undefined || isNaN(value)) return "N/A";
 
 	return new Intl.NumberFormat(getLocale(), options).format(value);
 }
@@ -18,8 +21,11 @@ export function formatNumber(value: number | null | undefined, options?: Intl.Nu
  * @param decimals Number of decimal places (default: 1)
  * @returns Abbreviated number string (e.g., "1.2M", "500K")
  */
-export function formatNumberCompact(value: number | null | undefined, decimals: number = 1): string {
-	if (value === null || value === undefined || isNaN(value)) return 'N/A';
+export function formatNumberCompact(
+	value: number | null | undefined,
+	decimals: number = 1
+): string {
+	if (value === null || value === undefined || isNaN(value)) return "N/A";
 
 	const absValue = Math.abs(value);
 
@@ -28,8 +34,8 @@ export function formatNumberCompact(value: number | null | undefined, decimals: 
 	}
 
 	return new Intl.NumberFormat(getLocale(), {
-		notation: 'compact',
-		compactDisplay: 'short',
+		notation: "compact",
+		compactDisplay: "short",
 		maximumFractionDigits: decimals,
 		minimumFractionDigits: 0
 	}).format(value);
@@ -43,10 +49,10 @@ export function formatNumberCompact(value: number | null | undefined, decimals: 
  */
 export function formatRatio(
 	numerator: number | null | undefined,
-	denominator: number | null | undefined,
+	denominator: number | null | undefined
 ): string {
 	if (!numerator || !denominator) {
-		return 'N/A';
+		return "N/A";
 	}
 
 	const ratio = denominator / numerator;
@@ -59,9 +65,9 @@ export function formatRatio(
 }
 
 type PercentageOptions = {
-	minDecimals?: number
-	maxDecimals?: number
-}
+	minDecimals?: number;
+	maxDecimals?: number;
+};
 
 /**
  * Format a percentage
@@ -69,11 +75,14 @@ type PercentageOptions = {
  * @param decimals Number of decimal places (default: 1)
  * @returns Formatted percentage string (e.g., "50.0%")
  */
-export function formatPercentage(value: number | null | undefined, options?: PercentageOptions): string {
-	if (value === null || value === undefined || isNaN(value)) return 'N/A';
+export function formatPercentage(
+	value: number | null | undefined,
+	options?: PercentageOptions
+): string {
+	if (value === null || value === undefined || isNaN(value)) return "N/A";
 
 	return new Intl.NumberFormat(getLocale(), {
-		style: 'percent',
+		style: "percent",
 		minimumFractionDigits: options?.minDecimals ?? 1,
 		maximumFractionDigits: options?.maxDecimals ?? 1
 	}).format(value);
@@ -86,7 +95,7 @@ export function formatPercentage(value: number | null | undefined, options?: Per
  * @returns Formatted decimal string (e.g., "99.5")
  */
 export function formatDecimal(value: number | null | undefined, decimals: number = 1): string {
-	if (value === null || value === undefined || isNaN(value)) return 'N/A';
+	if (value === null || value === undefined || isNaN(value)) return "N/A";
 
 	return new Intl.NumberFormat(getLocale(), {
 		minimumFractionDigits: decimals,

@@ -11,13 +11,14 @@
 	import Card from "@/components/ui/Card.svelte";
 	import { RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import QuestRewardPokemonAttribute
-		from "@/components/menus/filters/filterset/quest/QuestRewardPokemonAttribute.svelte";
+	import QuestRewardPokemonAttribute from "@/components/menus/filters/filterset/quest/QuestRewardPokemonAttribute.svelte";
 	import { makeAttributeItemLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import QuestRewardItemAttribute from "@/components/menus/filters/filterset/quest/QuestRewardItemAttribute.svelte";
 	import QuestFilterDisplay from "@/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte";
 
-	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetQuest | undefined;
+	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
+		| FiltersetQuest
+		| undefined;
 </script>
 
 <FiltersetModal
@@ -41,7 +42,7 @@
 			<!--				<ArAttribute data={data} />-->
 			<!--			</Card>-->
 			<Card class="w-full px-4 pt-2 pb-3">
-				<RewardAttribute data={data} />
+				<RewardAttribute {data} />
 			</Card>
 
 			{#if data.rewardType !== undefined}
@@ -69,7 +70,6 @@
 							{/snippet}
 						</Attribute>
 					{/if}
-
 
 					<!--					<Attribute label="Tasks">-->
 					<!--						<AppearanceChips {data} sizeBounds={pokemonBounds.size} />-->

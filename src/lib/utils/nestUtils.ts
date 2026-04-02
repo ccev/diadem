@@ -25,9 +25,7 @@ export function shouldDisplayNest(nest: NestData) {
 	for (const filterset of filtersets) {
 		if (
 			filterset.pokemon &&
-			filterset.pokemon.find(
-				(p) => p.pokemon_id === nest.pokemon_id && p.form === nest.form
-			)
+			filterset.pokemon.find((p) => p.pokemon_id === nest.pokemon_id && p.form === nest.form)
 		) {
 			return true;
 		}

@@ -5,7 +5,12 @@
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import type { ContestFocus, ContestRankings, Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop.js";
+	import type {
+		ContestFocus,
+		ContestRankings,
+		Incident,
+		PokestopData
+	} from "@/lib/types/mapObjectData/pokestop.js";
 	import * as m from "@/lib/paraglide/messages";
 	import { CONTEST_SLOTS, getContestIcon, getContestText } from "@/lib/utils/pokestopUtils";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -15,9 +20,9 @@
 		incident,
 		data
 	}: {
-		expanded: boolean
-		incident: Incident
-		data: PokestopData
+		expanded: boolean;
+		incident: Incident;
+		data: PokestopData;
 	} = $props();
 
 	const defaultContestRankings: ContestRankings = {
@@ -26,11 +31,17 @@
 		contest_entries: []
 	};
 
-	const contestRankings: ContestRankings = $derived(data?.showcase_rankings ? JSON.parse(data.showcase_rankings) : defaultContestRankings);
+	const contestRankings: ContestRankings = $derived(
+		data?.showcase_rankings ? JSON.parse(data.showcase_rankings) : defaultContestRankings
+	);
 
 	const image = $derived(getContestIcon(data.contest_focus));
 
-	const name: string = $derived(data.showcase_ranking_standard && data.contest_focus ? getContestText(data.showcase_ranking_standard, data.contest_focus) : m.unknown_contest());
+	const name: string = $derived(
+		data.showcase_ranking_standard && data.contest_focus
+			? getContestText(data.showcase_ranking_standard, data.contest_focus)
+			: m.unknown_contest()
+	);
 
 	const hasNoDetails = $derived((data?.showcase_expiry ?? 0) < currentTimestamp());
 </script>
@@ -39,11 +50,7 @@
 	<div class="flex items-center gap-2">
 		{#if !hasNoDetails}
 			<div class="w-7 h-7 shrink-0">
-				<ImagePopup
-					src={image}
-					alt={name}
-					class="w-7"
-				/>
+				<ImagePopup src={image} alt={name} class="w-7" />
 			</div>
 		{/if}
 		<div>
@@ -53,15 +60,11 @@
 				{:else}
 					{m.contest()}
 				{/if}
-
 			</div>
 
 			<div>
 				Ends
-				<TimeWithCountdown
-					expireTime={incident.expiration}
-					showHours={true}
-				/>
+				<TimeWithCountdown expireTime={incident.expiration} showHours={true} />
 			</div>
 		</div>
 	</div>
@@ -74,15 +77,11 @@
 		</div>
 		{#each contestRankings.contest_entries as entry}
 			<div class="flex gap-1 items-center">
-				<div class="rounded-full w-4 h-4  flex items-center justify-center">
+				<div class="rounded-full w-4 h-4 flex items-center justify-center">
 					<span>{entry.rank}.</span>
 				</div>
 				<div class="w-5 shrink-0">
-					<ImagePopup
-						src={getIconPokemon(entry)}
-						alt={mPokemon(entry)}
-						class="w-5"
-					/>
+					<ImagePopup src={getIconPokemon(entry)} alt={mPokemon(entry)} class="w-5" />
 				</div>
 				<div>
 					<b>{mPokemon(entry)}</b>

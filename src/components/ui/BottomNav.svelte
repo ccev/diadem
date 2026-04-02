@@ -22,30 +22,30 @@
 	}
 
 	const buttons: {
-		text: string,
-		icon: any,
-		type: Menu
-	}[] = []
+		text: string;
+		icon: any;
+		type: Menu;
+	}[] = [];
 
 	buttons.push({
 		text: m.nav_filters(),
 		icon: Settings2,
 		type: Menu.FILTERS
-	})
+	});
 
 	if (getConfig().tools?.showToolsMenu) {
 		buttons.push({
 			text: m.nav_tools(),
 			icon: PocketKnife,
 			type: Menu.TOOLS
-		})
+		});
 	}
 
 	buttons.push({
 		text: m.nav_profile(),
 		icon: CircleUserRound,
 		type: Menu.PROFILE
-	})
+	});
 </script>
 
 <div
@@ -65,7 +65,11 @@
 			size=""
 			class="min-w-21! flex px-2 pt-0.5 justify-center items-center flex-col text-sm bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground first:rounded-l-lg last:rounded-r-lg"
 			onclick={() => onNavigate(btn.type)}
-			disabled={!hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS, LoadedFeature.SUPPORTED_FEATURES)}
+			disabled={!hasLoadedFeature(
+				LoadedFeature.REMOTE_LOCALE,
+				LoadedFeature.ICON_SETS,
+				LoadedFeature.SUPPORTED_FEATURES
+			)}
 		>
 			{#if btn.type === "profile"}
 				<Avatar.Root>
@@ -82,9 +86,7 @@
 				{@render icon()}
 			{/if}
 
-			<span
-				class:font-bold={isSelected(btn.type)}
-			>
+			<span class:font-bold={isSelected(btn.type)}>
 				{btn.text}
 			</span>
 		</Button>

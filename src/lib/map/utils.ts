@@ -28,6 +28,6 @@ export function flyTo(center: Coords, zoom: number) {
 	closePopup();
 	getMap()?.flyTo({
 		center,
-		zoom,
-	})
+		zoom
+	});
 }

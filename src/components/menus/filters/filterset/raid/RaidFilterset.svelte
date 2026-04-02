@@ -20,9 +20,11 @@
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as | FiltersetRaid | undefined;
+	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
+		| FiltersetRaid
+		| undefined;
 
-	let filterType: RaidFilterType = $derived(Object.hasOwn(data ?? {}, "bosses") ? "boss" : "level")
+	let filterType: RaidFilterType = $derived(Object.hasOwn(data ?? {}, "bosses") ? "boss" : "level");
 </script>
 
 <FiltersetModal
@@ -69,9 +71,9 @@
 									isEmpty={false}
 									onremove={() => {
 										if (data.show?.length === 1) {
-											delete data.show
+											delete data.show;
 										} else {
-											data.show = data.show?.filter(s => s !== showType)
+											data.show = data.show?.filter((s) => s !== showType);
 										}
 									}}
 								/>

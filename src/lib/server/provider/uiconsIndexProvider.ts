@@ -5,7 +5,7 @@ import { REFRESH_UICON_INDEX } from "@/lib/constants";
 import type { UiconSet } from "@/lib/services/config/configTypes";
 import { sleep } from "@/lib/utils/time";
 
-type UiconIndex = Map<string, string>
+type UiconIndex = Map<string, string>;
 
 const log = getLogger("q:uiconindex");
 
@@ -32,7 +32,7 @@ export class UiconsIndexProvider extends BulkDataProvider<string, string, UiconS
 			return;
 		}
 
-		return super.getSingle(uiconsetId)
+		return super.getSingle(uiconsetId);
 	}
 }
 

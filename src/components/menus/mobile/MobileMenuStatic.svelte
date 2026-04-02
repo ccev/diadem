@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Drawer } from 'diadem-vaul-svelte';
+	import { Drawer } from "diadem-vaul-svelte";
 	import {
 		closeMenu,
 		getOpenedMenu,
@@ -13,14 +13,14 @@
 	import ScoutMenu from "@/components/menus/scout/ScoutMenu.svelte";
 
 	let {
-		menus,
+		menus
 	}: {
-		menus: (Menu | null)[]
-	} = $props()
+		menus: (Menu | null)[];
+	} = $props();
 
 	onMount(() => {
-		resetJustChangedMenus()
-	})
+		resetJustChangedMenus();
+	});
 </script>
 
 <Drawer.Root
@@ -34,9 +34,7 @@
 		>
 			<MobileTitle />
 
-			<div
-				class="pb-20 content"
-			>
+			<div class="pb-20 content">
 				<MenuContainer />
 			</div>
 		</Drawer.Content>

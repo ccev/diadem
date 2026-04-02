@@ -3,7 +3,7 @@ import { getLogger } from "@/lib/utils/logger";
 import { BaseDataProvider } from "@/lib/server/provider/dataProvider";
 import { REFRESH_MASTER_STATS, REFRESH_MASTERFILE } from "@/lib/constants";
 import { sleep } from "@/lib/utils/time";
-import  { type MasterStats, queryMasterStats } from "@/lib/server/api/queryStats";
+import { type MasterStats, queryMasterStats } from "@/lib/server/api/queryStats";
 
 const log = getLogger("q:masterstats");
 

@@ -9,33 +9,33 @@ export function mapStyleFromId(id: string) {
 		console.error("Invalid map style id, using default");
 		styleConfig = getDefaultMapStyle();
 	}
-	return styleConfig
+	return styleConfig;
 }
 
-export function getMapStyle(mapStyle: MapStyle){
+export function getMapStyle(mapStyle: MapStyle) {
 	if (mapStyle.raster) {
 		return {
-			'version': 8,
-			'sources': {
-				'raster-tiles': {
-					'type': 'raster',
-					'tiles': [mapStyle.url],
-					'tileSize': mapStyle.raster.tileSize,
-					'minzoom': mapStyle.raster.min,
-					'maxzoom': mapStyle.raster.max,
-					'attribution': mapStyle.attribution ?? "",
+			version: 8,
+			sources: {
+				"raster-tiles": {
+					type: "raster",
+					tiles: [mapStyle.url],
+					tileSize: mapStyle.raster.tileSize,
+					minzoom: mapStyle.raster.min,
+					maxzoom: mapStyle.raster.max,
+					attribution: mapStyle.attribution ?? ""
 				}
 			},
-			'layers': [
+			layers: [
 				{
-					'id': 'simple-tiles',
-					'type': 'raster',
-					'source': 'raster-tiles',
+					id: "simple-tiles",
+					type: "raster",
+					source: "raster-tiles"
 				}
 			],
-			'id': "style-" + mapStyle.id
-		} as maplibre.StyleSpecification
+			id: "style-" + mapStyle.id
+		} as maplibre.StyleSpecification;
 	}
 
-	return mapStyle.url
+	return mapStyle.url;
 }

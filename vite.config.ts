@@ -4,7 +4,7 @@ import path from "path";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 
-process.title = "Diadem"
+process.title = "Diadem";
 
 export default defineConfig({
 	plugins: [

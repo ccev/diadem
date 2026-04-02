@@ -11,23 +11,23 @@
 		onselect,
 		getKey = (pokemon: P) => `${pokemon.pokemon_id}-${pokemon.form}`
 	}: {
-		pokemonList: P[]
-		selected: P[]
-		onselect: (pokemon: P, isSelected: boolean) => void,
-		getKey?: (pokemon: P) => string
+		pokemonList: P[];
+		selected: P[];
+		onselect: (pokemon: P, isSelected: boolean) => void;
+		getKey?: (pokemon: P) => string;
 	} = $props();
 
 	// TODO: style pokemon select better
 	const isCompact = false;
 
-	let selectedValues = $derived(selected.map(p => getKey(p)) ?? []);
+	let selectedValues = $derived(selected.map((p) => getKey(p)) ?? []);
 </script>
 
 {#each pokemonList as pokemon (getKey(pokemon))}
 	<LongSelectItem
 		isSelected={selectedValues.includes(getKey(pokemon))}
 		onselect={(isSelected) => {
-			onselect(pokemon, isSelected)
+			onselect(pokemon, isSelected);
 		}}
 	>
 		<img
@@ -35,7 +35,7 @@
 			alt={mPokemon(pokemon)}
 			src={resize(getIconPokemon(pokemon), { width: 64 })}
 			loading="lazy"
-		>
+		/>
 		<span>
 			{mPokemon(pokemon)}
 		</span>

@@ -17,15 +17,9 @@
 		<PokemonDisplay label={m.species()} pokemon={data.bosses} />
 	{/if}
 	{#if data.isActive}
-		<AttributeDisplay
-			label={m.max_battle_only_show()}
-			value={m.max_battle_active()}
-		/>
+		<AttributeDisplay label={m.max_battle_only_show()} value={m.max_battle_active()} />
 	{/if}
 	{#if data.hasGmax}
-		<AttributeDisplay
-			label={m.max_battle_power_spot_has()}
-			value={m.max_battle_gmax()}
-		/>
+		<AttributeDisplay label={m.max_battle_power_spot_has()} value={m.max_battle_gmax()} />
 	{/if}
 </FilterDisplay>

@@ -4,16 +4,13 @@ import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
 export function GET() {
 	const general = getClientConfig().general;
 
-	let options: string[]
+	let options: string[];
 
 	if (general.allowCrawlers) {
-		options = [
-			"User-agent: *",
-			"Allow: /",
-		]
+		options = ["User-agent: *", "Allow: /"];
 
 		for (const path of getDisallowedPaths()) {
-			options.push(`Disallow: ${path}`)
+			options.push(`Disallow: ${path}`);
 		}
 	} else {
 		options = ["User-agent: *", "Disallow: /"];

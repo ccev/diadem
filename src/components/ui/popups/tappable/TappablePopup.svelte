@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import type { TappableData } from "@/lib/types/mapObjectData/tappable.d.ts";
@@ -15,7 +18,10 @@
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { getTappableName } from "@/lib/utils/tappableUtils";
 
-	let data: TappableData = $derived(getMapObjects()[getCurrentSelectedMapId()] as TappableData ?? getCurrentSelectedData() as TappableData);
+	let data: TappableData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as TappableData) ??
+			(getCurrentSelectedData() as TappableData)
+	);
 </script>
 
 {#snippet basicInfo()}
@@ -24,9 +30,7 @@
 			{m.popup_despawns()}
 		</span>
 
-		<TimeWithCountdown
-			expireTime={data.expire_timestamp}
-		/>
+		<TimeWithCountdown expireTime={data.expire_timestamp} />
 	</IconValue>
 	{#if !hasTimer(data)}
 		<IconValue Icon={ClockAlert}>
@@ -38,11 +42,7 @@
 <BasePopup lat={data.lat} lon={data.lon}>
 	{#snippet image()}
 		<div class="w-12 shrink-0">
-			<ImagePopup
-				alt={getTappableName(data)}
-				src={getIconTappable(data)}
-				class="w-12 h-12"
-			/>
+			<ImagePopup alt={getTappableName(data)} src={getIconTappable(data)} class="w-12 h-12" />
 		</div>
 	{/snippet}
 
@@ -64,7 +64,8 @@
 		</div>
 
 		<IconValue Icon={Clock}>
-			{m.last_updated()}: <b>
+			{m.last_updated()}:
+			<b>
 				<Countdown expireTime={data.updated} />
 			</b>
 		</IconValue>

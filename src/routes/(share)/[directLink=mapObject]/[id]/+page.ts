@@ -6,7 +6,7 @@ import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 export const load: PageLoad = async ({ data, fetch }) => {
 	if (browser) {
 		if (!data.id) {
-			setDirectLinkObject({ type: data.type })
+			setDirectLinkObject({ type: data.type });
 		} else {
 			try {
 				const response = await fetch(`/api/${data.type}/${data.id}`);

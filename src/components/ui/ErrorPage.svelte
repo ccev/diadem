@@ -11,11 +11,11 @@
 		linkLabel = m.error_back_to_website(),
 		extraButtons = undefined
 	}: {
-		error: string,
-		description?: string,
-		href?: string,
-		linkLabel?: string,
-		extraButtons?: Snippet
+		error: string;
+		description?: string;
+		href?: string;
+		linkLabel?: string;
+		extraButtons?: Snippet;
 	} = $props();
 </script>
 
@@ -37,11 +37,7 @@
 
 		<div class="mt-4 flex justify-center w-full gap-2">
 			{#if href && linkLabel}
-				<Button
-					variant={extraButtons ? "secondary" : "default"}
-					tag="a"
-					{href}
-				>
+				<Button variant={extraButtons ? "secondary" : "default"} tag="a" {href}>
 					{linkLabel}
 				</Button>
 			{/if}
@@ -51,18 +47,19 @@
 </div>
 
 <style>
-    .stars::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(1px 1px at 10% 20%, var(--color-foreground), transparent),
-        radial-gradient(1px 1px at 30% 80%, var(--color-foreground), transparent),
-        radial-gradient(1px 1px at 50% 40%, var(--color-foreground), transparent),
-        radial-gradient(1px 1px at 70% 10%, var(--color-foreground), transparent),
-        radial-gradient(1px 1px at 90% 60%, var(--color-foreground), transparent),
-        radial-gradient(2px 2px at 10% 50%, var(--color-foreground), transparent),
-        radial-gradient(2px 2px at 60% 70%, var(--color-foreground), transparent);
-        background-repeat: repeat;
-        background-size: 220px 220px;
-    }
+	.stars::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background-image:
+			radial-gradient(1px 1px at 10% 20%, var(--color-foreground), transparent),
+			radial-gradient(1px 1px at 30% 80%, var(--color-foreground), transparent),
+			radial-gradient(1px 1px at 50% 40%, var(--color-foreground), transparent),
+			radial-gradient(1px 1px at 70% 10%, var(--color-foreground), transparent),
+			radial-gradient(1px 1px at 90% 60%, var(--color-foreground), transparent),
+			radial-gradient(2px 2px at 10% 50%, var(--color-foreground), transparent),
+			radial-gradient(2px 2px at 60% 70%, var(--color-foreground), transparent);
+		background-repeat: repeat;
+		background-size: 220px 220px;
+	}
 </style>

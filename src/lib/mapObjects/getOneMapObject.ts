@@ -1,4 +1,3 @@
-
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export async function getOneMapObject(

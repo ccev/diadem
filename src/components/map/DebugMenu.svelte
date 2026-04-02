@@ -1,31 +1,31 @@
 <script lang="ts">
-	import Card from '@/components/ui/Card.svelte';
-	import { getMap } from '@/lib/map/map.svelte';
-	import { getMapObjects } from '@/lib/mapObjects/mapObjectsState.svelte';
-	import { getUserSettings } from '@/lib/services/userSettings.svelte';
-	import FrameRateControl from '@/lib/map/framerate';
-	import { tick } from 'svelte';
+	import Card from "@/components/ui/Card.svelte";
+	import { getMap } from "@/lib/map/map.svelte";
+	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import FrameRateControl from "@/lib/map/framerate";
+	import { tick } from "svelte";
 
 	let rerender: boolean = $state(true);
-	const frameRateControl = new FrameRateControl({})
+	const frameRateControl = new FrameRateControl({});
 
 	function onMoveEndDebug() {
 		rerender = false;
-		tick().then(() => rerender = true);
+		tick().then(() => (rerender = true));
 	}
 
 	$effect(() => {
-		const map = getMap()
-		if (!map) return
+		const map = getMap();
+		if (!map) return;
 
 		if (getUserSettings().showDebugMenu) {
 			map.addControl(frameRateControl);
-			map.on('moveend', onMoveEndDebug);
+			map.on("moveend", onMoveEndDebug);
 		} else if (map.hasControl(frameRateControl)) {
-			map.removeControl(frameRateControl)
-			map.off('moveend', onMoveEndDebug);
+			map.removeControl(frameRateControl);
+			map.off("moveend", onMoveEndDebug);
 		}
-	})
+	});
 </script>
 
 {#if getUserSettings().showDebugMenu}

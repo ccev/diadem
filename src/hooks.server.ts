@@ -22,7 +22,7 @@ import { setConfig } from "@/lib/services/config/config";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
 import { locales, serverAsyncLocalStorage, setLocale } from "@/lib/paraglide/runtime";
 
-process.title = "Diadem"
+process.title = "Diadem";
 
 const paraglideHandle: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
@@ -104,8 +104,8 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 export const init: ServerInit = async () => {
 	// set config for ssr
-	const config = getClientConfig()
-	setConfig(config)
+	const config = getClientConfig();
+	setConfig(config);
 
 	setServerLoggerFactory((name) => {
 		const winstonLogger = getServerLogger(name);
@@ -133,9 +133,7 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 				if (!html.includes(identifier)) metaTags.push(tag);
 			};
 
-			const isNonindexPath = getDisallowedPaths().some((p) =>
-				event.url.pathname.startsWith(p)
-			);
+			const isNonindexPath = getDisallowedPaths().some((p) => event.url.pathname.startsWith(p));
 			if (!general.allowCrawlers) {
 				addMeta('name="robots"', '<meta name="robots" content="noindex, nofollow">');
 			} else if (isNonindexPath) {
@@ -145,35 +143,23 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 			}
 
 			if (general.description) {
-				addMeta(
-					'name="description"',
-					`<meta name="description" content="${general.description}">`
-				);
+				addMeta('name="description"', `<meta name="description" content="${general.description}">`);
 				addMeta(
 					'property="og:description"',
 					`<meta property="og:description" content="${general.description}">`
 				);
 			}
 			if (general.image) {
-				addMeta(
-					'property="og:image"',
-					`<meta property="og:image" content="${general.image}">`
-				);
+				addMeta('property="og:image"', `<meta property="og:image" content="${general.image}">`);
 				addMeta(
 					'name="twitter:image:src"',
 					`<meta name="twitter:image:src" content="${general.image}">`
 				);
-				addMeta(
-					'name="twitter:card"',
-					'<meta name="twitter:card" content="summary_large_image">'
-				);
+				addMeta('name="twitter:card"', '<meta name="twitter:card" content="summary_large_image">');
 			}
 			if (general.url) {
 				addMeta('rel="canonical"', `<link rel="canonical" href="${general.url}">`);
-				addMeta(
-					'property="og:url"',
-					`<meta property="og:url" content="${general.url}">`
-				);
+				addMeta('property="og:url"', `<meta property="og:url" content="${general.url}">`);
 				if (!general.image) {
 					addMeta(
 						'property="og:image"',
@@ -190,22 +176,13 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 				}
 			}
 
-			addMeta(
-				'property="og:title"',
-				`<meta property="og:title" content="${general.mapName}">`
-			);
-			addMeta(
-				'name="twitter:title"',
-				`<meta name="twitter:title" content="${general.mapName}">`
-			);
+			addMeta('property="og:title"', `<meta property="og:title" content="${general.mapName}">`);
+			addMeta('name="twitter:title"', `<meta name="twitter:title" content="${general.mapName}">`);
 			addMeta(
 				'property="og:site_name"',
 				`<meta property="og:site_name" content="${general.mapName}">`
 			);
-			addMeta(
-				'name="twitter:site"',
-				`<meta name="twitter:site" content="${general.mapName}">`
-			);
+			addMeta('name="twitter:site"', `<meta name="twitter:site" content="${general.mapName}">`);
 			if (general.description) {
 				addMeta(
 					'name="twitter:description"',
@@ -215,7 +192,7 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 			addMeta('property="og:type"', '<meta property="og:type" content="website">');
 
 			if (metaTags.length === 0) return html;
-			return html.replace('</head>', metaTags.join('\n') + '\n</head>');
+			return html.replace("</head>", metaTags.join("\n") + "\n</head>");
 		}
 	});
 };

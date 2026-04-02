@@ -40,9 +40,8 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 		message: "filter_template_pokemon_fallback"
 	};
 
-	const basePokemonMatch = filter?.pokemon?.every(
-		(p) => p.pokemon_id === filter?.pokemon?.[0]?.pokemon_id
-	) ?? false;
+	const basePokemonMatch =
+		filter?.pokemon?.every((p) => p.pokemon_id === filter?.pokemon?.[0]?.pokemon_id) ?? false;
 
 	// title
 
@@ -62,34 +61,52 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 	}
 
 	if (filter.iv) {
-		attributes.push(getAttributeLabelIvProduct(filter.iv))
+		attributes.push(getAttributeLabelIvProduct(filter.iv));
 	}
 	if (filter.pvpRankLittle) {
-		attributes.push(m.short_rank_little_league({
-			rank: makeAttributeRangeLabel(filter.pvpRankLittle, pokemonBounds.rank.min, pokemonBounds.rank.max)
-		}))
+		attributes.push(
+			m.short_rank_little_league({
+				rank: makeAttributeRangeLabel(
+					filter.pvpRankLittle,
+					pokemonBounds.rank.min,
+					pokemonBounds.rank.max
+				)
+			})
+		);
 	}
 	if (filter.pvpRankGreat) {
-		attributes.push(m.short_rank_great_league({
-			rank: makeAttributeRangeLabel(filter.pvpRankGreat, pokemonBounds.rank.min, pokemonBounds.rank.max)
-		}))
+		attributes.push(
+			m.short_rank_great_league({
+				rank: makeAttributeRangeLabel(
+					filter.pvpRankGreat,
+					pokemonBounds.rank.min,
+					pokemonBounds.rank.max
+				)
+			})
+		);
 	}
 	if (filter.pvpRankUltra) {
-		attributes.push(m.short_rank_ultra_league({
-			rank: makeAttributeRangeLabel(filter.pvpRankUltra, pokemonBounds.rank.min, pokemonBounds.rank.max)
-		}))
+		attributes.push(
+			m.short_rank_ultra_league({
+				rank: makeAttributeRangeLabel(
+					filter.pvpRankUltra,
+					pokemonBounds.rank.min,
+					pokemonBounds.rank.max
+				)
+			})
+		);
 	}
 	if (filter.ivAtk || filter.ivDef || filter.ivSta) {
-		attributes.push(getAttributeLabelIvValues(filter.ivAtk, filter.ivDef, filter.ivSta))
+		attributes.push(getAttributeLabelIvValues(filter.ivAtk, filter.ivDef, filter.ivSta));
 	}
 	if (filter.cp) {
-		attributes.push(m.pogo_cp({ cp: getAttributeLabelCp(filter.cp) }))
+		attributes.push(m.pogo_cp({ cp: getAttributeLabelCp(filter.cp) }));
 	}
 	if (filter.level) {
-		attributes.push(m.pogo_level({ level: getAttributeLabelLevel(filter.level) }))
+		attributes.push(m.pogo_level({ level: getAttributeLabelLevel(filter.level) }));
 	}
 	if (filter.size) {
-		attributes.push(getAttributeLabelSize(filter.size))
+		attributes.push(getAttributeLabelSize(filter.size));
 	}
 
 	let attrText = "";
@@ -158,7 +175,12 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 			setFilterIcon(filter, { emoji: "📏" });
 		}
 	} else if (basePokemonMatch && filter.pokemon) {
-		setFilterIcon(filter, { uicon: { category: IconCategory.POKEMON, params: { pokemon_id: filter.pokemon[0].pokemon_id } } });
+		setFilterIcon(filter, {
+			uicon: {
+				category: IconCategory.POKEMON,
+				params: { pokemon_id: filter.pokemon[0].pokemon_id }
+			}
+		});
 	} else if (filter.pokemon && filter.pokemon.length > 1) {
 		// if nothing better applies, just show the first pokemon of the list
 		setFilterIcon(filter, { uicon: { category: IconCategory.POKEMON, params: filter.pokemon[0] } });

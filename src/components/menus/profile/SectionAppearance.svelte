@@ -3,7 +3,12 @@
 	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
-	import { AVAILABLE_LANGUAGES, AVAILABLE_MAP_PROVIDERS, onMapStyleChange, onSettingsChange } from "@/lib/services/settings";
+	import {
+		AVAILABLE_LANGUAGES,
+		AVAILABLE_MAP_PROVIDERS,
+		onMapStyleChange,
+		onSettingsChange
+	} from "@/lib/services/settings";
 	import { getConfig } from "@/lib/services/config/config";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
@@ -19,10 +24,7 @@
 	import { getMapStyle } from "@/lib/utils/mapStyle";
 </script>
 
-<MenuCard
-	title={m.settings_appearance()}
-	Icon={Paintbrush}
->
+<MenuCard title={m.settings_appearance()} Icon={Paintbrush}>
 	<Select
 		class="py-3 px-4 "
 		title={m.settings_language()}
@@ -41,11 +43,7 @@
 	{/if}
 
 	<MenuGeneric title={m.settings_theme()}>
-		<RadioGroup
-			value={mode.current}
-			onValueChange={setThemeMode}
-			class="self-center"
-		>
+		<RadioGroup value={mode.current} onValueChange={setThemeMode} class="self-center">
 			<SelectGroupItem class="p-4" value="light">
 				<Sun size="20" />
 				{m.theme_light()}
@@ -76,7 +74,7 @@
 							getConfig().mapPositions.styleLat ?? 53.563
 						]}
 						zoom={getConfig().mapPositions.styleZoom ?? 12}
-						filterLayers={l => l.type !== "symbol"}
+						filterLayers={(l) => l.type !== "symbol"}
 						class="w-20 h-18 border-b-2 border-accent"
 						style={getMapStyle(mapStyle)}
 						attributionControl={false}
@@ -94,14 +92,14 @@
 	<MenuGeneric title={m.settings_icon_size()}>
 		<SliderSteps
 			value={getUserSettings().mapIconSize}
-			onchange={value => onSettingsChange("mapIconSize", value)}
+			onchange={(value) => onSettingsChange("mapIconSize", value)}
 			steps={[0.75, 1, 1.25, 1.5]}
 			labels={{
-					0.75: "S",
-					1: "M",
-					1.25: "L",
-					1.5: "XL"
-				}}
+				0.75: "S",
+				1: "M",
+				1.25: "L",
+				1.5: "XL"
+			}}
 		/>
 	</MenuGeneric>
 
@@ -112,5 +110,4 @@
 		onselect={(mapProvider) => onSettingsChange("externalMapProvider", mapProvider)}
 		options={AVAILABLE_MAP_PROVIDERS}
 	/>
-
 </MenuCard>

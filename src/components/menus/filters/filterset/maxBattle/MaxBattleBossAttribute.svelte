@@ -15,12 +15,18 @@
 	const availableBosses = getActiveMaxBattles();
 	let showAvailable: boolean = $state(availableBosses.length > 0);
 
-	function onselect(pokemon: { pokemon_id: number; form: number, bread_mode?: number }, isSelected: boolean) {
+	function onselect(
+		pokemon: { pokemon_id: number; form: number; bread_mode?: number },
+		isSelected: boolean
+	) {
 		if (!isSelected) {
-			data.bosses = data.bosses?.filter(p =>
-				!(p.pokemon_id === pokemon.pokemon_id &&
-					p.form === pokemon.form &&
-					(pokemon.bread_mode === undefined || p.bread_mode === pokemon.bread_mode))
+			data.bosses = data.bosses?.filter(
+				(p) =>
+					!(
+						p.pokemon_id === pokemon.pokemon_id &&
+						p.form === pokemon.form &&
+						(pokemon.bread_mode === undefined || p.bread_mode === pokemon.bread_mode)
+					)
 			);
 		} else {
 			if (!data.bosses) data.bosses = [];
@@ -54,10 +60,6 @@
 	</div>
 {:else}
 	<div class="overflow-y-auto h-102 flex flex-wrap -mx-4 px-4 mt-2">
-		<PokemonSelect
-			pokemonList={getSpawnablePokemon()}
-			selected={data?.bosses ?? []}
-			{onselect}
-		/>
+		<PokemonSelect pokemonList={getSpawnablePokemon()} selected={data?.bosses ?? []} {onselect} />
 	</div>
 {/if}

@@ -3,133 +3,134 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { FeaturesKey } from "@/lib/utils/features";
 
 type UiconSetModifiers = {
-	default: boolean,
-	scale?: number,
-	offsetX?: number,
-	offsetY?: number,
-	name?: string,
-	spacing?: number
-}
+	default: boolean;
+	scale?: number;
+	offsetX?: number;
+	offsetY?: number;
+	name?: string;
+	spacing?: number;
+};
 
-export type UiconSetModifierType = MapObjectType
+export type UiconSetModifierType =
+	| MapObjectType
 	| "quest"
 	| "invasion"
 	| "max_battle"
 	| "raid_pokemon"
 	| "raid_pokemon_6"
 	| "raid_egg"
-	| "raid_egg_6"
+	| "raid_egg_6";
 
 export type UiconSet = {
-	id: string
-	name: string
-	url: string
-	base: UiconSetModifiers | undefined
+	id: string;
+	name: string;
+	url: string;
+	base: UiconSetModifiers | undefined;
 } & {
-	[key in UiconSetModifierType]: UiconSetModifiers | boolean | undefined
-}
+	[key in UiconSetModifierType]: UiconSetModifiers | boolean | undefined;
+};
 
 type General = {
-	mapName: string
-	defaultLocale: string
-	customHome: boolean
-	defaultLat?: number
-	defaultLon?: number
-	defaultZoom?: number
-	minZoom?: number
-	maxZoom?: number
-	url?: string
-	image?: string
-	description?: string
-	allowCrawlers?: boolean
-	disallowedPaths?: string[]
-}
+	mapName: string;
+	defaultLocale: string;
+	customHome: boolean;
+	defaultLat?: number;
+	defaultLon?: number;
+	defaultZoom?: number;
+	minZoom?: number;
+	maxZoom?: number;
+	url?: string;
+	image?: string;
+	description?: string;
+	allowCrawlers?: boolean;
+	disallowedPaths?: string[];
+};
 
 export type DbCreds = {
-	host: string
-	port: number
-	database: string
-	user: string
-	password: string
-}
+	host: string;
+	port: number;
+	database: string;
+	user: string;
+	password: string;
+};
 
 type Auth = {
-	enabled: boolean
-	optional: boolean
-	discord?: AuthDiscord
-}
+	enabled: boolean;
+	optional: boolean;
+	discord?: AuthDiscord;
+};
 
 type AuthDiscord = {
-	clientId: string
-	clientSecret: string
-	redirectUri: string
-}
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
+};
 
 type ClientDiscord = {
-	serverLink: string
-	serverId: string
-}
+	serverLink: string;
+	serverId: string;
+};
 
 export type Permissions = {
-	everyone?: boolean
-	loggedIn?: boolean
-	guildId?: string
-	roleId?: string
-	areas?: string[]
-	features?: FeaturesKey[]
-}
+	everyone?: boolean;
+	loggedIn?: boolean;
+	guildId?: string;
+	roleId?: string;
+	areas?: string[];
+	features?: FeaturesKey[];
+};
 
 export type Log = {
-	level: string
-	file?: string
-}
+	level: string;
+	file?: string;
+};
 
 export type MapStyle = {
-	id: string
-	name: string
-	url: string
-	default?: "dark" | "light"
-	colors?: "dark" | "light"
+	id: string;
+	name: string;
+	url: string;
+	default?: "dark" | "light";
+	colors?: "dark" | "light";
 	raster?: {
-		min: number,
-		max: number,
-		tileSize: number
-	}
-	attribution?: string
-}
+		min: number;
+		max: number;
+		tileSize: number;
+	};
+	attribution?: string;
+};
 
 type MapPositions = {
-	styleLat: number
-	styleLon: number
-	styleZoom: number
-	coverageLat: number
-	coverageLon: number
-	coverageZoom: number
-	scoutLat: number
-	scoutLon: number
-	scoutZoom: number
-}
+	styleLat: number;
+	styleLon: number;
+	styleZoom: number;
+	coverageLat: number;
+	coverageLon: number;
+	coverageZoom: number;
+	scoutLat: number;
+	scoutLon: number;
+	scoutZoom: number;
+};
 
 type StaticMap = {
-	enabled: boolean
-	url: string
-	diademUrl: string
-	style?: string
-}
+	enabled: boolean;
+	url: string;
+	diademUrl: string;
+	style?: string;
+};
 
 export type ClientConfig = {
-	mapStyles: MapStyle[]
-	uiconSets: UiconSet[]
-	general: General,
-	discord: ClientDiscord,
-	mapPositions: MapPositions,
+	mapStyles: MapStyle[];
+	uiconSets: UiconSet[];
+	general: General;
+	discord: ClientDiscord;
+	mapPositions: MapPositions;
 	tools: {
-		showToolsMenu: boolean
-		coverageMap: boolean
-		scout: boolean
-		stats: boolean
-	}
-}
+		showToolsMenu: boolean;
+		coverageMap: boolean;
+		scout: boolean;
+		stats: boolean;
+	};
+};
 
 export type ServerConfig = {
 	golbat: {
@@ -171,6 +172,6 @@ export type ServerConfig = {
 };
 
 export type Config = {
-	server: ServerConfig
-	client: ClientConfig
-}
+	server: ServerConfig;
+	client: ClientConfig;
+};

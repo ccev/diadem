@@ -26,7 +26,7 @@ export type UiconSetUS = {
 
 export enum ExternalMapProvider {
 	GOOGLE = "google",
-	APPLE = "apple",
+	APPLE = "apple"
 }
 
 export type UserSettings = {

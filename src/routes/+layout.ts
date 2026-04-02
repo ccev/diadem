@@ -7,13 +7,13 @@ import {
 } from "@/lib/services/userSettings.svelte";
 import { browser } from "$app/environment";
 
-export const ssr = false
+export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch }) => {
 	const configResponse = await fetch("/api/config");
 	setConfig(await configResponse.json());
 
-	let rawUserSettings: string | null = null
+	let rawUserSettings: string | null = null;
 	if (browser && window.localStorage) {
 		rawUserSettings = localStorage.getItem("userSettings");
 	}

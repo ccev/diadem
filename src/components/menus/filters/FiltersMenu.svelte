@@ -77,13 +77,13 @@
 		isFilterable={false}
 	/>
 
-<!--	<FilterSection-->
-<!--		requiredPermission={MapObjectType.ROUTE}-->
-<!--		title={m.routes()}-->
-<!--		mapObject={MapObjectType.ROUTE}-->
-<!--		category="route"-->
-<!--		isFilterable={false}-->
-<!--	/>-->
+	<!--	<FilterSection-->
+	<!--		requiredPermission={MapObjectType.ROUTE}-->
+	<!--		title={m.routes()}-->
+	<!--		mapObject={MapObjectType.ROUTE}-->
+	<!--		category="route"-->
+	<!--		isFilterable={false}-->
+	<!--	/>-->
 
 	<FilterSection
 		requiredPermission={MapObjectType.S2_CELL}

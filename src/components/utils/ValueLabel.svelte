@@ -4,10 +4,10 @@
 		unit,
 		class: class_ = ""
 	}: {
-		value: string | null | undefined,
-		unit: string,
-		class: string
-	} = $props()
+		value: string | null | undefined;
+		unit: string;
+		class: string;
+	} = $props();
 </script>
 
 {#if value}

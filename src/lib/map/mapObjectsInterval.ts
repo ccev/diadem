@@ -1,9 +1,9 @@
 import {
 	UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM,
 	UPDATE_MAP_OBJECT_INTERVAL_TIME
-} from '@/lib/constants';
-import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
-import { getMap } from '@/lib/map/map.svelte';
+} from "@/lib/constants";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+import { getMap } from "@/lib/map/map.svelte";
 
 let updateMapObjectsInterval: undefined | NodeJS.Timeout = undefined;
 

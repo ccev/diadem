@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import type { NestData } from "@/lib/types/mapObjectData/nest.d.ts";
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
@@ -12,7 +15,10 @@
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { formatDecimal, formatNumber, formatPercentage } from "@/lib/utils/numberFormat";
 
-	let data: NestData = $derived(getMapObjects()[getCurrentSelectedMapId()] as NestData ?? getCurrentSelectedData() as NestData);
+	let data: NestData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as NestData) ??
+			(getCurrentSelectedData() as NestData)
+	);
 </script>
 
 {#snippet basicInfo()}
@@ -29,11 +35,7 @@
 <BasePopup lat={data.lat} lon={data.lon}>
 	{#snippet image()}
 		<div class="w-12 shrink-0">
-			<ImagePopup
-				alt={mPokemon(data)}
-				src={getIconPokemon(data)}
-				class="w-12 h-12"
-			/>
+			<ImagePopup alt={mPokemon(data)} src={getIconPokemon(data)} class="w-12 h-12" />
 		</div>
 	{/snippet}
 
@@ -63,11 +65,13 @@
 		</IconValue>
 
 		<IconValue Icon={VectorSquare}>
-			{m.nest_size()}: <b>{m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}</b>
+			{m.nest_size()}:
+			<b>{m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}</b>
 		</IconValue>
 
 		<IconValue Icon={Clock}>
-			{m.last_updated()}: <b>
+			{m.last_updated()}:
+			<b>
 				<Countdown expireTime={data.updated} />
 			</b>
 		</IconValue>

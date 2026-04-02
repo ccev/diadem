@@ -7,19 +7,19 @@
 	import CoverageMapMenu from "@/components/menus/coverageMap/CoverageMapMenu.svelte";
 
 	let MenuElement = $derived.by(() => {
-		switch(getOpenedMenu()) {
+		switch (getOpenedMenu()) {
 			case Menu.PROFILE:
-				return ProfileMenu
+				return ProfileMenu;
 			case Menu.FILTERS:
-				return FiltersMenu
+				return FiltersMenu;
 			case Menu.SCOUT:
-				return ScoutMenu
+				return ScoutMenu;
 			case Menu.TOOLS:
-				return ToolsMenu
+				return ToolsMenu;
 			case Menu.COVERAGE_MAP:
-				return CoverageMapMenu
+				return CoverageMapMenu;
 		}
-	})
+	});
 </script>
 
 <MenuElement />

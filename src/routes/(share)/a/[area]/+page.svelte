@@ -8,16 +8,14 @@
 	let { data }: PageProps = $props();
 
 	onMount(() => {
-		const userSettings = getUserSettings()
-		userSettings.mapPosition.center.lat = data.lat
-		userSettings.mapPosition.center.lng = data.lon
-		userSettings.mapPosition.zoom = data.zoom
-		updateUserSettings()
-	})
+		const userSettings = getUserSettings();
+		userSettings.mapPosition.center.lat = data.lat;
+		userSettings.mapPosition.center.lng = data.lon;
+		userSettings.mapPosition.zoom = data.zoom;
+		updateUserSettings();
+	});
 </script>
 
-<Metadata
-	title={data.name}
-/>
+<Metadata title={data.name} />
 
 <RedirectFlash goal={data.name} />

@@ -8,14 +8,16 @@
 		total = undefined,
 		children = undefined
 	}: {
-		days?: number
-		total?: number
-		children?: Snippet
+		days?: number;
+		total?: number;
+		children?: Snippet;
 	} = $props();
 </script>
 
 {#if children}
-	<div class="rounded-sm bg-accent text-accent-foreground border border-border px-4 -mx-4 pt-3 pb-3.5 mb-2 mt-3">
+	<div
+		class="rounded-sm bg-accent text-accent-foreground border border-border px-4 -mx-4 pt-3 pb-3.5 mb-2 mt-3"
+	>
 		<p class="text-xs mb-2">
 			{m.stats()}
 

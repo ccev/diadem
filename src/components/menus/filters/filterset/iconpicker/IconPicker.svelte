@@ -3,7 +3,8 @@
 	import { IconCategory } from "@/lib/features/filters/icons";
 	import {
 		filtersetPageSave,
-		filtersetPageSaveSimple, getFiltersetPageTransition
+		filtersetPageSaveSimple,
+		getFiltersetPageTransition
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import Tabs from "@/components/ui/input/Tabs.svelte";
 	import IconGrid from "./IconGrid.svelte";
@@ -13,10 +14,10 @@
 		PICKER_TABS,
 		getAllIconsByTab,
 		getAllSearchableEmojis,
-		isValidSingleEmoji,
+		isValidSingleEmoji
 	} from "./iconPickerData";
 	import * as m from "@/lib/paraglide/messages";
-	import {fly} from "svelte/transition";
+	import { fly } from "svelte/transition";
 	import { mAny } from "@/lib/utils/anyMessage";
 
 	let {
@@ -80,7 +81,7 @@
 			data.icon = { isUserSelected: true, uicon: { category: item.category, params: item.params } };
 			delete data.icon.emoji;
 		}
-		filtersetPageSaveSimple()
+		filtersetPageSaveSimple();
 	}
 </script>
 
@@ -94,16 +95,15 @@
 		type="search"
 		placeholder={m.icon_search_placeholder()}
 		value={searchQuery}
-		oninput={(e) => searchQuery = e.currentTarget.value}
+		oninput={(e) => (searchQuery = e.currentTarget.value)}
 	/>
 
 	{#if !searchQuery.trim()}
 		<Tabs
-			tabs={PICKER_TABS.map(t => ({ value: t.id, label: mAny(t.labelKey) }))}
+			tabs={PICKER_TABS.map((t) => ({ value: t.id, label: mAny(t.labelKey) }))}
 			bind:value={activeTab}
 		/>
 	{/if}
 
 	<IconGrid items={displayItems} onselect={selectItem} />
 </div>
-

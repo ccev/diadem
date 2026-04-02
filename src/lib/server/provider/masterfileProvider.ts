@@ -7,7 +7,7 @@ import { overwriteMasterfile } from "@/lib/services/masterfile";
 type RawMasterFile = {
 	pokemon: {
 		[key: string]: {
-			pokedexId: number,
+			pokedexId: number;
 			defaultFormId?: number;
 			name: string;
 			types: { [key: string]: any };
@@ -21,19 +21,22 @@ type RawMasterFile = {
 				attack: number;
 				defense: number;
 				stamina: number;
-			}
+			};
 		};
 	};
 	items: { [key: string]: { name: string } };
 	weather: {
 		[key: string]: {
 			name: string;
-			types: { typeId: number }[]
-		}
+			types: { typeId: number }[];
+		};
 	};
 };
 
-function makePokemon(data: Partial<RawMasterFile["pokemon"][string]>, basePokemon: MasterPokemon | undefined = undefined): MasterPokemon {
+function makePokemon(
+	data: Partial<RawMasterFile["pokemon"][string]>,
+	basePokemon: MasterPokemon | undefined = undefined
+): MasterPokemon {
 	const masterPokemon = {
 		name: data.name ?? "",
 		forms: {},
@@ -42,11 +45,11 @@ function makePokemon(data: Partial<RawMasterFile["pokemon"][string]>, basePokemo
 		mythical: !!data.mythical,
 		ultraBeast: !!data.ultraBeast,
 		defaultFormId: data.defaultFormId,
-		types: data.types ? Object.keys(data.types || {}).map(Number) : (basePokemon?.types || []),
+		types: data.types ? Object.keys(data.types || {}).map(Number) : basePokemon?.types || [],
 		family: data.family ?? basePokemon?.family ?? 0,
 		baseAtk: data?.stats?.attack ?? basePokemon?.baseAtk ?? 0,
 		baseDef: data?.stats?.defense ?? basePokemon?.baseDef ?? 0,
-		baseSta: data?.stats?.stamina ?? basePokemon?.baseSta ?? 0,
+		baseSta: data?.stats?.stamina ?? basePokemon?.baseSta ?? 0
 	} as MasterPokemon;
 
 	if (data.forms) {
@@ -61,11 +64,12 @@ function makePokemon(data: Partial<RawMasterFile["pokemon"][string]>, basePokemo
 		}
 	}
 
-	return masterPokemon
+	return masterPokemon;
 }
 
 const log = getLogger("q:masterfile");
-const url = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/refs/heads/master/master-latest-everything.json";
+const url =
+	"https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/refs/heads/master/master-latest-everything.json";
 
 export class MasterfileProvider extends BaseDataProvider<MasterFile> {
 	constructor() {
@@ -73,8 +77,8 @@ export class MasterfileProvider extends BaseDataProvider<MasterFile> {
 	}
 
 	protected async query(): Promise<MasterFile> {
-		const rawData = await this.fetchData(url, log, "masterfile")
-		const data = JSON.parse(rawData) as RawMasterFile
+		const rawData = await this.fetchData(url, log, "masterfile");
+		const data = JSON.parse(rawData) as RawMasterFile;
 
 		const masterFile = {
 			pokemon: {},
@@ -83,18 +87,18 @@ export class MasterfileProvider extends BaseDataProvider<MasterFile> {
 		} as MasterFile;
 
 		for (const [id, pokemon] of Object.entries(data.pokemon)) {
-			masterFile.pokemon[id] = makePokemon(pokemon)
+			masterFile.pokemon[id] = makePokemon(pokemon);
 		}
 
 		for (const [id, w] of Object.entries(data.weather)) {
 			masterFile.weather[id] = {
-				types: w.types.map(t => t.typeId)
+				types: w.types.map((t) => t.typeId)
 			};
 		}
 
-		overwriteMasterfile(masterFile)
+		overwriteMasterfile(masterFile);
 
-		return masterFile
+		return masterFile;
 	}
 }
 

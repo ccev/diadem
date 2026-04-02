@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 			type: params.directLink,
 			id: undefined,
 			title: undefined
-		}
+		};
 	}
 
 	data = makeMapObject(data, params.directLink);

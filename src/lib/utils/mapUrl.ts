@@ -8,14 +8,14 @@ function getLinkGoogleMaps(coords: Coords) {
 function getLinkAppleMaps(coords: Coords, name: string | undefined = undefined) {
 	let link = `https://maps.apple.com/?ll=${coords.lat},${coords.lon}`;
 	if (name) {
-		link += `&q=${encodeURIComponent(name)}`
+		link += `&q=${encodeURIComponent(name)}`;
 	}
-	return link
+	return link;
 }
 
 export function getMapsUrl(coords: Coords, name: string | undefined = undefined) {
 	if (getUserSettings().externalMapProvider === ExternalMapProvider.APPLE) {
-		return getLinkAppleMaps(coords, name)
+		return getLinkAppleMaps(coords, name);
 	}
-	return getLinkGoogleMaps(coords)
+	return getLinkGoogleMaps(coords);
 }

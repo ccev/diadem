@@ -5,5 +5,5 @@ export function getLoadedImages() {
 }
 
 export function setLoadedImage(key: string, image: HTMLImageElement | ImageBitmap) {
-	loadedImages[key] = image
+	loadedImages[key] = image;
 }

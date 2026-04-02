@@ -12,16 +12,18 @@
 	let {
 		data
 	}: {
-		data: FiltersetRaid
+		data: FiltersetRaid;
 	} = $props();
 
 	const availableBosses = getActiveRaids();
-	const uniqueLevels = [...new Set(availableBosses.map(b => b.level))];
+	const uniqueLevels = [...new Set(availableBosses.map((b) => b.level))];
 	let showAvailable: boolean = $state(availableBosses.length > 0);
 
-	function onselect(pokemon: { pokemon_id: number, form: number }, isSelected: boolean) {
+	function onselect(pokemon: { pokemon_id: number; form: number }, isSelected: boolean) {
 		if (!isSelected) {
-			data.bosses = data.bosses?.filter(p => p.pokemon_id !== pokemon.pokemon_id || p.form !== pokemon.form);
+			data.bosses = data.bosses?.filter(
+				(p) => p.pokemon_id !== pokemon.pokemon_id || p.form !== pokemon.form
+			);
 		} else {
 			if (!data.bosses) data.bosses = [];
 			data.bosses.push(pokemon);
@@ -34,7 +36,7 @@
 {#if availableBosses.length > 0}
 	<Toggle
 		title={m.raid_boss_select_available()}
-		onclick={() => showAvailable = !showAvailable}
+		onclick={() => (showAvailable = !showAvailable)}
 		value={showAvailable}
 	/>
 {/if}
@@ -47,14 +49,14 @@
 					class="w-5"
 					src={resize(getIconRaidEgg(raidLevel), { width: 64 })}
 					alt={mRaid(raidLevel, true)}
-				>
+				/>
 				<span class="font-semibold">
 					{mRaid(raidLevel, true)}
 				</span>
 			</div>
-			<div class="flex flex-wrap  mt-2">
+			<div class="flex flex-wrap mt-2">
 				<PokemonSelect
-					pokemonList={availableBosses.filter(b => b.level === raidLevel)}
+					pokemonList={availableBosses.filter((b) => b.level === raidLevel)}
 					selected={data?.bosses ?? []}
 					{onselect}
 				/>
@@ -63,10 +65,6 @@
 	</div>
 {:else}
 	<div class="overflow-y-auto h-102 flex flex-wrap -mx-4 px-4 mt-2">
-		<PokemonSelect
-			pokemonList={getSpawnablePokemon()}
-			selected={data?.bosses ?? []}
-			{onselect}
-		/>
+		<PokemonSelect pokemonList={getSpawnablePokemon()} selected={data?.bosses ?? []} {onselect} />
 	</div>
 {/if}

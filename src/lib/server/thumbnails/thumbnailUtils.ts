@@ -17,27 +17,32 @@ async function fetchWrapper(responsePromise: Promise<Response>, resize: boolean 
 		const response = await responsePromise;
 
 		if (!response.ok) {
-			log.error("Image request failed [%s]: %d %s", response.url, response.status, await response.text());
+			log.error(
+				"Image request failed [%s]: %d %s",
+				response.url,
+				response.status,
+				await response.text()
+			);
 			return null;
 		}
 
 		const contentType = response.headers.get("Content-Type");
 		let arrayBuffer = await response.arrayBuffer();
-		const buffer: Buffer<ArrayBufferLike> = Buffer.from(arrayBuffer)
-		let sharpImage = sharp(buffer)
+		const buffer: Buffer<ArrayBufferLike> = Buffer.from(arrayBuffer);
+		let sharpImage = sharp(buffer);
 
 		if (resize) {
-			sharpImage = sharpImage.resize({ width: 128 })
+			sharpImage = sharpImage.resize({ width: 128 });
 		}
 
 		if (contentType?.includes("png")) {
 			// 1/2 static map size
-			sharpImage = sharpImage.png({ compressionLevel: 9, effort: 10 })
+			sharpImage = sharpImage.png({ compressionLevel: 9, effort: 10 });
 		} else if (contentType?.includes("jpg") || contentType?.includes("jpeg")) {
-			sharpImage = sharpImage.jpeg()
+			sharpImage = sharpImage.jpeg();
 		}
 
-		const sharpBuffer = await sharpImage.toBuffer()
+		const sharpBuffer = await sharpImage.toBuffer();
 		const base64 = sharpBuffer.toString("base64");
 		return `data:${contentType};base64,${base64}`;
 	} catch (e) {
@@ -48,7 +53,14 @@ async function fetchWrapper(responsePromise: Promise<Response>, resize: boolean 
 
 export async function fetchStaticMapBase64(
 	thisFetch: typeof fetch,
-	options: { zoom: number; coords: Coords; width: number; height: number, data: MapData, iconUrl?: string }
+	options: {
+		zoom: number;
+		coords: Coords;
+		width: number;
+		height: number;
+		data: MapData;
+		iconUrl?: string;
+	}
 ): Promise<string | null> {
 	const config = getServerConfig();
 	const staticMap = config.staticMap;
@@ -59,17 +71,19 @@ export async function fetchStaticMapBase64(
 
 	const style = staticMap.style || getDefaultMapStyle("light").id;
 
-	const iconType: UiconSetModifierType = options.data.type === MapObjectType.NEST
-		? MapObjectType.POKEMON
-		: options.data.type;
+	const iconType: UiconSetModifierType =
+		options.data.type === MapObjectType.NEST ? MapObjectType.POKEMON : options.data.type;
 	const iconSet = getDefaultIconSet(iconType as MapObjectType);
 	const modifier = iconSet?.[iconType];
 	const baseModifier = iconSet?.base;
-	const scale = (typeof modifier === "object" ? modifier?.scale : undefined) ?? baseModifier?.scale ?? 0.25;
-	const offsetX = (typeof modifier === "object" ? modifier?.offsetX : undefined) ?? baseModifier?.offsetX ?? 0;
-	const offsetY = (typeof modifier === "object" ? modifier?.offsetY : undefined) ?? baseModifier?.offsetY ?? 0;
+	const scale =
+		(typeof modifier === "object" ? modifier?.scale : undefined) ?? baseModifier?.scale ?? 0.25;
+	const offsetX =
+		(typeof modifier === "object" ? modifier?.offsetX : undefined) ?? baseModifier?.offsetX ?? 0;
+	const offsetY =
+		(typeof modifier === "object" ? modifier?.offsetY : undefined) ?? baseModifier?.offsetY ?? 0;
 
-	const markerModifier = 64 * 2.5
+	const markerModifier = 64 * 2.5;
 	const markerSize = scale * markerModifier;
 
 	const payload: Record<string, unknown> = {
@@ -79,7 +93,7 @@ export async function fetchStaticMapBase64(
 		longitude: options.coords.lon,
 		width: options.width,
 		height: options.height,
-		scale: 1,
+		scale: 1
 	};
 
 	if (options.iconUrl) {
@@ -93,7 +107,7 @@ export async function fetchStaticMapBase64(
 				latitude: options.coords.lat,
 				longitude: options.coords.lon
 			}
-		]
+		];
 	}
 
 	if (options.data.type === MapObjectType.NEST) {

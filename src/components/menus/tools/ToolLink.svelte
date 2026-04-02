@@ -17,14 +17,14 @@
 		onclick,
 		children
 	}: {
-		Icon: LucideIcon
-		title: string
-		description: string
-		onclick: () => void
-		children: Snippet
-	} = $props()
+		Icon: LucideIcon;
+		title: string;
+		description: string;
+		onclick: () => void;
+		children: Snippet;
+	} = $props();
 
-	let toolsClass: string = $derived(isMenuSidebar() ? "tools-sidebar": "tools-mobile")
+	let toolsClass: string = $derived(isMenuSidebar() ? "tools-sidebar" : "tools-mobile");
 </script>
 
 <Button
@@ -40,16 +40,17 @@
 
 	{@render children()}
 
-	<div class="absolute top-0 right-0 bg-linear-to-r from-background to-background/50 w-1/2 h-full">
-
-	</div>
+	<div
+		class="absolute top-0 right-0 bg-linear-to-r from-background to-background/50 w-1/2 h-full"
+	></div>
 	<div class="flex gap-4 items-center group relative z-20">
-		<Card class="tools-icon bg-card text-muted-foreground flex items-center justify-center aspect-square">
+		<Card
+			class="tools-icon bg-card text-muted-foreground flex items-center justify-center aspect-square"
+		>
 			<Icon class="tools-icon-icon" />
 		</Card>
 		<div>
 			<div class="flex items-center gap-2 w-full font-semibold">
-
 				<span>{title}</span>
 			</div>
 			<p class="text-muted-foreground">
@@ -57,39 +58,38 @@
 			</p>
 		</div>
 	</div>
-
 </Button>
 
 <style>
 	:global(.tools-sidebar) {
-        font-size: var(--text-base)!important;
-        line-height: var(--tw-leading, var(--text-lg--line-height)) !important;
-        padding-block: calc(var(--spacing) * 4);
+		font-size: var(--text-base) !important;
+		line-height: var(--tw-leading, var(--text-lg--line-height)) !important;
+		padding-block: calc(var(--spacing) * 4);
 
 		& .tools-icon {
-            width: calc(var(--spacing) * 10);
-            height: calc(var(--spacing) * 10);
+			width: calc(var(--spacing) * 10);
+			height: calc(var(--spacing) * 10);
 		}
 
-        & .tools-icon-icon {
-            width: calc(var(--spacing) * 4);
-            height: calc(var(--spacing) * 4);
-        }
+		& .tools-icon-icon {
+			width: calc(var(--spacing) * 4);
+			height: calc(var(--spacing) * 4);
+		}
 	}
 
 	:global(.tools-mobile) {
-        font-size: var(--text-lg)!important;
-        line-height: var(--tw-leading, var(--text-lg--line-height)) !important;
-        padding-block: calc(var(--spacing) * 5);
+		font-size: var(--text-lg) !important;
+		line-height: var(--tw-leading, var(--text-lg--line-height)) !important;
+		padding-block: calc(var(--spacing) * 5);
 
-        & .tools-icon {
-            width: calc(var(--spacing) * 12);
-            height: calc(var(--spacing) * 12);
-        }
+		& .tools-icon {
+			width: calc(var(--spacing) * 12);
+			height: calc(var(--spacing) * 12);
+		}
 
-        & .tools-icon-icon {
-            width: calc(var(--spacing) * 5);
-            height: calc(var(--spacing) * 5);
-        }
+		& .tools-icon-icon {
+			width: calc(var(--spacing) * 5);
+			height: calc(var(--spacing) * 5);
+		}
 	}
 </style>

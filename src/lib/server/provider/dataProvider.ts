@@ -64,7 +64,7 @@ export abstract class BaseDataProvider<T> {
 
 		log.info("Successfully updated resource: %s", resourceName);
 
-		return data
+		return data;
 	}
 }
 

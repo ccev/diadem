@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Marker } from 'svelte-maplibre';
-	import { getContextMenuEvent, getIsContextMenuOpen } from '@/lib/ui/contextmenu.svelte.js';
+	import { Marker } from "svelte-maplibre";
+	import { getContextMenuEvent, getIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 </script>
 
 {#if getIsContextMenuOpen()}

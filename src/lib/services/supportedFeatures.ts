@@ -1,8 +1,13 @@
-export type optionalFeatures = "koji" | "geocoding" | "auth" | "authRequired" | "showFullscreenLogin"
+export type optionalFeatures =
+	| "koji"
+	| "geocoding"
+	| "auth"
+	| "authRequired"
+	| "showFullscreenLogin";
 
 export type SupportedFeatures = {
-	[ key in optionalFeatures ]: boolean
-}
+	[key in optionalFeatures]: boolean;
+};
 
 let supportedFeatures: SupportedFeatures = {
 	koji: false,
@@ -10,17 +15,17 @@ let supportedFeatures: SupportedFeatures = {
 	auth: false,
 	authRequired: false,
 	showFullscreenLogin: false
-}
+};
 
 export function isSupportedFeature(feature: optionalFeatures) {
-	return Boolean(supportedFeatures[feature])
+	return Boolean(supportedFeatures[feature]);
 }
 
 export async function updateSupportedFeatures() {
-	const resp = await fetch("/api/supported-features")
-	const data: SupportedFeatures = await resp.json()
+	const resp = await fetch("/api/supported-features");
+	const data: SupportedFeatures = await resp.json();
 
-	if (!Object.keys(data).includes("koji")) return
+	if (!Object.keys(data).includes("koji")) return;
 
-	supportedFeatures = data
+	supportedFeatures = data;
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Countdown from '@/components/utils/Countdown.svelte';
+	import Countdown from "@/components/utils/Countdown.svelte";
 
-	import { timestampToLocalTime } from '@/lib/utils/timestampToLocalTime';
+	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 
 	let {
 		expireTime,
@@ -9,11 +9,11 @@
 		nowrap = false,
 		showDate = false
 	}: {
-		expireTime: number | null | undefined
-		showHours?: boolean
-		nowrap?: boolean
-		showDate?: boolean
-	} = $props()
+		expireTime: number | null | undefined;
+		showHours?: boolean;
+		nowrap?: boolean;
+		showDate?: boolean;
+	} = $props();
 </script>
 
 <span class:whitespace-nowrap={nowrap}>

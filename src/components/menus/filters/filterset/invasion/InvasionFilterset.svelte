@@ -10,7 +10,9 @@
 	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import {
-		getActiveCharacters, getInvasionCatchable, getInvasionPokemon
+		getActiveCharacters,
+		getInvasionCatchable,
+		getInvasionPokemon
 	} from "@/lib/features/masterStats.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
 	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
@@ -25,7 +27,7 @@
 	import InvasionTypeAttribute from "@/components/menus/filters/filterset/invasion/InvasionTypeAttribute.svelte";
 	import Card from "@/components/ui/Card.svelte";
 
-	type Pokemon = { pokemon_id: number; form: number; alignment?: number }
+	type Pokemon = { pokemon_id: number; form: number; alignment?: number };
 
 	let data: FiltersetInvasion | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetInvasion

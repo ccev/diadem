@@ -1,21 +1,22 @@
-import maplibre from 'maplibre-gl';
+import maplibre from "maplibre-gl";
 import {
 	clearPressTimer,
 	longPressDuration,
 	onContextMenu,
-	pressTimer, setIsContextMenuOpen
-} from '@/lib/ui/contextmenu.svelte.js';
-import { clearLoadMapObjectsInterval, resetLoadMapObjects } from '@/lib/map/loadMapObjects';
-import { updateAllMapObjects } from '@/lib/mapObjects/updateMapObject';
+	pressTimer,
+	setIsContextMenuOpen
+} from "@/lib/ui/contextmenu.svelte.js";
+import { clearLoadMapObjectsInterval, resetLoadMapObjects } from "@/lib/map/loadMapObjects";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import {
 	clearUpdateMapObjectsInterval,
 	resetUpdateMapObjectsInterval
-} from '@/lib/map/mapObjectsInterval';
-import { getUserSettings, updateUserSettings } from '@/lib/services/userSettings.svelte.js';
-import { addMapStyleVersion, getMap, getMapStyleVersion } from '@/lib/map/map.svelte';
-import { setAnimateLocationMarker } from '@/lib/map/geolocate.svelte';
-import type { MapMoveEvent } from 'svelte-maplibre';
-import { setSkew } from '@/lib/map/mapSkew.svelte';
+} from "@/lib/map/mapObjectsInterval";
+import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { addMapStyleVersion, getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
+import { setAnimateLocationMarker } from "@/lib/map/geolocate.svelte";
+import type { MapMoveEvent } from "svelte-maplibre";
+import { setSkew } from "@/lib/map/mapSkew.svelte";
 import { clearSessionImageUrls } from "@/lib/map/featuresManage.svelte";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
@@ -44,8 +45,8 @@ export async function onMapMoveStart() {
 	clearUpdateMapObjectsInterval();
 	resetLoadMapObjects();
 
-	setAnimateLocationMarker(false)
-	resetSearchedLocation()
+	setAnimateLocationMarker(false);
+	resetSearchedLocation();
 }
 
 export function onWindowFocus() {
@@ -55,17 +56,17 @@ export function onWindowFocus() {
 }
 
 export function onMapMove(event: MapMoveEvent) {
-	setSkew(event.target.getPitch(), event.target.getBearing())
+	setSkew(event.target.getPitch(), event.target.getBearing());
 }
 
 export function onMapStyleDataLoading() {
 	// this is fired when the map style is changed
 	// so we need to re-fetch images as these are tied to the style
-	clearSessionImageUrls()
-	updateFeatures(getMapObjects())
-	getMap()?.once("styledata", onMapStyleLoad)
+	clearSessionImageUrls();
+	updateFeatures(getMapObjects());
+	getMap()?.once("styledata", onMapStyleLoad);
 }
 
 export function onMapStyleLoad() {
-	addMapStyleVersion()
+	addMapStyleVersion();
 }

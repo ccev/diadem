@@ -29,6 +29,6 @@ export type MapData =
 	| SpawnpointData
 	| RouteData
 	| TappableData
-	| S2CellData
+	| S2CellData;
 
 export const allMapObjectTypes = Object.values(MapObjectType);

@@ -5,26 +5,29 @@ import type { MapStyle } from "@/lib/services/config/configTypes";
 
 export function toggleThemeMode() {
 	toggleMode();
-	updateDefaultMapStyle()
+	updateDefaultMapStyle();
 	getUserSettings().themeMode = mode?.current ?? "system";
 	updateUserSettings();
 }
 
 export function setThemeMode(newMode: "dark" | "light" | "system") {
 	setMode(newMode);
-	updateDefaultMapStyle()
+	updateDefaultMapStyle();
 	getUserSettings().themeMode = newMode;
 	updateUserSettings();
 }
 
 export function updateDefaultMapStyle() {
-	const mapStyle = getDefaultMapStyle()
-	getUserSettings().mapStyle.id = mapStyle.id
-	getUserSettings().mapStyle.url = mapStyle.url
+	const mapStyle = getDefaultMapStyle();
+	getUserSettings().mapStyle.id = mapStyle.id;
+	getUserSettings().mapStyle.url = mapStyle.url;
 }
 
 export function getDefaultMapStyle(theme: "light" | "dark" | undefined = undefined) {
-	return getConfig().mapStyles.find((s) => s.default === (theme ?? mode.current)) ?? getConfig().mapStyles[0];
+	return (
+		getConfig().mapStyles.find((s) => s.default === (theme ?? mode.current)) ??
+		getConfig().mapStyles[0]
+	);
 }
 
 export function isDarkMode() {

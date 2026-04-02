@@ -1,28 +1,25 @@
 <script lang="ts">
-	import { RadioGroup } from 'bits-ui';
-	import type { Snippet } from 'svelte';
-	import SelectGroup from '@/components/ui/input/selectgroup/SelectGroup.svelte';
+	import { RadioGroup } from "bits-ui";
+	import type { Snippet } from "svelte";
+	import SelectGroup from "@/components/ui/input/selectgroup/SelectGroup.svelte";
 
 	let {
 		childCount = 3,
-		class: class_ = '',
-		value = '',
+		class: class_ = "",
+		value = "",
 		children = undefined,
 		evenColumns = true,
 		...rest
 	}: {
-		childCount?: number
-		class?: string
-		value?: string
-		children?: Snippet
-		evenColumns?: boolean
+		childCount?: number;
+		class?: string;
+		value?: string;
+		children?: Snippet;
+		evenColumns?: boolean;
 	} & RadioGroup.RootProps = $props();
 </script>
 
-<SelectGroup
-	{childCount}
-	{evenColumns}
->
+<SelectGroup {childCount} {evenColumns}>
 	<RadioGroup.Root
 		bind:value
 		orientation="horizontal"

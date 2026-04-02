@@ -9,19 +9,15 @@
 		label,
 		pokemon
 	}: {
-		label: string
-		pokemon: { pokemon_id: number, form: number }[]
+		label: string;
+		pokemon: { pokemon_id: number; form: number }[];
 	} = $props();
 </script>
 
 <HorizontalScrollDisplay {label}>
 	{#each pokemon as species (species.pokemon_id + "-" + species.form)}
 		<HorizontalScrollElement>
-			<img
-				class="size-9"
-				src={getIconPokemon(species)}
-				alt={mPokemon(species)}
-			>
+			<img class="size-9" src={getIconPokemon(species)} alt={mPokemon(species)} />
 			<span class="text-base">
 				{mPokemon(species)}
 			</span>

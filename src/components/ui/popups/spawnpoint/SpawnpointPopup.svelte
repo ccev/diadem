@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint.d.ts";
@@ -15,8 +18,11 @@
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 	import { getMmSsFromSeconds } from "@/lib/utils/time";
 
-	let data: SpawnpointData = $derived(getMapObjects()[getCurrentSelectedMapId()] as SpawnpointData ?? getCurrentSelectedData() as SpawnpointData);
-	let isOutdated = $derived(data.last_seen < currentTimestamp() - SPAWNPOINT_OUTDATED_SECONDS)
+	let data: SpawnpointData = $derived(
+		(getMapObjects()[getCurrentSelectedMapId()] as SpawnpointData) ??
+			(getCurrentSelectedData() as SpawnpointData)
+	);
+	let isOutdated = $derived(data.last_seen < currentTimestamp() - SPAWNPOINT_OUTDATED_SECONDS);
 </script>
 
 {#snippet basicInfo()}
@@ -71,12 +77,14 @@
 			{@render basicInfo()}
 		</div>
 		<IconValue Icon={SearchCheck}>
-			{m.last_seen()}: <b>
+			{m.last_seen()}:
+			<b>
 				<Countdown expireTime={data.last_seen} />
 			</b>
 		</IconValue>
 		<IconValue Icon={Search}>
-			{m.first_seen()}: <b>
+			{m.first_seen()}:
+			<b>
 				<Countdown expireTime={data.first_seen} />
 			</b>
 		</IconValue>

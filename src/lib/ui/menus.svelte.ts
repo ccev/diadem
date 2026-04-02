@@ -6,17 +6,17 @@ export enum Menu {
 	COVERAGE_MAP = "coveragemap"
 }
 
-let openedMenu: Menu | null = $state(null)
+let openedMenu: Menu | null = $state(null);
 
 // set this when switching from tool menu to tool,
-let justChangedMenus: boolean = $state(false)
+let justChangedMenus: boolean = $state(false);
 
 export function openMenu(type: Menu) {
-	openedMenu = type
+	openedMenu = type;
 }
 
 export function closeMenu() {
-	openedMenu = null
+	openedMenu = null;
 }
 
 export function getOpenedMenu() {
@@ -24,14 +24,14 @@ export function getOpenedMenu() {
 }
 
 export function setJustChangedMenus() {
-	justChangedMenus = true
+	justChangedMenus = true;
 }
 
 export function resetJustChangedMenus() {
-	justChangedMenus = false
+	justChangedMenus = false;
 }
 
 export function onMenuDrawerOpenChangeComplete(open: boolean) {
-	if (open || justChangedMenus) return
-	closeMenu()
+	if (open || justChangedMenus) return;
+	closeMenu();
 }
