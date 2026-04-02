@@ -32,6 +32,7 @@
 			getUserSettings().mapIconSize
 		],
 		"icon-allow-overlap": true,
-		"icon-offset": ["get", "imageOffset"]
+		"icon-offset": ["get", "imageOffset"],
+		"icon-rotate": ["coalesce", ["get", "imageRotation"], 0]
 	}}
 />
