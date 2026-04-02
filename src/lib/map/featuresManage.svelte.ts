@@ -35,10 +35,12 @@ export function getMapObjectsGeoJson() {
 }
 
 async function addMapImage(url: string) {
+	if (!url) return;
+
 	const map = getMap();
 	if (!map) return;
 
-	if (sessionImageUrls.has(url) && map.hasImage(url)) return;
+	if (sessionImageUrls.has(url)) return;
 	sessionImageUrls.add(url);
 	await ensureMapImage(map, url);
 }
