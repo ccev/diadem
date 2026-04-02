@@ -9,7 +9,6 @@ src/components/custom/*
 static/custom/*
 src/routes/(custom)/*
 src/custom.css
-CLAUDE.md
 coverage/*
 
 # Output
