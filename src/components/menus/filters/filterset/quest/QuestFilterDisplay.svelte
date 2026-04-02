@@ -154,4 +154,5 @@
 	{#if data.xp}
 		<AttributeDisplay label={m.xp()} value={makeAttributeRangeLabel(data.xp, 0, 50_000)} />
 	{/if}
+
 </FilterDisplay>

@@ -99,7 +99,10 @@
 				baseImageSize: baseMod.scale,
 				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
 				focusImageSize: pokemonMod.scale * raidMod.scale,
-				focusImageOffset: [baseMod.offsetX + raidMod.offsetX, baseMod.offsetY + raidMod.offsetY]
+				focusImageOffset: [
+					baseMod.offsetX + raidMod.offsetX,
+					baseMod.offsetY + raidMod.offsetY
+				]
 			};
 		}
 
@@ -217,10 +220,7 @@
 			// Check if characters are set
 			const invasion = filterset as FiltersetInvasion | undefined;
 			if (invasion?.characters?.length) {
-				return getIcon(IconCategory.INVASION, {
-					character: invasion.characters[0],
-					confirmed: true
-				});
+				return getIcon(IconCategory.INVASION, { character: invasion.characters[0], confirmed: true });
 			}
 			return getIcon(IconCategory.INVASION, { character: 4, confirmed: true });
 		}

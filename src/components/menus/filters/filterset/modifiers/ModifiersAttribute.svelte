@@ -62,13 +62,7 @@
 </script>
 
 <div class="sticky top-0 pt-1 z-10">
-	<ModifierPreview
-		modifiers={data.modifiers}
-		{iconUrl}
-		filterset={data}
-		{majorCategory}
-		{subCategory}
-	/>
+	<ModifierPreview modifiers={data.modifiers} {iconUrl} filterset={data} {majorCategory} {subCategory} />
 </div>
 
 <div class="divide-y divide-border *:py-6 *:px-1">

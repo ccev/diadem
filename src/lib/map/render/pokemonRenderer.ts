@@ -9,7 +9,10 @@ function getPokemonFeatureStateKey(
 	data: PokemonData,
 	filtersetModifiers: FiltersetModifiers | undefined
 ) {
-	return [data.expire_timestamp ?? "", getFiltersetModifierStateKey(filtersetModifiers)].join("|");
+	return [
+		data.expire_timestamp ?? "",
+		getFiltersetModifierStateKey(filtersetModifiers)
+	].join("|");
 }
 
 function getRenderedPokemonFeatureStateKey(

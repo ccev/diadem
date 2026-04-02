@@ -44,7 +44,8 @@ export function buildModifierPreviewFeatureCollection({
 
 	// For overlayOnBase composites (raids, max battles), anchor overlays on the base icon.
 	// For quests/invasions/pokemon, anchor overlays on the focus icon.
-	const overlayOffset = hasBase && overlayOnBase ? baseImageOffset : undefined;
+	const overlayOffset =
+		hasBase && overlayOnBase ? baseImageOffset : undefined;
 
 	// Focus icon with overlay features (glow/background) — uses same helper as main map
 	addOverlayIconAndBadge(subFeatures, `${PREVIEW_MAP_ID}-focus`, PREVIEW_MAP_ID, center, {
