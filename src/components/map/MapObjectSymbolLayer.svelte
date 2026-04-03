@@ -50,8 +50,8 @@
 		]
 	}}
 	paint={{
-		"text-color": "#ffffff",
-		"text-halo-color": "#000000",
+		"text-color": "#fafafa",
+		"text-halo-color": "#09090b",
 		"text-halo-width": 1.5
 	}}
 />

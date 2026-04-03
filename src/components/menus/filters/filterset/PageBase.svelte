@@ -19,7 +19,6 @@
 	let filterset = $derived(getCurrentSelectedFilterset());
 	let data = $derived(filterset?.data);
 
-	let previewIconUrl = $derived(data ? getModifierPreviewIcon(data) : undefined);
 	let snapshot = $derived($state.snapshot(data));
 </script>
 
@@ -39,8 +38,6 @@
 		<Separator class="my-3" text={m.modifier_map_preview()} />
 		<div class="w-full">
 			<ModifierPreview
-				modifiers={data.modifiers}
-				iconUrl={previewIconUrl}
 				filterset={data}
 				majorCategory={filterset?.majorCategory as FilterCategory | undefined}
 				subCategory={filterset?.subCategory as FilterCategory | undefined}

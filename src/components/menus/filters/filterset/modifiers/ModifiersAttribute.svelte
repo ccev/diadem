@@ -22,12 +22,10 @@
 
 	let {
 		data,
-		iconUrl = undefined,
 		majorCategory = undefined,
 		subCategory = undefined
 	}: {
 		data: AnyFilterset;
-		iconUrl?: string;
 		majorCategory?: FilterCategory;
 		subCategory?: FilterCategory;
 	} = $props();
@@ -63,8 +61,6 @@
 
 <div class="sticky top-0 pt-1 z-10">
 	<ModifierPreview
-		modifiers={data.modifiers}
-		{iconUrl}
 		filterset={data}
 		{majorCategory}
 		{subCategory}

@@ -30,8 +30,6 @@
 	let data = $state.snapshot(selectedFilterset?.data);
 	let majorCategory = selectedFilterset?.majorCategory as FilterCategory | undefined;
 	let subCategory = selectedFilterset?.subCategory as FilterCategory | undefined;
-
-	let previewIconUrl = $derived(data ? getModifierPreviewIcon(data) : undefined);
 </script>
 
 {#snippet editDetailsPage(thisData: AnyFilterset)}
@@ -39,7 +37,7 @@
 {/snippet}
 
 {#snippet editVisualPage(thisData: AnyFilterset)}
-	<ModifiersAttribute data={thisData} iconUrl={previewIconUrl} {majorCategory} {subCategory} />
+	<ModifiersAttribute data={thisData} {majorCategory} {subCategory} />
 {/snippet}
 
 <div
@@ -79,8 +77,6 @@
 		>
 			<ModifierPreview
 				class="h-20! rounded-none! border-none!"
-				modifiers={data.modifiers}
-				iconUrl={previewIconUrl}
 				filterset={data}
 				{majorCategory}
 				{subCategory}

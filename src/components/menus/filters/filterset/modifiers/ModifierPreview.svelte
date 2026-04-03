@@ -29,33 +29,24 @@
 	import type { FeatureCollection, Point } from "geojson";
 	import type maplibre from "maplibre-gl";
 	import { GeoJSON, MapLibre } from "svelte-maplibre";
+	import { resolveFiltersetBadgeIconUrl } from "@/lib/map/render/modifierFeatures";
 
 	type PreviewCenter = [number, number];
 
 	let {
-		modifiers = undefined,
-		iconUrl = undefined,
 		filterset = undefined,
 		majorCategory = undefined,
 		subCategory = undefined,
 		class: class_ = ""
 	}: {
-		modifiers?: FiltersetModifiers;
-		iconUrl?: string;
 		filterset?: AnyFilterset;
 		majorCategory?: FilterCategory;
 		subCategory?: FilterCategory;
 		class?: string;
 	} = $props();
 
-	let badgeIconUrl = $derived.by(() => {
-		if (!filterset?.icon) return undefined;
-		if (filterset.icon.uicon) {
-			return getIcon(filterset.icon.uicon.category, filterset.icon.uicon.params);
-		}
-		if (filterset.icon.emoji) return getEmojiImageUrl(filterset.icon.emoji);
-		return undefined;
-	});
+	let modifiers = $derived(filterset?.modifiers)
+	let badgeIconUrl = $derived(resolveFiltersetBadgeIconUrl(filterset.icon))
 
 	const emptyFeatureCollection: FeatureCollection<Point> = {
 		type: "FeatureCollection",
