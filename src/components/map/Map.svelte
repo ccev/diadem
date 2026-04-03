@@ -12,7 +12,6 @@
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, handleRotatePitchDisable, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
-	import { clearSessionImageUrls } from "@/lib/map/featuresManage.svelte";
 	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
 	import {
 		onMapMove,
@@ -143,7 +142,6 @@
 
 	onMount(() => {
 		setMap(undefined);
-		clearSessionImageUrls();
 		updateCurrentPath();
 	});
 

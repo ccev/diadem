@@ -1,5 +1,6 @@
 import type maplibre from "maplibre-gl";
-import { getLoadedImages, setLoadedImage } from "@/lib/map/loadedImages.svelte";
+
+const loadedImages: { [key: string]: HTMLImageElement | ImageBitmap } = {};
 
 const pendingImageLoads = new WeakMap<maplibre.Map, Map<string, Promise<void>>>();
 
@@ -21,19 +22,19 @@ export async function ensureMapImage(map: maplibre.Map, url: string) {
 	if (pending) {
 		await pending;
 		if (!map.hasImage(url)) {
-			const imageData = getLoadedImages()[url];
+			const imageData = loadedImages[url];
 			if (imageData) map.addImage(url, imageData);
 		}
 		return;
 	}
 
 	const loadPromise = (async () => {
-		let imageData = getLoadedImages()[url];
+		let imageData = loadedImages[url];
 		if (!imageData) {
 			try {
 				const image = await map.loadImage(url);
 				imageData = image.data;
-				setLoadedImage(url, imageData);
+				loadedImages[url] = imageData;
 			} catch (e) {
 				// URL may not be directly loadable (e.g. virtual URL)
 			}
