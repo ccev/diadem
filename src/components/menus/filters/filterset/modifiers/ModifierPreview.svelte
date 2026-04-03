@@ -12,18 +12,12 @@
 	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
 	import { ensureMapImages } from "@/lib/map/images";
 	import { getMap } from "@/lib/map/map.svelte";
-	import { getModifiers } from "@/lib/map/modifierLayout";
 	import { getEmojiImageUrl } from "@/lib/map/modifierOverlayIcons";
-	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { buildModifierPreviewFeatureCollection } from "@/lib/map/modifierPreviewFeatures";
 	import { MapObjectFeatureType } from "@/lib/map/render/featureBuilders";
+	import { getLayoutForCategory, type PreviewCategory } from "@/lib/map/render/iconLayout";
 	import { getConfig } from "@/lib/services/config/config";
-	import {
-		getIconPokemon,
-		getIconRaidEgg,
-		getIconStation,
-		getUiconSetDetails
-	} from "@/lib/services/uicons.svelte";
+	import { getIconPokemon, getIconRaidEgg, getIconStation } from "@/lib/services/uicons.svelte";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
@@ -45,8 +39,8 @@
 		class?: string;
 	} = $props();
 
-	let modifiers = $derived(filterset?.modifiers)
-	let badgeIconUrl = $derived(resolveFiltersetBadgeIconUrl(filterset.icon))
+	let modifiers = $derived(filterset?.modifiers);
+	let badgeIconUrl = $derived(resolveFiltersetBadgeIconUrl(filterset.icon));
 
 	const emptyFeatureCollection: FeatureCollection<Point> = {
 		type: "FeatureCollection",
@@ -72,85 +66,13 @@
 		return undefined;
 	}
 
-	function getPreviewLayout() {
+	function getEffectivePreviewCategory(): PreviewCategory {
 		const effectiveCategory = subCategory ?? majorCategory;
-
-		if (effectiveCategory === "raid") {
-			const gymIconSet = getUiconSetDetails(getUserSettings().uiconSet.gym.id);
-			const baseMod = getModifiers(gymIconSet, MapObjectType.GYM);
-
-			// Always use raid_pokemon layout for the preview (shows boss in front)
-			const pokemonMod = getModifiers(gymIconSet, MapObjectType.POKEMON);
-			const raidMod = getModifiers(gymIconSet, "raid_pokemon");
-
-			return {
-				baseIconUrl: getIcon(IconCategory.GYM, { team_id: 0 }),
-				baseImageSize: baseMod.scale,
-				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
-				focusImageSize: pokemonMod.scale * raidMod.scale,
-				focusImageOffset: [baseMod.offsetX + raidMod.offsetX, baseMod.offsetY + raidMod.offsetY]
-			};
-		}
-
-		if (effectiveCategory === "quest") {
-			const pokestopIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokestop.id);
-			const baseMod = getModifiers(pokestopIconSet, MapObjectType.POKESTOP);
-			const questMod = getModifiers(pokestopIconSet, "quest");
-
-			return {
-				baseIconUrl: getIcon(IconCategory.POKESTOP, {}),
-				baseImageSize: baseMod.scale,
-				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
-				focusImageSize: questMod.scale,
-				focusImageOffset: [baseMod.offsetX + questMod.offsetX, baseMod.offsetY + questMod.offsetY]
-			};
-		}
-
-		if (effectiveCategory === "invasion") {
-			const pokestopIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokestop.id);
-			const baseMod = getModifiers(pokestopIconSet, MapObjectType.POKESTOP);
-			const invasionMod = getModifiers(pokestopIconSet, "invasion");
-
-			return {
-				baseIconUrl: getIcon(IconCategory.POKESTOP, {}),
-				baseImageSize: baseMod.scale,
-				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
-				focusImageSize: invasionMod.scale,
-				focusImageOffset: [
-					baseMod.offsetX + invasionMod.offsetX,
-					baseMod.offsetY + invasionMod.offsetY
-				]
-			};
-		}
-
-		if (effectiveCategory === "maxBattle") {
-			const stationIconSet = getUiconSetDetails(getUserSettings().uiconSet.station.id);
-			const baseMod = getModifiers(stationIconSet, MapObjectType.STATION);
-			const maxBattleMod = getModifiers(stationIconSet, "max_battle");
-
-			return {
-				baseIconUrl: getIconStation(false),
-				baseImageSize: baseMod.scale,
-				baseImageOffset: [baseMod.offsetX, baseMod.offsetY],
-				focusImageSize: maxBattleMod.scale,
-				focusImageOffset: [
-					baseMod.offsetX + maxBattleMod.offsetX,
-					baseMod.offsetY + maxBattleMod.offsetY
-				]
-			};
-		}
-
-		// Default: pokemon (no base icon)
-		const pokemonIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokemon.id);
-		const pokemonMod = getModifiers(pokemonIconSet, MapObjectType.POKEMON);
-
-		return {
-			baseIconUrl: undefined,
-			baseImageSize: undefined,
-			baseImageOffset: undefined,
-			focusImageSize: pokemonMod.scale,
-			focusImageOffset: [pokemonMod.offsetX, pokemonMod.offsetY]
-		};
+		if (effectiveCategory === "raid") return "raid";
+		if (effectiveCategory === "quest") return "quest";
+		if (effectiveCategory === "invasion") return "invasion";
+		if (effectiveCategory === "maxBattle") return "maxBattle";
+		return "pokemon";
 	}
 
 	async function syncPreviewImages() {
@@ -177,9 +99,21 @@
 		return [currentCenter.lng, currentCenter.lat] as PreviewCenter;
 	});
 
-	let layout = $derived(getPreviewLayout());
+	let effectivePreviewCategory = $derived(getEffectivePreviewCategory());
+	let baseLayout = $derived(getLayoutForCategory(effectivePreviewCategory));
+	let layout = $derived({
+		baseIconUrl:
+			effectivePreviewCategory === "raid"
+				? getIcon(IconCategory.GYM, { team_id: 0 })
+				: effectivePreviewCategory === "quest" || effectivePreviewCategory === "invasion"
+					? getIcon(IconCategory.POKESTOP, {})
+					: effectivePreviewCategory === "maxBattle"
+						? getIconStation(false)
+						: undefined,
+		...baseLayout
+	});
 	let focusIconUrl = $derived.by(() => {
-		const effectiveCategory = subCategory ?? majorCategory;
+		const effectiveCategory = effectivePreviewCategory;
 
 		// Quest: show POKEMON, ITEM uicon, or first pokemon from data, or Pikachu
 		if (effectiveCategory === "quest") {
@@ -241,8 +175,8 @@
 	let previewFeatures = $derived.by(() => {
 		if (!focusIconUrl) return emptyFeatureCollection;
 
-		const effectiveCategory = subCategory ?? majorCategory;
-		const overlayOnBase = effectiveCategory === "raid" || effectiveCategory === "maxBattle";
+		const overlayOnBase =
+			effectivePreviewCategory === "raid" || effectivePreviewCategory === "maxBattle";
 
 		return buildModifierPreviewFeatureCollection({
 			center: previewCenter,

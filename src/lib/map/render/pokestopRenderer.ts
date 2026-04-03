@@ -7,7 +7,7 @@ import {
 	shouldDisplayQuest
 } from "@/lib/utils/pokestopUtils";
 import { getIconInvasion, getIconReward } from "@/lib/services/uicons.svelte.js";
-import { getModifiers, withVisualTransform, combineOffsets } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/modifierLayout";
 import {
 	getMatchingQuestFilterset,
 	getMatchingInvasionFilterset
@@ -36,13 +36,16 @@ function renderQuest(
 		isAr,
 		ctx.questFiltersets
 	);
-	const questVisual = withVisualTransform(questModifiers.scale, matchingFilterset?.modifiers);
+	const questLayout = getCompositeLayout(ctx.modifiers, questModifiers, {
+		extraSpacingY
+	});
+	const questVisual = withVisualTransform(questLayout.focusImageSize, matchingFilterset?.modifiers);
 
 	addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
 		imageUrl: getIconReward(reward.type, getRewardIconInfo(reward)),
 		imageSize: questVisual.imageSize,
 		selectedScale: ctx.selectedScale,
-		imageOffset: combineOffsets(ctx.modifiers, questModifiers, extraSpacingY),
+		imageOffset: questLayout.focusImageOffset,
 		imageRotation: questVisual.imageRotation,
 		textLabel: getTextLabel(matchingFilterset?.modifiers),
 		expires: expiry,
@@ -142,21 +145,19 @@ export function renderPokestop(obj: PokestopData, ctx: RenderContext): RenderRes
 			incident,
 			ctx.invasionFiltersets
 		);
+		const invasionLayout = getCompositeLayout(ctx.modifiers, invasionModifiers, {
+			extraSpacingY: index * invasionModifiers.spacing
+		});
 		const invasionVisual = withVisualTransform(
-			invasionModifiers.scale,
+			invasionLayout.focusImageSize,
 			matchingInvasionFilterset?.modifiers
-		);
-		const invasionImageOffset = combineOffsets(
-			ctx.modifiers,
-			invasionModifiers,
-			index * invasionModifiers.spacing
 		);
 
 		addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
 			imageUrl: getIconInvasion(incident.character, incident.confirmed),
 			imageSize: invasionVisual.imageSize,
 			selectedScale: ctx.selectedScale,
-			imageOffset: invasionImageOffset,
+			imageOffset: invasionLayout.focusImageOffset,
 			imageRotation: invasionVisual.imageRotation,
 			textLabel: getTextLabel(matchingInvasionFilterset?.modifiers),
 			expires: incident.expiration,

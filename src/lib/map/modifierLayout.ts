@@ -46,3 +46,33 @@ export function combineOffsets(
 ): number[] {
 	return [base.offsetX + sub.offsetX, base.offsetY + sub.offsetY + extraY];
 }
+
+export function getFocusLayout(
+	base: { offsetX: number; offsetY: number },
+	focus: { scale: number; offsetX: number; offsetY: number },
+	{
+		focusImageSize = focus.scale,
+		extraSpacingY = 0
+	}: {
+		focusImageSize?: number;
+		extraSpacingY?: number;
+	} = {}
+) {
+	return {
+		focusImageSize,
+		focusImageOffset: combineOffsets(base, focus, extraSpacingY)
+	};
+}
+
+export function getCompositeLayout(
+	base: { scale: number; offsetX: number; offsetY: number },
+	focus: { scale: number; offsetX: number; offsetY: number },
+	options?: { focusImageSize?: number; extraSpacingY?: number }
+) {
+	const focusLayout = getFocusLayout(base, focus, options);
+	return {
+		baseImageSize: base.scale,
+		baseImageOffset: [base.offsetX, base.offsetY] as number[],
+		...focusLayout
+	};
+}

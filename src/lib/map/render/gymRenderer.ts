@@ -3,7 +3,7 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getIconGym, getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte.js";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
-import { getModifiers, withVisualTransform, combineOffsets } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/modifierLayout";
 import { getMatchingRaidFilterset } from "@/lib/features/filters/matchFilterset";
 import { type MapObjectFeature } from "./featureBuilders";
 import { addOverlayIconAndBadge, getTextLabel } from "./modifierFeatures";
@@ -37,6 +37,9 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 		const baseScale = isHatched
 			? getModifiers(ctx.userIconSet, MapObjectType.POKEMON).scale * raidModifiers.scale
 			: raidModifiers.scale;
+		const raidLayout = getCompositeLayout(ctx.modifiers, raidModifiers, {
+			focusImageSize: baseScale
+		});
 		const raidVisual = withVisualTransform(baseScale, matchingRaidFilterset?.modifiers);
 
 		addOverlayIconAndBadge(subFeatures, mapId, obj.mapId, [obj.lon, obj.lat], {
@@ -45,7 +48,7 @@ export function renderGym(obj: GymData, ctx: RenderContext): RenderResult {
 				: getIconRaidEgg(obj.raid_level ?? 0),
 			imageSize: raidVisual.imageSize,
 			selectedScale: ctx.selectedScale,
-			imageOffset: combineOffsets(ctx.modifiers, raidModifiers),
+			imageOffset: raidLayout.focusImageOffset,
 			imageRotation: raidVisual.imageRotation,
 			textLabel: getTextLabel(matchingRaidFilterset?.modifiers),
 			expires: (isHatched ? obj.raid_end_timestamp : obj.raid_battle_timestamp) ?? null,
