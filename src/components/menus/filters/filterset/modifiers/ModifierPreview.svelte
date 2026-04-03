@@ -11,10 +11,20 @@
 	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
 	import { ensureMapImages } from "@/lib/map/images";
 	import { getMap } from "@/lib/map/map.svelte";
-	import { getModifiers } from "@/lib/map/modifierLayout";
+	import { getModifiers, withVisualTransform } from "@/lib/map/modifierLayout";
+	import { BADGE_SCALE_RATIO, getBadgeOffset } from "@/lib/map/modifierOverlayIcons";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import { buildModifierPreviewFeatureCollection } from "@/lib/map/modifierPreviewFeatures";
-	import { MapObjectFeatureType } from "@/lib/map/render/featureBuilders";
+	import {
+		type MapObjectFeature,
+		type MapObjectIconFeature,
+		MapObjectFeatureType,
+		getIconFeature
+	} from "@/lib/map/render/featureBuilders";
+	import {
+		addOverlayIconAndBadge,
+		getTextLabel,
+		resolveFiltersetBadgeIconUrl
+	} from "@/lib/map/render/modifierFeatures";
 	import { getConfig } from "@/lib/services/config/config";
 	import {
 		getIconPokemon,
@@ -27,7 +37,6 @@
 	import type { FeatureCollection, Point } from "geojson";
 	import type maplibre from "maplibre-gl";
 	import { GeoJSON, MapLibre } from "svelte-maplibre";
-	import { resolveFiltersetBadgeIconUrl } from "@/lib/map/render/modifierFeatures";
 	import { watch } from "runed";
 
 	let {
@@ -42,10 +51,7 @@
 		class?: string;
 	} = $props();
 
-	const emptyFeatureCollection: FeatureCollection<Point> = {
-		type: "FeatureCollection",
-		features: []
-	};
+	const PREVIEW_MAP_ID = "preview";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -80,6 +86,8 @@
 	}
 
 	let previewData = $derived.by(() => {
+		// big function to render the current preview on the actual map
+		// this is a dumbed down version of the entire rendering pipeline, essentially
 		const badgeIconUrl = resolveFiltersetBadgeIconUrl(filterset?.icon);
 		const pokemonIcon = getPokemonIconFromFilterset();
 
@@ -91,6 +99,7 @@
 		let focusIconUrl: string | undefined;
 		let overlayOnBase = false;
 
+		// build up the correct icons
 		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {
 			const gymIconSet = getUiconSetDetails(getUserSettings().uiconSet.gym.id);
 			const gymMod = getModifiers(gymIconSet, MapObjectType.GYM);
@@ -187,10 +196,14 @@
 		if (!focusIconUrl) {
 			return {
 				center: previewCenter,
-				features: emptyFeatureCollection
+				features: {
+					type: "FeatureCollection",
+					features: []
+				}
 			};
 		}
 
+		// shift the map center so it's central on the icon (in case it's offset)
 		let center = previewCenter;
 		if (map && baseImageOffset && (baseImageOffset[0] !== 0 || baseImageOffset[1] !== 0)) {
 			try {
@@ -204,20 +217,62 @@
 			}
 		}
 
+		// build the geojson
+		const features: MapObjectFeature[] = [];
+		const hasBase = baseIconUrl && baseImageSize !== undefined && baseImageOffset;
+		const focusVisual = withVisualTransform(focusImageSize, filterset?.modifiers);
+		const overlayOffset = hasBase && overlayOnBase ? baseImageOffset : undefined;
+
+		if (filterset?.modifiers?.showBadge && badgeIconUrl) {
+			const badgeAnchorOffset = overlayOffset ?? focusImageOffset;
+			features.push(
+				getIconFeature(`${PREVIEW_MAP_ID}-badge`, previewCenter, {
+					id: PREVIEW_MAP_ID,
+					imageUrl: badgeIconUrl,
+					imageSize: focusVisual.imageSize * BADGE_SCALE_RATIO,
+					selectedScale: 1,
+					imageOffset: getBadgeOffset(badgeAnchorOffset[0], badgeAnchorOffset[1]),
+					isAttachedBadge: true,
+					expires: null
+				})
+			);
+		}
+
+		addOverlayIconAndBadge(features, `${PREVIEW_MAP_ID}-focus`, PREVIEW_MAP_ID, previewCenter, {
+			imageUrl: focusIconUrl,
+			imageSize: focusVisual.imageSize,
+			selectedScale: 1,
+			imageOffset: focusImageOffset,
+			imageRotation: focusVisual.imageRotation,
+			textLabel: getTextLabel(filterset?.modifiers),
+			expires: null,
+			filtersetModifiers: filterset?.modifiers,
+			filtersetIcon: undefined,
+			overlayImageOffset: overlayOffset
+		});
+
+		if (hasBase) {
+			const baseFeatureIconUrl = baseIconUrl!;
+			const baseFeatureImageSize = baseImageSize!;
+			const baseFeatureImageOffset = baseImageOffset!;
+			features.push(
+				getIconFeature(`${PREVIEW_MAP_ID}-base`, previewCenter, {
+					id: PREVIEW_MAP_ID,
+					imageUrl: baseFeatureIconUrl,
+					imageSize: baseFeatureImageSize,
+					selectedScale: 1,
+					imageOffset: baseFeatureImageOffset,
+					expires: null
+				})
+			);
+		}
+
 		return {
 			center,
-			features: buildModifierPreviewFeatureCollection({
-				center: previewCenter,
-				focusIconUrl,
-				focusBaseImageSize: focusImageSize,
-				focusImageOffset,
-				modifiers: filterset?.modifiers,
-				badgeIconUrl,
-				baseIconUrl,
-				baseImageSize,
-				baseImageOffset,
-				overlayOnBase
-			})
+			features: {
+				type: "FeatureCollection" as const,
+				features: features as MapObjectIconFeature[]
+			}
 		};
 	});
 
