@@ -35,9 +35,10 @@
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
-	import type maplibre from "maplibre-gl";
+	import maplibre, { GeoJSONSource } from "maplibre-gl";
 	import { GeoJSON, MapLibre } from "svelte-maplibre";
 	import { watch } from "runed";
+	import { center } from "@turf/turf";
 
 	let {
 		filterset = undefined,
@@ -53,9 +54,7 @@
 
 	const PREVIEW_MAP_ID = "preview";
 
-	let map: maplibre.Map | undefined = $state(undefined);
-
-	let previewCenter: [number, number] = $derived.by(() => {
+	function getPreviewCenter(): [number, number] {
 		const mainMap = getMap();
 		if (mainMap) {
 			const center = mainMap.getCenter();
@@ -66,7 +65,7 @@
 		if (center) return [center.lng, center.lat];
 
 		return [getConfig().general.defaultLon ?? 0, getConfig().general.defaultLat ?? 0];
-	});
+	}
 
 	/** Try to resolve a pokemon icon from the filterset's uicon or its data. */
 	function getPokemonIconFromFilterset(): string | undefined {
@@ -85,11 +84,12 @@
 		return undefined;
 	}
 
-	let previewData = $derived.by(() => {
+	const makePreviewData = (map: maplibre.Map) => {
 		// big function to render the current preview on the actual map
 		// this is a dumbed down version of the entire rendering pipeline, essentially
 		const badgeIconUrl = resolveFiltersetBadgeIconUrl(filterset?.icon);
 		const pokemonIcon = getPokemonIconFromFilterset();
+		const previewCenter = getPreviewCenter();
 
 		let baseIconUrl: string | undefined;
 		let baseImageSize: number | undefined;
@@ -193,15 +193,7 @@
 			focusIconUrl = pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });
 		}
 
-		if (!focusIconUrl) {
-			return {
-				center: previewCenter,
-				features: {
-					type: "FeatureCollection",
-					features: []
-				}
-			};
-		}
+		if (!focusIconUrl) return
 
 		// shift the map center so it's central on the icon (in case it's offset)
 		let center = previewCenter;
@@ -274,27 +266,13 @@
 				features: features as MapObjectIconFeature[]
 			}
 		};
-	});
-
-	watch(
-		() => [previewData.features, map],
-		() => {
-			if (!map || !previewData?.features?.features.length) return;
-			ensureMapImages(
-				map,
-				previewData.features.features.map(
-					(feature) => (feature.properties as { imageUrl: string }).imageUrl
-				)
-			).then();
-		}
-	);
+	};
 </script>
 
 <div class="rounded-md border border-border overflow-hidden w-full h-40 {class_}">
 	{#key getUserSettings().mapStyle.id}
 		<MapLibre
-			bind:map
-			center={previewData.center}
+			center={[0, 0]}
 			zoom={16}
 			style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 			filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}
@@ -302,8 +280,24 @@
 			attributionControl={false}
 			interactive={false}
 			zoomOnDoubleClick={false}
+			onload={async (map) => {
+				const previewData = makePreviewData(map)
+				if (!previewData) return
+
+				map.setCenter(previewData.center)
+
+				const source = map.getSource<GeoJSONSource>("modifierPreview")
+				source?.setData(previewData.features)
+
+				await ensureMapImages(
+					map,
+					previewData.features.features.map(
+						(feature) => feature.properties.imageUrl
+					)
+				)
+			}}
 		>
-			<GeoJSON id="modifierPreview" data={previewData.features}>
+			<GeoJSON id="modifierPreview" data={{ type: "FeatureCollection", features: [] }} >
 				<MapObjectSymbolLayer
 					id="modifierPreviewIcons"
 					filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}

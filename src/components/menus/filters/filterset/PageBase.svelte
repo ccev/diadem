@@ -16,10 +16,8 @@
 		base: Snippet;
 	} = $props();
 
-	let filterset = $derived(getCurrentSelectedFilterset());
-	let data = $derived(filterset?.data);
-
-	let snapshot = $derived($state.snapshot(data));
+	let filterset = getCurrentSelectedFilterset();
+	let snapshot = $state.snapshot(filterset);
 </script>
 
 <div
@@ -28,19 +26,21 @@
 	out:fly={getFiltersetPageTransition().out}
 >
 	<div class="flex gap-4 items-center px-2 mt-4">
-		<FiltersetIcon filterset={snapshot} size={8} />
-		<span class="text-lg font-semibold">
-			{filterTitle(snapshot)}
-		</span>
+		{#if snapshot?.data}
+			<FiltersetIcon filterset={snapshot.data} size={8} />
+			<span class="text-lg font-semibold">
+				{filterTitle(snapshot.data)}
+			</span>
+		{/if}
 	</div>
 
-	{#if data.modifiers}
+	{#if filterset?.data.modifiers}
 		<Separator class="my-3" text={m.modifier_map_preview()} />
 		<div class="w-full">
 			<ModifierPreview
-				filterset={data}
-				majorCategory={filterset?.majorCategory as FilterCategory | undefined}
-				subCategory={filterset?.subCategory as FilterCategory | undefined}
+				filterset={filterset.data}
+				majorCategory={filterset?.majorCategory}
+				subCategory={filterset?.subCategory}
 			/>
 		</div>
 	{/if}
