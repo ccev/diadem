@@ -30,8 +30,6 @@
 	import { resolveFiltersetBadgeIconUrl } from "@/lib/map/render/modifierFeatures";
 	import { watch } from "runed";
 
-	type PreviewCenter = [number, number];
-
 	let {
 		filterset = undefined,
 		majorCategory = undefined,
@@ -51,17 +49,17 @@
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
-	let previewCenter = $derived.by(() => {
+	let previewCenter: [number, number] = $derived.by(() => {
 		const mainMap = getMap();
 		if (mainMap) {
 			const center = mainMap.getCenter();
-			return [center.lng, center.lat] as PreviewCenter;
+			return [center.lng, center.lat];
 		}
 
 		const center = getUserSettings().mapPosition.center;
-		if (center) return [center.lng, center.lat] as PreviewCenter;
+		if (center) return [center.lng, center.lat];
 
-		return [getConfig().general.defaultLon, getConfig().general.defaultLat] as PreviewCenter;
+		return [getConfig().general.defaultLon ?? 0, getConfig().general.defaultLat ?? 0];
 	});
 
 	/** Try to resolve a pokemon icon from the filterset's uicon or its data. */
@@ -81,7 +79,7 @@
 		return undefined;
 	}
 
-	let previewFeatures = $derived.by(() => {
+	let previewData = $derived.by(() => {
 		const badgeIconUrl = resolveFiltersetBadgeIconUrl(filterset?.icon);
 		const pokemonIcon = getPokemonIconFromFilterset();
 
@@ -186,29 +184,50 @@
 			focusIconUrl = pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });
 		}
 
-		if (!focusIconUrl) return emptyFeatureCollection;
+		if (!focusIconUrl) {
+			return {
+				center: previewCenter,
+				features: emptyFeatureCollection
+			};
+		}
 
-		return buildModifierPreviewFeatureCollection({
-			center: previewCenter,
-			focusIconUrl,
-			focusBaseImageSize: focusImageSize,
-			focusImageOffset,
-			modifiers: filterset?.modifiers,
-			badgeIconUrl,
-			baseIconUrl,
-			baseImageSize,
-			baseImageOffset,
-			overlayOnBase
-		});
+		let center = previewCenter;
+		if (map && baseImageOffset && (baseImageOffset[0] !== 0 || baseImageOffset[1] !== 0)) {
+			try {
+				const projected = map.project({ lng: previewCenter[0], lat: previewCenter[1] });
+				projected.x += baseImageOffset[0] / 2;
+				projected.y += baseImageOffset[1] / 2;
+				const shifted = map.unproject(projected);
+				center = [shifted.lng, shifted.lat];
+			} catch {
+				center = previewCenter;
+			}
+		}
+
+		return {
+			center,
+			features: buildModifierPreviewFeatureCollection({
+				center: previewCenter,
+				focusIconUrl,
+				focusBaseImageSize: focusImageSize,
+				focusImageOffset,
+				modifiers: filterset?.modifiers,
+				badgeIconUrl,
+				baseIconUrl,
+				baseImageSize,
+				baseImageOffset,
+				overlayOnBase
+			})
+		};
 	});
 
 	watch(
-		() => [previewFeatures, map],
+		() => [previewData.features, map],
 		() => {
-			if (!map || !previewFeatures || !previewFeatures.features.length) return;
+			if (!map || !previewData?.features?.features.length) return;
 			ensureMapImages(
 				map,
-				previewFeatures.features.map(
+				previewData.features.features.map(
 					(feature) => (feature.properties as { imageUrl: string }).imageUrl
 				)
 			).then();
@@ -220,7 +239,7 @@
 	{#key getUserSettings().mapStyle.id}
 		<MapLibre
 			bind:map
-			center={previewCenter}
+			center={previewData.center}
 			zoom={16}
 			style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 			filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}
@@ -229,7 +248,7 @@
 			interactive={false}
 			zoomOnDoubleClick={false}
 		>
-			<GeoJSON id="modifierPreview" data={previewFeatures}>
+			<GeoJSON id="modifierPreview" data={previewData.features}>
 				<MapObjectSymbolLayer
 					id="modifierPreviewIcons"
 					filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
