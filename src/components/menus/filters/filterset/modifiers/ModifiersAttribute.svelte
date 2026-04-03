@@ -60,11 +60,7 @@
 </script>
 
 <div class="sticky top-0 pt-1 z-10">
-	<ModifierPreview
-		filterset={data}
-		{majorCategory}
-		{subCategory}
-	/>
+	<ModifierPreview filterset={data} {majorCategory} {subCategory} />
 </div>
 
 <div class="divide-y divide-border *:py-6 *:px-1">
@@ -155,7 +151,9 @@
 			<SelectGroupItem class="p-2 w-full" value="glow">
 				{m.modifier_glow()}
 			</SelectGroupItem>
-			<SelectGroupItem class="p-2 w-full" value="background">{m.modifier_background_circle()}</SelectGroupItem>
+			<SelectGroupItem class="p-2 w-full" value="background"
+				>{m.modifier_background_circle()}</SelectGroupItem
+			>
 		</RadioGroup>
 		{#if visualMode !== "none"}
 			<div class="pt-3 space-y-2" transition:slide={{ duration: 70 }}>

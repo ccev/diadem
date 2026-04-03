@@ -17,7 +17,7 @@ Diadem — a Pokémon GO map frontend built with SvelteKit and MapLibre GL. Conn
 - **DB studio:** `pnpm run db:studio`
 
 - **Test:** `pnpm test`
-tests are not yet implemented, ignore this.
+  tests are not yet implemented, ignore this.
 
 Tests must always be passing. Run `pnpm test` after making changes to verify. Node 22+ required. Uses pnpm.
 
@@ -40,6 +40,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 ## Architecture
 
 ### Route Groups
+
 - `(auth)/` — Discord login flow
 - `(main)/` — Main map UI, uses `[[map=map]]` optional param
 - `(share)/` — Shareable filter/area links
@@ -47,6 +48,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 - `assets/` — UICON proxy with sharp optimization
 
 ### Source Organization
+
 - `src/lib/server/` — Server-only: DB, auth, API query logic, config parsing, providers
 - `src/lib/services/` — Client/isomorphic services (search, user settings, uicons, masterfile)
 - `src/lib/features/` — Feature state (filters, search, scout, coverage)
@@ -58,6 +60,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 - `src/params/` — SvelteKit param matchers (`map.ts`, `mapObject.ts`)
 
 ### Key Patterns
+
 - **Providers** (`src/lib/server/provider/`): TTL-based cached data fetchers for masterfile, uicons index, remote locale, master stats
 - **Permissions**: Hierarchical Discord role-based system — `everyone → loggedIn → guildId → roleId`, per-feature and per-area grants
 - **State files** use `.svelte.ts` extension for reactive Svelte 5 state (e.g., `mapObjectsState.svelte.ts`, `userSettings.svelte.ts`)
@@ -65,20 +68,24 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 - **Custom CSS/components**: `config/` directory files symlinked into `src/` by `setup.sh`
 
 ### Data Flow
+
 1. Server hooks (`hooks.server.ts`) chain: paraglide i18n → auth/session/permissions → server init
 2. Layout load fetches config + user settings
 3. Map queries: client POSTs bounds + filters to `/api/[mapObject]` → server queries Golbat DB with permission checks → returns filtered data
 4. Map objects stored in reactive `mapObjectsState`, rendered via MapLibre layers
 
 ### i18n
+
 - Import translations: `import { m } from "@/lib/paraglide/messages"`
 - Use: `m.key_name()`
 - Add strings to `messages/en.json` (base), append to the end of file, do not add translations, only english.
 - Path alias `@` maps to `./src`
 
 ### Database
+
 - **Internal DB** (Drizzle): users + sessions tables in `src/lib/server/db/internal/schema.ts`
 - **External DB** (raw queries): Golbat scanner data via `src/lib/server/db/external/`
 
 # Notes (important)
+
 - Do not touch parts of the project unrelated to your current task

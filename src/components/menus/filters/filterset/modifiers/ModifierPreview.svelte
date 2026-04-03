@@ -193,7 +193,7 @@
 			focusIconUrl = pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });
 		}
 
-		if (!focusIconUrl) return
+		if (!focusIconUrl) return;
 
 		// shift the map center so it's central on the icon (in case it's offset)
 		let center = previewCenter;
@@ -281,23 +281,21 @@
 			interactive={false}
 			zoomOnDoubleClick={false}
 			onload={async (map) => {
-				const previewData = makePreviewData(map)
-				if (!previewData) return
+				const previewData = makePreviewData(map);
+				if (!previewData) return;
 
-				map.setCenter(previewData.center)
+				map.setCenter(previewData.center);
 
-				const source = map.getSource<GeoJSONSource>("modifierPreview")
-				source?.setData(previewData.features)
+				const source = map.getSource<GeoJSONSource>("modifierPreview");
+				source?.setData(previewData.features);
 
 				await ensureMapImages(
 					map,
-					previewData.features.features.map(
-						(feature) => feature.properties.imageUrl
-					)
-				)
+					previewData.features.features.map((feature) => feature.properties.imageUrl)
+				);
 			}}
 		>
-			<GeoJSON id="modifierPreview" data={{ type: "FeatureCollection", features: [] }} >
+			<GeoJSON id="modifierPreview" data={{ type: "FeatureCollection", features: [] }}>
 				<MapObjectSymbolLayer
 					id="modifierPreviewIcons"
 					filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}

@@ -35,7 +35,11 @@
 {/snippet}
 
 {#snippet editVisualPage(thisData: AnyFilterset)}
-	<ModifiersAttribute data={thisData} majorCategory={filterset?.majorCategory} subCategory={filterset?.subCategory} />
+	<ModifiersAttribute
+		data={thisData}
+		majorCategory={filterset?.majorCategory}
+		subCategory={filterset?.subCategory}
+	/>
 {/snippet}
 
 <div
@@ -53,17 +57,17 @@
 			}}
 		>
 			{#if snapshot?.data}
-			<div
-				class="rounded-full bg-accent size-10 border flex items-center justify-center relative shrink-0 mr-1"
-			>
-				<FiltersetIcon filterset={snapshot.data} size={5} />
-			</div>
-			<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
 				<div
-					class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent group-active:from-accent transition-colors"
-				></div>
-				<b>{filterTitle(snapshot.data)}</b>
-			</div>
+					class="rounded-full bg-accent size-10 border flex items-center justify-center relative shrink-0 mr-1"
+				>
+					<FiltersetIcon filterset={snapshot.data} size={5} />
+				</div>
+				<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
+					<div
+						class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent group-active:from-accent transition-colors"
+					></div>
+					<b>{filterTitle(snapshot.data)}</b>
+				</div>
 			{/if}
 			<Pencil class="ml-auto shrink-0" size="14" />
 		</Button>
@@ -78,7 +82,8 @@
 			<ModifierPreview
 				class="h-20! rounded-none! border-none!"
 				filterset={filterset?.data}
-				majorCategory={filterset?.majorCategory} subCategory={filterset?.subCategory}
+				majorCategory={filterset?.majorCategory}
+				subCategory={filterset?.subCategory}
 			/>
 			<Pencil class="ml-auto shrink-0 absolute right-4 top-1/2 -translate-y-1/2" size="14" />
 		</Button>
