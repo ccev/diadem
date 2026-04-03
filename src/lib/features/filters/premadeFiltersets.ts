@@ -9,6 +9,7 @@ import { IconCategory, IconFeature } from "@/lib/features/filters/icons";
 import { League } from "@/lib/services/uicons.svelte";
 import { getId } from "@/lib/utils/uuid";
 import { RaidLevel } from "@/lib/utils/gymUtils";
+import { MODIFIER_COLORS } from "@/lib/features/filters/modifierPresets";
 
 export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] } = {
 	pokemon: [
@@ -18,7 +19,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			iv: { min: 100, max: 100 },
 			modifiers: {
 				glow: {
-					color: "#ef4444"
+					color: MODIFIER_COLORS.red
 				}
 			}
 		}),
@@ -34,8 +35,9 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			pvpRankGreat: { min: 1, max: 1 },
 			modifiers: {
 				glow: {
-					color: "#3b82f6"
-				}
+					color: MODIFIER_COLORS.blue
+				},
+				showBadge: true,
 			}
 		}),
 		filterset<FiltersetPokemon>({
@@ -50,14 +52,18 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			pvpRankUltra: { min: 1, max: 1 },
 			modifiers: {
 				glow: {
-					color: "#3b82f6"
-				}
+					color: MODIFIER_COLORS.yellow
+				},
+				showBadge: true,
 			}
 		}),
 		filterset<FiltersetPokemon>({
 			emoji: "🗑️",
 			title: "filter_template_nundo",
-			iv: { min: 0, max: 0 }
+			iv: { min: 0, max: 0 },
+			modifiers: {
+				rotation: 180
+			}
 		}),
 		filterset<FiltersetPokemon>({
 			emoji: "📏",
@@ -82,9 +88,9 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			},
 			title: "filter_template_legendary_birds",
 			pokemon: [
-				{ pokemon_id: 144, form: 716 },
-				{ pokemon_id: 145, form: 773 },
-				{ pokemon_id: 146, form: 836 }
+				{ pokemon_id: 144, form: 0 },
+				{ pokemon_id: 145, form: 0 },
+				{ pokemon_id: 146, form: 0 }
 			]
 		}),
 		filterset<FiltersetPokemon>({
