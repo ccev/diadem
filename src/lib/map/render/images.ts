@@ -7,7 +7,6 @@ const pendingImageLoads = new WeakMap<maplibre.Map, Map<string, Promise<void>>>(
 
 export async function ensureMapImage(map: maplibre.Map, props: MapObjectIconProperties) {
 	if (!props.imageId || !props.imageUrl || map.hasImage(props.imageId)) return;
-	console.log(props.imageId, props.imageUrl);
 
 	let pendingForMap = pendingImageLoads.get(map);
 	if (!pendingForMap) {
@@ -30,7 +29,6 @@ export async function ensureMapImage(map: maplibre.Map, props: MapObjectIconProp
 		if (!imageData) {
 			try {
 				const image = await map.loadImage(props.imageUrl);
-				console.log(image)
 				imageData = image.data;
 				loadedImages[props.imageId] = imageData;
 			} catch (e) {

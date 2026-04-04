@@ -54,6 +54,7 @@ import { type BadgeProperties, getBadgeFeature } from "@/lib/map/render/modifier
 import type { AnyFilterset, FiltersetQuest } from "@/lib/features/filters/filtersets";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
+import { getUnderlayFeature } from "@/lib/map/render/modifierUnderlay";
 
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;
@@ -122,7 +123,7 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		data: MapObject,
 		id: string,
 		filterset: AnyFilterset,
-		props: MapObjectIconProperties
+		props: MinMapObjectIconProperties
 	) {
 		const badgeFeature = getBadgeFeature(
 			filterset.modifiers,
@@ -134,6 +135,23 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		return getIconFeature(id + "-badge", [data.lon, data.lat], {
 			...props,
 			...badgeFeature
+		});
+	}
+
+	private renderUnderlay(
+		data: MapObject,
+		id: string,
+		filterset: AnyFilterset,
+		props: MinMapObjectIconProperties
+	) {
+		const underlayFeature = getUnderlayFeature(
+			props.imageSize,
+			filterset.modifiers
+		);
+
+		return getIconFeature(id + "-underlay", [data.lon, data.lat], {
+			...props,
+			...underlayFeature
 		});
 	}
 
@@ -150,6 +168,10 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		}
 
 		feats.push(this.getFeature(data, props, { id }));
+
+		if (filterset) {
+			feats.push(this.renderUnderlay(data, id, filterset, props))
+		}
 
 		return feats;
 	}

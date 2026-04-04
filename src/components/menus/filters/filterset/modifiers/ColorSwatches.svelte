@@ -11,8 +11,8 @@
 </script>
 
 <div class="flex w-full justify-between gap-1 px-1 max-w-sm mt-1 mb-3">
-	{#each Object.values(MODIFIER_COLORS) as color}
-		<!-- <div class="bg-green-400 w-full aspect-square"></div> -->
+	{#each Object.values(MODIFIER_COLORS) as rawColor}
+		{@const color = rawColor.replace("{}", "1")}
 		<button
 			type="button"
 			class="aspect-square w-full max-w-8 rounded-full border-2 cursor-pointer transition-shadow"

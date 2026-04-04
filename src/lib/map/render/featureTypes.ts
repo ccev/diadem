@@ -16,6 +16,7 @@ export type MapObjectIconProperties = {
 	selectedScale: number;
 	imageOffset?: [number, number];
 	isModifierBadge?: boolean;
+	isModifierUnderlay?: boolean;
 	expires: number | null;
 };
 export type MinMapObjectIconProperties = Omit<MapObjectIconProperties, "type" | "imageId"> & {
