@@ -17,7 +17,7 @@ import { addMapStyleVersion, getMap, getMapStyleVersion } from "@/lib/map/map.sv
 import { setAnimateLocationMarker } from "@/lib/map/geolocate.svelte";
 import type { MapMoveEvent } from "svelte-maplibre";
 import { setSkew } from "@/lib/map/mapSkew.svelte";
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { updateFeatures } from "@/lib/map/render/featuresGen.svelte.js";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { resetSearchedLocation } from "@/lib/services/search.svelte";
 

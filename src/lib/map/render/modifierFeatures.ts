@@ -12,7 +12,7 @@ import {
 	getEmojiImageUrl,
 	BADGE_SCALE_RATIO,
 	getBadgeOffset
-} from "@/lib/map/modifierOverlayIcons";
+} from "@/lib/map/render/modifierOverlayIcons";
 import { type MapObjectFeature, getIconFeature } from "./featureBuilders";
 
 /**

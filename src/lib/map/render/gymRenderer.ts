@@ -3,7 +3,7 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getIconGym, getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte.js";
 import { getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
-import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/render/modifierLayout";
 import { getMatchingRaidFilterset } from "@/lib/features/filters/matchFilterset";
 import { type MapObjectFeature } from "./featureBuilders";
 import { addOverlayIconAndBadge, getTextLabel } from "./modifierFeatures";

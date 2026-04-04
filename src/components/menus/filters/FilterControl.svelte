@@ -22,7 +22,7 @@
 	import { getMapObjectCounts } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { formatNumberCompact } from "@/lib/utils/numberFormat";
 	import { tick } from "svelte";
-	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+	import { deleteAllFeaturesOfType } from "@/lib/map/render/featuresGen.svelte.js";
 	import { mAny } from "@/lib/utils/anyMessage";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import S2CellFilters from "@/components/menus/filters/S2CellFilters.svelte";

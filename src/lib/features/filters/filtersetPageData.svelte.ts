@@ -10,7 +10,7 @@ import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { FiltersetPokemonSchema } from "@/lib/features/filters/filtersetSchemas";
 import { getId } from "@/lib/utils/uuid";
 import * as m from "@/lib/paraglide/messages";
-import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+import { deleteAllFeaturesOfType } from "@/lib/map/render/featuresGen.svelte.js";
 import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 

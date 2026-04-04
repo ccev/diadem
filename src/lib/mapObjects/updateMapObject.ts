@@ -7,7 +7,7 @@ import {
 import { type Bounds, getBounds } from "@/lib/mapObjects/mapBounds";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { updateFeatures } from "@/lib/map/render/featuresGen.svelte.js";
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";

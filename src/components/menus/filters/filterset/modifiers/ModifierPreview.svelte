@@ -9,10 +9,10 @@
 	} from "@/lib/features/filters/filtersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
-	import { ensureMapImages } from "@/lib/map/images";
+	import { ensureMapImages } from "@/lib/map/render/images";
 	import { getMap } from "@/lib/map/map.svelte";
-	import { getModifiers, withVisualTransform } from "@/lib/map/modifierLayout";
-	import { BADGE_SCALE_RATIO, getBadgeOffset } from "@/lib/map/modifierOverlayIcons";
+	import { getModifiers, withVisualTransform } from "@/lib/map/render/modifierLayout";
+	import { BADGE_SCALE_RATIO, getBadgeOffset } from "@/lib/map/render/modifierOverlayIcons";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import {
 		type MapObjectFeature,

@@ -8,7 +8,7 @@ import type {
 	FiltersetQuest,
 	FiltersetRaid
 } from "@/lib/features/filters/filtersets";
-import type { getModifiers } from "@/lib/map/modifierLayout";
+import type { getModifiers } from "@/lib/map/render/modifierLayout";
 import type { MapObjectFeature } from "./featureBuilders";
 
 export type RenderContext = {

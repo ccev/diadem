@@ -18,7 +18,7 @@
 		type UserSettings
 	} from "@/lib/services/userSettings.svelte";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+	import { deleteAllFeaturesOfType } from "@/lib/map/render/featuresGen.svelte.js";
 	import type { ModalType } from "@/lib/ui/modal.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
