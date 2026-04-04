@@ -1,5 +1,5 @@
-import { updateSelected } from "@/lib/map/featuresGen.svelte";
-import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
+import { updateSelected } from "@/lib/map/render/featuresGen.svelte.js";
+import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson.js";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 
 let currentSelectedData: { data: MapData | null; isOverwrite: boolean } = $state({

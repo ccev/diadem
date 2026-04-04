@@ -9,7 +9,7 @@ import {
 	deleteAllFeatures,
 	deleteAllFeaturesOfType,
 	updateFeatures
-} from "@/lib/map/featuresGen.svelte";
+} from "@/lib/map/render/featuresGen.svelte.js";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";

@@ -21,7 +21,7 @@ import type {
 } from "@/lib/features/filters/filtersets";
 import * as m from "@/lib/paraglide/messages";
 import { clearAllMapObjects, clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+import { deleteAllFeatures, deleteAllFeaturesOfType } from "@/lib/map/render/featuresGen.svelte.js";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 import { defaultFilter } from "@/lib/services/userSettings.svelte";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";

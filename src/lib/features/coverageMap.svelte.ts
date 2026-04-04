@@ -1,5 +1,5 @@
 import { closeMenu, Menu, openMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
-import { deleteAllFeatures, updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { deleteAllFeatures, updateFeatures } from "@/lib/map/render/featuresGen.svelte.js";
 import { clearAllMapObjects, getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import type { MapObjectIconProperties } from "@/lib/map/render/featureBuilders";
 import { featureCollection } from "@turf/turf";

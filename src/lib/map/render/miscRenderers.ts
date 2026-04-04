@@ -6,7 +6,7 @@ import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import { SPAWNPOINT_OUTDATED_SECONDS } from "@/lib/constants";
 import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtils";
-import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/render/modifierLayout";
 import { getMatchingMaxBattleFilterset } from "@/lib/features/filters/matchFilterset";
 import { geojson, s2 } from "s2js";
 import { getCircleFeature, getPolygonFeature, type MapObjectFeature } from "./featureBuilders";

@@ -7,7 +7,7 @@ import {
 	shouldDisplayQuest
 } from "@/lib/utils/pokestopUtils";
 import { getIconInvasion, getIconReward } from "@/lib/services/uicons.svelte.js";
-import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/modifierLayout";
+import { getModifiers, withVisualTransform, getCompositeLayout } from "@/lib/map/render/modifierLayout";
 import {
 	getMatchingQuestFilterset,
 	getMatchingInvasionFilterset

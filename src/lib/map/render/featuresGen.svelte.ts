@@ -5,8 +5,8 @@ import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
 } from "@/lib/mapObjects/currentSelectedState.svelte.js";
-import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
-import { getModifiers, withVisualTransform } from "@/lib/map/modifierLayout";
+import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson.js";
+import { getModifiers, withVisualTransform } from "@/lib/map/render/modifierLayout";
 import { getCurrentUiconSetDetailsAllTypes, getIconForMap } from "@/lib/services/uicons.svelte.js";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActivePokestopFilter, hasFortActiveLure } from "@/lib/utils/pokestopUtils";
@@ -29,19 +29,19 @@ import {
 	isFeatureIcon,
 	isFeatureCircle,
 	isFeaturePolygon
-} from "./render/featureBuilders";
-import { addOverlayIconAndBadge, getTextLabel } from "./render/modifierFeatures";
-import type { RenderContext, RenderResult } from "./render/renderTypes";
-import { renderPokestop } from "./render/pokestopRenderer";
-import { renderGym } from "./render/gymRenderer";
-import { renderPokemon, shouldRegeneratePokemonFeatures } from "./render/pokemonRenderer";
-import { renderNest } from "./render/nestRenderer";
+} from "./featureBuilders";
+import { addOverlayIconAndBadge, getTextLabel } from "./modifierFeatures";
+import type { RenderContext, RenderResult } from "./renderTypes";
+import { renderPokestop } from "./pokestopRenderer";
+import { renderGym } from "./gymRenderer";
+import { renderPokemon, shouldRegeneratePokemonFeatures } from "./pokemonRenderer";
+import { renderNest } from "./nestRenderer";
 import {
 	renderStation,
 	renderSpawnpoint,
 	renderTappable,
 	renderS2Cell
-} from "./render/miscRenderers";
+} from "./miscRenderers";
 
 type Features = {
 	[key in MapObjectType]: {

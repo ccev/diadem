@@ -1,7 +1,7 @@
 import type { FeatureCollection } from "geojson";
 import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureBuilders";
-import { getMap } from "@/lib/map/map.svelte";
-import { ensureMapImage, ensureMapImages } from "@/lib/map/images";
+import { getMap } from "@/lib/map/map.svelte.js";
+import { ensureMapImage, ensureMapImages } from "@/lib/map/render/images";
 import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 
 let mapObjectsGeoJson: FeatureCollection = {
