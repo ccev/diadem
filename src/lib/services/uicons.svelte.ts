@@ -7,11 +7,12 @@ import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { RewardType, shouldDisplayIncidient, shouldDisplayLure } from "@/lib/utils/pokestopUtils";
+import { RewardType } from "@/lib/utils/pokestopUtils";
 import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { isMaxBattleActive } from "@/lib/utils/stationUtils";
+import { shouldDisplayIncidient, shouldDisplayLure } from "@/lib/features/filterLogic/pokestop";
 
 export const DEFAULT_UICONS = "DEFAULT";
 

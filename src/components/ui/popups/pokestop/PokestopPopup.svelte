@@ -29,15 +29,17 @@
 		isIncidentContest,
 		isIncidentInvasion,
 		isIncidentKecleon,
-		KECLEON_ID,
-		shouldDisplayContest,
-		shouldDisplayIncidient,
-		shouldDisplayLure
+		KECLEON_ID
 	} from "@/lib/utils/pokestopUtils";
 	import { isFortOutdated } from "@/lib/utils/gymUtils";
 	import { formatRatio } from "@/lib/utils/numberFormat";
 	import { getRarityLabel } from "@/lib/utils/pokemonUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
+	import {
+		shouldDisplayContest,
+		shouldDisplayIncidient,
+		shouldDisplayLure
+	} from "@/lib/features/filterLogic/pokestop";
 
 	let data: PokestopData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokestopData) ??

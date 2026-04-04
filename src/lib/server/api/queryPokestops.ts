@@ -61,57 +61,58 @@ export async function queryPokestops(
 		spatial.sql +
 		" AND deleted = 0 ";
 
-	const conditions: string[] = [];
+	// TODO: use internal filter methods over building sql
+	// const conditions: string[] = [];
 	const values: any[] = [...spatial.values];
-
-	if (filter && !filter.pokestopPlain.enabled) {
-		if (filter.contest.enabled) {
-			conditions.push(
-				`incident.display_type = ${INCIDENT_DISPLAY_CONTEST} AND incident.expiration > UNIX_TIMESTAMP()`
-			);
-		}
-		if (filter.goldPokestop.enabled) {
-			conditions.push(
-				`incident.display_type = ${INCIDENT_DISPLAY_GOLD} AND incident.expiration > UNIX_TIMESTAMP()`
-			);
-		}
-		if (filter.kecleon.enabled) {
-			conditions.push(
-				`incident.display_type = ${INCIDENT_DISPLAY_KECLEON} AND incident.expiration > UNIX_TIMESTAMP()`
-			);
-		}
-		if (filter.lure.enabled) {
-			for (const filterset of filter.lure.filters) {
-				if (filterset.items !== undefined) {
-					let condition = "lure_expire_timestamp > UNIX_TIMESTAMP() AND lure_id IN ";
-
-					// no sql injection pls
-					const items = filterset.items.filter((i) => i >= 500 && i < 600);
-					condition += "(" + items.join(",") + ")";
-					conditions.push(condition);
-				}
-			}
-			if (filter.lure.filters.length === 0) {
-				conditions.push("lure_id != 0 AND lure_expire_timestamp > UNIX_TIMESTAMP()");
-			}
-		}
-		if (filter.quest.enabled) {
-			const questFilters = filter.quest.filters.filter((f) => f.enabled);
-			if (questFilters.length === 0)
-				conditions.push("alternative_quest_rewards IS NOT NULL OR quest_rewards IS NOT NULL");
-		}
-		if (filter.invasion.enabled) {
-			conditions.push(
-				`incident.display_type IN (${INCIDENT_DISPLAYS_INVASION.join(",")}) AND incident.expiration > UNIX_TIMESTAMP()`
-			);
-		}
-	}
-
-	if (conditions.length > 0) {
-		sqlQuery += "AND (";
-		sqlQuery += conditions.join(" OR ");
-		sqlQuery += ") ";
-	}
+	//
+	// if (filter && !filter.pokestopPlain.enabled) {
+	// 	if (filter.contest.enabled) {
+	// 		conditions.push(
+	// 			`incident.display_type = ${INCIDENT_DISPLAY_CONTEST} AND incident.expiration > UNIX_TIMESTAMP()`
+	// 		);
+	// 	}
+	// 	if (filter.goldPokestop.enabled) {
+	// 		conditions.push(
+	// 			`incident.display_type = ${INCIDENT_DISPLAY_GOLD} AND incident.expiration > UNIX_TIMESTAMP()`
+	// 		);
+	// 	}
+	// 	if (filter.kecleon.enabled) {
+	// 		conditions.push(
+	// 			`incident.display_type = ${INCIDENT_DISPLAY_KECLEON} AND incident.expiration > UNIX_TIMESTAMP()`
+	// 		);
+	// 	}
+	// 	if (filter.lure.enabled) {
+	// 		for (const filterset of filter.lure.filters) {
+	// 			if (filterset.items !== undefined) {
+	// 				let condition = "lure_expire_timestamp > UNIX_TIMESTAMP() AND lure_id IN ";
+	//
+	// 				// no sql injection pls
+	// 				const items = filterset.items.filter((i) => i >= 500 && i < 600);
+	// 				condition += "(" + items.join(",") + ")";
+	// 				conditions.push(condition);
+	// 			}
+	// 		}
+	// 		if (filter.lure.filters.length === 0) {
+	// 			conditions.push("lure_id != 0 AND lure_expire_timestamp > UNIX_TIMESTAMP()");
+	// 		}
+	// 	}
+	// 	if (filter.quest.enabled) {
+	// 		const questFilters = filter.quest.filters.filter((f) => f.enabled);
+	// 		if (questFilters.length === 0)
+	// 			conditions.push("alternative_quest_rewards IS NOT NULL OR quest_rewards IS NOT NULL");
+	// 	}
+	// 	if (filter.invasion.enabled) {
+	// 		conditions.push(
+	// 			`incident.display_type IN (${INCIDENT_DISPLAYS_INVASION.join(",")}) AND incident.expiration > UNIX_TIMESTAMP()`
+	// 		);
+	// 	}
+	// }
+	//
+	// if (conditions.length > 0) {
+	// 	sqlQuery += "AND (";
+	// 	sqlQuery += conditions.join(" OR ");
+	// 	sqlQuery += ") ";
+	// }
 
 	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`;
 

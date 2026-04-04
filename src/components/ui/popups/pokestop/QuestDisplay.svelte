@@ -12,10 +12,10 @@
 	import {
 		getArTag,
 		getRewardText,
-		parseQuestReward,
-		shouldDisplayQuest
+		parseQuestReward
 	} from "@/lib/utils/pokestopUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
+	import { shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 
 	let {
 		expanded,
