@@ -14,7 +14,6 @@ export type AnyFilterset =
 	| FiltersetRaid
 	| FiltersetStationPlain
 	| FiltersetMaxBattle
-	| FiltersetS2Cell;
 
 // remember to update zod schemas when editing filterset types!
 

@@ -15,9 +15,11 @@ import {
 	parseQuestReward
 } from "@/lib/utils/pokestopUtils";
 import {
-	getModifiers
-} from "../featuresGen.svelte";
-import { shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
+	matchInvasionFilterset,
+	matchQuestFilterset,
+	shouldDisplayIncidient,
+	shouldDisplayQuest
+} from "@/lib/features/filterLogic/pokestop";
 import {
 	getCurrentUiconSetDetailsAllTypes,
 	getIconForMap,
@@ -32,46 +34,124 @@ import {
 	SELECTED_MAP_OBJECT_SCALE,
 	SPAWNPOINT_OUTDATED_SECONDS
 } from "@/lib/constants";
-import type { UiconSet } from "@/lib/services/config/configTypes";
+import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
-import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
-import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
+import { matchRaidFilterset, shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+import { matchMaxBattleFilterset, shouldDisplayStation } from "@/lib/features/filterLogic/station";
 import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
 import { geojson, s2 } from "s2js";
 import {
 	getCircleFeature,
 	getIconFeature,
 	getPolygonFeature,
-	type MapObjectFeature
+	type MapObjectFeature,
+	type MapObjectIconProperties,
+	type MinMapObjectIconProperties
 } from "@/lib/map/render/featureTypes";
+import { type BadgeProperties, getBadgeFeature } from "@/lib/map/render/modifierBadge";
+import type { AnyFilterset, FiltersetQuest } from "@/lib/features/filters/filtersets";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
+
+export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
+	let scale: number = 0.25;
+	let offsetY: number = 0;
+	let offsetX: number = 0;
+	let spacing: number = 0;
+
+	if (iconSet) {
+		const modifier = iconSet[type];
+		const baseModifier = iconSet.base;
+		if (modifier && typeof modifier === "object") {
+			scale = modifier?.scale ?? baseModifier?.scale ?? scale;
+			offsetY = modifier?.offsetY ?? baseModifier?.offsetY ?? offsetY;
+			offsetX = modifier?.offsetX ?? baseModifier?.offsetX ?? offsetX;
+			spacing = modifier?.spacing ?? baseModifier?.spacing ?? spacing;
+		}
+	}
+
+	return { scale, offsetY, offsetX, spacing };
+}
 
 abstract class MapObjectRenderer<MapObject extends MapData> {
 	protected iconSet: UiconSet | undefined;
-	protected iconModifiers: ReturnType<typeof getModifiers>;
+	protected iconModifiers: ReturnType<typeof getConfigModifiers>;
 	protected styles: CSSStyleDeclaration;
 
 	constructor(type: MapObjectType) {
 		this.styles = getComputedStyle(document.documentElement);
 		const iconSets = getCurrentUiconSetDetailsAllTypes();
 		this.iconSet = iconSets[type];
-		this.iconModifiers = getModifiers(this.iconSet, type);
+		this.iconModifiers = getConfigModifiers(this.iconSet, type);
 	}
 
-	protected basicIcon(
+	protected getBasicProps(
 		data: MapObject,
 		selectedScale: number,
 		options?: { expires?: number | null; icon?: string }
-	): MapObjectFeature {
-		return getIconFeature(data.mapId, [data.lon, data.lat], {
+	) {
+		return {
 			imageUrl: options?.icon ?? getIconForMap(data),
 			id: data.mapId,
 			imageSize: this.iconModifiers.scale,
 			selectedScale,
 			imageOffset: [this.iconModifiers.offsetX, this.iconModifiers.offsetY],
 			expires: options?.expires ?? null
+		} as MapObjectIconProperties;
+	}
+
+	protected getFeature(
+		data: MapObject,
+		props: MinMapObjectIconProperties,
+		options?: { id?: string }
+	) {
+		return getIconFeature(options?.id ?? props.id, [data.lon, data.lat], props);
+	}
+
+	protected renderBasicIcon(
+		data: MapObject,
+		selectedScale: number,
+		options?: { expires?: number | null; icon?: string }
+	): MapObjectFeature {
+		return this.getFeature(data, this.getBasicProps(data, selectedScale, options));
+	}
+
+	private renderBadge(
+		data: MapObject,
+		id: string,
+		filterset: AnyFilterset,
+		props: MapObjectIconProperties
+	) {
+		const badgeFeature = getBadgeFeature(
+			filterset.modifiers,
+			filterset.icon,
+			props.imageSize,
+			props.imageOffset ?? [0, 0]
+		);
+
+		return getIconFeature(id + "-badge", [data.lon, data.lat], {
+			...props,
+			...badgeFeature
 		});
+	}
+
+	protected renderVisualModifiers(
+		data: MapObject,
+		id: string,
+		filterset: AnyFilterset | undefined,
+		props: MinMapObjectIconProperties
+	) {
+		const feats: MapObjectFeature[] = [];
+
+		if (filterset) {
+			feats.push(this.renderBadge(data, id, filterset, props));
+		}
+
+		feats.push(this.getFeature(data, props, { id }));
+
+		return feats;
 	}
 
 	public render(
@@ -80,7 +160,7 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		isSelectedOverwrite: boolean
 	): MapObjectFeature[] {
 		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
-		return [this.basicIcon(data, selectedScale)];
+		return [this.renderBasicIcon(data, selectedScale)];
 	}
 }
 
@@ -88,12 +168,13 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 	private renderQuest(
 		data: PokestopData,
 		reward: QuestReward,
+		filterset: FiltersetQuest | undefined,
 		mapId: string,
 		expires: number | null,
-		modifiers: ReturnType<typeof getModifiers>,
+		modifiers: ReturnType<typeof getConfigModifiers>,
 		selectedScale: number
-	): MapObjectFeature {
-		return getIconFeature(mapId, [data.lon, data.lat], {
+	): MapObjectFeature[] {
+		return this.renderVisualModifiers(data, mapId, filterset, {
 			imageUrl: getIconReward(reward.type, reward.info),
 			imageSize: modifiers.scale,
 			selectedScale,
@@ -117,7 +198,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 			isSelectedOverwrite;
 
 		if (getActivePokestopFilter().quest.enabled || isSelectedOverwrite) {
-			const questModifiers = getModifiers(this.iconSet, "quest");
+			const questModifiers = getConfigModifiers(this.iconSet, "quest");
 			if (data.alternative_quest_target && data.alternative_quest_rewards) {
 				const reward = parseQuestReward(data.alternative_quest_rewards);
 
@@ -131,12 +212,18 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 						data
 					)
 				) {
-					showThis = true
+					showThis = true;
 					const mapId = data.mapId + "-altquest-" + data.alternative_quest_timestamp;
 					features.push(
-						this.renderQuest(
+						...this.renderQuest(
 							data,
 							reward,
+							matchQuestFilterset(
+								reward,
+								data.alternative_quest_title ?? "",
+								data.alternative_quest_target,
+								false
+							),
 							mapId,
 							data.alternative_quest_expiry ?? null,
 							questModifiers,
@@ -152,12 +239,14 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 					reward &&
 					shouldDisplayQuest(reward, data.quest_title ?? "", data.quest_target, false, data)
 				) {
-					showThis = true
+					showThis = true;
 					const mapId = data.mapId + "-quest-" + data.quest_timestamp;
+
 					features.push(
-						this.renderQuest(
+						...this.renderQuest(
 							data,
 							reward,
+							matchQuestFilterset(reward, data.quest_title ?? "", data.quest_target, true),
 							mapId,
 							data.quest_expiry ?? null,
 							questModifiers,
@@ -189,10 +278,10 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 			}
 
 			const mapId = data.mapId + "-incident-" + incident.id;
-			const invasionModifiers = getModifiers(this.iconSet, "invasion");
+			const invasionModifiers = getConfigModifiers(this.iconSet, "invasion");
 
 			features.push(
-				getIconFeature(mapId, [data.lon, data.lat], {
+				...this.renderVisualModifiers(data, mapId, matchInvasionFilterset(incident), {
 					imageUrl: getIconInvasion(incident.character, incident.confirmed),
 					imageSize: invasionModifiers.scale,
 					selectedScale,
@@ -209,7 +298,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 			index += 1;
 		}
 
-		if (showThis) features.push(this.basicIcon(data, selectedScale));
+		if (showThis) features.push(this.renderBasicIcon(data, selectedScale));
 
 		return features;
 	}
@@ -233,25 +322,27 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 		const timestamp = currentTimestamp();
 
 		if ((data.updated ?? 0) < timestamp - FORT_OUTDATED_SECONDS) {
-			return [this.basicIcon(data, selectedScale, { icon: getIconGym({ team_id: 0 }) })];
+			return [this.renderBasicIcon(data, selectedScale, { icon: getIconGym({ team_id: 0 }) })];
 		}
 
 		const features: MapObjectFeature[] = [];
 
 		if (shouldDisplayRaid(data)) {
+			const filterset = matchRaidFilterset(data);
+
 			if (data.raid_pokemon_id) {
 				const mapId = data.mapId + "-raidpokemon-" + data.raid_spawn_timestamp;
-				let raidModifiers = getModifiers(this.iconSet, "raid_pokemon");
+				let raidModifiers = getConfigModifiers(this.iconSet, "raid_pokemon");
 
 				if (data.availble_slots === 0 && this.iconSet?.raid_egg_6) {
-					raidModifiers = getModifiers(this.iconSet, "raid_pokemon_6");
+					raidModifiers = getConfigModifiers(this.iconSet, "raid_pokemon_6");
 				}
 
 				features.push(
-					getIconFeature(mapId, [data.lon, data.lat], {
+					...this.renderVisualModifiers(data, mapId, filterset, {
 						imageUrl: getIconPokemon(getRaidPokemon(data)),
 						imageSize:
-							getModifiers(this.iconSet, MapObjectType.POKEMON).scale * raidModifiers.scale,
+							getConfigModifiers(this.iconSet, MapObjectType.POKEMON).scale * raidModifiers.scale,
 						selectedScale,
 						imageOffset: [
 							this.iconModifiers.offsetX + raidModifiers.offsetX,
@@ -263,14 +354,27 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 				);
 			} else {
 				const mapId = data.mapId + "-raidegg-" + data.raid_spawn_timestamp;
-				let raidModifiers = getModifiers(this.iconSet, "raid_egg");
+				let raidModifiers = getConfigModifiers(this.iconSet, "raid_egg");
 
 				if (data.availble_slots === 0 && this.iconSet?.raid_egg_6) {
-					raidModifiers = getModifiers(this.iconSet, "raid_egg_6");
+					raidModifiers = getConfigModifiers(this.iconSet, "raid_egg_6");
 				}
 
 				features.push(
-					getIconFeature(mapId, [data.lon, data.lat], {
+					...this.renderVisualModifiers(data, mapId, filterset, {
+						imageUrl: getIconRaidEgg(data.raid_level ?? 0),
+						imageSize: raidModifiers.scale,
+						selectedScale,
+						imageOffset: [
+							this.iconModifiers.offsetX + raidModifiers.offsetX,
+							this.iconModifiers.offsetY + raidModifiers.offsetY
+						],
+						id: data.mapId,
+						expires: data.raid_battle_timestamp ?? null
+					})
+				);
+				features.push(
+					...this.renderVisualModifiers(data, mapId, filterset, {
 						imageUrl: getIconRaidEgg(data.raid_level ?? 0),
 						imageSize: raidModifiers.scale,
 						selectedScale,
@@ -285,7 +389,7 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 			}
 		}
 
-		features.push(this.basicIcon(data, selectedScale));
+		features.push(this.renderBasicIcon(data, selectedScale));
 		return features;
 	}
 }
@@ -297,7 +401,12 @@ class PokemonRenderer extends MapObjectRenderer<PokemonData> {
 		if (data.expire_timestamp && data.expire_timestamp < timestamp) {
 			return [];
 		}
-		return [this.basicIcon(data, selectedScale, { expires: data.expire_timestamp })];
+		return this.renderVisualModifiers(
+			data,
+			data.id,
+			matchPokemonFilterset(data),
+			this.getBasicProps(data, selectedScale, { expires: data.expire_timestamp })
+		);
 	}
 }
 
@@ -310,10 +419,10 @@ class StationRenderer extends MapObjectRenderer<StationData> {
 
 		if (data.battle_pokemon_id) {
 			const mapId = data.mapId + "-maxbattle-" + data.battle_pokemon_id;
-			const maxBattleModifiers = getModifiers(this.iconSet, "max_battle");
+			const maxBattleModifiers = getConfigModifiers(this.iconSet, "max_battle");
 
 			features.push(
-				getIconFeature(mapId, [data.lon, data.lat], {
+				...this.renderVisualModifiers(data, mapId, matchMaxBattleFilterset(data), {
 					imageUrl: getIconPokemon(getStationPokemon(data)),
 					imageSize: maxBattleModifiers.scale,
 					selectedScale,
@@ -327,7 +436,7 @@ class StationRenderer extends MapObjectRenderer<StationData> {
 			);
 		}
 
-		features.push(this.basicIcon(data, selectedScale, { expires: data.end_time }));
+		features.push(this.renderBasicIcon(data, selectedScale, { expires: data.end_time }));
 		return features;
 	}
 }
@@ -407,7 +516,7 @@ class TappableRenderer extends MapObjectRenderer<TappableData> {
 		if (data.expire_timestamp && data.expire_timestamp < timestamp) {
 			return [];
 		}
-		return [this.basicIcon(data, selectedScale, { expires: data.expire_timestamp })];
+		return [this.renderBasicIcon(data, selectedScale, { expires: data.expire_timestamp })];
 	}
 }
 

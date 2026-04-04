@@ -25,7 +25,7 @@
 	{eventsIfTopMost}
 	{interactive}
 	layout={{
-		"icon-image": ["get", "imageUrl"],
+		"icon-image": ["get", "imageId"],
 		"icon-overlap": "always",
 		"icon-size": [
 			"*",

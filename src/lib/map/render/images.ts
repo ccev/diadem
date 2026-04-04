@@ -1,58 +1,57 @@
 import type maplibre from "maplibre-gl";
+import type { MapObjectIconProperties } from "@/lib/map/render/featureTypes";
 
 const loadedImages: { [key: string]: HTMLImageElement | ImageBitmap } = {};
 
 const pendingImageLoads = new WeakMap<maplibre.Map, Map<string, Promise<void>>>();
 
-function getPendingMap(map: maplibre.Map) {
+export async function ensureMapImage(map: maplibre.Map, props: MapObjectIconProperties) {
+	if (!props.imageId || !props.imageUrl || map.hasImage(props.imageId)) return;
+	console.log(props.imageId, props.imageUrl);
+
 	let pendingForMap = pendingImageLoads.get(map);
 	if (!pendingForMap) {
 		pendingForMap = new Map<string, Promise<void>>();
 		pendingImageLoads.set(map, pendingForMap);
 	}
-	return pendingForMap;
-}
+	const pending = pendingForMap.get(props.imageId);
 
-export async function ensureMapImage(map: maplibre.Map, url: string) {
-	if (!url) return;
-	if (map.hasImage(url)) return;
-
-	const pendingForMap = getPendingMap(map);
-	const pending = pendingForMap.get(url);
 	if (pending) {
 		await pending;
-		if (!map.hasImage(url)) {
-			const imageData = loadedImages[url];
-			if (imageData) map.addImage(url, imageData);
+		if (!map.hasImage(props.imageId)) {
+			const imageData = loadedImages[props.imageId];
+			if (imageData) map.addImage(props.imageId, imageData);
 		}
 		return;
 	}
 
 	const loadPromise = (async () => {
-		let imageData = loadedImages[url];
+		let imageData = loadedImages[props.imageId];
 		if (!imageData) {
 			try {
-				const image = await map.loadImage(url);
+				const image = await map.loadImage(props.imageUrl);
+				console.log(image)
 				imageData = image.data;
-				loadedImages[url] = imageData;
+				loadedImages[props.imageId] = imageData;
 			} catch (e) {
 				// URL may not be directly loadable (e.g. virtual URL)
 			}
 		}
 
-		if (imageData && !map.hasImage(url)) {
-			map.addImage(url, imageData);
+		if (imageData && !map.hasImage(props.imageId)) {
+			map.addImage(props.imageId, imageData);
 		}
 	})();
 
-	pendingForMap.set(url, loadPromise);
+	pendingForMap.set(props.imageId, loadPromise);
 	try {
 		await loadPromise;
 	} finally {
-		pendingForMap.delete(url);
+		pendingForMap.delete(props.imageId);
 	}
 }
 
-export async function ensureMapImages(map: maplibre.Map, urls: string[]) {
-	await Promise.all([...new Set(urls.filter(Boolean))].map((url) => ensureMapImage(map, url)));
+export async function ensureMapImages(map: maplibre.Map, features: MapObjectIconProperties[]) {
+	const unique = [...new Map(features.map(f => [f.imageId, f])).values()];
+	await Promise.all(unique.map((props) => ensureMapImage(map, props)));
 }

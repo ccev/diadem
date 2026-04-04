@@ -11,10 +11,15 @@ export type MapObjectIconProperties = {
 	id: string;
 	type: FeatureTypes.ICON;
 	imageUrl: string;
+	imageId: string;
 	imageSize: number;
 	selectedScale: number;
-	imageOffset?: number[];
+	imageOffset?: [number, number];
+	isModifierBadge?: boolean;
 	expires: number | null;
+};
+export type MinMapObjectIconProperties = Omit<MapObjectIconProperties, "type" | "imageId"> & {
+	imageId?: string;
 };
 
 export type MapObjectPolygonProperties = {
@@ -58,8 +63,13 @@ export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjec
 export function getIconFeature(
 	id: string,
 	coordinates: Point["coordinates"],
-	properties: Omit<MapObjectIconProperties, "type">
+	properties: MinMapObjectProperties
 ): MapObjectIconFeature {
+	let imageUrl = properties.imageUrl;
+	if (!imageUrl.startsWith("data:") && imageUrl) {
+		imageUrl = resize(imageUrl, { width: 64 });
+	}
+
 	return {
 		type: "Feature",
 		geometry: {
@@ -68,7 +78,8 @@ export function getIconFeature(
 		},
 		properties: {
 			...properties,
-			imageUrl: resize(properties.imageUrl, { width: 64 }),
+			imageUrl,
+			imageId: properties.imageId ?? properties.imageUrl,
 			type: FeatureTypes.ICON
 		},
 		id

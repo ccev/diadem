@@ -1,7 +1,6 @@
 import { getCurrentUiconSetDetailsAllTypes } from "@/lib/services/uicons.svelte.js";
 import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
-import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
@@ -42,26 +41,6 @@ function getFlattenedFeatures() {
 	return Object.values(features)
 		.map((f) => Object.values(f))
 		.flat(2);
-}
-
-export function getModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
-	let scale: number = 0.25;
-	let offsetY: number = 0;
-	let offsetX: number = 0;
-	let spacing: number = 0;
-
-	if (iconSet) {
-		const modifier = iconSet[type];
-		const baseModifier = iconSet.base;
-		if (modifier && typeof modifier === "object") {
-			scale = modifier?.scale ?? baseModifier?.scale ?? scale;
-			offsetY = modifier?.offsetY ?? baseModifier?.offsetY ?? offsetY;
-			offsetX = modifier?.offsetX ?? baseModifier?.offsetX ?? offsetX;
-			spacing = modifier?.spacing ?? baseModifier?.spacing ?? spacing;
-		}
-	}
-
-	return { scale, offsetY, offsetX, spacing };
 }
 
 export function deleteAllFeaturesOfType(type: MapObjectType) {
