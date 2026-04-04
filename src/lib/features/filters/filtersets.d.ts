@@ -29,6 +29,23 @@ export type FiltersetTitle = {
 	title?: string;
 } & Message;
 
+export type FiltersetModifiers = {
+	glow?: {
+		color: string;
+		radius?: number;
+		opacity?: number;
+	};
+	scale?: number;
+	rotation?: number;
+	background?: {
+		color: string;
+		radius?: number;
+		opacity?: number;
+	};
+	showBadge?: boolean;
+	showLabel?: string;
+};
+
 export type BaseFilterset = {
 	id: string;
 	title: FiltersetTitle;
@@ -38,12 +55,13 @@ export type BaseFilterset = {
 		emoji?: string;
 		uicon?: {
 			category: IconCategory;
-			params: { [key: string]: any } | any;
+			params: Record<string, any>;
 		};
 	};
+	modifiers?: FiltersetModifiers;
 };
 
-type MinMax = {
+export type MinMax = {
 	min: number;
 	max: number;
 };
