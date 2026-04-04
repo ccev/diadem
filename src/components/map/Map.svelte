@@ -41,7 +41,7 @@
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import MapObjectSymbolLayer from "@/components/map/MapObjectSymbolLayer.svelte";
-	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
+	import { MapObjectFeatureType } from "@/lib/map/render/featureBuilders";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { getFixedBounds } from "@/lib/mapObjects/mapBounds";

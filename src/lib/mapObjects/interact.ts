@@ -1,6 +1,6 @@
 import { getConfig } from "@/lib/services/config/config";
 import type { MapMouseEvent } from "maplibre-gl";
-import type { MapObjectFeature } from "@/lib/map/featuresGen.svelte.js";
+import type { MapObjectFeature } from "@/lib/map/render/featureBuilders";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import {
 	getCurrentSelectedData,

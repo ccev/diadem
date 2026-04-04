@@ -43,21 +43,6 @@ import {
 	renderS2Cell
 } from "./render/miscRenderers";
 
-// Re-export types and guards for existing consumers
-export {
-	MapObjectFeatureType,
-	type MapObjectIconProperties,
-	type MapObjectPolygonProperties,
-	type MapObjectCircleProperties,
-	type MapObjectIconFeature,
-	type MapObjectPolygonFeature,
-	type MapObjectCircleFeature,
-	type MapObjectFeature,
-	isFeatureIcon,
-	isFeatureCircle,
-	isFeaturePolygon
-} from "./render/featureBuilders";
-
 type Features = {
 	[key in MapObjectType]: {
 		[key: string]: MapObjectFeature[];

@@ -4,7 +4,7 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { getMap } from "@/lib/map/map.svelte.js";
 import type { Feature, Polygon } from "geojson";
 import type { CellID } from "s2js/dist/s2/cellid";
-import type { MapObjectPolygonProperties } from "@/lib/map/featuresGen.svelte";
+import type { MapObjectPolygonProperties } from "@/lib/map/render/featureBuilders";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import { LIMIT_S2_CELLS } from "@/lib/constants";
 

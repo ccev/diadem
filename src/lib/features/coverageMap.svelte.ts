@@ -1,10 +1,7 @@
 import { closeMenu, Menu, openMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
-import {
-	deleteAllFeatures,
-	type MapObjectIconProperties,
-	updateFeatures
-} from "@/lib/map/featuresGen.svelte";
+import { deleteAllFeatures, updateFeatures } from "@/lib/map/featuresGen.svelte";
 import { clearAllMapObjects, getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
+import type { MapObjectIconProperties } from "@/lib/map/render/featureBuilders";
 import { featureCollection } from "@turf/turf";
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
