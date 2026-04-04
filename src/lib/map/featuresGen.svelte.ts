@@ -1,82 +1,25 @@
-import type { Feature as GeojsonFeature, MultiPolygon, Point, Polygon } from "geojson";
-import {
-	getCurrentUiconSetDetailsAllTypes,
-	getIconForMap,
-	getIconGym,
-	getIconInvasion,
-	getIconPokemon,
-	getIconRaidEgg,
-	getIconReward
-} from "@/lib/services/uicons.svelte.js";
+import { getCurrentUiconSetDetailsAllTypes } from "@/lib/services/uicons.svelte.js";
 import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-import {
-	FORT_OUTDATED_SECONDS,
-	SELECTED_MAP_OBJECT_SCALE,
-	SPAWNPOINT_OUTDATED_SECONDS
-} from "@/lib/constants";
+import { SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
 import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
 } from "@/lib/mapObjects/currentSelectedState.svelte.js";
-import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
+import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import {
-	getActivePokestopFilter,
-	hasFortActiveLure,
-	isIncidentInvasion,
-	parseQuestReward
-} from "@/lib/utils/pokestopUtils";
+import { getActivePokestopFilter } from "@/lib/utils/pokestopUtils";
 import { getActiveGymFilter } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { resize } from "@/lib/services/assets";
-import { geojson, s2 } from "s2js";
-import { shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 import { getRenderer } from "@/lib/map/render/renderMapObjects";
-
-export enum MapObjectFeatureType {
-	ICON = 0,
-	POLYGON = 1,
-	CIRCLE = 2
-}
-
-export type MapObjectIconProperties = {
-	id: string;
-	type: MapObjectFeatureType.ICON;
-	imageUrl: string;
-	imageSize: number;
-	selectedScale: number;
-	imageOffset?: number[];
-	expires: number | null;
-};
-
-export type MapObjectPolygonProperties = {
-	id: string;
-	type: MapObjectFeatureType.POLYGON;
-	fillColor: string;
-	strokeColor: string;
-	selectedFill: string;
-	isSelected: boolean;
-};
-
-export type MapObjectCircleProperties = {
-	id: string;
-	type: MapObjectFeatureType.CIRCLE;
-	radius: number;
-	selectedScale: number;
-	fillColor: string;
-	strokeColor: string;
-};
-
-export type MapObjectIconFeature = GeojsonFeature<Point, MapObjectIconProperties>;
-export type MapObjectPolygonFeature = GeojsonFeature<MultiPolygon, MapObjectPolygonProperties>;
-export type MapObjectCircleFeature = GeojsonFeature<Point, MapObjectCircleProperties>;
-export type MapObjectFeature =
-	| MapObjectPolygonFeature
-	| MapObjectIconFeature
-	| MapObjectCircleFeature;
+import {
+	type Features,
+	isFeatureCircle,
+	isFeatureIcon,
+	isFeaturePolygon,
+	type MapObjectFeature
+} from "@/lib/map/render/featureTypes";
 
 type Features = {
 	[key in MapObjectType]: {
@@ -99,76 +42,6 @@ function getFlattenedFeatures() {
 	return Object.values(features)
 		.map((f) => Object.values(f))
 		.flat(2);
-}
-
-export function isFeatureIcon(feature: MapObjectFeature): feature is MapObjectIconFeature {
-	return feature.properties.type === MapObjectFeatureType.ICON;
-}
-
-export function isFeatureCircle(feature: MapObjectFeature): feature is MapObjectCircleFeature {
-	return feature.properties.type === MapObjectFeatureType.CIRCLE;
-}
-
-export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjectPolygonFeature {
-	return feature.properties.type === MapObjectFeatureType.POLYGON;
-}
-
-export function getIconFeature(
-	id: string,
-	coordinates: Point["coordinates"],
-	properties: Omit<MapObjectIconProperties, "type">
-): MapObjectIconFeature {
-	return {
-		type: "Feature",
-		geometry: {
-			type: "Point",
-			coordinates
-		},
-		properties: {
-			...properties,
-			imageUrl: resize(properties.imageUrl, { width: 64 }),
-			type: MapObjectFeatureType.ICON
-		},
-		id
-	};
-}
-
-export function getPolygonFeature(
-	id: string,
-	coordinates: MultiPolygon["coordinates"],
-	properties: Omit<MapObjectPolygonProperties, "type" | "selectedScale">
-): MapObjectPolygonFeature {
-	return {
-		type: "Feature",
-		geometry: {
-			type: "MultiPolygon",
-			coordinates
-		},
-		properties: {
-			...properties,
-			type: MapObjectFeatureType.POLYGON
-		},
-		id
-	};
-}
-
-export function getCircleFeature(
-	id: string,
-	coordinates: Point["coordinates"],
-	properties: Omit<MapObjectCircleProperties, "type">
-): MapObjectCircleFeature {
-	return {
-		type: "Feature",
-		geometry: {
-			type: "Point",
-			coordinates
-		},
-		properties: {
-			...properties,
-			type: MapObjectFeatureType.CIRCLE
-		},
-		id
-	};
 }
 
 export function getModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {

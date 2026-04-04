@@ -15,11 +15,7 @@ import {
 	parseQuestReward
 } from "@/lib/utils/pokestopUtils";
 import {
-	getCircleFeature,
-	getIconFeature,
-	getModifiers,
-	getPolygonFeature,
-	type MapObjectFeature
+	getModifiers
 } from "../featuresGen.svelte";
 import { shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 import {
@@ -44,6 +40,12 @@ import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
 import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
 import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
 import { geojson, s2 } from "s2js";
+import {
+	getCircleFeature,
+	getIconFeature,
+	getPolygonFeature,
+	type MapObjectFeature
+} from "@/lib/map/render/featureTypes";
 
 abstract class MapObjectRenderer<MapObject extends MapData> {
 	protected iconSet: UiconSet | undefined;

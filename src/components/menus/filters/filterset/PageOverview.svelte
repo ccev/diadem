@@ -14,48 +14,82 @@
 	import EditDetails from "@/components/menus/filters/filterset/EditDetails.svelte";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
+	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
+	import ModifiersAttribute from "./modifiers/ModifiersAttribute.svelte";
+	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
+	import { getModifierPreviewIcon } from "@/lib/features/filters/filtersetUtils";
 
 	let {
 		overview
 	}: {
 		overview: Snippet;
 	} = $props();
+
+	let filterset = getCurrentSelectedFilterset();
+	let snapshot = $state.snapshot(filterset);
 </script>
 
-{#snippet editDetailsPage(thisData)}
+{#snippet editDetailsPage(thisData: AnyFilterset)}
 	<EditDetails data={thisData} />
 {/snippet}
 
+{#snippet editVisualPage(thisData: AnyFilterset)}
+	<ModifiersAttribute
+		data={thisData}
+		majorCategory={filterset?.majorCategory}
+		subCategory={filterset?.subCategory}
+	/>
+{/snippet}
+
 <div
-	class="w-full absolute top-0 pb-2 h-full overflow-y-auto"
+	class="pb-2"
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
-	<Card class="w-full text-sm divide-y-border divide-y mb-3 flex gap-2">
+	<Card class="w-full text-sm divide-y-border divide-y overflow-hidden">
 		<Button
-			class="w-full! h-full! justify-start py-3! px-4! gap-2 group"
+			class="w-full! h-full! justify-start py-3! px-4! gap-2 group rounded-none!"
 			variant="ghost"
 			onclick={() => {
 				setCurrentAttributePage(editDetailsPage, m.details());
 				filtersetPageEditAttribute();
 			}}
 		>
-			<div
-				class="rounded-full bg-accent size-10 border flex items-center justify-center relative shrink-0 mr-1"
-			>
-				<FiltersetIcon filterset={$state.snapshot(getCurrentSelectedFilterset()?.data)} size={5} />
-			</div>
-			<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
+			{#if snapshot?.data}
 				<div
-					class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent transition-colors"
-				></div>
-				<b>{filterTitle($state.snapshot(getCurrentSelectedFilterset()?.data))}</b>
-			</div>
+					class="rounded-full bg-accent size-10 border flex items-center justify-center relative shrink-0 mr-1"
+				>
+					<FiltersetIcon filterset={snapshot.data} size={5} />
+				</div>
+				<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
+					<div
+						class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent group-active:from-accent transition-colors"
+					></div>
+					<b>{filterTitle(snapshot.data)}</b>
+				</div>
+			{/if}
 			<Pencil class="ml-auto shrink-0" size="14" />
+		</Button>
+		<Button
+			class="w-full! h-fit! block! justify-start p-0! gap-2 group rounded-none! relative"
+			variant="ghost"
+			onclick={() => {
+				setCurrentAttributePage(editVisualPage, m.modifier_visual());
+				filtersetPageEditAttribute();
+			}}
+		>
+			<ModifierPreview
+				class="h-20! rounded-none! border-none!"
+				filterset={filterset?.data}
+				majorCategory={filterset?.majorCategory}
+				subCategory={filterset?.subCategory}
+			/>
+			<Pencil class="ml-auto shrink-0 absolute right-4 top-1/2 -translate-y-1/2" size="14" />
 		</Button>
 	</Card>
 
-	<div class="space-y-3">
+	<div class="space-y-3 mt-6">
 		{@render overview()}
 	</div>
 </div>
