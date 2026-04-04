@@ -1,17 +1,6 @@
-import type { Point } from "geojson";
 import type { BaseFilterset, FiltersetModifiers } from "@/lib/features/filters/filtersets";
 import { getIcon } from "@/lib/features/filters/icons";
-import {
-	MODIFIER_BACKGROUND_OPACITY,
-	MODIFIER_GLOW_OPACITY,
-	MODIFIER_GLOW_RADIUS
-} from "@/lib/features/filters/modifierPresets";
-import {
-	getIconFeature,
-	type MapObjectFeature,
-	type MapObjectIconProperties
-} from "@/lib/map/render/featureTypes";
-import type maplibre from "maplibre-gl";
+import { type MapObjectIconProperties } from "@/lib/map/render/featureTypes";
 
 export type BadgeProperties =
 	| "imageUrl"

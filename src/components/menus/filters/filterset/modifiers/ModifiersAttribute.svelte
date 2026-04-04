@@ -10,10 +10,8 @@
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import {
-		DEFAULT_COLOR,
-		MODIFIER_BACKGROUND_OPACITY,
-		MODIFIER_GLOW_OPACITY,
-		MODIFIER_GLOW_RADIUS
+		MODIFIER_BACKGROUND_OPACITY, MODIFIER_COLORS,
+		MODIFIER_GLOW_OPACITY
 	} from "@/lib/features/filters/modifierPresets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
@@ -32,12 +30,14 @@
 
 	type VisualMode = "none" | "glow" | "background";
 
+	const defaultColor = MODIFIER_COLORS.red
+
 	let visualMode = $derived<VisualMode>(
 		data.modifiers?.glow ? "glow" : data.modifiers?.background ? "background" : "none"
 	);
 
 	let activeColor = $derived(
-		data.modifiers?.glow?.color ?? data.modifiers?.background?.color ?? DEFAULT_COLOR
+		data.modifiers?.glow?.color ?? data.modifiers?.background?.color ?? defaultColor,
 	);
 
 	function ensureModifiers() {
@@ -132,13 +132,12 @@
 				ensureModifiers();
 				if (mode === "glow") {
 					data.modifiers!.glow = {
-						color: currentColor ?? DEFAULT_COLOR,
-						radius: MODIFIER_GLOW_RADIUS,
+						color: currentColor ?? defaultColor,
 						opacity: MODIFIER_GLOW_OPACITY
 					};
 				} else {
 					data.modifiers!.background = {
-						color: currentColor ?? DEFAULT_COLOR,
+						color: currentColor ?? defaultColor,
 						opacity: MODIFIER_BACKGROUND_OPACITY
 					};
 				}

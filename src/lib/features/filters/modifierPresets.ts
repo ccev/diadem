@@ -10,8 +10,11 @@ export const MODIFIER_COLORS = {
 	pink: "rgba(246, 51, 154, {})"
 };
 
-export const DEFAULT_COLOR = MODIFIER_COLORS.red;
+export function getUnderlayColor(name: keyof typeof MODIFIER_COLORS, opacity: number = 1): string {
+	return (
+		MODIFIER_COLORS[name].replace("{}", opacity.toString()) ?? MODIFIER_COLORS.red.replace("{}", opacity.toString())
+	);
+}
 
-export const MODIFIER_GLOW_RADIUS = 1.5;
 export const MODIFIER_GLOW_OPACITY = 0.75;
 export const MODIFIER_BACKGROUND_OPACITY = 1;

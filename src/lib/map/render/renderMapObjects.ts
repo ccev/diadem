@@ -146,6 +146,7 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 	) {
 		const underlayFeature = getUnderlayFeature(
 			props.imageSize,
+			props.imageOffset ?? [0, 0],
 			filterset.modifiers
 		);
 

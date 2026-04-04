@@ -17,40 +17,42 @@ const underlayImageCache = new Map<string, string>();
 
 export function getUnderlayFeature(
 	imageSize: number,
+	offset: [number, number],
 	filtersetModifiers: FiltersetModifiers | undefined
 ): Pick<MapObjectIconProperties, UnderlayProperties> | undefined {
 	if (!filtersetModifiers?.background && !filtersetModifiers?.glow) return;
 
 	if (filtersetModifiers?.background) {
-		const iconRadius = imageSize * 1.2;
-		const opacity = filtersetModifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY
-		const color = filtersetModifiers.background.color.replace(
-			"{}",
-			opacity.toString()
-		);
+		const scale = 1.2;
+		const opacity = filtersetModifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY;
+		const color = filtersetModifiers.background.color.replace("{}", opacity.toString());
 		const imageId = `bg-${color}`;
 
 		return {
 			imageId,
-			imageUrl: getUnderlayImage(imageId, "background", filtersetModifiers.background.color, opacity),
-			imageSize: iconRadius,
+			imageUrl: getUnderlayImage(
+				imageId,
+				"background",
+				filtersetModifiers.background.color,
+				opacity
+			),
+			imageSize: imageSize * scale,
+			imageOffset: [offset[0] / scale, offset[1] / scale],
 			isModifierUnderlay: true
 		};
 	}
 
 	if (filtersetModifiers?.glow) {
-		const iconRadius = imageSize * 1.6;
+		const scale = 1.6;
 		const opacity = filtersetModifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY;
-		const color = filtersetModifiers.glow.color.replace(
-			"{}",
-			opacity.toString()
-		);
+		const color = filtersetModifiers.glow.color.replace("{}", opacity.toString());
 		const imageId = `bg-${color}`;
 
 		return {
 			imageId,
 			imageUrl: getUnderlayImage(imageId, "glow", filtersetModifiers.glow.color, opacity),
-			imageSize: iconRadius,
+			imageSize: imageSize * scale,
+			imageOffset: [offset[0] / scale, offset[1] / scale],
 			isModifierUnderlay: true
 		};
 	}
