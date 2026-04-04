@@ -6,8 +6,6 @@ import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { FilterNest, FilterStation } from "@/lib/features/filters/filters";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { getActiveNestFilter } from "@/lib/utils/nestUtils";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 export const STATION_SLOTS = 40;
@@ -56,39 +54,3 @@ export function getActiveStationFilter() {
 	return getUserSettings().filters.station;
 }
 
-export function shouldDisplayStation(station: StationData) {
-	if (isCurrentSelectedOverwrite(station.mapId)) return true;
-
-	const stationFilter = getActiveStationFilter();
-	if (!stationFilter.enabled) return false;
-	if (stationFilter.stationPlain.enabled) return true;
-
-	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
-	if (maxBattleFilters.length === 0) return true;
-
-	for (const filterset of maxBattleFilters) {
-		if (filterset.bosses === undefined && !filterset.isActive && !filterset.hasGmax) {
-			return true;
-		}
-
-		if (filterset.isActive && !isMaxBattleActive(station)) continue;
-
-		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
-
-		if (
-			filterset.bosses !== undefined &&
-			filterset.bosses.find(
-				(p) =>
-					p.pokemon_id === station.battle_pokemon_id &&
-					p.form === station.battle_pokemon_form &&
-					(p.bread_mode === undefined || p.bread_mode === station.battle_pokemon_bread_mode)
-			)
-		) {
-			return true;
-		}
-
-		if (filterset.isActive || filterset.hasGmax) return true;
-	}
-
-	return false;
-}

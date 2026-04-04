@@ -1,5 +1,3 @@
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
-import type { NestData } from "@/lib/types/mapObjectData/nest";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { FilterNest } from "@/lib/features/filters/filters";
@@ -11,25 +9,4 @@ export function getActiveNestFilter() {
 		return activeSearch.filter as FilterNest;
 	}
 	return getUserSettings().filters.nest;
-}
-
-export function shouldDisplayNest(nest: NestData) {
-	if (isCurrentSelectedOverwrite(nest.mapId)) return true;
-
-	const nestFilter = getActiveNestFilter();
-	if (!nestFilter.enabled) return false;
-
-	const filtersets = nestFilter.filters.filter((f) => f.enabled);
-	if (filtersets.length === 0) return true;
-
-	for (const filterset of filtersets) {
-		if (
-			filterset.pokemon &&
-			filterset.pokemon.find((p) => p.pokemon_id === nest.pokemon_id && p.form === nest.form)
-		) {
-			return true;
-		}
-	}
-
-	return false;
 }

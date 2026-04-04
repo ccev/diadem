@@ -23,18 +23,16 @@ import {
 import { updateMapObjectsGeoJson } from "@/lib/map/featuresManage.svelte";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtils";
 import {
 	getActivePokestopFilter,
 	hasFortActiveLure,
 	isIncidentInvasion,
 	parseQuestReward
 } from "@/lib/utils/pokestopUtils";
-import { getActiveGymFilter, getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
+import { getActiveGymFilter } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
 import { geojson, s2 } from "s2js";
-import { shouldDisplayNest } from "@/lib/utils/nestUtils";
 import { shouldDisplayIncidient, shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 import { getRenderer } from "@/lib/map/render/renderMapObjects";
 

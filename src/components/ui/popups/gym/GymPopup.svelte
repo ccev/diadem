@@ -25,9 +25,9 @@
 		GYM_SLOTS,
 		hasActiveRaid,
 		isFortOutdated,
-		isRaidHatched,
-		shouldDisplayRaid
+		isRaidHatched
 	} from "@/lib/utils/gymUtils";
+	import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
 
 	let data: GymData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as GymData) ?? (getCurrentSelectedData() as GymData)

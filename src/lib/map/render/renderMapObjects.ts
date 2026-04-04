@@ -38,9 +38,11 @@ import {
 } from "@/lib/constants";
 import type { UiconSet } from "@/lib/services/config/configTypes";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getActiveGymFilter, getRaidPokemon, shouldDisplayRaid } from "@/lib/utils/gymUtils";
-import { getStationPokemon, shouldDisplayStation } from "@/lib/utils/stationUtils";
-import { shouldDisplayNest } from "@/lib/utils/nestUtils";
+import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
+import { getStationPokemon } from "@/lib/utils/stationUtils";
+import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
+import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
 import { geojson, s2 } from "s2js";
 
 abstract class MapObjectRenderer<MapObject extends MapData> {
