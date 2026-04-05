@@ -169,7 +169,7 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 			props.imageRotation = filterset.modifiers.rotation;
 
 			if (props.imageOffset && (props.imageOffset[0] !== 0 || props.imageOffset[1] !== 0)) {
-				// offset is applied in rotated space, this revereses that
+				// offset is applied in rotated space, this reverses that
 				const rad = (-props.imageRotation * Math.PI) / 180;
 				const cos = Math.cos(rad);
 				const sin = Math.sin(rad);

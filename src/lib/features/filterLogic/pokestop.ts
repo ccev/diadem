@@ -61,7 +61,7 @@ export function shouldDisplayIncident(incident: Incident, pokestop: Partial<Poke
 	if (isIncidentInvasion(incident)) {
 		const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
 		if (invasionFilters.length === 0) return true;
-		if (pokestopFilters.invasion.enabled && matchInvasionFilterset(incident)) return true
+		if (pokestopFilters.invasion.enabled && matchInvasionFilterset(incident)) return true;
 	}
 
 	return false;
