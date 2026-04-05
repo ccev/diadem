@@ -157,7 +157,7 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		});
 	}
 
-	protected renderVisualModifiers(
+	public renderVisualModifiers(
 		data: MapObject,
 		id: string,
 		filterset: AnyFilterset | undefined,
@@ -186,6 +186,10 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		const extraMainProps: Pick<MapObjectIconProperties, "textLabel" | "textOffset"> = {}
 		if (filterset?.modifiers?.showLabel) {
 			extraMainProps.textLabel = typeof filterset.modifiers.showLabel === "string" ? filterset.modifiers.showLabel : filterTitle(filterset);
+		}
+
+		if (filterset?.modifiers?.scale) {
+			props.imageSize *= filterset.modifiers.scale;
 		}
 
 		if (filterset) {

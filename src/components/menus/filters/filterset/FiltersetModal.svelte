@@ -76,7 +76,7 @@
 	{/snippet}
 
 	<div
-		class="h-full w-full grid *:col-start-1 *:row-start-1 *:px-4 *:min-w-0 overflow-y-auto"
+		class="h-full w-full grid *:col-start-1 *:row-start-1 *:px-4 *:min-w-0 overflow-y-auto overflow-x-hidden"
 		style:grid-template="1fr / 1fr"
 	>
 		{#if getCurrentFiltersetPage() === "new"}

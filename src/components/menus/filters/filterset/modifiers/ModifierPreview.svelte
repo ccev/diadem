@@ -1,306 +1,308 @@
-<!--<script lang="ts">-->
-<!--	import type {-->
-<!--		AnyFilterset,-->
-<!--		FiltersetInvasion,-->
-<!--		FiltersetMaxBattle,-->
-<!--		FiltersetQuest,-->
-<!--		FiltersetRaid-->
-<!--	} from "@/lib/features/filters/filtersets";-->
-<!--	import type { FilterCategory } from "@/lib/features/filters/filters";-->
-<!--	import { getIcon, IconCategory } from "@/lib/features/filters/icons";-->
-<!--	import { ensureMapImages } from "@/lib/map/render/images";-->
-<!--	import { getMap } from "@/lib/map/map.svelte";-->
-<!--	import { getModifiers, withVisualTransform } from "@/lib/map/render/modifierLayout";-->
-<!--	import { BADGE_SCALE_RATIO, getBadgeOffset } from "@/lib/map/render/modifierOverlayIcons";-->
-<!--	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";-->
-<!--	import {-->
-<!--		type MapObjectFeature,-->
-<!--		type MapObjectIconFeature,-->
-<!--		FeatureTypes,-->
-<!--		getIconFeature-->
-<!--	} from "@/lib/map/render/featureTypes";-->
-<!--	import {-->
-<!--		addOverlayIconAndBadge,-->
-<!--		getTextLabel,-->
-<!--		resolveFiltersetBadgeIconUrl-->
-<!--	} from "@/lib/map/render/modifierFeatures";-->
-<!--	import { getConfig } from "@/lib/services/config/config";-->
-<!--	import {-->
-<!--		getIconPokemon,-->
-<!--		getIconRaidEgg,-->
-<!--		getIconStation,-->
-<!--		getUiconSetDetails-->
-<!--	} from "@/lib/services/uicons.svelte";-->
-<!--	import { getUserSettings } from "@/lib/services/userSettings.svelte";-->
-<!--	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";-->
-<!--	import type { FeatureCollection, Point } from "geojson";-->
-<!--	import maplibre, { GeoJSONSource } from "maplibre-gl";-->
-<!--	import { GeoJSON, MapLibre } from "svelte-maplibre";-->
-<!--	import { watch } from "runed";-->
-<!--	import { center } from "@turf/turf";-->
-<!--	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";-->
+<script lang="ts">
+	import type {
+		AnyFilterset,
+		FiltersetInvasion,
+		FiltersetMaxBattle,
+		FiltersetQuest,
+		FiltersetRaid
+	} from "@/lib/features/filters/filtersets";
+	import type { FilterCategory } from "@/lib/features/filters/filters";
+	import { getIcon, IconCategory } from "@/lib/features/filters/icons";
+	import { ensureMapImages } from "@/lib/map/render/images";
+	import { getMap } from "@/lib/map/map.svelte";
+	import { getConfigModifiers, getRenderer } from "@/lib/map/render/renderMapObjects";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import {
+		type MapObjectFeature,
+		type MapObjectIconFeature,
+		FeatureTypes,
+		getIconFeature,
+		isFeatureIcon
+	} from "@/lib/map/render/featureTypes";
+	import { getConfig } from "@/lib/services/config/config";
+	import {
+		getIconPokemon,
+		getIconRaidEgg,
+		getIconStation,
+		getUiconSetDetails
+	} from "@/lib/services/uicons.svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
+	import type { FeatureCollection, Point } from "geojson";
+	import maplibre, { GeoJSONSource } from "maplibre-gl";
+	import { GeoJSON, MapLibre } from "svelte-maplibre";
+	import { watch } from "runed";
+	import { center } from "@turf/turf";
+	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
+	import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+	import type { GymData } from "@/lib/types/mapObjectData/gym";
+	import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+	import type { StationData } from "@/lib/types/mapObjectData/station";
+	import { untrack } from "svelte";
 
-<!--	let {-->
-<!--		filterset = undefined,-->
-<!--		majorCategory = undefined,-->
-<!--		subCategory = undefined,-->
-<!--		class: class_ = ""-->
-<!--	}: {-->
-<!--		filterset?: AnyFilterset;-->
-<!--		majorCategory?: FilterCategory;-->
-<!--		subCategory?: FilterCategory;-->
-<!--		class?: string;-->
-<!--	} = $props();-->
+	let {
+		filterset = undefined,
+		majorCategory = undefined,
+		subCategory = undefined,
+		class: class_ = ""
+	}: {
+		filterset?: AnyFilterset;
+		majorCategory?: FilterCategory;
+		subCategory?: FilterCategory;
+		class?: string;
+	} = $props();
 
-<!--	const PREVIEW_MAP_ID = "preview";-->
+	const PREVIEW_MAP_ID = "preview";
+	let bindMap: maplibre.Map | undefined = $state(undefined);
 
-<!--	function getPreviewCenter(): [number, number] {-->
-<!--		const mainMap = getMap();-->
-<!--		if (mainMap) {-->
-<!--			const center = mainMap.getCenter();-->
-<!--			return [center.lng, center.lat];-->
-<!--		}-->
+	function getPreviewCenter(): [number, number] {
+		const mainMap = getMap();
+		if (mainMap) {
+			const center = mainMap.getCenter();
+			return [center.lng, center.lat];
+		}
 
-<!--		const center = getUserSettings().mapPosition.center;-->
-<!--		if (center) return [center.lng, center.lat];-->
+		const center = getUserSettings().mapPosition.center;
+		if (center) return [center.lng, center.lat];
 
-<!--		return [getConfig().general.defaultLon ?? 0, getConfig().general.defaultLat ?? 0];-->
-<!--	}-->
+		return [getConfig().general.defaultLon ?? 0, getConfig().general.defaultLat ?? 0];
+	}
 
-<!--	/** Try to resolve a pokemon icon from the filterset's uicon or its data. */-->
-<!--	function getPokemonIconFromFilterset(): string | undefined {-->
-<!--		if (!filterset) return undefined;-->
-<!--		// 1. If the filterset uicon is type POKEMON, use that-->
-<!--		if (filterset.icon?.uicon?.category === IconCategory.POKEMON) {-->
-<!--			return getIcon(IconCategory.POKEMON, filterset.icon.uicon.params);-->
-<!--		}-->
-<!--		// 2. If the filterset has pokemon data, use the first one-->
-<!--		if ("pokemon" in filterset && filterset.pokemon?.length) {-->
-<!--			return getIconPokemon(filterset.pokemon[0]);-->
-<!--		}-->
-<!--		if ("bosses" in filterset && (filterset as FiltersetRaid | FiltersetMaxBattle).bosses?.length) {-->
-<!--			return getIconPokemon((filterset as FiltersetRaid | FiltersetMaxBattle).bosses![0]);-->
-<!--		}-->
-<!--		return undefined;-->
-<!--	}-->
+	function getPokemonIconFromFilterset(): string | undefined {
+		if (!filterset) return undefined;
+		if (filterset.icon?.uicon?.category === IconCategory.POKEMON) {
+			return getIcon(IconCategory.POKEMON, filterset.icon.uicon.params);
+		}
+		if ("pokemon" in filterset && filterset.pokemon?.length) {
+			return getIconPokemon(filterset.pokemon[0]);
+		}
+		if ("bosses" in filterset && (filterset as FiltersetRaid | FiltersetMaxBattle).bosses?.length) {
+			return getIconPokemon((filterset as FiltersetRaid | FiltersetMaxBattle).bosses![0]);
+		}
+		return undefined;
+	}
 
-<!--	const makePreviewData = (map: maplibre.Map) => {-->
-<!--		// big function to render the current preview on the actual map-->
-<!--		// this is a dumbed down version of the entire rendering pipeline, essentially-->
-<!--		const badgeIconUrl = resolveFiltersetBadgeIconUrl(filterset?.icon);-->
-<!--		const pokemonIcon = getPokemonIconFromFilterset();-->
-<!--		const previewCenter = getPreviewCenter();-->
+	function getFocusIconUrl(): string {
+		const pokemonIcon = getPokemonIconFromFilterset();
 
-<!--		let baseIconUrl: string | undefined;-->
-<!--		let baseImageSize: number | undefined;-->
-<!--		let baseImageOffset: number[] | undefined;-->
-<!--		let focusImageSize = 0.25;-->
-<!--		let focusImageOffset: number[] = [0, 0];-->
-<!--		let focusIconUrl: string | undefined;-->
-<!--		let overlayOnBase = false;-->
+		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {
+			const uicon = filterset?.icon?.uicon;
+			return uicon?.category === IconCategory.RAID
+				? getIcon(IconCategory.RAID, uicon.params)
+				: (pokemonIcon ?? getIconRaidEgg(5));
+		}
 
-<!--		// build up the correct icons-->
-<!--		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {-->
-<!--			const gymIconSet = getUiconSetDetails(getUserSettings().uiconSet.gym.id);-->
-<!--			const gymMod = getModifiers(gymIconSet, MapObjectType.GYM);-->
-<!--			const pokemonMod = getModifiers(gymIconSet, MapObjectType.POKEMON);-->
-<!--			const raidMod = getModifiers(gymIconSet, "raid_pokemon");-->
+		if (subCategory === "quest" || (majorCategory === "pokestop" && !subCategory)) {
+			const uicon = filterset?.icon?.uicon;
+			if (uicon?.category === IconCategory.POKEMON || uicon?.category === IconCategory.ITEM) {
+				return getIcon(uicon.category, uicon.params);
+			}
+			const quest = filterset as FiltersetQuest | undefined;
+			return (
+				pokemonIcon ??
+				(quest?.item?.length
+					? getIcon(IconCategory.ITEM, { item: quest.item[0].id })
+					: getIconPokemon({ pokemon_id: 25, form: 0 }))
+			);
+		}
 
-<!--			baseIconUrl = getIcon(IconCategory.GYM, { team_id: 0 });-->
-<!--			baseImageSize = gymMod.scale;-->
-<!--			baseImageOffset = [gymMod.offsetX, gymMod.offsetY];-->
-<!--			focusImageSize = pokemonMod.scale * raidMod.scale;-->
-<!--			focusImageOffset = [gymMod.offsetX + raidMod.offsetX, gymMod.offsetY + raidMod.offsetY];-->
-<!--			overlayOnBase = true;-->
+		if (subCategory === "invasion") {
+			const uicon = filterset?.icon?.uicon;
+			if (uicon?.category === IconCategory.INVASION) {
+				return getIcon(IconCategory.INVASION, uicon.params);
+			}
+			const invasion = filterset as FiltersetInvasion | undefined;
+			return invasion?.characters?.length
+				? getIcon(IconCategory.INVASION, { character: invasion.characters[0], confirmed: true })
+				: getIcon(IconCategory.INVASION, { character: 4, confirmed: true });
+		}
 
-<!--			const uicon = filterset?.icon?.uicon;-->
-<!--			focusIconUrl =-->
-<!--				uicon?.category === IconCategory.RAID-->
-<!--					? getIcon(IconCategory.RAID, uicon.params)-->
-<!--					: (pokemonIcon ?? getIconRaidEgg(5));-->
-<!--		} else if (subCategory === "quest" || (majorCategory === "pokestop" && !subCategory)) {-->
-<!--			const pokestopIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokestop.id);-->
-<!--			const pokestopMod = getModifiers(pokestopIconSet, MapObjectType.POKESTOP);-->
-<!--			const questMod = getModifiers(pokestopIconSet, "quest");-->
+		if (subCategory === "maxBattle" || (majorCategory === "station" && !subCategory)) {
+			return pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });
+		}
 
-<!--			baseIconUrl = getIcon(IconCategory.POKESTOP, {});-->
-<!--			baseImageSize = pokestopMod.scale;-->
-<!--			baseImageOffset = [pokestopMod.offsetX, pokestopMod.offsetY];-->
-<!--			focusImageSize = questMod.scale;-->
-<!--			focusImageOffset = [-->
-<!--				pokestopMod.offsetX + questMod.offsetX,-->
-<!--				pokestopMod.offsetY + questMod.offsetY-->
-<!--			];-->
+		return pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });
+	}
 
-<!--			const uicon = filterset?.icon?.uicon;-->
-<!--			if (uicon?.category === IconCategory.POKEMON || uicon?.category === IconCategory.ITEM) {-->
-<!--				focusIconUrl = getIcon(uicon.category, uicon.params);-->
-<!--			} else {-->
-<!--				const quest = filterset as FiltersetQuest | undefined;-->
-<!--				focusIconUrl =-->
-<!--					pokemonIcon ??-->
-<!--					(quest?.item?.length-->
-<!--						? getIcon(IconCategory.ITEM, { item: quest.item[0].id })-->
-<!--						: getIconPokemon({ pokemon_id: 25, form: 0 }));-->
-<!--			}-->
-<!--		} else if (subCategory === "invasion") {-->
-<!--			const pokestopIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokestop.id);-->
-<!--			const pokestopMod = getModifiers(pokestopIconSet, MapObjectType.POKESTOP);-->
-<!--			const invasionMod = getModifiers(pokestopIconSet, "invasion");-->
+	function getBaseConfig(): {
+		type: MapObjectType;
+		baseIconUrl?: string;
+		overlayOnBase?: boolean;
+		focusModifierType?: string;
+	} | undefined {
+		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {
+			return {
+				type: MapObjectType.GYM,
+				baseIconUrl: getIcon(IconCategory.GYM, { team_id: 0 }),
+				overlayOnBase: true,
+				focusModifierType: "raid_pokemon"
+			};
+		}
+		if (subCategory === "quest" || (majorCategory === "pokestop" && !subCategory)) {
+			return {
+				type: MapObjectType.POKESTOP,
+				baseIconUrl: getIcon(IconCategory.POKESTOP, {}),
+				focusModifierType: "quest"
+			};
+		}
+		if (subCategory === "invasion") {
+			return {
+				type: MapObjectType.POKESTOP,
+				baseIconUrl: getIcon(IconCategory.POKESTOP, {}),
+				focusModifierType: "invasion"
+			};
+		}
+		if (subCategory === "maxBattle" || (majorCategory === "station" && !subCategory)) {
+			return {
+				type: MapObjectType.STATION,
+				baseIconUrl: getIconStation(false),
+				overlayOnBase: true,
+				focusModifierType: "max_battle"
+			};
+		}
+		return { type: MapObjectType.POKEMON };
+	}
 
-<!--			baseIconUrl = getIcon(IconCategory.POKESTOP, {});-->
-<!--			baseImageSize = pokestopMod.scale;-->
-<!--			baseImageOffset = [pokestopMod.offsetX, pokestopMod.offsetY];-->
-<!--			focusImageSize = invasionMod.scale;-->
-<!--			focusImageOffset = [-->
-<!--				pokestopMod.offsetX + invasionMod.offsetX,-->
-<!--				pokestopMod.offsetY + invasionMod.offsetY-->
-<!--			];-->
+	function makePreviewData(map: maplibre.Map) {
+		const previewCenter = getPreviewCenter();
+		const focusIconUrl = getFocusIconUrl();
+		const config = getBaseConfig();
+		if (!config) return;
 
-<!--			const uicon = filterset?.icon?.uicon;-->
-<!--			if (uicon?.category === IconCategory.INVASION) {-->
-<!--				focusIconUrl = getIcon(IconCategory.INVASION, uicon.params);-->
-<!--			} else {-->
-<!--				const invasion = filterset as FiltersetInvasion | undefined;-->
-<!--				focusIconUrl = invasion?.characters?.length-->
-<!--					? getIcon(IconCategory.INVASION, {-->
-<!--							character: invasion.characters[0],-->
-<!--							confirmed: true-->
-<!--						})-->
-<!--					: getIcon(IconCategory.INVASION, { character: 4, confirmed: true });-->
-<!--			}-->
-<!--		} else if (subCategory === "maxBattle" || (majorCategory === "station" && !subCategory)) {-->
-<!--			const stationIconSet = getUiconSetDetails(getUserSettings().uiconSet.station.id);-->
-<!--			const stationMod = getModifiers(stationIconSet, MapObjectType.STATION);-->
-<!--			const maxBattleMod = getModifiers(stationIconSet, "max_battle");-->
+		const uiconKey = config.type as "pokemon" | "pokestop" | "gym" | "station" | "tappable";
+		const iconSet = getUiconSetDetails(getUserSettings().uiconSet[uiconKey]?.id);
+		const baseMod = getConfigModifiers(iconSet, config.type);
 
-<!--			baseIconUrl = getIconStation(false);-->
-<!--			baseImageSize = stationMod.scale;-->
-<!--			baseImageOffset = [stationMod.offsetX, stationMod.offsetY];-->
-<!--			focusImageSize = maxBattleMod.scale;-->
-<!--			focusImageOffset = [-->
-<!--				stationMod.offsetX + maxBattleMod.offsetX,-->
-<!--				stationMod.offsetY + maxBattleMod.offsetY-->
-<!--			];-->
-<!--			overlayOnBase = true;-->
+		// Build focus icon props
+		let focusImageSize = baseMod.scale;
+		let focusOffset = [baseMod.offsetX, baseMod.offsetY] as [number, number];
 
-<!--			focusIconUrl = pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });-->
-<!--		} else {-->
-<!--			const pokemonIconSet = getUiconSetDetails(getUserSettings().uiconSet.pokemon.id);-->
-<!--			const pokemonMod = getModifiers(pokemonIconSet, MapObjectType.POKEMON);-->
-<!--			focusImageSize = pokemonMod.scale;-->
-<!--			focusImageOffset = [pokemonMod.offsetX, pokemonMod.offsetY];-->
-<!--			focusIconUrl = pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });-->
-<!--		}-->
+		if (config.focusModifierType) {
+			const focusMod = getConfigModifiers(iconSet, config.focusModifierType as any);
+			if (config.focusModifierType === "raid_pokemon") {
+				const pokemonMod = getConfigModifiers(iconSet, MapObjectType.POKEMON);
+				focusImageSize = pokemonMod.scale * focusMod.scale;
+			} else {
+				focusImageSize = focusMod.scale;
+			}
+			focusOffset = [baseMod.offsetX + focusMod.offsetX, baseMod.offsetY + focusMod.offsetY];
+		}
 
-<!--		if (!focusIconUrl) return;-->
+		// Use renderer to build focus icon with modifiers (badge, underlay, rotation, label)
+		const renderer = getRenderer(config.type);
+		const fakeData = {
+			mapId: PREVIEW_MAP_ID,
+			lat: previewCenter[1],
+			lon: previewCenter[0],
+			type: config.type
+		} as any;
 
-<!--		// shift the map center so it's central on the icon (in case it's offset)-->
-<!--		let center = previewCenter;-->
-<!--		if (map && baseImageOffset && (baseImageOffset[0] !== 0 || baseImageOffset[1] !== 0)) {-->
-<!--			try {-->
-<!--				const projected = map.project({ lng: previewCenter[0], lat: previewCenter[1] });-->
-<!--				projected.x += baseImageOffset[0] / 2;-->
-<!--				projected.y += baseImageOffset[1] / 2;-->
-<!--				const shifted = map.unproject(projected);-->
-<!--				center = [shifted.lng, shifted.lat];-->
-<!--			} catch {-->
-<!--				center = previewCenter;-->
-<!--			}-->
-<!--		}-->
+		// Override basic props for the focus icon
+		const focusProps = {
+			imageUrl: focusIconUrl,
+			id: PREVIEW_MAP_ID,
+			imageSize: focusImageSize,
+			selectedScale: 1,
+			imageOffset: focusOffset,
+			expires: null
+		};
 
-<!--		// build the geojson-->
-<!--		const features: MapObjectFeature[] = [];-->
-<!--		const hasBase = baseIconUrl && baseImageSize !== undefined && baseImageOffset;-->
-<!--		const focusVisual = withVisualTransform(focusImageSize, filterset?.modifiers);-->
-<!--		const overlayOffset = hasBase && overlayOnBase ? baseImageOffset : undefined;-->
+		const features: MapObjectFeature[] = renderer.renderVisualModifiers(
+			fakeData,
+			PREVIEW_MAP_ID,
+			filterset,
+			focusProps
+		);
 
-<!--		if (filterset?.modifiers?.showBadge && badgeIconUrl) {-->
-<!--			const badgeAnchorOffset = overlayOffset ?? focusImageOffset;-->
-<!--			features.push(-->
-<!--				getIconFeature(`${PREVIEW_MAP_ID}-badge`, previewCenter, {-->
-<!--					id: PREVIEW_MAP_ID,-->
-<!--					imageUrl: badgeIconUrl,-->
-<!--					imageSize: focusVisual.imageSize * BADGE_SCALE_RATIO,-->
-<!--					selectedScale: 1,-->
-<!--					imageOffset: getBadgeOffset(badgeAnchorOffset[0], badgeAnchorOffset[1]),-->
-<!--					isAttachedBadge: true,-->
-<!--					expires: null-->
-<!--				})-->
-<!--			);-->
-<!--		}-->
+		// Add base icon underneath if needed
+		if (config.baseIconUrl) {
+			features.push(
+				getIconFeature(`${PREVIEW_MAP_ID}-base`, previewCenter, {
+					id: PREVIEW_MAP_ID,
+					imageUrl: config.baseIconUrl,
+					imageSize: baseMod.scale,
+					selectedScale: 1,
+					imageOffset: [baseMod.offsetX, baseMod.offsetY],
+					expires: null
+				})
+			);
+		}
 
-<!--		addOverlayIconAndBadge(features, `${PREVIEW_MAP_ID}-focus`, PREVIEW_MAP_ID, previewCenter, {-->
-<!--			imageUrl: focusIconUrl,-->
-<!--			imageSize: focusVisual.imageSize,-->
-<!--			selectedScale: 1,-->
-<!--			imageOffset: focusImageOffset,-->
-<!--			imageRotation: focusVisual.imageRotation,-->
-<!--			textLabel: getTextLabel(filterset?.modifiers),-->
-<!--			expires: null,-->
-<!--			filtersetModifiers: filterset?.modifiers,-->
-<!--			filtersetIcon: undefined,-->
-<!--			overlayImageOffset: overlayOffset-->
-<!--		});-->
+		// Shift center to account for icon offset
+		let center = previewCenter;
+		const baseOffset = config.baseIconUrl
+			? [baseMod.offsetX, baseMod.offsetY]
+			: focusOffset;
+		if (map && (baseOffset[0] !== 0 || baseOffset[1] !== 0)) {
+			try {
+				const projected = map.project({ lng: previewCenter[0], lat: previewCenter[1] });
+				projected.x += baseOffset[0] / 2;
+				projected.y += baseOffset[1] / 2;
+				const shifted = map.unproject(projected);
+				center = [shifted.lng, shifted.lat];
+			} catch {
+				center = previewCenter;
+			}
+		}
 
-<!--		if (hasBase) {-->
-<!--			const baseFeatureIconUrl = baseIconUrl!;-->
-<!--			const baseFeatureImageSize = baseImageSize!;-->
-<!--			const baseFeatureImageOffset = baseImageOffset!;-->
-<!--			features.push(-->
-<!--				getIconFeature(`${PREVIEW_MAP_ID}-base`, previewCenter, {-->
-<!--					id: PREVIEW_MAP_ID,-->
-<!--					imageUrl: baseFeatureIconUrl,-->
-<!--					imageSize: baseFeatureImageSize,-->
-<!--					selectedScale: 1,-->
-<!--					imageOffset: baseFeatureImageOffset,-->
-<!--					expires: null-->
-<!--				})-->
-<!--			);-->
-<!--		}-->
+		return {
+			center,
+			features: {
+				type: "FeatureCollection" as const,
+				features: features.filter((f) => isFeatureIcon(f)) as MapObjectIconFeature[]
+			}
+		};
+	}
 
-<!--		return {-->
-<!--			center,-->
-<!--			features: {-->
-<!--				type: "FeatureCollection" as const,-->
-<!--				features: features as MapObjectIconFeature[]-->
-<!--			}-->
-<!--		};-->
-<!--	};-->
-<!--</script>-->
+	async function updatePreviewMap(map: maplibre.Map) {
+		const previewData = makePreviewData(map);
+		if (!previewData) return;
 
-<!--<div class="rounded-md border border-border overflow-hidden w-full h-40 {class_}">-->
-<!--	{#key getUserSettings().mapStyle.id}-->
-<!--		<MapLibre-->
-<!--			center={[0, 0]}-->
-<!--			zoom={16}-->
-<!--			style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}-->
-<!--			filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}-->
-<!--			class="size-full"-->
-<!--			attributionControl={false}-->
-<!--			interactive={false}-->
-<!--			zoomOnDoubleClick={false}-->
-<!--			onload={async (map) => {-->
-<!--				const previewData = makePreviewData(map);-->
-<!--				if (!previewData) return;-->
+		map.setCenter(previewData.center);
 
-<!--				map.setCenter(previewData.center);-->
+		await ensureMapImages(
+			map,
+			previewData.features.features.map((feature) => feature.properties)
+		);
+		const source = map.getSource<GeoJSONSource>("modifierPreview");
+		source?.setData(previewData.features);
+	}
 
-<!--				const source = map.getSource<GeoJSONSource>("modifierPreview");-->
-<!--				source?.setData(previewData.features);-->
+	$effect(async () => {
+		// filterset state seems a bit messy, doesn't update with just filterset or filterset.modifiers
+		if (!bindMap) return
+		filterset?.modifiers?.glow;
+		filterset?.modifiers?.scale;
+		filterset?.modifiers?.rotation;
+		filterset?.modifiers?.background;
+		filterset?.modifiers?.showBadge;
+		filterset?.modifiers?.showLabel;
+		console.log("update")
+		untrack(async () => {
+			if (!bindMap) return
+			await updatePreviewMap(bindMap)
+		})
+	});
+</script>
 
-<!--				await ensureMapImages(-->
-<!--					map,-->
-<!--					previewData.features.features.map((feature) => feature.properties.imageUrl)-->
-<!--				);-->
-<!--			}}-->
-<!--		>-->
-<!--			<GeoJSON id="modifierPreview" data={{ type: "FeatureCollection", features: [] }}>-->
-<!--				<MapObjectIconLayer-->
-<!--					id="modifierPreviewIcons"-->
-<!--					filter={["==", ["get", "type"], FeatureTypes.ICON]}-->
-<!--				/>-->
-<!--			</GeoJSON>-->
-<!--		</MapLibre>-->
-<!--	{/key}-->
-<!--</div>-->
+<div class="rounded-md border border-border overflow-hidden w-full h-40 {class_}">
+	<MapLibre
+		bind:map={bindMap}
+		center={[0, 0]}
+		zoom={16}
+		style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
+		filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}
+		class="size-full"
+		attributionControl={false}
+		interactive={false}
+		zoomOnDoubleClick={false}
+		onload={updatePreviewMap}
+	>
+		<GeoJSON id="modifierPreview" data={{ type: "FeatureCollection", features: [] }}>
+			<MapObjectIconLayer
+				id="modifierPreviewIcons"
+				filter={["==", ["get", "type"], FeatureTypes.ICON]}
+			/>
+		</GeoJSON>
+	</MapLibre>
+</div>

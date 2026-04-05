@@ -46,7 +46,7 @@ export function getUnderlayFeature(
 		const scale = 1.6;
 		const opacity = filtersetModifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY;
 		const color = filtersetModifiers.glow.color.replace("{}", opacity.toString());
-		const imageId = `bg-${color}`;
+		const imageId = `gl-${color}`;
 
 		return {
 			imageId,

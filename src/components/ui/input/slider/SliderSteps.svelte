@@ -22,7 +22,9 @@
 		step={steps}
 		class="relative flex w-full touch-none select-none items-center"
 		trackPadding={3}
-		onValueChange={onchange}
+		onValueChange={(newValue) => {
+			if (newValue !== value) onchange(newValue);
+		}}
 	>
 		{#snippet children({ tickItems, thumbItems })}
 			<SliderCommon {tickItems} {thumbItems} {labels} />

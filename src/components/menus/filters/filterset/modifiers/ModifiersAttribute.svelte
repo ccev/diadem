@@ -59,7 +59,7 @@
 	}
 </script>
 
-<div class="sticky top-0 pt-1 z-10">
+<div class="sticky top-0 mt-1 z-10">
 	<ModifierPreview filterset={data} {majorCategory} {subCategory} />
 </div>
 
