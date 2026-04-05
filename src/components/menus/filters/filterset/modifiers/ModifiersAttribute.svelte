@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
+	import type { AnyFilterset, FiltersetModifiers } from "@/lib/features/filters/filtersets";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
@@ -41,13 +41,16 @@
 		data.modifiers?.glow?.color ?? data.modifiers?.background?.color ?? defaultColor
 	);
 
-	function ensureModifiers() {
+	function setModifier<K extends keyof FiltersetModifiers>(key: K, value: FiltersetModifiers[K]) {
 		if (!data.modifiers) data.modifiers = {};
+		data.modifiers[key] = value;
 	}
 
-	function cleanupModifiers() {
+	function clearModifier<K extends keyof FiltersetModifiers>(key: K) {
+		if (!data.modifiers) return;
+		delete data.modifiers[key];
+		// clean up empty modifiers object
 		if (
-			data.modifiers &&
 			!data.modifiers.glow &&
 			!data.modifiers.background &&
 			!data.modifiers.scale &&
@@ -70,30 +73,16 @@
 			<MenuTitle title={m.modifier_show_badge()} />
 			<Switch
 				checked={data.modifiers?.showBadge ?? false}
-				onCheckedChange={(enabled) => {
-					if (enabled) {
-						ensureModifiers();
-						data.modifiers!.showBadge = true;
-					} else if (data.modifiers) {
-						delete data.modifiers.showBadge;
-						cleanupModifiers();
-					}
-				}}
+				onCheckedChange={(enabled) =>
+					enabled ? setModifier("showBadge", true) : clearModifier("showBadge")}
 			/>
 		</div>
 		<div class="flex items-center justify-between gap-2 mt-4">
 			<MenuTitle title={m.modifier_show_label()} />
 			<Switch
 				checked={!!data.modifiers?.showLabel}
-				onCheckedChange={(enabled) => {
-					if (enabled) {
-						ensureModifiers();
-						data.modifiers!.showLabel = filterTitle(data);
-					} else if (data.modifiers) {
-						delete data.modifiers.showLabel;
-						cleanupModifiers();
-					}
-				}}
+				onCheckedChange={(enabled) =>
+					enabled ? setModifier("showLabel", filterTitle(data)) : clearModifier("showLabel")}
 			/>
 		</div>
 		{#if data.modifiers?.showLabel}
@@ -122,25 +111,18 @@
 			value={visualMode}
 			onValueChange={(mode) => {
 				const currentColor = activeColor;
-				if (data.modifiers) {
-					delete data.modifiers.glow;
-					delete data.modifiers.background;
-				}
-				if (mode === "none") {
-					cleanupModifiers();
-					return;
-				}
-				ensureModifiers();
+				clearModifier("glow");
+				clearModifier("background");
 				if (mode === "glow") {
-					data.modifiers!.glow = {
+					setModifier("glow", {
 						color: currentColor ?? defaultColor,
 						opacity: MODIFIER_GLOW_OPACITY
-					};
-				} else {
-					data.modifiers!.background = {
+					});
+				} else if (mode === "background") {
+					setModifier("background", {
 						color: currentColor ?? defaultColor,
 						opacity: MODIFIER_BACKGROUND_OPACITY
-					};
+					});
 				}
 			}}
 			class="w-full mt-3"
@@ -213,15 +195,7 @@
 			value={data.modifiers?.scale ?? 1}
 			onchange={(value) => {
 				const rounded = Number(value.toFixed(2));
-				if (rounded === 1) {
-					if (data.modifiers) {
-						delete data.modifiers.scale;
-						cleanupModifiers();
-					}
-					return;
-				}
-				ensureModifiers();
-				data.modifiers!.scale = rounded;
+				rounded === 1 ? clearModifier("scale") : setModifier("scale", rounded);
 			}}
 			steps={[0.7, 1, 1.3, 1.6]}
 			labels={{
@@ -236,15 +210,7 @@
 			value={data.modifiers?.rotation ?? 0}
 			onchange={(value) => {
 				const rounded = Math.round(value);
-				if (rounded === 0) {
-					if (data.modifiers) {
-						delete data.modifiers.rotation;
-						cleanupModifiers();
-					}
-					return;
-				}
-				ensureModifiers();
-				data.modifiers!.rotation = rounded;
+				rounded === 0 ? clearModifier("rotation") : setModifier("rotation", rounded);
 			}}
 			steps={[0, 90, 180, 270]}
 			labels={{
