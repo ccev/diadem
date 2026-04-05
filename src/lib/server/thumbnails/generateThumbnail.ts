@@ -12,20 +12,20 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("thumbnail");
 
-let interRegular: Buffer;
-let interBold: Buffer;
+let interRegular: ArrayBuffer;
+let interBold: ArrayBuffer;
 
-function loadFonts() {
+async function loadFonts() {
 	if (!interRegular || !interBold) {
 		const base = dev ? "static" : "build/client";
 		const fontsDir = join(process.cwd(), base, "fonts");
-		interRegular = readFileSync(join(fontsDir, "Inter-Regular.ttf"));
-		interBold = readFileSync(join(fontsDir, "Inter-Bold.ttf"));
+		interRegular = await Bun.file(join(fontsDir, "Inter-Regular.ttf")).arrayBuffer();
+		interBold = await Bun.file(join(fontsDir, "Inter-Bold.ttf")).arrayBuffer();
 	}
 }
 
 export async function generateThumbnail(rendered: ReturnType<typeof render>) {
-	loadFonts();
+	await loadFonts();
 
 	const markup = html("<style>" + rendered.head + "</style>" + rendered.body);
 

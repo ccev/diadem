@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { FillLayer, GeoJSON, LineLayer } from "svelte-maplibre";
-	import { type FeatureCollection, type GeoJSON as GeoJsonType } from "geojson";
-	import { CoverageMapLayerId, type MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
-	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import type { FeatureCollection } from "geojson";
+	import { type MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 	import { getMapStyleVersion } from "@/lib/map/map.svelte";
 
 	let {
