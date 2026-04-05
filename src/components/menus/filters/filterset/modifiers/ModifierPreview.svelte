@@ -124,12 +124,14 @@
 		return pokemonIcon ?? getIconPokemon({ pokemon_id: 25, form: 0 });
 	}
 
-	function getBaseConfig(): {
-		type: MapObjectType;
-		baseIconUrl?: string;
-		overlayOnBase?: boolean;
-		focusModifierType?: string;
-	} | undefined {
+	function getBaseConfig():
+		| {
+				type: MapObjectType;
+				baseIconUrl?: string;
+				overlayOnBase?: boolean;
+				focusModifierType?: string;
+		  }
+		| undefined {
 		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {
 			return {
 				type: MapObjectType.GYM,
@@ -230,9 +232,7 @@
 
 		// Shift center to account for icon offset
 		let center = previewCenter;
-		const baseOffset = config.baseIconUrl
-			? [baseMod.offsetX, baseMod.offsetY]
-			: focusOffset;
+		const baseOffset = config.baseIconUrl ? [baseMod.offsetX, baseMod.offsetY] : focusOffset;
 		if (map && (baseOffset[0] !== 0 || baseOffset[1] !== 0)) {
 			try {
 				const projected = map.project({ lng: previewCenter[0], lat: previewCenter[1] });
@@ -270,18 +270,18 @@
 
 	$effect(async () => {
 		// filterset state seems a bit messy, doesn't update with just filterset or filterset.modifiers
-		if (!bindMap) return
+		if (!bindMap) return;
 		filterset?.modifiers?.glow;
 		filterset?.modifiers?.scale;
 		filterset?.modifiers?.rotation;
 		filterset?.modifiers?.background;
 		filterset?.modifiers?.showBadge;
 		filterset?.modifiers?.showLabel;
-		console.log("update")
+		console.log("update");
 		untrack(async () => {
-			if (!bindMap) return
-			await updatePreviewMap(bindMap)
-		})
+			if (!bindMap) return;
+			await updatePreviewMap(bindMap);
+		});
 	});
 </script>
 

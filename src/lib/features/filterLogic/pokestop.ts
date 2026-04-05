@@ -16,7 +16,7 @@ import type { FiltersetInvasion, FiltersetQuest } from "@/lib/features/filters/f
 
 export function matchInvasionFilterset(incident: Incident): FiltersetInvasion | undefined {
 	const pokestopFilters = getActivePokestopFilter();
-	if (!isIncidentInvasion(incident)) return
+	if (!isIncidentInvasion(incident)) return;
 
 	const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
 	if (invasionFilters.length === 0) return;
@@ -76,7 +76,7 @@ export function matchQuestFilterset(
 	reward: QuestReward,
 	title: string,
 	target: number,
-	isAr: boolean,
+	isAr: boolean
 ): FiltersetQuest | undefined {
 	const pokestopFilter = getActivePokestopFilter();
 	const questFilters = pokestopFilter.quest.filters.filter((f) => f.enabled);
@@ -186,7 +186,7 @@ export function shouldDisplayQuest(
 	const questFilters = pokestopFilter.quest.filters.filter((f) => f.enabled);
 	if (questFilters.length === 0) return true;
 
-	return Boolean(matchQuestFilterset(reward, title, target, isAr))
+	return Boolean(matchQuestFilterset(reward, title, target, isAr));
 }
 
 export function shouldDisplayLure(data: Partial<PokestopData>) {

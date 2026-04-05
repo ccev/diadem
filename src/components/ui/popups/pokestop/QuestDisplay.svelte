@@ -9,11 +9,7 @@
 	import { CircleAlert, Clock } from "lucide-svelte";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
-	import {
-		getArTag,
-		getRewardText,
-		parseQuestReward
-	} from "@/lib/utils/pokestopUtils";
+	import { getArTag, getRewardText, parseQuestReward } from "@/lib/utils/pokestopUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 	import { shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 

@@ -17,9 +17,7 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 
 	ensureMapImages(
 		map,
-		features
-			.filter((f) => isFeatureIcon(f))
-			.map((f) => f.properties)
+		features.filter((f) => isFeatureIcon(f)).map((f) => f.properties)
 	).then(() => {
 		updateMapGeojsonSource(MapSourceId.MAP_OBJECTS, mapObjectsGeoJson);
 	});

@@ -53,4 +53,3 @@ export function getActiveStationFilter() {
 	}
 	return getUserSettings().filters.station;
 }
-

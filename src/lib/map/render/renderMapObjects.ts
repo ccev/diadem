@@ -168,10 +168,7 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		if (filterset?.modifiers?.rotation) {
 			props.imageRotation = filterset.modifiers.rotation;
 
-			if (
-				props.imageOffset &&
-				(props.imageOffset[0] !== 0 || props.imageOffset[1] !== 0)
-			) {
+			if (props.imageOffset && (props.imageOffset[0] !== 0 || props.imageOffset[1] !== 0)) {
 				// offset is applied in rotated space, this revereses that
 				const rad = (-props.imageRotation * Math.PI) / 180;
 				const cos = Math.cos(rad);
@@ -183,9 +180,12 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 			}
 		}
 
-		const extraMainProps: Pick<MapObjectIconProperties, "textLabel" | "textOffset"> = {}
+		const extraMainProps: Pick<MapObjectIconProperties, "textLabel" | "textOffset"> = {};
 		if (filterset?.modifiers?.showLabel) {
-			extraMainProps.textLabel = typeof filterset.modifiers.showLabel === "string" ? filterset.modifiers.showLabel : filterTitle(filterset);
+			extraMainProps.textLabel =
+				typeof filterset.modifiers.showLabel === "string"
+					? filterset.modifiers.showLabel
+					: filterTitle(filterset);
 		}
 
 		if (filterset?.modifiers?.scale) {
@@ -196,10 +196,10 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 			feats.push(this.renderBadge(data, id, filterset, props));
 		}
 
-		feats.push(this.getFeature(data, {...props, ...extraMainProps}, { id }));
+		feats.push(this.getFeature(data, { ...props, ...extraMainProps }, { id }));
 
 		if (filterset) {
-			feats.push(this.renderUnderlay(data, id, filterset, props))
+			feats.push(this.renderUnderlay(data, id, filterset, props));
 		}
 
 		return feats;

@@ -69,4 +69,3 @@ export function getActiveGymFilter() {
 	}
 	return getUserSettings().filters.gym;
 }
-

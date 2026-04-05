@@ -12,7 +12,8 @@ export const MODIFIER_COLORS = {
 
 export function getUnderlayColor(name: keyof typeof MODIFIER_COLORS, opacity: number = 1): string {
 	return (
-		MODIFIER_COLORS[name].replace("{}", opacity.toString()) ?? MODIFIER_COLORS.red.replace("{}", opacity.toString())
+		MODIFIER_COLORS[name].replace("{}", opacity.toString()) ??
+		MODIFIER_COLORS.red.replace("{}", opacity.toString())
 	);
 }
 

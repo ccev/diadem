@@ -13,7 +13,7 @@ export type AnyFilterset =
 	| FiltersetGymPlain
 	| FiltersetRaid
 	| FiltersetStationPlain
-	| FiltersetMaxBattle
+	| FiltersetMaxBattle;
 
 // remember to update zod schemas when editing filterset types!
 

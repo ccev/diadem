@@ -10,7 +10,8 @@
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import {
-		MODIFIER_BACKGROUND_OPACITY, MODIFIER_COLORS,
+		MODIFIER_BACKGROUND_OPACITY,
+		MODIFIER_COLORS,
 		MODIFIER_GLOW_OPACITY
 	} from "@/lib/features/filters/modifierPresets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
@@ -30,14 +31,14 @@
 
 	type VisualMode = "none" | "glow" | "background";
 
-	const defaultColor = MODIFIER_COLORS.red
+	const defaultColor = MODIFIER_COLORS.red;
 
 	let visualMode = $derived<VisualMode>(
 		data.modifiers?.glow ? "glow" : data.modifiers?.background ? "background" : "none"
 	);
 
 	let activeColor = $derived(
-		data.modifiers?.glow?.color ?? data.modifiers?.background?.color ?? defaultColor,
+		data.modifiers?.glow?.color ?? data.modifiers?.background?.color ?? defaultColor
 	);
 
 	function ensureModifiers() {

@@ -50,6 +50,6 @@ export async function ensureMapImage(map: maplibre.Map, props: MapObjectIconProp
 }
 
 export async function ensureMapImages(map: maplibre.Map, features: MapObjectIconProperties[]) {
-	const unique = [...new Map(features.map(f => [f.imageId, f])).values()];
+	const unique = [...new Map(features.map((f) => [f.imageId, f])).values()];
 	await Promise.all(unique.map((props) => ensureMapImage(map, props)));
 }

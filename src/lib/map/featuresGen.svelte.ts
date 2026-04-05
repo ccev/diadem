@@ -93,7 +93,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	for (const [type, thisFeatures] of Object.entries(features)) {
 		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
 			if (
-				subFeatures.find((f) => f.properties?.expires && f.properties.expires < currentTimestamp()) ||
+				subFeatures.find(
+					(f) => f.properties?.expires && f.properties.expires < currentTimestamp()
+				) ||
 				!(existingId in mapObjects)
 			) {
 				delete features[type][existingId];
