@@ -17,6 +17,9 @@ export type MapObjectIconProperties = {
 	imageOffset?: [number, number];
 	isModifierBadge?: boolean;
 	isModifierUnderlay?: boolean;
+	imageRotation?: number;
+	textLabel?: string;
+	textOffset?: number;
 	expires: number | null;
 };
 export type MinMapObjectIconProperties = Omit<MapObjectIconProperties, "type" | "imageId"> & {
@@ -64,7 +67,7 @@ export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjec
 export function getIconFeature(
 	id: string,
 	coordinates: Point["coordinates"],
-	properties: MinMapObjectProperties
+	properties: MinMapObjectIconProperties
 ): MapObjectIconFeature {
 	let imageUrl = properties.imageUrl;
 	if (!imageUrl.startsWith("data:") && imageUrl) {

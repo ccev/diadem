@@ -42,7 +42,7 @@ export type FiltersetModifiers = {
 		opacity?: number;
 	};
 	showBadge?: boolean;
-	showLabel?: string;
+	showLabel?: string | boolean;
 };
 
 export type BaseFilterset = {

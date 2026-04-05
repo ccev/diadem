@@ -106,7 +106,7 @@
 							if (value) {
 								data.modifiers.showLabel = value;
 							} else {
-								data.modifiers.showLabel = filterTitle(data);
+								data.modifiers.showLabel = true;
 							}
 						}
 					}}

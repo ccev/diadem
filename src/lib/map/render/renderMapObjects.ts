@@ -55,6 +55,7 @@ import type { AnyFilterset, FiltersetQuest } from "@/lib/features/filters/filter
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
 import { getUnderlayFeature } from "@/lib/map/render/modifierUnderlay";
+import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;
@@ -164,11 +165,34 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 	) {
 		const feats: MapObjectFeature[] = [];
 
+		if (filterset?.modifiers?.rotation) {
+			props.imageRotation = filterset.modifiers.rotation;
+
+			if (
+				props.imageOffset &&
+				(props.imageOffset[0] !== 0 || props.imageOffset[1] !== 0)
+			) {
+				// offset is applied in rotated space, this revereses that
+				const rad = (-props.imageRotation * Math.PI) / 180;
+				const cos = Math.cos(rad);
+				const sin = Math.sin(rad);
+				props.imageOffset = [
+					props.imageOffset[0] * cos - props.imageOffset[1] * sin,
+					props.imageOffset[0] * sin + props.imageOffset[1] * cos
+				];
+			}
+		}
+
+		const extraMainProps: Pick<MapObjectIconProperties, "textLabel" | "textOffset"> = {}
+		if (filterset?.modifiers?.showLabel) {
+			extraMainProps.textLabel = typeof filterset.modifiers.showLabel === "string" ? filterset.modifiers.showLabel : filterTitle(filterset);
+		}
+
 		if (filterset) {
 			feats.push(this.renderBadge(data, id, filterset, props));
 		}
 
-		feats.push(this.getFeature(data, props, { id }));
+		feats.push(this.getFeature(data, {...props, ...extraMainProps}, { id }));
 
 		if (filterset) {
 			feats.push(this.renderUnderlay(data, id, filterset, props))
