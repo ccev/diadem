@@ -291,7 +291,6 @@
 		center={[0, 0]}
 		zoom={16}
 		style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
-		filterLayers={(layer) => layer.type !== "symbol" || layer.id.startsWith("modifierPreview")}
 		class="size-full"
 		attributionControl={false}
 		interactive={false}
