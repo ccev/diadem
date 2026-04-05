@@ -17,7 +17,7 @@ import {
 import {
 	matchInvasionFilterset,
 	matchQuestFilterset,
-	shouldDisplayIncidient,
+	shouldDisplayIncident,
 	shouldDisplayQuest
 } from "@/lib/features/filterLogic/pokestop";
 import {
@@ -310,7 +310,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 		let index = 0;
 		for (const incident of data?.incident ?? []) {
-			if (shouldDisplayIncidient(incident, data)) {
+			if (shouldDisplayIncident(incident, data)) {
 				showThis = true;
 			} else {
 				continue;

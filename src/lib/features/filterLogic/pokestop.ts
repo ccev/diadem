@@ -38,7 +38,7 @@ export function matchInvasionFilterset(incident: Incident): FiltersetInvasion | 
 	}
 }
 
-export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<PokestopData>) {
+export function shouldDisplayIncident(incident: Incident, pokestop: Partial<PokestopData>) {
 	const timestamp = currentTimestamp();
 
 	// only active incidents

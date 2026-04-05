@@ -37,7 +37,7 @@
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 	import {
 		shouldDisplayContest,
-		shouldDisplayIncidient,
+		shouldDisplayIncident,
 		shouldDisplayLure
 	} from "@/lib/features/filterLogic/pokestop";
 
@@ -68,7 +68,7 @@
 
 {#snippet incidentSection(expanded: boolean)}
 	{#each data.incident as incident}
-		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncidient(incident, data)}
+		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncident(incident, data)}
 			{#if isIncidentInvasion(incident)}
 				<InvasionDisplay {expanded} {incident} />
 			{:else if isIncidentKecleon(incident)}
