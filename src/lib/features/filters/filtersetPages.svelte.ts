@@ -113,7 +113,6 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 		reset: resetPages,
 		close: () => {
 			if (attributePageDetails.previousDetails.length) {
-				console.log("depth 1");
 				const last = attributePageDetails.previousDetails.pop();
 				attributePageDetails.label = last?.label;
 				attributePageDetails.snippet = last?.snippet;

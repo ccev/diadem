@@ -189,8 +189,6 @@ export function setActiveSearchContest(name: string, rankingStandard: number, fo
 	filter.contest.filters = [filterset];
 	filter.enabled = true;
 
-	console.log(filter);
-
 	setActiveSearch({
 		name,
 		mapObject: MapObjectType.POKESTOP,
@@ -314,8 +312,6 @@ export function setActiveSearchMaxBattleBoss(
 	filter.maxBattle.enabled = true;
 	filter.maxBattle.filters = [filterset];
 	filter.enabled = true;
-
-	console.log(filter);
 
 	setActiveSearch({
 		name,

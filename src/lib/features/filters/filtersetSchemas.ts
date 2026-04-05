@@ -1,6 +1,28 @@
 import { z } from "zod";
 import { IconCategory } from "@/lib/features/filters/icons";
 
+const FiltersetModifiersSchema = z
+	.object({
+		glow: z
+			.object({
+				color: z.string(),
+				radius: z.number().positive().optional(),
+				opacity: z.number().min(0).max(1).optional()
+			})
+			.optional(),
+		scale: z.number().positive().optional(),
+		rotation: z.number().min(0).max(360).optional(),
+		background: z
+			.object({
+				color: z.string(),
+				opacity: z.number().min(0).max(1).optional()
+			})
+			.optional(),
+		showBadge: z.boolean().optional(),
+		showLabel: z.string().optional()
+	})
+	.optional();
+
 const BaseFiltersetSchema = z.object({
 	id: z.string(),
 	title: z.object({
@@ -18,7 +40,8 @@ const BaseFiltersetSchema = z.object({
 				params: z.record(z.string(), z.any())
 			})
 			.optional()
-	})
+	}),
+	modifiers: FiltersetModifiersSchema
 });
 
 const MinMaxSchema = z.object({
@@ -33,7 +56,7 @@ const PokemonSchema = z.object({
 
 const QuestRewardSchema = z.object({
 	id: z.string(),
-	amount: MinMaxSchema.optional()
+	amount: z.number().optional()
 });
 
 export const FiltersetPokemonSchema = BaseFiltersetSchema.extend({
@@ -60,6 +83,8 @@ export const FiltersetPokestopPlainSchema = BaseFiltersetSchema.extend({
 
 export const FiltersetQuestSchema = BaseFiltersetSchema.extend({
 	ar: z.enum(["ar", "noar", "all"]).optional(),
+	rewardType: z.number().optional(),
+	tasks: z.array(z.object({ title: z.string(), target: z.number() })).optional(),
 	pokemon: z.array(PokemonSchema).optional(),
 	item: z.array(QuestRewardSchema).optional(),
 	megaResource: z.array(QuestRewardSchema).optional(),

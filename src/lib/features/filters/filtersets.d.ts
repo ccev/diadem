@@ -13,8 +13,7 @@ export type AnyFilterset =
 	| FiltersetGymPlain
 	| FiltersetRaid
 	| FiltersetStationPlain
-	| FiltersetMaxBattle
-	| FiltersetS2Cell;
+	| FiltersetMaxBattle;
 
 // remember to update zod schemas when editing filterset types!
 
@@ -29,6 +28,23 @@ export type FiltersetTitle = {
 	title?: string;
 } & Message;
 
+export type FiltersetModifiers = {
+	glow?: {
+		color: string;
+		radius?: number;
+		opacity?: number;
+	};
+	scale?: number;
+	rotation?: number;
+	background?: {
+		color: string;
+		radius?: number;
+		opacity?: number;
+	};
+	showBadge?: boolean;
+	showLabel?: string | boolean;
+};
+
 export type BaseFilterset = {
 	id: string;
 	title: FiltersetTitle;
@@ -38,12 +54,13 @@ export type BaseFilterset = {
 		emoji?: string;
 		uicon?: {
 			category: IconCategory;
-			params: { [key: string]: any } | any;
+			params: Record<string, any>;
 		};
 	};
+	modifiers?: FiltersetModifiers;
 };
 
-type MinMax = {
+export type MinMax = {
 	min: number;
 	max: number;
 };

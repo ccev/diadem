@@ -29,15 +29,17 @@
 		isIncidentContest,
 		isIncidentInvasion,
 		isIncidentKecleon,
-		KECLEON_ID,
-		shouldDisplayContest,
-		shouldDisplayIncidient,
-		shouldDisplayLure
+		KECLEON_ID
 	} from "@/lib/utils/pokestopUtils";
 	import { isFortOutdated } from "@/lib/utils/gymUtils";
 	import { formatRatio } from "@/lib/utils/numberFormat";
 	import { getRarityLabel } from "@/lib/utils/pokemonUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
+	import {
+		shouldDisplayContest,
+		shouldDisplayIncident,
+		shouldDisplayLure
+	} from "@/lib/features/filterLogic/pokestop";
 
 	let data: PokestopData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokestopData) ??
@@ -66,7 +68,7 @@
 
 {#snippet incidentSection(expanded: boolean)}
 	{#each data.incident as incident}
-		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncidient(incident, data)}
+		{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncident(incident, data)}
 			{#if isIncidentInvasion(incident)}
 				<InvasionDisplay {expanded} {incident} />
 			{:else if isIncidentKecleon(incident)}

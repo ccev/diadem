@@ -1,6 +1,5 @@
 import { getConfig } from "@/lib/services/config/config";
 import type { MapMouseEvent } from "maplibre-gl";
-import type { MapObjectFeature } from "@/lib/map/featuresGen.svelte.js";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import {
 	getCurrentSelectedData,
@@ -20,6 +19,7 @@ import {
 import type { Feature, Polygon } from "geojson";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { Coords } from "@/lib/utils/coordinates";
+import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -80,8 +80,12 @@ export function clickMapHandler(event: MapMouseEvent) {
 			layers: Object.values(MapObjectLayerId)
 		});
 
-		// @ts-ignore
-		const feature = features[0] as MapObjectFeature;
+		const mapFeatures = features as unknown as MapObjectFeature[];
+		const feature =
+			mapFeatures.find(
+				(feature) =>
+					!("isModifierUnderlay" in feature.properties) || !feature.properties.isModifierUnderlay
+			) ?? mapFeatures[0];
 
 		if (feature) {
 			openPopup(getMapObjects()[feature.properties.id]);

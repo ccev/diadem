@@ -20,7 +20,6 @@
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, handleRotatePitchDisable, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
-	import { clearSessionImageUrls } from "@/lib/map/featuresManage.svelte";
 	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
 	import {
 		onMapMove,
@@ -49,7 +48,6 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
-	import { MapObjectFeatureType } from "@/lib/map/featuresGen.svelte";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
@@ -58,6 +56,8 @@
 	import { getKojiGeofences } from "@/lib/features/koji";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { getConfig } from "@/lib/services/config/config";
+	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
+	import { FeatureTypes } from "@/lib/map/render/featureTypes";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -150,7 +150,6 @@
 
 	onMount(() => {
 		setMap(undefined);
-		clearSessionImageUrls();
 		updateCurrentPath();
 	});
 
@@ -221,7 +220,7 @@
 		<CircleLayer
 			id={MapObjectLayerId.CIRCLES}
 			hoverCursor="pointer"
-			filter={["==", ["get", "type"], MapObjectFeatureType.CIRCLE]}
+			filter={["==", ["get", "type"], FeatureTypes.CIRCLE]}
 			paint={{
 				"circle-radius": [
 					"*",
@@ -235,22 +234,10 @@
 			}}
 			eventsIfTopMost={true}
 		/>
-		<SymbolLayer
+		<MapObjectIconLayer
 			id={MapObjectLayerId.ICONS}
 			hoverCursor="pointer"
-			filter={["==", ["get", "type"], MapObjectFeatureType.ICON]}
-			layout={{
-				"icon-image": ["get", "imageUrl"],
-				"icon-overlap": "always",
-				"icon-size": [
-					"*",
-					["get", "imageSize"],
-					["get", "selectedScale"],
-					getUserSettings().mapIconSize
-				],
-				"icon-allow-overlap": true,
-				"icon-offset": ["get", "imageOffset"]
-			}}
+			filter={["==", ["get", "type"], FeatureTypes.ICON]}
 			eventsIfTopMost={true}
 		/>
 	</GeoJSON>

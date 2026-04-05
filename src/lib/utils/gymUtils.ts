@@ -3,8 +3,7 @@ import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
-import type { FilterGym, FilterPokestop } from "@/lib/features/filters/filters";
+import type { FilterGym } from "@/lib/features/filters/filters";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
@@ -69,54 +68,4 @@ export function getActiveGymFilter() {
 		return activeSearch.filter as FilterGym;
 	}
 	return getUserSettings().filters.gym;
-}
-
-export function shouldDisplayRaid(data: GymData) {
-	const timestamp = currentTimestamp();
-
-	// only active raids
-	if ((data.raid_end_timestamp ?? 0) < timestamp || !data.raid_level) return false;
-
-	if (isCurrentSelectedOverwrite(data.mapId)) return true;
-
-	// general disabling
-	const gymFilters = getActiveGymFilter();
-	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false;
-
-	// yes if not filtersets
-	if (gymFilters.raid.filters === undefined) return true;
-
-	const filters = gymFilters.raid.filters.filter((f) => f.enabled);
-	if (filters.length === 0) return true;
-
-	const isEgg = !data.raid_pokemon_id;
-
-	for (const filter of filters) {
-		if (filter.show) {
-			// skip if hatch state shouldn't be shown
-			if (filter.show.includes("egg") && !isEgg) continue;
-			if (filter.show.includes("boss") && isEgg) continue;
-
-			// return true if this is the only attribute
-			if (!filter.levels && !filter.bosses) {
-				if (filter.show.includes("egg") && isEgg) return true;
-				if (filter.show.includes("boss") && !isEgg) return true;
-			}
-		}
-
-		// respect level filters
-		if (filter.levels?.includes(data.raid_level)) return true;
-
-		// check if boss should be shown
-		for (const boss of filter.bosses ?? []) {
-			if (
-				boss.pokemon_id === data.raid_pokemon_id &&
-				(!boss.form || boss.form === data.raid_pokemon_form)
-			) {
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
