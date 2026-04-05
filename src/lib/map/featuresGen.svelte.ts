@@ -86,17 +86,6 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	// TODO perf: when currentSelected is updated, only update what's needed and not the whole array
 	// TODO: when a gym is updated, it's not being shown on the map
 
-	const styles = getComputedStyle(document.documentElement);
-
-	const showAllPokestops = getActivePokestopFilter().pokestopPlain.enabled;
-	const showLures = getActivePokestopFilter().lure.enabled;
-	const showQuests = getActivePokestopFilter().quest.enabled;
-	const showInvasions = getActivePokestopFilter().invasion.enabled;
-	const showAllGyms = getActiveGymFilter().gymPlain.enabled;
-
-	const iconSets = getCurrentUiconSetDetailsAllTypes();
-	const timestamp = currentTimestamp();
-
 	const selectedMapId = getCurrentSelectedData()?.mapId ?? "";
 	// const allCurrentMapIds = Object.keys(mapObjects);
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
@@ -104,15 +93,13 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	for (const [type, thisFeatures] of Object.entries(features)) {
 		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
 			if (
-				subFeatures.find((f) => f.properties?.expires && f.properties.expires < timestamp) ||
+				subFeatures.find((f) => f.properties?.expires && f.properties.expires < currentTimestamp()) ||
 				!(existingId in mapObjects)
 			) {
 				delete features[type][existingId];
 			}
 		}
 	}
-
-	// const loopTime = performance.now();
 
 	for (const obj of Object.values(mapObjects)) {
 		if (features[obj.type][obj.mapId]) continue;
