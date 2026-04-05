@@ -277,7 +277,6 @@
 		filterset?.modifiers?.background;
 		filterset?.modifiers?.showBadge;
 		filterset?.modifiers?.showLabel;
-		console.log("update");
 		untrack(async () => {
 			if (!bindMap) return;
 			await updatePreviewMap(bindMap);

@@ -83,7 +83,8 @@ export function clickMapHandler(event: MapMouseEvent) {
 		const mapFeatures = features as unknown as MapObjectFeature[];
 		const feature =
 			mapFeatures.find(
-				(feature) => !("isUnderlay" in feature.properties) || !feature.properties.isUnderlay
+				(feature) =>
+					!("isModifierUnderlay" in feature.properties) || !feature.properties.isModifierUnderlay
 			) ?? mapFeatures[0];
 
 		if (feature) {

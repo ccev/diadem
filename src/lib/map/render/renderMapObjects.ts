@@ -288,7 +288,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 				if (
 					reward &&
-					shouldDisplayQuest(reward, data.quest_title ?? "", data.quest_target, false, data)
+					shouldDisplayQuest(reward, data.quest_title ?? "", data.quest_target, true, data)
 				) {
 					showThis = true;
 					const mapId = data.mapId + "-quest-" + data.quest_timestamp;
@@ -411,19 +411,6 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 					raidModifiers = getConfigModifiers(this.iconSet, "raid_egg_6");
 				}
 
-				features.push(
-					...this.renderVisualModifiers(data, mapId, filterset, {
-						imageUrl: getIconRaidEgg(data.raid_level ?? 0),
-						imageSize: raidModifiers.scale,
-						selectedScale,
-						imageOffset: [
-							this.iconModifiers.offsetX + raidModifiers.offsetX,
-							this.iconModifiers.offsetY + raidModifiers.offsetY
-						],
-						id: data.mapId,
-						expires: data.raid_battle_timestamp ?? null
-					})
-				);
 				features.push(
 					...this.renderVisualModifiers(data, mapId, filterset, {
 						imageUrl: getIconRaidEgg(data.raid_level ?? 0),

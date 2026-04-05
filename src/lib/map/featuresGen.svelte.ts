@@ -1,4 +1,3 @@
-import { getCurrentUiconSetDetailsAllTypes } from "@/lib/services/uicons.svelte.js";
 import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { SELECTED_MAP_OBJECT_SCALE } from "@/lib/constants";
 import {
@@ -8,12 +7,9 @@ import {
 import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getActivePokestopFilter } from "@/lib/utils/pokestopUtils";
-import { getActiveGymFilter } from "@/lib/utils/gymUtils";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getRenderer } from "@/lib/map/render/renderMapObjects";
 import {
-	type Features,
 	isFeatureCircle,
 	isFeatureIcon,
 	isFeaturePolygon,

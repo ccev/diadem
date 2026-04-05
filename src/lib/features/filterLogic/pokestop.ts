@@ -58,16 +58,11 @@ export function shouldDisplayIncidient(incident: Incident, pokestop: Partial<Pok
 		return true;
 	if (pokestopFilters.kecleon.enabled && isIncidentKecleon(incident)) return true;
 
-	if (
-		pokestopFilters.invasion.enabled &&
-		isIncidentInvasion(incident) &&
-		matchInvasionFilterset(incident)
-	) {
-		return true;
+	if (isIncidentInvasion(incident)) {
+		const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
+		if (invasionFilters.length === 0) return true;
+		if (pokestopFilters.invasion.enabled && matchInvasionFilterset(incident)) return true
 	}
-
-	const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
-	if (invasionFilters.length === 0) return true;
 
 	return false;
 }
