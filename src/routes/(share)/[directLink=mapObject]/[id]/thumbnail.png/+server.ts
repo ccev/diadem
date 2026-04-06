@@ -3,14 +3,10 @@ import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
 import { render } from "svelte/server";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
-import {
-	prepareSingleMapObject,
-	querySingleMapObject
-} from "@/lib/server/queryMapObjects/querySingleMapObject";
+import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
 import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/uicons.svelte";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
+import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import MapObject from "@/components/thumbnail/MapObject.svelte";
 import { fetchStaticMapBase64, imageUrlToBase64 } from "@/lib/server/thumbnails/thumbnailUtils";
 import { Coords } from "@/lib/utils/coordinates";
@@ -24,7 +20,7 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 	if (!allMapObjectTypes.includes(params.directLink)) error(400);
 
 	const [data, ..._] = await Promise.all([
-		prepareSingleMapObject(params.directLink, params.id, fetch), // bypassing permissions :S
+		querySingleMapObject(params.directLink, params.id, fetch), // bypassing permissions :S
 		initAllIconSets(fetch),
 		loadRemoteLocale(getClientConfig().general.defaultLocale, fetch)
 	]);

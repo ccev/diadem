@@ -1,4 +1,3 @@
-import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
@@ -14,19 +13,14 @@ export function getMapObjects() {
 }
 
 export function addMapObjects(
-	mapObjects: Partial<MapData>[],
+	mapObjects: MapData[],
 	type: MapObjectType,
 	examined: number
 ) {
-	const newState: MapObjectsStateType = {};
-
-	// adds missing mapId and type to map objects
-	// could be moved to the server
-	for (let data of mapObjects) {
-		data = makeMapObject(data, type);
-		newState[data.mapId] = data;
-	}
-	mapObjectsState = { ...mapObjectsState, ...newState };
+	mapObjectsState = {
+		...mapObjectsState,
+		...Object.fromEntries(mapObjects.map((o) => [o.mapId, o]))
+	};
 	mapObjectCounts[type] = { showing: mapObjects.length, examined };
 }
 

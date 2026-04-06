@@ -1,0 +1,143 @@
+import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
+import { query as dbQuery } from "@/lib/server/db/external/internalQuery";
+import { buildSpatialFilter as defaultBuildSpatialFilter } from "@/lib/server/api/spatialFilter";
+
+export type MapObjectResponse<Data extends MapData> = {
+	examined: number;
+	data: MinMapObject<Data>[];
+};
+
+export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
+	protected abstract readonly type: MapObjectType;
+
+	abstract query(
+		bounds: Bounds,
+		filter: Filter | undefined,
+		polygon: Feature<Polygon | MultiPolygon> | null
+	): Promise<MapObjectResponse<MapObject>>;
+
+	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
+
+	filter(
+		data: MinMapObject<MapObject>,
+		_filter: Filter | undefined,
+		polygon: Feature<Polygon | MultiPolygon> | null
+	): boolean {
+		return true;
+	}
+
+	prepare(_data: MinMapObject<MapObject>): void {}
+
+	makeMapObject(data: MinMapObject<MapObject>): MapObject {
+		return {
+			type: this.type,
+			mapId: this.type + "-" + data.id,
+			...data
+		} as MapObject
+	}
+
+	public async getMultiple(
+		bounds: Bounds,
+		filter: Filter | undefined,
+		polygon: Feature<Polygon | MultiPolygon> | null
+	): Promise<MapObjectResponse<MapObject>> {
+		const result = await this.query(bounds, filter, polygon);
+		for (const item of result.data) {
+			this.prepare(item);
+		}
+
+		let examined = result.examined;
+		const data: MapObject[] = [];
+		for (const item of result.data) {
+			if (this.filter(item, filter, polygon)) {
+				data.push(this.makeMapObject(item));
+			} else {
+				examined -= 1;
+			}
+		}
+
+		return { examined, data };
+	}
+
+	public async getSingle(id: string, thisFetch?: typeof fetch) {
+		const mapObjects = await this.querySingle(id, thisFetch);
+		if (!mapObjects.length || !mapObjects[0]) return;
+
+		const mapObject = mapObjects[0];
+		this.prepare(mapObject);
+		return this.makeMapObject(mapObject);
+	}
+}
+
+export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extends MapObjectQuery<
+	MapObject,
+	Filter
+> {
+	protected abstract readonly table: string;
+	protected abstract readonly fields: string[];
+	protected abstract readonly limit: number;
+	protected abstract readonly idColumn: string;
+
+	protected get pointExpr(): string {
+		return "Point(lon, lat)";
+	}
+
+	protected get extraWhere(): string[] {
+		return [];
+	}
+
+	protected get joins(): string {
+		return "";
+	}
+
+	protected getFilterWhere(_filter: Filter | undefined): { sql: string; values: unknown[] } {
+		return { sql: "", values: [] };
+	}
+
+	protected async executeQuery<T>(sql: string, values: unknown[]): Promise<T> {
+		return await dbQuery<T>(sql, values);
+	}
+
+	protected buildSpatialFilter(
+		polygon: Feature<Polygon | MultiPolygon> | null,
+		bounds: Bounds
+	): { sql: string; values: unknown[] } {
+		return defaultBuildSpatialFilter(polygon, bounds, this.pointExpr);
+	}
+
+	private buildSelectFrom(): string {
+		return `SELECT ${this.fields.join(",")} FROM ${this.table} ${this.joins}`;
+	}
+
+	async query(
+		bounds: Bounds,
+		filter: Filter | undefined,
+		polygon: Feature<Polygon | MultiPolygon> | null
+	): Promise<MapObjectResponse<MapObject>> {
+		const spatial = this.buildSpatialFilter(polygon, bounds);
+		const filterWhere = this.getFilterWhere(filter);
+
+		const whereClauses = [spatial.sql, ...this.extraWhere];
+		if (filterWhere.sql) whereClauses.push(filterWhere.sql);
+
+		const sql =
+			this.buildSelectFrom() +
+			" WHERE " +
+			whereClauses.join(" AND ") +
+			` LIMIT ${this.limit}`;
+
+		const values = [...spatial.values, ...filterWhere.values];
+		const result = await this.executeQuery<MinMapObject<MapObject>[]>(sql, values);
+
+		return { data: result, examined: result.length };
+	}
+
+	async querySingle(id: string): Promise<MinMapObject<MapObject>[]> {
+		const whereClauses = [`${this.idColumn} = ?`, ...this.extraWhere];
+		const sql = this.buildSelectFrom() + " WHERE " + whereClauses.join(" AND ");
+
+		return await this.executeQuery<MinMapObject<MapObject>[]>(sql, [id]);
+	}
+}

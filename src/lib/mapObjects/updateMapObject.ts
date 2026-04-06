@@ -13,7 +13,7 @@ import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { MapObjectResponse } from "@/lib/server/queryMapObjects/queryMapObjects";
+import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
 
@@ -103,7 +103,7 @@ export async function updateMapObject(
 	}
 
 	let examined: number = 0;
-	let data: Partial<MapData>[] | undefined = undefined;
+	let data: MapData[] | undefined = undefined;
 	if (type === MapObjectType.S2_CELL) {
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
 		examined = data.length;

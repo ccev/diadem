@@ -1,10 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import { getLogger } from "@/lib/utils/logger";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
-import { type MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
-import { querySingleMapObject } from "@/lib/server/queryMapObjects/querySingleMapObject";
-import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
+import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
 
 const log = getLogger("mapobject id");
 
@@ -12,13 +10,9 @@ export async function GET({ params, url, locals, fetch }) {
 	const start = performance.now();
 	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user)) error(401);
 
-	const result = await querySingleMapObject(params.queryMapObject, params.id, fetch);
-
-	let data: MapData = result.result[0];
+	const data = await querySingleMapObject(params.queryMapObject, params.id, fetch);
 
 	if (!data) error(500);
-
-	data = makeMapObject(data, params.queryMapObject);
 
 	if (!isPointInAllowedArea(locals.perms, params.queryMapObject, data.lat, data.lon)) error(401);
 
