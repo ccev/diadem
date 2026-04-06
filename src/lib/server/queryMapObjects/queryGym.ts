@@ -4,6 +4,8 @@ import type { FilterGym } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { LIMIT_GYM } from "@/lib/constants";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
 
 export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 	protected readonly type = MapObjectType.GYM;
@@ -55,6 +57,14 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 			return { sql: "raid_end_timestamp > UNIX_TIMESTAMP()", values: [] };
 		}
 		return { sql: "", values: [] };
+	}
+
+	filter(
+		data: MinMapObject<GymData>,
+		filter: FilterGym,
+		polygon: PermittedPolygon
+	): boolean {
+		return Boolean(filter.gymPlain.enabled || shouldDisplayRaid(data, filter));
 	}
 
 	prepare(data: MinMapObject<GymData>): void {

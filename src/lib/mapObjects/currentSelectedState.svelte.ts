@@ -20,6 +20,7 @@ export function getCurrentSelectedMapId() {
 	return $state.snapshot(currentSelectedData.data?.mapId) || "";
 }
 
-export function isCurrentSelectedOverwrite(mapId: string) {
+export function isCurrentSelectedOverwrite(mapId: string | undefined) {
+	if (!mapId) return false
 	return currentSelectedData.isOverwrite && currentSelectedData.data?.mapId === mapId;
 }

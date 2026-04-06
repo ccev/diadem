@@ -8,6 +8,7 @@ import { LIMIT_NEST } from "@/lib/constants";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
 
 export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	protected readonly type = MapObjectType.NEST;
@@ -47,6 +48,10 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 			values.push(JSON.stringify(polygon.geometry));
 		}
 		return { sql, values };
+	}
+
+	filter(data: MinMapObject<NestData>, filter: FilterNest, polygon: PermittedPolygon): boolean {
+		return Boolean(filter.enabled || shouldDisplayNest(data, filter));
 	}
 
 	prepare(data: MinMapObject<NestData>): void {

@@ -2,9 +2,9 @@ import type { NestData } from "@/lib/types/mapObjectData/nest";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveNestFilter } from "@/lib/utils/nestUtils";
 import type { FiltersetNest } from "@/lib/features/filters/filtersets";
+import type { FilterNest } from "@/lib/features/filters/filters";
 
-export function matchNestFilterset(nest: NestData): FiltersetNest | undefined {
-	const nestFilter = getActiveNestFilter();
+export function matchNestFilterset(nest: Partial<NestData>, nestFilter: FilterNest = getActiveNestFilter()): FiltersetNest | undefined {
 	if (!nestFilter.enabled) return;
 
 	const filtersets = nestFilter.filters.filter((f) => f.enabled);
@@ -20,14 +20,13 @@ export function matchNestFilterset(nest: NestData): FiltersetNest | undefined {
 	}
 }
 
-export function shouldDisplayNest(nest: NestData) {
+export function shouldDisplayNest(nest: Partial<NestData>, nestFilter: FilterNest = getActiveNestFilter()) {
 	if (isCurrentSelectedOverwrite(nest.mapId)) return true;
 
-	const nestFilter = getActiveNestFilter();
 	if (!nestFilter.enabled) return false;
 
 	const filtersets = nestFilter.filters.filter((f) => f.enabled);
 	if (filtersets.length === 0) return true;
 
-	return Boolean(matchNestFilterset(nest));
+	return Boolean(matchNestFilterset(nest, nestFilter));
 }

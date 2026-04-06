@@ -3,9 +3,12 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveGymFilter } from "@/lib/utils/gymUtils";
 import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
+import type { FilterGym } from "@/lib/features/filters/filters";
 
-export function matchRaidFilterset(data: GymData): FiltersetRaid | undefined {
-	const gymFilters = getActiveGymFilter();
+export function matchRaidFilterset(
+	data: Partial<GymData>,
+	gymFilters: FilterGym = getActiveGymFilter()
+): FiltersetRaid | undefined {
 	if (!gymFilters.enabled || !gymFilters.raid.enabled) return;
 	if (gymFilters.raid.filters === undefined) return;
 
@@ -38,7 +41,7 @@ export function matchRaidFilterset(data: GymData): FiltersetRaid | undefined {
 	}
 }
 
-export function shouldDisplayRaid(data: GymData) {
+export function shouldDisplayRaid(data: Partial<GymData>, gymFilters: FilterGym = getActiveGymFilter()) {
 	const timestamp = currentTimestamp();
 
 	// only active raids
@@ -47,7 +50,6 @@ export function shouldDisplayRaid(data: GymData) {
 	if (isCurrentSelectedOverwrite(data.mapId)) return true;
 
 	// general disabling
-	const gymFilters = getActiveGymFilter();
 	if (!gymFilters.enabled || !gymFilters.raid.enabled) return false;
 
 	// yes if no filtersets
@@ -56,5 +58,5 @@ export function shouldDisplayRaid(data: GymData) {
 	const filters = gymFilters.raid.filters.filter((f) => f.enabled);
 	if (filters.length === 0) return true;
 
-	return Boolean(matchRaidFilterset(data));
+	return Boolean(matchRaidFilterset(data, gymFilters));
 }

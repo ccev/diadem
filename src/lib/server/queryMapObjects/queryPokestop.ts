@@ -88,11 +88,11 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 	): boolean {
 		let showThis =
 			Boolean(filter.pokestopPlain.enabled ||
-			(shouldDisplayLure(data)))
+			(shouldDisplayLure(data, filter)))
 
 		if (!showThis && filter.quest.enabled) {
 			for (const quest of data.quests) {
-				if (shouldDisplayQuest(quest, { mapId: "pokestop" }, filter)) {
+				if (shouldDisplayQuest(quest, { mapId: undefined }, filter)) {
 					showThis = true;
 					break;
 				}

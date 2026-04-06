@@ -1,9 +1,11 @@
-import { DbMapObjectQuery} from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { LIMIT_STATION } from "@/lib/constants";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
 
 export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	protected readonly type = MapObjectType.STATION;
@@ -36,6 +38,14 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 
 	protected get extraWhere(): string[] {
 		return ["end_time > UNIX_TIMESTAMP()"];
+	}
+
+	filter(
+		data: MinMapObject<StationData>,
+		filter: FilterStation,
+		polygon: PermittedPolygon
+	): boolean {
+		return Boolean(filter.stationPlain.enabled || shouldDisplayStation(data, filter));
 	}
 
 	prepare(data: MinMapObject<StationData>): void {
