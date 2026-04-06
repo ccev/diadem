@@ -6,8 +6,19 @@ import type { StationData } from "@/lib/types/mapObjectData/station";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
-import { FIELDS_NEST, FIELDS_ROUTE, FIELDS_TAPPABLE } from "@/lib/server/api/queryMapObjects";
-import { processRawPokestop } from "@/lib/server/api/queryPokestops";
+import {
+	processRawPokestop
+} from "@/lib/server/api/queryPokestops";
+import {
+	FIELDS_GYM,
+	FIELDS_INCIDENT,
+	FIELDS_NEST,
+	FIELDS_POKESTOP,
+	FIELDS_ROUTE,
+	FIELDS_SPAWNPOINT,
+	FIELDS_STATION,
+	FIELDS_TAPPABLE
+} from "@/lib/mapObjects/queryFields";
 
 export async function querySingleMapObject(
 	type: MapObjectType,
@@ -55,12 +66,16 @@ async function querySinglePokemon(id: string, thisFetch: typeof fetch) {
 }
 
 async function querySingleGym(id: string) {
-	return await query<GymData>("SELECT * FROM gym " + "WHERE gym.id = ?", [id]);
+	return await query<GymData>("SELECT " + FIELDS_GYM + " FROM gym WHERE gym.id = ?", [id]);
 }
 
 async function querySinglePokestop(id: string) {
 	const result = await query<PokestopData[]>(
-		"SELECT * FROM pokestop " +
+		"SELECT " +
+			FIELDS_POKESTOP +
+			"," +
+			FIELDS_INCIDENT +
+			" FROM pokestop " +
 			"LEFT JOIN incident ON incident.pokestop_id = pokestop.id " +
 			"WHERE pokestop.id = ?",
 		[id]
@@ -70,7 +85,10 @@ async function querySinglePokestop(id: string) {
 }
 
 async function querySingleStation(id: string) {
-	return await query<StationData[]>("SELECT * FROM station " + "WHERE station.id = ?", [id]);
+	return await query<StationData[]>(
+		"SELECT " + FIELDS_STATION + " FROM station WHERE station.id = ?",
+		[id]
+	);
 }
 
 async function querySingleNest(id: string) {
@@ -78,7 +96,10 @@ async function querySingleNest(id: string) {
 }
 
 async function querySingleSpawnpoint(id: string) {
-	return await query<SpawnpointData[]>("SELECT * FROM spawnpoint WHERE id = ?", [id]);
+	return await query<SpawnpointData[]>(
+		"SELECT " + FIELDS_SPAWNPOINT + " FROM spawnpoint WHERE id = ?",
+		[id]
+	);
 }
 
 async function querySingleRoute(id: string) {

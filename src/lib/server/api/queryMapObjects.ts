@@ -34,68 +34,15 @@ import { getServerConfig } from "@/lib/services/config/config.server";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { pointsWithinPolygon, point, featureCollection } from "@turf/turf";
+import { featureCollection, point, pointsWithinPolygon } from "@turf/turf";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
-
-export const FIELDS_NEST = [
-	"nest_id as id",
-	"lat",
-	"lon",
-	"name",
-	"polygon",
-	"spawnpoints",
-	"m2",
-	"active",
-	"pokemon_id",
-	"pokemon_form AS form",
-	"pokemon_avg",
-	"pokemon_ratio",
-	"pokemon_count",
-	"discarded",
-	"updated"
-].join(",");
-
-export const FIELDS_TAPPABLE = [
-	"id",
-	"lat",
-	"lon",
-	"lat",
-	"lon",
-	"type as tappable_type",
-	"pokemon_id",
-	"item_id",
-	"count",
-	"expire_timestamp_verified",
-	"expire_timestamp",
-	"updated"
-].join(",");
-
-export const FIELDS_ROUTE = [
-	"id",
-	"start_lat as lat",
-	"start_lon as lon",
-	"name",
-	"shortcode",
-	"description",
-	"distance_meters",
-	"duration_seconds",
-	"start_fort_id",
-	"start_image",
-	"start_lat",
-	"start_lon",
-	"end_fort_id",
-	"end_image",
-	"end_lat",
-	"end_lon",
-	"image",
-	"image_border_color",
-	"reversible",
-	"tags",
-	"type as route_type",
-	"updated",
-	"version",
-	"waypoints"
-].join(",");
+import {
+	FIELDS_NEST,
+	FIELDS_ROUTE,
+	FIELDS_SPAWNPOINT,
+	FIELDS_STATION,
+	FIELDS_TAPPABLE
+} from "@/lib/mapObjects/queryFields";
 
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
@@ -285,7 +232,9 @@ async function queryStations(
 ) {
 	const spatial = buildSpatialFilter(polygon, bounds);
 	const { error, result } = await query<StationData[]>(
-		"SELECT * FROM station " +
+		"SELECT " +
+			FIELDS_STATION +
+			" FROM station " +
 			"WHERE " +
 			spatial.sql +
 			" " +
@@ -357,7 +306,14 @@ async function querySpawnpoints(
 ) {
 	const spatial = buildSpatialFilter(polygon, bounds);
 	return await query<SpawnpointData[]>(
-		"SELECT * " + "FROM spawnpoint " + "WHERE " + spatial.sql + " " + "LIMIT " + LIMIT_SPAWNPOINT,
+		"SELECT " +
+			FIELDS_SPAWNPOINT +
+			" FROM spawnpoint " +
+			"WHERE " +
+			spatial.sql +
+			" " +
+			"LIMIT " +
+			LIMIT_SPAWNPOINT,
 		spatial.values
 	);
 }

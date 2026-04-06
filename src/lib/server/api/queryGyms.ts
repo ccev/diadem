@@ -7,6 +7,8 @@ import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 
+import { FIELDS_GYM } from "@/lib/mapObjects/queryFields";
+
 export async function queryGyms(
 	bounds: Bounds,
 	filter: FilterGym | undefined,
@@ -14,7 +16,7 @@ export async function queryGyms(
 ) {
 	const spatial = buildSpatialFilter(polygon, bounds);
 
-	let sqlQuery = "SELECT * FROM gym WHERE " + spatial.sql + " AND deleted = 0 ";
+	let sqlQuery = "SELECT " + FIELDS_GYM + " FROM gym WHERE " + spatial.sql + " AND deleted = 0 ";
 
 	if (filter && !filter.gymPlain.enabled && filter.raid.enabled) {
 		sqlQuery += "AND raid_end_timestamp > UNIX_TIMESTAMP() ";
