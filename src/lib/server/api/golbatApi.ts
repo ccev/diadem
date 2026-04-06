@@ -3,9 +3,10 @@ import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import type { Coords } from "@/lib/utils/coordinates";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import { getLogger } from "@/lib/utils/logger";
+import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 
 export type PokemonResponse = {
-	pokemon: PokemonData[];
+	pokemon: MinMapObject<PokemonData>[];
 	examined: number;
 	skipped: number;
 	total: number;

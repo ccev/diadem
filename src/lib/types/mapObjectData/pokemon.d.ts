@@ -11,60 +11,57 @@ export type PvpStats = {
 	value: number;
 };
 
+export type PokemonVisual = {
+	pokemon_id: number;
+	gender?: number;
+	form?: number;
+	costume?: number;
+	shiny?: boolean;
+	temp_evolution_id?: number;
+	alignment?: number;
+	bread_mode?: number;
+};
+
 export type PokemonData = {
 	id: string;
 	type: MapObjectType.POKEMON;
 	mapId: string;
-	pokestop_id: string | null;
-	spawn_id: number | null;
+	pokestop_id?: string;
+	spawn_id?: number;
 	lat: number;
 	lon: number;
-	weight: number | null;
-	size: number | null;
-	height: number | null;
-	expire_timestamp: number | null;
-	updated: number | null;
-	pokemon_id: number;
-	move_1: number | null;
-	move_2: number | null;
-	gender: number | null;
-	cp: number | null;
-	atk_iv: number | null;
-	def_iv: number | null;
-	sta_iv: number | null;
-	iv: number | null;
-	form: number | null;
-	level: number | null;
-	encounter_weather: number;
-	weather: number | null;
-	costume: number | null;
-	first_seen_timestamp: number;
-	changed: number;
-	cellId: number | null;
-	expire_timestamp_verified: boolean;
-	display_pokemon_id: number | null;
-	is_ditto: boolean;
-	seen_type:
-		| "wild"
-		| "encounter"
-		| "nearby_stop"
-		| "nearby_cell"
-		| "lure_wild"
-		| "lure_encounter"
-		| null;
-	shiny: boolean | null;
-	username: string | null;
-	capture1: number | null;
-	capture2: number | null;
-	capture3: number | null;
-	pvp: {
+	weight?: number;
+	size?: number;
+	height?: number;
+	expire_timestamp?: number;
+	updated?: number;
+	move_1?: number;
+	move_2?: number;
+	cp?: number;
+	atk_iv?: number;
+	def_iv?: number;
+	sta_iv?: number;
+	iv?: number;
+	level?: number;
+	encounter_weather?: number;
+	weather?: number;
+	first_seen_timestamp?: number;
+	changed?: number;
+	cell_id?: number;
+	expire_timestamp_verified?: boolean;
+	display_pokemon_id?: number;
+	display_pokemon_form?: number;
+	is_ditto?: boolean;
+	seen_type?: "wild" | "encounter" | "nearby_stop" | "nearby_cell" | "lure_wild" | "lure_encounter";
+	username?: string;
+	capture_1?: number;
+	capture_2?: number;
+	capture_3?: number;
+	pvp?: {
 		little?: PvpStats[];
 		great?: PvpStats[];
 		ultra?: PvpStats[];
 	};
-	is_event: number;
-	temp_evolution_id?: number;
-	alignment?: number;
-	bread_mode?: number;
-	strong: number | null;
-};
+	is_event?: number;
+	strong?: number;
+} & PokemonVisual;

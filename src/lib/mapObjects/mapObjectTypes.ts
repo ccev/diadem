@@ -31,4 +31,6 @@ export type MapData =
 	| TappableData
 	| S2CellData;
 
+export type MinMapObject<T extends MapData> = Omit<T, "type" | "mapId">
+
 export const allMapObjectTypes = Object.values(MapObjectType);
