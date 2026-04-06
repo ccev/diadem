@@ -1,14 +1,12 @@
 import { getSinglePokemon } from "@/lib/server/api/golbatApi";
-import { query } from "@/lib/server/db/external/internalQuery";
+import { query, queryJoined } from "@/lib/server/db/external/internalQuery";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { StationData } from "@/lib/types/mapObjectData/station";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
-import {
-	processRawPokestop
-} from "@/lib/server/api/queryPokestops";
+import { processRawPokestop } from "@/lib/server/api/queryPokestops";
 import {
 	FIELDS_GYM,
 	FIELDS_INCIDENT,
@@ -19,58 +17,56 @@ import {
 	FIELDS_STATION,
 	FIELDS_TAPPABLE
 } from "@/lib/mapObjects/queryFields";
+import { error } from "@sveltejs/kit";
+import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 
 export async function querySingleMapObject(
 	type: MapObjectType,
 	id: string,
 	thisFetch: typeof fetch = fetch
-) {
-	let result: { error: undefined | number; result: MapData[] } = {
-		error: 500,
-		result: []
-	};
-
+): Promise<MinMapObject<MapData>[]> {
 	if (type === MapObjectType.POKEMON) {
-		result = await querySinglePokemon(id, thisFetch);
+		const mon = await getSinglePokemon(id, thisFetch);
+		if (mon) {
+			return [mon];
+		}
+		return [];
 	} else if (type === MapObjectType.GYM) {
-		result = await querySingleGym(id);
+		return await querySingleGym(id);
 	} else if (type === MapObjectType.POKESTOP) {
-		result = await querySinglePokestop(id);
+		return await querySinglePokestop(id);
 	} else if (type === MapObjectType.STATION) {
-		result = await querySingleStation(id);
+		return await querySingleStation(id);
 	} else if (type === MapObjectType.NEST) {
-		result = await querySingleNest(id);
+		return await querySingleNest(id);
 	} else if (type === MapObjectType.SPAWNPOINT) {
-		result = await querySingleSpawnpoint(id);
+		return await querySingleSpawnpoint(id);
 	} else if (type === MapObjectType.ROUTE) {
-		result = await querySingleRoute(id);
+		return await querySingleRoute(id);
 	} else if (type === MapObjectType.TAPPABLE) {
-		result = await querySingleTappable(id);
+		return await querySingleTappable(id);
 	}
 
-	return result;
+	error(404);
 }
 
-async function querySinglePokemon(id: string, thisFetch: typeof fetch) {
-	const response = await getSinglePokemon(id, thisFetch);
+export async function prepareSingleMapObject(
+	type: MapObjectType,
+	id: string,
+	thisFetch: typeof fetch = fetch
+) {
+	const mapObjects = await querySingleMapObject(type, id, thisFetch)
+	if (!mapObjects.length || !mapObjects[0]) return
 
-	if (!response)
-		return {
-			result: [],
-			error: "Error"
-		};
-	return {
-		result: [response],
-		error: null
-	};
+	return makeMapObject(mapObjects[0], type) as MapData;
 }
 
 async function querySingleGym(id: string) {
-	return await query<GymData>("SELECT " + FIELDS_GYM + " FROM gym WHERE gym.id = ?", [id]);
+	return await query<GymData[]>("SELECT " + FIELDS_GYM + " FROM gym WHERE gym.id = ?", [id]);
 }
 
 async function querySinglePokestop(id: string) {
-	const result = await query<PokestopData[]>(
+	const result = await queryJoined<PokestopData[]>(
 		"SELECT " +
 			FIELDS_POKESTOP +
 			"," +
@@ -80,7 +76,7 @@ async function querySinglePokestop(id: string) {
 			"WHERE pokestop.id = ?",
 		[id]
 	);
-	if (result.result && result.result[0]) processRawPokestop(result.result[0]);
+	if (result[0]) processRawPokestop(result[0]);
 	return result;
 }
 

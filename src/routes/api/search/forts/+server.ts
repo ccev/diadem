@@ -45,17 +45,17 @@ export async function POST({ request, locals }) {
 
 	if (queries.length === 0) error(401);
 
-	const result = await query<RawFortSearchEntry[]>(
-		queries.join(" UNION ALL ") + " ORDER BY name ASC",
-		values
-	);
+	try {
+		const result = await query<RawFortSearchEntry[]>(
+			queries.join(" UNION ALL ") + " ORDER BY name ASC",
+			values
+		);
 
-	if (result.error) {
-		log.error("Error while querying fort search: " + result.error);
+		log.info("Succcessfully serving %d fort results", result.length);
+
+		return json(result);
+	} catch (e) {
+		log.error("Error while querying fort search", e);
 		error(500);
 	}
-
-	log.info("Succcessfully serving %d fort results", result.result.length);
-
-	return json(result.result);
 }

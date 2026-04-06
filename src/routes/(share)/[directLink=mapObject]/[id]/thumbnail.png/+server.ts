@@ -3,7 +3,10 @@ import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
 import { render } from "svelte/server";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
-import { querySingleMapObject } from "@/lib/server/api/querySingleMapObject";
+import {
+	prepareSingleMapObject,
+	querySingleMapObject
+} from "@/lib/server/queryMapObjects/querySingleMapObject";
 import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/uicons.svelte";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
@@ -20,18 +23,13 @@ const log = getLogger("thumbnail");
 export const GET: RequestHandler = async ({ params, fetch }) => {
 	if (!allMapObjectTypes.includes(params.directLink)) error(400);
 
-	const results = await Promise.all([
-		querySingleMapObject(params.directLink, params.id, fetch), // bypassing permissions :S
+	const [data, ..._] = await Promise.all([
+		prepareSingleMapObject(params.directLink, params.id, fetch), // bypassing permissions :S
 		initAllIconSets(fetch),
 		loadRemoteLocale(getClientConfig().general.defaultLocale, fetch)
 	]);
 
-	const tempData: MapData | { type: MapObjectType } = results[0].result[0] ?? {
-		type: params.directLink
-	};
-	const data = makeMapObject(tempData, params.directLink) as MapData;
-
-	if (!data.id) error(404);
+	if (!data) error(404);
 
 	log.info("Generating thumbnail for %s", params.directLink);
 

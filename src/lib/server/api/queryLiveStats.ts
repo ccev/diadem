@@ -48,7 +48,7 @@ export async function queryLiveFortStats(): Promise<FortLiveStats> {
 	]);
 
 	return {
-		pokestops: pokestopResult.result[0]?.count ?? 0,
-		gyms: gymResult.result[0]?.count ?? 0
+		pokestops: pokestopResult[0]?.count ?? 0,
+		gyms: gymResult[0]?.count ?? 0
 	};
 }

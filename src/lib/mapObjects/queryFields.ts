@@ -59,7 +59,7 @@ export const FIELDS_STATION = [
 ].join(",");
 
 export const FIELDS_SPAWNPOINT = [
-	"id",
+	"CONVERT(id, CHAR) AS id",
 	"lat",
 	"lon",
 	"updated",

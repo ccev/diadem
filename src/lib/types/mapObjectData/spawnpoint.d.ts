@@ -1,7 +1,7 @@
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type SpawnpointData = {
-	id: bigint;
+	id: string;
 	mapId: string;
 	type: MapObjectType.SPAWNPOINT;
 	lat: number;

@@ -3,7 +3,7 @@ import { getLogger } from "@/lib/utils/logger";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { type MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
-import { querySingleMapObject } from "@/lib/server/api/querySingleMapObject";
+import { querySingleMapObject } from "@/lib/server/queryMapObjects/querySingleMapObject";
 import { makeMapObject } from "@/lib/mapObjects/makeMapObject";
 
 const log = getLogger("mapobject id");

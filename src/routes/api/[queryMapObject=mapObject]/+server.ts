@@ -2,7 +2,6 @@ import { error, json } from "@sveltejs/kit";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import { queryMapObjects } from "@/lib/server/api/queryMapObjects";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
-import { getServerLogger } from "@/lib/server/logging";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getLogger } from "@/lib/utils/logger";
@@ -22,20 +21,15 @@ export async function POST({ request, locals, params }) {
 		return json({ data: [] });
 	}
 
-	const queried = await queryMapObjects(type, permitted.bounds, data.filter, permitted.polygon);
+	const result = await queryMapObjects(type, permitted.bounds, data.filter, permitted.polygon);
 
 	log.info(
-		"[%s] count: %d / permcheck: %fms + query: %fms / error: %s",
+		"[%s] count: %d / permcheck: %fms + query: %fms",
 		params.queryMapObject,
-		queried.result.data.length,
+		result.data.length,
 		(permCheckTime - start).toFixed(1),
-		(performance.now() - permCheckTime).toFixed(1),
-		queried.error ?? "no"
+		(performance.now() - permCheckTime).toFixed(1)
 	);
 
-	if (queried.error) {
-		error(queried.error);
-	}
-
-	return json(queried.result);
+	return json(result);
 }

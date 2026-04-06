@@ -8,14 +8,15 @@ import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { featureCollection, point, pointsWithinPolygon } from "@turf/turf";
-import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import type { MapData, MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { error } from "@sveltejs/kit";
+import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
 
-async function queryPokemon(
+export async function queryPokemon(
 	bounds: Bounds,
 	filter: FilterPokemon | undefined,
 	polygon: Feature<Polygon | MultiPolygon> | null
-): Promise<PokemonData> {
+): Promise<MapObjectResponse<PokemonData>> {
 	let golbatQueries: GolbatPokemonQuery[];
 	const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
 	if (enabledFilters.length > 0) {
@@ -140,10 +141,7 @@ async function queryPokemon(
 			pvp: p.pvp
 		}));
 
-		return {
-			examined: result.examined - removedCount,
-			data
-		};
+		return { data, examined: result.examined - removedCount }
 	}
 	error(500)
 }

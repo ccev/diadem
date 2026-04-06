@@ -1,13 +1,14 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import { LIMIT_POKESTOP } from "@/lib/constants";
-import { query } from "@/lib/server/db/external/internalQuery";
+import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 import { FIELDS_INCIDENT, FIELDS_POKESTOP } from "@/lib/mapObjects/queryFields";
+import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
 
 export function processRawPokestop(pokestop: PokestopData) {
 	if (pokestop.showcase_focus && (pokestop.showcase_expiry ?? 0) > currentTimestamp()) {
@@ -38,7 +39,7 @@ export async function queryPokestops(
 	bounds: Bounds,
 	filter: FilterPokestop | undefined,
 	polygon: Feature<Polygon | MultiPolygon> | null = null
-) {
+): Promise<MapObjectResponse<PokestopData>> {
 	const spatial = buildSpatialFilter(polygon, bounds, "Point(pokestop.lon, pokestop.lat)");
 
 	let sqlQuery =
@@ -57,12 +58,10 @@ export async function queryPokestops(
 
 	sqlQuery += `LIMIT ${LIMIT_POKESTOP}`;
 
-	const result = await query<PokestopData[]>(sqlQuery, values);
-	if (result.result) {
-		for (const pokestop of result.result) {
-			processRawPokestop(pokestop);
-		}
+	const result = await queryJoined<PokestopData[]>(sqlQuery, values);
+	for (const pokestop of result) {
+		processRawPokestop(pokestop);
 	}
 
-	return [result, undefined];
+	return { data: result, examined: result.length };
 }

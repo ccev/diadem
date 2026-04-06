@@ -12,38 +12,30 @@ const scrapedDuckUrl = "https://raw.githubusercontent.com/bigfoott/ScrapedDuck/d
 type AllShinyStatsRow = {
 	pokemon_id: number;
 	form: number;
-	"": {
-		shinies: string;
-		total: string;
-		days: number;
-	}[];
+	shinies: string;
+	total: string;
+	days: number;
 };
 
 type AllSpawnStatsRow = {
 	pokemon_id: number;
 	form: number;
-	"": {
-		count: string;
-		total_spawns: string;
-		days: number;
-	}[];
+	count: string;
+	total_spawns: string;
+	days: number;
 };
 
 type QuestStatsRow = {
 	quest_rewards: string;
 	quest_title: string;
 	quest_target: number;
-	"": {
-		count: number;
-	}[];
+	count: number;
 };
 
 type ContestStatsRow = {
 	ranking_standard: number;
 	focus: string;
-	"": {
-		count: number;
-	}[];
+	count: number;
 };
 
 type MaxBattleStatsRow = {
@@ -51,17 +43,13 @@ type MaxBattleStatsRow = {
 	pokemon_id: number;
 	form: number;
 	bread_mode: number;
-	"": {
-		count: number;
-	}[];
+	count: number;
 };
 
 type NestStatsRow = {
 	pokemon_id: number;
 	form: number;
-	"": {
-		count: number;
-	}[];
+	count: number;
 };
 
 type RaidStatsRow = {
@@ -69,9 +57,7 @@ type RaidStatsRow = {
 	pokemon_id: number;
 	form: number;
 	temp_evolution_id: number;
-	"": {
-		count: number;
-	}[];
+	count: number;
 };
 
 export type ActiveRaidStats = {
@@ -84,9 +70,7 @@ export type ActiveRaidStats = {
 
 type InvasionStatsRow = {
 	character: number;
-	"": {
-		count: number;
-	}[];
+	count: number;
 };
 
 export type ActiveInvasionCharacterStats = {
@@ -383,138 +367,122 @@ export async function queryMasterStats(): Promise<MasterStats> {
 	const activeMaxBattles: MaxBattleStatsEntry[] = [];
 	const activeNests: NestStatsEntry[] = [];
 
-	if (allShinyStats.result) {
-		for (const row of allShinyStats.result) {
-			const form = getNormalizedForm(row.pokemon_id, row.form);
+	for (const row of allShinyStats) {
+		const form = getNormalizedForm(row.pokemon_id, row.form);
 
-			const key = `${row.pokemon_id}-${form}`;
-			if (!pokemon[key]) {
-				pokemon[key] = {};
-			}
-
-			const stats = row[""][0];
-			const shinies = Number(stats?.shinies ?? 0);
-			const total = Number(stats?.total ?? 0);
-
-			if (pokemon[key].shiny) {
-				pokemon[key].shiny.shinies += shinies;
-				pokemon[key].shiny.total += total;
-			} else {
-				pokemon[key].shiny = {
-					shinies,
-					total,
-					days: stats?.days ?? 0
-				};
-			}
+		const key = `${row.pokemon_id}-${form}`;
+		if (!pokemon[key]) {
+			pokemon[key] = {};
 		}
-	}
 
-	if (allSpawnStats.result) {
-		for (const row of allSpawnStats.result) {
-			const form = getNormalizedForm(row.pokemon_id, row.form);
+		const shinies = Number(row.shinies ?? 0);
+		const total = Number(row.total ?? 0);
 
-			const key = `${row.pokemon_id}-${form}`;
-			if (!pokemon[key]) {
-				pokemon[key] = {};
-			}
-			const stats = row[""][0];
-
-			const thisTotal = Number(stats?.total_spawns ?? 0);
-			if (!pokemonTotal && thisTotal) {
-				pokemonTotal = thisTotal;
-				pokemonTotalDays = stats?.days ?? 0;
-			}
-
-			const count = Number(stats?.count ?? 0);
-			if (pokemon[key].spawns) {
-				pokemon[key].spawns.count += count;
-			} else {
-				pokemon[key].spawns = {
-					count,
-					days: stats?.days ?? 0
-				};
-			}
-		}
-	}
-
-	if (allQuestStats.result) {
-		for (const row of allQuestStats.result) {
-			const questReward = parseQuestReward(row.quest_rewards);
-			if (!questReward) continue;
-
-			if (questReward.type === RewardType.POKEMON) {
-				questReward.info.form = getNormalizedForm(
-					questReward.info.pokemon_id,
-					questReward.info.form
-				);
-			}
-
-			const key = getQuestKey(row.quest_rewards, row.quest_title, row.quest_target);
-			const count = Number(row[""][0]?.count ?? 0);
-			questsTotal += count;
-
-			quests[key] = {
-				reward: questReward,
-				title: row.quest_title,
-				target: row.quest_target,
-				count: count
+		if (pokemon[key].shiny) {
+			pokemon[key].shiny.shinies += shinies;
+			pokemon[key].shiny.total += total;
+		} else {
+			pokemon[key].shiny = {
+				shinies,
+				total,
+				days: row.days ?? 0
 			};
 		}
 	}
 
-	if (allRaidStats.result) {
-		for (const row of allRaidStats.result) {
-			const form = getNormalizedForm(row.pokemon_id, row.form);
-			const count = Number(row[""][0]?.count ?? 0);
-			activeRaids.push({
-				level: row.level,
-				pokemon_id: row.pokemon_id,
-				form,
-				temp_evolution_id: row.temp_evolution_id,
-				count
-			});
+	for (const row of allSpawnStats) {
+		const form = getNormalizedForm(row.pokemon_id, row.form);
+
+		const key = `${row.pokemon_id}-${form}`;
+		if (!pokemon[key]) {
+			pokemon[key] = {};
+		}
+
+		const thisTotal = Number(row.total_spawns ?? 0);
+		if (!pokemonTotal && thisTotal) {
+			pokemonTotal = thisTotal;
+			pokemonTotalDays = row.days ?? 0;
+		}
+
+		const count = Number(row.count ?? 0);
+		if (pokemon[key].spawns) {
+			pokemon[key].spawns.count += count;
+		} else {
+			pokemon[key].spawns = {
+				count,
+				days: row.days ?? 0
+			};
 		}
 	}
 
-	if (allContestStats.result) {
-		for (const row of allContestStats.result) {
-			const count = Number(row[""][0]?.count ?? 0);
+	for (const row of allQuestStats) {
+		const questReward = parseQuestReward(row.quest_rewards);
+		if (!questReward) continue;
 
-			const focus = JSON.parse(row.focus) as ContestFocus;
-			if (focus.type === "pokemon" && focus.pokemon_form) {
-				focus.pokemon_form = getNormalizedForm(focus.pokemon_id, focus.pokemon_form);
-			}
-
-			activeContests.push({
-				ranking_standard: row.ranking_standard,
-				focus: focus,
-				count
-			});
+		if (questReward.type === RewardType.POKEMON) {
+			questReward.info.form = getNormalizedForm(
+				questReward.info.pokemon_id,
+				questReward.info.form
+			);
 		}
+
+		const key = getQuestKey(row.quest_rewards, row.quest_title, row.quest_target);
+		const count = Number(row.count ?? 0);
+		questsTotal += count;
+
+		quests[key] = {
+			reward: questReward,
+			title: row.quest_title,
+			target: row.quest_target,
+			count: count
+		};
 	}
 
-	if (allMaxBattlesStats.result) {
-		for (const row of allMaxBattlesStats.result) {
-			const count = Number(row[""][0]?.count ?? 0);
-			activeMaxBattles.push({
-				level: row.level,
-				pokemon_id: row.pokemon_id,
-				form: getNormalizedForm(row.pokemon_id, row.form),
-				bread_mode: row.bread_mode,
-				count
-			});
-		}
+	for (const row of allRaidStats) {
+		const form = getNormalizedForm(row.pokemon_id, row.form);
+		const count = Number(row.count ?? 0);
+		activeRaids.push({
+			level: row.level,
+			pokemon_id: row.pokemon_id,
+			form,
+			temp_evolution_id: row.temp_evolution_id,
+			count
+		});
 	}
 
-	if (allNestsStats.result) {
-		for (const row of allNestsStats.result) {
-			const count = Number(row[""][0]?.count ?? 0);
-			activeNests.push({
-				pokemon_id: row.pokemon_id,
-				form: getNormalizedForm(row.pokemon_id, row.form),
-				count
-			});
+	for (const row of allContestStats) {
+		const count = Number(row.count ?? 0);
+
+		const focus = JSON.parse(row.focus) as ContestFocus;
+		if (focus.type === "pokemon" && focus.pokemon_form) {
+			focus.pokemon_form = getNormalizedForm(focus.pokemon_id, focus.pokemon_form);
 		}
+
+		activeContests.push({
+			ranking_standard: row.ranking_standard,
+			focus: focus,
+			count
+		});
+	}
+
+	for (const row of allMaxBattlesStats) {
+		const count = Number(row.count ?? 0);
+		activeMaxBattles.push({
+			level: row.level,
+			pokemon_id: row.pokemon_id,
+			form: getNormalizedForm(row.pokemon_id, row.form),
+			bread_mode: row.bread_mode,
+			count
+		});
+	}
+
+	for (const row of allNestsStats) {
+		const count = Number(row.count ?? 0);
+		activeNests.push({
+			pokemon_id: row.pokemon_id,
+			form: getNormalizedForm(row.pokemon_id, row.form),
+			count
+		});
 	}
 
 	const activeEggs: EggStats[] = [];
@@ -541,16 +509,14 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 	const activeCharacters: ActiveInvasionCharacterStats[] = [];
 
-	if (allCharacterStats.result) {
-		for (const row of allCharacterStats.result) {
-			activeCharacters.push({
-				character: row.character,
-				count: Number(row[""][0]?.count ?? 0),
-				first: [],
-				second: [],
-				third: []
-			});
-		}
+	for (const row of allCharacterStats) {
+		activeCharacters.push({
+			character: row.character,
+			count: Number(row.count ?? 0),
+			first: [],
+			second: [],
+			third: []
+		});
 	}
 
 	if (Array.isArray(invasionLineupsData)) {
