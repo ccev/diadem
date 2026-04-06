@@ -7,6 +7,7 @@ import type { CellID } from "s2js/dist/s2/cellid";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import { LIMIT_S2_CELLS } from "@/lib/constants";
 import type { MapObjectPolygonProperties } from "@/lib/map/render/featureTypes";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type S2CellProperties = {
 	level: number;
@@ -65,9 +66,11 @@ export function getS2CellMapObjects(bounds: Bounds, filter: FilterS2Cell) {
 	return cells.map((cellId) => {
 		return {
 			id: cellId.toString(),
+			type: MapObjectType.S2_CELL,
+			mapId: MapObjectType.S2_CELL.toString() + "-" + cellId,
 			lat: 0,
 			lon: 0,
 			cellId: cellId
-		} as Partial<S2CellData>;
+		} as S2CellData;
 	});
 }

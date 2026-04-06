@@ -21,7 +21,7 @@ export async function POST({ request, locals, params }) {
 		return json({ data: [] });
 	}
 
-	const result = await queryMapObjects(type, permitted.bounds, data.filter, permitted.polygon);
+	const result = await queryMapObjects(type, permitted.bounds, data.filter, permitted.polygon, data.since);
 
 	log.info(
 		"[%s] count: %d / permcheck: %fms + query: %fms",

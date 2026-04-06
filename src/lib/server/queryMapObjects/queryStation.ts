@@ -36,9 +36,7 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	protected readonly limit = LIMIT_STATION;
 	protected readonly idColumn = "station.id";
 
-	protected get extraWhere(): string[] {
-		return ["end_time > UNIX_TIMESTAMP()"];
-	}
+	protected readonly extraWhere = ["end_time > UNIX_TIMESTAMP()"];
 
 	filter(
 		data: MinMapObject<StationData>,

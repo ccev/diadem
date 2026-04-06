@@ -33,9 +33,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	protected readonly limit = LIMIT_NEST;
 	protected readonly idColumn = "nest_id";
 
-	protected get extraWhere(): string[] {
-		return ["active = 1", "pokemon_id IS NOT NULL"];
-	}
+	protected readonly extraWhere = ["active = 1", "pokemon_id IS NOT NULL"];
 
 	protected buildSpatialFilter(
 		polygon: PermittedPolygon,

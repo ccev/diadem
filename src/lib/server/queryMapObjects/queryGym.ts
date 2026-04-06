@@ -48,9 +48,7 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 	protected readonly limit = LIMIT_GYM;
 	protected readonly idColumn = "gym.id";
 
-	protected get extraWhere(): string[] {
-		return ["deleted = 0"];
-	}
+	protected readonly extraWhere = ["deleted = 0"];
 
 	protected getFilterWhere(filter: FilterGym | undefined): { sql: string; values: unknown[] } {
 		if (filter && !filter.gymPlain.enabled && filter.raid.enabled) {

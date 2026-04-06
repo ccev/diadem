@@ -9,9 +9,10 @@ import type { GolbatPokemonQuery, GolbatPokemonSpecies } from "@/lib/server/quer
 import { LIMIT_POKEMON } from "@/lib/constants";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-import { featureCollection, point, pointsWithinPolygon } from "@turf/turf";
+import { booleanPointInPolygon, featureCollection, point, pointsWithinPolygon } from "@turf/turf";
 import { error } from "@sveltejs/kit";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -19,7 +20,8 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	async query(
 		bounds: Bounds,
 		filter: FilterPokemon | undefined,
-		polygon: PermittedPolygon
+		polygon: PermittedPolygon,
+		since?: number
 	): Promise<MapObjectResponse<PokemonData>> {
 		const golbatQueries = this.buildGolbatQueries(filter);
 
@@ -33,16 +35,19 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const result = await getMultiplePokemon(body);
 
 		if (result) {
-			let filteredPokemon = result.pokemon;
-			if (polygon) {
-				const turfPoints = featureCollection(
-					result.pokemon.map((p, i) => point([p.lon, p.lat], { index: i }))
-				);
-				const within = pointsWithinPolygon(turfPoints, polygon);
-				const withinIndices = new Set(within.features.map((f) => f.properties?.index as number));
-				filteredPokemon = result.pokemon.filter((_, i) => withinIndices.has(i));
+			const filteredPokemon: MinMapObject<PokemonData>[] = []
+			let examined = result.examined
+
+			for (const pokemon of result.pokemon) {
+				if (since && (pokemon.updated ?? 0) < since) {
+					continue
+				}
+				if (polygon && !booleanPointInPolygon(point([pokemon.lon, pokemon.lat]), polygon)) {
+					examined -= 1;
+					continue;
+				}
+				filteredPokemon.push(pokemon)
 			}
-			const removedCount = result.pokemon.length - filteredPokemon.length;
 
 			const data: MinMapObject<PokemonData>[] = filteredPokemon.map((p) => ({
 				id: p.id,
@@ -77,7 +82,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 				pvp: p.pvp
 			}));
 
-			return { data, examined: result.examined - removedCount };
+			return { data, examined };
 		}
 		error(500);
 	}

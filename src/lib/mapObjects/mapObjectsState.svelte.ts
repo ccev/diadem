@@ -15,13 +15,23 @@ export function getMapObjects() {
 export function addMapObjects(
 	mapObjects: MapData[],
 	type: MapObjectType,
-	examined: number
+	examined: number,
+	isDelta: boolean = false
 ) {
 	mapObjectsState = {
 		...mapObjectsState,
 		...Object.fromEntries(mapObjects.map((o) => [o.mapId, o]))
 	};
-	mapObjectCounts[type] = { showing: mapObjects.length, examined };
+	if (isDelta) {
+		const prefix = type + "-";
+		let showing = 0;
+		for (const key in mapObjectsState) {
+			if (key.startsWith(prefix)) showing++;
+		}
+		mapObjectCounts[type] = { showing, examined: examined };
+	} else {
+		mapObjectCounts[type] = { showing: mapObjects.length, examined };
+	}
 }
 
 export function delMapObject(key: string) {

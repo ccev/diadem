@@ -16,14 +16,21 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
-export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined };
+export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined; since?: number };
 
 let currentController: AbortController | undefined;
+const lastQueryTimestamps = new Map<MapObjectType, number>();
+
+export function resetLastQueryTimestamps() {
+	lastQueryTimestamps.clear();
+}
 
 export function clearMap() {
 	// TODO: Also do this on login
 	clearAllMapObjects();
+	resetLastQueryTimestamps();
 	updateFeatures(getMapObjects());
 }
 
@@ -31,11 +38,13 @@ export async function fetchMapObjects<T extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
 	filter: AnyFilter | undefined = undefined,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	since?: number
 ): Promise<MapObjectResponse<T> | undefined> {
 	const body: MapObjectRequestData = {
 		...getBounds(),
-		filter
+		filter,
+		since
 	};
 	try {
 		const response = await fetch("/api/" + type, {
@@ -62,7 +71,8 @@ export async function updateMapObject(
 	type: MapObjectType,
 	removeOld: boolean = true,
 	filterOverwrite: AnyFilter | undefined = undefined,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	onlyChanged: boolean = false
 ) {
 	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return;
 	if (type === MapObjectType.ROUTE) return;
@@ -84,8 +94,8 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.nest;
 		} else if (type === MapObjectType.SPAWNPOINT) {
 			filter = getUserSettings().filters.spawnpoint;
-		} else if (type === MapObjectType.ROUTE) {
-			filter = getUserSettings().filters.route;
+		// } else if (type === MapObjectType.ROUTE) {
+		// 	filter = getUserSettings().filters.route;
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
 		} else if (type === MapObjectType.S2_CELL) {
@@ -102,13 +112,17 @@ export async function updateMapObject(
 		return;
 	}
 
+	const since = onlyChanged ? lastQueryTimestamps.get(type) : undefined;
+	const isDelta = onlyChanged && since !== undefined;
+	lastQueryTimestamps.set(type, currentTimestamp());
+
 	let examined: number = 0;
 	let data: MapData[] | undefined = undefined;
 	if (type === MapObjectType.S2_CELL) {
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
 		examined = data.length;
 	} else {
-		const response = await fetchMapObjects(type, getBounds(), filter, signal);
+		const response = await fetchMapObjects(type, getBounds(), filter, signal, since);
 		if (signal?.aborted) return;
 		if (response) {
 			data = response.data;
@@ -118,7 +132,7 @@ export async function updateMapObject(
 
 	// TODO: we shouldn't clear stuff that's still kept after. svelte will
 	// run effects in-between clearing and adding
-	if (removeOld) {
+	if (removeOld && !isDelta) {
 		clearMapObjects(type);
 	}
 
@@ -128,7 +142,7 @@ export async function updateMapObject(
 	}
 
 	try {
-		addMapObjects(data, type, examined);
+		addMapObjects(data, type, examined, isDelta);
 	} catch (e) {
 		console.log(data);
 		console.error(e);
@@ -137,8 +151,10 @@ export async function updateMapObject(
 	if (!signal) updateFeatures(getMapObjects());
 }
 
-export async function updateAllMapObjects(removeOld: boolean = true) {
+export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged: boolean = false) {
 	if (getIsCoverageMapActive()) return;
+
+	if (onlyChanged && currentController) return;
 
 	currentController?.abort();
 	const controller = new AbortController();
@@ -154,17 +170,19 @@ export async function updateAllMapObjects(removeOld: boolean = true) {
 			activeSearch.mapObject,
 			removeOld,
 			activeSearch.filter,
-			controller.signal
+			controller.signal,
+			onlyChanged
 		);
 	} else {
 		await Promise.all([
 			...allMapObjectTypes.map((type) =>
-				updateMapObject(type, removeOld, undefined, controller.signal)
+				updateMapObject(type, removeOld, undefined, controller.signal, onlyChanged)
 			),
 			updateWeather()
 		]);
 	}
 
 	if (controller.signal.aborted) return;
+	currentController = undefined;
 	updateFeatures(getMapObjects());
 }

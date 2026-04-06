@@ -64,18 +64,10 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 	protected readonly fields = FIELDS_POKESTOP;
 	protected readonly limit = LIMIT_POKESTOP;
 	protected readonly idColumn = "pokestop.id";
-
-	protected get pointExpr(): string {
-		return "Point(pokestop.lon, pokestop.lat)";
-	}
-
-	protected get joins(): string {
-		return "LEFT JOIN incident ON incident.pokestop_id = pokestop.id";
-	}
-
-	protected get extraWhere(): string[] {
-		return ["deleted = 0"];
-	}
+	protected readonly updatedColumn = "pokestop.updated";
+	protected readonly pointExpr = "Point(pokestop.lon, pokestop.lat)";
+	protected readonly joins = "LEFT JOIN incident ON incident.pokestop_id = pokestop.id";
+	protected readonly extraWhere = ["deleted = 0"];
 
 	protected async executeQuery<T>(sql: string, values: unknown[]): Promise<T> {
 		return await queryJoined<T>(sql, values);

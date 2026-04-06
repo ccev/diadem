@@ -26,7 +26,7 @@ export function closePopup() {
 	setCurrentPath();
 
 	// call this to remove selected data (if needed)
-	updateAllMapObjects().then();
+	updateAllMapObjects(true, true).then();
 
 	const title = document.head.querySelector("title");
 	if (title) title.innerText = getConfig().general.mapName;
