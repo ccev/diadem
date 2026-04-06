@@ -32,9 +32,11 @@ export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
 	return false;
 }
 
+export type PermittedPolygon = Feature<Polygon | MultiPolygon> | null
+
 export type PermittedBounds = {
 	bounds: Bounds;
-	polygon: Feature<Polygon | MultiPolygon> | null;
+	polygon: PermittedPolygon;
 };
 
 export function checkFeatureInBounds(
@@ -71,7 +73,7 @@ export function checkFeatureInBounds(
 	}
 
 	// Find intersection of viewport with each permitted area and collect results
-	let combinedIntersection: Feature<Polygon | MultiPolygon> | null = null;
+	let combinedIntersection: PermittedPolygon = null;
 	for (const permittedPolygon of permittedPolygons) {
 		const areaIntersection = intersect(featureCollection([viewportPolygon, permittedPolygon]));
 		if (areaIntersection) {
@@ -83,7 +85,7 @@ export function checkFeatureInBounds(
 						combinedIntersection,
 						areaIntersection as Feature<Polygon | MultiPolygon>
 					])
-				) as Feature<Polygon | MultiPolygon> | null;
+				) as PermittedPolygon;
 			}
 		}
 	}

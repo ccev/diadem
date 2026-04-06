@@ -3,6 +3,7 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { query as dbQuery } from "@/lib/server/db/external/internalQuery";
 import { buildSpatialFilter as defaultBuildSpatialFilter } from "@/lib/server/api/spatialFilter";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 export type MapObjectResponse<Data extends MapData> = {
 	examined: number;
@@ -15,7 +16,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 	abstract query(
 		bounds: Bounds,
 		filter: Filter | undefined,
-		polygon: Feature<Polygon | MultiPolygon> | null
+		polygon: PermittedPolygon
 	): Promise<MapObjectResponse<MapObject>>;
 
 	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
@@ -23,7 +24,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 	filter(
 		data: MinMapObject<MapObject>,
 		_filter: Filter | undefined,
-		polygon: Feature<Polygon | MultiPolygon> | null
+		polygon: PermittedPolygon
 	): boolean {
 		return true;
 	}
@@ -41,7 +42,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 	public async getMultiple(
 		bounds: Bounds,
 		filter: Filter | undefined,
-		polygon: Feature<Polygon | MultiPolygon> | null
+		polygon: PermittedPolygon
 	): Promise<MapObjectResponse<MapObject>> {
 		const result = await this.query(bounds, filter, polygon);
 		for (const item of result.data) {
@@ -101,7 +102,7 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 	}
 
 	protected buildSpatialFilter(
-		polygon: Feature<Polygon | MultiPolygon> | null,
+		polygon: PermittedPolygon,
 		bounds: Bounds
 	): { sql: string; values: unknown[] } {
 		return defaultBuildSpatialFilter(polygon, bounds, this.pointExpr);
@@ -114,7 +115,7 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 	async query(
 		bounds: Bounds,
 		filter: Filter | undefined,
-		polygon: Feature<Polygon | MultiPolygon> | null
+		polygon: PermittedPolygon
 	): Promise<MapObjectResponse<MapObject>> {
 		const spatial = this.buildSpatialFilter(polygon, bounds);
 		const filterWhere = this.getFilterWhere(filter);

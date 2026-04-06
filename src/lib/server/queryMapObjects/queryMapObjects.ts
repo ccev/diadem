@@ -13,6 +13,7 @@ import { SpawnpointQuery } from "@/lib/server/queryMapObjects/querySpawnpoint";
 import { RouteQuery } from "@/lib/server/queryMapObjects/queryRoute";
 import { TappableQuery } from "@/lib/server/queryMapObjects/queryTappable";
 import { error } from "@sveltejs/kit";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.GYM]: new GymQuery(),
@@ -35,7 +36,7 @@ export async function queryMapObjects<Data extends MapData>(
 	type: MapObjectType,
 	bounds: Bounds,
 	filter: AnyFilter | undefined,
-	polygon: Feature<Polygon | MultiPolygon> | null = null
+	polygon: PermittedPolygon = null
 ): Promise<MapObjectResponse<Data>> {
 	if (filter !== undefined && !filter.enabled) {
 		return { examined: 0, data: [] };

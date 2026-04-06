@@ -11,6 +11,7 @@ import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { featureCollection, point, pointsWithinPolygon } from "@turf/turf";
 import { error } from "@sveltejs/kit";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -18,7 +19,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	async query(
 		bounds: Bounds,
 		filter: FilterPokemon | undefined,
-		polygon: Feature<Polygon | MultiPolygon> | null
+		polygon: PermittedPolygon
 	): Promise<MapObjectResponse<PokemonData>> {
 		const golbatQueries = this.buildGolbatQueries(filter);
 

@@ -1,8 +1,8 @@
-import type { Feature, MultiPolygon, Polygon } from "geojson";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 export function buildSpatialFilter(
-	polygon: Feature<Polygon | MultiPolygon> | null,
+	polygon: PermittedPolygon,
 	bounds: Bounds,
 	pointExpr = "Point(lon, lat)"
 ): { sql: string; values: any[] } {

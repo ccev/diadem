@@ -7,6 +7,7 @@ import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { LIMIT_NEST } from "@/lib/constants";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { getServerConfig } from "@/lib/services/config/config.server";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	protected readonly type = MapObjectType.NEST;
@@ -36,7 +37,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	}
 
 	protected buildSpatialFilter(
-		polygon: Feature<Polygon | MultiPolygon> | null,
+		polygon: PermittedPolygon,
 		bounds: Bounds
 	): { sql: string; values: unknown[] } {
 		const values: unknown[] = [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat];

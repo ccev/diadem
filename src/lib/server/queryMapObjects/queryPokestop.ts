@@ -6,6 +6,8 @@ import { LIMIT_POKESTOP } from "@/lib/constants";
 import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import { shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 
 const FIELDS_POKESTOP = [
 	"pokestop.id",
@@ -76,6 +78,15 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 
 	protected async executeQuery<T>(sql: string, values: unknown[]): Promise<T> {
 		return await queryJoined<T>(sql, values);
+	}
+
+	filter(
+		data: MinMapObject<PokestopData>,
+		_filter: FilterPokestop | undefined,
+		polygon: PermittedPolygon
+	): boolean {
+		shouldDisplayQuest()
+		return true;
 	}
 
 	prepare(data: MinMapObject<PokestopData>): void {
