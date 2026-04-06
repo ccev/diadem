@@ -18,9 +18,9 @@ import {
 	LIMIT_STATION,
 	LIMIT_TAPPABLE
 } from "@/lib/constants";
-import { queryPokestops } from "@/lib/server/api/queryPokestops";
+import { queryPokestops } from "@/lib/server/queryMapObjects/queryPokestops";
 import type { StationData } from "@/lib/types/mapObjectData/station";
-import { queryGyms } from "@/lib/server/api/queryGyms";
+import { queryGyms } from "@/lib/server/queryMapObjects/queryGyms";
 import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";

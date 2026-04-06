@@ -10,7 +10,7 @@ import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 import { FIELDS_GYM } from "@/lib/mapObjects/queryFields";
 import { error } from "@sveltejs/kit";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
+import type { MapObjectResponse } from "@/lib/server/queryMapObjects/queryMapObjects";
 
 export async function queryGyms(
 	bounds: Bounds,

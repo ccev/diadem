@@ -8,7 +8,7 @@ import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 import { FIELDS_INCIDENT, FIELDS_POKESTOP } from "@/lib/mapObjects/queryFields";
-import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
+import type { MapObjectResponse } from "@/lib/server/queryMapObjects/queryMapObjects";
 
 export function processRawPokestop(pokestop: PokestopData) {
 	if (pokestop.showcase_focus && (pokestop.showcase_expiry ?? 0) > currentTimestamp()) {
