@@ -8,6 +8,7 @@ export type PokestopData = {
 	lat: number;
 	lon: number;
 	incident: Incident[];
+	quests: QuestData[];
 	name?: string;
 	url?: string;
 	lure_expire_timestamp?: number;
@@ -76,6 +77,14 @@ export type Incident = {
 	slot_3_pokemon_id?: number;
 	slot_3_form?: number;
 };
+
+export type QuestData = {
+	reward: QuestReward;
+	isAr: boolean;
+	title: string;
+	target: number;
+	timestamp: number;
+}
 
 export type ContestEntry = {
 	rank: number;

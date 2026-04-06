@@ -23,9 +23,10 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 
 	filter(
 		data: MinMapObject<MapObject>,
-		_filter: Filter | undefined,
+		filter: Filter,
 		polygon: PermittedPolygon
 	): boolean {
+
 		return true;
 	}
 
@@ -52,7 +53,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		let examined = result.examined;
 		const data: MapObject[] = [];
 		for (const item of result.data) {
-			if (this.filter(item, filter, polygon)) {
+			if (!filter || this.filter(item, filter, polygon)) {
 				data.push(this.makeMapObject(item));
 			} else {
 				examined -= 1;

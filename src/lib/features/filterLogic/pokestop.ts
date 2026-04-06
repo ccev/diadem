@@ -1,4 +1,4 @@
-import type { Incident, PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { Incident, PokestopData, QuestData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getInvasionCatchable, hasInvasionLineup } from "@/lib/features/masterStats.svelte";
@@ -13,9 +13,12 @@ import {
 	RewardType
 } from "@/lib/utils/pokestopUtils";
 import type { FiltersetInvasion, FiltersetQuest } from "@/lib/features/filters/filtersets";
+import type { FilterPokestop } from "@/lib/features/filters/filters";
 
-export function matchInvasionFilterset(incident: Incident): FiltersetInvasion | undefined {
-	const pokestopFilters = getActivePokestopFilter();
+export function matchInvasionFilterset(
+	incident: Incident,
+	pokestopFilters: FilterPokestop = getActivePokestopFilter()
+): FiltersetInvasion | undefined {
 	if (!isIncidentInvasion(incident)) return;
 
 	const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
@@ -38,7 +41,11 @@ export function matchInvasionFilterset(incident: Incident): FiltersetInvasion | 
 	}
 }
 
-export function shouldDisplayIncident(incident: Incident, pokestop: Partial<PokestopData>) {
+export function shouldDisplayIncident(
+	incident: Incident,
+	pokestop: Partial<PokestopData>,
+	pokestopFilters: FilterPokestop = getActivePokestopFilter()
+) {
 	const timestamp = currentTimestamp();
 
 	// only active incidents
@@ -46,14 +53,13 @@ export function shouldDisplayIncident(incident: Incident, pokestop: Partial<Poke
 
 	if (isCurrentSelectedOverwrite(pokestop.mapId!)) return true;
 
-	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled) return false;
 
 	if (pokestopFilters.goldPokestop.enabled && isIncidentGold(incident)) return true;
 	if (
 		pokestopFilters.contest.enabled &&
 		isIncidentContest(incident) &&
-		shouldDisplayContest(pokestop)
+		shouldDisplayContest(pokestop, pokestopFilters)
 	)
 		return true;
 	if (pokestopFilters.kecleon.enabled && isIncidentKecleon(incident)) return true;
@@ -61,58 +67,56 @@ export function shouldDisplayIncident(incident: Incident, pokestop: Partial<Poke
 	if (isIncidentInvasion(incident)) {
 		const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
 		if (invasionFilters.length === 0) return true;
-		if (pokestopFilters.invasion.enabled && matchInvasionFilterset(incident)) return true;
+		if (pokestopFilters.invasion.enabled && matchInvasionFilterset(incident, pokestopFilters))
+			return true;
 	}
 
 	return false;
 }
 
 export function matchQuestFilterset(
-	reward: QuestReward,
-	title: string,
-	target: number,
-	isAr: boolean
+	quest: QuestData,
+	pokestopFilter: FilterPokestop = getActivePokestopFilter()
 ): FiltersetQuest | undefined {
-	const pokestopFilter = getActivePokestopFilter();
 	const questFilters = pokestopFilter.quest.filters.filter((f) => f.enabled);
 	if (questFilters.length === 0) return;
 
 	for (const questFilter of questFilters) {
 		if (questFilter.ar) {
-			if (questFilter.ar === QuestArType.AR && !isAr) continue;
-			if (questFilter.ar === QuestArType.NOAR && isAr) continue;
+			if (questFilter.ar === QuestArType.AR && !quest.isAr) continue;
+			if (questFilter.ar === QuestArType.NOAR && quest.isAr) continue;
 		}
 
 		if (
 			questFilter.tasks &&
-			!questFilter.tasks.find((t) => t.title === title && t.target === target)
+			!questFilter.tasks.find((t) => t.title === quest.title && t.target === quest.target)
 		) {
 			continue;
 		}
 
 		if (
 			questFilter.stardust &&
-			reward.type === RewardType.STARDUST &&
-			reward.info.amount >= questFilter.stardust.min &&
-			reward.info.amount <= questFilter.stardust.max
+			quest.reward.type === RewardType.STARDUST &&
+			quest.reward.info.amount >= questFilter.stardust.min &&
+			quest.reward.info.amount <= questFilter.stardust.max
 		) {
 			return questFilter;
 		}
 
 		if (
 			questFilter.xp &&
-			reward.type === RewardType.XP &&
-			reward.info.amount >= questFilter.xp.min &&
-			reward.info.amount <= questFilter.xp.max
+			quest.reward.type === RewardType.XP &&
+			quest.reward.info.amount >= questFilter.xp.min &&
+			quest.reward.info.amount <= questFilter.xp.max
 		) {
 			return questFilter;
 		}
 
 		if (
 			questFilter.pokemon &&
-			reward.type === RewardType.POKEMON &&
+			quest.reward.type === RewardType.POKEMON &&
 			questFilter.pokemon.find(
-				(p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form
+				(p) => p.pokemon_id === quest.reward.info.pokemon_id && p.form === quest.reward.info.form
 			)
 		) {
 			return questFilter;
@@ -120,11 +124,11 @@ export function matchQuestFilterset(
 
 		if (
 			questFilter.item &&
-			reward.type === RewardType.ITEM &&
+			quest.reward.type === RewardType.ITEM &&
 			questFilter.item.find(
 				(i) =>
-					(i.id === reward.info.item_id.toString() && i.amount === undefined) ||
-					i.amount === reward.info.amount
+					(i.id === quest.reward.info.item_id.toString() && i.amount === undefined) ||
+					i.amount === quest.reward.info.amount
 			)
 		) {
 			return questFilter;
@@ -132,11 +136,11 @@ export function matchQuestFilterset(
 
 		if (
 			questFilter.megaResource &&
-			reward.type === RewardType.MEGA_ENERGY &&
+			quest.reward.type === RewardType.MEGA_ENERGY &&
 			questFilter.megaResource.find(
 				(i) =>
-					(i.id === reward.info.pokemon_id.toString() && i.amount === undefined) ||
-					i.amount === reward.info.amount
+					(i.id === quest.reward.info.pokemon_id.toString() && i.amount === undefined) ||
+					i.amount === quest.reward.info.amount
 			)
 		) {
 			return questFilter;
@@ -144,11 +148,11 @@ export function matchQuestFilterset(
 
 		if (
 			questFilter.candy &&
-			reward.type === RewardType.CANDY &&
+			quest.reward.type === RewardType.CANDY &&
 			questFilter.candy.find(
 				(i) =>
-					(i.id === reward.info.pokemon_id.toString() && i.amount === undefined) ||
-					i.amount === reward.info.amount
+					(i.id === quest.reward.info.pokemon_id.toString() && i.amount === undefined) ||
+					i.amount === quest.reward.info.amount
 			)
 		) {
 			return questFilter;
@@ -156,11 +160,11 @@ export function matchQuestFilterset(
 
 		if (
 			questFilter.xlCandy &&
-			reward.type === RewardType.XL_CANDY &&
+			quest.reward.type === RewardType.XL_CANDY &&
 			questFilter.xlCandy.find(
 				(i) =>
-					(i.id === reward.info.pokemon_id.toString() && i.amount === undefined) ||
-					i.amount === reward.info.amount
+					(i.id === quest.reward.info.pokemon_id.toString() && i.amount === undefined) ||
+					i.amount === quest.reward.info.amount
 			)
 		) {
 			return questFilter;
@@ -169,25 +173,24 @@ export function matchQuestFilterset(
 }
 
 export function shouldDisplayQuest(
-	reward: QuestReward,
-	title: string,
-	target: number,
-	isAr: boolean,
-	pokestop: PokestopData
+	quest: QuestData,
+	pokestop: Pick<PokestopData, "mapId">,
+	pokestopFilter: FilterPokestop = getActivePokestopFilter()
 ) {
 	if (isCurrentSelectedOverwrite(pokestop.mapId)) return true;
-	const pokestopFilter = getActivePokestopFilter();
 	if (!pokestopFilter.enabled || !pokestopFilter.quest.enabled) return false;
 	const questFilters = pokestopFilter.quest.filters.filter((f) => f.enabled);
 	if (questFilters.length === 0) return true;
 
-	return Boolean(matchQuestFilterset(reward, title, target, isAr));
+	return Boolean(matchQuestFilterset(quest, pokestopFilter));
 }
 
-export function shouldDisplayLure(data: Partial<PokestopData>) {
+export function shouldDisplayLure(
+	data: Partial<PokestopData>,
+	pokestopFilters: FilterPokestop = getActivePokestopFilter()
+) {
 	if (!hasFortActiveLure(data)) return false;
 	if (isCurrentSelectedOverwrite(data.mapId!)) return true;
-	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled || !pokestopFilters.lure.enabled) return false;
 
 	const lureFilters = pokestopFilters.lure.filters.filter((f) => f.enabled);
@@ -195,11 +198,13 @@ export function shouldDisplayLure(data: Partial<PokestopData>) {
 	return lureFilters.some((f) => f.items.includes(data?.lure_id ?? 0));
 }
 
-export function shouldDisplayContest(data: Partial<PokestopData>) {
+export function shouldDisplayContest(
+	data: Partial<PokestopData>,
+	pokestopFilters: FilterPokestop = getActivePokestopFilter()
+) {
 	if ((data.showcase_expiry ?? 0) < currentTimestamp()) return false;
 	if (isCurrentSelectedOverwrite(data.mapId!)) return true;
 
-	const pokestopFilters = getActivePokestopFilter();
 	if (!pokestopFilters.enabled || !pokestopFilters.contest.enabled) return false;
 
 	const contestFilters = pokestopFilters.contest.filters.filter((f) => f.enabled);

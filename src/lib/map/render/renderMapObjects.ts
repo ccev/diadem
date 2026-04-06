@@ -12,12 +12,11 @@ import {
 	getActivePokestopFilter,
 	hasFortActiveLure,
 	isIncidentInvasion,
-	parseQuestReward
 } from "@/lib/utils/pokestopUtils";
 import {
 	matchInvasionFilterset,
 	matchQuestFilterset,
-	shouldDisplayIncident,
+	shouldDisplayIncident, shouldDisplayLure,
 	shouldDisplayQuest
 } from "@/lib/features/filterLogic/pokestop";
 import {
@@ -244,62 +243,23 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 		let showThis =
 			getActivePokestopFilter().pokestopPlain.enabled ||
-			(getActivePokestopFilter().lure.enabled && hasFortActiveLure(data)) ||
+			(shouldDisplayLure(data)) ||
 			isSelected ||
 			isSelectedOverwrite;
 
 		if (getActivePokestopFilter().quest.enabled || isSelectedOverwrite) {
 			const questModifiers = getConfigModifiers(this.iconSet, "quest");
-			if (data.alternative_quest_target && data.alternative_quest_rewards) {
-				const reward = parseQuestReward(data.alternative_quest_rewards);
-
-				if (
-					reward &&
-					shouldDisplayQuest(
-						reward,
-						data.alternative_quest_title ?? "",
-						data.alternative_quest_target,
-						false,
-						data
-					)
-				) {
+			for (const quest of data.quests) {
+				if (shouldDisplayQuest(quest, data)) {
 					showThis = true;
-					const mapId = data.mapId + "-altquest-" + data.alternative_quest_timestamp;
+					const mapId = data.mapId + "-quest-" + quest.isAr + "-" + quest.timestamp;
 					features.push(
 						...this.renderQuest(
 							data,
-							reward,
-							matchQuestFilterset(
-								reward,
-								data.alternative_quest_title ?? "",
-								data.alternative_quest_target,
-								false
-							),
+							quest.reward,
+							matchQuestFilterset(quest),
 							mapId,
 							data.alternative_quest_expiry ?? null,
-							questModifiers,
-							selectedScale
-						)
-					);
-				}
-			}
-			if (data.quest_target && data.quest_rewards) {
-				const reward = parseQuestReward(data.quest_rewards);
-
-				if (
-					reward &&
-					shouldDisplayQuest(reward, data.quest_title ?? "", data.quest_target, true, data)
-				) {
-					showThis = true;
-					const mapId = data.mapId + "-quest-" + data.quest_timestamp;
-
-					features.push(
-						...this.renderQuest(
-							data,
-							reward,
-							matchQuestFilterset(reward, data.quest_title ?? "", data.quest_target, true),
-							mapId,
-							data.quest_expiry ?? null,
 							questModifiers,
 							selectedScale
 						)

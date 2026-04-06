@@ -117,24 +117,13 @@
 
 	{#snippet description()}
 		<div class="[&>*:last-child]:border-none [&>*:last-child]:pb-0">
-			<QuestDisplay
-				expanded={false}
-				isAr={true}
-				questRewards={data.quest_rewards ?? ""}
-				questTitle={data.quest_title ?? ""}
-				questTarget={data.quest_target ?? 0}
-				questTimestamp={data.quest_timestamp ?? 0}
-				pokestop={data}
-			/>
-			<QuestDisplay
-				expanded={false}
-				isAr={false}
-				questRewards={data.alternative_quest_rewards ?? ""}
-				questTitle={data.alternative_quest_title ?? ""}
-				questTarget={data.alternative_quest_target ?? 0}
-				questTimestamp={data.alternative_quest_timestamp ?? 0}
-				pokestop={data}
-			/>
+			{#each data.quests as quest}
+				<QuestDisplay
+					expanded={false}
+					{quest}
+					pokestop={data}
+				/>
+			{/each}
 
 			{@render lureSection()}
 			{@render incidentSection(false)}
@@ -149,24 +138,13 @@
 
 	{#snippet content()}
 		<div class="[&>*:last-child]:mb-2">
-			<QuestDisplay
-				expanded={true}
-				isAr={true}
-				questRewards={data.quest_rewards ?? ""}
-				questTitle={data.quest_title ?? ""}
-				questTarget={data.quest_target ?? 0}
-				questTimestamp={data.quest_timestamp ?? 0}
-				pokestop={data}
-			/>
-			<QuestDisplay
-				expanded={true}
-				isAr={false}
-				questRewards={data.alternative_quest_rewards ?? ""}
-				questTitle={data.alternative_quest_title ?? ""}
-				questTarget={data.alternative_quest_target ?? 0}
-				questTimestamp={data.alternative_quest_timestamp ?? 0}
-				pokestop={data}
-			/>
+			{#each data.quests as quest}
+				<QuestDisplay
+					expanded={true}
+					{quest}
+					pokestop={data}
+				/>
+			{/each}
 
 			{@render lureSection()}
 			{@render incidentSection(true)}

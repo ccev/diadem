@@ -13,8 +13,7 @@ import {
 	isIncidentContest,
 	isIncidentInvasion,
 	isIncidentKecleon,
-	KECLEON_ID,
-	parseQuestReward
+	KECLEON_ID
 } from "@/lib/utils/pokestopUtils";
 import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -123,39 +122,24 @@ function getPokemonShareText(data: PokemonData) {
 	return text;
 }
 
-function getQuestShareText(
-	isAr: boolean,
-	questReward?: string,
-	questTitle?: string,
-	questTarget?: number
-) {
-	if (!questTarget) return "";
-
-	const texts = [getArTag(isAr)];
-
-	const reward = parseQuestReward(questReward);
-	let rewardText = "";
-	if (reward) rewardText = getRewardText(reward);
-	if (rewardText) texts.push(rewardText);
-
-	const taskText = mQuest(questTitle, questTarget);
-	if (taskText) texts.push(taskText);
-
-	if (!texts) return "";
-
-	return "🔎 " + texts.join(" · ") + "\n";
-}
-
 function getPokestopShareText(data: PokestopData) {
 	let text = "";
 
-	text += getQuestShareText(true, data.quest_rewards, data.quest_title, data.quest_target);
-	text += getQuestShareText(
-		false,
-		data.alternative_quest_rewards,
-		data.alternative_quest_title,
-		data.alternative_quest_target
-	);
+	for (const quest of data.quests) {
+		if (!quest.target) return "";
+
+		const questTexts: string[] = [getArTag(quest.isAr)];
+
+		const rewardText = getRewardText(quest.reward);
+		if (rewardText) questTexts.push(rewardText);
+
+		const taskText = mQuest(quest.title, quest.target);
+		if (taskText) questTexts.push(taskText);
+
+		if (!questTexts) return "";
+
+		text += "🔎 " + questTexts.join(" · ") + "\n";
+	}
 
 	if (hasFortActiveLure(data)) {
 		text += `🧲 ${mItem(data.lure_id)} (${timestampToLocalTime(data.lure_expire_timestamp)})\n`;

@@ -7,7 +7,8 @@ import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
+import { shouldDisplayIncident, shouldDisplayLure, shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
+import { hasFortActiveLure, parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 const FIELDS_POKESTOP = [
 	"pokestop.id",
@@ -82,14 +83,58 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 
 	filter(
 		data: MinMapObject<PokestopData>,
-		_filter: FilterPokestop | undefined,
+		filter: FilterPokestop,
 		polygon: PermittedPolygon
 	): boolean {
-		shouldDisplayQuest()
-		return true;
+		let showThis =
+			Boolean(filter.pokestopPlain.enabled ||
+			(shouldDisplayLure(data)))
+
+		if (!showThis && filter.quest.enabled) {
+			for (const quest of data.quests) {
+				if (shouldDisplayQuest(quest, { mapId: "pokestop" }, filter)) {
+					showThis = true;
+					break;
+				}
+			}
+		}
+
+		if (!showThis) {
+			for (const incident of data?.incident ?? []) {
+				if (shouldDisplayIncident(incident, data, filter)) {
+					showThis = true;
+					break;
+				}
+			}
+		}
+
+		return showThis;
 	}
 
 	prepare(data: MinMapObject<PokestopData>): void {
+		data.quests = []
+		if (data.alternative_quest_target && data.alternative_quest_rewards) {
+			const reward = parseQuestReward(data.alternative_quest_rewards);
+			if (reward)
+				data.quests.push({
+					reward,
+					isAr: false,
+					title: data.alternative_quest_title ?? "",
+					target: data.alternative_quest_target ?? 0,
+					timestamp: data.alternative_quest_timestamp ?? 0
+				});
+		}
+		if (data.quest_target && data.quest_rewards) {
+			const reward = parseQuestReward(data.quest_rewards)
+			if (reward) data.quests.push({
+				reward,
+				isAr: true,
+				title: data.quest_title ?? "",
+				target: data.quest_target ?? 0,
+				timestamp: data.quest_timestamp ?? 0
+			})
+		}
+
 		if (data.showcase_focus && (data.showcase_expiry ?? 0) > currentTimestamp()) {
 			data.contest_focus = JSON.parse(data.showcase_focus);
 
