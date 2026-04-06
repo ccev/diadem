@@ -10,7 +10,7 @@ import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { featureCollection, point, pointsWithinPolygon } from "@turf/turf";
 import type { MapData, MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { error } from "@sveltejs/kit";
-import type { MapObjectResponse } from "@/lib/server/api/queryMapObjects";
+import type { MapObjectResponse } from "@/lib/server/queryMapObjects/queryMapObjects";
 
 export async function queryPokemon(
 	bounds: Bounds,

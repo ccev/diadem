@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
-import { queryMapObjects } from "@/lib/server/api/queryMapObjects";
+import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";

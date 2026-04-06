@@ -6,7 +6,7 @@ import type { StationData } from "@/lib/types/mapObjectData/station";
 import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
-import { processRawPokestop } from "@/lib/server/api/queryPokestops";
+import { processRawPokestop } from "@/lib/server/queryMapObjects/queryPokestops";
 import {
 	FIELDS_GYM,
 	FIELDS_INCIDENT,
