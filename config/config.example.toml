@@ -90,28 +90,36 @@ roleId = "1483326963558653982"
 areas = ["Tokyo"]
 features = ["*"]
 
-[server.limits]
+# Rate limits can be used to limit the data clients can fetch from your server
+# Abuse may be rare, but can happen. If you notice abuse, you can enable rate limits.
+#
+# How it works
+# - For every map object type, there's a rolling limit. You can set these limits per-type below.
+# - On every request, a cost is determined:
+#   1. Take the total amount of non-filtered objects in the requested bounding box
+#   2. If the request is not a delta, multiply that number by {nonDeltaMultiplier}
+#   3. If the request is not a delta AND a heavyFilter, multiply the number by another {heavyFilterMultiplier}
+#      - A request is deemed heavyFilter when (actual sent data < total amount of data * {heavyFilterRatio})
+#   4. The cost is added to the user's rate limit quota and gets limited by {server.limits.{type}.rateLimit}.
 # When logged in, rate limits are based on the user ID. And based on IP when not.
-enableRateLimiting = true
-
-# When hitting the rate limit, allow users to fill up their rate limit quota by solving a proof-of-work captcha.
-# Solving a captcha will allow another {captchaReward} * {server.limits.{type}.rateLimit} objects to be requested.
-#   Example: When pokemon rate limit = 10 million and captchaReward = 0.1, solving a captcha allows another 1 million Pokemon to be requested
-captchaOnRateLimit = true
-captchaReward = 0.1
+[server.limits]
+enableRateLimiting = false
+nonDeltaMultiplier = 3
+heavyFilterMultiplier = 2
+heavyFilterRatio = 0.2
 
 # Set limits per map object type.
 #   requestLimit: the max amount of objects returned in a single response, and therefore the max
-#       amount of objects of that type to be displayed on the map at once
+#       amount of objects of that type to be displayed on the map at once (this is used regardless of whether rate limiting is enabled)
 #   rateLimit is the max amount of objects to be given out in {rateLimitTime} seconds.
 #   rateLimitTime is the amount of seconds for {rateLimit} to reset
 #
 # Available map objects: pokemon, pokestop, gym, station, nest, spawnpoint, tappable
 # When no value is set, sane defaults will be used
 #[server.limits.pokemon]
-#requestLimit = 10_000
-#rateLimit = 10_000_000
-#rateLimitTime = 10800   # 3 hours
+#requestLimit = 10000
+#rateLimit = 2000000
+#rateLimitTime = 3600
 
 [server.db]
 host = "127.0.0.1"

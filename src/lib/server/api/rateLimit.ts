@@ -2,9 +2,16 @@ import { type IRateLimiterOptions, RateLimiterMemory, RateLimiterRes } from "rat
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getServerConfig } from "@/lib/services/config/config.server";
+import { getLogger } from "@/lib/utils/logger";
 
-const enabled = getServerConfig()?.limits?.enableRateLimiting ?? true;
+const log = getLogger("ratelimit");
+const enabled = getServerConfig()?.limits?.enableRateLimiting ?? false;
 const limitsConfig = getServerConfig().limits;
+
+const REQUEST_COST_SINCE_FRESH_WINDOW = 60;
+const NON_DELTA_MULTIPLIER = limitsConfig?.nonDeltaMultiplier ?? 3;
+const HEAVY_FILTER_MULTIPLIER = limitsConfig?.heavyFilterMultiplier ?? 2;
+const HEAVY_FILTER_RATIO = limitsConfig?.heavyFilterRatio ?? 0.2;
 
 const defaultRequestLimits: Record<MapObjectType, number> = {
 	[MapObjectType.POKEMON]: 10_000,
@@ -25,32 +32,25 @@ export const requestLimits: Record<MapObjectType, number> = Object.fromEntries(
 	])
 ) as Record<MapObjectType, number>;
 
-const defaultOpts: IRateLimiterOptions = {
-	points: 10_000_000,
-	duration: 60 * 60 * 3 // 3 hours
-};
-
 const mapObjectLimiters = new Map<MapObjectType, RateLimiterMemory>(
 	allMapObjectTypes.map((type) => {
 		const typeConfig = limitsConfig?.[type];
 
 		let points = typeConfig?.rateLimit;
 		if (!points) {
-			points = (typeConfig?.requestLimit ?? requestLimits[type] ?? 10_000) * 10_000;
+			points = (typeConfig?.requestLimit ?? requestLimits[type] ?? 10_000) * 200;
 		}
 
 		return [
 			type,
 			new RateLimiterMemory({
 				points,
-				duration: typeConfig?.rateLimitTime ?? 60 * 60 * 3,
+				duration: typeConfig?.rateLimitTime ?? 60 * 60,
 				keyPrefix: type + "_"
 			})
 		];
 	})
 );
-
-const rateLimiter = new RateLimiterMemory(defaultOpts);
 
 function beforeNext(timestamp: number): Record<string, string> {
 	return {
@@ -62,12 +62,43 @@ function getHeaders(data: RateLimiterRes): Record<string, string> {
 	return beforeNext(Math.ceil(data.msBeforeNext / 1000));
 }
 
-function getLimiter(type?: MapObjectType): RateLimiterMemory {
-	if (type) return mapObjectLimiters.get(type) ?? rateLimiter;
-	return rateLimiter;
+function getLimiter(type: MapObjectType): RateLimiterMemory {
+	const limiter = mapObjectLimiters.get(type)
+	if (!limiter) throw new Error("Limiter of type " + type + "does not exist");
+	return limiter;
 }
 
-export async function consumeRateLimit(
+export function calculateRequestCharge(
+	since: number | undefined,
+	queried: number,
+	examined: number
+): number {
+	const now = currentTimestamp();
+
+	let isDelta = Boolean(since && since > now - REQUEST_COST_SINCE_FRESH_WINDOW);
+
+	const baseUsage = Math.max(0, examined);
+	const sinceMultiplier = !isDelta ? NON_DELTA_MULTIPLIER : 1;
+
+	const isHeavilyFiltered = !isDelta && examined > 0 && (queried < examined * HEAVY_FILTER_RATIO);
+	const filterMultiplier = isHeavilyFiltered ? HEAVY_FILTER_MULTIPLIER : 1;
+
+	const totalMultiplier = sinceMultiplier * filterMultiplier;
+	const charge = Math.ceil(baseUsage * totalMultiplier);
+
+	log.debug(
+		"Rate limit charge: %d | data: %d/%d, isDelta: %s, isHeavilyFiltered: %s",
+		charge,
+		queried,
+		examined,
+		isDelta,
+		isHeavilyFiltered
+	);
+
+	return charge;
+}
+
+export async function rateLimitConsume(
 	key: string,
 	points: number,
 	type?: MapObjectType
@@ -87,13 +118,26 @@ export async function consumeRateLimit(
 	}
 }
 
-export async function rewardRateLimit(
+export async function rateLimitReward(
 	key: string,
 	points: number,
 	type?: MapObjectType
-): Promise<void> {
-	if (!enabled || points <= 0) return;
+): Promise<number> {
+	if (!enabled || points <= 0) return 1;
 
 	const limiter = getLimiter(type);
-	await limiter.reward(key, points);
+	const result = await limiter.reward(key, points);
+	return result.remainingPoints;
+}
+
+export async function rateLimit(
+	key: string,
+	points: number,
+	type?: MapObjectType
+): Promise<number> {
+	if (!enabled || points <= 0) return 1;
+
+	const limiter = getLimiter(type);
+	const result = await limiter.penalty(key, points);
+	return result.remainingPoints;
 }

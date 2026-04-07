@@ -5,7 +5,7 @@ import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
 import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { consumeRateLimit } from "@/lib/server/api/rateLimit";
+import { rateLimitConsume } from "@/lib/server/api/rateLimit";
 import { respond } from "@/lib/server/api/respond";
 import { constants } from "http2";
 
@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user))
 		error(constants.HTTP_STATUS_UNAUTHORIZED);
 
-	const [allowed, _remaining, totalLimit, headers] = await consumeRateLimit(rateLimitKey, 2, type);
+	const [allowed, _remaining, totalLimit, headers] = await rateLimitConsume(rateLimitKey, 2, type);
 	if (!allowed) {
 		log.info(
 			"[%s] User %s reached %d and was rate-limited",

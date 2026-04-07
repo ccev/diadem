@@ -7,7 +7,12 @@ import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getLogger } from "@/lib/utils/logger";
 import { respond } from "@/lib/server/api/respond";
-import { consumeRateLimit, requestLimits, rewardRateLimit } from "@/lib/server/api/rateLimit";
+import {
+	calculateRequestCharge,
+	rateLimitConsume,
+	requestLimits,
+	rateLimitReward, rateLimit
+} from "@/lib/server/api/rateLimit";
 import { constants } from "http2";
 
 const log = getLogger("mapobjects");
@@ -27,10 +32,10 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
 	}
 
-	const reservePoints = requestLimits[type];
-	const [allowed, remainingPoints, totalLimit, headers] = await consumeRateLimit(
+	const requestLimit = requestLimits[type];
+	const [allowed, _, totalLimit, headers] = await rateLimitConsume(
 		rateLimitKey,
-		reservePoints,
+		requestLimit,
 		type
 	);
 
@@ -54,26 +59,37 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		data.filter,
 		permitted.polygon,
 		data.since,
-		reservePoints
+		requestLimit
 	).catch(async (e) => {
-		await rewardRateLimit(rateLimitKey, reservePoints, type);
+		await rateLimitReward(rateLimitKey, requestLimit, type);
 		throw e;
 	});
 
-	const refundPoints = Math.max(0, reservePoints - result.data.length);
-	await rewardRateLimit(rateLimitKey, refundPoints, type);
+	let chargeForAmount = result.examined;
+	const hardLimit = requestLimits[type]
+	if (chargeForAmount > hardLimit) chargeForAmount = hardLimit
+
+	const charge = calculateRequestCharge(data.since, result.data.length, chargeForAmount);
+
+	const refundPoints = requestLimit - charge;
+	let remainingPoints = 1
+	if (refundPoints > 0) {
+		remainingPoints = await rateLimitReward(rateLimitKey, refundPoints, type);
+	} else if (refundPoints < 0) {
+		remainingPoints = await rateLimit(rateLimitKey, -1 * refundPoints, type);
+	}
 
 	const queryTime = performance.now();
 	const response = respond(request, result);
 	const serializeTime = performance.now();
-	const finalRemainingPoints = Math.min(totalLimit, remainingPoints + refundPoints);
 
 	log.info(
-		"[%s] count: %d / rate limit: %d/%d / permcheck: %fms + query: %fms + serialize: %fms",
+		"[%s] count: %d | rate limit: %d/%d (charged %d) | permcheck: %fms + query: %fms + serialize: %fms",
 		params.queryMapObject,
 		result.data.length,
-		finalRemainingPoints,
+		remainingPoints,
 		totalLimit,
+		charge,
 		(permCheckTime - start).toFixed(1),
 		(queryTime - permCheckTime).toFixed(1),
 		(serializeTime - queryTime).toFixed(1)

@@ -2,6 +2,7 @@ import { type Map, type LngLatLike, type LngLat } from "maplibre-gl";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getMap } from "@/lib/map/map.svelte";
 import * as turf from "@turf/turf";
+import type { BBox } from "geojson";
 
 export type Bounds = {
 	minLat: number;

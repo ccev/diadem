@@ -171,6 +171,9 @@ export type ServerConfig = {
 	staticMap?: StaticMap;
 	limits?: {
 		enableRateLimiting?: boolean;
+		nonDeltaMultiplier?: number;
+		heavyFilterMultiplier?: number;
+		heavyFilterRatio?: number;
 		captchaOnRateLimit?: boolean;
 		captchaReward?: number;
 	} & {
