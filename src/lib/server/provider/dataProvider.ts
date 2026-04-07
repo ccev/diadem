@@ -21,6 +21,7 @@ export abstract class BaseDataProvider<T> {
 		this.fetchPromise = this.query();
 		const result = await this.fetchPromise;
 		this.fetchPromise = undefined;
+		this.cachedData = result;
 		return result;
 	}
 
