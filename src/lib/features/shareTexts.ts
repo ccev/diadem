@@ -126,7 +126,7 @@ function getPokestopShareText(data: PokestopData) {
 	let text = "";
 
 	for (const quest of data.quests) {
-		if (!quest.target) return "";
+		if (!quest.target) continue;
 
 		const questTexts: string[] = [getArTag(quest.isAr)];
 
@@ -135,8 +135,6 @@ function getPokestopShareText(data: PokestopData) {
 
 		const taskText = mQuest(quest.title, quest.target);
 		if (taskText) questTexts.push(taskText);
-
-		if (!questTexts) return "";
 
 		text += "🔎 " + questTexts.join(" · ") + "\n";
 	}

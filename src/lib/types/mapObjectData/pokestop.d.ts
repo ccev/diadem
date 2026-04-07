@@ -84,6 +84,7 @@ export type QuestData = {
 	title: string;
 	target: number;
 	timestamp: number;
+	expires: number;
 }
 
 export type ContestEntry = {

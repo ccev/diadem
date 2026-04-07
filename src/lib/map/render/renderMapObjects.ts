@@ -259,7 +259,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 							quest.reward,
 							matchQuestFilterset(quest),
 							mapId,
-							data.alternative_quest_expiry ?? null,
+							quest.expires ?? null,
 							questModifiers,
 							selectedScale
 						)

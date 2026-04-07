@@ -87,7 +87,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					updated: p.updated,
 					changed: p.changed,
 					display_pokemon_id: p.display_pokemon_id,
-					display_pokemon_form: getNormalizedForm(p.pokemon_id, p.display_pokemon_form),
+					display_pokemon_form: getNormalizedForm(p.display_pokemon_id, p.display_pokemon_form),
 					seen_type: p.seen_type
 				} as PokemonData;
 

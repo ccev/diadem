@@ -43,7 +43,7 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 		filter: FilterStation,
 		polygon: PermittedPolygon
 	): boolean {
-		return Boolean(filter.stationPlain.enabled || shouldDisplayStation(data, filter));
+		return shouldDisplayStation(data, filter);
 	}
 
 	prepare(data: MinMapObject<StationData>): void {

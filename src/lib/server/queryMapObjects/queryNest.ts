@@ -49,7 +49,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	}
 
 	filter(data: MinMapObject<NestData>, filter: FilterNest, polygon: PermittedPolygon): boolean {
-		return Boolean(filter.enabled || shouldDisplayNest(data, filter));
+		return shouldDisplayNest(data, filter);
 	}
 
 	prepare(data: MinMapObject<NestData>): void {
