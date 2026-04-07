@@ -1,5 +1,5 @@
 import { MapObjectQuery, type MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
@@ -8,11 +8,19 @@ import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi
 import type { GolbatPokemonQuery, GolbatPokemonSpecies } from "@/lib/server/queryMapObjects/queries";
 import { LIMIT_POKEMON } from "@/lib/constants";
 import { getMasterPokemon } from "@/lib/services/masterfile";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import {
+	getNormalizedForm,
+	showGreat,
+	showLittle,
+	showPvp,
+	showUltra
+} from "@/lib/utils/pokemonUtils";
 import { booleanPointInPolygon, featureCollection, point, pointsWithinPolygon } from "@turf/turf";
 import { error } from "@sveltejs/kit";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { getLogger } from "@/lib/utils/logger";
+import { round } from "@/lib/utils/numberFormat";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -22,7 +30,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		filter: FilterPokemon | undefined,
 		polygon: PermittedPolygon,
 		since?: number
-	): Promise<MapObjectResponse<PokemonData>> {
+	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
 		const golbatQueries = this.buildGolbatQueries(filter);
 
 		const body = {
@@ -35,52 +43,72 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const result = await getMultiplePokemon(body);
 
 		if (result) {
-			const filteredPokemon: MinMapObject<PokemonData>[] = []
+			const data: MinMapObject<PokemonData>[] = []
 			let examined = result.examined
 
-			for (const pokemon of result.pokemon) {
-				if (since && (pokemon.updated ?? 0) < since) {
+			for (const p of result.pokemon) {
+				if (since && (p.updated ?? 0) < since) {
 					continue
 				}
-				if (polygon && !booleanPointInPolygon(point([pokemon.lon, pokemon.lat]), polygon)) {
+				if (polygon && !booleanPointInPolygon(point([p.lon, p.lat]), polygon)) {
 					examined -= 1;
 					continue;
 				}
-				filteredPokemon.push(pokemon)
-			}
 
-			const data: MinMapObject<PokemonData>[] = filteredPokemon.map((p) => ({
-				id: p.id,
-				lat: p.lat,
-				lon: p.lon,
-				pokemon_id: p.pokemon_id,
-				form: getNormalizedForm(p.pokemon_id, p.form),
-				costume: p.costume,
-				gender: p.gender,
-				alignment: p.alignment,
-				bread_mode: p.bread_mode,
-				temp_evolution_id: p.temp_evolution_id,
-				cp: p.cp,
-				level: p.level,
-				iv: p.iv,
-				atk_iv: p.atk_iv,
-				def_iv: p.def_iv,
-				sta_iv: p.sta_iv,
-				size: p.size,
-				weather: p.weather,
-				strong: p.strong,
-				move_1: p.move_1,
-				move_2: p.move_2,
-				expire_timestamp: p.expire_timestamp,
-				expire_timestamp_verified: p.expire_timestamp_verified,
-				first_seen_timestamp: p.first_seen_timestamp,
-				updated: p.updated,
-				changed: p.changed,
-				display_pokemon_id: p.display_pokemon_id,
-				display_pokemon_form: getNormalizedForm(p.pokemon_id, p.display_pokemon_form),
-				seen_type: p.seen_type,
-				pvp: p.pvp
-			}));
+				const pokemon = {
+					id: p.id,
+					lat: round(p.lat, 6),
+					lon: round(p.lon, 6),
+					pokemon_id: p.pokemon_id,
+					form: getNormalizedForm(p.pokemon_id, p.form),
+					costume: p.costume,
+					gender: p.gender,
+					alignment: p.alignment,
+					bread_mode: p.bread_mode,
+					temp_evolution_id: p.temp_evolution_id,
+					cp: p.cp,
+					level: p.level,
+					iv: p.iv ? round(p.iv, 2) : undefined,
+					atk_iv: p.atk_iv,
+					def_iv: p.def_iv,
+					sta_iv: p.sta_iv,
+					size: p.size,
+					weather: p.weather,
+					strong: p.strong,
+					move_1: p.move_1,
+					move_2: p.move_2,
+					expire_timestamp: p.expire_timestamp,
+					expire_timestamp_verified: p.expire_timestamp_verified,
+					first_seen_timestamp: p.first_seen_timestamp,
+					updated: p.updated,
+					changed: p.changed,
+					display_pokemon_id: p.display_pokemon_id,
+					display_pokemon_form: getNormalizedForm(p.pokemon_id, p.display_pokemon_form),
+					seen_type: p.seen_type,
+				} as PokemonData;
+
+				const littleRankings: PvpStats[] = []
+				const greatRankings: PvpStats[] = []
+				const ultraRankings: PvpStats[] = []
+
+				for (const rankings of p.pvp?.little ?? []) {
+					if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null)) littleRankings.push(rankings)
+				}
+				for (const rankings of p.pvp?.great ?? []) {
+					if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null)) greatRankings.push(rankings)
+				}
+				for (const rankings of p.pvp?.ultra ?? []) {
+					if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null)) ultraRankings.push(rankings)
+				}
+				if (littleRankings.length || greatRankings.length || ultraRankings.length) {
+					pokemon.pvp = {}
+					if (littleRankings.length) pokemon.pvp.little = littleRankings
+					if (greatRankings.length) pokemon.pvp.great = greatRankings
+					if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings
+				}
+
+				data.push(pokemon);
+			}
 
 			return { data, examined };
 		}

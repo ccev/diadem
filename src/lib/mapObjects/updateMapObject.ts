@@ -16,7 +16,9 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import { getIsCoverageMapActive } from "@/lib/features/coverageMap.svelte";
+import { decode } from "@msgpack/msgpack";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined; since?: number };
 
@@ -50,15 +52,11 @@ export async function fetchMapObjects<T extends MapData>(
 		const response = await fetch("/api/" + type, {
 			method: "POST",
 			body: JSON.stringify(body),
+			headers: getHeaders({ msgpack: true }),
 			signal
 		});
 
-		if (!response.ok) {
-			console.error(`Error while fetching ${type}: ${response.status}`);
-			return;
-		}
-
-		return await response.json();
+		return await parseResponse<MapObjectResponse<T>>(response);
 	} catch (e) {
 		if (e instanceof DOMException && e.name === "AbortError") {
 			return;

@@ -18,7 +18,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
 		since?: number
-	): Promise<MapObjectResponse<MapObject>>;
+	): Promise<MapObjectResponse<MinMapObject<MapObject>>>;
 
 	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
 
@@ -27,7 +27,6 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		filter: Filter,
 		polygon: PermittedPolygon
 	): boolean {
-
 		return true;
 	}
 
@@ -112,7 +111,7 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
 		since?: number
-	): Promise<MapObjectResponse<MapObject>> {
+	): Promise<MapObjectResponse<MinMapObject<MapObject>>> {
 		const spatial = this.buildSpatialFilter(polygon, bounds);
 		const filterWhere = this.getFilterWhere(filter);
 

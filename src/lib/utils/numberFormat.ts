@@ -1,5 +1,10 @@
 import { getLocale } from "@/lib/paraglide/runtime";
 
+export function round(num: number, places: number) {
+	const factor = 10 ** places;
+	return Math.round(num * factor) / factor;
+}
+
 /**
  * Format a number with full precision and locale-specific formatting
  * @param value The number to format

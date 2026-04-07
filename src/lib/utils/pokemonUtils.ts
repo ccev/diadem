@@ -4,6 +4,9 @@ import * as m from "@/lib/paraglide/messages";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { MasterPokemon } from "@/lib/types/masterfile";
 import { getMasterPokemon } from "@/lib/services/masterfile";
+import type { FilterPokemon } from "@/lib/features/filters/filters";
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export const pokemonSizes = {
 	1: "XXS",
@@ -93,6 +96,14 @@ export const reverseNormalizedFormPokemonIds = new Set([
 	1013 // sinistcha
 ]);
 
+export function getActivePokemonFilter() {
+	const activeSearch = getActiveSearch();
+	if (activeSearch && activeSearch.mapObject === MapObjectType.POKEMON) {
+		return activeSearch.filter as FilterPokemon;
+	}
+	return getUserSettings().filters.pokemon;
+}
+
 export function hasTimer(data: {
 	expire_timestamp: number | null | undefined;
 	expire_timestamp_verified: number | boolean | null | undefined;
@@ -100,25 +111,26 @@ export function hasTimer(data: {
 	return data.expire_timestamp && data.expire_timestamp_verified;
 }
 
-export function getBestRank(data: PokemonData, league: "little" | "great" | "ultra") {
+export function getBestRank(data: Partial<PokemonData>, league: "little" | "great" | "ultra") {
 	const ranks = data.pvp?.[league]?.map((l) => l.rank) ?? [0];
 	const best = Math.min(...ranks);
 	if (!Number.isInteger(best)) return 0;
 	return best;
 }
 
-function showPvp(
-	bestRank: number,
+export function showPvp(
+	rank: number,
 	filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra",
-	ignoreFilters: boolean = false
+	ignoreFilters: boolean = false,
+	pokemonFilters: FilterPokemon | null = getActivePokemonFilter()
 ) {
-	const always = bestRank > 0 && bestRank <= POKEMON_MIN_RANK;
-	if (always || ignoreFilters) return true;
+	const always = rank > 0 && rank <= POKEMON_MIN_RANK;
+	if (always || ignoreFilters || !pokemonFilters) return true;
 
-	const filters = getUserSettings().filters.pokemon.filters.filter((f) => f.enabled);
+	const filters = pokemonFilters.filters.filter((f) => f.enabled);
 	for (const filter of filters) {
 		if (filter[filterAttribute]) {
-			if (bestRank >= filter[filterAttribute].min && bestRank <= filter[filterAttribute].max) {
+			if (rank >= filter[filterAttribute].min && rank <= filter[filterAttribute].max) {
 				return true;
 			}
 		}
@@ -126,19 +138,31 @@ function showPvp(
 	return false;
 }
 
-export function showLittle(data: PokemonData, ignoreFilters: boolean = false) {
+export function showLittle(
+	data: Partial<PokemonData>,
+	ignoreFilters: boolean = false,
+	pokemonFilters: FilterPokemon = getActivePokemonFilter()
+) {
 	const bestRank = getBestRank(data, "little");
-	return showPvp(bestRank, "pvpRankLittle", ignoreFilters);
+	return showPvp(bestRank, "pvpRankLittle", ignoreFilters, pokemonFilters);
 }
 
-export function showGreat(data: PokemonData, ignoreFilters: boolean = false) {
+export function showGreat(
+	data: Partial<PokemonData>,
+	ignoreFilters: boolean = false,
+	pokemonFilters: FilterPokemon = getActivePokemonFilter()
+) {
 	const bestRank = getBestRank(data, "great");
-	return showPvp(bestRank, "pvpRankGreat", ignoreFilters);
+	return showPvp(bestRank, "pvpRankGreat", ignoreFilters, pokemonFilters);
 }
 
-export function showUltra(data: PokemonData, ignoreFilters: boolean = false) {
+export function showUltra(
+	data: Partial<PokemonData>,
+	ignoreFilters: boolean = false,
+	pokemonFilters: FilterPokemon = getActivePokemonFilter()
+) {
 	const bestRank = getBestRank(data, "ultra");
-	return showPvp(bestRank, "pvpRankUltra", ignoreFilters);
+	return showPvp(bestRank, "pvpRankUltra", ignoreFilters, pokemonFilters);
 }
 
 export function getPokemonSize(size: number) {
