@@ -1,7 +1,7 @@
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import type { FilterTappable } from "@/lib/features/filters/filters";
-import { LIMIT_TAPPABLE } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export class TappableQuery extends DbMapObjectQuery<TappableData, FilterTappable> {
@@ -19,6 +19,6 @@ export class TappableQuery extends DbMapObjectQuery<TappableData, FilterTappable
 		"expire_timestamp",
 		"updated"
 	];
-	protected readonly limit = LIMIT_TAPPABLE;
+	protected readonly limit = requestLimits[MapObjectType.TAPPABLE];
 	protected readonly idColumn = "id";
 }

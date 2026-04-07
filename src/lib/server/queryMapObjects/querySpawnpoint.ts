@@ -1,7 +1,7 @@
 import { DbMapObjectQuery} from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { FilterSpawnpoint } from "@/lib/features/filters/filters";
-import { LIMIT_SPAWNPOINT } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export class SpawnpointQuery extends DbMapObjectQuery<SpawnpointData, FilterSpawnpoint> {
@@ -16,6 +16,6 @@ export class SpawnpointQuery extends DbMapObjectQuery<SpawnpointData, FilterSpaw
 		"despawn_sec",
 		"first_seen"
 	];
-	protected readonly limit = LIMIT_SPAWNPOINT;
+	protected readonly limit = requestLimits[MapObjectType.SPAWNPOINT];
 	protected readonly idColumn = "id";
 }

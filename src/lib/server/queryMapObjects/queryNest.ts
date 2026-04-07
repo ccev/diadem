@@ -4,7 +4,7 @@ import type { FilterNest } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { LIMIT_NEST } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
@@ -30,7 +30,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 		"discarded",
 		"updated"
 	];
-	protected readonly limit = LIMIT_NEST;
+	protected readonly limit = requestLimits[MapObjectType.NEST];
 	protected readonly idColumn = "nest_id";
 
 	protected readonly extraWhere = ["active = 1", "pokemon_id IS NOT NULL"];

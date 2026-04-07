@@ -1,7 +1,8 @@
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { FilterRoute } from "@/lib/features/filters/filters";
-import { LIMIT_ROUTE } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 	protected readonly table = "route";
@@ -31,6 +32,6 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 		"version",
 		"waypoints"
 	];
-	protected readonly limit = LIMIT_ROUTE;
+	protected readonly limit = requestLimits[MapObjectType.ROUTE];
 	protected readonly idColumn = "id";
 }

@@ -169,6 +169,17 @@ export type ServerConfig = {
 	auth: Auth;
 	permissions?: Permissions[];
 	staticMap?: StaticMap;
+	limits?: {
+		enableRateLimiting?: boolean;
+		captchaOnRateLimit?: boolean;
+		captchaReward?: number;
+	} & {
+		[key in MapObjectType]?: {
+			requestLimit?: number;
+			rateLimit?: number;
+			rateLimitTime?: number;
+		};
+	}
 };
 
 export type Config = {

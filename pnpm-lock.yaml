@@ -86,6 +86,9 @@ importers:
       mysql2:
         specifier: ^3.12.0
         version: 3.14.1
+      rate-limiter-flexible:
+        specifier: ^11.0.0
+        version: 11.0.0
       runed:
         specifier: ^0.37.1
         version: 0.37.1(@sveltejs/kit@2.55.0(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.1)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)(typescript@5.8.3)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)(zod@4.1.12)
@@ -155,7 +158,7 @@ importers:
         version: 5.55.1
       svelte-check:
         specifier: ^4.0.0
-        version: 4.2.1(picomatch@4.0.2)(svelte@5.55.1)(typescript@5.8.3)
+        version: 4.2.1(picomatch@4.0.3)(svelte@5.55.1)(typescript@5.8.3)
       tailwindcss:
         specifier: ^4.2.1
         version: 4.2.1
@@ -3128,6 +3131,9 @@ packages:
 
   quickselect@3.0.0:
     resolution: {integrity: sha512-XdjUArbK4Bm5fLLvlm5KpTFOiOThgfWWI4axAZDWg4E/0mKdZyI9tNEfds27qCi1ze/vwTR16kvmmGhRra3c2g==}
+
+  rate-limiter-flexible@11.0.0:
+    resolution: {integrity: sha512-UhN3xVeU6Az3y6hAuxMUwFsKcKD1HffhMGK0MknbSxH9vkwslS/p19ovCvJqIVT97pE778nKu2sUgYAcxj4dmQ==}
 
   rbush@2.0.2:
     resolution: {integrity: sha512-XBOuALcTm+O/H8G90b6pzu6nX6v2zCKiFG4BJho8a+bY6AER6t8uQUZdi5bomQc0AprCWhEGa7ncAbbRap0bRA==}
@@ -6252,6 +6258,10 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.2
 
+  fdir@6.4.4(picomatch@4.0.3):
+    optionalDependencies:
+      picomatch: 4.0.3
+
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
@@ -6685,6 +6695,8 @@ snapshots:
 
   quickselect@3.0.0: {}
 
+  rate-limiter-flexible@11.0.0: {}
+
   rbush@2.0.2:
     dependencies:
       quickselect: 1.1.1
@@ -6976,11 +6988,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@4.2.1(picomatch@4.0.2)(svelte@5.55.1)(typescript@5.8.3):
+  svelte-check@4.2.1(picomatch@4.0.3)(svelte@5.55.1)(typescript@5.8.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 4.0.3
-      fdir: 6.4.4(picomatch@4.0.2)
+      fdir: 6.4.4(picomatch@4.0.3)
       picocolors: 1.1.1
       sade: 1.8.1
       svelte: 5.55.1

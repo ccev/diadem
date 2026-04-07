@@ -2,7 +2,7 @@ import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { FilterGym } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { LIMIT_GYM } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
@@ -45,7 +45,7 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		"rsvps",
 		"deleted"
 	];
-	protected readonly limit = LIMIT_GYM;
+	protected readonly limit = requestLimits[MapObjectType.GYM];
 	protected readonly idColumn = "gym.id";
 
 	protected readonly extraWhere = ["deleted = 0"];

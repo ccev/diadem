@@ -1,7 +1,7 @@
 import { encode } from "@msgpack/msgpack";
 import { brotliCompressSync, gzipSync, constants } from "node:zlib";
 
-export function respond(request: Request, data: any): Response {
+export function respond(request: Request, data: any, options?: ResponseInit): Response {
 	const accept = request.headers.get("Accept") ?? "";
 	const acceptEncoding = request.headers.get("Accept-Encoding") ?? "";
 
@@ -27,8 +27,14 @@ export function respond(request: Request, data: any): Response {
 		compressed = body;
 	}
 
-	const headers: Record<string, string> = { "Content-Type": contentType };
-	if (contentEncoding) headers["Content-Encoding"] = contentEncoding;
+	const headers: Record<string, any> = {
+		...options?.headers,
+		"Content-Type": contentType,
+	};
 
-	return new Response(compressed, { headers });
+	if (contentEncoding) {
+		headers["Content-Encoding"] = contentEncoding;
+	}
+
+	return new Response(compressed, { ...options, headers });
 }

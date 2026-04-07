@@ -3,18 +3,45 @@ import { getLogger } from "@/lib/utils/logger";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
 import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
+import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { isRateLimited, rateLimit } from "@/lib/server/api/rateLimit";
+import { respond } from "@/lib/server/api/respond";
+import { constants } from "http2";
 
 const log = getLogger("mapobject id");
 
-export async function GET({ params, url, locals, fetch }) {
+export async function GET({ params, locals, fetch, getClientAddress, request }) {
+	const rateLimitKey = locals.user?.id ?? getClientAddress();
+	const type = params.queryMapObject as MapObjectType;
+
+	let [limit, totalLimit, headers] = await isRateLimited(rateLimitKey, type);
+	if (limit <= 0) {
+		log.info(
+			"[%s] User %s reached %d and was rate-limited",
+			params.queryMapObject,
+			locals.user?.id ?? "<ip>",
+			totalLimit
+		);
+		return respond(
+			request,
+			{ data: [] },
+			{ headers, status: constants.HTTP_STATUS_TOO_MANY_REQUESTS }
+		);
+	}
+
 	const start = performance.now();
-	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user)) error(401);
+	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user))
+		error(constants.HTTP_STATUS_UNAUTHORIZED);
 
 	const data = await querySingleMapObject(params.queryMapObject, params.id, fetch);
 
-	if (!data) error(500);
+	if (!data) error(constants.HTTP_STATUS_NOT_FOUND);
 
-	if (!isPointInAllowedArea(locals.perms, params.queryMapObject, data.lat, data.lon)) error(401);
+	if (!isPointInAllowedArea(locals.perms, params.queryMapObject, data.lat, data.lon))
+		error(constants.HTTP_STATUS_UNAUTHORIZED);
+
+	// technically this should reduce only by 1, but these requests are sent very rarely and can be limited harder
+	await rateLimit(rateLimitKey, 2, type);
 
 	log.info(
 		"[%s] Serving single map object / time: %dms",

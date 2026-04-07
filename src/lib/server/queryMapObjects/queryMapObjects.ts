@@ -37,13 +37,14 @@ export async function queryMapObjects<Data extends MapData>(
 	bounds: Bounds,
 	filter: AnyFilter | undefined,
 	polygon: PermittedPolygon = null,
-	since?: number
+	since?: number,
+	limit?: number
 ): Promise<MapObjectResponse<Data>> {
 	if (filter !== undefined && !filter.enabled) {
 		return { examined: 0, data: [] };
 	}
 
-	return getQuery(type).getMultiple(bounds, filter, polygon, since);
+	return getQuery(type).getMultiple(bounds, filter, polygon, since, limit);
 }
 
 export async function querySingleMapObject(

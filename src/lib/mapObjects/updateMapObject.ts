@@ -130,7 +130,7 @@ export async function updateMapObject(
 
 	// TODO: we shouldn't clear stuff that's still kept after. svelte will
 	// run effects in-between clearing and adding
-	if (removeOld && !isDelta) {
+	if (removeOld && !isDelta && data) {
 		clearMapObjects(type);
 	}
 

@@ -90,6 +90,29 @@ roleId = "1483326963558653982"
 areas = ["Tokyo"]
 features = ["*"]
 
+[server.limits]
+# When logged in, rate limits are based on the user ID. And based on IP when not.
+enableRateLimiting = true
+
+# When hitting the rate limit, allow users to fill up their rate limit quota by solving a proof-of-work captcha.
+# Solving a captcha will allow another {captchaReward} * {server.limits.{type}.rateLimit} objects to be requested.
+#   Example: When pokemon rate limit = 10 million and captchaReward = 0.1, solving a captcha allows another 1 million Pokemon to be requested
+captchaOnRateLimit = true
+captchaReward = 0.1
+
+# Set limits per map object type.
+#   requestLimit: the max amount of objects returned in a single response, and therefore the max
+#       amount of objects of that type to be displayed on the map at once
+#   rateLimit is the max amount of objects to be given out in {rateLimitTime} seconds.
+#   rateLimitTime is the amount of seconds for {rateLimit} to reset
+#
+# Available map objects: pokemon, pokestop, gym, station, nest, spawnpoint, tappable
+# When no value is set, sane defaults will be used
+#[server.limits.pokemon]
+#requestLimit = 10_000
+#rateLimit = 10_000_000
+#rateLimitTime = 10800   # 3 hours
+
 [server.db]
 host = "127.0.0.1"
 port = 3306

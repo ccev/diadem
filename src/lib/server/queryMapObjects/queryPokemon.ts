@@ -6,7 +6,7 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi";
 import type { GolbatPokemonQuery, GolbatPokemonSpecies } from "@/lib/server/queryMapObjects/queries";
-import { LIMIT_POKEMON } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import {
 	getNormalizedForm,
@@ -24,31 +24,35 @@ import { round } from "@/lib/utils/numberFormat";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
+	protected readonly limit = requestLimits[MapObjectType.POKEMON];
 
 	async query(
 		bounds: Bounds,
 		filter: FilterPokemon | undefined,
 		polygon: PermittedPolygon,
-		since?: number
+		since?: number,
+		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
 		const golbatQueries = this.buildGolbatQueries(filter);
+
+		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 
 		const body = {
 			min: { latitude: bounds.minLat, longitude: bounds.minLon },
 			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-			limit: LIMIT_POKEMON,
+			limit: actualLimit,
 			filters: golbatQueries
 		};
 
 		const result = await getMultiplePokemon(body);
 
 		if (result) {
-			const data: MinMapObject<PokemonData>[] = []
-			let examined = result.examined
+			const data: MinMapObject<PokemonData>[] = [];
+			let examined = result.examined;
 
 			for (const p of result.pokemon) {
 				if (since && (p.updated ?? 0) < since) {
-					continue
+					continue;
 				}
 				if (polygon && !booleanPointInPolygon(point([p.lon, p.lat]), polygon)) {
 					examined -= 1;
@@ -84,27 +88,30 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					changed: p.changed,
 					display_pokemon_id: p.display_pokemon_id,
 					display_pokemon_form: getNormalizedForm(p.pokemon_id, p.display_pokemon_form),
-					seen_type: p.seen_type,
+					seen_type: p.seen_type
 				} as PokemonData;
 
-				const littleRankings: PvpStats[] = []
-				const greatRankings: PvpStats[] = []
-				const ultraRankings: PvpStats[] = []
+				const littleRankings: PvpStats[] = [];
+				const greatRankings: PvpStats[] = [];
+				const ultraRankings: PvpStats[] = [];
 
 				for (const rankings of p.pvp?.little ?? []) {
-					if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null)) littleRankings.push(rankings)
+					if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
+						littleRankings.push(rankings);
 				}
 				for (const rankings of p.pvp?.great ?? []) {
-					if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null)) greatRankings.push(rankings)
+					if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
+						greatRankings.push(rankings);
 				}
 				for (const rankings of p.pvp?.ultra ?? []) {
-					if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null)) ultraRankings.push(rankings)
+					if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
+						ultraRankings.push(rankings);
 				}
 				if (littleRankings.length || greatRankings.length || ultraRankings.length) {
-					pokemon.pvp = {}
-					if (littleRankings.length) pokemon.pvp.little = littleRankings
-					if (greatRankings.length) pokemon.pvp.great = greatRankings
-					if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings
+					pokemon.pvp = {};
+					if (littleRankings.length) pokemon.pvp.little = littleRankings;
+					if (greatRankings.length) pokemon.pvp.great = greatRankings;
+					if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings;
 				}
 
 				data.push(pokemon);

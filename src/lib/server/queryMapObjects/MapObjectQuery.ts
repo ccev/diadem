@@ -12,21 +12,19 @@ export type MapObjectResponse<T> = {
 
 export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 	protected abstract readonly type: MapObjectType;
+	protected abstract readonly limit: number;
 
 	abstract query(
 		bounds: Bounds,
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
-		since?: number
+		since?: number,
+		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<MapObject>>>;
 
 	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
 
-	filter(
-		data: MinMapObject<MapObject>,
-		filter: Filter,
-		polygon: PermittedPolygon
-	): boolean {
+	filter(data: MinMapObject<MapObject>, filter: Filter, polygon: PermittedPolygon): boolean {
 		return true;
 	}
 
@@ -37,16 +35,17 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 			type: this.type,
 			mapId: this.type + "-" + data.id,
 			...data
-		} as MapObject
+		} as MapObject;
 	}
 
 	public async getMultiple(
 		bounds: Bounds,
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
-		since?: number
+		since?: number,
+		limit?: number
 	): Promise<MapObjectResponse<MapObject>> {
-		const result = await this.query(bounds, filter, polygon, since);
+		const result = await this.query(bounds, filter, polygon, since, limit);
 		for (const item of result.data) {
 			this.prepare(item);
 		}
@@ -80,7 +79,6 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 > {
 	protected abstract readonly table: string;
 	protected abstract readonly fields: string[];
-	protected abstract readonly limit: number;
 	protected abstract readonly idColumn: string;
 	protected readonly updatedColumn: string = "updated";
 	protected readonly pointExpr: string = "Point(lon, lat)";
@@ -110,7 +108,8 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 		bounds: Bounds,
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
-		since?: number
+		since?: number,
+		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<MapObject>>> {
 		const spatial = this.buildSpatialFilter(polygon, bounds);
 		const filterWhere = this.getFilterWhere(filter);
@@ -125,8 +124,10 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 			values.push(since);
 		}
 
+		const actualLimit = Math.min(limit ?? this.limit, this.limit)
+
 		const sql =
-			this.buildSelectFrom() + " WHERE " + whereClauses.join(" AND ") + ` LIMIT ${this.limit}`;
+			this.buildSelectFrom() + " WHERE " + whereClauses.join(" AND ") + ` LIMIT ${actualLimit}`;
 
 		const result = await this.executeQuery<MinMapObject<MapObject>[]>(sql, values);
 

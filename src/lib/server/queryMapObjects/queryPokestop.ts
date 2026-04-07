@@ -2,7 +2,7 @@ import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { LIMIT_POKESTOP } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -62,7 +62,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 	protected readonly type = MapObjectType.POKESTOP;
 	protected readonly table = "pokestop";
 	protected readonly fields = FIELDS_POKESTOP;
-	protected readonly limit = LIMIT_POKESTOP;
+	protected readonly limit = requestLimits[MapObjectType.POKESTOP];
 	protected readonly idColumn = "pokestop.id";
 	protected readonly updatedColumn = "pokestop.updated";
 	protected readonly pointExpr = "Point(pokestop.lon, pokestop.lat)";

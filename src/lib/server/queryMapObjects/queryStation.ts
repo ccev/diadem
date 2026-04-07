@@ -2,7 +2,7 @@ import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { LIMIT_STATION } from "@/lib/constants";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
@@ -33,7 +33,7 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 		"total_stationed_gmax",
 		"stationed_pokemon"
 	];
-	protected readonly limit = LIMIT_STATION;
+	protected readonly limit = requestLimits[MapObjectType.STATION];
 	protected readonly idColumn = "station.id";
 
 	protected readonly extraWhere = ["end_time > UNIX_TIMESTAMP()"];
