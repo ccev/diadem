@@ -55,8 +55,6 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		for (const item of result.data) {
 			if (!filter || this.filter(item, filter, polygon)) {
 				data.push(this.makeMapObject(item));
-			} else {
-				examined -= 1;
 			}
 		}
 

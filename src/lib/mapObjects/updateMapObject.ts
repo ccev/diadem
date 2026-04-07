@@ -134,7 +134,7 @@ export async function updateMapObject(
 		clearMapObjects(type);
 	}
 
-	if (!data || data.length === 0) {
+	if (!data) {
 		if (!signal) updateFeatures(getMapObjects());
 		return;
 	}

@@ -28,7 +28,11 @@ export function addMapObjects(
 		for (const key in mapObjectsState) {
 			if (key.startsWith(prefix)) showing++;
 		}
-		mapObjectCounts[type] = { showing, examined: examined };
+		// we're not updating examined on deltas.
+		// the examined counts are therefore inaccurate.
+		// but that's fine. deltas happen when the map doesn't move, so the count should be
+		// close enough.
+		mapObjectCounts[type].showing = showing
 	} else {
 		mapObjectCounts[type] = { showing: mapObjects.length, examined };
 	}
