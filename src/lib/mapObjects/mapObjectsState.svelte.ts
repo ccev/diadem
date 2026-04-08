@@ -32,7 +32,7 @@ export function addMapObjects(
 		// the examined counts are therefore inaccurate.
 		// but that's fine. deltas happen when the map doesn't move, so the count should be
 		// close enough.
-		mapObjectCounts[type].showing = showing
+		mapObjectCounts[type].showing = showing;
 	} else {
 		mapObjectCounts[type] = { showing: mapObjects.length, examined };
 	}

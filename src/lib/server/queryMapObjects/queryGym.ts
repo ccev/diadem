@@ -57,11 +57,7 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		return { sql: "", values: [] };
 	}
 
-	filter(
-		data: MinMapObject<GymData>,
-		filter: FilterGym,
-		polygon: PermittedPolygon
-	): boolean {
+	filter(data: MinMapObject<GymData>, filter: FilterGym, polygon: PermittedPolygon): boolean {
 		return Boolean(filter.gymPlain.enabled || shouldDisplayRaid(data, filter));
 	}
 

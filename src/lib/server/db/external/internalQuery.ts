@@ -17,7 +17,7 @@ export async function query<T>(sql: string, values?: unknown[]): Promise<T> {
 		return result as T;
 	} catch (e) {
 		log.error("SQL exception", e);
-		error(500)
+		error(500);
 	}
 }
 

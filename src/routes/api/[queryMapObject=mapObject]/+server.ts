@@ -11,7 +11,8 @@ import {
 	calculateRequestCharge,
 	rateLimitConsume,
 	requestLimits,
-	rateLimitReward, rateLimit
+	rateLimitReward,
+	rateLimit
 } from "@/lib/server/api/rateLimit";
 import { constants } from "http2";
 
@@ -66,13 +67,13 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 	});
 
 	let chargeForAmount = result.examined;
-	const hardLimit = requestLimits[type]
-	if (chargeForAmount > hardLimit) chargeForAmount = hardLimit
+	const hardLimit = requestLimits[type];
+	if (chargeForAmount > hardLimit) chargeForAmount = hardLimit;
 
 	const charge = calculateRequestCharge(data.since, result.data.length, chargeForAmount);
 
 	const refundPoints = requestLimit - charge;
-	let remainingPoints = 1
+	let remainingPoints = 1;
 	if (refundPoints > 0) {
 		remainingPoints = await rateLimitReward(rateLimitKey, refundPoints, type);
 	} else if (refundPoints < 0) {

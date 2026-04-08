@@ -98,7 +98,7 @@ export async function updateWeather() {
 
 	const response = await fetch("/api/weather/" + BigInt.asIntN(64, weatherCell).toString());
 
-	if (!response.ok) return
+	if (!response.ok) return;
 
 	const data = await response.json();
 

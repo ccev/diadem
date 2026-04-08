@@ -1,4 +1,4 @@
-import { DbMapObjectQuery} from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { FilterSpawnpoint } from "@/lib/features/filters/filters";
 import { requestLimits } from "@/lib/server/api/rateLimit";

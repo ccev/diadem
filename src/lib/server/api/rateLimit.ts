@@ -63,7 +63,7 @@ function getHeaders(data: RateLimiterRes): Record<string, string> {
 }
 
 function getLimiter(type: MapObjectType): RateLimiterMemory {
-	const limiter = mapObjectLimiters.get(type)
+	const limiter = mapObjectLimiters.get(type);
 	if (!limiter) throw new Error("Limiter of type " + type + " does not exist");
 	return limiter;
 }
@@ -80,7 +80,7 @@ export function calculateRequestCharge(
 	const baseUsage = Math.max(0, examined);
 	const sinceMultiplier = !isDelta ? NON_DELTA_MULTIPLIER : 1;
 
-	const isHeavilyFiltered = !isDelta && examined > 0 && (queried < examined * HEAVY_FILTER_RATIO);
+	const isHeavilyFiltered = !isDelta && examined > 0 && queried < examined * HEAVY_FILTER_RATIO;
 	const filterMultiplier = isHeavilyFiltered ? HEAVY_FILTER_MULTIPLIER : 1;
 
 	const totalMultiplier = sinceMultiplier * filterMultiplier;

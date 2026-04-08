@@ -182,7 +182,7 @@ export type ServerConfig = {
 			rateLimit?: number;
 			rateLimitTime?: number;
 		};
-	}
+	};
 };
 
 export type Config = {

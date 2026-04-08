@@ -420,10 +420,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		if (!questReward) continue;
 
 		if (questReward.type === RewardType.POKEMON) {
-			questReward.info.form = getNormalizedForm(
-				questReward.info.pokemon_id,
-				questReward.info.form
-			);
+			questReward.info.form = getNormalizedForm(questReward.info.pokemon_id, questReward.info.form);
 		}
 
 		const key = getQuestKey(row.quest_rewards, row.quest_title, row.quest_target);

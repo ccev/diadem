@@ -4,7 +4,10 @@ import { getActiveNestFilter } from "@/lib/utils/nestUtils";
 import type { FiltersetNest } from "@/lib/features/filters/filtersets";
 import type { FilterNest } from "@/lib/features/filters/filters";
 
-export function matchNestFilterset(nest: Partial<NestData>, nestFilter: FilterNest = getActiveNestFilter()): FiltersetNest | undefined {
+export function matchNestFilterset(
+	nest: Partial<NestData>,
+	nestFilter: FilterNest = getActiveNestFilter()
+): FiltersetNest | undefined {
 	if (!nestFilter.enabled) return;
 
 	const filtersets = nestFilter.filters.filter((f) => f.enabled);
@@ -20,7 +23,10 @@ export function matchNestFilterset(nest: Partial<NestData>, nestFilter: FilterNe
 	}
 }
 
-export function shouldDisplayNest(nest: Partial<NestData>, nestFilter: FilterNest = getActiveNestFilter()) {
+export function shouldDisplayNest(
+	nest: Partial<NestData>,
+	nestFilter: FilterNest = getActiveNestFilter()
+) {
 	if (isCurrentSelectedOverwrite(nest.mapId)) return true;
 
 	if (!nestFilter.enabled) return false;

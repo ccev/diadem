@@ -8,7 +8,7 @@ import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import type { MapObjectPolygonProperties } from "@/lib/map/render/featureTypes";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-const LIMIT_S2_CELLS = 5_000
+const LIMIT_S2_CELLS = 5_000;
 
 export type S2CellProperties = {
 	level: number;

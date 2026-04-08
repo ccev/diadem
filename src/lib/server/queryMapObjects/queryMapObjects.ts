@@ -3,7 +3,10 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MapData, MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { type MapObjectResponse, type MapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import {
+	type MapObjectResponse,
+	type MapObjectQuery
+} from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";

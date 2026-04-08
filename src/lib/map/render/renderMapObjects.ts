@@ -11,12 +11,13 @@ import type { MultiPolygon, Polygon } from "geojson";
 import {
 	getActivePokestopFilter,
 	hasFortActiveLure,
-	isIncidentInvasion,
+	isIncidentInvasion
 } from "@/lib/utils/pokestopUtils";
 import {
 	matchInvasionFilterset,
 	matchQuestFilterset,
-	shouldDisplayIncident, shouldDisplayLure,
+	shouldDisplayIncident,
+	shouldDisplayLure,
 	shouldDisplayQuest
 } from "@/lib/features/filterLogic/pokestop";
 import {
@@ -243,7 +244,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 		let showThis =
 			getActivePokestopFilter().pokestopPlain.enabled ||
-			(shouldDisplayLure(data)) ||
+			shouldDisplayLure(data) ||
 			isSelected ||
 			isSelectedOverwrite;
 

@@ -92,8 +92,8 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.nest;
 		} else if (type === MapObjectType.SPAWNPOINT) {
 			filter = getUserSettings().filters.spawnpoint;
-		// } else if (type === MapObjectType.ROUTE) {
-		// 	filter = getUserSettings().filters.route;
+			// } else if (type === MapObjectType.ROUTE) {
+			// 	filter = getUserSettings().filters.route;
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
 		} else if (type === MapObjectType.S2_CELL) {

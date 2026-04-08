@@ -118,11 +118,7 @@
 	{#snippet description()}
 		<div class="[&>*:last-child]:border-none [&>*:last-child]:pb-0">
 			{#each data.quests as quest}
-				<QuestDisplay
-					expanded={false}
-					{quest}
-					pokestop={data}
-				/>
+				<QuestDisplay expanded={false} {quest} pokestop={data} />
 			{/each}
 
 			{@render lureSection()}
@@ -139,11 +135,7 @@
 	{#snippet content()}
 		<div class="[&>*:last-child]:mb-2">
 			{#each data.quests as quest}
-				<QuestDisplay
-					expanded={true}
-					{quest}
-					pokestop={data}
-				/>
+				<QuestDisplay expanded={true} {quest} pokestop={data} />
 			{/each}
 
 			{@render lureSection()}

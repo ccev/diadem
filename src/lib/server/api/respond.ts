@@ -29,7 +29,7 @@ export function respond(request: Request, data: any, options?: ResponseInit): Re
 
 	const headers: Record<string, any> = {
 		...options?.headers,
-		"Content-Type": contentType,
+		"Content-Type": contentType
 	};
 
 	if (contentEncoding) {

@@ -179,7 +179,10 @@
 	{/if}
 
 	{#if data.display_pokemon_id}
-		{@const displayPokemon = { pokemon_id: data.display_pokemon_id, form: data.display_pokemon_form }}
+		{@const displayPokemon = {
+			pokemon_id: data.display_pokemon_id,
+			form: data.display_pokemon_form
+		}}
 		<div class="flex items-center">
 			<img
 				class="w-4 shrink-0"

@@ -38,7 +38,10 @@ export function matchMaxBattleFilterset(
 	}
 }
 
-export function shouldDisplayStation(station: Partial<StationData>, stationFilter: FilterStation = getActiveStationFilter()) {
+export function shouldDisplayStation(
+	station: Partial<StationData>,
+	stationFilter: FilterStation = getActiveStationFilter()
+) {
 	if (isCurrentSelectedOverwrite(station.mapId)) return true;
 
 	if (!stationFilter.enabled) return false;

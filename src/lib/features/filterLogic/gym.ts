@@ -41,7 +41,10 @@ export function matchRaidFilterset(
 	}
 }
 
-export function shouldDisplayRaid(data: Partial<GymData>, gymFilters: FilterGym = getActiveGymFilter()) {
+export function shouldDisplayRaid(
+	data: Partial<GymData>,
+	gymFilters: FilterGym = getActiveGymFilter()
+) {
 	const timestamp = currentTimestamp();
 
 	// only active raids

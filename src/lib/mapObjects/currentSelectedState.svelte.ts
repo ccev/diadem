@@ -21,6 +21,6 @@ export function getCurrentSelectedMapId() {
 }
 
 export function isCurrentSelectedOverwrite(mapId: string | undefined) {
-	if (!mapId) return false
+	if (!mapId) return false;
 	return currentSelectedData.isOverwrite && currentSelectedData.data?.mapId === mapId;
 }

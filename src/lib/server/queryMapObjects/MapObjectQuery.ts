@@ -122,7 +122,7 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 			values.push(since);
 		}
 
-		const actualLimit = Math.min(limit ?? this.limit, this.limit)
+		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 
 		const sql =
 			this.buildSelectFrom() + " WHERE " + whereClauses.join(" AND ") + ` LIMIT ${actualLimit}`;

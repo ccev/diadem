@@ -85,7 +85,7 @@ export type QuestData = {
 	target: number;
 	timestamp: number;
 	expires: number;
-}
+};
 
 export type ContestEntry = {
 	rank: number;

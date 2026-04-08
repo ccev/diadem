@@ -1,4 +1,9 @@
-import type { Incident, PokestopData, QuestData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type {
+	Incident,
+	PokestopData,
+	QuestData,
+	QuestReward
+} from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getInvasionCatchable, hasInvasionLineup } from "@/lib/features/masterStats.svelte";

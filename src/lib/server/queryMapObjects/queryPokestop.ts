@@ -7,7 +7,11 @@ import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { shouldDisplayIncident, shouldDisplayLure, shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
+import {
+	shouldDisplayIncident,
+	shouldDisplayLure,
+	shouldDisplayQuest
+} from "@/lib/features/filterLogic/pokestop";
 import { hasFortActiveLure, parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 const FIELDS_POKESTOP = [
@@ -78,9 +82,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 		filter: FilterPokestop,
 		polygon: PermittedPolygon
 	): boolean {
-		let showThis =
-			Boolean(filter.pokestopPlain.enabled ||
-			(shouldDisplayLure(data, filter)))
+		let showThis = Boolean(filter.pokestopPlain.enabled || shouldDisplayLure(data, filter));
 
 		if (!showThis && filter.quest.enabled) {
 			for (const quest of data.quests) {
@@ -104,7 +106,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 	}
 
 	prepare(data: MinMapObject<PokestopData>): void {
-		data.quests = []
+		data.quests = [];
 		if (data.alternative_quest_target && data.alternative_quest_rewards) {
 			const reward = parseQuestReward(data.alternative_quest_rewards);
 			if (reward)
@@ -118,15 +120,16 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 				});
 		}
 		if (data.quest_target && data.quest_rewards) {
-			const reward = parseQuestReward(data.quest_rewards)
-			if (reward) data.quests.push({
-				reward,
-				isAr: true,
-				title: data.quest_title ?? "",
-				target: data.quest_target ?? 0,
-				timestamp: data.quest_timestamp ?? 0,
-				expires: data.quest_expiry ?? 0
-			})
+			const reward = parseQuestReward(data.quest_rewards);
+			if (reward)
+				data.quests.push({
+					reward,
+					isAr: true,
+					title: data.quest_title ?? "",
+					target: data.quest_target ?? 0,
+					timestamp: data.quest_timestamp ?? 0,
+					expires: data.quest_expiry ?? 0
+				});
 		}
 
 		if (data.showcase_focus && (data.showcase_expiry ?? 0) > currentTimestamp()) {
