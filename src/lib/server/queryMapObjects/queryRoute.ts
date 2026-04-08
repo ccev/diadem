@@ -5,6 +5,7 @@ import { requestLimits } from "@/lib/server/api/rateLimit";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
+	protected readonly type = MapObjectType.ROUTE;
 	protected readonly table = "route";
 	protected readonly fields = [
 		"id",
