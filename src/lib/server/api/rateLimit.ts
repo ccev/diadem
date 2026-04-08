@@ -73,6 +73,9 @@ export function calculateRequestCharge(
 	queried: number,
 	examined: number
 ): number {
+	// this uses examined, which is fine.
+	// but: pokemon-examined will always have total count, while sql objects in delta queries
+	// do not. this creates a big discrepency here.
 	const now = currentTimestamp();
 
 	let isDelta = Boolean(since && since > now - REQUEST_COST_SINCE_FRESH_WINDOW);
