@@ -29,7 +29,7 @@
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
-	import maplibre, { GeoJSONSource } from "maplibre-gl";
+	import maplibre from "maplibre-gl";
 	import { GeoJSON, MapLibre } from "svelte-maplibre";
 	import { watch } from "runed";
 	import { center } from "@turf/turf";
@@ -126,11 +126,11 @@
 
 	function getBaseConfig():
 		| {
-				type: MapObjectType;
-				baseIconUrl?: string;
-				overlayOnBase?: boolean;
-				focusModifierType?: string;
-		  }
+		type: MapObjectType;
+		baseIconUrl?: string;
+		overlayOnBase?: boolean;
+		focusModifierType?: string;
+	}
 		| undefined {
 		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {
 			return {
@@ -264,7 +264,7 @@
 			map,
 			previewData.features.features.map((feature) => feature.properties)
 		);
-		const source = map.getSource<GeoJSONSource>("modifierPreview");
+		const source = map.getSource<maplibre.GeoJSONSource>("modifierPreview");
 		source?.setData(previewData.features);
 	}
 
