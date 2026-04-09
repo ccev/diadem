@@ -15,7 +15,10 @@ function getHeaders(): HeadersInit {
 
 async function getFeatures(thisFetch: typeof fetch): Promise<KojiFeatures | undefined> {
 	const url = buildUrl(getServerConfig().koji!.url, {
-		path: "/api/v1/geofence/FeatureCollection/" + getServerConfig().koji!.projectName
+		path:
+			"/api/v1/geofence/FeatureCollection/" +
+			getServerConfig().koji!.projectName +
+			"?id=true&parent=true"
 	});
 	const response = await thisFetch(url, {
 		headers: getHeaders()
@@ -34,27 +37,6 @@ async function getFeatures(thisFetch: typeof fetch): Promise<KojiFeatures | unde
 	return data?.data?.features ?? [];
 }
 
-async function getReferences(thisFetch: typeof fetch): Promise<KojiReference[] | undefined> {
-	const url = buildUrl(getServerConfig().koji!.url, {
-		path: "/api/v1/geofence/reference/" + getServerConfig().koji!.projectName
-	});
-	const response = await thisFetch(url, {
-		headers: getHeaders()
-	});
-
-	if (!response.ok) {
-		log.error(
-			"Koji error while fetching references: %d (%s)",
-			response.status,
-			await response.text()
-		);
-		return;
-	}
-
-	const data = await response.json();
-	return data?.data ?? [];
-}
-
 export async function fetchKojiGeofences(
 	thisFetch?: typeof fetch
 ): Promise<KojiFeatures | undefined> {
@@ -65,31 +47,11 @@ export async function fetchKojiGeofences(
 	}
 
 	thisFetch = thisFetch ?? fetch;
-	const [features, references] = await Promise.all([
-		getFeatures(thisFetch),
-		getReferences(thisFetch)
-	]);
+	const features = await getFeatures(thisFetch);
 
-	if (!features || !references) {
+	if (!features) {
 		return;
 	}
 
-	if (features.length !== references.length) {
-		log.crit(
-			"This should not happen, your koji area references and features are not the same length! The map may not behave right"
-		);
-
-		for (const [index, feature] of features.entries()) {
-			feature.properties.id = index;
-			feature.properties.parent = null;
-		}
-		return features;
-	}
-
-	for (const [index, feature] of features.entries()) {
-		const reference = references[index];
-		feature.properties.id = reference.id;
-		feature.properties.parent = reference.parent;
-	}
 	return features;
 }
