@@ -4,15 +4,11 @@
 	import { slide } from "svelte/transition";
 	import LucideIcon from "@/components/utils/LucideIcon.svelte";
 
-	let areas = $derived(getClickedCoverageMapAreas())
+	let areas = $derived(getClickedCoverageMapAreas());
 </script>
 
-
 {#if areas}
-	<div
-		class="w-full mt-2"
-		transition:slide={{ duration: 50 }}
-	>
+	<div class="w-full mt-2" transition:slide={{ duration: 50 }}>
 		<Card class="w-full pr-6 pl-4 py-4 space-y-2">
 			{#each areas as area}
 				<div class="flex items-center gap-2 font-semibold">
@@ -20,9 +16,9 @@
 					<p>
 						<span>{area.properties.name}</span>
 						{#if area.properties.parentName}
-						<span class="text-muted-foreground font-normal">
-							/ {area.properties.parentName}
-						</span>
+							<span class="text-muted-foreground font-normal">
+								/ {area.properties.parentName}
+							</span>
 						{/if}
 					</p>
 				</div>

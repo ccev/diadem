@@ -11,10 +11,10 @@
 	import type maplibre from "maplibre-gl";
 
 	let {
-		map,
+		map
 	}: {
-		map: maplibre.Map | undefined,
-	} = $props()
+		map: maplibre.Map | undefined;
+	} = $props();
 
 	onMount(() => updateGeolocationEnabled().then());
 </script>

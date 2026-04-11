@@ -1,8 +1,8 @@
 import { Coords } from "@/lib/utils/coordinates";
 
 export function getMapPositionFromUrlParams(): [Coords | undefined, number | undefined] {
-	let zoom: number | undefined = undefined
-	let center: Coords | undefined = undefined
+	let zoom: number | undefined = undefined;
+	let center: Coords | undefined = undefined;
 
 	const params = new URLSearchParams(window.location.search);
 
@@ -20,5 +20,5 @@ export function getMapPositionFromUrlParams(): [Coords | undefined, number | und
 
 	history.replaceState({}, "", window.location.origin + window.location.pathname);
 
-	return [center, zoom]
+	return [center, zoom];
 }

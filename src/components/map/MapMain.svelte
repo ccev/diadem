@@ -6,7 +6,10 @@
 	import { clickMapHandler, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
-	import { clearUpdateMapObjectsInterval, resetUpdateMapObjectsInterval } from "@/lib/map/mapObjectsInterval";
+	import {
+		clearUpdateMapObjectsInterval,
+		resetUpdateMapObjectsInterval
+	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
 	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
@@ -36,29 +39,29 @@
 	let {
 		map = $bindable()
 	}: {
-		map?: maplibre.Map | undefined
-	} = $props()
+		map?: maplibre.Map | undefined;
+	} = $props();
 
-	const [center, zoom] = getMapPositionFromUrlParams()
+	const [center, zoom] = getMapPositionFromUrlParams();
 	const userSettings = getUserSettings();
 	if (center) {
-		userSettings.mapPosition.center.lat = center.lat
-		userSettings.mapPosition.center.lng = center.lon
+		userSettings.mapPosition.center.lat = center.lat;
+		userSettings.mapPosition.center.lng = center.lon;
 	}
 	if (zoom) {
-		userSettings.mapPosition.zoom = zoom
+		userSettings.mapPosition.zoom = zoom;
 	}
 	if (center || zoom) {
-		updateUserSettings()
+		updateUserSettings();
 	}
 
-	const mapPosition = $state.snapshot(getUserSettings().mapPosition)
+	const mapPosition = $state.snapshot(getUserSettings().mapPosition);
 
 	async function onMapLoad(map: maplibre.Map) {
 		setMap(map);
 
 		map.on("moveend", onMapMoveEnd);
-		map.on("contextmenu", onContextMenu)
+		map.on("contextmenu", onContextMenu);
 		map.on("touchstart", onTouchStart);
 		map.on("touchend", clearPressTimer);
 		map.on("touchmove", clearPressTimer);
@@ -113,7 +116,7 @@
 	});
 
 	onMount(() => {
-		isInitUpdatedMapObjects = false
+		isInitUpdatedMapObjects = false;
 		setMap(undefined);
 		updateCurrentPath();
 	});

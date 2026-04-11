@@ -22,7 +22,11 @@ export enum CoverageMapLayerId {
 	POLYGON_STROKE = "coverageMapPolygonStroke"
 }
 
-export function updateMapGeojsonSource(map: maplibregl.Map, sourceId: MapSourceId, data: GeoJsonType) {
+export function updateMapGeojsonSource(
+	map: maplibregl.Map,
+	sourceId: MapSourceId,
+	data: GeoJsonType
+) {
 	let source: maplibregl.GeoJSONSource | undefined = undefined;
 	try {
 		source = map.getSource<maplibregl.GeoJSONSource>(sourceId);

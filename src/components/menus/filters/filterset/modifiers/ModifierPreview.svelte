@@ -126,11 +126,11 @@
 
 	function getBaseConfig():
 		| {
-		type: MapObjectType;
-		baseIconUrl?: string;
-		overlayOnBase?: boolean;
-		focusModifierType?: string;
-	}
+				type: MapObjectType;
+				baseIconUrl?: string;
+				overlayOnBase?: boolean;
+				focusModifierType?: string;
+		  }
 		| undefined {
 		if (subCategory === "raid" || (majorCategory === "gym" && !subCategory)) {
 			return {

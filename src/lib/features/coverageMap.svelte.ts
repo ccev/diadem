@@ -17,7 +17,7 @@ export const coverageMapSnapPoints = ["120px", 1];
 let activeSnapPoint = $state(coverageMapSnapPoints[0]);
 let clickedAreas: KojiFeature[] | undefined = $state(undefined);
 let coverageMap: maplibre.Map | undefined = $state(undefined);
-let invokedFromMap: boolean = $state(false)
+let invokedFromMap: boolean = $state(false);
 
 export function coverageMapClickHandler(event: maplibre.MapMouseEvent) {
 	if (event.originalEvent.defaultPrevented) return;
@@ -37,7 +37,7 @@ export function coverageMapClickHandler(event: maplibre.MapMouseEvent) {
 }
 
 export function openCoverageMap() {
-	invokedFromMap = true
+	invokedFromMap = true;
 	goto("/coverage").then();
 }
 
@@ -99,5 +99,5 @@ export function getCoverageMap() {
 }
 
 export function getCoverageMapInvokedFromMap() {
-	return invokedFromMap
+	return invokedFromMap;
 }

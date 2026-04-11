@@ -34,7 +34,7 @@ export async function loadKojiGeofences() {
 	});
 
 	data.forEach((area) => {
-		if (!area.properties.parent) return
+		if (!area.properties.parent) return;
 
 		const parent = areaMap.get(area.properties.parent);
 		if (parent) {

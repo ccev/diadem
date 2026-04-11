@@ -23,8 +23,8 @@
 		show?: boolean | (() => boolean);
 		fillId?: any;
 		strokeId?: any;
-		map?: maplibre.Map
-		hoverCursor?: string
+		map?: maplibre.Map;
+		hoverCursor?: string;
 	} = $props();
 
 	let lastWasEmpty = true;
@@ -34,8 +34,8 @@
 
 	if (makeEffect) {
 		$effect(() => {
-			if (!map) map = getMap()
-			if (!map) return
+			if (!map) map = getMap();
+			if (!map) return;
 
 			getMapStyleVersion();
 			if (data.features.length === 0 && lastWasEmpty) return;

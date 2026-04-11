@@ -8,13 +8,13 @@
 		desktopRight,
 		desktopLeft,
 		mobileBottom,
-		mobileTop,
+		mobileTop
 	}: {
-		desktopRight?: Snippet,
-		desktopLeft?: Snippet,
-		mobileBottom?: Snippet,
-		mobileTop?: Snippet,
-	} = $props()
+		desktopRight?: Snippet;
+		desktopLeft?: Snippet;
+		mobileBottom?: Snippet;
+		mobileTop?: Snippet;
+	} = $props();
 </script>
 
 {#if isMenuSidebar()}

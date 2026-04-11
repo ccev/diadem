@@ -21,10 +21,14 @@
 			<span>{m.error_back_to_website()}</span>
 		</Button>
 	{:else}
-		<Button size="sm" variant="outline" onclick={() => {
-			closeMenu();
-			goto("/map")
-		}}>
+		<Button
+			size="sm"
+			variant="outline"
+			onclick={() => {
+				closeMenu();
+				goto("/map");
+			}}
+		>
 			<ArrowLeft class="size-4" />
 			<span>{m.back_to_map()}</span>
 		</Button>

@@ -17,21 +17,21 @@
 		initialCenter,
 		initialZoom
 	}: {
-		onload?: (map: maplibre.Map) => void
-		children?: Snippet
-		map?: maplibre.Map | undefined,
-		initialCenter: Coords,
-		initialZoom: number
-	} = $props()
+		onload?: (map: maplibre.Map) => void;
+		children?: Snippet;
+		map?: maplibre.Map | undefined;
+		initialCenter: Coords;
+		initialZoom: number;
+	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
-		if (!map) return
+		if (!map) return;
 
 		map.on("styledataloading", onMapStyleDataLoading);
-		map.on("move", onMapMove);  // needed for compass fab
+		map.on("move", onMapMove); // needed for compass fab
 		handleRotatePitchDisable();
 
-		onload && onload(map)
+		onload && onload(map);
 	}
 </script>
 

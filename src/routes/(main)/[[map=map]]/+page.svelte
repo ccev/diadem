@@ -31,7 +31,7 @@
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type maplibre from "maplibre-gl";
 
-	let map: maplibre.Map | undefined = $state(undefined)
+	let map: maplibre.Map | undefined = $state(undefined);
 
 	$effect(() => {
 		// When opening a popup on mobile while in a menu, close the menu

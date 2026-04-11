@@ -32,15 +32,15 @@
 		size="sm"
 		variant="secondary"
 		onclick={() => {
-				coverageMapActiveSnapPoint.reset();
-				setClickedCoverageMapAreas([area])
-				const params = getFeatureJump(area, true, getCoverageMap());
+			coverageMapActiveSnapPoint.reset();
+			setClickedCoverageMapAreas([area]);
+			const params = getFeatureJump(area, true, getCoverageMap());
 
-				getCoverageMap()?.flyTo({
-					center: params.coords,
-					zoom: params.zoom
-				});
-			}}
+			getCoverageMap()?.flyTo({
+				center: params.coords,
+				zoom: params.zoom
+			});
+		}}
 	>
 		{m.coveragemap_view()}
 	</Button>
@@ -74,10 +74,7 @@
 	</div>
 
 	{#if isExpanded}
-		<div
-			class="pl-6"
-			transition:slide={{ duration: 150 }}
-		>
+		<div class="pl-6" transition:slide={{ duration: 150 }}>
 			{#each area.properties.children as child (child.properties.id)}
 				<div class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium">
 					{@render areaTitle(child)}

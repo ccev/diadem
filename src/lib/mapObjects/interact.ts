@@ -46,10 +46,10 @@ export function getCurrentPath() {
 	}
 
 	if (getMap()) {
-		return getMapPath(getConfig())
+		return getMapPath(getConfig());
 	}
 
-	return page.url.pathname
+	return page.url.pathname;
 }
 
 function setCurrentPath() {

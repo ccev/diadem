@@ -28,7 +28,7 @@
 	openMenu(Menu.COVERAGE_MAP);
 
 	onMount(() => {
-		setMap(undefined)
+		setMap(undefined);
 		openMenu(Menu.COVERAGE_MAP);
 		closePopup();
 		setIsContextMenuOpen(false);
@@ -42,7 +42,7 @@
 {:else}
 	<MapMenuUi>
 		{#snippet desktopLeft()}
-<!--			<DesktopMenu />-->
+			<!--			<DesktopMenu />-->
 		{/snippet}
 		{#snippet desktopRight()}
 			<Fabs {map} showSearch={false} />
@@ -68,9 +68,7 @@
 					<CoverageMapPopup />
 				</div>
 
-				<div
-					style:height="calc({coverageMapSnapPoints[0]} - 8px)"
-				></div>
+				<div style:height="calc({coverageMapSnapPoints[0]} - 8px)"></div>
 			{/if}
 		{/snippet}
 
@@ -94,6 +92,4 @@
 		{/if}
 		<MapCoverage bind:map />
 	</div>
-
-
 {/if}

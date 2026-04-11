@@ -2,7 +2,11 @@
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import { CoverageMapLayerId, MapSourceId } from "@/lib/map/layers";
-	import { coverageMapClickHandler, getCoverageMapAreas, setCoverageMap } from "@/lib/features/coverageMap.svelte";
+	import {
+		coverageMapClickHandler,
+		getCoverageMapAreas,
+		setCoverageMap
+	} from "@/lib/features/coverageMap.svelte";
 	import MapCommon from "@/components/map/MapCommon.svelte";
 	import { getMapPositionFromUrlParams } from "@/components/map/mapPositionParams";
 	import { getConfig } from "@/lib/services/config/config";
@@ -11,22 +15,24 @@
 	let {
 		map = $bindable()
 	}: {
-		map?: maplibre.Map | undefined
-	} = $props()
+		map?: maplibre.Map | undefined;
+	} = $props();
 
-	const [paramCenter, paramZoom] = getMapPositionFromUrlParams()
-	const config = getConfig()?.mapPositions
-	let configCenter = config?.coverageMapLat && config?.coverageMapLon ? new Coords(config.coverageMapLat, config.coverageMapLon) : undefined
-
+	const [paramCenter, paramZoom] = getMapPositionFromUrlParams();
+	const config = getConfig()?.mapPositions;
+	let configCenter =
+		config?.coverageMapLat && config?.coverageMapLon
+			? new Coords(config.coverageMapLat, config.coverageMapLon)
+			: undefined;
 </script>
 
 <MapCommon
 	bind:map
-	initialCenter={paramCenter ?? configCenter ?? new Coords(51.516855, -0.080500)}
+	initialCenter={paramCenter ?? configCenter ?? new Coords(51.516855, -0.0805)}
 	initialZoom={paramZoom ?? config?.coverageMapZoom ?? 10}
 	onload={(map) => {
-		setCoverageMap(map)
-		map.on("click", coverageMapClickHandler)
+		setCoverageMap(map);
+		map.on("click", coverageMapClickHandler);
 	}}
 >
 	<GeometryLayer

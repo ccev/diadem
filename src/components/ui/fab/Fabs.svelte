@@ -17,23 +17,22 @@
 		map,
 		showSearch = true
 	}: {
-		map: maplibre.Map | undefined,
-		showSearch?: boolean
+		map: maplibre.Map | undefined;
+		showSearch?: boolean;
 	} = $props();
 
 	let isSearchAllowed = $derived(
 		showSearch &&
-		!isSearchViewActive() &&
-		hasLoadedFeature(
-			LoadedFeature.SUPPORTED_FEATURES,
-			LoadedFeature.REMOTE_LOCALE,
-			LoadedFeature.ICON_SETS,
-			LoadedFeature.MASTER_FILE,
-			LoadedFeature.MASTER_STATS,
-			LoadedFeature.USER_DETAILS
-		) && (
-			!isSupportedFeature("koji") || hasLoadedFeature(LoadedFeature.KOJI)
-		)
+			!isSearchViewActive() &&
+			hasLoadedFeature(
+				LoadedFeature.SUPPORTED_FEATURES,
+				LoadedFeature.REMOTE_LOCALE,
+				LoadedFeature.ICON_SETS,
+				LoadedFeature.MASTER_FILE,
+				LoadedFeature.MASTER_STATS,
+				LoadedFeature.USER_DETAILS
+			) &&
+			(!isSupportedFeature("koji") || hasLoadedFeature(LoadedFeature.KOJI))
 	);
 
 	$effect(() => {
@@ -54,11 +53,7 @@
 	<Search />
 {/if}
 
-<div
-	class="mx-2 gap-2 flex-col flex items-center"
-	hidden={!map}
-	transition:fade={{ duration: 90 }}
->
+<div class="mx-2 gap-2 flex-col flex items-center" hidden={!map} transition:fade={{ duration: 90 }}>
 	{#if isMapSkewed()}
 		<div transition:slide={{ duration: 120 }}>
 			<BaseFab onclick={() => resetMap(map)} class="rounded-full!">

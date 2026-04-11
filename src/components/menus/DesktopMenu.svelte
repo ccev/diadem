@@ -17,10 +17,7 @@
 		<h1 class="font-bold text-base tracking-tight mx-4">
 			{m["nav_" + getOpenedMenu()]?.()}
 		</h1>
-		<CloseButton
-			onclick={closeMenu}
-			class="mr-2"
-		/>
+		<CloseButton onclick={closeMenu} class="mr-2" />
 	</div>
 
 	<div class="px-2 mt-2">

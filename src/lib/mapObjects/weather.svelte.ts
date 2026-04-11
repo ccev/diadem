@@ -32,8 +32,8 @@ export function getCurrentWeather() {
 }
 
 export function updateCurrentWeatherFeatures(show: boolean) {
-	const map = getMap()
-	if (!map) return
+	const map = getMap();
+	if (!map) return;
 	if (!show && lastSelectedWeatherWasEmpty) return;
 
 	const data: FeatureCollection<Polygon, S2CellProperties> = {

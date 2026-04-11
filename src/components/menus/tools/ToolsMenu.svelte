@@ -5,10 +5,7 @@
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import * as turf from "@turf/turf";
 	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
-	import {
-		getCoverageMapAreas,
-		openCoverageMap
-	} from "@/lib/features/coverageMap.svelte";
+	import { getCoverageMapAreas, openCoverageMap } from "@/lib/features/coverageMap.svelte";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";

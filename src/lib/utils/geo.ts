@@ -4,7 +4,11 @@ import { Coords } from "@/lib/utils/coordinates";
 import { getMap } from "@/lib/map/map.svelte";
 import type maplibre from "maplibre-gl";
 
-export function getFeatureJump(feature: Feature, applyPadding: boolean = false, map: maplibre.Map | undefined = getMap()) {
+export function getFeatureJump(
+	feature: Feature,
+	applyPadding: boolean = false,
+	map: maplibre.Map | undefined = getMap()
+) {
 	let center: Position | maplibre.LngLatLike | undefined = undefined;
 	if (feature.geometry.type === "Point") {
 		center = feature.geometry.coordinates;

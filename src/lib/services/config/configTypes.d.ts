@@ -109,9 +109,9 @@ type MapPositions = {
 	scoutLat: number;
 	scoutLon: number;
 	scoutZoom: number;
-	coverageMapLat?: number
-	coverageMapLon?: number
-	coverageMapZoom?: number
+	coverageMapLat?: number;
+	coverageMapLon?: number;
+	coverageMapZoom?: number;
 };
 
 type StaticMap = {

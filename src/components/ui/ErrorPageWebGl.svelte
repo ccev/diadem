@@ -7,8 +7,6 @@
 
 <ErrorPage
 	error={m.error_webgl_unavailable()}
-	description={isWebglSupported() === null
-			? m.webgl_disabled_error()
-			: m.webgl_unsupported_error()}
+	description={isWebglSupported() === null ? m.webgl_disabled_error() : m.webgl_unsupported_error()}
 	href={getConfig().general.customHome ? "/" : ""}
 />
