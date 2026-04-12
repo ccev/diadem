@@ -1,5 +1,5 @@
 <script lang="ts" generics="Data extends Record<string, any>">
-	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
+	import PokemonSelect from "@/components/menus/filters/filterset/multiselect/PokemonSelect.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";

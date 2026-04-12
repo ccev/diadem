@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { resize } from "@/lib/services/assets";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 	import { filterColors } from "@/lib/features/filters/colors";
 	import { slide } from "svelte/transition";
 	import type { HighlightRanges } from "@nozbe/microfuzz";
-	import { createFuzzySearch, highlightSearchMatches } from "@/lib/services/search.svelte";
+	import { createFuzzySearch, highlightSearchMatches } from "@/lib/services/search.svelte.js";
+	import MultiSelect from "@/components/menus/filters/filterset/multiselect/MultiSelect.svelte";
+	import MultiSelectItem from "@/components/menus/filters/filterset/multiselect/MultiSelectItem.svelte";
 
 	let {
 		pokemonList,
@@ -64,41 +66,14 @@
 	{title}
 </h2>
 
-<!--<div class="flex justify-between items-center mb-2">-->
-<!--	<h2 class="font-semibold">-->
-<!--		{title}-->
-<!--	</h2>-->
-<!--	<div class="flex items-center gap-2">-->
-<!--		<Switch checked={true} />-->
-<!--		<span class="">-->
-<!--			Show available-->
-<!--		</span>-->
-<!--	</div>-->
-<!--</div>-->
-
-<div
-	class="grid gap-1 text-xs font-semibold"
-	style:grid-template-columns="repeat(auto-fill, minmax(5rem, 1fr))"
-	style:--color-attr-chip-border="var({color.border})"
-	style:--color-attr-chip-bg="var({color.bg})"
-	style:--color-attr-chip-text="var({color.text})"
-	style:--color-attr-chip-dark-border="var({color.dark.border})"
-	style:--color-attr-chip-dark-bg="var({color.dark.bg})"
-	style:--color-attr-chip-dark-text="var({color.dark.text})"
-	transition:slide={{ duration: 90 }}
->
+<MultiSelect>
 	{#each sortedList as pokemon (getKey(pokemon))}
 		{@const isSelected = selectedValues.includes(getKey(pokemon))}
-		<button
-			class="cursor-pointer hover:bg-accent rounded-sm border border-border flex flex-col items-center pt-2 pb-1 px-1 gap-1"
-			class:dark:bg-(--color-attr-chip-dark-bg)={isSelected}
-			class:dark:border-(--color-attr-chip-dark-border)={isSelected}
-			class:dark:text-(--color-attr-chip-dark-text)={isSelected}
-			class:bg-(--color-attr-chip-bg)={isSelected}
-			class:border-(--color-attr-chip-border)={isSelected}
-			class:text-(--color-attr-chip-text)={isSelected}
-			onclick={() => {
-				onselect(pokemon, !isSelected);
+
+		<MultiSelectItem
+			{isSelected}
+			onclick={(value) => {
+				onselect(pokemon, value)
 			}}
 		>
 			<img
@@ -112,6 +87,6 @@
 					{mPokemon(pokemon)}
 				</span>
 			</div>
-		</button>
+		</MultiSelectItem>
 	{/each}
-</div>
+</MultiSelect>

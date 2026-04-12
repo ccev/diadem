@@ -10,7 +10,6 @@
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getActiveCharacters, getInvasionCatchable, getInvasionPokemon } from "@/lib/features/masterStats.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
-	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
 	import { resize } from "@/lib/services/assets";
 	import { getIconInvasion } from "@/lib/services/uicons.svelte";
 	import { InvasionFilterType, makeAttributeCharacterLabel } from "@/lib/features/filters/filterUtilsInvasion";
@@ -18,7 +17,9 @@
 	import InvasionFilterDisplay from "@/components/menus/filters/filterset/invasion/InvasionFilterDisplay.svelte";
 	import InvasionTypeAttribute from "@/components/menus/filters/filterset/invasion/InvasionTypeAttribute.svelte";
 	import Card from "@/components/ui/Card.svelte";
-	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
+	import MultiSelect from "@/components/menus/filters/filterset/multiselect/MultiSelect.svelte";
+	import MultiSelectItem from "@/components/menus/filters/filterset/multiselect/MultiSelectItem.svelte";
 
 	type Pokemon = { pokemon_id: number; form: number; alignment?: number };
 
@@ -128,11 +129,11 @@
 							onremove={() => delete data.characters}
 						/>
 						{#snippet page(thisData: FiltersetInvasion)}
-							<div class="flex flex-wrap -mx-4 px-4 mt-2">
+							<MultiSelect>
 								{#each getCharacters() as character (character)}
-									<LongSelectItem
+									<MultiSelectItem
 										isSelected={thisData.characters?.includes(character) ?? false}
-										onselect={(isSelected) => {
+										onclick={(isSelected) => {
 											if (isSelected) {
 												if (!thisData.characters) thisData.characters = [];
 												thisData.characters.push(character);
@@ -144,7 +145,7 @@
 										}}
 									>
 										<img
-											class="size-10"
+											class="size-8"
 											alt={mCharacter(character)}
 											src={resize(getIconInvasion(character, true), { width: 64 })}
 											loading="lazy"
@@ -152,9 +153,9 @@
 										<span>
 											{mCharacter(character)}
 										</span>
-									</LongSelectItem>
+									</MultiSelectItem>
 								{/each}
-							</div>
+							</MultiSelect>
 						{/snippet}
 					</Attribute>
 				</AttributesOverview>

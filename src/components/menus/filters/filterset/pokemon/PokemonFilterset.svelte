@@ -21,7 +21,7 @@
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import PokemonFilterDisplay from "@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
 	import { getSpawnablePokemon } from "@/lib/features/masterStats.svelte";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as

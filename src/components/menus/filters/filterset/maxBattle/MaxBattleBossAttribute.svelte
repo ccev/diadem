@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
 	import { getAllPokemon } from "@/lib/services/masterfile";
-	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
+	import PokemonSelect from "@/components/menus/filters/filterset/multiselect/PokemonSelect.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getActiveMaxBattles } from "@/lib/features/masterStats.svelte";

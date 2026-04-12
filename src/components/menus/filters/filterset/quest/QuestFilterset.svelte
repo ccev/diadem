@@ -13,7 +13,7 @@
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import QuestRewardItemAttribute from "@/components/menus/filters/filterset/quest/QuestRewardItemAttribute.svelte";
 	import QuestFilterDisplay from "@/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte";
-	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
 	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
 
 	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
