@@ -30,7 +30,7 @@ export function matchInvasionFilterset(
 	if (invasionFilters.length === 0) return;
 
 	for (const invasionFilter of invasionFilters) {
-		if (invasionFilter.characters?.includes(incident.character)) return invasionFilter;
+		if (invasionFilter.characters && invasionFilter.characters?.includes(incident.character)) return invasionFilter;
 
 		if (!hasInvasionLineup(incident.character)) continue;
 

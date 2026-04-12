@@ -19,6 +19,9 @@
 	import RaidBossAttribute from "@/components/menus/filters/filterset/raid/RaidBossAttribute.svelte";
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
+	import { getActiveRaids } from "@/lib/features/masterStats.svelte";
+
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetRaid
 		| undefined;
@@ -91,6 +94,11 @@
 							onremove={() => delete data.bosses}
 						/>
 						{#snippet page(thisData: FiltersetRaid)}
+							<PokemonSelectPage
+								data={thisData}
+								attribute="bosses"
+								pokemonList={getActiveRaids()}
+							/>
 							<RaidBossAttribute data={thisData} />
 						{/snippet}
 					</Attribute>

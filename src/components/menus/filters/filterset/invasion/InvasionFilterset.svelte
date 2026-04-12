@@ -7,25 +7,18 @@
 	import type { FiltersetInvasion } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import {
-		getActiveCharacters,
-		getInvasionCatchable,
-		getInvasionPokemon
-	} from "@/lib/features/masterStats.svelte";
+	import { getActiveCharacters, getInvasionCatchable, getInvasionPokemon } from "@/lib/features/masterStats.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
 	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
 	import { resize } from "@/lib/services/assets";
 	import { getIconInvasion } from "@/lib/services/uicons.svelte";
-	import {
-		InvasionFilterType,
-		makeAttributeCharacterLabel
-	} from "@/lib/features/filters/filterUtilsInvasion";
+	import { InvasionFilterType, makeAttributeCharacterLabel } from "@/lib/features/filters/filterUtilsInvasion";
 	import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 	import InvasionFilterDisplay from "@/components/menus/filters/filterset/invasion/InvasionFilterDisplay.svelte";
 	import InvasionTypeAttribute from "@/components/menus/filters/filterset/invasion/InvasionTypeAttribute.svelte";
 	import Card from "@/components/ui/Card.svelte";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
 
 	type Pokemon = { pokemon_id: number; form: number; alignment?: number };
 
@@ -118,13 +111,11 @@
 							onremove={() => delete data.rewards}
 						/>
 						{#snippet page(thisData: FiltersetInvasion)}
-							<div class="overflow-y-auto h-118 flex flex-wrap -mx-4 px-4 mt-2">
-								<PokemonSelect
-									pokemonList={getAllInvasionCatchables()}
-									selected={thisData?.rewards ?? []}
-									onselect={(pokemon, isSelected) => onselectReward(thisData, pokemon, isSelected)}
-								/>
-							</div>
+							<PokemonSelectPage
+								data={thisData}
+								attribute="rewards"
+								pokemonList={getAllInvasionCatchables()}
+							/>
 						{/snippet}
 					</Attribute>
 				</AttributesOverview>
@@ -137,7 +128,7 @@
 							onremove={() => delete data.characters}
 						/>
 						{#snippet page(thisData: FiltersetInvasion)}
-							<div class="overflow-y-auto h-118 flex flex-wrap -mx-4 px-4 mt-2">
+							<div class="flex flex-wrap -mx-4 px-4 mt-2">
 								{#each getCharacters() as character (character)}
 									<LongSelectItem
 										isSelected={thisData.characters?.includes(character) ?? false}

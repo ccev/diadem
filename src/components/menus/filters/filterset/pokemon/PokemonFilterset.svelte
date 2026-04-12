@@ -13,7 +13,6 @@
 	import AppearanceChips from "@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte";
 	import IvChips from "@/components/menus/filters/filterset/pokemon/IvChips.svelte";
 	import IvAttribute from "@/components/menus/filters/filterset/pokemon/IvAttribute.svelte";
-	import SpeciesAttribute from "@/components/menus/filters/filterset/pokemon/SpeciesAttribute.svelte";
 	import {
 		getAttributeLabelCp,
 		getAttributeLabelLevel,
@@ -22,6 +21,9 @@
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import PokemonFilterDisplay from "@/components/menus/filters/filterset/pokemon/PokemonFilterDisplay.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
+	import { getSpawnablePokemon } from "@/lib/features/masterStats.svelte";
+
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetPokemon
 		| undefined;
@@ -51,7 +53,12 @@
 						onremove={() => delete data.pokemon}
 					/>
 					{#snippet page(thisData: FiltersetPokemon)}
-						<SpeciesAttribute data={thisData} />
+<!--						<SpeciesAttribute data={thisData} />-->
+						<PokemonSelectPage
+							data={thisData}
+							attribute="pokemon"
+							pokemonList={getSpawnablePokemon()}
+						/>
 					{/snippet}
 				</Attribute>
 				<Attribute label={m.pokemon_looks()}>

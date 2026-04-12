@@ -1,4 +1,4 @@
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type PokestopData = {
@@ -223,7 +223,7 @@ export type QuestRewardQuest = {
 
 export type QuestRewardPokemon = {
 	type: 7;
-	info: Partial<PokemonData>;
+	info: PokemonVisual;
 };
 
 export type QuestRewardPokecoin = {

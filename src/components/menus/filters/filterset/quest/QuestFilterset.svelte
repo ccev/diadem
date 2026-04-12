@@ -6,15 +6,16 @@
 	import * as m from "@/lib/paraglide/messages";
 	import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
-	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
+	import { makeAttributeItemLabel, makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import RewardAttribute from "@/components/menus/filters/filterset/quest/RewardAttribute.svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import { RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import QuestRewardPokemonAttribute from "@/components/menus/filters/filterset/quest/QuestRewardPokemonAttribute.svelte";
-	import { makeAttributeItemLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import QuestRewardItemAttribute from "@/components/menus/filters/filterset/quest/QuestRewardItemAttribute.svelte";
 	import QuestFilterDisplay from "@/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte";
+	import PokemonSelectPage from "@/components/menus/filters/filterset/PokemonSelectPage.svelte";
+	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
+
 	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetQuest
 		| undefined;
@@ -54,7 +55,11 @@
 								onremove={() => delete data.pokemon}
 							/>
 							{#snippet page(thisData: FiltersetQuest)}
-								<QuestRewardPokemonAttribute data={thisData} />
+								<PokemonSelectPage
+									data={thisData}
+									attribute="pokemon"
+									pokemonList={getQuestRewards(RewardType.POKEMON).map(r => r.reward.info)}
+								/>
 							{/snippet}
 						</Attribute>
 					{:else if data.rewardType === RewardType.ITEM}

@@ -13,8 +13,8 @@ export type PvpStats = {
 
 export type PokemonVisual = {
 	pokemon_id: number;
+	form: number;
 	gender?: number;
-	form?: number;
 	costume?: number;
 	shiny?: boolean;
 	temp_evolution_id?: number;

@@ -60,7 +60,7 @@
 	let sortedList = $derived([...(fuzzyResults ? fuzzyResults.map((r) => r.item) : pokemonList)].sort(comparePokemonVisual));
 </script>
 
-<h2 class="font-semibold mb-2">
+<h2 class="font-semibold mb-2 ml-0.5">
 	{title}
 </h2>
 

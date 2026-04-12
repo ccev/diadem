@@ -30,7 +30,7 @@
 </script>
 
 <ToggleGroup
-	class="h-114 overflow-y-auto flex flex-col gap-2! w-full grid-cols-1! p-1"
+	class="flex flex-col gap-2! w-full grid-cols-1! p-1"
 	orientation="vertical"
 	evenColumns={false}
 	values={data.item?.map((i) => `${i.id}-${i.amount}`) ?? []}

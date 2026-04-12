@@ -32,6 +32,10 @@ export async function loadMasterStats() {
 	masterStats = await response.json();
 }
 
+export function setMasterStats(stats: MasterStats) {
+	masterStats = stats
+}
+
 export function getMasterStats() {
 	return masterStats;
 }
@@ -159,9 +163,9 @@ export function getInvasionCatchable(character: number): InvasionPokemonStats[] 
 
 export function getInvasionPokemon(
 	characterSlot: Partial<InvasionPokemonStats>
-): Partial<PokemonData> {
+): PokemonVisual {
 	return {
-		pokemon_id: characterSlot.pokemon_id,
+		pokemon_id: characterSlot.pokemon_id ?? 0,
 		form: characterSlot.form,
 		alignment: 1
 	};
