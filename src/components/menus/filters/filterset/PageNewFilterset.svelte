@@ -41,7 +41,7 @@
 
 	<Separator class="my-3" text={m.or_select_suggested_filter()} />
 
-	<div class="h-full -mx-4 px-4">
+	<div class="-mx-4 px-4">
 		<div class="flex flex-col gap-1">
 			{#each premades as filterset}
 				<Button
