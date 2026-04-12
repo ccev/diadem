@@ -187,3 +187,7 @@ b {
 input[type="search"]::-webkit-search-cancel-button {
     display: none;
 }
+
+::highlight(search-highlight) {
+	background-color: var(--color-search-highlight);
+}

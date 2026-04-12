@@ -2,26 +2,31 @@
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { resize } from "@/lib/services/assets";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte";
-	import LongSelectItem from "@/components/menus/filters/LongSelectItem.svelte";
-	import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
-	import Switch from "@/components/ui/input/Switch.svelte";
+	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 	import { filterColors } from "@/lib/features/filters/colors";
-	import {slide} from "svelte/transition";
+	import { slide } from "svelte/transition";
+	import type { HighlightRanges } from "@nozbe/microfuzz";
+	import { createFuzzySearch, highlightSearchMatches } from "@/lib/services/search.svelte";
 
 	let {
 		pokemonList,
 		selected,
 		onselect,
 		title,
-		getKey = (pokemon: PokemonVisual) => `${pokemon.pokemon_id}-${pokemon.form}`
+		query = $bindable(undefined),
+		getKey = (p: PokemonVisual) =>
+			`${p.pokemon_id}-${p.form}-${p.temp_evolution_id}-${p.alignment}-${p.bread_mode}-${p.gender}-${p.costume}`
 	}: {
 		pokemonList: PokemonVisual[];
 		selected: PokemonVisual[];
 		onselect: (pokemon: PokemonVisual, isSelected: boolean) => void;
 		title: string;
+		query?: string;
 		getKey?: (pokemon: PokemonVisual) => string;
 	} = $props();
 
+	const color = filterColors.yellow;
+	const searcher = $derived(query !== undefined ? createFuzzySearch(pokemonList, { getText: (p: PokemonVisual) => [mPokemon(p)] }) : undefined);
 	let selectedValues = $derived(selected.map((p) => getKey(p)) ?? []);
 
 	function comparePokemonVisual(a: PokemonVisual, b: PokemonVisual): number {
@@ -29,16 +34,30 @@
 			(a.pokemon_id - b.pokemon_id) ||
 			((a.form ?? 0) - (b.form ?? 0)) ||
 			((a.temp_evolution_id ?? 0) - (b.temp_evolution_id ?? 0)) ||
-			((a.alignment ?? 0) - (b.alignment ?? 0)) ||
-			((a.bread_mode ?? 0) - (b.bread_mode ?? 0)) ||
-			((a.gender ?? 0) - (b.gender ?? 0)) ||
 			((a.costume ?? 0) - (b.costume ?? 0))
 		);
 	}
 
-	let sortedList = $derived([...pokemonList].sort(comparePokemonVisual));
+	let fuzzyResults = $derived.by(() => {
+		const q = query?.trim();
+		if (!q) return null;
 
-	const color = filterColors.yellow
+		return searcher?.(q) ?? null;
+	});
+
+	let highlights = $derived.by(() => {
+		if (!fuzzyResults) return undefined;
+
+		const map = new Map<string, HighlightRanges>();
+		for (const r of fuzzyResults) {
+			if (r.matches[0]) {
+				map.set(getKey(r.item), r.matches[0]);
+			}
+		}
+		return map;
+	});
+
+	let sortedList = $derived([...(fuzzyResults ? fuzzyResults.map((r) => r.item) : pokemonList)].sort(comparePokemonVisual));
 </script>
 
 <h2 class="font-semibold mb-2">
@@ -89,29 +108,10 @@
 				loading="lazy"
 			/>
 			<div class="grow text-center align-middle flex items-center px-1">
-				<span class="h-fit">
+				<span class="h-fit" {@attach highlightSearchMatches(highlights?.get(getKey(pokemon)))}>
 					{mPokemon(pokemon)}
 				</span>
 			</div>
 		</button>
 	{/each}
 </div>
-
-<!--{#each pokemonList as pokemon (getKey(pokemon))}-->
-<!--	<LongSelectItem-->
-<!--		isSelected={selectedValues.includes(getKey(pokemon))}-->
-<!--		onselect={(isSelected) => {-->
-<!--			onselect(pokemon, isSelected);-->
-<!--		}}-->
-<!--	>-->
-<!--		<img-->
-<!--			class:size-10={!isCompact}-->
-<!--			alt={mPokemon(pokemon)}-->
-<!--			src={resize(getIconPokemon(pokemon), { width: 64 })}-->
-<!--			loading="lazy"-->
-<!--		/>-->
-<!--		<span>-->
-<!--			{mPokemon(pokemon)}-->
-<!--		</span>-->
-<!--	</LongSelectItem>-->
-<!--{/each}-->

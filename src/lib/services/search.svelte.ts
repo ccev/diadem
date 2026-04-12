@@ -31,7 +31,8 @@ import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
-const createFuzzySearch = microfuzz?.default ?? microfuzz;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const createFuzzySearch: typeof microfuzz = (microfuzz as any)?.default ?? microfuzz;
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";

@@ -137,9 +137,3 @@
 		</Command.List>
 	</Command.Root>
 </ModalTop>
-
-<style>
-	:global(::highlight(search-highlight)) {
-		background-color: var(--color-search-highlight);
-	}
-</style>

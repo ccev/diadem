@@ -1,17 +1,10 @@
 <script lang="ts">
 	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
-	import { getAllPokemon, getMasterPokemon } from "@/lib/services/masterfile";
 	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
-	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { getSpawnablePokemon } from "@/lib/features/masterStats.svelte";
-	import { resize } from "@/lib/services/assets";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
-	import Switch from "@/components/ui/input/Switch.svelte";
-	import { Search, X } from "lucide-svelte";
-	import Input from "@/components/ui/input/Input.svelte";
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
+	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 
 	let {
 		data
@@ -22,17 +15,6 @@
 	const allPokemon = getSpawnablePokemon();
 
 	let searchQuery: string = $state("");
-
-	let filteredPokemon = $derived.by(() => {
-		let list = allPokemon;
-
-		const query = searchQuery.trim().toLowerCase();
-		if (query) {
-			list = list.filter((p) => mPokemon(p).toLowerCase().includes(query));
-		}
-
-		return list;
-	});
 
 	function onselect(pokemon: PokemonVisual, isSelected: boolean) {
 		if (!isSelected) {
@@ -64,9 +46,10 @@
 	{/if}
 
 	<PokemonSelect
-		pokemonList={filteredPokemon}
+		pokemonList={allPokemon}
 		selected={data?.pokemon ?? []}
 		{onselect}
+		query={searchQuery}
 		title={m.pokemon_picker_available()}
 	/>
 </div>
