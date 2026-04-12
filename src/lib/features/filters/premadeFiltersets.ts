@@ -84,18 +84,6 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 		filterset<FiltersetPokemon>({
 			uicon: {
 				category: IconCategory.POKEMON,
-				params: { pokemon_id: 144, form: 0 }
-			},
-			title: "filter_template_legendary_birds",
-			pokemon: [
-				{ pokemon_id: 144, form: 0 },
-				{ pokemon_id: 145, form: 0 },
-				{ pokemon_id: 146, form: 0 }
-			]
-		}),
-		filterset<FiltersetPokemon>({
-			uicon: {
-				category: IconCategory.POKEMON,
 				params: { pokemon_id: 480, form: 0 }
 			},
 			title: "filter_template_sea_trio",
