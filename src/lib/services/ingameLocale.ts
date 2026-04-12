@@ -4,6 +4,7 @@ import { SearchableType, type SearchEntry } from "@/lib/services/search.svelte";
 import { getIconPokemon } from "@/lib/services/uicons.svelte";
 import { formatNumber } from "@/lib/utils/numberFormat";
 import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
+import { getMasterPokemon } from "@/lib/services/masterfile";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -95,19 +96,34 @@ export function mPokemon(data: {
 	// base pokemon name
 	let key = prefixes.pokemon + data.pokemon_id;
 
+	let name = mIngame(key);
+
 	// get full name if it's a temp evolution
 	if (data.temp_evolution_id) key += "_e" + data.temp_evolution_id;
 
-	let name = mIngame(key);
+	const newName = mIngame(key)
+	if (newName) name = newName
+
 	if (!name) return m.unknown_pokemon();
 
 	// add sparkles if shiny
 	if (data.shiny) name += " ✨";
 
-	// if it's a special form, append in ()
-	const normalFormName = mIngame(prefixes.form + "45");
-	const formName = data.form ? mIngame(prefixes.form + data.form) : "";
-	if (formName && formName !== normalFormName) name += " (" + formName + ")";
+	// form name
+	const masterPokemon = getMasterPokemon(data.pokemon_id, data.form, data.temp_evolution_id)
+
+	if (masterPokemon && data.form) {
+		if (masterPokemon.name === "Alola") {
+			name = m.alolan_pokemon({ name });
+		} else if (masterPokemon.name === "Galarian") {
+			name = m.galarian_pokemon({ name });
+		} else if (masterPokemon.name === "Hisuian") {
+			name = m.hisuian_pokemon({ name });
+		} else {
+			const formName = data.form ? mIngame(prefixes.form + data.form) : "";
+			if (formName) name += " (" + formName + ")";
+		}
+	}
 
 	// get dynamax/gigantamax names
 	if (data.bread_mode === 1) {

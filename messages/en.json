@@ -462,5 +462,8 @@
 	"coveragemap_view": "View",
 	"search_placeholder_pokemon": "Search for Pokémon",
 	"pokemon_picker_selected": "Selected",
-	"pokemon_picker_available": "Available"
+	"pokemon_picker_available": "Available",
+	"alolan_pokemon": "Alolan {name}",
+	"hisuian_pokemon": "Hisuian {name}",
+	"galarian_pokemon": "Galarian {name}"
 }

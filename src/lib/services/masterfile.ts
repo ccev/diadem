@@ -25,8 +25,8 @@ export function getMasterFile() {
 
 export function getMasterPokemon(
 	pokemonId: string | number,
-	formId: string | number | undefined = undefined,
-	tempEvoId: string | number | undefined = undefined
+	formId: string | number | undefined | null = undefined,
+	tempEvoId: string | number | undefined | null = undefined
 ): MasterPokemon | undefined {
 	const pokemon = masterFile.pokemon["" + pokemonId];
 	if (!formId && !tempEvoId) return pokemon;

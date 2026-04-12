@@ -74,14 +74,19 @@ export const reverseNormalizedFormPokemonIds = new Set([
 	676, // furfrou
 	710, // pumpkaboo
 	711, // gourgeist
+	716, // xerneas
 	718, // zygarde
+	720, // hoopa
 	741, // oricorio
+	746, // wishiwashi
 	773, // silvally
 	774, // minior
+	800, // necrozma
 	849, // toxtricity
 	854, // sinistea
 	855, // polteageist
 	875, // eicue
+	876, // indeedee
 	877, // morpeko
 	888, // zacian
 	889, // zamazenta
