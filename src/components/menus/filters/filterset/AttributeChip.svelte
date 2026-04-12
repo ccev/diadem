@@ -3,6 +3,7 @@
 	import { X } from "lucide-svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
+	import { filterColors } from "@/lib/features/filters/colors";
 
 	let {
 		label = undefined,
@@ -22,30 +23,7 @@
 		updateDetailsCurrentSelectedFilterset();
 	}
 
-	const colors = {
-		muted: {
-			text: "--color-slate-500",
-			bg: "--color-slate-100",
-			border: "--color-slate-200",
-			dark: {
-				text: "--color-zinc-400",
-				bg: "--color-zinc-900",
-				border: "--color-zinc-800"
-			}
-		},
-		yellow: {
-			text: "--color-amber-900",
-			bg: "--color-amber-100",
-			border: "--color-amber-200",
-			dark: {
-				text: "--color-indigo-100",
-				bg: "--color-indigo-950",
-				border: "--color-indigo-800"
-			}
-		}
-	};
-
-	let actualColor = $derived(colors[isEmpty ? "muted" : color]);
+	let actualColor = $derived(filterColors[isEmpty ? "muted" : color]);
 </script>
 
 <div

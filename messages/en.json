@@ -430,7 +430,7 @@
 	"icon_picker_raid": "Raids",
 	"icon_picker_invasion": "Grunts",
 	"icon_picker_item": "Items",
-	"icon_search_placeholder": "Search for an icon...",
+	"icon_search_placeholder": "Search for an icon",
 	"icon_picker_misc": "Misc",
 	"icon_picker_poi": "POIs",
 	"team_neutral": "Neutral",
@@ -459,5 +459,8 @@
 	"modifier_show_badge": "Show Badge",
 	"modifier_show_label": "Show Label",
 	"modifier_map_preview": "Map Preview",
-	"coveragemap_view": "View"
+	"coveragemap_view": "View",
+	"search_placeholder_pokemon": "Search for Pokémon",
+	"pokemon_picker_selected": "Selected",
+	"pokemon_picker_available": "Available"
 }

@@ -14,7 +14,7 @@ import {
 	getIconStation,
 	League
 } from "@/lib/services/uicons.svelte";
-import { getSpawnablePokemon, getMasterFile } from "@/lib/services/masterfile";
+import { getAllPokemon, getMasterFile } from "@/lib/services/masterfile";
 import { mPokemon, mType, mRaid, mItem, mCharacter } from "@/lib/services/ingameLocale";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import * as m from "@/lib/paraglide/messages";
@@ -283,7 +283,7 @@ export function getAllSearchableEmojis(): IconPickerItem[] {
 }
 
 export function getPokemonIcons(): IconPickerItem[] {
-	return getSpawnablePokemon().map((p) => ({
+	return getAllPokemon().map((p) => ({
 		key: `pokemon-${p.pokemon_id}-${p.form}`,
 		iconUrl: getIconPokemon(p),
 		label: mPokemon(p),

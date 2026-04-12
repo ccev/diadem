@@ -9,7 +9,7 @@ import microfuzz, {
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import type { Attachment } from "svelte/attachments";
 import { browser } from "$app/environment";
-import { getAllLureModuleIds, getSpawnablePokemon } from "@/lib/services/masterfile";
+import { getAllLureModuleIds, getAllPokemon } from "@/lib/services/masterfile";
 import {
 	getActiveCharacters,
 	getActiveContests,
@@ -235,7 +235,7 @@ export function initSearch() {
 
 	let pokemonEntries: PokemonSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.POKEMON)) {
-		pokemonEntries = getSpawnablePokemon(true).map((p) => {
+		pokemonEntries = getAllPokemon(true).map((p) => {
 			return {
 				name: mPokemon(p),
 				category: "pogo_pokemon",

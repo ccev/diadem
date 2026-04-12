@@ -63,7 +63,7 @@ const blacklistForms = [
 	665 // scatterbug
 ];
 
-export function getSpawnablePokemon(
+export function getAllPokemon(
 	onlyActive: boolean = false
 ): { pokemon_id: number; form: number }[] {
 	const allPokemon: { pokemon_id: number; form: number }[] = [];

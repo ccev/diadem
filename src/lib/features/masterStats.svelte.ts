@@ -13,7 +13,7 @@ import type {
 } from "@/lib/server/api/queryStats";
 import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 
 let masterStats: MasterStats | undefined = $state(undefined);
 
@@ -181,4 +181,17 @@ export function getActiveNests(): NestStatsEntry[] {
 
 export function getActiveEggs(): EggStats[] {
 	return masterStats?.activeEggs ?? [];
+}
+
+export function getSpawnablePokemon(): PokemonVisual[] {
+	const entries: PokemonVisual[] = []
+
+	for (const [key, stats] of Object.entries(masterStats?.pokemon ?? {})) {
+		const [pokemonId, formId] = key.split("-").map(Number);
+		if (!pokemonId) continue;
+
+		entries.push({ pokemon_id: pokemonId, form: formId });
+	}
+
+	return entries;
 }

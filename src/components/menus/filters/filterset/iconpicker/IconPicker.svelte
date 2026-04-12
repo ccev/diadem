@@ -18,6 +18,7 @@
 	import * as m from "@/lib/paraglide/messages";
 	import { fly } from "svelte/transition";
 	import { mAny } from "@/lib/utils/anyMessage";
+	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 
 	let {
 		data
@@ -85,12 +86,10 @@
 </script>
 
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
-	<input
-		class="mt-1 border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring w-full h-11 rounded-md border px-3 py-2 text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 mb-2"
-		type="search"
+	<SearchBar
+		class="mb-2 mt-1"
 		placeholder={m.icon_search_placeholder()}
-		value={searchQuery}
-		oninput={(e) => (searchQuery = e.currentTarget.value)}
+		bind:query={searchQuery}
 	/>
 
 	{#if !searchQuery.trim()}

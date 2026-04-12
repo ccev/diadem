@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
-	import { getSpawnablePokemon } from "@/lib/services/masterfile";
+	import { getAllPokemon } from "@/lib/services/masterfile";
 	import PokemonSelect from "@/components/menus/filters/filterset/PokemonSelect.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import * as m from "@/lib/paraglide/messages";
@@ -65,6 +65,6 @@
 	</div>
 {:else}
 	<div class="overflow-y-auto h-102 flex flex-wrap -mx-4 px-4 mt-2">
-		<PokemonSelect pokemonList={getSpawnablePokemon()} selected={data?.bosses ?? []} {onselect} />
+		<PokemonSelect pokemonList={getAllPokemon()} selected={data?.bosses ?? []} {onselect} />
 	</div>
 {/if}
