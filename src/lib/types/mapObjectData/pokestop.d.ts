@@ -1,5 +1,6 @@
 import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { RewardType } from "@/lib/utils/pokestopUtils";
 
 export type PokestopData = {
 	id: string;
@@ -192,81 +193,81 @@ export type QuestReward =
 	| QuestRewardPokemonEgg;
 
 export type QuestRewardExperience = {
-	type: 1;
+	type: RewardType.XP;
 	info: { amount: number };
 };
 
 export type QuestRewardItem = {
-	type: 2;
+	type: RewardType.ITEM;
 	info: { item_id: number; amount: number };
 };
 
 export type QuestRewardStardust = {
-	type: 3;
+	type: RewardType.STARDUST;
 	info: { amount: number };
 };
 
 export type QuestRewardCandy = {
-	type: 4;
+	type: RewardType.CANDY;
 	info: { amount: number; pokemon_id: number };
 };
 
 export type QuestRewardAvatarClothing = {
-	type: 5;
+	type: RewardType.AVATAR_CLOTHING;
 	info: {};
 };
 
 export type QuestRewardQuest = {
-	type: 6;
+	type: RewardType.QUEST;
 	info: {};
 };
 
 export type QuestRewardPokemon = {
-	type: 7;
+	type: RewardType.POKEMON;
 	info: PokemonVisual;
 };
 
 export type QuestRewardPokecoin = {
-	type: 8;
+	type: RewardType.POKECOINS;
 	info: { amount: number };
 };
 
 export type QuestRewardXlCandy = {
-	type: 9;
+	type: RewardType.XL_CANDY;
 	info: { amount: number; pokemon_id: number };
 };
 
 export type QuestRewardLevelCap = {
-	type: 10;
+	type: RewardType.LEVEL_CAP;
 	info: {};
 };
 
 export type QuestRewardSticker = {
-	type: 11;
+	type: RewardType.STICKER;
 	info: {};
 };
 
 export type QuestRewardMegaResource = {
-	type: 12;
+	type: RewardType.MEGA_ENERGY;
 	info: { amount: number; pokemon_id: number };
 };
 
 export type QuestRewardIncident = {
-	type: 13;
+	type: RewardType.INCIDENT;
 	info: {};
 };
 
 export type QuestRewardPlayerAttribute = {
-	type: 14;
+	type: RewardType.PLAYER_ATTRIBUTE;
 	info: {};
 };
 
 export type QuestRewardEventBadge = {
-	type: 15;
+	type: RewardType.EVENT_BADGE;
 	info: {};
 };
 
 export type QuestRewardPokemonEgg = {
-	type: 16;
+	type: RewardType.POKEMON_EGG;
 	info: {};
 };

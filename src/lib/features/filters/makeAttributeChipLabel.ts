@@ -2,6 +2,7 @@ import type { MinMax, Pokemon, QuestReward } from "@/lib/features/filters/filter
 import { mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import * as m from "@/lib/paraglide/messages";
 import { getGenderLabel } from "@/lib/utils/pokemonUtils";
+import { getRewardText } from "@/lib/utils/pokestopUtils";
 
 export function makeAttributeRangeLabel(
 	value: MinMax | undefined = undefined,
@@ -42,7 +43,19 @@ export function makeAttributeRaidShowLabel(show: "egg" | "boss") {
 }
 
 export function makeAttributeItemLabel(items: QuestReward[]) {
-	if (items.length === 1) return mItem(items[0].id); // TODO: add range (need min/max)
+	if (items.length === 1) return m.quest_item({ count: items[0].amount ?? 1, item: mItem(items[0].id) });
 
 	return m.count_items({ count: items.length });
+}
+
+export function makeAttributeMegaResourceLabel(energies: QuestReward[]) {
+	if (energies.length === 1) return m.pokemon_mega_resource({ pokemon: mPokemon({ pokemon_id: Number(energies[0].id) }) })
+
+	return m.count_mega_energies({ count: energies.length });
+}
+
+export function makeAttributeRewardPokemonLabel(rewards: QuestReward[]) {
+	if (rewards.length === 1) return mPokemon({ pokemon_id: Number(rewards[0].id) });
+
+	return m.count_pokemon({ count: rewards.length });
 }

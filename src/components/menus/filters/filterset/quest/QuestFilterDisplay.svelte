@@ -61,8 +61,7 @@
 		<HorizontalScrollDisplay label={m.mega_energy()}>
 			{#each data.megaResource as megaResource}
 				{@const pokemonName = mPokemon({
-					pokemon_id: Number(megaResource.id),
-					temp_evolution_id: 1
+					pokemon_id: Number(megaResource.id)
 				})}
 				{@const name = megaResource.amount
 					? m.quest_mega_resource({

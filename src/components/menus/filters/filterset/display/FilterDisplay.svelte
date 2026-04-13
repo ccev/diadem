@@ -10,6 +10,6 @@
 	} = $props();
 </script>
 
-<div class="flex flex-wrap gap-x-2 gap-y-3 overflow-y-scroll {class_}">
+<div class="flex flex-wrap gap-x-2 gap-y-3 {class_}">
 	{@render children()}
 </div>

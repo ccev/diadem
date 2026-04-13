@@ -472,5 +472,8 @@
 	"x_star_shadow_raids": "{level}-Star Shadow Raids",
 	"legendary_shadow_raid": "Legendary Shadow Raid",
 	"legendary_shadow_raids": "Legendary Shadow Raids",
-	"only_show_hatched": "Only show hatched"
+	"only_show_hatched": "Only show hatched",
+	"count_mega_energies": "{count} Mega Energies",
+	"quest_reward_none_available": "No {reward} currently available from Quests",
+	"quest_amounts": "Stardust & XP"
 }

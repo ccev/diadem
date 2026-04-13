@@ -30,7 +30,8 @@ export function matchInvasionFilterset(
 	if (invasionFilters.length === 0) return;
 
 	for (const invasionFilter of invasionFilters) {
-		if (invasionFilter.characters && invasionFilter.characters?.includes(incident.character)) return invasionFilter;
+		if (invasionFilter.characters && invasionFilter.characters?.includes(incident.character))
+			return invasionFilter;
 
 		if (!hasInvasionLineup(incident.character)) continue;
 
@@ -132,8 +133,8 @@ export function matchQuestFilterset(
 			quest.reward.type === RewardType.ITEM &&
 			questFilter.item.find(
 				(i) =>
-					(i.id === quest.reward.info.item_id.toString() && i.amount === undefined) ||
-					i.amount === quest.reward.info.amount
+					i.id === quest.reward.info.item_id.toString() &&
+					(i.amount === undefined || i.amount === quest.reward.info.amount)
 			)
 		) {
 			return questFilter;
@@ -144,8 +145,8 @@ export function matchQuestFilterset(
 			quest.reward.type === RewardType.MEGA_ENERGY &&
 			questFilter.megaResource.find(
 				(i) =>
-					(i.id === quest.reward.info.pokemon_id.toString() && i.amount === undefined) ||
-					i.amount === quest.reward.info.amount
+					i.id === quest.reward.info.pokemon_id.toString() &&
+					(i.amount === undefined || i.amount === quest.reward.info.amount)
 			)
 		) {
 			return questFilter;
@@ -156,8 +157,8 @@ export function matchQuestFilterset(
 			quest.reward.type === RewardType.CANDY &&
 			questFilter.candy.find(
 				(i) =>
-					(i.id === quest.reward.info.pokemon_id.toString() && i.amount === undefined) ||
-					i.amount === quest.reward.info.amount
+					i.id === quest.reward.info.pokemon_id.toString() &&
+					(i.amount === undefined || i.amount === quest.reward.info.amount)
 			)
 		) {
 			return questFilter;
