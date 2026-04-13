@@ -35,7 +35,7 @@
 	{#snippet overview()}
 		{#if data}
 			<AttributesOverview>
-				<Attribute label={m.species()}>
+				<Attribute label={m.raid_bosses()}>
 					<AttributeChip
 						label={makeAttributePokemonLabel(data.bosses ?? [])}
 						isEmpty={!data.bosses}

@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
-	import { getAllPokemon } from "@/lib/services/masterfile";
-	import PokemonSelect from "@/components/menus/filters/filterset/multiselect/PokemonSelect.svelte";
-	import Toggle from "@/components/ui/input/Toggle.svelte";
+	import BossSelectPage from "@/components/menus/filters/filterset/multiselect/BossSelectPage.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getActiveMaxBattles } from "@/lib/features/masterStats.svelte";
+	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 
 	let {
 		data
@@ -12,13 +11,7 @@
 		data: FiltersetMaxBattle;
 	} = $props();
 
-	const availableBosses = getActiveMaxBattles();
-	let showAvailable: boolean = $state(availableBosses.length > 0);
-
-	function onselect(
-		pokemon: { pokemon_id: number; form: number; bread_mode?: number },
-		isSelected: boolean
-	) {
+	function onselect(pokemon: PokemonVisual, isSelected: boolean) {
 		if (!isSelected) {
 			data.bosses = data.bosses?.filter(
 				(p) =>
@@ -32,7 +25,7 @@
 			if (!data.bosses) data.bosses = [];
 			data.bosses.push({
 				pokemon_id: pokemon.pokemon_id,
-				form: pokemon.form,
+				form: pokemon.form ?? 0,
 				bread_mode: pokemon.bread_mode
 			});
 		}
@@ -41,25 +34,9 @@
 	}
 </script>
 
-{#if availableBosses.length > 0}
-	<Toggle
-		title={m.max_battle_boss_select_available()}
-		onclick={() => (showAvailable = !showAvailable)}
-		value={showAvailable}
-	/>
-{/if}
-
-{#if showAvailable}
-	<div class="overflow-y-auto h-102 flex flex-wrap -mx-4 px-4 mt-2">
-		<PokemonSelect
-			pokemonList={availableBosses}
-			selected={data?.bosses ?? []}
-			{onselect}
-			getKey={(pokemon) => `${pokemon.pokemon_id}-${pokemon.form}-${pokemon.bread_mode}`}
-		/>
-	</div>
-{:else}
-	<div class="overflow-y-auto h-102 flex flex-wrap -mx-4 px-4 mt-2">
-		<PokemonSelect pokemonList={getAllPokemon()} selected={data?.bosses ?? []} {onselect} />
-	</div>
-{/if}
+<BossSelectPage
+	bosses={getActiveMaxBattles()}
+	selected={data?.bosses ?? []}
+	{onselect}
+	getLevelTitle={(level) => m.x_star_max_battles({ level })}
+/>

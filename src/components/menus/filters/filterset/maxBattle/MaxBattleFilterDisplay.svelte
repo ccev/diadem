@@ -14,7 +14,7 @@
 
 <FilterDisplay>
 	{#if data.bosses}
-		<PokemonDisplay label={m.species()} pokemon={data.bosses} />
+		<PokemonDisplay label={m.raid_bosses()} pokemon={data.bosses} />
 	{/if}
 	{#if data.isActive}
 		<AttributeDisplay label={m.max_battle_only_show()} value={m.max_battle_active()} />

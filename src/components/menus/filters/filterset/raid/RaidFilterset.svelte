@@ -21,6 +21,7 @@
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
 	import { getActiveRaids } from "@/lib/features/masterStats.svelte";
+	import AttributeToggle from "@/components/menus/filters/filterset/AttributeToggle.svelte";
 
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetRaid
@@ -62,28 +63,39 @@
 							<RaidLevelAttribute data={thisData} />
 						{/snippet}
 					</Attribute>
-					<Attribute label={m.raid_show()}>
-						{#if !data.show}
-							<AttributeChip isEmpty={true} />
-						{:else}
-							{#each data.show as showType}
-								<AttributeChip
-									label={makeAttributeRaidShowLabel(showType)}
-									isEmpty={false}
-									onremove={() => {
-										if (data.show?.length === 1) {
-											delete data.show;
-										} else {
-											data.show = data.show?.filter((s) => s !== showType);
-										}
-									}}
-								/>
-							{/each}
-						{/if}
-						{#snippet page(thisData: FiltersetRaid)}
-							<HatchedLevelAttribute data={thisData} />
-						{/snippet}
-					</Attribute>
+<!--					<Attribute label={m.raid_show()}>-->
+<!--						{#if !data.show}-->
+<!--							<AttributeChip isEmpty={true} />-->
+<!--						{:else}-->
+<!--							{#each data.show as showType}-->
+<!--								<AttributeChip-->
+<!--									label={makeAttributeRaidShowLabel(showType)}-->
+<!--									isEmpty={false}-->
+<!--									onremove={() => {-->
+<!--										if (data.show?.length === 1) {-->
+<!--											delete data.show;-->
+<!--										} else {-->
+<!--											data.show = data.show?.filter((s) => s !== showType);-->
+<!--										}-->
+<!--									}}-->
+<!--								/>-->
+<!--							{/each}-->
+<!--						{/if}-->
+<!--						{#snippet page(thisData: FiltersetRaid)}-->
+<!--							<HatchedLevelAttribute data={thisData} />-->
+<!--						{/snippet}-->
+<!--					</Attribute>-->
+					<AttributeToggle
+						label="Only show hatched"
+						value={!!data.show?.includes("boss")}
+						onchange={(onlyShowHatched) => {
+							if (onlyShowHatched) {
+								data.show = ["boss"]
+							} else {
+								delete data.show;
+							}
+						}}
+					/>
 				</AttributesOverview>
 			{:else}
 				<AttributesOverview>
@@ -94,11 +106,6 @@
 							onremove={() => delete data.bosses}
 						/>
 						{#snippet page(thisData: FiltersetRaid)}
-							<PokemonSelectPage
-								data={thisData}
-								attribute="bosses"
-								pokemonList={getActiveRaids()}
-							/>
 							<RaidBossAttribute data={thisData} />
 						{/snippet}
 					</Attribute>
