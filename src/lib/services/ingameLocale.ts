@@ -5,6 +5,7 @@ import { getIconPokemon } from "@/lib/services/uicons.svelte";
 import { formatNumber } from "@/lib/utils/numberFormat";
 import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 import { getMasterPokemon } from "@/lib/services/masterfile";
+import { RaidLevel } from "@/lib/utils/gymUtils";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -186,6 +187,17 @@ export function mItem(itemId?: number | string | null) {
  * @param plural
  */
 export function mRaid(raidLevel?: number | string | null, plural: boolean = false) {
+	if (raidLevel) {
+		raidLevel = Number(raidLevel) as RaidLevel
+		if (raidLevel === RaidLevel.SHADOW_LEGENDARY) {
+			return plural ? m.legendary_shadow_raids() : m.legendary_shadow_raid()
+		} else if (raidLevel >= RaidLevel.STAR_1 && raidLevel < RaidLevel.LEGENDARY) {
+			return plural ? m.x_star_raids({ level: raidLevel }) : m.x_star_raid({ level: raidLevel })
+		} else if (raidLevel >= RaidLevel.SHADOW_STAR_1 && raidLevel < RaidLevel.SHADOW_LEGENDARY) {
+			return plural ? m.x_star_shadow_raids({ level: raidLevel - 10 }) : m.x_star_shadow_raid({ level: raidLevel - 10 })
+		}
+	}
+
 	return mBasicId("raid", raidLevel, undefined, plural);
 }
 

@@ -465,5 +465,11 @@
 	"pokemon_picker_available": "Available",
 	"alolan_pokemon": "Alolan {name}",
 	"hisuian_pokemon": "Hisuian {name}",
-	"galarian_pokemon": "Galarian {name}"
+	"galarian_pokemon": "Galarian {name}",
+	"x_star_raid": "{level}-Star Raid",
+	"x_star_raids": "{level}-Star Raids",
+	"x_star_shadow_raid": "{level}-Star Shadow Raid",
+	"x_star_shadow_raids": "{level}-Star Shadow Raids",
+	"legendary_shadow_raid": "Legendary Shadow Raid",
+	"legendary_shadow_raids": "Legendary Shadow Raids"
 }
