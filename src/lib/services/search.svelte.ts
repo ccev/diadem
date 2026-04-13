@@ -16,7 +16,8 @@ import {
 	getActiveMaxBattles,
 	getActiveNests,
 	getActiveQuestRewards,
-	getActiveRaids
+	getActiveRaids,
+	getSpawnablePokemon
 } from "@/lib/features/masterStats.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
@@ -236,7 +237,7 @@ export function initSearch() {
 
 	let pokemonEntries: PokemonSearchEntry[] = [];
 	if (hasFeatureAnywhere(permissions, MapObjectType.POKEMON)) {
-		pokemonEntries = getAllPokemon(true).map((p) => {
+		pokemonEntries = getSpawnablePokemon().map((p) => {
 			return {
 				name: mPokemon(p),
 				category: "pogo_pokemon",
