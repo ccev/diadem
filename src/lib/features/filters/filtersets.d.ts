@@ -136,7 +136,7 @@ export type RaidFilterShow = "egg" | "boss";
 
 export type FiltersetRaid = BaseFilterset & {
 	levels?: number[];
-	bosses?: Pokemon[];
+	bosses?: (Pokemon & { temp_evolution_id?: number })[];
 	show?: RaidFilterShow[];
 };
 

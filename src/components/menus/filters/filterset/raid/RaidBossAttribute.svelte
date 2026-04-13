@@ -20,7 +20,8 @@
 			if (!data.bosses) data.bosses = [];
 			data.bosses.push({
 				pokemon_id: pokemon.pokemon_id,
-				form: pokemon.form ?? 0
+				form: pokemon.form ?? 0,
+				temp_evolution_id: pokemon.temp_evolution_id ?? undefined
 			});
 		}
 
