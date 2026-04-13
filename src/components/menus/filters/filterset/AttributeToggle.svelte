@@ -15,7 +15,7 @@
 
 <Button
 	variant="ghost"
-	class="rounded-none! grid! grid-cols-subgrid w-full px-4! py-1! h-fit! items-center"
+	class="rounded-none! justify-between w-full px-4! py-1! h-fit! items-center"
 	style="grid-column: 1 / -1"
 	onclick={() => {
 		value = !value;

@@ -14,7 +14,6 @@
 	import Card from "@/components/ui/Card.svelte";
 	import RaidTypeAttribute from "@/components/menus/filters/filterset/raid/RaidTypeAttribute.svelte";
 	import { RaidLevel, type RaidFilterType } from "@/lib/utils/gymUtils";
-	import HatchedLevelAttribute from "@/components/menus/filters/filterset/raid/HatchedLevelAttribute.svelte";
 	import RaidLevelAttribute from "@/components/menus/filters/filterset/raid/RaidLevelAttribute.svelte";
 	import RaidBossAttribute from "@/components/menus/filters/filterset/raid/RaidBossAttribute.svelte";
 	import RaidFilterDisplay from "@/components/menus/filters/filterset/raid/RaidFilterDisplay.svelte";
@@ -63,30 +62,10 @@
 							<RaidLevelAttribute data={thisData} />
 						{/snippet}
 					</Attribute>
-<!--					<Attribute label={m.raid_show()}>-->
-<!--						{#if !data.show}-->
-<!--							<AttributeChip isEmpty={true} />-->
-<!--						{:else}-->
-<!--							{#each data.show as showType}-->
-<!--								<AttributeChip-->
-<!--									label={makeAttributeRaidShowLabel(showType)}-->
-<!--									isEmpty={false}-->
-<!--									onremove={() => {-->
-<!--										if (data.show?.length === 1) {-->
-<!--											delete data.show;-->
-<!--										} else {-->
-<!--											data.show = data.show?.filter((s) => s !== showType);-->
-<!--										}-->
-<!--									}}-->
-<!--								/>-->
-<!--							{/each}-->
-<!--						{/if}-->
-<!--						{#snippet page(thisData: FiltersetRaid)}-->
-<!--							<HatchedLevelAttribute data={thisData} />-->
-<!--						{/snippet}-->
-<!--					</Attribute>-->
+<!--				</AttributesOverview>-->
+<!--				<AttributesOverview>-->
 					<AttributeToggle
-						label="Only show hatched"
+						label={m.only_show_hatched()}
 						value={!!data.show?.includes("boss")}
 						onchange={(onlyShowHatched) => {
 							if (onlyShowHatched) {
