@@ -4,6 +4,7 @@
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 	import type { Pokemon } from "@/lib/features/filters/filtersets";
+	import {slide} from "svelte/transition";
 
 	type PokemonKey = { [K in keyof Data]: Data[K] extends Pokemon[] | undefined ? K : never }[keyof Data];
 
@@ -40,12 +41,15 @@
 
 <div class="space-y-5 mt-2">
 	{#if !query && data[attribute]}
-		<PokemonSelect
-			pokemonList={data[attribute] ?? []}
-			selected={data[attribute] ?? []}
-			{onselect}
-			title={m.pokemon_picker_selected()}
-		/>
+		<div transition:slide={{ duration: 90 }}>
+
+			<PokemonSelect
+				pokemonList={data[attribute] ?? []}
+				selected={data[attribute] ?? []}
+				{onselect}
+				title={m.pokemon_picker_selected()}
+			/>
+		</div>
 	{/if}
 
 	<PokemonSelect

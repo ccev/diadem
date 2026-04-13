@@ -63,32 +63,34 @@
 </script>
 
 {#if sortedList.length > 0}
-<h2 class="font-semibold mb-2 ml-0.5">
-	{title}
-</h2>
+	<div transition:slide={{ duration: 90 }}>
+		<h2 class="font-semibold mb-2 ml-0.5">
+			{title}
+		</h2>
 
-<MultiSelect>
-	{#each sortedList as pokemon (getKey(pokemon))}
-		{@const isSelected = selectedValues.includes(getKey(pokemon))}
+		<MultiSelect>
+			{#each sortedList as pokemon (getKey(pokemon))}
+				{@const isSelected = selectedValues.includes(getKey(pokemon))}
 
-		<MultiSelectItem
-			{isSelected}
-			onclick={(value) => {
+				<MultiSelectItem
+					{isSelected}
+					onclick={(value) => {
 				onselect(pokemon, value)
 			}}
-		>
-			<img
-				class="size-8"
-				alt={mPokemon(pokemon)}
-				src={resize(getIconPokemon(pokemon), { width: 64 })}
-				loading="lazy"
-			/>
-			<div class="grow text-center align-middle flex items-center px-1">
+				>
+					<img
+						class="size-8"
+						alt={mPokemon(pokemon)}
+						src={resize(getIconPokemon(pokemon), { width: 64 })}
+						loading="lazy"
+					/>
+					<div class="grow text-center align-middle flex items-center px-1">
 				<span class="h-fit" {@attach highlightSearchMatches(highlights?.get(getKey(pokemon)))}>
 					{mPokemon(pokemon)}
 				</span>
-			</div>
-		</MultiSelectItem>
-	{/each}
-</MultiSelect>
+					</div>
+				</MultiSelectItem>
+			{/each}
+		</MultiSelect>
+	</div>
 {/if}

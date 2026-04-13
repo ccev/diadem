@@ -3,6 +3,7 @@
 	import * as m from "@/lib/paraglide/messages";
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
+	import {slide} from "svelte/transition";
 
 	type Boss = PokemonVisual & { level: number };
 
@@ -27,12 +28,14 @@
 
 <div class="space-y-5 mt-2">
 	{#if !query && selected.length > 0}
+		<div transition:slide={{ duration: 90 }}>
 		<PokemonSelect
 			pokemonList={selected}
 			{selected}
 			{onselect}
 			title={m.pokemon_picker_selected()}
 		/>
+		</div>
 	{/if}
 
 	{#each uniqueLevels as level (level)}
