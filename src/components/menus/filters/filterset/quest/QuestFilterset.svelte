@@ -10,13 +10,15 @@
 		makeAttributeItemLabel,
 		makeAttributeMegaResourceLabel,
 		makeAttributePokemonLabel,
-		makeAttributeRewardPokemonLabel
+		makeAttributeRewardPokemonLabel,
+		makeAttributeTaskLabel
 	} from "@/lib/features/filters/makeAttributeChipLabel";
 	import { RewardType, rewardTypeLabel } from "@/lib/utils/pokestopUtils";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import QuestFilterDisplay from "@/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte";
 	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
 	import QuestRewardSelectPage from "@/components/menus/filters/filterset/quest/QuestRewardSelectPage.svelte";
+	import QuestTaskSelectPage from "@/components/menus/filters/filterset/quest/QuestTaskSelectPage.svelte";
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
 	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
@@ -179,6 +181,19 @@
 						{/snippet}
 					</Attribute>
 				{/if}
+			</AttributesOverview>
+
+			<AttributesOverview>
+				<Attribute label={m.tasks()}>
+					<AttributeChip
+						label={makeAttributeTaskLabel(data.tasks ?? [])}
+						isEmpty={!data.tasks}
+						onremove={() => delete data.tasks}
+					/>
+					{#snippet page(thisData: FiltersetQuest)}
+						<QuestTaskSelectPage data={thisData} />
+					{/snippet}
+				</Attribute>
 			</AttributesOverview>
 		{/if}
 	{/snippet}

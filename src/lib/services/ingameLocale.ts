@@ -142,6 +142,8 @@ export function mPokemon(data: {
  * @param target The quest target
  */
 export function mQuest(questTitle?: string | null, target?: number | null) {
+	if (questTitle?.toLowerCase() === "geotarget_quest_description") return m.geotarget_quest()
+
 	// get basic quest text
 	let questText = mBasicId(
 		"quest",
@@ -153,6 +155,9 @@ export function mQuest(questTitle?: string | null, target?: number | null) {
 
 	// insert the target into the quest text
 	questText = questText.replaceAll("%{amount_0}", formattedNumber);
+
+	// remove periods at end
+	questText = questText.replace(/\.+$/, '')
 
 	return questText;
 }

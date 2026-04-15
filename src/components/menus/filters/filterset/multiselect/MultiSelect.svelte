@@ -4,8 +4,10 @@
 	import type { Snippet } from "svelte";
 
 	let {
+		class: class_ = "",
 		children,
 	}: {
+		class?: string;
 		children: Snippet
 	} = $props();
 
@@ -13,7 +15,7 @@
 </script>
 
 <div
-	class="grid gap-1 text-xs font-semibold"
+	class="grid gap-1 text-xs font-semibold {class_}"
 	style:grid-template-columns="repeat(auto-fill, minmax(5rem, 1fr))"
 	style:--color-attr-chip-border="var({color.border})"
 	style:--color-attr-chip-bg="var({color.bg})"

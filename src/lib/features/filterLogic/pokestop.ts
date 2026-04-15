@@ -100,6 +100,20 @@ export function matchQuestFilterset(
 			continue;
 		}
 
+		const hasRewardFilter = !!(
+			questFilter.stardust ||
+			questFilter.xp ||
+			questFilter.pokemon ||
+			questFilter.item ||
+			questFilter.megaResource ||
+			questFilter.candy ||
+			questFilter.xlCandy
+		);
+
+		if (!hasRewardFilter) {
+			return questFilter;
+		}
+
 		if (
 			questFilter.stardust &&
 			quest.reward.type === RewardType.STARDUST &&

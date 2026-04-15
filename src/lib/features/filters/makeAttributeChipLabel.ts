@@ -1,5 +1,5 @@
 import type { MinMax, Pokemon, QuestReward } from "@/lib/features/filters/filtersets";
-import { mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
+import { mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
 import * as m from "@/lib/paraglide/messages";
 import { getGenderLabel } from "@/lib/utils/pokemonUtils";
 import { getRewardText } from "@/lib/utils/pokestopUtils";
@@ -52,6 +52,12 @@ export function makeAttributeMegaResourceLabel(energies: QuestReward[]) {
 	if (energies.length === 1) return m.pokemon_mega_resource({ pokemon: mPokemon({ pokemon_id: Number(energies[0].id) }) })
 
 	return m.count_mega_energies({ count: energies.length });
+}
+
+export function makeAttributeTaskLabel(tasks: { title: string; target: number }[]) {
+	if (tasks.length === 1) return mQuest(tasks[0].title, tasks[0].target);
+
+	return m.count_tasks({ count: tasks.length });
 }
 
 export function makeAttributeRewardPokemonLabel(rewards: QuestReward[]) {

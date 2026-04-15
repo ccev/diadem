@@ -475,5 +475,7 @@
 	"only_show_hatched": "Only show hatched",
 	"count_mega_energies": "{count} Mega Energies",
 	"quest_reward_none_available": "No {reward} currently available from Quests",
-	"quest_amounts": "Stardust & XP"
+	"count_tasks": "{count} Tasks",
+	"quest_tasks_only_matching_rewards": "Matching rewards",
+	"geotarget_quest": "Scan a Pokéstop"
 }
