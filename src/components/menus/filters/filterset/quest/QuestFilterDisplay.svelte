@@ -26,12 +26,14 @@
 	{/if}
 
 	{#if data.tasks}
-		<AttributeDisplay label={m.tasks()}>
+		<AttributeDisplay label={data.tasks.length === 1 ? m.task() : m.tasks()}>
+			<ul>
 			{#each data.tasks as task}
-				<p class="text-xl mt-1 p-1 border border-border rounded-md">
+				<li class="text-base font-semibold">
 					{mQuest(task.title, task.target)}
-				</p>
+				</li>
 			{/each}
+			</ul>
 		</AttributeDisplay>
 	{/if}
 

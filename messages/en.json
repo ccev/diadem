@@ -477,5 +477,6 @@
 	"quest_reward_none_available": "No {reward} currently available from Quests",
 	"count_tasks": "{count} Tasks",
 	"quest_tasks_only_matching_rewards": "Matching rewards",
-	"geotarget_quest": "Scan a Pokéstop"
+	"geotarget_quest": "Scan a Pokéstop",
+	"task": "Task"
 }
