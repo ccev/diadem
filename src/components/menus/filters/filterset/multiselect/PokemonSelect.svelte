@@ -16,20 +16,20 @@
 		onselect,
 		title,
 		query = $bindable(undefined),
-		getKey = (p: PokemonVisual) =>
-			`${p.pokemon_id}-${p.form}-${p.temp_evolution_id}-${p.alignment}-${p.bread_mode}-${p.gender}-${p.costume}`
 	}: {
 		pokemonList: PokemonVisual[];
 		selected: PokemonVisual[];
 		onselect: (pokemon: PokemonVisual, isSelected: boolean) => void;
 		title: string;
 		query?: string;
-		getKey?: (pokemon: PokemonVisual) => string;
 	} = $props();
 
-	const color = filterColors.yellow;
 	const searcher = $derived(query !== undefined ? createFuzzySearch(pokemonList, { getText: (p: PokemonVisual) => [mPokemon(p)] }) : undefined);
 	let selectedValues = $derived(selected.map((p) => getKey(p)) ?? []);
+
+	function getKey(p: PokemonVisual) {
+		return `${p.pokemon_id}-${p.form}-${p.temp_evolution_id}-${p.alignment}-${p.bread_mode}-${p.gender}-${p.costume}`;
+	}
 
 	function comparePokemonVisual(a: PokemonVisual, b: PokemonVisual): number {
 		return (

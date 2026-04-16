@@ -10,8 +10,9 @@ import { League } from "@/lib/services/uicons.svelte";
 import { getId } from "@/lib/utils/uuid";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { MODIFIER_COLORS } from "@/lib/features/filters/modifierPresets";
+import { getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
 
-export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] } = {
+export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 	pokemon: [
 		filterset<FiltersetPokemon>({
 			emoji: "💯",
@@ -94,7 +95,6 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 			]
 		})
 	],
-	quest: [],
 	raid: [
 		filterset<FiltersetRaid>({
 			uicon: {
@@ -162,6 +162,21 @@ export const premadeFiltersets: { [key in FilterCategory]?: FiltersetPokemon[] }
 		})
 	]
 };
+
+export function getPremadeFiltersets(category: FilterCategory) {
+	const filters = premadeFiltersets[category] ?? []
+
+	if (category === "quest") {
+		const activeQuests = getActiveQuestRewards()
+		if (!activeQuests) return
+371
+
+	}
+
+	if (!filters.length) return
+
+	return filters
+}
 
 type BaseParams = {
 	emoji?: BaseFilterset["icon"]["emoji"];
