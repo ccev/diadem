@@ -10,7 +10,7 @@ import { League } from "@/lib/services/uicons.svelte";
 import { getId } from "@/lib/utils/uuid";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { MODIFIER_COLORS } from "@/lib/features/filters/modifierPresets";
-import { getActiveQuestRewards } from "@/lib/features/masterStats.svelte";
+import { getPremadeQuestFiltersets } from "@/lib/features/filters/filterUtilsQuest";
 
 export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 	pokemon: [
@@ -164,18 +164,17 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 };
 
 export function getPremadeFiltersets(category: FilterCategory) {
-	const filters = premadeFiltersets[category] ?? []
+	const filters = [...(premadeFiltersets[category] ?? [])];
 
 	if (category === "quest") {
-		const activeQuests = getActiveQuestRewards()
-		if (!activeQuests) return
-371
-
+		const questFilters = getPremadeQuestFiltersets();
+		if (!questFilters) return;
+		filters.push(...questFilters);
 	}
 
-	if (!filters.length) return
+	if (!filters.length) return;
 
-	return filters
+	return filters;
 }
 
 type BaseParams = {
