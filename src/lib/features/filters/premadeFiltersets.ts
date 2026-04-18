@@ -11,6 +11,7 @@ import { getId } from "@/lib/utils/uuid";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { MODIFIER_COLORS } from "@/lib/features/filters/modifierPresets";
 import { getPremadeQuestFiltersets } from "@/lib/features/filters/filterUtilsQuest";
+import { getPremadeInvasionFiltersets } from "@/lib/features/filters/filterUtilsInvasion";
 
 export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 	pokemon: [
@@ -170,6 +171,10 @@ export function getPremadeFiltersets(category: FilterCategory) {
 		const questFilters = getPremadeQuestFiltersets();
 		if (!questFilters) return;
 		filters.push(...questFilters);
+	} else if (category === "invasion") {
+		const invasionFilters = getPremadeInvasionFiltersets();
+		if (!invasionFilters) return;
+		filters.push(...invasionFilters);
 	}
 
 	if (!filters.length) return;

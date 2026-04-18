@@ -4,6 +4,8 @@ import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 import type { FiltersetInvasion, FiltersetTitle } from "@/lib/features/filters/filtersets";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils";
 import { IconCategory } from "@/lib/features/filters/icons";
+import { getActiveCharacters, getInvasionCatchable } from "@/lib/features/masterStats.svelte";
+import { getId } from "@/lib/utils/uuid";
 
 export enum InvasionFilterType {
 	CHARACTERS = "characters",
@@ -83,4 +85,85 @@ export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 	}
 
 	filter.title = title;
+}
+
+export function getPremadeInvasionFiltersets(): FiltersetInvasion[] | undefined {
+	const activeCharacters = getActiveCharacters();
+	if (!activeCharacters.length) return;
+
+	const filters: FiltersetInvasion[] = [];
+	const rewardFilters: FiltersetInvasion[] = [];
+
+	filters.push(
+		createInvasionPremadeFilterset({
+			message: "Team Rocket Leaders",
+			characters: [...INVASION_CHARACTER_LEADERS]
+		})
+	);
+
+	for (const leaderId of [41, 42, 43]) {
+		filters.push(
+			createInvasionPremadeFilterset({
+				characters: [leaderId]
+			})
+		);
+	}
+
+	filters.push(
+		createInvasionPremadeFilterset({
+			characters: [44, 46]
+		})
+	);
+
+	const rarestGrunts = [...activeCharacters]
+		.filter((character) => !INVASION_CHARACTER_LEADERS.includes(character.character))
+		.sort((a, b) => a.count - b.count)
+		.slice(0, 10);
+
+	for (const grunt of rarestGrunts) {
+		filters.push(
+			createInvasionPremadeFilterset({
+				characters: [grunt.character]
+			})
+		);
+
+		const rewards = getInvasionCatchable(grunt.character);
+		if (rewards?.length) {
+			for (const reward of rewards) {
+				rewardFilters.push(
+					createInvasionPremadeFilterset({
+						rewards: [{ pokemon_id: reward.pokemon_id, form: reward.form }]
+					})
+				);
+			}
+		}
+	}
+
+	filters.push(...rewardFilters);
+
+	return filters;
+}
+
+function createInvasionPremadeFilterset(params: {
+	message?: FiltersetTitle["message"];
+	characters?: number[];
+	rewards?: { pokemon_id: number; form: number }[];
+}): FiltersetInvasion {
+	const filter: FiltersetInvasion = {
+		id: getId(),
+		icon: {
+			isUserSelected: false
+		},
+		title: {
+			message: params.message ?? "filter_template_invasion_fallback"
+		},
+		enabled: true,
+		characters: params.characters,
+		rewards: params.rewards
+	};
+
+	generateInvasionFilterDetails(filter);
+	if (params.message) filter.title.message = params.message;
+
+	return filter;
 }

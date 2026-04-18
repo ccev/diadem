@@ -27,7 +27,6 @@
 	} = $props();
 
 	let filterset = getCurrentSelectedFilterset();
-	let snapshot = $state.snapshot(filterset);
 </script>
 
 {#snippet editDetailsPage(thisData: AnyFilterset)}
@@ -56,17 +55,17 @@
 				filtersetPageEditAttribute();
 			}}
 		>
-			{#if snapshot?.data}
+			{#if filterset?.data}
 				<div
 					class="rounded-full bg-accent size-10 border flex items-center justify-center relative shrink-0 mr-1"
 				>
-					<FiltersetIcon filterset={snapshot.data} size={5} />
+					<FiltersetIcon filterset={filterset.data} size={5} />
 				</div>
 				<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
 					<div
 						class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent group-active:from-accent transition-colors"
 					></div>
-					<b>{filterTitle(snapshot.data)}</b>
+					<b>{filterTitle(filterset.data)}</b>
 				</div>
 			{/if}
 			<Pencil class="ml-auto shrink-0" size="14" />
