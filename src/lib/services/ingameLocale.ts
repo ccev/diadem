@@ -102,8 +102,8 @@ export function mPokemon(data: {
 	// get full name if it's a temp evolution
 	if (data.temp_evolution_id) key += "_e" + data.temp_evolution_id;
 
-	const newName = mIngame(key)
-	if (newName) name = newName
+	const newName = mIngame(key);
+	if (newName) name = newName;
 
 	if (!name) return m.unknown_pokemon();
 
@@ -111,7 +111,7 @@ export function mPokemon(data: {
 	if (data.shiny) name += " ✨";
 
 	// form name
-	const masterPokemon = getMasterPokemon(data.pokemon_id, data.form, data.temp_evolution_id)
+	const masterPokemon = getMasterPokemon(data.pokemon_id, data.form, data.temp_evolution_id);
 
 	if (masterPokemon && data.form) {
 		if (masterPokemon.name === "Alola") {
@@ -142,7 +142,7 @@ export function mPokemon(data: {
  * @param target The quest target
  */
 export function mQuest(questTitle?: string | null, target?: number | null) {
-	if (questTitle?.toLowerCase() === "geotarget_quest_description") return m.geotarget_quest()
+	if (questTitle?.toLowerCase() === "geotarget_quest_description") return m.geotarget_quest();
 
 	// get basic quest text
 	let questText = mBasicId(
@@ -157,7 +157,7 @@ export function mQuest(questTitle?: string | null, target?: number | null) {
 	questText = questText.replaceAll("%{amount_0}", formattedNumber);
 
 	// remove periods at end
-	questText = questText.replace(/\.+$/, '')
+	questText = questText.replace(/\.+$/, "");
 
 	return questText;
 }
@@ -193,13 +193,15 @@ export function mItem(itemId?: number | string | null) {
  */
 export function mRaid(raidLevel?: number | string | null, plural: boolean = false) {
 	if (raidLevel) {
-		raidLevel = Number(raidLevel) as RaidLevel
+		raidLevel = Number(raidLevel) as RaidLevel;
 		if (raidLevel === RaidLevel.SHADOW_LEGENDARY) {
-			return plural ? m.legendary_shadow_raids() : m.legendary_shadow_raid()
+			return plural ? m.legendary_shadow_raids() : m.legendary_shadow_raid();
 		} else if (raidLevel >= RaidLevel.STAR_1 && raidLevel < RaidLevel.LEGENDARY) {
-			return plural ? m.x_star_raids({ level: raidLevel }) : m.x_star_raid({ level: raidLevel })
+			return plural ? m.x_star_raids({ level: raidLevel }) : m.x_star_raid({ level: raidLevel });
 		} else if (raidLevel >= RaidLevel.SHADOW_STAR_1 && raidLevel < RaidLevel.SHADOW_LEGENDARY) {
-			return plural ? m.x_star_shadow_raids({ level: raidLevel - 10 }) : m.x_star_shadow_raid({ level: raidLevel - 10 })
+			return plural
+				? m.x_star_shadow_raids({ level: raidLevel - 10 })
+				: m.x_star_shadow_raid({ level: raidLevel - 10 });
 		}
 	}
 

@@ -7,8 +7,8 @@
 	import { resize } from "@/lib/services/assets";
 	import MultiSelect from "@/components/menus/filters/filterset/multiselect/MultiSelect.svelte";
 	import MultiSelectItem from "@/components/menus/filters/filterset/multiselect/MultiSelectItem.svelte";
-	import type {QuestReward} from "@/lib/types/mapObjectData/pokestop";
-	import type {QuestReward as FilterReward} from "@/lib/features/filters/filtersets";
+	import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
+	import type { QuestReward as FilterReward } from "@/lib/features/filters/filtersets";
 
 	type Attribute = "item" | "megaResource" | "candy" | "xlCandy";
 
@@ -21,16 +21,18 @@
 		data: FiltersetQuest;
 		attribute: Attribute;
 		rewardType: RewardType;
-		getId: (info: Reward["info"]) => string
+		getId: (info: Reward["info"]) => string;
 	} = $props();
 
-	type Reward = Extract<QuestReward, { type: typeof rewardType }>
+	type Reward = Extract<QuestReward, { type: typeof rewardType }>;
 	const rewards = $derived(
 		getQuestRewards(rewardType).sort((a, b) => {
 			const aId = getId(a.reward.info);
 			const bId = getId(b.reward.info);
-			return aId.localeCompare(bId, undefined, { numeric: true })
-				|| ((a.reward.info.amount ?? 0) - (b.reward.info.amount ?? 0));
+			return (
+				aId.localeCompare(bId, undefined, { numeric: true }) ||
+				(a.reward.info.amount ?? 0) - (b.reward.info.amount ?? 0)
+			);
 		})
 	);
 
@@ -44,8 +46,8 @@
 	}
 
 	function onselect(reward: Reward, selected: boolean) {
-		let filterReward: FilterReward = { id: getId(reward.info) }
-		if (reward.info.amount !== undefined) filterReward.amount = reward.info.amount
+		let filterReward: FilterReward = { id: getId(reward.info) };
+		if (reward.info.amount !== undefined) filterReward.amount = reward.info.amount;
 
 		if (selected) {
 			if (!data[attribute]) data[attribute] = [];
@@ -55,7 +57,7 @@
 			data[attribute] = data[attribute]?.filter((r) => getKey(r.id, r.amount) !== key);
 		}
 
-		console.log(JSON.stringify(data[attribute]))
+		console.log(JSON.stringify(data[attribute]));
 
 		if (data[attribute]?.length === 0) delete data[attribute];
 	}
@@ -66,10 +68,7 @@
 		{#each rewards as reward (getKey(getId(reward.reward.info), reward.reward.info.amount))}
 			{@const selected = isSelected(reward.reward)}
 
-			<MultiSelectItem
-				isSelected={selected}
-				onclick={(value) => onselect(reward.reward, value)}
-			>
+			<MultiSelectItem isSelected={selected} onclick={(value) => onselect(reward.reward, value)}>
 				<img
 					class="w-8"
 					alt={getRewardText(reward.reward)}

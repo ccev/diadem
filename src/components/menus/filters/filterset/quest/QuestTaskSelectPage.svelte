@@ -28,14 +28,27 @@
 	}
 
 	function hasRewardFilter() {
-		return !!(data.pokemon || data.item || data.megaResource || data.candy || data.xlCandy || data.stardust || data.xp);
+		return !!(
+			data.pokemon ||
+			data.item ||
+			data.megaResource ||
+			data.candy ||
+			data.xlCandy ||
+			data.stardust ||
+			data.xp
+		);
 	}
 
 	function taskMatchesRewardFilters(questStat: { reward: { type: number; info: any } }) {
 		const reward = questStat.reward;
 
 		if (data.pokemon && reward.type === RewardType.POKEMON) {
-			if (data.pokemon.some((p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form)) return true;
+			if (
+				data.pokemon.some(
+					(p) => p.pokemon_id === reward.info.pokemon_id && p.form === reward.info.form
+				)
+			)
+				return true;
 		}
 		if (data.item && reward.type === RewardType.ITEM) {
 			if (data.item.some((i) => i.id === String(reward.info.item_id))) return true;
@@ -50,7 +63,8 @@
 			if (data.xlCandy.some((i) => i.id === String(reward.info.pokemon_id))) return true;
 		}
 		if (data.stardust && reward.type === RewardType.STARDUST) {
-			if (reward.info.amount >= data.stardust.min && reward.info.amount <= data.stardust.max) return true;
+			if (reward.info.amount >= data.stardust.min && reward.info.amount <= data.stardust.max)
+				return true;
 		}
 		if (data.xp && reward.type === RewardType.XP) {
 			if (reward.info.amount >= data.xp.min && reward.info.amount <= data.xp.max) return true;
@@ -116,16 +130,12 @@
 			</span>
 		</Button>
 	</div>
-
 {/if}
 
 <MultiSelect class="grid-cols-1! text-sm! font-medium! *:items-start *:py-3 *:px-4">
 	{#each tasks as task (getTaskKey(task))}
-		{@const selected = data.tasks?.find(t => t.target === task.target && t.title === task.title)}
-		<MultiSelectItem
-			isSelected={!!selected}
-			onclick={() => onselect(task, !selected)}
-		>
+		{@const selected = data.tasks?.find((t) => t.target === task.target && t.title === task.title)}
+		<MultiSelectItem isSelected={!!selected} onclick={() => onselect(task, !selected)}>
 			<div>
 				<p class="text-left">{task.text}</p>
 				<div class="flex flex-wrap gap-1 mt-1">

@@ -34,7 +34,8 @@ export function matchRaidFilterset(
 			if (
 				boss.pokemon_id === data.raid_pokemon_id &&
 				(!boss.form || boss.form === data.raid_pokemon_form) &&
-				(boss.temp_evolution_id === undefined || boss.temp_evolution_id === data.raid_pokemon_evolution)
+				(boss.temp_evolution_id === undefined ||
+					boss.temp_evolution_id === data.raid_pokemon_evolution)
 			) {
 				return filter;
 			}

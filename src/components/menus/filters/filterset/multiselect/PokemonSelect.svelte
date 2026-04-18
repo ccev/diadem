@@ -15,7 +15,7 @@
 		selected,
 		onselect,
 		title,
-		query = $bindable(undefined),
+		query = $bindable(undefined)
 	}: {
 		pokemonList: PokemonVisual[];
 		selected: PokemonVisual[];
@@ -24,7 +24,11 @@
 		query?: string;
 	} = $props();
 
-	const searcher = $derived(query !== undefined ? createFuzzySearch(pokemonList, { getText: (p: PokemonVisual) => [mPokemon(p)] }) : undefined);
+	const searcher = $derived(
+		query !== undefined
+			? createFuzzySearch(pokemonList, { getText: (p: PokemonVisual) => [mPokemon(p)] })
+			: undefined
+	);
 	let selectedValues = $derived(selected.map((p) => getKey(p)) ?? []);
 
 	function getKey(p: PokemonVisual) {
@@ -33,10 +37,10 @@
 
 	function comparePokemonVisual(a: PokemonVisual, b: PokemonVisual): number {
 		return (
-			(a.pokemon_id - b.pokemon_id) ||
-			((a.form ?? 0) - (b.form ?? 0)) ||
-			((a.temp_evolution_id ?? 0) - (b.temp_evolution_id ?? 0)) ||
-			((a.costume ?? 0) - (b.costume ?? 0))
+			a.pokemon_id - b.pokemon_id ||
+			(a.form ?? 0) - (b.form ?? 0) ||
+			(a.temp_evolution_id ?? 0) - (b.temp_evolution_id ?? 0) ||
+			(a.costume ?? 0) - (b.costume ?? 0)
 		);
 	}
 
@@ -59,7 +63,9 @@
 		return map;
 	});
 
-	let sortedList = $derived([...(fuzzyResults ? fuzzyResults.map((r) => r.item) : pokemonList)].sort(comparePokemonVisual));
+	let sortedList = $derived(
+		[...(fuzzyResults ? fuzzyResults.map((r) => r.item) : pokemonList)].sort(comparePokemonVisual)
+	);
 </script>
 
 {#if sortedList.length > 0}
@@ -75,8 +81,8 @@
 				<MultiSelectItem
 					{isSelected}
 					onclick={(value) => {
-				onselect(pokemon, value)
-			}}
+						onselect(pokemon, value);
+					}}
 				>
 					<img
 						class="size-8"
@@ -85,9 +91,9 @@
 						loading="lazy"
 					/>
 					<div class="grow text-center align-middle flex items-center px-1">
-				<span class="h-fit" {@attach highlightSearchMatches(highlights?.get(getKey(pokemon)))}>
-					{mPokemon(pokemon)}
-				</span>
+						<span class="h-fit" {@attach highlightSearchMatches(highlights?.get(getKey(pokemon)))}>
+							{mPokemon(pokemon)}
+						</span>
 					</div>
 				</MultiSelectItem>
 			{/each}

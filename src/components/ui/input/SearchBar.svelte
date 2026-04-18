@@ -8,10 +8,10 @@
 		query = $bindable(),
 		placeholder
 	}: {
-		class?: string,
-		query: string
-		placeholder: string
-	} = $props()
+		class?: string;
+		query: string;
+		placeholder: string;
+	} = $props();
 </script>
 
 <div class="relative w-full {class_}">

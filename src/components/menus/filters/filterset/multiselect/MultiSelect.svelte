@@ -5,10 +5,10 @@
 
 	let {
 		class: class_ = "",
-		children,
+		children
 	}: {
 		class?: string;
-		children: Snippet
+		children: Snippet;
 	} = $props();
 
 	const color = filterColors.yellow;

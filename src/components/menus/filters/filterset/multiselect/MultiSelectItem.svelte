@@ -14,9 +14,9 @@
 		isSelected = $bindable(),
 		onclick = () => {}
 	}: {
-		children: Snippet,
-		isSelected: boolean,
-		onclick?: (isSelected: boolean) => void
+		children: Snippet;
+		isSelected: boolean;
+		onclick?: (isSelected: boolean) => void;
 	} = $props();
 </script>
 
@@ -29,8 +29,8 @@
 	class:border-(--color-attr-chip-border)={isSelected}
 	class:text-(--color-attr-chip-text)={isSelected}
 	onclick={() => {
-		isSelected = !isSelected
-		onclick(isSelected)
+		isSelected = !isSelected;
+		onclick(isSelected);
 	}}
 >
 	{@render children()}

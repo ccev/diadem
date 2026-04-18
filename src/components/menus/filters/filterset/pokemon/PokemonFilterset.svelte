@@ -53,7 +53,7 @@
 						onremove={() => delete data.pokemon}
 					/>
 					{#snippet page(thisData: FiltersetPokemon)}
-<!--						<SpeciesAttribute data={thisData} />-->
+						<!--						<SpeciesAttribute data={thisData} />-->
 						<PokemonSelectPage
 							data={thisData}
 							attribute="pokemon"

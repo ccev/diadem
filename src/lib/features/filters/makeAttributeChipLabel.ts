@@ -43,13 +43,15 @@ export function makeAttributeRaidShowLabel(show: "egg" | "boss") {
 }
 
 export function makeAttributeItemLabel(items: QuestReward[]) {
-	if (items.length === 1) return m.quest_item({ count: items[0].amount ?? 1, item: mItem(items[0].id) });
+	if (items.length === 1)
+		return m.quest_item({ count: items[0].amount ?? 1, item: mItem(items[0].id) });
 
 	return m.count_items({ count: items.length });
 }
 
 export function makeAttributeMegaResourceLabel(energies: QuestReward[]) {
-	if (energies.length === 1) return m.pokemon_mega_resource({ pokemon: mPokemon({ pokemon_id: Number(energies[0].id) }) })
+	if (energies.length === 1)
+		return m.pokemon_mega_resource({ pokemon: mPokemon({ pokemon_id: Number(energies[0].id) }) });
 
 	return m.count_mega_energies({ count: energies.length });
 }

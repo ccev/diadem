@@ -62,14 +62,14 @@
 							<RaidLevelAttribute data={thisData} />
 						{/snippet}
 					</Attribute>
-<!--				</AttributesOverview>-->
-<!--				<AttributesOverview>-->
+					<!--				</AttributesOverview>-->
+					<!--				<AttributesOverview>-->
 					<AttributeToggle
 						label={m.only_show_hatched()}
 						value={!!data.show?.includes("boss")}
 						onchange={(onlyShowHatched) => {
 							if (onlyShowHatched) {
-								data.show = ["boss"]
+								data.show = ["boss"];
 							} else {
 								delete data.show;
 							}

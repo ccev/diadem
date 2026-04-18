@@ -14,7 +14,10 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import Separator from "@/components/ui/Separator.svelte";
-	import { getPremadeFiltersets, premadeFiltersets } from "@/lib/features/filters/premadeFiltersets";
+	import {
+		getPremadeFiltersets,
+		premadeFiltersets
+	} from "@/lib/features/filters/premadeFiltersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import { getId } from "@/lib/utils/uuid";
 	import { m } from "@/lib/paraglide/messages";
@@ -28,7 +31,9 @@
 	} = $props();
 
 	// @ts-ignore
-	let premades = $derived(getPremadeFiltersets(majorCategory) ?? getPremadeFiltersets(subCategory) ?? []);
+	let premades = $derived(
+		getPremadeFiltersets(majorCategory) ?? getPremadeFiltersets(subCategory) ?? []
+	);
 </script>
 
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>

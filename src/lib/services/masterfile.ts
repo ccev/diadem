@@ -63,9 +63,7 @@ const blacklistForms = [
 	665 // scatterbug
 ];
 
-export function getAllPokemon(
-	onlyActive: boolean = false
-): { pokemon_id: number; form: number }[] {
+export function getAllPokemon(onlyActive: boolean = false): { pokemon_id: number; form: number }[] {
 	const allPokemon: { pokemon_id: number; form: number }[] = [];
 
 	for (const [strPokemonId, pokemon] of Object.entries(masterFile.pokemon)) {

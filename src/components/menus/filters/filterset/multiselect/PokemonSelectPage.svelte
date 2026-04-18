@@ -4,14 +4,16 @@
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 	import type { Pokemon } from "@/lib/features/filters/filtersets";
-	import {slide} from "svelte/transition";
+	import { slide } from "svelte/transition";
 
-	type PokemonKey = { [K in keyof Data]: Data[K] extends Pokemon[] | undefined ? K : never }[keyof Data];
+	type PokemonKey = {
+		[K in keyof Data]: Data[K] extends Pokemon[] | undefined ? K : never;
+	}[keyof Data];
 
 	let {
 		data,
 		attribute,
-		pokemonList,
+		pokemonList
 	}: {
 		data: Data;
 		attribute: PokemonKey & string;
@@ -23,7 +25,8 @@
 	function onselect(pokemon: PokemonVisual, isSelected: boolean) {
 		if (!isSelected) {
 			data[attribute] = data[attribute]?.filter(
-				(p: { pokemon_id: number; form: number }) => p.pokemon_id !== pokemon.pokemon_id || p.form !== pokemon.form
+				(p: { pokemon_id: number; form: number }) =>
+					p.pokemon_id !== pokemon.pokemon_id || p.form !== pokemon.form
 			);
 		} else {
 			if (!data[attribute]) data[attribute] = [] as any;
@@ -42,7 +45,6 @@
 <div class="space-y-5 mt-2">
 	{#if !query && data[attribute]}
 		<div transition:slide={{ duration: 90 }}>
-
 			<PokemonSelect
 				pokemonList={data[attribute] ?? []}
 				selected={data[attribute] ?? []}

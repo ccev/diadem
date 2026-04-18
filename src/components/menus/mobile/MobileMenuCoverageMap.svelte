@@ -39,7 +39,6 @@
 		>
 			<div class="w-10 mx-auto mb-2 rounded-full bg-ring h-1 shrink-0"></div>
 			<div class="{contentClass} bg-background rounded-lg border border-border">
-
 				<MenuContainer />
 			</div>
 		</Drawer.Content>

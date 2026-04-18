@@ -86,11 +86,7 @@
 </script>
 
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
-	<SearchBar
-		class="mb-2 mt-1"
-		placeholder={m.icon_search_placeholder()}
-		bind:query={searchQuery}
-	/>
+	<SearchBar class="mb-2 mt-1" placeholder={m.icon_search_placeholder()} bind:query={searchQuery} />
 
 	{#if !searchQuery.trim()}
 		<Tabs

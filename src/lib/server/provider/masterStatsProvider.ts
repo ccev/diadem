@@ -16,7 +16,7 @@ export class MasterstatsProvider extends BaseDataProvider<MasterStats> {
 	protected async query(): Promise<MasterStats> {
 		log.info("Updating master stats");
 		const data = await queryMasterStats();
-		setMasterStats(data)
+		setMasterStats(data);
 		log.info("Updated master stats");
 		return data;
 	}

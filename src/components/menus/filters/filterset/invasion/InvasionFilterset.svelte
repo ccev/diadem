@@ -8,11 +8,18 @@
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import { getActiveCharacters, getInvasionCatchable, getInvasionPokemon } from "@/lib/features/masterStats.svelte";
+	import {
+		getActiveCharacters,
+		getInvasionCatchable,
+		getInvasionPokemon
+	} from "@/lib/features/masterStats.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
 	import { resize } from "@/lib/services/assets";
 	import { getIconInvasion } from "@/lib/services/uicons.svelte";
-	import { InvasionFilterType, makeAttributeCharacterLabel } from "@/lib/features/filters/filterUtilsInvasion";
+	import {
+		InvasionFilterType,
+		makeAttributeCharacterLabel
+	} from "@/lib/features/filters/filterUtilsInvasion";
 	import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 	import InvasionFilterDisplay from "@/components/menus/filters/filterset/invasion/InvasionFilterDisplay.svelte";
 	import InvasionTypeAttribute from "@/components/menus/filters/filterset/invasion/InvasionTypeAttribute.svelte";
