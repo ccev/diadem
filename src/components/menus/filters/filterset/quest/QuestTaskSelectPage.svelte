@@ -51,16 +51,44 @@
 				return true;
 		}
 		if (data.item && reward.type === RewardType.ITEM) {
-			if (data.item.some((i) => i.id === String(reward.info.item_id))) return true;
+			if (
+				data.item.some(
+					(i) =>
+						i.id === String(reward.info.item_id) &&
+						(i.amount === undefined || i.amount === reward.info.amount)
+				)
+			)
+				return true;
 		}
 		if (data.megaResource && reward.type === RewardType.MEGA_ENERGY) {
-			if (data.megaResource.some((i) => i.id === String(reward.info.pokemon_id))) return true;
+			if (
+				data.megaResource.some(
+					(i) =>
+						i.id === String(reward.info.pokemon_id) &&
+						(i.amount === undefined || i.amount === reward.info.amount)
+				)
+			)
+				return true;
 		}
 		if (data.candy && reward.type === RewardType.CANDY) {
-			if (data.candy.some((i) => i.id === String(reward.info.pokemon_id))) return true;
+			if (
+				data.candy.some(
+					(i) =>
+						i.id === String(reward.info.pokemon_id) &&
+						(i.amount === undefined || i.amount === reward.info.amount)
+				)
+			)
+				return true;
 		}
 		if (data.xlCandy && reward.type === RewardType.XL_CANDY) {
-			if (data.xlCandy.some((i) => i.id === String(reward.info.pokemon_id))) return true;
+			if (
+				data.xlCandy.some(
+					(i) =>
+						i.id === String(reward.info.pokemon_id) &&
+						(i.amount === undefined || i.amount === reward.info.amount)
+				)
+			)
+				return true;
 		}
 		if (data.stardust && reward.type === RewardType.STARDUST) {
 			if (reward.info.amount >= data.stardust.min && reward.info.amount <= data.stardust.max)

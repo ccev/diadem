@@ -57,8 +57,6 @@
 			data[attribute] = data[attribute]?.filter((r) => getKey(r.id, r.amount) !== key);
 		}
 
-		console.log(JSON.stringify(data[attribute]));
-
 		if (data[attribute]?.length === 0) delete data[attribute];
 	}
 </script>

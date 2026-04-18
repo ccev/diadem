@@ -178,7 +178,7 @@ export function getInvasionCatchable(character: number): InvasionPokemonStats[] 
 export function getInvasionPokemon(characterSlot: Partial<InvasionPokemonStats>): PokemonVisual {
 	return {
 		pokemon_id: characterSlot.pokemon_id ?? 0,
-		form: characterSlot.form,
+		form: characterSlot.form ?? 0,
 		alignment: 1
 	};
 }
