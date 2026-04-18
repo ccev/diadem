@@ -485,5 +485,7 @@
 	"count_candies": "{count} Candies",
 	"count_xl_candies": "{count} XL Candies",
 	"count_stardust": "{count} Stardust",
-	"count_xp": "{count} XP"
+	"count_xp": "{count} XP",
+	"filter_template_invasion_leaders": "Team Rocket Leaders",
+	"join_server": "Join Server"
 }

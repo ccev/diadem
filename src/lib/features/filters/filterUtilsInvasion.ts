@@ -96,7 +96,7 @@ export function getPremadeInvasionFiltersets(): FiltersetInvasion[] | undefined 
 
 	filters.push(
 		createInvasionPremadeFilterset({
-			message: "Team Rocket Leaders",
+			message: m.filter_template_invasion_leaders(),
 			characters: [...INVASION_CHARACTER_LEADERS]
 		})
 	);

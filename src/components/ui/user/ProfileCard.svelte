@@ -42,7 +42,9 @@
 			</p>
 			<div class="flex-1 flex justify-end">
 				{#if !getUserDetails().isGuildMember}
-					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2">Join Server</Button>
+					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2">
+						{m.join_server()}
+					</Button>
 				{/if}
 				<LogOutButton class="" size="icon" variant="outline" title={m.signout()} bind:isLoggingOut>
 					<!--{m.signout()}-->
