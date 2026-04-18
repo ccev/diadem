@@ -9,8 +9,11 @@
 	import { mItem, mPokemon, mQuest } from "@/lib/services/ingameLocale";
 	import * as m from "@/lib/paraglide/messages";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
-	import { getAttributeLabelAr } from "@/lib/features/filters/filterUtilsQuest";
-	import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
+	import {
+		getAttributeLabelAr,
+		getAttributeLabelStardust,
+		getAttributeLabelXp
+	} from "@/lib/features/filters/filterUtilsQuest";
 	import { RewardType } from "@/lib/utils/pokestopUtils";
 
 	let {
@@ -28,11 +31,11 @@
 	{#if data.tasks}
 		<AttributeDisplay label={data.tasks.length === 1 ? m.task() : m.tasks()}>
 			<ul>
-			{#each data.tasks as task}
-				<li class="text-base font-semibold">
-					{mQuest(task.title, task.target)}
-				</li>
-			{/each}
+				{#each data.tasks as task (`${task.title}-${task.target}`)}
+					<li class="text-base font-semibold">
+						{mQuest(task.title, task.target)}
+					</li>
+				{/each}
 			</ul>
 		</AttributeDisplay>
 	{/if}
@@ -43,7 +46,7 @@
 
 	{#if data.item}
 		<HorizontalScrollDisplay label={m.items()}>
-			{#each data.item as item}
+			{#each data.item as item (`${item.id}-${item.amount ?? 0}`)}
 				{@const name = item.amount
 					? m.quest_item({ count: item.amount, item: mItem(item.id) })
 					: mItem(item.id)}
@@ -61,7 +64,7 @@
 
 	{#if data.megaResource}
 		<HorizontalScrollDisplay label={m.mega_energy()}>
-			{#each data.megaResource as megaResource}
+			{#each data.megaResource as megaResource (`${megaResource.id}-${megaResource.amount ?? 0}`)}
 				{@const pokemonName = mPokemon({
 					pokemon_id: Number(megaResource.id)
 				})}
@@ -91,7 +94,7 @@
 
 	{#if data.candy}
 		<HorizontalScrollDisplay label={m.candy()}>
-			{#each data.candy as candy}
+			{#each data.candy as candy (`${candy.id}-${candy.amount ?? 0}`)}
 				{@const pokemonName = mPokemon({ pokemon_id: Number(candy.id) })}
 				{@const name = candy.amount
 					? m.quest_candy({
@@ -119,7 +122,7 @@
 
 	{#if data.xlCandy}
 		<HorizontalScrollDisplay label={m.xl_candy()}>
-			{#each data.xlCandy as candy}
+			{#each data.xlCandy as candy (`${candy.id}-${candy.amount ?? 0}`)}
 				{@const pokemonName = mPokemon({ pokemon_id: Number(candy.id) })}
 				{@const name = candy.amount
 					? m.quest_xl_candy({
@@ -146,13 +149,10 @@
 	{/if}
 
 	{#if data.stardust}
-		<AttributeDisplay
-			label={m.stardust()}
-			value={makeAttributeRangeLabel(data.stardust, 0, 50_000)}
-		/>
+		<AttributeDisplay label={m.stardust()} value={getAttributeLabelStardust(data.stardust)} />
 	{/if}
 
 	{#if data.xp}
-		<AttributeDisplay label={m.xp()} value={makeAttributeRangeLabel(data.xp, 0, 50_000)} />
+		<AttributeDisplay label={m.xp()} value={getAttributeLabelXp(data.xp)} />
 	{/if}
 </FilterDisplay>

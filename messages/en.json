@@ -478,5 +478,12 @@
 	"count_tasks": "{count} Tasks",
 	"quest_tasks_only_matching_rewards": "Matching rewards",
 	"geotarget_quest": "Scan a Pokéstop",
-	"task": "Task"
+	"task": "Task",
+	"filter_template_quest_reward": "{reward} Quests",
+	"filter_template_quest_task": "{task}",
+	"filter_template_quest_fallback": "Quest Filter",
+	"count_candies": "{count} Candies",
+	"count_xl_candies": "{count} XL Candies",
+	"count_stardust": "{count} Stardust",
+	"count_xp": "{count} XP"
 }

@@ -22,6 +22,7 @@ import {
 } from "@/lib/services/uicons.svelte";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import { RaidLevel } from "@/lib/utils/gymUtils";
+import { generateQuestFilterDetails } from "@/lib/features/filters/filterUtilsQuest";
 
 export function changeAttributeMinMax(
 	data: AnyFilterset,
@@ -75,6 +76,7 @@ export function generateFilterDetails(
 	if (majorCategory === "pokemon") {
 		generatePokemonFilterDetails(filtersert as FiltersetPokemon);
 	} else if (subCategory === "quest") {
+		generateQuestFilterDetails(filtersert as FiltersetQuest);
 	} else if (subCategory === "raid") {
 		generateRaidFilterDetails(filtersert as FiltersetRaid);
 	} else if (subCategory === "invasion") {

@@ -22,7 +22,11 @@
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils";
 	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
-	import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
+	import {
+		getAttributeLabelStardust,
+		getAttributeLabelXp,
+		questBounds
+	} from "@/lib/features/filters/filterUtilsQuest";
 
 	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetQuest
@@ -60,7 +64,7 @@
 							<PokemonSelectPage
 								data={thisData}
 								attribute="pokemon"
-								pokemonList={getQuestRewards(RewardType.POKEMON).map(r => r.reward.info)}
+								pokemonList={getQuestRewards(RewardType.POKEMON).map((r) => r.reward.info)}
 							/>
 						{/snippet}
 					</Attribute>
@@ -141,20 +145,27 @@
 				{#if hasReward(RewardType.STARDUST)}
 					<Attribute label={rewardTypeLabel(RewardType.STARDUST)}>
 						<AttributeChip
-							label={makeAttributeRangeLabel(data.stardust, 0, 5_000)}
+							label={getAttributeLabelStardust(data.stardust)}
 							isEmpty={!data.stardust}
 							onremove={() => delete data.stardust}
 						/>
 						{#snippet page(thisData: FiltersetQuest)}
 							<SliderRange
-								min={0}
-								max={5_000}
+								min={questBounds.stardust.min}
+								max={questBounds.stardust.max}
 								step={100}
 								title={rewardTypeLabel(RewardType.STARDUST)}
-								valueMin={thisData.stardust?.min ?? 0}
-								valueMax={thisData.stardust?.max ?? 5_000}
+								valueMin={thisData.stardust?.min ?? questBounds.stardust.min}
+								valueMax={thisData.stardust?.max ?? questBounds.stardust.max}
 								onchange={([min, max]) =>
-									changeAttributeMinMax(thisData, "stardust", 0, 5_000, min, max)}
+									changeAttributeMinMax(
+										thisData,
+										"stardust",
+										questBounds.stardust.min,
+										questBounds.stardust.max,
+										min,
+										max
+									)}
 							/>
 						{/snippet}
 					</Attribute>
@@ -163,20 +174,27 @@
 				{#if hasReward(RewardType.XP)}
 					<Attribute label={rewardTypeLabel(RewardType.XP)}>
 						<AttributeChip
-							label={makeAttributeRangeLabel(data.xp, 0, 10_000)}
+							label={getAttributeLabelXp(data.xp)}
 							isEmpty={!data.xp}
 							onremove={() => delete data.xp}
 						/>
 						{#snippet page(thisData: FiltersetQuest)}
 							<SliderRange
-								min={0}
-								max={10_000}
+								min={questBounds.xp.min}
+								max={questBounds.xp.max}
 								step={100}
 								title={rewardTypeLabel(RewardType.XP)}
-								valueMin={thisData.xp?.min ?? 0}
-								valueMax={thisData.xp?.max ?? 10_000}
+								valueMin={thisData.xp?.min ?? questBounds.xp.min}
+								valueMax={thisData.xp?.max ?? questBounds.xp.max}
 								onchange={([min, max]) =>
-									changeAttributeMinMax(thisData, "xp", 0, 10_000, min, max)}
+									changeAttributeMinMax(
+										thisData,
+										"xp",
+										questBounds.xp.min,
+										questBounds.xp.max,
+										min,
+										max
+									)}
 							/>
 						{/snippet}
 					</Attribute>
