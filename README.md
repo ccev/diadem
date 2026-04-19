@@ -6,7 +6,7 @@
 - [Demo](https://beta.demap.co/map) to check it out right now
 - [Discord](https://discord.com/invite/VGgsQN2hYG) for support and discussions
 
-![](https://raw.githubusercontent.com/ccev/diadem/refs/heads/main/.github/map.png)
+![](https://raw.githubusercontent.com/ccev/diadem/refs/heads/main/.github/readme.png)
 
 ## Contributing
 
