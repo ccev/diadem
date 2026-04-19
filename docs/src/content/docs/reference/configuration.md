@@ -5,7 +5,7 @@ description: Reference for Diadem's config
 
 Diadem reads configuration from `src/lib/server/config.toml`, which should be linked from `config/config.toml`.
 
-Each option is either for the server, or the client. Note that all client options are publicly accessible.
+Each option is either for the server or the client. Note that all client options are publicly accessible.
 
 ```toml
 [server]
@@ -64,13 +64,13 @@ Koji is optional. It's used for area-based permissions, area search and in the c
 - `secret`: Must match your configured Koji secret
 - `projectName`: The project name used to fetch areas from
 
-By default, Diadem shows a Globe icon for areas in the search menu. You can configure the displayed icon per area 
-by setting a `luicdeIcon` property in your Koji. 
+By default, Diadem shows a Globe icon for areas in the search menu. You can configure the displayed icon per area
+by setting a `lucideIcon` property in Koji.
 [You can find supported icons here.](https://lucide.dev/icons/) Make sure to convert the icon name from `kebab-case` to `PascalCase`.
 
 ## Reverse Geocoding
 
-Diadem supports different Geocoding providers for address search. It's recommended to use Photon.
+Diadem supports different geocoding providers for address search. It's recommended to use Photon.
 
 ### `server.photon`
 
@@ -115,10 +115,10 @@ clientSecret = ""
 redirectUri = "https://map.example.com/login/discord/callback"
 ```
 
-Currently, only Discord auth is supported. 
+Currently, only Discord auth is supported.
 
-Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications) 
-and enabling OAuth2 on it. Make sure to set up a Redirect that matches the value set in `redirectUri` and redirects to your domain name.
+Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications)
+and enabling OAuth2. Make sure to set up a redirect that matches the value in `redirectUri` and points to your domain.
 
 ## `client.discord`
 
@@ -165,7 +165,7 @@ Supported feature keys include:
 
 ## `server.limits`
 
-Rate-limiting is pretty barebones, but should work.
+Rate-limiting is pretty bare-bones, but should work.
 
 Controls request limits and optional rate limiting.
 
@@ -213,7 +213,7 @@ user = ""
 password = ""
 ```
 
-- `server.db`: external Dragonite DB used for data queries
+- `server.db`: external Golbat DB used for data queries
 - `server.internalDb`: internal Diadem DB used for users/sessions
 
 ## `client.general`
@@ -252,7 +252,7 @@ diademUrl = "https://map.example.com"
 # style = "positron"
 ```
 
-Controls static map rendering for link previews. It's recommended to use [Rampardos](https://github.com/lenisko/rampardos) 
+Controls static map rendering for link previews. It's recommended to use [Rampardos](https://github.com/lenisko/rampardos)
 or [SwiftTileserverCache](https://github.com/123FLO321/SwiftTileserverCache).
 
 - `url`: Base Tileserver URL, as accessible from your Diadem server
@@ -268,7 +268,7 @@ coverageMap = true
 scout = true
 ```
 
-Enables/Disables the different tools. `showToolsMenu`: To disable the Tools menu alltogether.
+Enables/disables the different tools. `showToolsMenu` disables the Tools menu altogether.
 
 ## `client.mapPositions`
 
@@ -290,12 +290,12 @@ scoutLon = 9.979
 scoutZoom = 10.5
 ```
 
-There's a couple of maps used throughout Diadem, that are independant from the main map.
+There are a couple of maps used throughout Diadem that are independent of the main map.
 Use this to control where they're positioned.
 
 - `coverageMap...`: The initial position when opening the coverage map
 - `style...`: Position for style previews in the profile menu
-- `coverage...`, `scout...`: Background maps used in tools menu links 
+- `coverage...`, `scout...`: Background maps used in Tools menu links
 
 ## `client.mapStyles`
 
@@ -313,7 +313,7 @@ Supported keys:
 
 - `id`: unique id
 - `name`: display name
-- `url`: style URL 
+- `url`: style URL
 - `default`: optional `light` or `dark`
 
 ## `client.uiconSets`
@@ -334,6 +334,7 @@ url = "https://raw.githubusercontent.com/.../"
 - You should never change or remove an ID, as this may cause the site to break for your existing users
 
 Modifiers can be used to adjust sizing and positioning for icons on the map.
+
 - `base` is applied to all icons
 - Supported modifier keys: `pokemon`, `pokestop`, `gym`, `station`, `tappable`, `quest`, `invasion`, `max_battle`, `raid_pokemon`, `raid_pokemon_6`, `raid_egg`, `raid_egg_6`
 - Supported modifier fields:
