@@ -78,7 +78,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					temp_evolution_id: p.temp_evolution_id,
 					cp: p.cp,
 					level: p.level,
-					iv: p.iv ? round(p.iv, 2) : undefined,
+					iv: p.iv !== undefined ? round(p.iv, 2) : undefined,
 					atk_iv: p.atk_iv,
 					def_iv: p.def_iv,
 					sta_iv: p.sta_iv,
