@@ -1,20 +1,57 @@
 ---
 title: Diadem
-description: Next-gen map frontend for Pokémon GO
+description: 🌠 Next-gen map frontend for Pokémon GO
 template: splash
 hero:
-  tagline: Next-gen map frontend for Pokémon GO
+  tagline: 🌠 Next-gen map frontend for Pokémon GO
   actions:
     - text: View Demo
       link: https://beta.demap.co/map
       icon: external
     - text: Read the docs
-      link: /guides/getting-started
+      link: /guides/installation
       icon: right-arrow
       variant: secondary
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+## Features
+
+<CardGrid>
+	<Card title="Modern Map">
+		Mobile-first MapLibre rendering with smooth interaction even under heavy load
+	</Card>
+
+	<Card title="Fresh UX">
+		Diadem's UI has been built from the ground up, with a heavy focus on providing a good user experience.
+	</Card>
+
+	<Card title="First class Unown# integration">
+		Built on top of Golbat, Dragonite and Koji
+	</Card>
+
+    <Card title="Permissions">
+		Supports Authentication with Discord and configurable per-area permissions based on server membership and roles.
+    </Card>
+
+    <Card title="Easy to learn filters">
+    	A filter system that guides the user. Easy set up for beginners, advanced options for experts.
+    </Card>
+
+    <Card title="Search">
+		One search bar to search through everything on the map
+    </Card>
+
+    <Card title="Tools">
+		Integrated coverage map and support for Dragonite Scout
+    </Card>
+
+    <Card title="Customizable and extendible">
+		Admins, as well as users, can configure Diadem to their needs, while not being overwhelmed. Diadem can also be extended to become a complete website.
+    </Card>
+
+</CardGrid>
 
 ## Links
 
@@ -25,16 +62,16 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 		href="https://github.com/ccev/diadem"
 	/>
 
-	<LinkCard
-		title="Discord"
-		description="For support, discussion and announcements"
-		href="https://discord.com/invite/VGgsQN2hYG"
-	/>
+    <LinkCard
+    	title="Discord"
+    	description="For support, discussion and announcements"
+    	href="https://discord.com/invite/VGgsQN2hYG"
+    />
 
-	<LinkCard
-		title="Demap"
-		description="A publicly available Diadem instance"
-		href="https://beta.demap.co/map"
-	/>
+    <LinkCard
+    	title="Demap"
+    	description="A publicly available Diadem instance"
+    	href="https://beta.demap.co/map"
+    />
 
 </CardGrid>

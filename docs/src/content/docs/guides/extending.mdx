@@ -1,0 +1,93 @@
+---
+title: Extending Diadem
+description: Customize the homepage, styling, and custom components
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+
+## Project structure
+
+After setting up the project, `/config` contains linkes files to `custom.css` and `Home.svelte`. This allows you
+to easily add your own styles and home page.
+For advanced extensions, you can use the designated `custom*` directories.
+
+<FileTree>
+	- config
+		- Home.svelte Link to /src/components/custom/Home.svelte
+		- custom.css Link to /src/custom.css
+	- src
+		- components
+			- custom
+				- Home.svelte
+				- ... Add your own components
+		- routes
+			- (custom)
+				- ... Add your own routes
+		- custom.css Add your own styles
+	- static
+		- custom
+			- ... Add your own assets (fonts, images, ...)
+	- messages
+		- en.json
+		- ...
+</FileTree>
+
+## Custom home page
+
+Enable in config:
+
+```toml
+[client.general]
+customHome = true
+```
+
+When enabled, `/` renders `src/components/custom/Home.svelte`. The map is made available at `/map`.
+You can use this to extend Diadem into a full webfront for your mapping project.
+
+Relevant documentation:
+- [Svelte](https://svelte.dev/docs)
+- [SvelteKit](https://svelte.dev/docs/kit/introduction)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Bits UI](https://www.bits-ui.com/docs)
+
+## Custom CSS
+
+Global custom styles live in `src/custom.css` (from `config/custom.css`).
+
+It is imported before app styles in `src/app.css`, so you can change theming as you like.
+
+## Add your own custom routes
+
+You can create your own `/about` or `/status` page like this.
+
+<FileTree>
+	- src
+		- routes
+			- (custom)
+				- about
+					- +page.svelte
+				- status
+					- +page.svelte
+				- ...
+</FileTree>
+
+Refer to the [SvelteKit documentation](https://svelte.dev/docs/kit/introduction) to learn more about routing.
+
+## Add your own translations
+
+Diadem uses [Paraglide JS](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) for localizing.
+You can add your own translation keys to `/messages/{locale}.json`. Just prepend them to the file, and git should be
+able to auto merge them. Add a unique prefix to your keys to avoid conflicts.
+
+```diff
+"$schema": "https://inlang.com/schema/inlang-message-format",
++"dm_hello": "Hello",
+"theme_light": "Light",
+...
+```
+
+:::note
+Diadem is licensed under [GNU Affero General Public License v3.0](https://github.com/ccev/diadem/blob/main/LICENSE).
+This means you have to make the corresponding source code of modified versions of Diadem available under the same
+license when they're hosted publicly.
+:::

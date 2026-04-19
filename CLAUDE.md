@@ -86,6 +86,10 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 - **Internal DB** (Drizzle): users + sessions tables in `src/lib/server/db/internal/schema.ts`
 - **External DB** (raw queries): Golbat scanner data via `src/lib/server/db/external/`
 
+### Documentation
+
+An Astro Starlight-based documentation site can be founder under /docs. When adding major features, changing installation steps or changing the config definition, make sure to update the documentation.
+
 ## Svelte MCP
 
 You might be able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:

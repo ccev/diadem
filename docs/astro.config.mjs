@@ -2,7 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightThemeFlexoki from "starlight-theme-flexoki";
-import starlightPageActions from "starlight-page-actions";
+import starlightContextualMenu from "starlight-contextual-menu";
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,24 +10,31 @@ export default defineConfig({
 		starlight({
 			plugins: [
 				starlightThemeFlexoki({ accentColor: "orange" }),
-				starlightPageActions()
+				starlightContextualMenu({
+					actions: ["copy", "view", "claude", "chatgpt", "lechat"]
+				})
 			],
 			title: "Diadem Docs",
+			favicon: "/favicon.svg",
 			social: [
-				{ icon: "github", label: "GitHub", href: "https://github.com/ccev/discord" },
+				{ icon: "github", label: "GitHub", href: "https://github.com/ccev/diadem" },
 				{ icon: "discord", label: "Discord", href: "https://discord.com/invite/VGgsQN2hYG" }
 			],
 			sidebar: [
 				{
 					label: "Guides",
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: "Getting started", slug: "guides/getting-started" }
+						{ label: "Installation", slug: "guides/installation" },
+						{ label: "Translate Diadem", slug: "guides/translating" },
+						{ label: "Set up a CDN using Cloudflare Cache", slug: "guides/cloudflare-cache" },
+						{ label: "Extending Diadem", slug: "guides/extending" },
+						{ label: "Self-host address search using Photon", slug: "guides/photon" },
+						{ label: "Self-host map tiles using Rampardos", slug: "guides/tileserver" }
 					]
 				},
 				{
 					label: "Reference",
-					autogenerate: { directory: "reference" }
+					items: [{ label: "Configuration", slug: "reference/configuration" }]
 				}
 			]
 		})

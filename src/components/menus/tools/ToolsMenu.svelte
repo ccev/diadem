@@ -89,16 +89,6 @@
 		</ToolLink>
 	{/if}
 
-	<!--{#if getConfig().tools.stats}-->
-	<!--	<ToolLink-->
-	<!--		Icon={ChartColumnBig}-->
-	<!--		title="Stats"-->
-	<!--		description="Shiny odds, active raids and more"-->
-	<!--	>-->
-	<!--		<div></div>-->
-	<!--	</ToolLink>-->
-	<!--{/if}-->
-
 	{#if isSupportedFeature("koji") && getConfig().tools.coverageMap}
 		<ToolLink
 			Icon={Earth}

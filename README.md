@@ -23,13 +23,13 @@ set this up yourself. But I'm not stopping you:
 3. `pnpm install` && `pnpm run build`
 4. `pnpm run db:push`
 5. Start with pm2: `PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"`
-6. Set up a reverse proxy, I use caddy with this config:
-   ```
-   map.co {
-     root * /path/diadem/build
-     reverse_proxy * 127.0.0.1:3900
-   }
-   ```
+   6. Set up a reverse proxy, I use caddy with this config:
+      ```
+      map.co {
+        root * /path/diadem/build
+        reverse_proxy * 127.0.0.1:3900
+      }
+      ```
 
 ### Update
 
