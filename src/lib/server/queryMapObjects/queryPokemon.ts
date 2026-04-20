@@ -65,62 +65,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					continue;
 				}
 
-				const pokemon = {
-					id: p.id,
-					lat: round(p.lat, 6),
-					lon: round(p.lon, 6),
-					pokemon_id: p.pokemon_id,
-					form: getNormalizedForm(p.pokemon_id, p.form),
-					costume: p.costume,
-					gender: p.gender,
-					alignment: p.alignment,
-					bread_mode: p.bread_mode,
-					temp_evolution_id: p.temp_evolution_id,
-					cp: p.cp,
-					level: p.level,
-					iv: p.iv !== undefined ? round(p.iv, 2) : undefined,
-					atk_iv: p.atk_iv,
-					def_iv: p.def_iv,
-					sta_iv: p.sta_iv,
-					size: p.size,
-					weather: p.weather,
-					strong: p.strong,
-					move_1: p.move_1,
-					move_2: p.move_2,
-					expire_timestamp: p.expire_timestamp,
-					expire_timestamp_verified: p.expire_timestamp_verified,
-					first_seen_timestamp: p.first_seen_timestamp,
-					updated: p.updated,
-					changed: p.changed,
-					display_pokemon_id: p.display_pokemon_id,
-					display_pokemon_form: getNormalizedForm(p.display_pokemon_id, p.display_pokemon_form),
-					seen_type: p.seen_type
-				} as PokemonData;
-
-				const littleRankings: PvpStats[] = [];
-				const greatRankings: PvpStats[] = [];
-				const ultraRankings: PvpStats[] = [];
-
-				for (const rankings of p.pvp?.little ?? []) {
-					if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
-						littleRankings.push(rankings);
-				}
-				for (const rankings of p.pvp?.great ?? []) {
-					if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
-						greatRankings.push(rankings);
-				}
-				for (const rankings of p.pvp?.ultra ?? []) {
-					if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
-						ultraRankings.push(rankings);
-				}
-				if (littleRankings.length || greatRankings.length || ultraRankings.length) {
-					pokemon.pvp = {};
-					if (littleRankings.length) pokemon.pvp.little = littleRankings;
-					if (greatRankings.length) pokemon.pvp.great = greatRankings;
-					if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings;
-				}
-
-				data.push(pokemon);
+				data.push(this.makePokemon(p, filter));
 			}
 
 			return { data, examined };
@@ -130,7 +75,68 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
 		const mon = await getSinglePokemon(id, thisFetch);
-		return mon ? [mon] : [];
+		return mon ? [this.makePokemon(mon, undefined)] : [];
+	}
+
+	private makePokemon(
+		p: MinMapObject<PokemonData>,
+		filter: FilterPokemon | undefined
+	): PokemonData {
+		const pokemon = {
+			id: p.id,
+			lat: round(p.lat, 6),
+			lon: round(p.lon, 6),
+			pokemon_id: p.pokemon_id,
+			form: getNormalizedForm(p.pokemon_id, p.form),
+			costume: p.costume,
+			gender: p.gender,
+			alignment: p.alignment,
+			bread_mode: p.bread_mode,
+			temp_evolution_id: p.temp_evolution_id,
+			cp: p.cp,
+			level: p.level,
+			iv: p.iv !== undefined ? round(p.iv, 2) : undefined,
+			atk_iv: p.atk_iv,
+			def_iv: p.def_iv,
+			sta_iv: p.sta_iv,
+			size: p.size,
+			weather: p.weather,
+			strong: p.strong,
+			move_1: p.move_1,
+			move_2: p.move_2,
+			expire_timestamp: p.expire_timestamp,
+			expire_timestamp_verified: p.expire_timestamp_verified,
+			first_seen_timestamp: p.first_seen_timestamp,
+			updated: p.updated,
+			changed: p.changed,
+			display_pokemon_id: p.display_pokemon_id,
+			display_pokemon_form: getNormalizedForm(p.display_pokemon_id, p.display_pokemon_form),
+			seen_type: p.seen_type
+		} as PokemonData;
+
+		const littleRankings: PvpStats[] = [];
+		const greatRankings: PvpStats[] = [];
+		const ultraRankings: PvpStats[] = [];
+
+		for (const rankings of p.pvp?.little ?? []) {
+			if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
+				littleRankings.push(rankings);
+		}
+		for (const rankings of p.pvp?.great ?? []) {
+			if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
+				greatRankings.push(rankings);
+		}
+		for (const rankings of p.pvp?.ultra ?? []) {
+			if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
+				ultraRankings.push(rankings);
+		}
+		if (littleRankings.length || greatRankings.length || ultraRankings.length) {
+			pokemon.pvp = {};
+			if (littleRankings.length) pokemon.pvp.little = littleRankings;
+			if (greatRankings.length) pokemon.pvp.great = greatRankings;
+			if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings;
+		}
+		return pokemon;
 	}
 
 	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {
