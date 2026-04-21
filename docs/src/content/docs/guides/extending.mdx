@@ -3,7 +3,7 @@ title: Extending Diadem
 description: Customize the homepage, styling, and custom components
 ---
 
-import { FileTree } from '@astrojs/starlight/components';
+import { FileTree } from "@astrojs/starlight/components";
 
 ## Project structure
 
@@ -12,24 +12,10 @@ to easily add your own styles and home page.
 For advanced extensions, you can use the designated `custom*` directories.
 
 <FileTree>
-	- config
-		- Home.svelte Link to /src/components/custom/Home.svelte
-		- custom.css Link to /src/custom.css
-	- src
-		- components
-			- custom
-				- Home.svelte
-				- ... Add your own components
-		- routes
-			- (custom)
-				- ... Add your own routes
-		- custom.css Add your own styles
-	- static
-		- custom
-			- ... Add your own assets (fonts, images, ...)
-	- messages
-		- en.json
-		- ...
+	- config - Home.svelte Link to /src/components/custom/Home.svelte - custom.css Link to
+	/src/custom.css - src - components - custom - Home.svelte - ... Add your own components - routes -
+	(custom) - ... Add your own routes - custom.css Add your own styles - static - custom - ... Add
+	your own assets (fonts, images, ...) - messages - en.json - ...
 </FileTree>
 
 ## Custom home page
@@ -45,6 +31,7 @@ When enabled, `/` renders `src/components/custom/Home.svelte`. The map is made a
 You can use this to extend Diadem into a full webfront for your mapping project.
 
 Relevant documentation:
+
 - [Svelte](https://svelte.dev/docs)
 - [SvelteKit](https://svelte.dev/docs/kit/introduction)
 - [Tailwind CSS](https://tailwindcss.com/docs)
@@ -60,16 +47,7 @@ It is imported before app styles in `src/app.css`, so you can change theming as 
 
 You can create your own `/about` or `/status` page like this.
 
-<FileTree>
-	- src
-		- routes
-			- (custom)
-				- about
-					- +page.svelte
-				- status
-					- +page.svelte
-				- ...
-</FileTree>
+<FileTree>- src - routes - (custom) - about - +page.svelte - status - +page.svelte - ...</FileTree>
 
 Refer to the [SvelteKit documentation](https://svelte.dev/docs/kit/introduction) to learn more about routing.
 

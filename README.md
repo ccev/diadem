@@ -10,7 +10,7 @@
 
 ## Contributing
 
-If you want to contribute anything, feel free to fork this repo and open a pull request. PRs from LLMs are okay, 
+If you want to contribute anything, feel free to fork this repo and open a pull request. PRs from LLMs are okay,
 but only when the scope is manageable.
 
 To set up a local dev environment, follow the setup instructions and run `pnpm run dev`.

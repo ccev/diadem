@@ -43,7 +43,11 @@
 	{/if}
 
 	<MenuGeneric title={m.settings_theme()}>
-		<RadioGroup value={mode.current} onValueChange={setThemeMode} class="self-center justify-center">
+		<RadioGroup
+			value={mode.current}
+			onValueChange={setThemeMode}
+			class="self-center justify-center"
+		>
 			<SelectGroupItem class="p-4" value="light">
 				<Sun size="20" />
 				{m.theme_light()}
