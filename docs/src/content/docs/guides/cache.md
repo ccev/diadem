@@ -5,7 +5,7 @@ title: Caching
 Diadem proxies all external resources through its own server, so your users don't have to directly hit external links,
 and so it can optimize the resources.
 
-Some of these resources are set up to be cached by clients by default, but it's recommended
+Some of these resources are set up to be cached by clients by default, but it's recommended 
 to set up your own Caching layer, to act as a CDN.
 
 ## UIcons

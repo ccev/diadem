@@ -3,7 +3,8 @@ title: Installation
 description: How to set up Diadem
 ---
 
-import { Steps } from "@astrojs/starlight/components";
+import { Steps } from '@astrojs/starlight/components';
+
 
 This guide walks through the baseline install for a Diadem instance.
 
@@ -18,54 +19,53 @@ This guide walks through the baseline install for a Diadem instance.
 <Steps>
 	1. Set up the directory
 
-    	```bash
-    	git clone https://github.com/ccev/diadem
-    	cd diadem
-    	./setup.sh
-    	```
+		```bash
+		git clone https://github.com/ccev/diadem
+		cd diadem
+		./setup.sh
+		```
 
-    	Diadem's config files need to sit in specific places. `setup.sh` sets up syslinks to centralize them
-    	all in `/config` for your convenience.
+		Diadem's config files need to sit in specific places. `setup.sh` sets up syslinks to centralize them
+		all in `/config` for your convenience.
 
-    2. Configure
+	2. Configure
 
-    	Open `config/config.toml` and fill out as needed. [Find the reference here.](/reference/configuration/)
+		Open `config/config.toml` and fill out as needed. [Find the reference here.](/reference/configuration/)
 
-    3. Install dependencies and build
+	3. Install dependencies and build
 
-    	```bash
-    	pnpm install
-    	pnpm run build
-    	```
+		```bash
+		pnpm install
+		pnpm run build
+		```
 
-    4. Push the internal DB schema
+	4. Push the internal DB schema
 
-    	```bash
-    	pnpm run db:push
-    	```
+		```bash
+		pnpm run db:push
+		```
 
-    	This initializes Diadem tables (users/sessions) in `server.internalDb`.
+		This initializes Diadem tables (users/sessions) in `server.internalDb`.
 
-    5. Run
+	5. Run
 
-    	You may want to run Diadem using pm2.
+		You may want to run Diadem using pm2.
 
-    	```bash
-    	PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"
-    	```
+		```bash
+		PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"
+		```
 
-    6. Reverse Proxy (optional)
+	6. Reverse Proxy (optional)
 
-    	For production use, it's probably a good idea to set up Diadem behind a reverse proxy. Here's a
-    	configuration for [Caddy](https://caddyserver.com/) that works.
+		For production use, it's probably a good idea to set up Diadem behind a reverse proxy. Here's a
+		configuration for [Caddy](https://caddyserver.com/) that works.
 
-    	```
-    	example.com {
-    		root * /path/to/diadem/build
-    		reverse_proxy * 127.0.0.1:3900
-    	}
-    	```
-
+		```
+		example.com {
+			root * /path/to/diadem/build
+			reverse_proxy * 127.0.0.1:3900
+		}
+		```
 </Steps>
 
 ## Updating
@@ -73,16 +73,16 @@ This guide walks through the baseline install for a Diadem instance.
 <Steps>
 	1. Install dependencies and build
 
-    	```bash
-    	pnpm install
-    	pnpm run build
-    	```
-    2. Restart
-    	```bash
-    	pm2 restart diadem
-    	```
-
+		```bash
+		pnpm install
+		pnpm run build
+		```
+	2. Restart
+		```bash
+		pm2 restart diadem
+		```
 </Steps>
+
 
 ## Docker quick start
 
