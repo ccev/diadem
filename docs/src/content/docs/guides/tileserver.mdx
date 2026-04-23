@@ -1,0 +1,210 @@
+---
+title: Self-host map tiles 
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+
+Diadem uses MapLibre GL JS to render maps. Unlike previous maps, tile data is downloaded as vector data and rendered on the client. 
+There's great public-facing tile sources availale as defaults for Diadem, but you might want to host your own sources. 
+
+If you're already running your own tileserver, like [Rampardos](https://github.com/lenisko/rampardos), this is basically free. If not, 
+it will take you about 100GB of disk space for tiles covering the entire globe.
+
+Rampardos is not capable of serving the required data itself, you need to set up [Martin](https://martin.maplibre.org/). Below is a quick 
+guide on how to do that, you can also refer to the documentation for more exhaustive instructions.
+
+# Setting up Martin
+
+## Installation
+
+```bash
+mkdir martin && cd martin
+curl -L -O https://github.com/maplibre/martin/releases/latest/download/martin-x86_64-unknown-linux-musl.tar.gz
+tar -xzf martin-x86_64-unknown-linux-musl.tar.gz
+chmod +x ./martin
+```
+
+Check if you can run the martin binary
+
+```bash
+./martin --help
+```
+
+## Get mbtiles
+
+### If you're already running a tileserver
+
+Create a symlink to your existing mbtiles
+
+```bash
+ln -s /path/to/rampardos/TileServer/Datasets/Combined.mbtiles world.mbtiles
+```
+
+### If you don't
+
+You can search for a mbtiles dump for your desired region. If you want to provide tiles for entire globe, you can use this (Download is about 90GB)
+
+```bash
+wget https://btrfs.openfreemap.com/areas/planet/20260422_001001_pt/tiles.mbtiles
+mv tiles.mbtiles world.mbtiles
+```
+
+## Running Martin
+
+You should already be able to start Martin. Try opening it in your browser.
+
+```bash
+./martin world.mbtiles
+```
+
+### Set up a reverse proxy
+
+Martin will have to be available to the internet, as with all your other 
+public-facing services, you should set it up behind a reverse proxy.
+
+Sample config using Caddy
+
+```
+exmaple.com {
+	reverse_proxy 127.0.0.1:3000
+	
+	# or behind a path
+	# reverse_proxy /tiles* 127.0.0.1:3000
+}
+```
+
+Now restart Martin running on 127.0.0.1, and you should be able to reach it.
+
+```bash
+./martin world.mbtiles -l 127.0.0.1:3000
+```
+
+## Set up a config file
+
+```bash
+touch config.yml
+mkdir data && mkdir data/fonts && mkdir data/styles && mkdir data/sprites
+```
+
+Then paste the basic confer config from below. Refer to [Martin's documentation](https://maplibre.org/martin/config-file/) for further configuration options.
+
+You can now start Martin with the config. Note that it will throw an error since there's no styles defined yet.
+
+```bash
+./martin -c config.yml
+```
+
+### Directory
+
+This is how your directory will look like, and where your style definitions will go. You will learn how to set up a style in the next section.
+
+<FileTree>
+	- fonts
+		- noto Example font
+			- NotoSans-Regular.ttf
+			- ...
+	- sprites
+		- osm_liberty Example sprites
+			- airfield_1.svg
+	- styles
+		- osm_liberty.json Example style
+	- config.yml
+	- martin
+	- world.mbtiles
+</FileTree>
+
+### Example config
+
+```yml
+# refer to https://maplibre.org/martin/config-file/ for all options
+
+listen_addresses: "127.0.0.1:3000"
+
+# can be enable-for-all or disable
+# make sure to not expose this in prod use
+web_ui: disable
+
+# Set the URL path prefix for all API routes.
+# When set, Martin will serve all endpoints under this path prefix.
+# This allows Martin to be served under a subpath when behind a reverse proxy.
+# Must begin with a `/`.
+# Examples: `/tiles`, `/api/v1/tiles`
+route_prefix: null
+
+mbtiles:
+  paths:
+    - ./
+
+fonts:
+  paths:
+    - ./data/fonts
+
+styles:
+  paths:
+    - ./data/styles
+
+sprites:
+ paths:
+   # - ./data/sprites/osm_liberty
+```
+
+## Set up a style
+
+A style is defined via a JSON file, and might require sprites and fonts.
+
+You can use [Maputnik](https://maputnik.github.io/editor/) to find pre-made styles, edit and export them.
+
+To import a pre-existing style, click `Open` and select a style you like. Let's go with `OSM Liberty`.
+Now click on `Export` and then `Download`.
+
+### Prepare a style
+
+To make sure a Maputnik export works with your Martin installation, some 
+additional steps need to be taken. `world` is the name of your mbtiles file.
+
+1. Copy the downloaded json file to `data/styles` and set the name to its ID, for example `osm_liberty.json`
+2. Point `sources` to your own server
+
+	```json
+		"sources": {
+		    "openmaptiles": {
+		      "type": "vector",
+		      "url": "https://yourmartinurl.com/world"
+		    }
+		  },
+	```
+3. Point `sprite` and `glyphs` to your own server. `{yourspritename}` needs to be replaced with the sprite name you will choose in step 4. Usually, you can set it to the style ID, for example `osm_liberty`
+
+	```json
+		  "sprite": "https://yourmartinurl.com/sprite/{yourspritename}",
+		  "glyphs": "https://yourmartinurl.com/{fontstack}/{range}",
+	```
+4. Prepare the sprites
+	- Find the SVGs used in your map style. Maputnik's styles are open source, for example, you can find the icons used by OSM Liberty [in its GitHub repo](https://github.com/maputnik/osm-liberty/tree/gh-pages/svgs/svgs_iconset)
+	- Create a subdirectory in `data/sprites` and call it the same as your style ID, for example `osm_liberty`
+	- Copy the SVGs into that directory
+	- Add this new directory to `config.yml`. The example config already has it, just commented out
+5. Prepare the fonts
+	- Search the style.json for `text-font` to check which fonts it uses. You could also change the font name to one that you have already installed
+	- Your goal is find `ttf`, `otf` or `ttc` files for that font
+	- For example, OSM Liberty uses Roboto, which you can download the ttf files for on [Google Fonts](https://fonts.google.com/specimen/Roboto)
+	- Create a new directory under `data/fonts`, name it whatever you like, then copy the downloaded files there
+
+The style should now be set up and ready for use.
+
+## Point Diadem to your Martin instance
+
+Add the below example to your config and restart Diadem.
+
+```toml
+[[client.mapStyles]]
+id = "osm_liberty"
+name = "OSM Liberty"
+url = "https://yourmartinurl.com/tiles/style/osm_liberty"
+```
+
+## Set up cache (optional, but recommended) 
+
+It's recommended to set up a cache layer in front of your Martin instance, refer to [Set up Cloudflare Cache Rules](/guides/cache#set-up-cloudflare-cache-rules) for more information on that.
+
+All your tile data is very static, so you can choose very long TTLs.
