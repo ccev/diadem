@@ -29,7 +29,7 @@
 
 		map.on("styledataloading", onMapStyleDataLoading);
 		map.on("move", onMapMove); // needed for compass fab
-		handleRotatePitchDisable();
+		handleRotatePitchDisable(map);
 
 		onload && onload(map);
 	}

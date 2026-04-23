@@ -27,16 +27,16 @@ export function getMapStyleVersion() {
 	return mapStyleVersion;
 }
 
-export function handleRotatePitchDisable() {
+export function handleRotatePitchDisable(map: maplibre.Map) {
 	if (!getUserSettings().enableRotatePitch) {
-		map?.dragRotate.disable();
-		map?.keyboard.disableRotation();
-		map?.touchZoomRotate.disableRotation();
-		map?.touchPitch.disable();
+		map.dragRotate.disable();
+		map.keyboard.disableRotation();
+		map.touchZoomRotate.disableRotation();
+		map.touchPitch.disable();
 	} else {
-		map?.dragRotate.enable();
-		map?.keyboard.enableRotation();
-		map?.touchZoomRotate.enableRotation();
-		map?.touchPitch.enable();
+		map.dragRotate.enable();
+		map.keyboard.enableRotation();
+		map.touchZoomRotate.enableRotation();
+		map.touchPitch.enable();
 	}
 }
