@@ -3,7 +3,7 @@
 🌠 Next-gen map frontend for Pokémon GO
 
 - [Docs](https://diadem.malt.ee) for feature overview and setup instructions
-- [Demo](https://beta.demap.co/map) to check it out right now
+- [Demo](https://demap.co/map) to check it out right now
 - [Discord](https://discord.com/invite/VGgsQN2hYG) for support and discussions
 
 ![](https://raw.githubusercontent.com/ccev/diadem/refs/heads/main/.github/readme.png)
