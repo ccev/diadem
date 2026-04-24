@@ -57,13 +57,14 @@ export type DbCreds = {
 type Auth = {
 	enabled: boolean;
 	optional: boolean;
+	secret?: string;
+	baseUrl?: string;
 	discord?: AuthDiscord;
 };
 
 type AuthDiscord = {
 	clientId: string;
 	clientSecret: string;
-	redirectUri: string;
 };
 
 type ClientDiscord = {

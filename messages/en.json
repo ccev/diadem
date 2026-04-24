@@ -136,6 +136,7 @@
 	"quest_noar_notice": "You can't hold an AR-Scan task while spinning",
 	"signin_toast_error": "Error while signing in, please try again",
 	"signin_toast_success": "Signed in as {name}",
+	"signout_toast_error": "Error while signing out, please try again",
 	"signout": "Unlink Discord",
 	"nav_profile": "Profile",
 	"signin_prompt_part_1": "",

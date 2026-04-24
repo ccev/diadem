@@ -37,11 +37,12 @@ projectName = "reactmap"
 [server.auth]
 enabled = true
 optional = true
+secret = ""   # Required when enabled. Random 32+ chars (or set BETTER_AUTH_SECRET env)
+baseUrl = ""  # Required when enabled. Public app URL, e.g. "https://map.co"
 
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "https://map.co/login/discord/callback"
 
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
@@ -280,4 +281,3 @@ url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Hal
 
 base = { scale = 0.25 }
 pokemon = { scale = 0.4 }
-

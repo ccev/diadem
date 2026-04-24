@@ -1,26 +1,27 @@
 import type { Handle, ServerInit } from "@sveltejs/kit";
+import { building } from "$app/environment";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { getOrCreateUserFromDiscordId } from "@/lib/server/auth/auth";
 import {
-	deleteSessionTokenCookie,
-	invalidateSession,
-	makeNewSession,
-	sessionCookieName,
-	setSessionTokenCookie,
-	validateSessionToken
-} from "@/lib/server/auth/auth";
+	assertBetterAuthStartupReadiness,
+	auth,
+	getAuthSession,
+	getDiscordAccessToken,
+	isAuthFeatureEnabled
+} from "@/lib/server/auth/betterAuth";
 import TTLCache from "@isaacs/ttlcache";
 import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
-import { DISCORD_REFRESH_INTERVAL, PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
-import { getDiscordAuth } from "@/lib/server/auth/discord";
+import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import type { Perms } from "@/lib/utils/features";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
 import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
-import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
+import { getClientConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
-import { locales, serverAsyncLocalStorage, setLocale } from "@/lib/paraglide/runtime";
+import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 
 process.title = "Diadem";
 
@@ -44,61 +45,57 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
 });
+const authLogger = getServerLogger("auth");
+const permissionUpdateInFlight = new Map<string, Promise<Perms>>();
+
+function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typeof fetch) {
+	let updatePromise = permissionUpdateInFlight.get(user.id);
+	if (!updatePromise) {
+		updatePromise = updatePermissions(user, accessToken, thisFetch).finally(() => {
+			permissionUpdateInFlight.delete(user.id);
+		});
+		permissionUpdateInFlight.set(user.id, updatePromise);
+	}
+	return updatePromise;
+}
+
+const handleBetterAuth: Handle = async ({ event, resolve }) => {
+	if (!auth) return resolve(event);
+	return svelteKitHandler({ event, resolve, auth, building });
+};
 
 const handleAuth: Handle = async ({ event, resolve }) => {
-	const sessionToken = event.cookies.get(sessionCookieName);
-
 	event.locals.perms = await getEveryonePerms(event.fetch);
+	event.locals.user = null;
+	event.locals.session = null;
+	event.locals.authUser = null;
 
-	if (!sessionToken) {
-		event.locals.user = null;
-		event.locals.session = null;
-
+	if (!isAuthFeatureEnabled()) {
 		return resolve(event);
 	}
 
-	const { session, user } = await validateSessionToken(sessionToken);
-
-	if (session) {
-		setSessionTokenCookie(event, sessionToken, session.expiresAt);
-	} else {
-		deleteSessionTokenCookie(event);
+	const authSession = await getAuthSession(event);
+	if (!authSession?.session || !authSession.user) {
+		return resolve(event);
 	}
 
-	if (user && !permissionCache.has(user.id)) {
-		user.permissions = await updatePermissions(user as User, session.discordToken, event.fetch);
+	const discordId = authSession.user.discordId;
+	if (!discordId) {
+		authLogger.warning("Authenticated user has no discordId in Better Auth session");
+		return resolve(event);
+	}
+
+	const user = await getOrCreateUserFromDiscordId(discordId);
+	if (!permissionCache.has(user.id)) {
+		const accessToken = await getDiscordAccessToken(event);
+		user.permissions = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
 		permissionCache.set(user.id, undefined);
 	}
 
-	// Refresh Discord Auth if necessary
-	const discord = getDiscordAuth();
-	if (
-		discord &&
-		session &&
-		session.discordLastRefresh < new Date(Date.now() - DISCORD_REFRESH_INTERVAL * 1000)
-	) {
-		console.log("Refreshing Discord auth token for user " + user.id);
-
-		try {
-			const tokens = await discord.refreshAccessToken(session.discordRefreshToken);
-			await makeNewSession(
-				event,
-				user.id,
-				tokens.accessToken(),
-				tokens.refreshToken(),
-				tokens.accessTokenExpiresAt()
-			);
-			await invalidateSession(session.id);
-		} catch (e) {
-			console.error("Error while refreshing discord token: " + e.toString());
-			await invalidateSession(session.id);
-			// TODO: handle this properly
-		}
-	}
-
 	event.locals.user = user;
-	event.locals.session = session;
-	if (user) event.locals.perms = user.permissions as Perms;
+	event.locals.session = authSession.session;
+	event.locals.authUser = authSession.user;
+	event.locals.perms = user.permissions;
 	return resolve(event);
 };
 
@@ -117,6 +114,8 @@ export const init: ServerInit = async () => {
 			crit: (message, ...args) => winstonLogger.crit(message, ...args)
 		};
 	});
+
+	await assertBetterAuthStartupReadiness();
 
 	const { initDiadem } = await import("@/lib/server/init");
 	await initDiadem();
@@ -197,4 +196,4 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 	});
 };
 
-export const handle: Handle = sequence(paraglideHandle, handleAuth, handleSeo);
+export const handle: Handle = sequence(paraglideHandle, handleBetterAuth, handleAuth, handleSeo);
