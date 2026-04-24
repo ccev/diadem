@@ -103,22 +103,25 @@ url = "http://127.0.0.1:5000/"
 [server.auth]
 enabled = true
 optional = true
+secret = ""
+baseUrl = ""
 ```
 
 - `enabled`: Enables authentication
 - `optional`: If `true`, show a login prompt in the menu. If `false`, lock the app behind a login prompt.
+- `secret`: Required when enabled. Random 32+ chars used to sign/encrypt auth cookies and OAuth tokens. Can also be set via the `BETTER_AUTH_SECRET` or `AUTH_SECRET` env var.
+- `baseUrl`: Required when enabled. Public app URL (scheme + host only), e.g. `https://map.example.com`.
 
 ```toml
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "https://map.example.com/login/discord/callback"
 ```
 
 Currently, only Discord auth is supported.
 
 Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications)
-and enabling OAuth2. Make sure to set up a redirect that matches the value in `redirectUri` and points to your domain.
+and enabling OAuth2. The callback URL is `<baseUrl>/api/auth/callback/discord` — register this exact URL in the Discord OAuth app's redirect list.
 
 ## `client.discord`
 

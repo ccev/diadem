@@ -1,40 +1,56 @@
 import { json } from "@sveltejs/kit";
-import { getUserInfo, isGuildMember } from "@/lib/server/auth/discordDetails";
+import { getUserInfoResult, isGuildMember } from "@/lib/server/auth/discordDetails";
 import type { UserData } from "@/lib/services/user/userDetails.svelte";
-import { DISCORD_REFRESH_INTERVAL } from "@/lib/constants";
-import {
-	deleteSessionTokenCookie,
-	invalidateSession,
-	makeNewSession
-} from "@/lib/server/auth/auth";
-import { getDiscordAuth } from "@/lib/server/auth/discord";
-import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
+import { getClientConfig } from "@/lib/services/config/config.server";
 import { getEveryonePerms } from "@/lib/server/auth/permissions";
+import { getDiscordAccessToken, signOut } from "@/lib/server/auth/betterAuth";
+import { getServerLogger } from "@/lib/server/logging";
+import type { RequestHandler } from "./$types";
 
-export async function GET(event) {
+const authLogger = getServerLogger("auth");
+
+export const GET: RequestHandler = async (event) => {
 	const user = event.locals.user;
-	const session = event.locals.session;
 
-	if (!user)
-		return json({
-			permissions: await getEveryonePerms(event.fetch)
-		} as UserData);
-
-	const data = await getUserInfo(session.discordToken);
-
-	if (!data) {
-		await invalidateSession(event.locals.session.id);
-		deleteSessionTokenCookie(event);
+	if (!user) {
 		return json({
 			permissions: await getEveryonePerms(event.fetch)
 		} as UserData);
 	}
 
-	const isMember = await isGuildMember(getClientConfig().discord.serverId, session.discordToken);
+	const accessToken = await getDiscordAccessToken(event);
+	if (!accessToken) {
+		return json({
+			permissions: user.permissions
+		} as UserData);
+	}
+
+	const userInfoResult = await getUserInfoResult(accessToken);
+	const data = userInfoResult.data;
+
+	if (!data) {
+		if (userInfoResult.status === 401) {
+			await signOut(event);
+			return json({
+				permissions: await getEveryonePerms(event.fetch)
+			} as UserData);
+		}
+
+		return json({
+			permissions: user.permissions
+		} as UserData);
+	}
+
+	let isMember: boolean | undefined;
+	try {
+		isMember = await isGuildMember(getClientConfig().discord.serverId, accessToken);
+	} catch (error) {
+		authLogger.warning(`Error checking Discord guild membership: ${error}`);
+	}
 
 	return json({
 		details: data,
 		permissions: user.permissions,
 		isGuildMember: isMember
 	} as UserData);
-}
+};

@@ -1,8 +1,12 @@
 import { json } from "@sveltejs/kit";
-import { getServerConfig, isAuthRequired } from "@/lib/services/config/config.server";
+import { getServerConfig } from "@/lib/services/config/config.server";
+import { isAuthFeatureEnabled, isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";
+import type { RequestHandler } from "./$types";
 
-export async function GET({ locals }) {
+export const GET: RequestHandler = async ({ locals }) => {
 	const config = getServerConfig();
+	const authEnabled = isAuthFeatureEnabled();
+	const authRequired = isAuthRequiredEnabled();
 
 	return json({
 		koji: !!config.koji && !!config.koji.url,
@@ -10,8 +14,8 @@ export async function GET({ locals }) {
 			(!!config.nominatim && !!config.nominatim.url) ||
 			(!!config.pelias && !!config.pelias.url) ||
 			(!!config.photon && !!config.photon.url),
-		auth: !!config.auth?.enabled,
-		authRequired: isAuthRequired(),
-		showFullscreenLogin: isAuthRequired() && !locals.user
+		auth: authEnabled,
+		authRequired,
+		showFullscreenLogin: authRequired && !locals.user
 	});
-}
+};
