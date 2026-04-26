@@ -33,7 +33,7 @@
 	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
 	import { FeatureTypes } from "@/lib/map/render/featureTypes";
 	import MapCommon from "@/components/map/MapCommon.svelte";
-	import { getMapPositionFromUrlParams } from "@/components/map/mapPositionParams";
+	import { clearMapPositionUrlParams, getMapPositionFromUrlParams } from "@/components/map/mapPositionParams";
 	import { Coords } from "@/lib/utils/coordinates";
 
 	let {
@@ -119,6 +119,7 @@
 		isInitUpdatedMapObjects = false;
 		setMap(undefined);
 		updateCurrentPath();
+		clearMapPositionUrlParams();
 	});
 
 	onDestroy(() => {

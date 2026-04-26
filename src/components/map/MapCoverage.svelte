@@ -8,7 +8,11 @@
 		setCoverageMap
 	} from "@/lib/features/coverageMap.svelte";
 	import MapCommon from "@/components/map/MapCommon.svelte";
-	import { getMapPositionFromUrlParams } from "@/components/map/mapPositionParams";
+	import {
+		clearMapPositionUrlParams,
+		getMapPositionFromUrlParams
+	} from "@/components/map/mapPositionParams";
+	import { onMount } from "svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { Coords } from "@/lib/utils/coordinates";
 

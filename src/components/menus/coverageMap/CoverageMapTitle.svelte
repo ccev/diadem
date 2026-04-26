@@ -25,7 +25,6 @@
 			size="sm"
 			variant="outline"
 			onclick={() => {
-				closeMenu();
 				goto("/map");
 			}}
 		>

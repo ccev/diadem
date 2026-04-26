@@ -15,6 +15,7 @@ import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
 import { page } from "$app/state";
+import { replaceState } from "$app/navigation";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -53,7 +54,7 @@ export function getCurrentPath() {
 }
 
 function setCurrentPath() {
-	history.replaceState(null, "", getCurrentPath());
+	replaceState(getCurrentPath(), {});
 }
 
 export function clickMapHandler(event: MapMouseEvent) {

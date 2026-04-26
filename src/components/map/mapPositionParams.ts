@@ -1,3 +1,4 @@
+import { replaceState } from "$app/navigation";
 import { Coords } from "@/lib/utils/coordinates";
 
 export function getMapPositionFromUrlParams(): [Coords | undefined, number | undefined] {
@@ -18,7 +19,10 @@ export function getMapPositionFromUrlParams(): [Coords | undefined, number | und
 		zoom = paramZoom;
 	}
 
-	history.replaceState({}, "", window.location.origin + window.location.pathname);
-
 	return [center, zoom];
+}
+
+export function clearMapPositionUrlParams() {
+	if (!window.location.search) return;
+	replaceState(window.location.origin + window.location.pathname, {});
 }
