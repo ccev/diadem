@@ -13,7 +13,7 @@
 		showCoverageMapTitle
 	} from "@/lib/features/coverageMap.svelte.js";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
-	import { onDestroy, onMount } from "svelte";
+	import { onDestroy, onMount, tick } from "svelte";
 	import { closePopup } from "@/lib/mapObjects/interact";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type maplibre from "maplibre-gl";
@@ -28,7 +28,8 @@
 	let map: maplibre.Map | undefined = $state(undefined);
 	openMenu(Menu.COVERAGE_MAP);
 
-	onMount(() => {
+	onMount(async () => {
+		await tick();
 		setMap(undefined);
 		openMenu(Menu.COVERAGE_MAP);
 		closePopup();
