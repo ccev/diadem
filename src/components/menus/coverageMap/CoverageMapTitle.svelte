@@ -9,7 +9,7 @@
 </script>
 
 <div
-	class="w-full pl-4 pr-2 py-2 flex items-center justify-between bg-card rounded-lg border border-border"
+	class="w-full pl-4 pr-2 py-2 flex flex-wrap gap-2 items-center justify-between bg-card rounded-lg border border-border"
 >
 	<h1 class="font-semibold">
 		{m.nav_coveragemap()}
