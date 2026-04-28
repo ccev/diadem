@@ -36,7 +36,7 @@ export async function getUserInfo(accessToken: string): Promise<DiscordUser | un
 	return {
 		id: user.id,
 		username: "@" + user.username,
-		displayName: user.global_name,
+		displayName: user.global_name || user.username || "",
 		avatarUrl: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`
 	};
 }
