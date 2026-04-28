@@ -19,7 +19,7 @@
 		class="rounded-lg border bg-card text-card-foreground shadow-md overflow-hidden"
 		class:animate-pulse={isLoggingOut}
 	>
-		<div class="p-4 flex items-center justify-start gap-4 w-full">
+		<div class="p-4 flex flex-wrap items-center justify-start gap-4 w-full">
 			<Avatar.Root
 				class="shrink-0 bg-muted text-muted-foreground h-12 w-12 rounded-full text-lg uppercase"
 			>
@@ -31,7 +31,7 @@
 				</div>
 			</Avatar.Root>
 
-			<p>
+			<p class="flex-1">
 				<b class="-mb-1">
 					{details.displayName}
 				</b>
@@ -40,34 +40,16 @@
 					{details.username}
 				</span>
 			</p>
-			<div class="flex-1 flex justify-end">
+			<div class="flex justify-end flex-1">
 				{#if !getUserDetails().isGuildMember}
-					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2">
+					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2 basis-full">
 						{m.join_server()}
 					</Button>
 				{/if}
-				<LogOutButton class="" size="icon" variant="outline" title={m.signout()} bind:isLoggingOut>
-					<!--{m.signout()}-->
+				<LogOutButton class="shrink-0" size="icon" variant="outline" title={m.signout()} bind:isLoggingOut>
 					<Link2Off size="16" />
 				</LogOutButton>
 			</div>
 		</div>
-		<!--{:else}-->
-		<!--		<Button-->
-		<!--			class="p-4 gap-3! items-center w-full rounded-md"-->
-		<!--			variant="ghost"-->
-		<!--			tag="a"-->
-		<!--			href={getLoginLink()}-->
-		<!--			size=""-->
-		<!--		>-->
-		<!--			<DiscordIcon class="w-4 fill-foreground shrink-0" />-->
-		<!--			<p>-->
-		<!--				{m.signin_prompt_part_1()}-->
-		<!--				<b class="underline">-->
-		<!--				{m.signin_prompt_bold()}-->
-		<!--				</b>-->
-		<!--				{m.signin_prompt_part_2()}-->
-		<!--			</p>-->
-		<!--		</Button>-->
 	</div>
 {/if}
