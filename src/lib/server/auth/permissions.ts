@@ -102,7 +102,7 @@ export async function getPermsFromRoleIds(
 		JSON.stringify(await getEveryonePerms(thisFetch, geofences))
 	);
 
-	if (permConfig && authConfig.enabled) {
+	if (permConfig && (authConfig.enabled || authConfig.headerAuth?.enabled)) {
 		for (const rule of permConfig) {
 			let ruleApplies = !!rule.loggedIn || !!rule.everyone;
 
