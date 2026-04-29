@@ -51,7 +51,13 @@ function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | un
 	}
 }
 
+function rulesNeedAreas(rules: ConfigRule[] | undefined): boolean {
+	return !!rules?.some((rule) => rule.areas && rule.areas.length > 0);
+}
+
 async function getGeofences(thisFetch: typeof fetch) {
+	if (!rulesNeedAreas(getServerConfig().permissions)) return undefined;
+
 	const data = await fetchKojiGeofences(thisFetch);
 	if (!data) {
 		log.error("Koji error while handling permissions. All area-based permissions are ignored");
