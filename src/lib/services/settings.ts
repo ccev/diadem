@@ -31,6 +31,10 @@ export const AVAILABLE_LANGUAGES = [
 	{
 		label: m.language_portuguese(),
 		value: "pt"
+	},
+	{
+		label: m.language_polish(),
+		value: "pl"
 	}
 ];
 
