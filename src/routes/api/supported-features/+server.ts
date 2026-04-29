@@ -10,7 +10,7 @@ export async function GET({ locals }) {
 			(!!config.nominatim && !!config.nominatim.url) ||
 			(!!config.pelias && !!config.pelias.url) ||
 			(!!config.photon && !!config.photon.url),
-		auth: !!config.auth?.enabled,
+		auth: !!config.auth?.enabled || !!config.auth?.headerAuth?.enabled,
 		authRequired: isAuthRequired(),
 		showFullscreenLogin: isAuthRequired() && !locals.user
 	});

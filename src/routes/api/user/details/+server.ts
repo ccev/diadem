@@ -30,6 +30,7 @@ export async function GET(event) {
 				avatarUrl: user.avatarUrl ?? ""
 			},
 			permissions: user.permissions,
+			isGuildMember: true,
 			isHeaderAuth: true
 		} as UserData);
 	}
