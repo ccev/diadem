@@ -30,11 +30,14 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 
 		// set locale for ssr metadata
 		const langParam = event.url.searchParams.get("lang");
-		if (langParam && (locales as readonly string[]).includes(langParam)) {
+		const isValidLang = !!langParam && (locales as readonly string[]).includes(langParam);
+		if (isValidLang) {
 			const store = serverAsyncLocalStorage?.getStore();
 			if (store) store.locale = langParam as (typeof locales)[number];
 		}
-		const effectiveLocale = langParam ?? locale;
+		// Use the validated lang only — `effectiveLocale` is interpolated into
+		// `<html lang="%lang%">` so any unvalidated value is reflected XSS.
+		const effectiveLocale = isValidLang ? langParam! : locale;
 
 		return resolve(event, {
 			transformPageChunk: ({ html }) => html.replace("%lang%", effectiveLocale)
