@@ -43,6 +43,33 @@ clientId = ""
 clientSecret = ""
 redirectUri = "https://map.co/login/discord/callback"
 
+# Optional: trust an upstream auth gateway (e.g. nginx `auth_request`) that
+# forwards user identity via request headers. When enabled, presence of
+# `X-User-ID` on a request authenticates the user, populates locals.user, and
+# bypasses the cookie session flow.
+#
+# Forwarded headers (set by the gateway, never trust from a direct client):
+#   X-User-ID            Discord user ID
+#   X-User-Username      Discord username (no @ prefix)
+#   X-User-Display-Name  Optional, falls back to username
+#   X-User-Avatar-Hash   Optional, Discord avatar hash; renders avatar via cdn.discordapp.com
+#   X-User-Roles         Comma-separated role names (display only)
+#   X-User-Role-IDs      Comma-separated role IDs (used for permission rules)
+#
+# Diadem MUST be bound to 127.0.0.1 (or otherwise unreachable directly) so
+# clients cannot spoof these headers.
+#
+# `guildIds` lists guild IDs the gateway is configured to vouch for. Required
+# only if you have permission rules that match by `guildId` alone (no roleId).
+#
+# `gatewaySecret` is an optional shared secret. When set, the gateway must
+# forward `X-Gateway-Secret` matching this value or the request is rejected.
+# Recommended as defense in depth even when bound to 127.0.0.1.
+#[server.auth.headerAuth]
+#enabled = true
+#guildIds = ["1359028304128245934"]
+#gatewaySecret = "long-random-string"
+
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
 serverId = "1359028304128245934"

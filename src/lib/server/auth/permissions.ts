@@ -75,6 +75,46 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 	return everyonePerms;
 }
 
+/**
+ * Compute permissions for a user authenticated via upstream auth gateway
+ * (e.g. nginx auth_request). Role IDs come from the `X-User-Role-IDs` header.
+ * Guild membership for `guildId`-only rules is granted when the rule's
+ * guildId is listed in `auth.headerAuth.guildIds`, since the gateway only
+ * forwards roles for guilds it is configured to vouch for.
+ */
+export async function getPermsFromRoleIds(
+	roleIds: string[],
+	thisFetch: typeof fetch
+): Promise<Perms> {
+	const config = getServerConfig();
+	const authConfig = config.auth;
+	const permConfig = config.permissions;
+	const trustedGuildIds = new Set(authConfig.headerAuth?.guildIds ?? []);
+
+	const geofences = await getGeofences(thisFetch);
+	const permissions: Perms = JSON.parse(
+		JSON.stringify(await getEveryonePerms(thisFetch, geofences))
+	);
+
+	if (permConfig && authConfig.enabled) {
+		for (const rule of permConfig) {
+			let ruleApplies = !!rule.loggedIn || !!rule.everyone;
+
+			if (!ruleApplies && rule.guildId) {
+				if (rule.roleId && roleIds.includes(rule.roleId)) {
+					ruleApplies = true;
+				} else if (!rule.roleId && trustedGuildIds.has(rule.guildId)) {
+					ruleApplies = true;
+				}
+			}
+
+			if (ruleApplies) handleRule(rule, permissions, geofences);
+		}
+	}
+
+	return permissions;
+}
+
 export async function updatePermissions(user: User, accessToken: string, thisFetch: typeof fetch) {
 	const guildCache: { [key: string]: DiscordGuildData } = {};
 	const authConfig = getServerConfig().auth;

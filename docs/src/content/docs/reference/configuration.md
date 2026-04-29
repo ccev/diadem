@@ -120,6 +120,47 @@ Currently, only Discord auth is supported.
 Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications)
 and enabling OAuth2. Make sure to set up a redirect that matches the value in `redirectUri` and points to your domain.
 
+### `server.auth.headerAuth`
+
+```toml
+[server.auth.headerAuth]
+enabled = true
+guildIds = ["123..."]
+```
+
+Optional. Trust an upstream auth gateway (such as nginx `auth_request`) to
+authenticate users via forwarded headers instead of a cookie session. When
+enabled and `X-User-ID` is present on a request, Diadem builds `locals.user`
+from the headers and skips the cookie path entirely.
+
+Forwarded headers (set by the gateway, never trust from a direct client):
+
+- `X-User-ID` — Discord user ID
+- `X-User-Username` — Discord username (no `@` prefix)
+- `X-User-Display-Name` — optional, falls back to the username when missing
+- `X-User-Avatar-Hash` — optional Discord avatar hash; rendered via
+  `https://cdn.discordapp.com/avatars/{id}/{hash}.webp?size=256`. When missing,
+  the UI falls back to the initial-letter avatar
+- `X-User-Roles` — comma-separated role names, used for display only
+- `X-User-Role-IDs` — comma-separated role IDs, matched against `roleId` in
+  `server.permissions` rules
+
+Diadem MUST be bound to `127.0.0.1` (or otherwise unreachable directly) so
+clients cannot spoof these headers. The gateway is responsible for stripping
+any incoming user headers before forwarding.
+
+- `enabled`: turn header-based auth on
+- `guildIds`: guild IDs the gateway is trusted to vouch for. Required only if
+  you have `[[server.permissions]]` rules that match by `guildId` alone
+  (without a `roleId`); rules with a `roleId` work without it.
+- `gatewaySecret`: optional shared secret. When set, the gateway must forward
+  `X-Gateway-Secret` matching this value or the request is rejected. Use as
+  defense in depth in case the service is accidentally exposed beyond
+  `127.0.0.1`.
+
+Cookie-based Discord OAuth still works alongside header auth — header auth
+takes precedence whenever the request carries `X-User-ID`.
+
 ## `client.discord`
 
 ```toml

@@ -20,6 +20,19 @@ export async function GET(event) {
 			permissions: await getEveryonePerms(event.fetch)
 		} as UserData);
 
+	// Header-auth path: user came from upstream gateway, no Discord session.
+	if (event.locals.authSource === "header") {
+		return json({
+			details: {
+				id: user.discordId,
+				username: user.username ? "@" + user.username : "",
+				displayName: user.displayName || user.username || "",
+				avatarUrl: user.avatarUrl ?? ""
+			},
+			permissions: user.permissions
+		} as UserData);
+	}
+
 	const data = await getUserInfo(session.discordToken);
 
 	if (!data) {
