@@ -46,9 +46,17 @@
 						{m.join_server()}
 					</Button>
 				{/if}
-				<LogOutButton class="shrink-0" size="icon" variant="outline" title={m.signout()} bind:isLoggingOut>
-					<Link2Off size="16" />
-				</LogOutButton>
+				{#if !getUserDetails().isHeaderAuth}
+					<LogOutButton
+						class="shrink-0"
+						size="icon"
+						variant="outline"
+						title={m.signout()}
+						bind:isLoggingOut
+					>
+						<Link2Off size="16" />
+					</LogOutButton>
+				{/if}
 			</div>
 		</div>
 	</div>

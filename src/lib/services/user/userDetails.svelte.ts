@@ -6,6 +6,7 @@ export type UserData = {
 	details?: DiscordUser;
 	permissions: Perms;
 	isGuildMember?: boolean;
+	isHeaderAuth?: boolean;
 };
 
 let userDetails: UserData = $state({
