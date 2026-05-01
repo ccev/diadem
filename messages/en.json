@@ -15,7 +15,7 @@
 	"settings_advanced": "Advanced settings",
 	"settings_load_map_objects_while_moving_title": "Aggressive Map Updates",
 	"settings_load_map_objects_while_moving_description": "⚠ Major performance impact! Fetch data while moving the map",
-	"settings_load_map_objects_padding_title": "Map Update Size",
+	"settings_load_map_objects_padding_title": "Prefetch buffer",
 	"settings_load_map_objects_padding_description": "Additional pixels to fetch around the map's bounding box",
 	"settings_language": "Language",
 	"language_auto": "Auto",
