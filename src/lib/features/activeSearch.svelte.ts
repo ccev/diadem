@@ -33,6 +33,7 @@ export type ActiveSearchParams = {
 };
 
 let activeSearchSvelte: ActiveSearchParams | undefined = $state(undefined);
+let activeSearchLoading: boolean = $state(false);
 
 // setActiveSearch({
 // 	name: "Vulpix (Alola)",
@@ -65,14 +66,22 @@ export function isSearchViewActive() {
 	return Boolean(activeSearchSvelte);
 }
 
+export function isActiveSearchLoading() {
+	return activeSearchLoading;
+}
+
 export function setActiveSearch(newParams: ActiveSearchParams) {
 	activeSearchSvelte = newParams;
+	activeSearchLoading = true;
 	deleteAllFeatures();
-	updateAllMapObjects().then();
+	updateAllMapObjects().finally(() => {
+		activeSearchLoading = false;
+	});
 }
 
 export function resetActiveSearchFilter() {
 	activeSearchSvelte = undefined;
+	activeSearchLoading = false;
 	deleteAllFeatures();
 	updateAllMapObjects().then();
 }
