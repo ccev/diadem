@@ -12,7 +12,7 @@
 	"pogo_pokemon": "Pokémon",
 	"pogo_pokestops": "Pokéstops",
 	"pogo_gyms": "Gyms",
-	"settings_advanced": "Advanced",
+	"settings_advanced": "Advanced settings",
 	"settings_load_map_objects_while_moving_title": "Aggressive Map Updates",
 	"settings_load_map_objects_while_moving_description": "⚠ Major performance impact! Fetch data while moving the map",
 	"settings_load_map_objects_padding_title": "Map Update Size",
