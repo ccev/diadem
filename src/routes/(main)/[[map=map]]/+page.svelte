@@ -32,6 +32,7 @@
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import MapMain from "@/components/map/MapMain.svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
+	import { isOpenModal } from "@/lib/ui/modal.svelte";
 	import type maplibre from "maplibre-gl";
 	import { onDestroy, onMount } from "svelte";
 
@@ -82,7 +83,7 @@
 			{#if getOpenedMenu()}
 				<DesktopMenu />
 			{/if}
-			{#if !isSearchViewActive()}
+			{#if !isSearchViewActive() && !getOpenedMenu() && !isOpenModal("search")}
 				<BottomNav />
 			{/if}
 		{/snippet}
@@ -100,7 +101,7 @@
 				{/if}
 				<PopupContainer />
 			{/if}
-			{#if !isSearchViewActive()}
+			{#if !isSearchViewActive() && !getOpenedMenu() && !isOpenModal("search")}
 				<BottomNav />
 			{/if}
 		{/snippet}
