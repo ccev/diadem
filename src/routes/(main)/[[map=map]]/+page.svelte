@@ -83,7 +83,7 @@
 			{#if getOpenedMenu()}
 				<DesktopMenu />
 			{/if}
-			{#if !isSearchViewActive() && !getOpenedMenu() && !isOpenModal("search")}
+			{#if !isSearchViewActive() && !getOpenedMenu()}
 				<BottomNav />
 			{/if}
 		{/snippet}

@@ -41,7 +41,6 @@
 	// const results = $derived(search(debounced.current, true))
 </script>
 
-()
 <ModalTop
 	class="w-[calc(100%-1rem)]! max-w-2xl!"
 	modalType="search"
