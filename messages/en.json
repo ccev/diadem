@@ -377,7 +377,7 @@
 	"external_map_context_menu": "Selected location",
 	"google_maps": "Google Maps",
 	"apple_maps": "Apple Maps",
-	"settings_external_map_provider": "Open navigation links",
+	"settings_external_map_provider": "Navigate using",
 	"wayfarer_cells": "Wayfarer Cells",
 	"cell_level": "S2 Cell Level",
 	"redirect_title": "Bringing you to {goal}",
