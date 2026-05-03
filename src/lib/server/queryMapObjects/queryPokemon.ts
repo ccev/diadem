@@ -16,6 +16,7 @@ import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import {
 	getNormalizedForm,
+	League,
 	showGreat,
 	showLittle,
 	showPvp,
@@ -118,23 +119,32 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const greatRankings: PvpStats[] = [];
 		const ultraRankings: PvpStats[] = [];
 
-		for (const rankings of p.pvp?.little ?? []) {
+		for (const rankings of p.pvp?.[League.LITTLE] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
-				littleRankings.push(rankings);
+				littleRankings.push({
+					...rankings,
+					form: getNormalizedForm(rankings.pokemon, rankings.form)
+				});
 		}
-		for (const rankings of p.pvp?.great ?? []) {
+		for (const rankings of p.pvp?.[League.GREAT] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
-				greatRankings.push(rankings);
+				greatRankings.push({
+					...rankings,
+					form: getNormalizedForm(rankings.pokemon, rankings.form)
+				});
 		}
-		for (const rankings of p.pvp?.ultra ?? []) {
+		for (const rankings of p.pvp?.[League.ULTRA] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
-				ultraRankings.push(rankings);
+				ultraRankings.push({
+					...rankings,
+					form: getNormalizedForm(rankings.pokemon, rankings.form)
+				});
 		}
 		if (littleRankings.length || greatRankings.length || ultraRankings.length) {
 			pokemon.pvp = {};
-			if (littleRankings.length) pokemon.pvp.little = littleRankings;
-			if (greatRankings.length) pokemon.pvp.great = greatRankings;
-			if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings;
+			if (littleRankings.length) pokemon.pvp[League.LITTLE] = littleRankings;
+			if (greatRankings.length) pokemon.pvp[League.GREAT] = greatRankings;
+			if (ultraRankings.length) pokemon.pvp[League.ULTRA] = ultraRankings;
 		}
 		return pokemon;
 	}

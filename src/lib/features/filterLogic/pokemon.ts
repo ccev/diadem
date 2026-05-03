@@ -1,7 +1,7 @@
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { getBestRank } from "@/lib/utils/pokemonUtils";
+import { getBestRank, League } from "@/lib/utils/pokemonUtils";
 
 function inRange(value: number | null | undefined, range: MinMax): boolean {
 	if (value == null) return false;
@@ -36,17 +36,17 @@ export function matchPokemonFilterset(data: PokemonData): FiltersetPokemon | und
 		}
 
 		if (filterset.pvpRankLittle) {
-			const rank = getBestRank(data, "little");
+			const rank = getBestRank(data, League.LITTLE);
 			if (!rank || !inRange(rank, filterset.pvpRankLittle)) continue;
 		}
 
 		if (filterset.pvpRankGreat) {
-			const rank = getBestRank(data, "great");
+			const rank = getBestRank(data, League.GREAT);
 			if (!rank || !inRange(rank, filterset.pvpRankGreat)) continue;
 		}
 
 		if (filterset.pvpRankUltra) {
-			const rank = getBestRank(data, "ultra");
+			const rank = getBestRank(data, League.ULTRA);
 			if (!rank || !inRange(rank, filterset.pvpRankUltra)) continue;
 		}
 

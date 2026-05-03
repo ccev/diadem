@@ -4,7 +4,7 @@
 	import { getWeatherIcon } from "@/lib/utils/weatherIcons.js";
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
-	import { getIconLeague, getIconPokemon } from "@/lib/services/uicons.svelte.js";
+	import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
 	import {
 		Apple,
 		ArrowLeftRight,
@@ -25,7 +25,6 @@
 		Sparkles,
 		Swords,
 		Telescope,
-		Trophy,
 		Venus
 	} from "lucide-svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
@@ -41,12 +40,12 @@
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import {
 		getPokemonSize,
-		getBestRank,
 		getRarityLabel,
 		hasTimer,
 		showGreat,
 		showLittle,
-		showUltra, League
+		showUltra,
+		League
 	} from "@/lib/utils/pokemonUtils";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
@@ -295,17 +294,17 @@
 		{#if showLittle(data) || showGreat(data) || showUltra(data)}
 			PVP Rankings:
 			<div class="mb-3 space-y-1">
-				{#each data.pvp?.little ?? [] as entry}
+				{#each data.pvp?.[League.LITTLE] ?? [] as entry (entry.pokemon + "-" + entry.form + "-" + entry.rank)}
 					{#if (entry.rank ?? 100000) <= maxLittleRank}
 						<PvpEntry data={entry} league={League.LITTLE} />
 					{/if}
 				{/each}
-				{#each data.pvp?.great ?? [] as entry}
+				{#each data.pvp?.[League.GREAT] ?? [] as entry (entry.pokemon + "-" + entry.form + "-" + entry.rank)}
 					{#if (entry.rank ?? 100000) <= maxGreatRank}
 						<PvpEntry data={entry} league={League.GREAT} />
 					{/if}
 				{/each}
-				{#each data.pvp?.ultra ?? [] as entry}
+				{#each data.pvp?.[League.ULTRA] ?? [] as entry (entry.pokemon + "-" + entry.form + "-" + entry.rank)}
 					{#if (entry.rank ?? 100000) <= maxUltraRank}
 						<PvpEntry data={entry} league={League.ULTRA} />
 					{/if}

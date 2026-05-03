@@ -15,6 +15,24 @@ export enum League {
 	MASTER = "master"
 }
 
+export enum LeagueCp {
+	LITTLE = 500,
+	GREAT = 1500,
+	ULTRA = 2500,
+	MASTER = 9000
+}
+
+const leagueCp = new Map<League, LeagueCp>([
+	[League.LITTLE, LeagueCp.LITTLE],
+	[League.GREAT, LeagueCp.GREAT],
+	[League.ULTRA, LeagueCp.ULTRA],
+	[League.MASTER, LeagueCp.MASTER]
+]);
+
+export function getLeagueCp(league: League) {
+	return leagueCp.get(league) ?? LeagueCp.GREAT;
+}
+
 export const pokemonSizes = {
 	1: "XXS",
 	2: "XS",
@@ -155,7 +173,7 @@ export function showLittle(
 	ignoreFilters: boolean = false,
 	pokemonFilters: FilterPokemon = getActivePokemonFilter()
 ) {
-	const bestRank = getBestRank(data, "little");
+	const bestRank = getBestRank(data, League.LITTLE);
 	return showPvp(bestRank, "pvpRankLittle", ignoreFilters, pokemonFilters);
 }
 
@@ -164,7 +182,7 @@ export function showGreat(
 	ignoreFilters: boolean = false,
 	pokemonFilters: FilterPokemon = getActivePokemonFilter()
 ) {
-	const bestRank = getBestRank(data, "great");
+	const bestRank = getBestRank(data, League.GREAT);
 	return showPvp(bestRank, "pvpRankGreat", ignoreFilters, pokemonFilters);
 }
 
@@ -173,7 +191,7 @@ export function showUltra(
 	ignoreFilters: boolean = false,
 	pokemonFilters: FilterPokemon = getActivePokemonFilter()
 ) {
-	const bestRank = getBestRank(data, "ultra");
+	const bestRank = getBestRank(data, League.ULTRA);
 	return showPvp(bestRank, "pvpRankUltra", ignoreFilters, pokemonFilters);
 }
 
