@@ -213,8 +213,8 @@ user = ""
 password = ""
 ```
 
-- `server.db`: external Golbat DB used for data queries
-- `server.internalDb`: internal Diadem DB used for users/sessions
+- `server.db`: external Golbat DB used for data queries (user needs SELECT permissions)
+- `server.internalDb`: internal Diadem DB used for users/sessions (user needs ALL permissions)
 
 ## `client.general`
 

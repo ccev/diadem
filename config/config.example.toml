@@ -14,7 +14,7 @@ defaultNestName = "Unknown Nest"
 url = "http://127.0.0.1:7272"
 secret = ""
 
-# Optional Koji integrtion. Uncomment to disable
+# Optional Koji integrtion. Comment out to disable
 [server.koji]
 url = "http://127.0.0.1:8080"
 secret = "secret"
@@ -126,6 +126,7 @@ heavyFilterRatio = 0.2
 #rateLimit = 2000000
 #rateLimitTime = 3600
 
+# Connection to your Golbat DB, user should have SELECT permissions
 [server.db]
 host = "127.0.0.1"
 port = 3306
@@ -133,6 +134,7 @@ database = "golbat"
 user = ""
 password = ""
 
+# Connection to your Diadem DB, user should have ALL permissions
 [server.internalDb]
 host = "127.0.0.1"
 port = 3306
