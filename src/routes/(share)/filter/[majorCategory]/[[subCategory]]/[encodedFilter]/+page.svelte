@@ -24,7 +24,7 @@
 	} from "@/lib/features/filters/makeAttributeChipLabel";
 	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 	import { makeAttributeCharacterLabel } from "@/lib/features/filters/filterUtilsInvasion";
-	import { useMetadata } from "@/lib/ui/metadata.svelte";
+	import Metadata from "@/components/utils/Metadata.svelte";
 
 	let { data }: PageProps = $props();
 
@@ -116,8 +116,10 @@
 		}
 		return text;
 	});
-
-	useMetadata(() => (!browser && data ? { title, embedTitle: title, description: text } : {}));
 </script>
+
+{#if !browser && data}
+	<Metadata {title} embedTitle={title} description={text} />
+{/if}
 
 <RedirectFlash goal={title} />
