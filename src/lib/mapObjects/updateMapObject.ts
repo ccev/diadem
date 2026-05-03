@@ -17,14 +17,19 @@ import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQu
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
+import { SvelteMap } from "svelte/reactivity";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined; since?: number };
 
 let currentController: AbortController | undefined;
-const lastQueryTimestamps = new Map<MapObjectType, number>();
+const lastQueryTimestamps = new SvelteMap<MapObjectType, number>();
 
 export function resetLastQueryTimestamps() {
 	lastQueryTimestamps.clear();
+}
+
+export function getLastQueryTimestamps() {
+	return lastQueryTimestamps;
 }
 
 export function clearMap() {

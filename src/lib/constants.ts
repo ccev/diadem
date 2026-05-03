@@ -1,7 +1,7 @@
 /**
  * Max Zoom level to still update the map while idling
  */
-export const UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM = 12;
+export const UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM = 5;
 
 /**
  * Time to wait between idle map updates (ms)
