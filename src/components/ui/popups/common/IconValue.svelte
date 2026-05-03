@@ -4,14 +4,16 @@
 
 	let {
 		Icon,
-		children
+		children,
+		class: class_ = ""
 	}: {
 		Icon: LucideIcon | Component;
 		children: Snippet;
+		class?: string
 	} = $props();
 </script>
 
-<div class="flex">
+<div class="flex {class_}">
 	<Icon class="shrink-0 size-4 mt-1" />
 
 	<div class="ml-1.5">

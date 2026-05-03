@@ -13,6 +13,7 @@ import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { shouldDisplayIncident, shouldDisplayLure } from "@/lib/features/filterLogic/pokestop";
+import { getLeagueCp, LeagueCp, type League } from "@/lib/utils/pokemonUtils";
 
 export const DEFAULT_UICONS = "DEFAULT";
 
@@ -241,15 +242,11 @@ export function getIconContest() {
 	return iconSets[DEFAULT_UICONS].misc("showcase");
 }
 
-export enum League {
-	LITTLE = 500,
-	GREAT = 1500,
-	ULTRA = 2500,
-	MASTER = 9000
-}
-
 export function getIconLeague(league: League) {
-	return iconSets[DEFAULT_UICONS].misc(league) ?? iconSets[DEFAULT_UICONS].misc(League.GREAT);
+	return (
+		iconSets[DEFAULT_UICONS].misc(getLeagueCp(league)) ??
+		iconSets[DEFAULT_UICONS].misc(LeagueCp.GREAT)
+	);
 }
 
 export function getIconTeam(teamId: number) {

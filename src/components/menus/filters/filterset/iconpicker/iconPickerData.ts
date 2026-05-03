@@ -11,13 +11,13 @@ import {
 	getIconPokestopDirect,
 	getIconGymDirect,
 	getIconReward,
-	getIconStation,
-	League
+	getIconStation
 } from "@/lib/services/uicons.svelte";
 import { getAllPokemon, getMasterFile } from "@/lib/services/masterfile";
 import { mPokemon, mType, mRaid, mItem, mCharacter } from "@/lib/services/ingameLocale";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import * as m from "@/lib/paraglide/messages";
+import { League } from "@/lib/utils/pokemonUtils";
 
 export const COMMON_EMOJIS = [
 	// measurement / data

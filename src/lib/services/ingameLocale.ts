@@ -1,11 +1,10 @@
 import * as m from "@/lib/paraglide/messages";
 import { getLocale } from "@/lib/paraglide/runtime";
-import { SearchableType, type SearchEntry } from "@/lib/services/search.svelte";
-import { getIconPokemon } from "@/lib/services/uicons.svelte";
 import { formatNumber } from "@/lib/utils/numberFormat";
 import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
+import { League } from "@/lib/utils/pokemonUtils";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -245,4 +244,12 @@ export function mCharacter(characterId?: number | string | null) {
 		return character;
 	}
 	return m.character_grunt({ character });
+}
+
+export function mLeague(league: League) {
+	if (league === League.LITTLE) return m.little_league();
+	if (league === League.GREAT) return m.great_league();
+	if (league === League.ULTRA) return m.ultra_league();
+	if (league === League.MASTER) return m.master_league();
+	return m.unknown_league();
 }

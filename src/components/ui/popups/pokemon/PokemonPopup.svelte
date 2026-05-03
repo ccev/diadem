@@ -25,7 +25,6 @@
 		Sparkles,
 		Swords,
 		Telescope,
-		Trophy,
 		Venus
 	} from "lucide-svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
@@ -34,19 +33,19 @@
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 	import { POKEMON_MIN_RANK } from "@/lib/constants";
-	import PvpEntry from "@/components/ui/popups/pokemon/PvpEntry.svelte";
+	import PvpOverview from "@/components/ui/popups/pokemon/PvpOverview.svelte";
 	import {
 		getCurrentSelectedData,
 		getCurrentSelectedMapId
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import {
 		getPokemonSize,
-		getBestRank,
 		getRarityLabel,
 		hasTimer,
 		showGreat,
 		showLittle,
-		showUltra
+		showUltra,
+		League
 	} from "@/lib/utils/pokemonUtils";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
@@ -58,6 +57,9 @@
 	import { resize } from "@/lib/services/assets";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import type { FilterPokemon } from "@/lib/features/filters/filters";
+	import { isPopupExpanded } from "@/lib/ui/expandedPopups";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import CompactPvpEntry from "./CompactPvpEntry.svelte";
 
 	let data: PokemonData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
@@ -157,24 +159,25 @@
 		</IconValue>
 	{/if}
 
-	{#if showLittle(data)}
-		<IconValue Icon={Trophy}>
-			{m.league_rank({ league: m.little_league() })}:
-			<b>#{getBestRank(data, "little")}</b>
-		</IconValue>
+	{#if !isPopupExpanded(MapObjectType.POKEMON)}
+		{#if showLittle(data)}
+			<CompactPvpEntry {data} league={League.LITTLE} />
+		{/if}
+
+		{#if showGreat(data)}
+			<CompactPvpEntry {data} league={League.GREAT} />
+		{/if}
+
+		{#if showUltra(data)}
+			<CompactPvpEntry {data} league={League.ULTRA} />
+		{/if}
 	{/if}
 
-	{#if showGreat(data)}
-		<IconValue Icon={Trophy}>
-			{m.league_rank({ league: m.great_league() })}:
-			<b>#{getBestRank(data, "great")}</b>
-		</IconValue>
-	{/if}
-
-	{#if showUltra(data)}
-		<IconValue Icon={Trophy}>
-			{m.league_rank({ league: m.ultra_league() })}:
-			<b>#{getBestRank(data, "ultra")}</b>
+	{#if (data.size === 5 || data.size === 1) && !isPopupExpanded(MapObjectType.POKEMON)}
+		<IconValue Icon={Ruler}>
+			<span>
+				Size: <b>{getPokemonSize(data.size)}</b>
+			</span>
 		</IconValue>
 	{/if}
 
@@ -264,57 +267,8 @@
 			{@render basicInfo()}
 		</div>
 
-		<!-- TODO: shiny rates. i don't fully know how to best do this -->
-		<!--{@const cachedShinyRate = getCachedShinyRate(data.pokemon_id, data.form ?? 0)}-->
-		<!--{#if cachedShinyRate}-->
-		<!--	<IconValue Icon={Sparkles}>-->
-		<!--		{m.shiny_rate()}:-->
-		<!--		<b>-->
-		<!--			1:{(cachedShinyRate.total / cachedShinyRate.shinies).toFixed(1)}-->
-		<!--		</b>-->
-		<!--	</IconValue>-->
-		<!--{:else if cachedShinyRate === false}-->
-		<!--	{#await getShinyRate(data.pokemon_id, data.form ?? 0) then rate}-->
-		<!--		{#if rate}-->
-		<!--			<IconValue Icon={Sparkles}>-->
-		<!--				{m.shiny_rate()}:-->
-		<!--				<b>-->
-		<!--					1:{(rate.total / rate.shinies).toFixed(1)}-->
-		<!--				</b>-->
-		<!--			</IconValue>-->
-		<!--		{/if}-->
-		<!--	{/await}-->
-		<!--{/if}-->
-
-		<!--{shinyRate}-->
-		<!--{#if shinyRate}-->
-		<!--	<IconValue Icon={Sparkles}>-->
-		<!--		{m.shiny_rate()}:-->
-		<!--		<b>-->
-		<!--			1:{(shinyRate.total / shinyRate.shinies).toFixed(1)}-->
-		<!--		</b>-->
-		<!--	</IconValue>-->
-		<!--{/if}-->
-
 		{#if showLittle(data) || showGreat(data) || showUltra(data)}
-			PVP Rankings:
-			<div class="mb-3 space-y-1">
-				{#each data.pvp?.little ?? [] as entry}
-					{#if (entry.rank ?? 100000) <= maxLittleRank}
-						<PvpEntry data={entry} league="little" />
-					{/if}
-				{/each}
-				{#each data.pvp?.great ?? [] as entry}
-					{#if (entry.rank ?? 100000) <= maxGreatRank}
-						<PvpEntry data={entry} league="great" />
-					{/if}
-				{/each}
-				{#each data.pvp?.ultra ?? [] as entry}
-					{#if (entry.rank ?? 100000) <= maxUltraRank}
-						<PvpEntry data={entry} league="ultra" />
-					{/if}
-				{/each}
-			</div>
+			<PvpOverview {data} {maxLittleRank} {maxGreatRank} {maxUltraRank} />
 		{/if}
 
 		{#if data.strong}

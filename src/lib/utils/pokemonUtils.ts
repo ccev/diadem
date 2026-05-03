@@ -8,6 +8,31 @@ import type { FilterPokemon } from "@/lib/features/filters/filters";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
+export enum League {
+	LITTLE = "little",
+	GREAT = "great",
+	ULTRA = "ultra",
+	MASTER = "master"
+}
+
+export enum LeagueCp {
+	LITTLE = 500,
+	GREAT = 1500,
+	ULTRA = 2500,
+	MASTER = 9000
+}
+
+const leagueCp = new Map<League, LeagueCp>([
+	[League.LITTLE, LeagueCp.LITTLE],
+	[League.GREAT, LeagueCp.GREAT],
+	[League.ULTRA, LeagueCp.ULTRA],
+	[League.MASTER, LeagueCp.MASTER]
+]);
+
+export function getLeagueCp(league: League) {
+	return leagueCp.get(league) ?? LeagueCp.GREAT;
+}
+
 export const pokemonSizes = {
 	1: "XXS",
 	2: "XS",
@@ -116,7 +141,7 @@ export function hasTimer(data: {
 	return data.expire_timestamp && data.expire_timestamp_verified;
 }
 
-export function getBestRank(data: Partial<PokemonData>, league: "little" | "great" | "ultra") {
+export function getBestRank(data: Partial<PokemonData>, league: League) {
 	const ranks = data.pvp?.[league]?.map((l) => l.rank) ?? [0];
 	const best = Math.min(...ranks);
 	if (!Number.isInteger(best)) return 0;
@@ -148,7 +173,7 @@ export function showLittle(
 	ignoreFilters: boolean = false,
 	pokemonFilters: FilterPokemon = getActivePokemonFilter()
 ) {
-	const bestRank = getBestRank(data, "little");
+	const bestRank = getBestRank(data, League.LITTLE);
 	return showPvp(bestRank, "pvpRankLittle", ignoreFilters, pokemonFilters);
 }
 
@@ -157,7 +182,7 @@ export function showGreat(
 	ignoreFilters: boolean = false,
 	pokemonFilters: FilterPokemon = getActivePokemonFilter()
 ) {
-	const bestRank = getBestRank(data, "great");
+	const bestRank = getBestRank(data, League.GREAT);
 	return showPvp(bestRank, "pvpRankGreat", ignoreFilters, pokemonFilters);
 }
 
@@ -166,7 +191,7 @@ export function showUltra(
 	ignoreFilters: boolean = false,
 	pokemonFilters: FilterPokemon = getActivePokemonFilter()
 ) {
-	const bestRank = getBestRank(data, "ultra");
+	const bestRank = getBestRank(data, League.ULTRA);
 	return showPvp(bestRank, "pvpRankUltra", ignoreFilters, pokemonFilters);
 }
 

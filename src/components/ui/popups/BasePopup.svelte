@@ -54,7 +54,7 @@
 	{#if isPopupExpanded(getCurrentSelectedData()?.type)}
 		<div
 			class="px-6 overflow-y-auto"
-			style="max-height: calc(100vh - 14rem);"
+			style="max-height: calc(100vh - 26rem);"
 			in:slide={{ duration: 90, easing: cubicIn }}
 			out:slide={{ duration: 90, easing: cubicOut }}
 		>
