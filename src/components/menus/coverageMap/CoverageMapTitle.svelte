@@ -6,6 +6,7 @@
 	import { getCoverageMapInvokedFromMap } from "@/lib/features/coverageMap.svelte";
 	import { goto } from "$app/navigation";
 	import { closeMenu } from "@/lib/ui/menus.svelte";
+	import { getMapPath } from "@/lib/utils/getMapPath";
 </script>
 
 <div
@@ -25,7 +26,7 @@
 			size="sm"
 			variant="outline"
 			onclick={() => {
-				goto("/map");
+				goto(getMapPath(getConfig()));
 			}}
 		>
 			<ArrowLeft class="size-4" />
