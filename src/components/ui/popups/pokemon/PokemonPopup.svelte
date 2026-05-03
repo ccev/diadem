@@ -4,7 +4,7 @@
 	import { getWeatherIcon } from "@/lib/utils/weatherIcons.js";
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte.js";
+	import { getIconLeague, getIconPokemon } from "@/lib/services/uicons.svelte.js";
 	import {
 		Apple,
 		ArrowLeftRight,
@@ -46,7 +46,7 @@
 		hasTimer,
 		showGreat,
 		showLittle,
-		showUltra
+		showUltra, League
 	} from "@/lib/utils/pokemonUtils";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
@@ -58,6 +58,9 @@
 	import { resize } from "@/lib/services/assets";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import type { FilterPokemon } from "@/lib/features/filters/filters";
+	import { isPopupExpanded } from "@/lib/ui/expandedPopups";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import CompactPvpEntry from "./CompactPvpEntry.svelte";
 
 	let data: PokemonData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
@@ -157,25 +160,18 @@
 		</IconValue>
 	{/if}
 
-	{#if showLittle(data)}
-		<IconValue Icon={Trophy}>
-			{m.league_rank({ league: m.little_league() })}:
-			<b>#{getBestRank(data, "little")}</b>
-		</IconValue>
-	{/if}
+	{#if !isPopupExpanded(MapObjectType.POKEMON)}
+		{#if showLittle(data)}
+			<CompactPvpEntry {data} league={League.LITTLE} />
+		{/if}
 
-	{#if showGreat(data)}
-		<IconValue Icon={Trophy}>
-			{m.league_rank({ league: m.great_league() })}:
-			<b>#{getBestRank(data, "great")}</b>
-		</IconValue>
-	{/if}
+		{#if showGreat(data)}
+			<CompactPvpEntry {data} league={League.GREAT} />
+		{/if}
 
-	{#if showUltra(data)}
-		<IconValue Icon={Trophy}>
-			{m.league_rank({ league: m.ultra_league() })}:
-			<b>#{getBestRank(data, "ultra")}</b>
-		</IconValue>
+		{#if showUltra(data)}
+			<CompactPvpEntry {data} league={League.ULTRA} />
+		{/if}
 	{/if}
 
 	{#if data.display_pokemon_id}
@@ -301,17 +297,17 @@
 			<div class="mb-3 space-y-1">
 				{#each data.pvp?.little ?? [] as entry}
 					{#if (entry.rank ?? 100000) <= maxLittleRank}
-						<PvpEntry data={entry} league="little" />
+						<PvpEntry data={entry} league={League.LITTLE} />
 					{/if}
 				{/each}
 				{#each data.pvp?.great ?? [] as entry}
 					{#if (entry.rank ?? 100000) <= maxGreatRank}
-						<PvpEntry data={entry} league="great" />
+						<PvpEntry data={entry} league={League.GREAT} />
 					{/if}
 				{/each}
 				{#each data.pvp?.ultra ?? [] as entry}
 					{#if (entry.rank ?? 100000) <= maxUltraRank}
-						<PvpEntry data={entry} league="ultra" />
+						<PvpEntry data={entry} league={League.ULTRA} />
 					{/if}
 				{/each}
 			</div>

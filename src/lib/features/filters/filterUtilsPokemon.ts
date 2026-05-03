@@ -1,10 +1,9 @@
 import type { FiltersetPokemon, FiltersetTitle, MinMax } from "@/lib/features/filters/filtersets";
 import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 import * as m from "@/lib/paraglide/messages";
-import { getPokemonSize } from "@/lib/utils/pokemonUtils";
+import { getPokemonSize, League } from "@/lib/utils/pokemonUtils";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
-import { League } from "@/lib/services/uicons.svelte";
 import { mPokemon } from "@/lib/services/ingameLocale";
 
 export const pokemonBounds = {

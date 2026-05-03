@@ -8,6 +8,13 @@ import type { FilterPokemon } from "@/lib/features/filters/filters";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
+export enum League {
+	LITTLE = "little",
+	GREAT = "great",
+	ULTRA = "ultra",
+	MASTER = "master"
+}
+
 export const pokemonSizes = {
 	1: "XXS",
 	2: "XS",
@@ -116,7 +123,7 @@ export function hasTimer(data: {
 	return data.expire_timestamp && data.expire_timestamp_verified;
 }
 
-export function getBestRank(data: Partial<PokemonData>, league: "little" | "great" | "ultra") {
+export function getBestRank(data: Partial<PokemonData>, league: League) {
 	const ranks = data.pvp?.[league]?.map((l) => l.rank) ?? [0];
 	const best = Math.min(...ranks);
 	if (!Number.isInteger(best)) return 0;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { mPokemon } from "@/lib/services/ingameLocale.js";
+	import { mLeague, mPokemon } from "@/lib/services/ingameLocale.js";
 	import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 	import { getIconPokemon, getIconRaidEgg } from "@/lib/services/uicons.svelte.js";
 	import * as m from "@/lib/paraglide/messages";
@@ -8,22 +8,17 @@
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 	import { getRaidPokemon } from "@/lib/utils/gymUtils";
+	import type { League } from "@/lib/utils/pokemonUtils";
 
 	let {
 		data,
 		league
 	}: {
 		data: PvpStats;
-		league: "little" | "great" | "ultra";
+		league: League;
 	} = $props();
 
 	let pokemon: Partial<PokemonData> = $derived({ pokemon_id: data.pokemon, form: data.form });
-	let leagueName: string = $derived.by(() => {
-		if (league === "little") return m.little_league();
-		if (league === "great") return m.great_league();
-		if (league === "ultra") return m.ultra_league();
-		return "";
-	});
 </script>
 
 <div class="flex gap-2 items-center">
@@ -33,7 +28,7 @@
 	<div>
 		<div>
 			#{data.rank}
-			{leagueName}
+			{mLeague(league)}
 			<b>{mPokemon(pokemon)}</b>
 		</div>
 		<div>

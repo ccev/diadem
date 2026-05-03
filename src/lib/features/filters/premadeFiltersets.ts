@@ -6,12 +6,12 @@ import type {
 } from "@/lib/features/filters/filtersets";
 import type { FilterCategory } from "@/lib/features/filters/filters";
 import { IconCategory, IconFeature } from "@/lib/features/filters/icons";
-import { League } from "@/lib/services/uicons.svelte";
 import { getId } from "@/lib/utils/uuid";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { MODIFIER_COLORS } from "@/lib/features/filters/modifierPresets";
 import { getPremadeQuestFiltersets } from "@/lib/features/filters/filterUtilsQuest";
 import { getPremadeInvasionFiltersets } from "@/lib/features/filters/filterUtilsInvasion";
+import { League } from "@/lib/utils/pokemonUtils";
 
 export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 	pokemon: [
