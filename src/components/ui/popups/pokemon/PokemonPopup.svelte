@@ -173,6 +173,14 @@
 		{/if}
 	{/if}
 
+	{#if (data.size === 5 || data.size === 1) && !isPopupExpanded(MapObjectType.POKEMON)}
+		<IconValue Icon={Ruler}>
+				<span>
+					Size: <b>{getPokemonSize(data.size)}</b>
+				</span>
+		</IconValue>
+	{/if}
+
 	{#if data.display_pokemon_id}
 		{@const displayPokemon = {
 			pokemon_id: data.display_pokemon_id,
