@@ -22,7 +22,9 @@ export async function loadKojiGeofences() {
 	const result = await fetch("/api/koji");
 
 	if (!result.ok) {
+		// this also errors when koji is disabled by admin, but checking isSupportedFeature would race on initial loading
 		console.error("Error while fetching geofences");
+		return;
 	}
 
 	const data: KojiFeatures = await result.json();
