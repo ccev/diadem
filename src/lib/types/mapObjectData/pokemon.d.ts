@@ -7,9 +7,11 @@ export type PvpStats = {
 	form: number;
 	level: number;
 	percentage: number;
-	pokemon: number;
+	pokemon_id: number;
 	rank: number;
-	value: number;
+	pokemon?: number;
+	value?: number;
+	evolution?: number;
 };
 
 export type PokemonVisual = {

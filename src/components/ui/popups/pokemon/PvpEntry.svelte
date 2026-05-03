@@ -17,19 +17,17 @@
 		data: PvpStats;
 		league: League;
 	} = $props();
-
-	let pokemon: Partial<PokemonData> = $derived({ pokemon_id: data.pokemon, form: data.form });
 </script>
 
 <div class="flex gap-2 items-center">
 	<div class="w-6 shrink-0">
-		<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} class="w-6" />
+		<ImagePopup src={getIconPokemon(data)} alt={mPokemon(data)} class="w-6" />
 	</div>
 	<div>
 		<div>
 			#{data.rank}
 			{mLeague(league)}
-			<b>{mPokemon(pokemon)}</b>
+			<b>{mPokemon(data)}</b>
 		</div>
 		<div>
 			{data.cp} CP at level: {data.level} ({(data.percentage * 100).toFixed(1)}%) {data.cap}

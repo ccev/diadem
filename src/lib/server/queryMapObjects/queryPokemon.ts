@@ -121,24 +121,15 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 		for (const rankings of p.pvp?.[League.LITTLE] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
-				littleRankings.push({
-					...rankings,
-					form: getNormalizedForm(rankings.pokemon, rankings.form)
-				});
+				this.makePvpStats(littleRankings, rankings)
 		}
 		for (const rankings of p.pvp?.[League.GREAT] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
-				greatRankings.push({
-					...rankings,
-					form: getNormalizedForm(rankings.pokemon, rankings.form)
-				});
+				this.makePvpStats(greatRankings, rankings)
 		}
 		for (const rankings of p.pvp?.[League.ULTRA] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
-				ultraRankings.push({
-					...rankings,
-					form: getNormalizedForm(rankings.pokemon, rankings.form)
-				});
+				this.makePvpStats(ultraRankings, rankings)
 		}
 		if (littleRankings.length || greatRankings.length || ultraRankings.length) {
 			pokemon.pvp = {};
@@ -147,6 +138,19 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			if (ultraRankings.length) pokemon.pvp[League.ULTRA] = ultraRankings;
 		}
 		return pokemon;
+	}
+
+	private makePvpStats(rankings: PvpStats[], stats: PvpStats) {
+		if (stats.evolution) return
+		rankings.push({
+			pokemon_id: stats.pokemon ?? 0,
+			form: getNormalizedForm(stats.pokemon ?? 0, stats.form),
+			cap: stats.cap,
+			cp: stats.cp,
+			level: stats.level,
+			percentage: stats.percentage,
+			rank: stats.rank
+		})
 	}
 
 	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {
