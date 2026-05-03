@@ -9,8 +9,8 @@ export type PvpStats = {
 	percentage: number;
 	pokemon_id: number;
 	rank: number;
+	value: number;
 	pokemon?: number;
-	value?: number;
 	evolution?: number;
 };
 

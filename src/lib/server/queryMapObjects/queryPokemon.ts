@@ -4,6 +4,7 @@ import {
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
+import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
@@ -16,6 +17,7 @@ import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import {
 	getNormalizedForm,
+	getBestRank,
 	League,
 	showGreat,
 	showLittle,
@@ -65,8 +67,11 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					examined -= 1;
 					continue;
 				}
+				const pokemon = this.makePokemon(p, filter);
+				// need to re-check pvp filters after removing mega evolutions 
+				if (!this.matchesCleanedPvpRanks(pokemon, filter)) continue;
 
-				data.push(this.makePokemon(p, filter));
+				data.push(pokemon);
 			}
 
 			return { data, examined };
@@ -121,15 +126,15 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 		for (const rankings of p.pvp?.[League.LITTLE] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
-				this.makePvpStats(littleRankings, rankings)
+				this.makePvpStats(littleRankings, rankings);
 		}
 		for (const rankings of p.pvp?.[League.GREAT] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
-				this.makePvpStats(greatRankings, rankings)
+				this.makePvpStats(greatRankings, rankings);
 		}
 		for (const rankings of p.pvp?.[League.ULTRA] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
-				this.makePvpStats(ultraRankings, rankings)
+				this.makePvpStats(ultraRankings, rankings);
 		}
 		if (littleRankings.length || greatRankings.length || ultraRankings.length) {
 			pokemon.pvp = {};
@@ -141,7 +146,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	}
 
 	private makePvpStats(rankings: PvpStats[], stats: PvpStats) {
-		if (stats.evolution) return
+		if (stats.evolution) return;
 		rankings.push({
 			pokemon_id: stats.pokemon ?? 0,
 			form: getNormalizedForm(stats.pokemon ?? 0, stats.form),
@@ -149,8 +154,52 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			cp: stats.cp,
 			level: stats.level,
 			percentage: stats.percentage,
-			rank: stats.rank
-		})
+			rank: stats.rank,
+			value: stats.value
+		});
+	}
+
+	private matchesCleanedPvpRanks(pokemon: PokemonData, filter: FilterPokemon | undefined) {
+		const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
+		if (enabledFilters.length === 0) return true;
+
+		return enabledFilters.some((filterset) =>
+			this.matchesCleanedPvpRankFilterset(pokemon, filterset)
+		);
+	}
+
+	private matchesCleanedPvpRankFilterset(pokemon: PokemonData, filterset: FiltersetPokemon) {
+		const hasPvpRankFilter =
+			filterset.pvpRankLittle || filterset.pvpRankGreat || filterset.pvpRankUltra;
+		if (!hasPvpRankFilter) return true;
+
+		if (
+			filterset.pvpRankLittle &&
+			!this.matchesPvpRank(pokemon, League.LITTLE, filterset.pvpRankLittle)
+		) {
+			return false;
+		}
+		if (
+			filterset.pvpRankGreat &&
+			!this.matchesPvpRank(pokemon, League.GREAT, filterset.pvpRankGreat)
+		) {
+			return false;
+		}
+		if (
+			filterset.pvpRankUltra &&
+			!this.matchesPvpRank(pokemon, League.ULTRA, filterset.pvpRankUltra)
+		) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private matchesPvpRank(pokemon: PokemonData, league: League, range: MinMax) {
+		const rank = getBestRank(pokemon, league);
+		if (!rank) return false;
+		return rank >= range.min && rank <= range.max;
+
 	}
 
 	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {

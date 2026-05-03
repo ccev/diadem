@@ -488,5 +488,7 @@
 	"count_xp": "{count} XP",
 	"filter_template_invasion_leaders": "Team Rocket Leaders",
 	"join_server": "Join Server",
-	"unknown_league": "Unknown League"
+	"unknown_league": "Unknown League",
+	"target_cp": "Target CP",
+	"considered_max_level": "Considered max level"
 }

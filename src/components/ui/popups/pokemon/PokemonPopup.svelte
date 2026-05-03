@@ -33,7 +33,7 @@
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 	import { POKEMON_MIN_RANK } from "@/lib/constants";
-	import PvpEntry from "@/components/ui/popups/pokemon/PvpEntry.svelte";
+	import PvpOverview from "@/components/ui/popups/pokemon/PvpOverview.svelte";
 	import {
 		getCurrentSelectedData,
 		getCurrentSelectedMapId
@@ -175,9 +175,9 @@
 
 	{#if (data.size === 5 || data.size === 1) && !isPopupExpanded(MapObjectType.POKEMON)}
 		<IconValue Icon={Ruler}>
-				<span>
-					Size: <b>{getPokemonSize(data.size)}</b>
-				</span>
+			<span>
+				Size: <b>{getPokemonSize(data.size)}</b>
+			</span>
 		</IconValue>
 	{/if}
 
@@ -267,57 +267,8 @@
 			{@render basicInfo()}
 		</div>
 
-		<!-- TODO: shiny rates. i don't fully know how to best do this -->
-		<!--{@const cachedShinyRate = getCachedShinyRate(data.pokemon_id, data.form ?? 0)}-->
-		<!--{#if cachedShinyRate}-->
-		<!--	<IconValue Icon={Sparkles}>-->
-		<!--		{m.shiny_rate()}:-->
-		<!--		<b>-->
-		<!--			1:{(cachedShinyRate.total / cachedShinyRate.shinies).toFixed(1)}-->
-		<!--		</b>-->
-		<!--	</IconValue>-->
-		<!--{:else if cachedShinyRate === false}-->
-		<!--	{#await getShinyRate(data.pokemon_id, data.form ?? 0) then rate}-->
-		<!--		{#if rate}-->
-		<!--			<IconValue Icon={Sparkles}>-->
-		<!--				{m.shiny_rate()}:-->
-		<!--				<b>-->
-		<!--					1:{(rate.total / rate.shinies).toFixed(1)}-->
-		<!--				</b>-->
-		<!--			</IconValue>-->
-		<!--		{/if}-->
-		<!--	{/await}-->
-		<!--{/if}-->
-
-		<!--{shinyRate}-->
-		<!--{#if shinyRate}-->
-		<!--	<IconValue Icon={Sparkles}>-->
-		<!--		{m.shiny_rate()}:-->
-		<!--		<b>-->
-		<!--			1:{(shinyRate.total / shinyRate.shinies).toFixed(1)}-->
-		<!--		</b>-->
-		<!--	</IconValue>-->
-		<!--{/if}-->
-
 		{#if showLittle(data) || showGreat(data) || showUltra(data)}
-			PVP Rankings:
-			<div class="mb-3 space-y-1">
-				{#each data.pvp?.[League.LITTLE] ?? [] as entry (entry.pokemon + "-" + entry.form + "-" + entry.rank)}
-					{#if (entry.rank ?? 100000) <= maxLittleRank}
-						<PvpEntry data={entry} league={League.LITTLE} />
-					{/if}
-				{/each}
-				{#each data.pvp?.[League.GREAT] ?? [] as entry (entry.pokemon + "-" + entry.form + "-" + entry.rank)}
-					{#if (entry.rank ?? 100000) <= maxGreatRank}
-						<PvpEntry data={entry} league={League.GREAT} />
-					{/if}
-				{/each}
-				{#each data.pvp?.[League.ULTRA] ?? [] as entry (entry.pokemon + "-" + entry.form + "-" + entry.rank)}
-					{#if (entry.rank ?? 100000) <= maxUltraRank}
-						<PvpEntry data={entry} league={League.ULTRA} />
-					{/if}
-				{/each}
-			</div>
+			<PvpOverview {data} {maxLittleRank} {maxGreatRank} {maxUltraRank} />
 		{/if}
 
 		{#if data.strong}
