@@ -68,7 +68,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					continue;
 				}
 				const pokemon = this.makePokemon(p, filter);
-				// need to re-check pvp filters after removing mega evolutions 
+				// need to re-check pvp filters after removing mega evolutions
 				if (!this.matchesCleanedPvpRanks(pokemon, filter)) continue;
 
 				data.push(pokemon);
@@ -160,19 +160,17 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	}
 
 	private matchesCleanedPvpRanks(pokemon: PokemonData, filter: FilterPokemon | undefined) {
-		const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
-		if (enabledFilters.length === 0) return true;
+		const pvpRankFilters = (filter?.filters?.filter((f) => f.enabled) ?? []).filter(
+			(filterset) => filterset.pvpRankLittle || filterset.pvpRankGreat || filterset.pvpRankUltra
+		);
+		if (pvpRankFilters.length === 0) return true;
 
-		return enabledFilters.some((filterset) =>
+		return pvpRankFilters.some((filterset) =>
 			this.matchesCleanedPvpRankFilterset(pokemon, filterset)
 		);
 	}
 
 	private matchesCleanedPvpRankFilterset(pokemon: PokemonData, filterset: FiltersetPokemon) {
-		const hasPvpRankFilter =
-			filterset.pvpRankLittle || filterset.pvpRankGreat || filterset.pvpRankUltra;
-		if (!hasPvpRankFilter) return true;
-
 		if (
 			filterset.pvpRankLittle &&
 			!this.matchesPvpRank(pokemon, League.LITTLE, filterset.pvpRankLittle)
@@ -199,7 +197,6 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const rank = getBestRank(pokemon, league);
 		if (!rank) return false;
 		return rank >= range.min && rank <= range.max;
-
 	}
 
 	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {
