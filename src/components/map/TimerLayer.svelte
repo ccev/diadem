@@ -30,6 +30,10 @@
 	};
 
 	type TimerFeature = Feature<Point, TimerFeatureProperties>;
+	type TimerFeatureEntry = {
+		expires: number;
+		feature: TimerFeature;
+	};
 
 	let now = $state(currentTimestamp());
 	const interval = setInterval(() => {
@@ -65,8 +69,8 @@
 		return ctx.getImageData(0, 0, canvas.width, canvas.height);
 	}
 
-	function formatTimer(expireTimestamp: number) {
-		const remaining = Math.max(0, expireTimestamp - now);
+	function formatTimer(expireTimestamp: number, timestamp: number) {
+		const remaining = Math.max(0, expireTimestamp - timestamp);
 		const minutes = Math.floor(remaining / 60);
 		const seconds = remaining % 60;
 
@@ -116,45 +120,46 @@
 		];
 	}
 
-	function createTimerFeature(
+	function createTimerFeatureEntry(
 		obj: MapData,
 		expires: number,
 		hasModifierLabel: boolean,
 		id: string,
 		modifierType?: UiconSetModifierType,
 		modifierIndex?: number
-	): TimerFeature {
+	): TimerFeatureEntry {
 		return {
-			type: "Feature",
-			geometry: {
-				type: "Point",
-				coordinates: [obj.lon, obj.lat]
-			},
-			properties: {
-				id: obj.mapId,
-				textOffset: getTimerOffset(obj, hasModifierLabel, modifierType, modifierIndex),
-				timer: formatTimer(expires)
-			},
-			id
+			expires,
+			feature: {
+				type: "Feature",
+				geometry: {
+					type: "Point",
+					coordinates: [obj.lon, obj.lat]
+				},
+				properties: {
+					id: obj.mapId,
+					textOffset: getTimerOffset(obj, hasModifierLabel, modifierType, modifierIndex),
+					timer: formatTimer(expires, currentTimestamp())
+				},
+				id
+			}
 		};
 	}
 
-	function getTimerFeatures(obj: MapData): TimerFeature[] {
+	function getTimerFeatureEntries(obj: MapData): TimerFeatureEntry[] {
 		if (!isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)) return [];
 
 		if (obj.type === MapObjectType.POKESTOP) {
-			return (obj.incident ?? [])
-				.filter((incident) => incident.expiration > now)
-				.map((incident, index) =>
-					createTimerFeature(
-						obj,
-						incident.expiration,
-						hasIncidentFilterLabel(incident),
-						`${obj.mapId}-incident-${incident.id}`,
-						"invasion",
-						index
-					)
-				);
+			return (obj.incident ?? []).map((incident, index) =>
+				createTimerFeatureEntry(
+					obj,
+					incident.expiration,
+					hasIncidentFilterLabel(incident),
+					`${obj.mapId}-incident-${incident.id}`,
+					"invasion",
+					index
+				)
+			);
 		}
 
 		let expires: number | undefined;
@@ -171,14 +176,23 @@
 				break;
 		}
 
-		if (!expires || expires <= now) return [];
+		if (!expires) return [];
 
-		return [createTimerFeature(obj, expires, hasFilterLabel(obj), obj.mapId)];
+		return [createTimerFeatureEntry(obj, expires, hasFilterLabel(obj), obj.mapId)];
 	}
+
+	let timerFeatureEntries: TimerFeatureEntry[] = $derived.by(() =>
+		Object.values(getMapObjects()).flatMap(getTimerFeatureEntries)
+	);
 
 	let timerData: FeatureCollection<Point, TimerFeatureProperties> = $derived.by(() => ({
 		type: "FeatureCollection",
-		features: Object.values(getMapObjects()).flatMap(getTimerFeatures)
+		features: timerFeatureEntries
+			.filter((entry) => entry.expires > now)
+			.map((entry) => {
+				entry.feature.properties.timer = formatTimer(entry.expires, now);
+				return entry.feature;
+			})
 	}));
 </script>
 
