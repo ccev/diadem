@@ -5,5 +5,5 @@ export function mAny(key: string | keyof typeof m) {
 		// @ts-ignore
 		return m[key]();
 	}
-	return "";
+	return key ?? "";
 }

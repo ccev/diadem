@@ -505,6 +505,8 @@
 	"popup_action_show_on_every_gym": "Show on every Gym",
 	"popup_action_undim_all_station": "Undim all Power Spots",
 	"popup_action_show_on_every_station": "Show on every Power Spot",
+	"popup_action_undim_all_tappable": "Undim all Ground Items",
+	"popup_action_show_on_every_tappable": "Show on every Ground Item",
 	"popup_action_show_timer": "Show timer",
 	"popup_action_hide_timer": "Hide timer",
 	"close": "Close"
