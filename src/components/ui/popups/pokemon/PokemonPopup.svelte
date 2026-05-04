@@ -56,7 +56,7 @@
 	import { resize } from "@/lib/services/assets";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import type { FilterPokemon } from "@/lib/features/filters/filters";
-	import { isPopupExpanded } from "@/lib/ui/expandedPopups";
+	import { isPopupExpanded } from "@/lib/ui/popupActions";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import CompactPvpEntry from "./CompactPvpEntry.svelte";
 	import { useMetadata } from "@/lib/ui/metadata.svelte";

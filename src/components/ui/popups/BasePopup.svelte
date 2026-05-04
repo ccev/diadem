@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isPopupExpanded } from "@/lib/ui/expandedPopups.js";
+	import { isPopupExpanded } from "@/lib/ui/popupActions.js";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import { Share2, X } from "lucide-svelte";

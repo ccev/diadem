@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isPopupExpanded, togglePopupExpanded } from "@/lib/ui/expandedPopups.js";
+	import { isPopupExpanded, togglePopupExpanded } from "@/lib/ui/popupActions.js";
 	import {
 		CheckCheck,
 		ChevronUp,
