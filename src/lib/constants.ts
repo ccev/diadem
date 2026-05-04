@@ -59,6 +59,13 @@ export const SHINY_RATE_CACHE_DURATION = 60 * 60;
 export const RADIUS_POKEMON = 70;
 
 /**
+ * Player facing ranges
+ */
+export const RANGE_POKEMON = 40
+export const RANGE_POKEMON_EXTENDED = 80
+export const RANGE_FORTS = 80
+
+/**
  * The radius in which scout mode requests cells, in meters
  */
 export const RADIUS_SCOUT_GMO = 1000;

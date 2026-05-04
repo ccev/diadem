@@ -38,6 +38,7 @@
 		getMapPositionFromUrlParams
 	} from "@/components/map/mapPositionParams";
 	import { Coords } from "@/lib/utils/coordinates";
+	import MarkerPopupActionTimers from "@/components/map/MarkerPopupActionTimers.svelte";
 
 	let {
 		map = $bindable()
@@ -162,6 +163,19 @@
 		}}
 	>
 		<FillLayer
+			id={MapObjectLayerId.RADIUS_FILL}
+			filter={["==", ["get", "isActionRadius"], true]}
+			paint={{
+				"fill-color": ["get", "fillColor"]
+			}}
+		/>
+		<LineLayer
+			id={MapObjectLayerId.RADIUS_STROKE}
+			filter={["==", ["get", "isActionRadius"], true]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
+		/>
+		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
 			paint={{
 				"fill-color": ["case", ["get", "isSelected"], ["get", "selectedFill"], ["get", "fillColor"]]
@@ -202,4 +216,5 @@
 	<MarkerCurrentLocation />
 	<MarkerContextMenu />
 	<MarkerSearchedLocation />
+	<MarkerPopupActionTimers />
 </MapCommon>

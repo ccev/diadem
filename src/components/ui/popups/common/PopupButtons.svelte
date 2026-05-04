@@ -16,6 +16,7 @@
 		ChevronUp,
 		CircleDot,
 		CircleDotDashed,
+		CircleOff,
 		Copy,
 		Ellipsis,
 		Expand,
@@ -105,7 +106,7 @@
 		<PopupButton
 			Icon={CircleDot}
 			label={m.popup_action_show_radius()}
-			IconActive={CircleDotDashed}
+			IconActive={CircleOff}
 			labelActive={m.popup_action_hide_radius()}
 			active={isPopupActionActive(selectedType, selectedMapId, "radius")}
 			onclick={() => togglePopupAction(selectedType, selectedMapId, "radius")}
@@ -114,7 +115,7 @@
 					label: m.popup_action_spacial_rend(),
 					Icon: Expand,
 					getActive: () => isExtraRadiusActive(selectedType),
-					onclick: () => toggleExtraRadius(selectedType)
+					onclick: () => toggleExtraRadius(selectedType, selectedMapId)
 				},
 				{
 					label: m.popup_action_show_on_every_pokemon(),

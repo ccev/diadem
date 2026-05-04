@@ -38,6 +38,7 @@ export type MapObjectPolygonProperties = {
 	strokeColor: string;
 	selectedFill: string;
 	isSelected: boolean;
+	isActionRadius?: boolean;
 };
 
 export type MapObjectCircleProperties = {
