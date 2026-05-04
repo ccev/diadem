@@ -109,7 +109,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		const subFeatures = renderer.render(obj, isSelected, isSelectedOverwrite);
 
 		features[obj.type][obj.mapId] = subFeatures;
-		if (obj.mapId === selectedMapId) selectedFeatures = [...selectedFeatures, ...subFeatures];
+		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
 	}
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }

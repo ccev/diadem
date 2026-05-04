@@ -1,23 +1,4 @@
-<script lang="ts">
-	import type { Snippet } from "svelte";
-	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from "svelte/elements";
-
-	let {
-		class: class_ = "",
-		variant = "default",
-		size = "default",
-		children = undefined,
-		tag = "button",
-		...rest
-	}: {
-		class?: string;
-		variant?: keyof typeof variants;
-		size?: keyof typeof sizes;
-		children?: Snippet;
-		tag?: "a" | "button";
-	} & HTMLButtonAttributes &
-		HTMLAnchorAttributes = $props();
-
+<script lang="ts" module>
 	const variants = {
 		default: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/90",
 		destructive:
@@ -39,6 +20,29 @@
 		icon: "h-10 w-10 rounded-md",
 		"": ""
 	};
+
+	export type ButtonProps = {
+		class?: string;
+		variant?: keyof typeof variants;
+		size?: keyof typeof sizes;
+		children?: Snippet;
+		tag?: "a" | "button";
+	} & HTMLButtonAttributes &
+		HTMLAnchorAttributes
+</script>
+
+<script lang="ts">
+	import type { Snippet } from "svelte";
+	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from "svelte/elements";
+
+	let {
+		class: class_ = "",
+		variant = "default",
+		size = "default",
+		children = undefined,
+		tag = "button",
+		...rest
+	}: ButtonProps = $props();
 
 	let className = $derived(variants[variant] + " " + (sizes[size] ?? ""));
 </script>
