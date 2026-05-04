@@ -3,17 +3,11 @@ import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export function isPopupExpanded(mapObject: MapObjectType | undefined) {
 	if (!mapObject) return false;
-	return getUserSettings().expandedMapObjects.includes(mapObject);
+	return getUserSettings().actions[mapObject].expanded;
 }
 
 export function togglePopupExpanded(mapObject: MapObjectType | undefined) {
 	if (!mapObject) return;
-	if (isPopupExpanded(mapObject)) {
-		getUserSettings().expandedMapObjects = getUserSettings().expandedMapObjects.filter(
-			(m) => m !== mapObject
-		);
-	} else {
-		getUserSettings().expandedMapObjects.push(mapObject);
-	}
+	getUserSettings().actions[mapObject].expanded = !isPopupExpanded(mapObject);
 	updateUserSettings();
 }
