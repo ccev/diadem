@@ -2,14 +2,17 @@
 	import { isPopupExpanded } from "@/lib/ui/popupActions.js";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import Card from "@/components/ui/Card.svelte";
-	import { Share2, X } from "lucide-svelte";
+	import { Copy, Share2, X } from "lucide-svelte";
 	import type { Snippet } from "svelte";
 	import { slide } from "svelte/transition";
 	import { cubicIn, cubicOut } from "svelte/easing";
 	import Button from "@/components/ui/input/Button.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
-	import { closePopup } from "@/lib/mapObjects/interact";
+	import { closePopup, getCurrentPath } from "@/lib/mapObjects/interact";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "@/lib/utils/device";
+	import { getLocale } from "@/lib/paraglide/runtime";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
 		lat,
@@ -28,24 +31,45 @@
 		description?: Snippet;
 		content?: Snippet;
 	} = $props();
+
+	function getShareUrl() {
+		return window.location.origin + getCurrentPath() + "?lang=" + getLocale();
+	}
 </script>
 
 <Card class="h-full relative overflow-hidden pt-4 mx-2">
 
-	<div class="absolute right-2 top-2 flex gap-0">
-		<Button variant="ghost" size="" class="rounded-full size-8 p-2">
-			<Share2 class="size-3.5" />
-		</Button>
-		<Button variant="ghost" size="" class="rounded-full p-2 size-8" onclick={closePopup}>
+	<div class="absolute right-2 top-3 flex gap-1.5">
+		{#if canNativeShare({ url: getShareUrl() })}
+			<Button
+				variant="ghost"
+				size=""
+				class="rounded-full size-8 p-2"
+				title={m.popup_share()}
+				onclick={() => backupShareUrl(getShareUrl())}
+			>
+				<Share2 class="size-3.5" />
+			</Button>
+		{:else if hasClipboardWrite()}
+			<Button
+				variant="ghost"
+				size=""
+				class="rounded-full size-8 p-2"
+				title={m.copy_link()}
+				onclick={() => copyToClipboard(getShareUrl())}
+			>
+				<Copy class="size-3.5" />
+			</Button>
+		{/if}
+		<Button variant="ghost" size="" class="rounded-full p-2 size-8" title={m.close()} onclick={closePopup}>
 			<X class="size-4.5" />
 		</Button>
-<!--		<CloseButton onclick={closePopup} />-->
 	</div>
 
 	<div class="flex pl-6 pr-3 w-full items-center mb-2">
 		{@render image()}
 		<div class="w-full h-fit ml-4 max-h-full">
-			<div class="mr-9">
+			<div class="mr-16">
 				{@render title()}
 			</div>
 

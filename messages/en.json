@@ -500,5 +500,6 @@
 	"popup_action_spacial_rend": "Spacial Rend",
 	"popup_action_show_on_every_pokemon": "Show on every Pokémon",
 	"popup_action_show_timer": "Show timer",
-	"popup_action_hide_timer": "Hide timer"
+	"popup_action_hide_timer": "Hide timer",
+	"close": "Close"
 }

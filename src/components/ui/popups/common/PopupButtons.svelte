@@ -59,16 +59,12 @@
 		lon: number;
 	} = $props();
 
-	function getShareUrl() {
-		return window.location.origin + getCurrentPath() + "?lang=" + getLocale();
-	}
-
 	let selectedData = $derived(getCurrentSelectedData());
 	let selectedType = $derived(selectedData?.type);
 	let selectedMapId = $derived(selectedData?.mapId);
 </script>
 
-<div class="flex px-4 gap-1.5 w-full overflow-x-scroll pb-4">
+<div class="flex px-4 gap-1.5 w-full overflow-x-auto pb-4">
 	<PopupButton
 		variant="default"
 		Icon={Plus}

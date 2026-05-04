@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { X } from "lucide-svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { closePopup } from "@/lib/mapObjects/interact";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
 		onclick,
@@ -12,6 +12,6 @@
 	} = $props();
 </script>
 
-<Button variant="ghost" size="" class="rounded-sm p-2 {class_}" {onclick}>
+<Button variant="ghost" size="" class="rounded-sm p-2 {class_}" title={m.close()} {onclick}>
 	<X size="20" />
 </Button>
