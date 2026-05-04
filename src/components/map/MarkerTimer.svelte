@@ -20,6 +20,18 @@
 
 	onDestroy(() => clearInterval(interval));
 
+	$effect(() => {
+		getMapStyleVersion();
+
+		const map = getMap();
+		if (!map || map.hasImage(timerBackgroundImageId)) return;
+
+		const image = createTimerBackgroundImage();
+		if (!image) return;
+
+		map.addImage(timerBackgroundImageId, image);
+	});
+
 	function createTimerBackgroundImage() {
 		const canvas = document.createElement("canvas");
 		canvas.width = 32;
@@ -45,18 +57,6 @@
 
 		return ctx.getImageData(0, 0, canvas.width, canvas.height);
 	}
-
-	$effect(() => {
-		getMapStyleVersion();
-
-		const map = getMap();
-		if (!map || map.hasImage(timerBackgroundImageId)) return;
-
-		const image = createTimerBackgroundImage();
-		if (!image) return;
-
-		map.addImage(timerBackgroundImageId, image);
-	});
 
 	function formatTimer(expireTimestamp: number) {
 		const remaining = Math.max(0, expireTimestamp - now);
@@ -107,19 +107,13 @@
 			"icon-text-fit": "both",
 			"icon-text-fit-padding": [3, 7, 3, 7],
 			"icon-anchor": "top",
-			"icon-offset": [
-				"case",
-				["get", "hasModifierLabel"],
-				["literal", [0, 14]],
-				["literal", [0, 0]]
-			],
 			"icon-allow-overlap": true,
 			"text-field": ["get", "timer"],
 			"text-anchor": "top",
 			"text-offset": [
 				"case",
 				["get", "hasModifierLabel"],
-				["literal", [0, 2.75]],
+				["literal", [0, 2.5]],
 				["literal", [0, 1.5]]
 			],
 			"text-size": 12,

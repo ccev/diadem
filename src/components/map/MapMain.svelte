@@ -38,7 +38,7 @@
 		getMapPositionFromUrlParams
 	} from "@/components/map/mapPositionParams";
 	import { Coords } from "@/lib/utils/coordinates";
-	import MarkerPopupActionTimers from "@/components/map/MarkerPopupActionTimers.svelte";
+	import MarkerTimer from "@/components/map/MarkerTimer.svelte";
 
 	let {
 		map = $bindable()
@@ -216,5 +216,5 @@
 	<MarkerCurrentLocation />
 	<MarkerContextMenu />
 	<MarkerSearchedLocation />
-	<MarkerPopupActionTimers />
+	<MarkerTimer />
 </MapCommon>
