@@ -6,8 +6,14 @@
 	import { getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
+	import { matchInvasionFilterset } from "@/lib/features/filterLogic/pokestop";
+	import { matchRaidFilterset } from "@/lib/features/filterLogic/gym";
+	import { matchMaxBattleFilterset } from "@/lib/features/filterLogic/station";
+	import { getConfigModifiers } from "@/lib/map/render/renderMapObjects";
 	import { isPopupActionActive, PopupAction } from "@/lib/ui/popupActions";
-	import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+	import { getCurrentUiconSetDetailsAllTypes } from "@/lib/services/uicons.svelte";
+	import type { UiconSetModifierType } from "@/lib/services/config/configTypes";
+	import type { Incident } from "@/lib/types/mapObjectData/pokestop";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 	import { onDestroy } from "svelte";
 
@@ -71,31 +77,93 @@
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	}
 
-	function isTimerPokemon(obj: MapData): obj is PokemonData {
-		return (
-			obj.type === MapObjectType.POKEMON &&
-			Boolean(obj.expire_timestamp) &&
-			isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)
-		);
+	function getTimerExpire(obj: MapData): number | undefined {
+		switch (obj.type) {
+			case MapObjectType.POKEMON:
+				return obj.expire_timestamp ?? undefined;
+			case MapObjectType.GYM:
+				return obj.raid_end_timestamp ?? undefined;
+			case MapObjectType.STATION:
+				return obj.end_time;
+		}
 	}
 
-	let timerData: FeatureCollection<Point, { hasModifierLabel: boolean; timer: string }> =
+	function getFilterLabel(obj: MapData): boolean {
+		switch (obj.type) {
+			case MapObjectType.POKEMON:
+				return Boolean(matchPokemonFilterset(obj)?.modifiers?.showLabel);
+			case MapObjectType.GYM:
+				return Boolean(matchRaidFilterset(obj)?.modifiers?.showLabel);
+			case MapObjectType.STATION:
+				return Boolean(matchMaxBattleFilterset(obj)?.modifiers?.showLabel);
+		}
+		return false;
+	}
+
+	function getIncidentFilterLabel(incident: Incident): boolean {
+		return Boolean(matchInvasionFilterset(incident)?.modifiers?.showLabel);
+	}
+
+	function getTimerOffset(
+		obj: MapData,
+		hasModifierLabel: boolean,
+		incidentIndex = 0
+	): [number, number] {
+		const iconSets = getCurrentUiconSetDetailsAllTypes();
+		const baseModifiers = getConfigModifiers(iconSets[obj.type], obj.type);
+		let offsetX = baseModifiers.offsetX;
+		let offsetY = baseModifiers.offsetY;
+
+		return [offsetX / 32, (hasModifierLabel ? 2.5 : 1.5) + offsetY / 32];
+	}
+
+	function getTimerFeature(
+		obj: MapData,
+		expires: number,
+		hasModifierLabel: boolean,
+		id: string,
+		incidentIndex = 0
+	) {
+		return {
+			type: "Feature" as const,
+			geometry: {
+				type: "Point" as const,
+				coordinates: [obj.lon, obj.lat]
+			},
+			properties: {
+				textOffset: getTimerOffset(obj, hasModifierLabel, incidentIndex),
+				timer: formatTimer(expires),
+				id: obj.mapId
+			},
+			id
+		};
+	}
+
+	let timerData: FeatureCollection<Point, { textOffset: [number, number]; timer: string }> =
 		$derived.by(() => ({
 			type: "FeatureCollection",
-			features: Object.values(getMapObjects())
-				.filter(isTimerPokemon)
-				.map((pokemon) => ({
-					type: "Feature",
-					geometry: {
-						type: "Point",
-						coordinates: [pokemon.lon, pokemon.lat]
-					},
-					properties: {
-						hasModifierLabel: Boolean(matchPokemonFilterset(pokemon)?.modifiers?.showLabel),
-						timer: formatTimer(pokemon.expire_timestamp ?? now)
-					},
-					id: pokemon.mapId
-				}))
+			features: Object.values(getMapObjects()).flatMap((obj) => {
+				if (!isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)) return [];
+
+				if (obj.type === MapObjectType.POKESTOP) {
+					return (obj.incident ?? [])
+						.filter((incident) => incident.expiration > now)
+						.map((incident, index) =>
+							getTimerFeature(
+								obj,
+								incident.expiration,
+								getIncidentFilterLabel(incident),
+								`${obj.mapId}-incident-${incident.id}`,
+								index
+							)
+						);
+				}
+
+				const timer = getTimerExpire(obj);
+				if (!timer || timer <= now) return [];
+
+				return [getTimerFeature(obj, timer, getFilterLabel(obj), obj.mapId)];
+			})
 		}));
 </script>
 
@@ -110,12 +178,7 @@
 			"icon-allow-overlap": true,
 			"text-field": ["get", "timer"],
 			"text-anchor": "top",
-			"text-offset": [
-				"case",
-				["get", "hasModifierLabel"],
-				["literal", [0, 2.5]],
-				["literal", [0, 1.5]]
-			],
+			"text-offset": ["get", "textOffset"],
 			"text-size": 12,
 			"text-allow-overlap": true,
 			"text-font": [
@@ -132,5 +195,6 @@
 			"text-halo-width": 0.75,
 			"text-halo-blur": 0.25
 		}}
+		hoverCursor="pointer"
 	/>
 </GeoJSON>
