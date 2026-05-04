@@ -1,19 +1,79 @@
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import {
-	updateDimmedFeatures,
-	updateRadiusFeatures
-} from "@/lib/map/featuresGen.svelte";
+import { updateDimmedFeatures, updateRadiusFeatures } from "@/lib/map/featuresGen.svelte";
+import type { LucideIcon } from "@/lib/types/lucide";
+import { Expand, Eye, SquareStack } from "lucide-svelte";
+import * as m from "@/lib/paraglide/messages";
+import { mAny } from "@/lib/utils/anyMessage";
 
-export type PopupAction = "dimmed" | "radius" | "timer";
+export enum PopupAction {
+	DIMMED = "dimmed",
+	RADIUS = "radius",
+	TIMER = "timer"
+}
+
+export type PopupActionDropdown = {
+	label: string;
+	Icon: LucideIcon;
+	getActive?: () => boolean;
+	onclick: () => void;
+};
 
 const supportedPopupActions: Partial<Record<MapObjectType, PopupAction[]>> = {
-	[MapObjectType.POKEMON]: ["dimmed", "radius", "timer"]
+	[MapObjectType.POKEMON]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
+	[MapObjectType.POKESTOP]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
+	[MapObjectType.GYM]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
+	[MapObjectType.STATION]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
+	[MapObjectType.TAPPABLE]: [PopupAction.DIMMED, PopupAction.TIMER]
 };
 
 export function supportsPopupAction(mapObject: MapObjectType | undefined, action: PopupAction) {
 	if (!mapObject) return false;
 	return supportedPopupActions[mapObject]?.includes(action) ?? false;
+}
+
+export function getPopupActions(
+	mapObject: MapObjectType | undefined,
+	action: PopupAction
+): PopupActionDropdown[] | undefined {
+	if (!mapObject) return;
+
+	if (action === PopupAction.DIMMED) {
+		return [
+			{
+				label: mAny("popup_action_undim_all_" + mapObject),
+				Icon: Eye,
+				onclick: () => clearPopupAction(mapObject, PopupAction.DIMMED)
+			}
+		];
+	} else if (action === PopupAction.RADIUS) {
+		const actions: PopupActionDropdown[] = [
+			{
+				label: mAny("popup_action_show_on_every_" + mapObject),
+				Icon: SquareStack,
+				getActive: () => isPopupActionAllActive(mapObject, PopupAction.RADIUS),
+				onclick: () => togglePopupActionAll(mapObject, PopupAction.RADIUS)
+			}
+		];
+		if (mapObject === MapObjectType.POKEMON) {
+			actions.unshift({
+				label: m.popup_action_spacial_rend(),
+				Icon: Expand,
+				getActive: () => isExtraRadiusActive(mapObject),
+				onclick: () => toggleExtraRadius(mapObject)
+			});
+		}
+		return actions;
+	} else if (action === PopupAction.TIMER) {
+		return [
+			{
+				label: mAny("popup_action_show_on_every_" + mapObject),
+				Icon: SquareStack,
+				getActive: () => isPopupActionAllActive(mapObject, PopupAction.TIMER),
+				onclick: () => togglePopupActionAll(mapObject, PopupAction.TIMER)
+			}
+		];
+	}
 }
 
 export function isPopupExpanded(mapObject: MapObjectType | undefined) {
@@ -54,7 +114,7 @@ export function togglePopupAction(
 		actionState.mapIds.push(mapId);
 	}
 
-	if (action === "dimmed") {
+	if (action === PopupAction.DIMMED) {
 		const timerState = getUserSettings().actions[mapObject].timer;
 		if ("all" in timerState && timerState.all) {
 			const nowDimmed = actionState.mapIds.includes(mapId);
@@ -67,8 +127,8 @@ export function togglePopupAction(
 	}
 
 	updateUserSettings();
-	if (action === "dimmed") updateDimmedFeatures();
-	if (action === "radius") updateRadiusFeatures();
+	if (action === PopupAction.DIMMED) updateDimmedFeatures();
+	if (action === PopupAction.RADIUS) updateRadiusFeatures();
 }
 
 export function isPopupActionAllActive(mapObject: MapObjectType | undefined, action: PopupAction) {
@@ -87,7 +147,7 @@ export function togglePopupActionAll(mapObject: MapObjectType | undefined, actio
 	actionState.all = !actionState.all;
 	actionState.mapIds = [];
 	updateUserSettings();
-	if (action === "radius") updateRadiusFeatures();
+	if (action === PopupAction.RADIUS) updateRadiusFeatures();
 }
 
 export function clearPopupAction(mapObject: MapObjectType | undefined, action: PopupAction) {
@@ -98,22 +158,26 @@ export function clearPopupAction(mapObject: MapObjectType | undefined, action: P
 	if ("all" in actionState) actionState.all = false;
 
 	updateUserSettings();
-	if (action === "dimmed") updateDimmedFeatures();
-	if (action === "radius") updateRadiusFeatures();
+	if (action === PopupAction.DIMMED) updateDimmedFeatures();
+	if (action === PopupAction.RADIUS) updateRadiusFeatures();
 }
 
 export function isExtraRadiusActive(mapObject: MapObjectType | undefined) {
-	if (!mapObject || !supportsPopupAction(mapObject, "radius")) return false;
+	if (!mapObject || !supportsPopupAction(mapObject, PopupAction.RADIUS)) return false;
 	return getUserSettings().actions[mapObject].radius.extraRadius;
 }
 
 export function toggleExtraRadius(mapObject: MapObjectType | undefined, mapId?: string) {
-	if (!mapObject || !supportsPopupAction(mapObject, "radius")) return;
+	if (!mapObject || !supportsPopupAction(mapObject, PopupAction.RADIUS)) return;
 
 	const radiusState = getUserSettings().actions[mapObject].radius;
 	radiusState.extraRadius = !radiusState.extraRadius;
 
-	if (radiusState.extraRadius && mapId && !isPopupActionActive(mapObject, mapId, "radius")) {
+	if (
+		radiusState.extraRadius &&
+		mapId &&
+		!isPopupActionActive(mapObject, mapId, PopupAction.RADIUS)
+	) {
 		if (radiusState.all) {
 			radiusState.mapIds = radiusState.mapIds.filter((id) => id !== mapId);
 		} else {

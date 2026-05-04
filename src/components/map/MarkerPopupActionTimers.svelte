@@ -6,7 +6,7 @@
 	import { getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
-	import { isPopupActionActive } from "@/lib/ui/popupActions";
+	import { isPopupActionActive, PopupAction } from "@/lib/ui/popupActions";
 	import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 	import { onDestroy } from "svelte";
@@ -75,7 +75,7 @@
 		return (
 			obj.type === MapObjectType.POKEMON &&
 			Boolean(obj.expire_timestamp) &&
-			isPopupActionActive(obj.type, obj.mapId, "timer")
+			isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)
 		);
 	}
 

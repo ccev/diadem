@@ -4,13 +4,7 @@
 	import type { LucideIcon } from "@/lib/types/lucide";
 	import { DropdownMenu } from "bits-ui";
 	import { fly, slide } from "svelte/transition";
-
-	type Action = {
-		label: string;
-		Icon: LucideIcon;
-		getActive?: () => boolean;
-		onclick: () => void;
-	}
+	import type { PopupActionDropdown } from "@/lib/ui/popupActions";
 
 	let {
 		Icon,
@@ -26,7 +20,7 @@
 		active?: boolean
 		IconActive?: LucideIcon
 		labelActive?: string
-		actions?: Action[]
+		actions?: PopupActionDropdown[]
 	} & ButtonProps = $props();
 </script>
 

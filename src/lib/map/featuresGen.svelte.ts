@@ -36,8 +36,11 @@ type Features = {
 	};
 };
 
-let features: Features = getEmptyFeatures();
+const RADIUS_STROKE = "rgba(56, 189, 248, 0.5)";
+const RADIUS_FILL = "rgba(56, 189, 248, 0.05)";
+const RADIUS_FILL_SELECTED = "rgba(56, 189, 248, 0.2)";
 
+let features: Features = getEmptyFeatures();
 let selectedFeatures: MapObjectFeature[] = [];
 
 function getEmptyFeatures(): Features {
@@ -102,9 +105,9 @@ function getActionRadiusFeature(type: MapObjectType, mapId: string, center: [num
 
 	return getPolygonFeature(mapId + "-radius", [feature.geometry.coordinates], {
 		id: mapId,
-		strokeColor: "rgba(56, 189, 248, 0.7)",
-		fillColor: "rgba(56, 189, 248, 0.14)",
-		selectedFill: "rgba(56, 189, 248, 0.2)",
+		strokeColor: RADIUS_STROKE,
+		fillColor: RADIUS_FILL,
+		selectedFill: RADIUS_FILL_SELECTED,
 		isSelected: false,
 		isActionRadius: true
 	});
