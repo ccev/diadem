@@ -4,8 +4,7 @@ import { resize } from "@/lib/services/assets";
 export enum FeatureTypes {
 	ICON = 0,
 	POLYGON = 1,
-	CIRCLE = 2,
-	TIMER = 3
+	CIRCLE = 2
 }
 
 export type MapObjectIconProperties = {
@@ -51,23 +50,13 @@ export type MapObjectCircleProperties = {
 	strokeColor: string;
 };
 
-export type MapObjectTimerProperties = {
-	id: string;
-	type: FeatureTypes.TIMER;
-	textOffset: [number, number];
-	timer: string;
-	expires: number;
-};
-
 export type MapObjectIconFeature = GeojsonFeature<Point, MapObjectIconProperties>;
 export type MapObjectPolygonFeature = GeojsonFeature<MultiPolygon, MapObjectPolygonProperties>;
 export type MapObjectCircleFeature = GeojsonFeature<Point, MapObjectCircleProperties>;
-export type MapObjectTimerFeature = GeojsonFeature<Point, MapObjectTimerProperties>;
 export type MapObjectFeature =
 	| MapObjectPolygonFeature
 	| MapObjectIconFeature
-	| MapObjectCircleFeature
-	| MapObjectTimerFeature;
+	| MapObjectCircleFeature;
 
 export function isFeatureIcon(feature: MapObjectFeature): feature is MapObjectIconFeature {
 	return feature.properties.type === FeatureTypes.ICON;
@@ -79,10 +68,6 @@ export function isFeatureCircle(feature: MapObjectFeature): feature is MapObject
 
 export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjectPolygonFeature {
 	return feature.properties.type === FeatureTypes.POLYGON;
-}
-
-export function isFeatureTimer(feature: MapObjectFeature): feature is MapObjectTimerFeature {
-	return feature.properties.type === FeatureTypes.TIMER;
 }
 
 export function getIconFeature(
@@ -145,25 +130,6 @@ export function getCircleFeature(
 		properties: {
 			...properties,
 			type: FeatureTypes.CIRCLE
-		},
-		id
-	};
-}
-
-export function getTimerFeature(
-	id: string,
-	coordinates: Point["coordinates"],
-	properties: Omit<MapObjectTimerProperties, "type">
-): MapObjectTimerFeature {
-	return {
-		type: "Feature",
-		geometry: {
-			type: "Point",
-			coordinates
-		},
-		properties: {
-			...properties,
-			type: FeatureTypes.TIMER
 		},
 		id
 	};

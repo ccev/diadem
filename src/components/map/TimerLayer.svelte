@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { GeoJSON, SymbolLayer } from "svelte-maplibre";
-	import type { FeatureCollection, Point } from "geojson";
+	import type { Feature, FeatureCollection, Point } from "geojson";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
@@ -17,7 +17,19 @@
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 	import { onDestroy } from "svelte";
 
-	const timerBackgroundImageId = "popup-action-timer-background";
+	const TIMER_BACKGROUND_IMAGE_ID = "popup-action-timer-background";
+	const TIMER_BACKGROUND_SIZE = { width: 32, height: 16, radius: 10 };
+	const TIMER_BACKGROUND_COLOR = "rgba(9, 9, 11, 0.78)";
+	const TIMER_TEXT_OFFSET = { default: 1.5, withLabel: 2.5 };
+	const MAPLIBRE_ICON_OFFSET_SCALE = 32;
+
+	type TimerFeatureProperties = {
+		id: string;
+		textOffset: [number, number];
+		timer: string;
+	};
+
+	type TimerFeature = Feature<Point, TimerFeatureProperties>;
 
 	let now = $state(currentTimestamp());
 	const interval = setInterval(() => {
@@ -30,35 +42,24 @@
 		getMapStyleVersion();
 
 		const map = getMap();
-		if (!map || map.hasImage(timerBackgroundImageId)) return;
+		if (!map || map.hasImage(TIMER_BACKGROUND_IMAGE_ID)) return;
 
 		const image = createTimerBackgroundImage();
 		if (!image) return;
 
-		map.addImage(timerBackgroundImageId, image);
+		map.addImage(TIMER_BACKGROUND_IMAGE_ID, image);
 	});
 
 	function createTimerBackgroundImage() {
 		const canvas = document.createElement("canvas");
-		canvas.width = 32;
-		canvas.height = 16;
+		canvas.width = TIMER_BACKGROUND_SIZE.width;
+		canvas.height = TIMER_BACKGROUND_SIZE.height;
 
 		const ctx = canvas.getContext("2d");
 		if (!ctx) return undefined;
 
-		const radius = 7;
-		ctx.fillStyle = "rgba(9, 9, 11, 0.78)";
-		ctx.beginPath();
-		ctx.moveTo(radius, 0);
-		ctx.lineTo(canvas.width - radius, 0);
-		ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
-		ctx.lineTo(canvas.width, canvas.height - radius);
-		ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
-		ctx.lineTo(radius, canvas.height);
-		ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
-		ctx.lineTo(0, radius);
-		ctx.quadraticCurveTo(0, 0, radius, 0);
-		ctx.closePath();
+		ctx.fillStyle = TIMER_BACKGROUND_COLOR;
+		ctx.roundRect(0, 0, canvas.width, canvas.height, TIMER_BACKGROUND_SIZE.radius);
 		ctx.fill();
 
 		return ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -77,18 +78,7 @@
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	}
 
-	function getTimerExpire(obj: MapData): number | undefined {
-		switch (obj.type) {
-			case MapObjectType.POKEMON:
-				return obj.expire_timestamp ?? undefined;
-			case MapObjectType.GYM:
-				return obj.raid_end_timestamp ?? undefined;
-			case MapObjectType.STATION:
-				return obj.end_time;
-		}
-	}
-
-	function getFilterLabel(obj: MapData): boolean {
+	function hasFilterLabel(obj: MapData): boolean {
 		switch (obj.type) {
 			case MapObjectType.POKEMON:
 				return Boolean(matchPokemonFilterset(obj)?.modifiers?.showLabel);
@@ -100,78 +90,103 @@
 		return false;
 	}
 
-	function getIncidentFilterLabel(incident: Incident): boolean {
+	function hasIncidentFilterLabel(incident: Incident): boolean {
 		return Boolean(matchInvasionFilterset(incident)?.modifiers?.showLabel);
 	}
 
 	function getTimerOffset(
 		obj: MapData,
 		hasModifierLabel: boolean,
-		incidentIndex = 0
+		modifierType: UiconSetModifierType = obj.type,
+		modifierIndex = 0
 	): [number, number] {
 		const iconSets = getCurrentUiconSetDetailsAllTypes();
-		const baseModifiers = getConfigModifiers(iconSets[obj.type], obj.type);
-		let offsetX = baseModifiers.offsetX;
-		let offsetY = baseModifiers.offsetY;
+		const iconSet = iconSets[obj.type];
+		const base = getConfigModifiers(iconSet, obj.type);
+		const modifier =
+			modifierType === obj.type ? undefined : getConfigModifiers(iconSet, modifierType);
+		const offsetX = base.offsetX + (modifier?.offsetX ?? 0);
+		const offsetY =
+			base.offsetY + (modifier?.offsetY ?? 0) + modifierIndex * (modifier?.spacing ?? 0);
+		const labelOffset = hasModifierLabel ? TIMER_TEXT_OFFSET.withLabel : TIMER_TEXT_OFFSET.default;
 
-		return [offsetX / 32, (hasModifierLabel ? 2.5 : 1.5) + offsetY / 32];
+		return [
+			offsetX / MAPLIBRE_ICON_OFFSET_SCALE,
+			labelOffset + offsetY / MAPLIBRE_ICON_OFFSET_SCALE
+		];
 	}
 
-	function getTimerFeature(
+	function createTimerFeature(
 		obj: MapData,
 		expires: number,
 		hasModifierLabel: boolean,
 		id: string,
-		incidentIndex = 0
-	) {
+		modifierType?: UiconSetModifierType,
+		modifierIndex?: number
+	): TimerFeature {
 		return {
-			type: "Feature" as const,
+			type: "Feature",
 			geometry: {
-				type: "Point" as const,
+				type: "Point",
 				coordinates: [obj.lon, obj.lat]
 			},
 			properties: {
-				textOffset: getTimerOffset(obj, hasModifierLabel, incidentIndex),
-				timer: formatTimer(expires),
-				id: obj.mapId
+				id: obj.mapId,
+				textOffset: getTimerOffset(obj, hasModifierLabel, modifierType, modifierIndex),
+				timer: formatTimer(expires)
 			},
 			id
 		};
 	}
 
-	let timerData: FeatureCollection<Point, { textOffset: [number, number]; timer: string }> =
-		$derived.by(() => ({
-			type: "FeatureCollection",
-			features: Object.values(getMapObjects()).flatMap((obj) => {
-				if (!isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)) return [];
+	function getTimerFeatures(obj: MapData): TimerFeature[] {
+		if (!isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)) return [];
 
-				if (obj.type === MapObjectType.POKESTOP) {
-					return (obj.incident ?? [])
-						.filter((incident) => incident.expiration > now)
-						.map((incident, index) =>
-							getTimerFeature(
-								obj,
-								incident.expiration,
-								getIncidentFilterLabel(incident),
-								`${obj.mapId}-incident-${incident.id}`,
-								index
-							)
-						);
-				}
+		if (obj.type === MapObjectType.POKESTOP) {
+			return (obj.incident ?? [])
+				.filter((incident) => incident.expiration > now)
+				.map((incident, index) =>
+					createTimerFeature(
+						obj,
+						incident.expiration,
+						hasIncidentFilterLabel(incident),
+						`${obj.mapId}-incident-${incident.id}`,
+						"invasion",
+						index
+					)
+				);
+		}
 
-				const timer = getTimerExpire(obj);
-				if (!timer || timer <= now) return [];
+		let expires: number | undefined;
+		switch (obj.type) {
+			case MapObjectType.POKEMON:
+			case MapObjectType.TAPPABLE:
+				expires = obj.expire_timestamp ?? undefined;
+				break;
+			case MapObjectType.GYM:
+				expires = obj.raid_end_timestamp ?? undefined;
+				break;
+			case MapObjectType.STATION:
+				expires = obj.end_time ?? undefined;
+				break;
+		}
 
-				return [getTimerFeature(obj, timer, getFilterLabel(obj), obj.mapId)];
-			})
-		}));
+		if (!expires || expires <= now) return [];
+
+		return [createTimerFeature(obj, expires, hasFilterLabel(obj), obj.mapId)];
+	}
+
+	let timerData: FeatureCollection<Point, TimerFeatureProperties> = $derived.by(() => ({
+		type: "FeatureCollection",
+		features: Object.values(getMapObjects()).flatMap(getTimerFeatures)
+	}));
 </script>
 
 <GeoJSON id={MapSourceId.POPUP_ACTION_TIMERS} data={timerData}>
 	<SymbolLayer
 		id={MapObjectLayerId.TIMER_LABELS}
 		layout={{
-			"icon-image": timerBackgroundImageId,
+			"icon-image": TIMER_BACKGROUND_IMAGE_ID,
 			"icon-text-fit": "both",
 			"icon-text-fit-padding": [3, 7, 3, 7],
 			"icon-anchor": "top",
