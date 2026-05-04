@@ -101,23 +101,13 @@
 	function getTimerOffset(
 		obj: MapData,
 		hasModifierLabel: boolean,
-		modifierType: UiconSetModifierType = obj.type,
-		modifierIndex = 0
 	): [number, number] {
 		const iconSets = getCurrentUiconSetDetailsAllTypes();
-		const iconSet = iconSets[obj.type];
-		const base = getConfigModifiers(iconSet, obj.type);
-		const modifier =
-			modifierType === obj.type ? undefined : getConfigModifiers(iconSet, modifierType);
-		const offsetX = base.offsetX + (modifier?.offsetX ?? 0);
-		const offsetY =
-			base.offsetY + (modifier?.offsetY ?? 0) + modifierIndex * (modifier?.spacing ?? 0);
-		const labelOffset = hasModifierLabel ? TIMER_TEXT_OFFSET.withLabel : TIMER_TEXT_OFFSET.default;
+		const baseModifiers = getConfigModifiers(iconSets[obj.type], obj.type);
+		const offsetX = baseModifiers.offsetX;
+		const offsetY = baseModifiers.offsetY;
 
-		return [
-			offsetX / MAPLIBRE_ICON_OFFSET_SCALE,
-			labelOffset + offsetY / MAPLIBRE_ICON_OFFSET_SCALE
-		];
+		return [offsetX / MAPLIBRE_ICON_OFFSET_SCALE, (hasModifierLabel ? TIMER_TEXT_OFFSET.withLabel : TIMER_TEXT_OFFSET.default) + offsetY / MAPLIBRE_ICON_OFFSET_SCALE];
 	}
 
 	function createTimerFeatureEntry(
@@ -125,8 +115,6 @@
 		expires: number,
 		hasModifierLabel: boolean,
 		id: string,
-		modifierType?: UiconSetModifierType,
-		modifierIndex?: number
 	): TimerFeatureEntry {
 		return {
 			expires,
@@ -138,7 +126,7 @@
 				},
 				properties: {
 					id: obj.mapId,
-					textOffset: getTimerOffset(obj, hasModifierLabel, modifierType, modifierIndex),
+					textOffset: getTimerOffset(obj, hasModifierLabel),
 					timer: formatTimer(expires, currentTimestamp())
 				},
 				id
@@ -156,8 +144,6 @@
 					incident.expiration,
 					hasIncidentFilterLabel(incident),
 					`${obj.mapId}-incident-${incident.id}`,
-					"invasion",
-					index
 				)
 			);
 		}
