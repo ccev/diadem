@@ -491,5 +491,14 @@
 	"unknown_league": "Unknown League",
 	"target_cp": "Target CP",
 	"considered_max_level": "Considered max level",
-	"copy_link": "Copy link"
+	"copy_link": "Copy link",
+	"popup_action_dim": "Dim",
+	"popup_action_undim": "Undim",
+	"popup_action_undim_all_pokemon": "Undim all Pokémon",
+	"popup_action_show_radius": "Show radius",
+	"popup_action_hide_radius": "Hide radius",
+	"popup_action_spacial_rend": "Spacial Rend",
+	"popup_action_show_on_every_pokemon": "Show on every Pokémon",
+	"popup_action_show_timer": "Show timer",
+	"popup_action_hide_timer": "Hide timer"
 }

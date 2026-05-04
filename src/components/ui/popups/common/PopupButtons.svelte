@@ -1,17 +1,37 @@
 <script lang="ts">
-	import { isPopupExpanded, togglePopupExpanded } from "@/lib/ui/popupActions.js";
+	import {
+		clearPopupAction,
+		isExtraRadiusActive,
+		isPopupActionActive,
+		isPopupActionAllActive,
+		isPopupExpanded,
+		supportsPopupAction,
+		toggleExtraRadius,
+		togglePopupAction,
+		togglePopupActionAll,
+		togglePopupExpanded
+	} from "@/lib/ui/popupActions.js";
 	import {
 		CheckCheck,
 		ChevronUp,
-		CircleDot, CircleDotDashed,
-		Copy, Ellipsis, Expand,
+		CircleDot,
+		CircleDotDashed,
+		Copy,
+		Ellipsis,
+		Expand,
 		Eye,
 		EyeClosed,
-		EyeOff, Minus,
-		Navigation, Plus,
+		EyeOff,
+		Minus,
+		Navigation,
+		Plus,
 		Radius,
-		Share2, SquareStack, Tag, Tags,
-		Timer, TimerOff
+		Share2,
+		SquareStack,
+		Tag,
+		Tags,
+		Timer,
+		TimerOff
 	} from "lucide-svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
@@ -41,6 +61,10 @@
 	function getShareUrl() {
 		return window.location.origin + getCurrentPath() + "?lang=" + getLocale();
 	}
+
+	let selectedData = $derived(getCurrentSelectedData());
+	let selectedType = $derived(selectedData?.type);
+	let selectedMapId = $derived(selectedData?.mapId);
 </script>
 
 <div class="flex px-4 gap-1.5 w-full overflow-x-scroll pb-4">
@@ -50,8 +74,8 @@
 		label={m.popup_show_details()}
 		IconActive={Minus}
 		labelActive={m.popup_hide_details()}
-		active={isPopupExpanded(getCurrentSelectedData()?.type)}
-		onclick={() => togglePopupExpanded(getCurrentSelectedData()?.type)}
+		active={isPopupExpanded(selectedType)}
+		onclick={() => togglePopupExpanded(selectedType)}
 	/>
 	<PopupButton
 		Icon={Navigation}
@@ -60,56 +84,65 @@
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
 	/>
-	<PopupButton
-		Icon={EyeClosed}
-		label="Dim"
-		IconActive={Eye}
-		labelActive="Undim"
-		active={false}
-		actions={[
-			{
-				label: "Undim all Pokemon",
-				Icon: Eye,
-				onclick: () => {}
-			},
-		]}
-	/>
-	<PopupButton
-		Icon={CircleDot}
-		label="Show range"
-		IconActive={CircleDotDashed}
-		labelActive="Hide range"
-		active={false}
-		actions={[
-			{
-				label: "Spacial Rend",
-				Icon: Expand,
-				getActive: () => false,
-				onclick: () => {}
-			},
-			{
-				label: "Show on every Pokemon",
-				Icon: SquareStack,
-				getActive: () => true,
-				onclick: () => {}
-			}
-		]}
-	/>
-	<PopupButton
-		Icon={Timer}
-		label="Show timer"
-		IconActive={TimerOff}
-		labelActive="Hide timer"
-		active={false}
-		actions={[
-			{
-				label: "Show on every Pokemon",
-				Icon: SquareStack,
-				getActive: () => true,
-				onclick: () => {}
-			}
-		]}
-	/>
+	{#if supportsPopupAction(selectedType, "dimmed")}
+		<PopupButton
+			Icon={EyeClosed}
+			label={m.popup_action_dim()}
+			IconActive={Eye}
+			labelActive={m.popup_action_undim()}
+			active={isPopupActionActive(selectedType, selectedMapId, "dimmed")}
+			onclick={() => togglePopupAction(selectedType, selectedMapId, "dimmed")}
+			actions={[
+				{
+					label: m.popup_action_undim_all_pokemon(),
+					Icon: Eye,
+					onclick: () => clearPopupAction(selectedType, "dimmed")
+				}
+			]}
+		/>
+	{/if}
+	{#if supportsPopupAction(selectedType, "radius")}
+		<PopupButton
+			Icon={CircleDot}
+			label={m.popup_action_show_radius()}
+			IconActive={CircleDotDashed}
+			labelActive={m.popup_action_hide_radius()}
+			active={isPopupActionActive(selectedType, selectedMapId, "radius")}
+			onclick={() => togglePopupAction(selectedType, selectedMapId, "radius")}
+			actions={[
+				{
+					label: m.popup_action_spacial_rend(),
+					Icon: Expand,
+					getActive: () => isExtraRadiusActive(selectedType),
+					onclick: () => toggleExtraRadius(selectedType)
+				},
+				{
+					label: m.popup_action_show_on_every_pokemon(),
+					Icon: SquareStack,
+					getActive: () => isPopupActionAllActive(selectedType, "radius"),
+					onclick: () => togglePopupActionAll(selectedType, "radius")
+				}
+			]}
+		/>
+	{/if}
+	{#if supportsPopupAction(selectedType, "timer")}
+		<PopupButton
+			Icon={Timer}
+			label={m.popup_action_show_timer()}
+			IconActive={TimerOff}
+			labelActive={m.popup_action_hide_timer()}
+			active={isPopupActionActive(selectedType, selectedMapId, "timer")}
+			onclick={() => togglePopupAction(selectedType, selectedMapId, "timer")}
+			actions={[
+				{
+					label: m.popup_action_show_on_every_pokemon(),
+					Icon: SquareStack,
+					getActive: () => isPopupActionAllActive(selectedType, "timer"),
+					onclick: () => togglePopupActionAll(selectedType, "timer")
+				}
+			]}
+		/>
+	{/if}
 
 	<!--{#if canNativeShare({ url: getShareUrl() })}-->
 	<!--	<Button variant="outline" tag="button" onclick={() => backupShareUrl(getShareUrl())}>-->
