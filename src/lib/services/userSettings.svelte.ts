@@ -204,7 +204,7 @@ export async function getUserSettingsFromServer() {
 
 export function setUserSettings(newUserSettings: LegacyUserSettings) {
 	const mergedUserSettings = deepMerge(getDefaultUserSettings(), newUserSettings);
-	userSettings = migrateUserSettings(mergedUserSettings)
+	userSettings = migrateUserSettings(mergedUserSettings);
 }
 
 export function getUserSettings() {

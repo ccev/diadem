@@ -1,6 +1,6 @@
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { refreshMapObjectActionFeatures } from "@/lib/map/featuresGen.svelte";
+import { updateDimmed } from "@/lib/map/featuresGen.svelte";
 
 export type PopupAction = "dimmed" | "radius" | "timer";
 
@@ -48,7 +48,7 @@ export function togglePopupAction(
 	if ("all" in actionState && actionState.all) {
 		actionState.all = false;
 		updateUserSettings();
-		if (action === "dimmed") refreshMapObjectActionFeatures();
+		if (action === "dimmed") updateDimmed();
 		return;
 	}
 
@@ -59,7 +59,7 @@ export function togglePopupAction(
 	}
 
 	updateUserSettings();
-	if (action === "dimmed") refreshMapObjectActionFeatures();
+	if (action === "dimmed") updateDimmed();
 }
 
 export function isPopupActionAllActive(mapObject: MapObjectType | undefined, action: PopupAction) {
@@ -87,7 +87,7 @@ export function clearPopupAction(mapObject: MapObjectType | undefined, action: P
 	if ("all" in actionState) actionState.all = false;
 
 	updateUserSettings();
-	if (action === "dimmed") refreshMapObjectActionFeatures();
+	if (action === "dimmed") updateDimmed();
 }
 
 export function isExtraRadiusActive(mapObject: MapObjectType | undefined) {

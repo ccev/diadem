@@ -9,6 +9,7 @@ import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getRenderer } from "@/lib/map/render/renderMapObjects";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import {
 	isFeatureCircle,
 	isFeatureIcon,
@@ -45,6 +46,17 @@ export function deleteAllFeaturesOfType(type: MapObjectType) {
 
 export function deleteAllFeatures() {
 	features = getEmptyFeatures();
+}
+
+export function updateDimmed() {
+	for (const type of allMapObjectTypes) {
+		for (const [mapId, subFeatures] of Object.entries(features[type])) {
+			for (const feature of subFeatures) {
+				if (isFeatureIcon(feature)) feature.properties.dimmed = getUserSettings().actions[type]?.dimmed.mapIds.includes(mapId) ?? false;
+			}
+		}
+	}
+	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
 
 export function updateSelected(currentSelected: MapData | null) {
@@ -86,6 +98,8 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	// const allCurrentMapIds = Object.keys(mapObjects);
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
 
+	const actions = getUserSettings().actions
+
 	for (const [type, thisFeatures] of Object.entries(features)) {
 		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
 			if (
@@ -107,6 +121,12 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 		const renderer = getRenderer(obj.type);
 		const subFeatures = renderer.render(obj, isSelected, isSelectedOverwrite);
+
+		for (const feature of subFeatures) {
+			if (isFeatureIcon(feature)) {
+				feature.properties.dimmed = actions[obj.type]?.dimmed.mapIds.includes(obj.mapId) ?? false;
+			}
+		}
 
 		features[obj.type][obj.mapId] = subFeatures;
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];

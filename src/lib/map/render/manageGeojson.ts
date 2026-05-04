@@ -1,6 +1,6 @@
 import type { FeatureCollection } from "geojson";
 import { getMap } from "@/lib/map/map.svelte.js";
-import { ensureMapImage } from "@/lib/map/render/images";
+import { ensureMapImage, getMapImageId } from "@/lib/map/render/images";
 import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureTypes";
 import type maplibre from "maplibre-gl";
@@ -17,7 +17,7 @@ function getRenderableMapObjectsGeoJson(map: maplibre.Map): FeatureCollection {
 			const mapObjectFeature = feature as MapObjectFeature;
 			if (!isFeatureIcon(mapObjectFeature)) return true;
 
-			const { imageId } = mapObjectFeature.properties;
+			const imageId = getMapImageId(mapObjectFeature.properties);
 			return imageId ? map.hasImage(imageId) : true;
 		})
 	};
@@ -36,8 +36,8 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 			features
 				.filter((f) => isFeatureIcon(f))
 				.map((f) => f.properties)
-				.filter((props) => props.imageId && props.imageUrl && !map.hasImage(props.imageId))
-				.map((props) => [props.imageId, props])
+				.filter((props) => props.imageId && props.imageUrl && !map.hasImage(getMapImageId(props)))
+				.map((props) => [getMapImageId(props), props])
 		).values()
 	];
 

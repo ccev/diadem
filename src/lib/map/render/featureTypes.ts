@@ -14,6 +14,7 @@ export type MapObjectIconProperties = {
 	imageId: string;
 	imageSize: number;
 	selectedScale: number;
+	dimmed: boolean;
 	imageOffset?: [number, number];
 	isModifierBadge?: boolean;
 	isModifierUnderlay?: boolean;
@@ -22,8 +23,12 @@ export type MapObjectIconProperties = {
 	textOffset?: number;
 	expires: number | null;
 };
-export type MinMapObjectIconProperties = Omit<MapObjectIconProperties, "type" | "imageId"> & {
+export type MinMapObjectIconProperties = Omit<
+	MapObjectIconProperties,
+	"type" | "imageId" | "dimmed"
+> & {
 	imageId?: string;
+	dimmed?: boolean;
 };
 
 export type MapObjectPolygonProperties = {
@@ -84,6 +89,7 @@ export function getIconFeature(
 			...properties,
 			imageUrl,
 			imageId: properties.imageId ?? properties.imageUrl,
+			dimmed: properties.dimmed ?? false,
 			type: FeatureTypes.ICON
 		},
 		id
