@@ -5,7 +5,10 @@ import {
 	RANGE_POKEMON_EXTENDED,
 	SELECTED_MAP_OBJECT_SCALE
 } from "@/lib/constants";
-import { getCurrentSelectedData, isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte.js";
+import {
+	getCurrentSelectedData,
+	isCurrentSelectedOverwrite
+} from "@/lib/mapObjects/currentSelectedState.svelte.js";
 import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
 
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -20,11 +23,16 @@ import {
 	isFeaturePolygon,
 	type MapObjectFeature
 } from "@/lib/map/render/featureTypes";
-import type { Feature, Point } from "geojson";
+
+type FeatureEntry = {
+	lat: number;
+	lon: number;
+	features: MapObjectFeature[];
+};
 
 type Features = {
 	[key in MapObjectType]: {
-		[key: string]: MapObjectFeature[];
+		[key: string]: FeatureEntry;
 	};
 };
 
@@ -42,6 +50,7 @@ function getEmptyFeatures(): Features {
 function getFlattenedFeatures() {
 	return Object.values(features)
 		.map((f) => Object.values(f))
+		.map((entries) => entries.map((entry) => entry.features))
 		.flat(2);
 }
 
@@ -55,8 +64,8 @@ export function deleteAllFeatures() {
 
 export function updateDimmedFeatures() {
 	for (const type of allMapObjectTypes) {
-		for (const [mapId, subFeatures] of Object.entries(features[type])) {
-			for (const feature of subFeatures) {
+		for (const [mapId, entry] of Object.entries(features[type])) {
+			for (const feature of entry.features) {
 				if (isFeatureIcon(feature)) {
 					feature.properties.dimmed =
 						getUserSettings().actions[type]?.dimmed.mapIds.includes(mapId) ?? false;
@@ -67,7 +76,7 @@ export function updateDimmedFeatures() {
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
 
-function getActionRadiusFeature(type: MapObjectType, mapId: string, center: Feature<Point> | [number, number]) {
+function getActionRadiusFeature(type: MapObjectType, mapId: string, center: [number, number]) {
 	const action = getUserSettings().actions[type]?.radius;
 	if (!action) return;
 
@@ -75,16 +84,16 @@ function getActionRadiusFeature(type: MapObjectType, mapId: string, center: Feat
 	const shouldShow = action.all ? !hasMapOverride : hasMapOverride;
 	if (!shouldShow) return;
 
-	let radius: number | undefined = undefined
+	let radius: number | undefined = undefined;
 	if (type === MapObjectType.POKEMON) {
 		radius = action?.extraRadius ? RANGE_POKEMON_EXTENDED : RANGE_POKEMON;
 	} else if ([MapObjectType.POKESTOP, MapObjectType.GYM, MapObjectType.STATION].includes(type)) {
-		radius = RANGE_FORTS
+		radius = RANGE_FORTS;
 	} else {
-		return
+		return;
 	}
 
-	if (!radius) return
+	if (!radius) return;
 
 	const feature = circle(center, radius, {
 		steps: 96,
@@ -103,20 +112,15 @@ function getActionRadiusFeature(type: MapObjectType, mapId: string, center: Feat
 
 export function updateRadiusFeatures() {
 	for (const type of allMapObjectTypes) {
-		for (const [mapId, subFeatures] of Object.entries(features[type])) {
-			features[type][mapId] = subFeatures.filter(
+		for (const [mapId, entry] of Object.entries(features[type])) {
+			entry.features = entry.features.filter(
 				(feature) => !(isFeaturePolygon(feature) && feature.properties.isActionRadius)
 			);
-
-			// this is a little bit hacky, but it works fine
-			const centerFeature = subFeatures.find((f) => f.geometry.type === "Point") as
-				| Feature<Point>
-				| undefined;
-			if (!centerFeature) continue
-			const radiusFeature = getActionRadiusFeature(type, mapId, centerFeature);
-			if (radiusFeature) features[type][mapId]?.unshift(radiusFeature);
+			const radiusFeature = getActionRadiusFeature(type, mapId, [entry.lon, entry.lat]);
+			if (radiusFeature) entry.features.unshift(radiusFeature);
 		}
 	}
+	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
 
 export function updateSelected(currentSelected: MapData | null) {
@@ -133,7 +137,7 @@ export function updateSelected(currentSelected: MapData | null) {
 	}
 
 	if (currentSelected) {
-		const thisFeatures = features[currentSelected.type][currentSelected.mapId] ?? [];
+		const thisFeatures = features[currentSelected.type][currentSelected.mapId]?.features ?? [];
 
 		for (const feature of thisFeatures) {
 			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
@@ -160,14 +164,23 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 
 	const actions = getUserSettings().actions;
 
-	for (const [type, thisFeatures] of Object.entries(features)) {
-		for (const [existingId, subFeatures] of Object.entries(thisFeatures)) {
+	for (const type of allMapObjectTypes) {
+		const thisFeatures = features[type];
+		for (const [existingId, entry] of Object.entries(thisFeatures)) {
+			const obj = mapObjects[existingId];
+			// invalidate objects that changed positions and have expired
 			if (
-				subFeatures.find(
-					(f) => f.properties?.expires && f.properties.expires < currentTimestamp()
+				entry.features.find(
+					(feature) =>
+						"expires" in feature.properties &&
+						feature.properties.expires &&
+						feature.properties.expires < currentTimestamp()
 				) ||
-				!(existingId in mapObjects)
+				!obj ||
+				entry.lon !== obj.lon ||
+				entry.lat !== obj.lat
 			) {
+				selectedFeatures = selectedFeatures.filter((feature) => !entry.features.includes(feature));
 				delete features[type][existingId];
 			}
 		}
@@ -191,7 +204,11 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		const radiusFeature = getActionRadiusFeature(obj.type, obj.mapId, [obj.lon, obj.lat]);
 		if (radiusFeature) subFeatures.unshift(radiusFeature);
 
-		features[obj.type][obj.mapId] = subFeatures;
+		features[obj.type][obj.mapId] = {
+			lat: obj.lat,
+			lon: obj.lon,
+			features: subFeatures
+		};
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
 	}
 	updateMapObjectsGeoJson(getFlattenedFeatures());
