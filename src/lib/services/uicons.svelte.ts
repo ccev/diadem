@@ -32,8 +32,16 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 		console.error("Failed to load uicon set: " + id);
 		return;
 	}
-	const indexFile = await data.json();
-	newSet.init(indexFile);
+
+	const raw = await data.text();
+
+	try {
+		const indexFile = JSON.parse(raw);
+		newSet.init(indexFile);
+	} catch (e) {
+		console.error(raw)
+		console.error("Error while parsing uicon index " + id, e)
+	}
 }
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {
