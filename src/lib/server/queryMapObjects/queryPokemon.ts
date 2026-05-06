@@ -30,6 +30,7 @@ import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getLogger } from "@/lib/utils/logger";
 import { round } from "@/lib/utils/numberFormat";
+import { matchPokemonFilterset, shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -69,7 +70,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 				}
 				const pokemon = this.makePokemon(p, filter);
 				// need to re-check pvp filters after removing mega evolutions
-				if (!this.matchesCleanedPvpRanks(pokemon, filter)) continue;
+				if (!shouldDisplayPokemon(pokemon, filter)) continue;
 
 				data.push(pokemon);
 			}
@@ -157,46 +158,6 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			rank: stats.rank,
 			value: stats.value
 		});
-	}
-
-	private matchesCleanedPvpRanks(pokemon: PokemonData, filter: FilterPokemon | undefined) {
-		const pvpRankFilters = (filter?.filters?.filter((f) => f.enabled) ?? []).filter(
-			(filterset) => filterset.pvpRankLittle || filterset.pvpRankGreat || filterset.pvpRankUltra
-		);
-		if (pvpRankFilters.length === 0) return true;
-
-		return pvpRankFilters.some((filterset) =>
-			this.matchesCleanedPvpRankFilterset(pokemon, filterset)
-		);
-	}
-
-	private matchesCleanedPvpRankFilterset(pokemon: PokemonData, filterset: FiltersetPokemon) {
-		if (
-			filterset.pvpRankLittle &&
-			!this.matchesPvpRank(pokemon, League.LITTLE, filterset.pvpRankLittle)
-		) {
-			return false;
-		}
-		if (
-			filterset.pvpRankGreat &&
-			!this.matchesPvpRank(pokemon, League.GREAT, filterset.pvpRankGreat)
-		) {
-			return false;
-		}
-		if (
-			filterset.pvpRankUltra &&
-			!this.matchesPvpRank(pokemon, League.ULTRA, filterset.pvpRankUltra)
-		) {
-			return false;
-		}
-
-		return true;
-	}
-
-	private matchesPvpRank(pokemon: PokemonData, league: League, range: MinMax) {
-		const rank = getBestRank(pokemon, league);
-		if (!rank) return false;
-		return rank >= range.min && rank <= range.max;
 	}
 
 	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {
