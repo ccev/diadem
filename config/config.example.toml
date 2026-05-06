@@ -25,6 +25,7 @@ projectName = "reactmap"
 
 #[server.photon]
 #url = "https://photon.komoot.io/"  # You can use their public api, but consider self-hosting; it's pretty easy
+#hasGeometries = false  # Requires Photon to be started with -full-geometries
 
 #[server.pelias]
 #url = "https://api.geocode.earth/"
@@ -33,6 +34,7 @@ projectName = "reactmap"
 #[server.nominatim]
 #url = "http://127.0.0.1:500"
 #basicAuth = ""
+#userAgent = "Diadem / Contact: name@email.com"
 
 [server.auth]
 enabled = true

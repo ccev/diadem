@@ -39,6 +39,7 @@
 	} from "@/components/map/mapPositionParams";
 	import { Coords } from "@/lib/utils/coordinates";
 	import TimerLayer from "@/components/map/TimerLayer.svelte";
+	import LayerSearchedGeometry from "@/components/map/LayerSearchedGeometry.svelte";
 
 	let {
 		map = $bindable()
@@ -154,6 +155,8 @@
 		id={MapSourceId.SCOUT_SMALL_POINTS}
 		data={getCurrentScoutData().smallPoints}
 	/>
+
+	<LayerSearchedGeometry />
 
 	<GeoJSON
 		id={MapSourceId.MAP_OBJECTS}

@@ -8,7 +8,8 @@ export enum MapSourceId {
 	SCOUT_BIG_POINTS = "scoutBigPoints",
 	SCOUT_SMALL_POINTS = "scoutSmallPoints",
 	COVERAGE_MAP_AREAS = "coverageMapAreas",
-	POPUP_ACTION_TIMERS = "popupActionTimers"
+	POPUP_ACTION_TIMERS = "popupActionTimers",
+	SEARCHED_GEOMETRY = "searchedGeometry",
 }
 
 export enum MapObjectLayerId {
