@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { Search, X } from "lucide-svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import {
-		getActiveSearch,
-		isActiveSearchLoading,
-		resetActiveSearchFilter
-	} from "@/lib/features/activeSearch.svelte.js";
+	import { getActiveSearch, resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
 	import { m } from "@/lib/paraglide/messages";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
 	import { slide } from "svelte/transition";
@@ -25,7 +21,7 @@
 >
 	<Search size="18" class="ml-4 shrink-0" />
 	<span class="my-4">
-		{isActiveSearchLoading() ? m.searching_for() : m.popup_found()}
+		{m.searching_for()}
 		<b>{getActiveSearch()?.name}</b>
 	</span>
 	<Button

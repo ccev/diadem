@@ -25,15 +25,6 @@
 </script>
 
 <MenuCard title={m.settings_appearance()} Icon={Paintbrush}>
-	{#if !isMenuSidebar()}
-		<Toggle
-			title={m.settings_left_handed_mode_title()}
-			description={m.settings_left_handed_mode_description()}
-			onclick={() => onSettingsChange("isLeftHanded", !getUserSettings().isLeftHanded)}
-			value={getUserSettings().isLeftHanded}
-		/>
-	{/if}
-
 	<MenuGeneric title={m.settings_theme()}>
 		<RadioGroup
 			value={mode.current}
@@ -114,4 +105,13 @@
 		onselect={(locale) => setLocale(locale)}
 		options={AVAILABLE_LANGUAGES}
 	/>
+
+	{#if !isMenuSidebar()}
+		<Toggle
+			title={m.settings_left_handed_mode_title()}
+			description={m.settings_left_handed_mode_description()}
+			onclick={() => onSettingsChange("isLeftHanded", !getUserSettings().isLeftHanded)}
+			value={getUserSettings().isLeftHanded}
+		/>
+	{/if}
 </MenuCard>
