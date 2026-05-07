@@ -12,7 +12,7 @@
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
-	import { loadMapObjectInterval } from "@/lib/map/loadMapObjects";
+	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
 	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
@@ -39,6 +39,7 @@
 	} from "@/components/map/mapPositionParams";
 	import { Coords } from "@/lib/utils/coordinates";
 	import TimerLayer from "@/components/map/TimerLayer.svelte";
+	import LayerSearchedGeometry from "@/components/map/LayerSearchedGeometry.svelte";
 
 	let {
 		map = $bindable()
@@ -129,7 +130,8 @@
 
 	onDestroy(() => {
 		clearUpdateMapObjectsInterval();
-		if (loadMapObjectInterval !== undefined) clearInterval(loadMapObjectInterval);
+		clearLoadMapObjectsInterval();
+		setMap(undefined);
 	});
 </script>
 
@@ -154,6 +156,8 @@
 		id={MapSourceId.SCOUT_SMALL_POINTS}
 		data={getCurrentScoutData().smallPoints}
 	/>
+
+	<LayerSearchedGeometry />
 
 	<GeoJSON
 		id={MapSourceId.MAP_OBJECTS}

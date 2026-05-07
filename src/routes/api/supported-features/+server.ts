@@ -1,5 +1,6 @@
 import { json } from "@sveltejs/kit";
 import { getServerConfig, isAuthRequired } from "@/lib/services/config/config.server";
+import type { SupportedFeatures } from "@/lib/services/supportedFeatures";
 
 export async function GET({ locals }) {
 	const config = getServerConfig();
@@ -12,6 +13,7 @@ export async function GET({ locals }) {
 			(!!config.photon && !!config.photon.url),
 		auth: !!config.auth?.enabled,
 		authRequired: isAuthRequired(),
-		showFullscreenLogin: isAuthRequired() && !locals.user
-	});
+		showFullscreenLogin: isAuthRequired() && !locals.user,
+		geometryLookup: Boolean(config.nominatim?.url) && (!Boolean(config.pelias?.url) || Boolean(config.photon?.url)), // supported if nomatim is set and pelias is not the provider
+	} as SupportedFeatures);
 }

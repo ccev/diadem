@@ -17,6 +17,7 @@ async function runLoadMapObjects() {
 }
 
 export function resetLoadMapObjects() {
+	clearLoadMapObjectsInterval();
 	if (getUserSettings().loadMapObjectsWhileMoving) {
 		loadMapObjectInterval = setInterval(runLoadMapObjects, AGGRESSIVE_UPDATE_TIME);
 	}
@@ -24,4 +25,5 @@ export function resetLoadMapObjects() {
 
 export function clearLoadMapObjectsInterval() {
 	if (loadMapObjectInterval !== undefined) clearInterval(loadMapObjectInterval);
+	loadMapObjectInterval = undefined;
 }

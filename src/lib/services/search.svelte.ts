@@ -24,7 +24,7 @@ import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopU
 import { m } from "@/lib/paraglide/messages";
 import { type AddressData, searchAddress } from "@/lib/features/geocoding";
 import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-import type { BBox } from "geojson";
+import type { BBox, Geometry } from "geojson";
 import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 import { getMap } from "@/lib/map/map.svelte";
 import { openModal } from "@/lib/ui/modal.svelte";
@@ -78,6 +78,7 @@ export type AddressSearchEntry = SearchEntry & {
 	type: SearchableType.ADDRESS;
 	point: [number, number];
 	bbox: undefined | BBox;
+	geometry: undefined | Geometry
 };
 
 export type PokestopSearchEntry = SearchEntry & {
@@ -178,6 +179,7 @@ let currentSearchQuery = $state("");
 let searchResults: FuzzyResult<AnySearchEntry>[] = $state([]);
 let isSearchingAddress: boolean = $state(false);
 let searchedLocation: Coords | undefined = $state(undefined);
+let searchedGeomtry: Geometry | undefined = $state(undefined);
 
 let fortData: { lat: string; lon: string; data: RawFortSearchEntry[] } = {
 	lat: "",
@@ -219,10 +221,19 @@ export function setSearchedLocation(location: Coords) {
 
 export function resetSearchedLocation() {
 	searchedLocation = undefined;
+	searchedGeomtry = undefined
 }
 
 export function getSearchedLocation() {
 	return searchedLocation;
+}
+
+export function setSearchedGeometry(geometry: Geometry) {
+	searchedGeomtry = geometry;
+}
+
+export function getSearchedGeomtry() {
+	return searchedGeomtry;
 }
 
 export function openSearchModal() {
@@ -456,6 +467,7 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 			icon: "MapPin",
 			point: address.center,
 			bbox: address.bbox,
+			geometry: address.geometry,
 			type: SearchableType.ADDRESS
 		} as AddressSearchEntry;
 
@@ -520,4 +532,26 @@ export function highlightSearchMatches(match: HighlightRanges | null | undefined
 
 		return () => ranges.forEach((r) => highlight.delete(r));
 	};
+}
+
+export async function backgroundGeometryLookup(osmId: string, coords: Coords) {
+	try {
+		const result = await fetch("/api/search/geometry/" + osmId);
+		if (!result.ok) {
+			setSearchedLocation(coords);
+			return
+		}
+		const geometry = await result.json() as Geometry;
+		if (geometry.type) {
+			if (geometry.type === "Point") {
+				setSearchedLocation(coords)
+			} else {
+				setSearchedGeometry(geometry);
+				return;
+			}
+
+		}
+	} catch (e) {}
+
+	setSearchedLocation(coords);
 }

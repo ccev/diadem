@@ -10,8 +10,7 @@
 	import { getConfig } from "@/lib/services/config/config";
 	import type { Coords } from "@/lib/utils/coordinates";
 	import { closeMenu } from "@/lib/ui/menus.svelte";
-	import { resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
-	import { closePopup } from "@/lib/mapObjects/interact";
+	import { clearActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
 	import { setCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	let {
@@ -39,10 +38,10 @@
 	}
 
 	onDestroy(() => {
-		closeMenu()
-		resetActiveSearchFilter()
+		closeMenu();
+		clearActiveSearchFilter();
 		setCurrentSelectedData(null);
-	})
+	});
 </script>
 
 <MapLibre
