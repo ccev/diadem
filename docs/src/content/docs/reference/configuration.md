@@ -184,8 +184,9 @@ Supported feature keys include:
 - Pokestop family: `pokestop` (plain only), `quest`, `lure`, `invasion`, `showcase`, `kecleon`, `goldPokestop`
 - Gym family: `gym` (plain only), `raid`, `defender`
 - Station family: `station` (plain only), `dynamax`
+- Family wildcards: `pokestop*`, `gym*`, `station*` — expand to the plain entity plus every sub-feature in that family
 
-Granting `pokestop`, `gym`, or `station` only exposes the plain entity. Quests, lures, invasions, showcases, raids, defenders, max battles, etc. each require their own sub-feature key. To replicate the previous umbrella behavior, list every sub-feature in the family (or use `*`).
+Granting `pokestop`, `gym`, or `station` only exposes the plain entity. Quests, lures, invasions, showcases, raids, defenders, max battles, etc. each require their own sub-feature key. Use the family wildcard (`pokestop*`, `gym*`, `station*`) to grant the whole family in one token; list explicit keys when you want only some. Wildcards on non-split families (`pokemon*`, `nest*`, …) alias the bare key.
 
 ## `server.limits`
 

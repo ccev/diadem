@@ -246,3 +246,38 @@ export const LEGACY_UMBRELLA_FAMILIES: Record<string, FeaturesKey[]> = (() => {
 	}
 	return result;
 })();
+
+// Family wildcard literal type (e.g. `"pokestop*"`, `"pokemon*"`). Allowed
+// in config to grant a family + every sub-feature in one token. Non-split
+// families expand to themselves so `pokemon*` is just an alias for `pokemon`.
+export type FamilyWildcard = `${MapObjectType}*`;
+
+export function isFamilyWildcard(value: string): value is FamilyWildcard {
+	if (!value.endsWith("*") || value === "*") return false;
+	const family = value.slice(0, -1);
+	return (Object.values(MapObjectType) as string[]).includes(family);
+}
+
+export function expandFamilyWildcard(wildcard: FamilyWildcard): FeaturesKey[] {
+	const family = wildcard.slice(0, -1) as MapObjectType;
+	return [...MAP_OBJECT_SUB_FEATURES[family]];
+}
+
+// Expand `pokestop*`/`gym*`/`station*`/etc. inline. Unknown tokens pass
+// through; checkPerm will treat them as inert.
+export function expandFeatures(
+	features: ReadonlyArray<FeaturesKey | FamilyWildcard | string>
+): FeaturesKey[] {
+	const out: FeaturesKey[] = [];
+	for (const token of features) {
+		if (typeof token === "string" && isFamilyWildcard(token)) {
+			for (const f of expandFamilyWildcard(token)) {
+				if (!out.includes(f)) out.push(f);
+			}
+		} else {
+			const f = token as FeaturesKey;
+			if (!out.includes(f)) out.push(f);
+		}
+	}
+	return out;
+}

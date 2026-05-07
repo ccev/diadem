@@ -6,7 +6,7 @@ import type { Permissions as ConfigRule } from "@/lib/services/config/configType
 import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
 import { Features, type FeaturesKey, type PermArea, type Perms } from "@/lib/utils/features";
-import { LEGACY_UMBRELLA_FAMILIES } from "@/lib/permissions/subFeatures";
+import { LEGACY_UMBRELLA_FAMILIES, expandFeatures } from "@/lib/permissions/subFeatures";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("permissions");
@@ -17,26 +17,27 @@ let everyonePerms: Perms = { everywhere: [], areas: [] };
 function warnLegacyUmbrellaGrants(rules: ConfigRule[] | undefined) {
 	if (!rules) return;
 	for (const rule of rules) {
-		const features = rule.features ?? [];
+		const features = (rule.features ?? []) as readonly string[];
 		if (features.includes(Features.ALL)) continue;
 		for (const [family, subs] of Object.entries(LEGACY_UMBRELLA_FAMILIES)) {
-			if (!features.includes(family as FeaturesKey)) continue;
+			if (!features.includes(family)) continue;
+			if (features.includes(`${family}*`)) continue;
 			if (subs.some((s) => features.includes(s))) continue;
 			log.warning(
-				`Permission rule grants '${family}' without any sub-feature. Previously this granted ${subs.join(", ")} as an umbrella; now it grants the plain entity only. Add explicit sub-feature keys to restore prior behavior. Rule: ${JSON.stringify(rule)}`
+				`Permission rule grants '${family}' without any sub-feature. Previously this granted ${subs.join(", ")} as an umbrella; now it grants the plain entity only. Use '${family}*' to grant the family + every sub-feature, or list explicit sub-feature keys. Rule: ${JSON.stringify(rule)}`
 			);
 		}
 	}
 }
 
-function addFeatures(featureArray: FeaturesKey[], features: FeaturesKey[] | undefined) {
+function addFeatures(featureArray: FeaturesKey[], features: ConfigRule["features"] | undefined) {
 	if (!features) return;
 
-	features.forEach((feature) => {
+	for (const feature of expandFeatures(features)) {
 		if (!featureArray.includes(feature)) {
 			featureArray.push(feature);
 		}
-	});
+	}
 }
 
 function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | undefined) {
