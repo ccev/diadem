@@ -5,7 +5,6 @@
 	import { Map } from "lucide-svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as turf from "@turf/turf";
 	import type { LucideIcon } from "@/lib/types/lucide";
 	import type { Snippet } from "svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";

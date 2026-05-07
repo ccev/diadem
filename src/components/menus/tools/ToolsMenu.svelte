@@ -3,7 +3,6 @@
 	import { FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 	import { getDefaultMapStyle } from "@/lib/services/themeMode";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
-	import * as turf from "@turf/turf";
 	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
 	import { getCoverageMapAreas, openCoverageMap } from "@/lib/features/coverageMap.svelte";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";

@@ -13,7 +13,13 @@
 	import { getMap, setMap } from "@/lib/map/map.svelte";
 	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
 	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
-	import { onMapMoveEnd, onMapMoveStart, onTouchStart, onWindowFocus } from "@/lib/map/events";
+	import {
+		onMapDragStart,
+		onMapMoveEnd,
+		onMapMoveStart,
+		onTouchStart,
+		onWindowFocus
+	} from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
@@ -71,6 +77,7 @@
 		map.on("touchend", clearPressTimer);
 		map.on("touchmove", clearPressTimer);
 		map.on("touchcancel", clearPressTimer);
+		map.on("dragstart", onMapDragStart);
 		map.on("movestart", onMapMoveStart);
 
 		// tick so feature handler registers first

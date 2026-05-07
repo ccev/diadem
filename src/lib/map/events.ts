@@ -14,7 +14,7 @@ import {
 } from "@/lib/map/mapObjectsInterval";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { addMapStyleVersion, getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
-import { setAnimateLocationMarker } from "@/lib/map/geolocate.svelte";
+import { setIsLocateFollowing } from "@/lib/map/geolocate.svelte";
 import type { MapMoveEvent } from "svelte-maplibre";
 import { setSkew } from "@/lib/map/mapSkew.svelte";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
@@ -44,8 +44,11 @@ export async function onMapMoveStart() {
 	clearUpdateMapObjectsInterval();
 	resetLoadMapObjects();
 
-	setAnimateLocationMarker(false);
 	resetSearchedLocation();
+}
+
+export function onMapDragStart() {
+	setIsLocateFollowing(false);
 }
 
 export function onWindowFocus() {
