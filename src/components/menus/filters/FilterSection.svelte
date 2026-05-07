@@ -44,8 +44,20 @@
 			category: FilterCategory;
 			filterModal?: ModalType;
 			filterable?: boolean;
+			subPermission?: FeaturesKey;
 		}[];
 	} = $props();
+
+	const perms = $derived(getUserDetails().permissions);
+	// Section visible when at least one row inside it would render. For
+	// split families this is "any visible sub-row", which keeps server-only
+	// sub-features (e.g. defender) from making the card appear with no rows
+	// when that's all the user has.
+	const sectionVisible = $derived(
+		subCategories.length > 0
+			? subCategories.some((s) => !s.subPermission || hasFeatureAnywhere(perms, s.subPermission))
+			: hasFeatureAnywhere(perms, requiredPermission)
+	);
 
 	let subcategoriesExpanded: boolean = $state(false);
 
@@ -79,7 +91,7 @@
 	}
 </script>
 
-{#if hasFeatureAnywhere(getUserDetails().permissions, requiredPermission)}
+{#if sectionVisible}
 	<Card class="py-1 px-2">
 		<FilterControl
 			{title}
@@ -97,16 +109,18 @@
 			{#if subcategoriesExpanded}
 				<div class="mb-2" transition:slide={{ duration: 80 }}>
 					{#each subCategories as subcategory}
-						<FilterControl
-							{mapObject}
-							title={subcategory.title}
-							majorCategory={category}
-							subCategory={subcategory.category}
-							filterModal={subcategory.filterModal}
-							isFilterable={subcategory.filterable ?? true}
-							onEnabledChange={onSubEnabledChange}
-							filter={getUserSettings().filters[category][subcategory.category]}
-						/>
+						{#if !subcategory.subPermission || hasFeatureAnywhere(perms, subcategory.subPermission)}
+							<FilterControl
+								{mapObject}
+								title={subcategory.title}
+								majorCategory={category}
+								subCategory={subcategory.category}
+								filterModal={subcategory.filterModal}
+								isFilterable={subcategory.filterable ?? true}
+								onEnabledChange={onSubEnabledChange}
+								filter={getUserSettings().filters[category][subcategory.category]}
+							/>
+						{/if}
 					{/each}
 				</div>
 			{/if}

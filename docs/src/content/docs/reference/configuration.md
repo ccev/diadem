@@ -180,7 +180,12 @@ Grant fields:
 Supported feature keys include:
 
 - `*` for everything
-- `pokemon`, `pokestop`, `gym`, `station`, `nest`, `spawnpoint`, `route`, `tappable`, `s2cell`, `weather`, `scout`
+- `pokemon`, `nest`, `spawnpoint`, `route`, `tappable`, `s2cell`, `weather`, `scout`
+- Pokestop family: `pokestop` (plain only), `quest`, `lure`, `invasion`, `showcase`, `kecleon`, `goldPokestop`
+- Gym family: `gym` (plain only), `raid`, `defender`
+- Station family: `station` (plain only), `dynamax`
+
+Granting `pokestop`, `gym`, or `station` only exposes the plain entity. Quests, lures, invasions, showcases, raids, defenders, max battles, etc. each require their own sub-feature key. To replicate the previous umbrella behavior, list every sub-feature in the family (or use `*`).
 
 ## `server.limits`
 

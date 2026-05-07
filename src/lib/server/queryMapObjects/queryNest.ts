@@ -47,7 +47,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 		return { sql, values };
 	}
 
-	filter(data: MinMapObject<NestData>, filter: FilterNest, polygon: PermittedPolygon): boolean {
+	filter(data: MinMapObject<NestData>, filter: FilterNest): boolean {
 		return shouldDisplayNest(data, filter);
 	}
 

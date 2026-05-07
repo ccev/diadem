@@ -1,8 +1,12 @@
-import type { FilterStation } from "@/lib/features/filters/filters";
-import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { StationData } from "@/lib/types/mapObjectData/station";
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveStationFilter, isMaxBattleActive } from "@/lib/utils/stationUtils";
+import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
+import type { FilterStation } from "@/lib/features/filters/filters";
+import { Features, type FeaturesKey } from "@/lib/utils/features";
+
+type FeaturePerm = (feature: FeaturesKey) => boolean;
+const allowAllFeatures: FeaturePerm = () => true;
 
 export function matchMaxBattleFilterset(
 	station: Partial<StationData>,
@@ -40,15 +44,19 @@ export function matchMaxBattleFilterset(
 
 export function shouldDisplayStation(
 	station: Partial<StationData>,
-	stationFilter: FilterStation = getActiveStationFilter()
+	stationFilter: FilterStation = getActiveStationFilter(),
+	has: FeaturePerm = allowAllFeatures
 ) {
 	if (isCurrentSelectedOverwrite(station.mapId)) return true;
 
 	if (!stationFilter.enabled) return false;
-	if (stationFilter.stationPlain.enabled) return true;
+
+	if (stationFilter.stationPlain.enabled && has(Features.STATION)) return true;
+
+	if (!has(Features.DYNAMAX)) return false;
 
 	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
-	if (maxBattleFilters.length === 0) return true;
+	if (maxBattleFilters.length === 0 && !stationFilter.stationPlain.enabled) return true;
 
 	return Boolean(matchMaxBattleFilterset(station, stationFilter));
 }

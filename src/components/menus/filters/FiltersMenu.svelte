@@ -1,10 +1,45 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import { Features } from "@/lib/utils/features";
+	import {
+		POKESTOP_SUB_FEATURES,
+		GYM_SUB_FEATURES,
+		STATION_SUB_FEATURES
+	} from "@/lib/permissions/subFeatures";
+
+	// Derive sub-row props from the registry. An entry is UI-visible when
+	// it has both a `title` and a `filterCategory`; server-only entries
+	// (e.g. DEFENDER) are filtered out. Wrapped in $derived so locale
+	// changes re-render titles.
+	const pokestopSubs = $derived(
+		POKESTOP_SUB_FEATURES.filter((e) => e.title && e.filterCategory).map((e) => ({
+			title: e.title!(),
+			category: e.filterCategory!,
+			filterModal: e.filterModal,
+			filterable: e.filterable ?? true,
+			subPermission: e.feature
+		}))
+	);
+	const gymSubs = $derived(
+		GYM_SUB_FEATURES.filter((e) => e.title && e.filterCategory).map((e) => ({
+			title: e.title!(),
+			category: e.filterCategory!,
+			filterModal: e.filterModal,
+			filterable: e.filterable ?? true,
+			subPermission: e.feature
+		}))
+	);
+	const stationSubs = $derived(
+		STATION_SUB_FEATURES.filter((e) => e.title && e.filterCategory).map((e) => ({
+			title: e.title!(),
+			category: e.filterCategory!,
+			filterModal: e.filterModal,
+			filterable: e.filterable ?? true,
+			subPermission: e.feature
+		}))
+	);
 </script>
 
 <div
@@ -26,15 +61,7 @@
 		category="pokestop"
 		mapObject={MapObjectType.POKESTOP}
 		isFilterable={false}
-		subCategories={[
-			{ title: m.plain_pokestops(), category: "pokestopPlain", filterable: false },
-			{ title: m.pogo_quests(), category: "quest", filterModal: "filtersetQuest" },
-			{ title: m.pogo_invasion(), category: "invasion", filterModal: "filtersetInvasion" },
-			{ title: m.lures(), category: "lure", filterable: false },
-			{ title: m.contests(), category: "contest", filterable: false },
-			{ title: m.kecleon(), category: "kecleon", filterable: false },
-			{ title: m.golden_pokestops(), category: "goldPokestop", filterable: false }
-		]}
+		subCategories={pokestopSubs}
 	/>
 
 	<FilterSection
@@ -43,10 +70,7 @@
 		category="gym"
 		mapObject={MapObjectType.GYM}
 		isFilterable={false}
-		subCategories={[
-			{ title: m.plain_gyms(), category: "gymPlain", filterable: false },
-			{ title: m.raids(), category: "raid", filterModal: "filtersetRaid" }
-		]}
+		subCategories={gymSubs}
 	/>
 
 	<FilterSection
@@ -55,10 +79,7 @@
 		category={MapObjectType.STATION}
 		mapObject={MapObjectType.STATION}
 		isFilterable={false}
-		subCategories={[
-			{ title: m.plain_stations(), category: "stationPlain", filterable: false },
-			{ title: m.max_battles(), category: "maxBattle", filterModal: "filtersetMaxBattle" }
-		]}
+		subCategories={stationSubs}
 	/>
 
 	<FilterSection
