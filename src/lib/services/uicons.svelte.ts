@@ -149,8 +149,11 @@ export function getIconGym(
 	let availableSlots = data.availble_slots ? GYM_SLOTS - data.availble_slots : GYM_SLOTS;
 	if (isFortOutdated(data.updated)) availableSlots = GYM_SLOTS;
 
+	let teamId = data.team_id
+	if (isFortOutdated(data.updated)) teamId = 0
+
 	return iconSets[iconSet].gym(
-		data.team_id,
+		teamId,
 		availableSlots,
 		Boolean(data.in_battle),
 		Boolean(data.ex_raid_eligible),

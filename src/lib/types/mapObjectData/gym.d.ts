@@ -42,7 +42,8 @@ export type GymData = {
 	power_up_end_timestamp?: number;
 	description?: string;
 	raid_pokemon_alignment?: number;
-	defenders?: string;
+	defenders_raw?: string;
+	defenders?: GymDefender[]
 	rsvps?: string;
 };
 

@@ -7,7 +7,7 @@ import type { PageServerLoad } from "./$types";
 const log = getLogger("arealink");
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
-	const areaName = params.area;
+	const areaName = decodeURIComponent(params.area);
 
 	log.info("Direct area link called to %s", areaName);
 

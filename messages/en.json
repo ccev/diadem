@@ -512,5 +512,9 @@
 	"close": "Close",
 	"language_polish": "Polish",
 	"pogo_hp": "{hp} HP",
-	"cpm": "CPM"
+	"cpm": "CPM",
+	"defender_fed": "{count}x fed",
+	"defender_won": "{count}x won",
+	"defender_lost": "{count}x lost",
+	"defender_placed": "Placed"
 }

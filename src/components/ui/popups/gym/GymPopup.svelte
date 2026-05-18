@@ -33,7 +33,6 @@
 		(getMapObjects()[getCurrentSelectedMapId()] as GymData) ?? (getCurrentSelectedData() as GymData)
 	);
 	useMetadata(() => ({ title: data ? (data.name ?? m.pogo_gym()) : undefined }));
-	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? "[]"));
 	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? "[]"));
 </script>
 
@@ -168,8 +167,8 @@
 		<div class="[&>*:last-child]:mb-3">
 			{@render raidDisplay(true)}
 			{@render memberOverview()}
-			{#if !isFortOutdated(data.updated) && defenders}
-				<GymDefenderOverview {defenders} />
+			{#if !isFortOutdated(data.updated) && data.defenders?.length}
+				<GymDefenderOverview defenders={data.defenders} />
 			{/if}
 
 			{#if data.ar_scan_eligible}
