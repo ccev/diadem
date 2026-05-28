@@ -17,7 +17,7 @@ let abortController: AbortController | undefined = undefined;
 let debounceTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
 export async function searchAddress(query: string, ignoreMinCharacters: boolean) {
-	if (ignoreMinCharacters && query.length <= 2) return;
+	if (!ignoreMinCharacters && query.length <= 2) return;
 
 	setIsSearchingAddress(true);
 
