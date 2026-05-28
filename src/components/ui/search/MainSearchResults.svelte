@@ -38,7 +38,7 @@
 	import { openMapObjectFromId } from "@/lib/features/directLinks.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-	import { backgroundGeometryLookup } from "@/lib/services/search.svelte.ts";
+	import { backgroundGeometryLookup } from "@/lib/services/search.svelte";
 
 	let {
 		results

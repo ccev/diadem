@@ -3,7 +3,6 @@
 	import MapCoverage from "@/components/map/MapCoverage.svelte";
 	import { closeMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
-	import DesktopMenu from "@/components/menus/DesktopMenu.svelte";
 	import { setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import {
@@ -51,7 +50,7 @@
 			<!--			<DesktopMenu />-->
 		{/snippet}
 		{#snippet desktopRight()}
-			<Fabs {map} showSearch={false} />
+			<Fabs {map} searchMode="coverage" />
 			<div class="px-2 -mt-2">
 				<CoverageMapPopup />
 			</div>
@@ -63,7 +62,7 @@
 					in:fly={{ x: isUiLeft() ? -20 : 20, duration: 70, delay: 100 }}
 					out:fly={{ x: isUiLeft() ? -20 : 20, duration: 70 }}
 				>
-					<Fabs {map} showSearch={false} />
+					<Fabs {map} searchMode="coverage" />
 				</div>
 
 				<div

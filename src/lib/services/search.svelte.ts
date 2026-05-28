@@ -30,6 +30,7 @@ import microfuzz, {
 	type HighlightRanges
 } from "@nozbe/microfuzz";
 import type { BBox, Geometry } from "geojson";
+import type { Snippet } from "svelte";
 import type { Attachment } from "svelte/attachments";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -175,6 +176,12 @@ export type RawFortSearchEntry = {
 	url: string;
 };
 
+export type SearchOptions = {
+	types?: SearchableType[];
+	showRecents?: boolean;
+	resultSnippet: Snippet<[FuzzyResult<AnySearchEntry>[]]>;
+};
+
 let currentSearchQuery = $state("");
 let searchResults: FuzzyResult<AnySearchEntry>[] = $state([]);
 let isSearchingAddress: boolean = $state(false);
@@ -236,18 +243,43 @@ export function getSearchedGeomtry() {
 	return searchedGeomtry;
 }
 
-export function openSearchModal() {
+export function openSearchModal(searchOptions: SearchOptions) {
 	openModal("search");
 
 	isSearchingAddress = false;
-	getFortSearchEntries().then();
+	if (
+		shouldSearchType(SearchableType.GYM, searchOptions) ||
+		shouldSearchType(SearchableType.POKESTOP, searchOptions)
+	) {
+		getFortSearchEntries(searchOptions).then();
+	}
 }
 
-export function initSearch() {
+function shouldSearchType(type: SearchableType, searchOptions: SearchOptions) {
+	return !searchOptions.types || searchOptions.types.includes(type);
+}
+
+function getAreaSearchEntries() {
+	return getKojiGeofences().map((k) => {
+		return {
+			name: k.properties.name,
+			category: "area",
+			key: "area-" + k.properties.name,
+			type: SearchableType.AREA,
+			icon: k.properties.lucideIcon ?? areaIcon,
+			feature: k
+		} as AreaSearchEntry;
+	});
+}
+
+export function initSearch(searchOptions: SearchOptions) {
 	const permissions = getUserDetails().permissions;
 
 	let pokemonEntries: PokemonSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.POKEMON)) {
+	if (
+		shouldSearchType(SearchableType.POKEMON, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.POKEMON)
+	) {
 		pokemonEntries = getSpawnablePokemon().map((p) => {
 			return {
 				name: mPokemon(p),
@@ -260,19 +292,15 @@ export function initSearch() {
 		});
 	}
 
-	const areaEntries = getKojiGeofences().map((k) => {
-		return {
-			name: k.properties.name,
-			category: "area",
-			key: "area-" + k.properties.name,
-			type: SearchableType.AREA,
-			icon: k.properties.lucideIcon ?? areaIcon,
-			feature: k
-		} as AreaSearchEntry;
-	});
+	const areaEntries = shouldSearchType(SearchableType.AREA, searchOptions)
+		? getAreaSearchEntries()
+		: [];
 
 	let questEntries: QuestSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+	if (
+		shouldSearchType(SearchableType.QUEST, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+	) {
 		questEntries =
 			getActiveQuestRewards()?.map((r) => {
 				const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward;
@@ -292,7 +320,10 @@ export function initSearch() {
 	}
 
 	let kecleonEntries: KecleonSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+	if (
+		shouldSearchType(SearchableType.KECLEON, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+	) {
 		kecleonEntries = [
 			{
 				name: m.kecleon_pokestops(),
@@ -304,7 +335,10 @@ export function initSearch() {
 	}
 
 	let contestEntries: ContestSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+	if (
+		shouldSearchType(SearchableType.CONTEST, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+	) {
 		contestEntries = getActiveContests().map((contest) => {
 			return {
 				name: getContestText(contest.ranking_standard, contest.focus),
@@ -318,7 +352,10 @@ export function initSearch() {
 	}
 
 	let lureEntries: LureSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+	if (
+		shouldSearchType(SearchableType.LURE, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+	) {
 		lureEntries = getAllLureModuleIds().map((lure) => {
 			return {
 				name: mItem(lure),
@@ -331,7 +368,10 @@ export function initSearch() {
 	}
 
 	let invasionEntries: InvasionSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)) {
+	if (
+		shouldSearchType(SearchableType.INVASION, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+	) {
 		invasionEntries = getActiveCharacters().map((character) => {
 			return {
 				name: mCharacter(character.character),
@@ -346,32 +386,46 @@ export function initSearch() {
 	const processedRaidLevels: Set<number> = new Set();
 	const raidLevelEntries: RaidLevelSearchEntry[] = [];
 	let raidBossEntries: RaidBossSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.GYM)) {
-		raidBossEntries = getActiveRaids().map((raidBoss) => {
-			if (!processedRaidLevels.has(raidBoss.level)) {
-				processedRaidLevels.add(raidBoss.level);
-				raidLevelEntries.push({
-					name: mRaid(raidBoss.level, true),
-					category: "raids",
-					key: "raidlevel-" + raidBoss.level,
-					type: SearchableType.RAID_LEVEL,
-					level: raidBoss.level
-				});
-			}
+	if (
+		(shouldSearchType(SearchableType.RAID_LEVEL, searchOptions) ||
+			shouldSearchType(SearchableType.RAID_BOSS, searchOptions)) &&
+		hasFeatureAnywhere(permissions, MapObjectType.GYM)
+	) {
+		raidBossEntries = getActiveRaids()
+			.map((raidBoss) => {
+				if (
+					shouldSearchType(SearchableType.RAID_LEVEL, searchOptions) &&
+					!processedRaidLevels.has(raidBoss.level)
+				) {
+					processedRaidLevels.add(raidBoss.level);
+					raidLevelEntries.push({
+						name: mRaid(raidBoss.level, true),
+						category: "raids",
+						key: "raidlevel-" + raidBoss.level,
+						type: SearchableType.RAID_LEVEL,
+						level: raidBoss.level
+					});
+				}
 
-			return {
-				name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
-				category: "raids",
-				key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
-				type: SearchableType.RAID_BOSS,
-				pokemon_id: raidBoss.pokemon_id,
-				form: raidBoss.form
-			} as RaidBossSearchEntry;
-		});
+				if (!shouldSearchType(SearchableType.RAID_BOSS, searchOptions)) return undefined;
+
+				return {
+					name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
+					category: "raids",
+					key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
+					type: SearchableType.RAID_BOSS,
+					pokemon_id: raidBoss.pokemon_id,
+					form: raidBoss.form
+				} as RaidBossSearchEntry;
+			})
+			.filter((entry) => entry !== undefined);
 	}
 
 	let maxBattleBossEntries: MaxBattleBossSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.STATION)) {
+	if (
+		shouldSearchType(SearchableType.MAX_BATTLE_BOSS, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.STATION)
+	) {
 		maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
 			return {
 				name: m.pokemon_max_battles({ pokemon: mPokemon(maxBattle) }),
@@ -387,7 +441,10 @@ export function initSearch() {
 	}
 
 	let nestEntries: NestSearchEntry[] = [];
-	if (hasFeatureAnywhere(permissions, MapObjectType.NEST)) {
+	if (
+		shouldSearchType(SearchableType.NEST, searchOptions) &&
+		hasFeatureAnywhere(permissions, MapObjectType.NEST)
+	) {
 		nestEntries = getActiveNests().map((nest) => {
 			return {
 				name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
@@ -402,6 +459,12 @@ export function initSearch() {
 
 	const fortEntries = fortData.data
 		.filter((f) => f.name)
+		.filter(
+			(f) =>
+				(f.type === "g" && shouldSearchType(SearchableType.GYM, searchOptions)) ||
+				((f.type === "p" || f.type === "s") &&
+					shouldSearchType(SearchableType.POKESTOP, searchOptions))
+		)
 		.map((fort) => {
 			if (fort.type === "g") {
 				return {
@@ -441,8 +504,8 @@ export function initSearch() {
 	fuzzy = createFuzzySearch(allSearchResults, { getText: (e) => [e.name, m[e.category]?.()] });
 }
 
-export function search(query: string, limit: boolean) {
-	if (isSupportedFeature("geocoding")) {
+export function search(query: string, limit: boolean, searchOptions: SearchOptions) {
+	if (shouldSearchType(SearchableType.ADDRESS, searchOptions) && isSupportedFeature("geocoding")) {
 		searchAddress(query).then();
 	}
 
@@ -482,7 +545,7 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 	isSearchingAddress = false;
 }
 
-async function getFortSearchEntries() {
+async function getFortSearchEntries(searchOptions: SearchOptions) {
 	const hasPokestops = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKESTOP);
 	const hasGyms = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.GYM);
 	if (!hasGyms && !hasPokestops) return;
@@ -512,7 +575,7 @@ async function getFortSearchEntries() {
 	fortData.lat = latKey;
 	fortData.lon = lonKey;
 	fortData.data = entries;
-	initSearch();
+	initSearch(searchOptions);
 }
 
 export function highlightSearchMatches(match: HighlightRanges | null | undefined): Attachment {

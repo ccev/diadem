@@ -1,28 +1,24 @@
 <script lang="ts">
-	import { getKojiGeofences, type KojiFeature, type KojiReference } from "@/lib/features/koji";
+	import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 	import Button from "@/components/ui/input/Button.svelte";
 	import LucideIcon from "@/components/utils/LucideIcon.svelte";
-	import Card from "@/components/ui/Card.svelte";
 	import { ChevronRight } from "lucide-svelte";
-	import { getFeatureJump } from "@/lib/utils/geo";
-	import { flyTo, jumpTo } from "@/lib/map/utils";
-	import { closeSearchModal } from "@/lib/ui/modal.svelte";
-	import {
-		coverageMapActiveSnapPoint,
-		getCoverageMap,
-		setClickedCoverageMapAreas
-	} from "@/lib/features/coverageMap.svelte";
+	import { selectCoverageMapArea } from "@/lib/features/coverageMap.svelte";
 	import { SvelteSet } from "svelte/reactivity";
-	import { slide, fly } from "svelte/transition";
-	import { onDestroy } from "svelte";
+	import { slide } from "svelte/transition";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { m } from "@/lib/paraglide/messages";
+	import type * as icons from "lucide-svelte";
 
 	let expandedAreas: Set<number> = new SvelteSet();
+
+	function getAreaIcon(area: KojiFeature): keyof typeof icons {
+		return (area.properties.lucideIcon ?? "Globe") as keyof typeof icons;
+	}
 </script>
 
 {#snippet areaTitle(area: KojiFeature)}
-	<LucideIcon class="size-4 ml-2" name={area.properties.lucideIcon ?? "Globe"} />
+	<LucideIcon class="size-4 ml-2" name={getAreaIcon(area)} />
 	<span>{area.properties.name}</span>
 {/snippet}
 
@@ -31,16 +27,7 @@
 		class="ml-auto px-6"
 		size="sm"
 		variant="secondary"
-		onclick={() => {
-			coverageMapActiveSnapPoint.reset();
-			setClickedCoverageMapAreas([area]);
-			const params = getFeatureJump(area, true, getCoverageMap());
-
-			getCoverageMap()?.flyTo({
-				center: params.coords,
-				zoom: params.zoom
-			});
-		}}
+		onclick={() => selectCoverageMapArea(area)}
 	>
 		{m.coveragemap_view()}
 	</Button>

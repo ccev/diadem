@@ -3,6 +3,7 @@ import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import { CoverageMapLayerId } from "@/lib/map/layers";
 import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 import { Menu, openMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
+import { getFeatureJump } from "@/lib/utils/geo";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Polygon } from "geojson";
 import maplibre from "maplibre-gl";
@@ -76,6 +77,17 @@ export function getClickedCoverageMapAreas() {
 
 export function setClickedCoverageMapAreas(features: KojiFeature[]) {
 	clickedAreas = features;
+}
+
+export function selectCoverageMapArea(area: KojiFeature) {
+	coverageMapActiveSnapPoint.reset();
+	setClickedCoverageMapAreas([area]);
+	const params = getFeatureJump(area, true, getCoverageMap());
+
+	getCoverageMap()?.flyTo({
+		center: params.coords,
+		zoom: params.zoom
+	});
 }
 
 export const coverageMapActiveSnapPoint = {

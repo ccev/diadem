@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { LoaderCircle, MapPin, Nut, Search, Squirrel, X } from "lucide-svelte";
+	import { MapPin, Nut, Search, Squirrel, X } from "lucide-svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
@@ -11,13 +11,16 @@
 		getCurrentSearchResults,
 		getIsSearchingAddress,
 		search,
+		type SearchOptions,
 		setCurrentSearchQuery
 	} from "@/lib/services/search.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
-	import SearchResults from "@/components/ui/search/SearchResults.svelte";
+	import MainSearchResults from "@/components/ui/search/MainSearchResults.svelte";
 	import { Command } from "bits-ui";
+
+	let { searchOptions }: { searchOptions: SearchOptions } = $props();
 
 	let input: HTMLInputElement | undefined = $state();
 
@@ -34,11 +37,8 @@
 	let results = $derived(getCurrentSearchResults());
 
 	$effect(() => {
-		search(getCurrentSearchQuery(), true);
+		search(getCurrentSearchQuery(), true, searchOptions);
 	});
-
-	// const debounced = new Debounced(() => searchQuery, 80);
-	// const results = $derived(search(debounced.current, true))
 </script>
 
 <ModalTop
@@ -70,7 +70,7 @@
 
 		<Command.List class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200">
 			<Command.Viewport>
-				{#if !getCurrentSearchQuery() && recentSearches.length > 0}
+				{#if (searchOptions?.showRecents ?? true) && !getCurrentSearchQuery() && recentSearches.length > 0}
 					<Command.Group>
 						<Command.GroupHeading
 							class="text-muted-foreground p-1 px-2 py-1.5 text-xs font-medium self-starts"
@@ -78,7 +78,7 @@
 							{m.search_recent()}
 						</Command.GroupHeading>
 						<Command.GroupItems>
-							<SearchResults results={recentSearches} />
+							<MainSearchResults results={recentSearches} />
 						</Command.GroupItems>
 					</Command.Group>
 					<!--this sometimes shows up even though there's results. extra check to avoid that-->
@@ -119,7 +119,11 @@
 
 				<Command.Group class="mt-1">
 					<Command.GroupItems>
-						<SearchResults {results} />
+						{#if searchOptions.resultSnippet}
+							{@render searchOptions.resultSnippet(results)}
+						{:else}
+							<MainSearchResults {results} />
+						{/if}
 					</Command.GroupItems>
 				</Command.Group>
 
