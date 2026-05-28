@@ -44,10 +44,11 @@ export enum RewardType {
 
 export function parseQuestReward(reward?: string | null) {
 	const parsed = JSON.parse(reward ?? "[]")[0] as QuestReward | undefined;
-	if (parsed && "form_id" in parsed.info) {
+	if (parsed) {
 		// @ts-ignore
-		parsed.info.form = getNormalizedForm(parsed.info.pokemon_id, parsed.info["form_id"]);
-		delete parsed.info["form_id"];
+		parsed.info.form = getNormalizedForm(parsed.info.pokemon_id, parsed.info?.["form_id"] ?? 0);
+
+		if ("form_id" in parsed.info) delete parsed.info["form_id"];
 	}
 	return parsed;
 }

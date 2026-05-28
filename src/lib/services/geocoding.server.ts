@@ -109,16 +109,6 @@ async function photonSearchAddress(
 
 	const data: FeatureCollection<Point, PhotonProps> = await response.json();
 
-	for (const f of data.features) {
-		log.info(
-			addressFormatter.format(f.properties, {
-				abbreviate: true,
-				countryCode: f.properties.countrycode,
-				output: "array"
-			})[1]
-		);
-	}
-
 	return (
 		data?.features?.map((f) => {
 			const p = f.properties;
