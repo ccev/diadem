@@ -1,11 +1,13 @@
-import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { StationData } from "@/lib/types/mapObjectData/station";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { makePointFeatureChecker } from "@/lib/services/user/checkPerm";
+import { STATION_SUB_FEATURES } from "@/lib/permissions/subFeatures";
+import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
+import { type Perms } from "@/lib/utils/features";
 
 export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	protected readonly type = MapObjectType.STATION;
@@ -40,15 +42,25 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 
 	protected readonly extraWhere = ["end_time > UNIX_TIMESTAMP()"];
 
-	filter(
-		data: MinMapObject<StationData>,
-		filter: FilterStation,
-		polygon: PermittedPolygon
-	): boolean {
-		return shouldDisplayStation(data, filter);
+	filter(data: MinMapObject<StationData>, filter: FilterStation, perms?: Perms): boolean {
+		if (!perms) return shouldDisplayStation(data, filter);
+		const has = makePointFeatureChecker(perms, data.lat, data.lon);
+		return shouldDisplayStation(data, filter, has);
 	}
 
-	prepare(data: MinMapObject<StationData>): void {
+	prepare(data: MinMapObject<StationData>, perms?: Perms): void {
 		data.battle_pokemon_form = getNormalizedForm(data.battle_pokemon_id, data.battle_pokemon_form);
+
+		if (!perms) return;
+
+		const has = makePointFeatureChecker(perms, data.lat, data.lon);
+
+		for (const sub of STATION_SUB_FEATURES) {
+			if (has(sub.feature)) continue;
+			for (const field of sub.fields ?? []) {
+				(data as Record<string, unknown>)[field as string] = undefined;
+			}
+			sub.onScrub?.(data);
+		}
 	}
 }

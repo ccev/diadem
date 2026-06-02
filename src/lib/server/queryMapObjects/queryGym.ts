@@ -1,11 +1,13 @@
-import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
 import type { FilterGym } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { hasFeatureAnywhere, makePointFeatureChecker } from "@/lib/services/user/checkPerm";
+import { GYM_SUB_FEATURES } from "@/lib/permissions/subFeatures";
+import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+import { Features, type Perms } from "@/lib/utils/features";
 
 export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 	protected readonly type = MapObjectType.GYM;
@@ -50,25 +52,56 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 
 	protected readonly extraWhere = ["deleted = 0"];
 
-	protected getFilterWhere(filter: FilterGym | undefined): { sql: string; values: unknown[] } {
-		if (filter && !filter.gymPlain.enabled && filter.raid.enabled) {
+	// Narrow SQL to active raids when the row would never pass the in-app
+	// filter anyway: either the user filter excludes plain gyms while raids
+	// are on, or the user lacks GYM perm everywhere but holds RAID. The
+	// in-app filter still enforces perms per-row, so this is purely an
+	// upstream optimization.
+	protected getFilterWhere(
+		filter: FilterGym | undefined,
+		perms?: Perms
+	): { sql: string; values: unknown[] } {
+		const filterExcludesPlain = !!filter && !filter.gymPlain.enabled && filter.raid.enabled;
+		const permsExcludePlain =
+			!!perms &&
+			!hasFeatureAnywhere(perms, Features.GYM) &&
+			hasFeatureAnywhere(perms, Features.RAID);
+
+		if (filterExcludesPlain || permsExcludePlain) {
 			return { sql: "raid_end_timestamp > UNIX_TIMESTAMP()", values: [] };
 		}
 		return { sql: "", values: [] };
 	}
 
-	filter(data: MinMapObject<GymData>, filter: FilterGym, polygon: PermittedPolygon): boolean {
-		return Boolean(filter.gymPlain.enabled || shouldDisplayRaid(data, filter));
+	filter(data: MinMapObject<GymData>, filter: FilterGym, perms?: Perms): boolean {
+		const has = makePointFeatureChecker(perms, data.lat, data.lon);
+
+		return Boolean(
+			(filter.gymPlain.enabled && has(Features.GYM)) ||
+				(has(Features.RAID) && shouldDisplayRaid(data, filter))
+		);
 	}
 
-	prepare(data: MinMapObject<GymData>): void {
+	prepare(data: MinMapObject<GymData>, perms?: Perms): void {
 		data.raid_pokemon_form = getNormalizedForm(data.raid_pokemon_id, data.raid_pokemon_form);
 
 		if (data.defenders_raw) {
-			data.defenders = JSON.parse(data.defenders_raw) as GymDefender[]
+			data.defenders = JSON.parse(data.defenders_raw) as GymDefender[];
 			for (const defender of data?.defenders ?? []) {
-				defender.form = getNormalizedForm(defender.pokemon_id, defender.form)
+				defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
 			}
+		}
+
+		if (!perms) return;
+
+		const has = makePointFeatureChecker(perms, data.lat, data.lon);
+
+		for (const sub of GYM_SUB_FEATURES) {
+			if (has(sub.feature)) continue;
+			for (const field of sub.fields ?? []) {
+				(data as Record<string, unknown>)[field as string] = undefined;
+			}
+			sub.onScrub?.(data);
 		}
 	}
 }

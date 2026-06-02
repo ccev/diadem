@@ -1,6 +1,7 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 import type { FeaturesKey } from "@/lib/utils/features";
+import type { FamilyWildcard } from "@/lib/permissions/subFeatures";
 
 type UiconSetModifiers = {
 	default: boolean;
@@ -77,7 +78,7 @@ export type Permissions = {
 	guildId?: string;
 	roleId?: string;
 	areas?: string[];
-	features?: FeaturesKey[];
+	features?: (FeaturesKey | FamilyWildcard)[];
 };
 
 export type Log = {

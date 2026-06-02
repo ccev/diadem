@@ -1,11 +1,12 @@
-import { type KojiFeatures } from "@/lib/features/koji";
-import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
+import { type User } from "@/lib/server/db/internal/schema";
 import { setPermissions } from "@/lib/server/auth/auth";
 import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
-import { type User } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
-import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
+import { type KojiFeatures } from "@/lib/features/koji";
+import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
+import { Features, type FeaturesKey, type PermArea, type Perms } from "@/lib/utils/features";
+import { LEGACY_UMBRELLA_FAMILIES, expandFeatures } from "@/lib/permissions/subFeatures";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("permissions");
@@ -13,14 +14,30 @@ const log = getLogger("permissions");
 let initializedEveryonePerms: boolean = false;
 let everyonePerms: Perms = { everywhere: [], areas: [] };
 
-function addFeatures(featureArray: FeaturesKey[], features: FeaturesKey[] | undefined) {
+function warnLegacyUmbrellaGrants(rules: ConfigRule[] | undefined) {
+	if (!rules) return;
+	for (const rule of rules) {
+		const features = (rule.features ?? []) as readonly string[];
+		if (features.includes(Features.ALL)) continue;
+		for (const [family, subs] of Object.entries(LEGACY_UMBRELLA_FAMILIES)) {
+			if (!features.includes(family)) continue;
+			if (features.includes(`${family}*`)) continue;
+			if (subs.some((s) => features.includes(s))) continue;
+			log.warning(
+				`Permission rule grants '${family}' without any sub-feature. Previously this granted ${subs.join(", ")} as an umbrella; now it grants the plain entity only. Use '${family}*' to grant the family + every sub-feature, or list explicit sub-feature keys. Rule: ${JSON.stringify(rule)}`
+			);
+		}
+	}
+}
+
+function addFeatures(featureArray: FeaturesKey[], features: ConfigRule["features"] | undefined) {
 	if (!features) return;
 
-	features.forEach((feature) => {
+	for (const feature of expandFeatures(features)) {
 		if (!featureArray.includes(feature)) {
 			featureArray.push(feature);
 		}
-	});
+	}
 }
 
 function handleRule(rule: ConfigRule, perms: Perms, geofences: KojiFeatures | undefined) {
@@ -64,8 +81,11 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 
 	if (!geofences) geofences = await getGeofences(thisFetch);
 
+	const allRules = getServerConfig().permissions;
+	warnLegacyUmbrellaGrants(allRules);
+
 	const perms: Perms = { everywhere: [], areas: [] };
-	for (const rule of getServerConfig().permissions ?? []) {
+	for (const rule of allRules ?? []) {
 		if (rule.everyone) {
 			handleRule(rule, perms, geofences);
 		}

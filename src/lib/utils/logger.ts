@@ -33,3 +33,22 @@ export function getLogger(name: string): Logger {
 	}
 	return createBrowserLogger(name);
 }
+
+const throttleLastFired = new Map<string, number>();
+
+// Emits a log line at most once per `intervalMs` per `key`. Useful for
+// hot-path warnings that would flood the log if emitted on every call.
+export function throttledLog(
+	log: Logger,
+	level: keyof Logger,
+	key: string,
+	intervalMs: number,
+	message: string,
+	...args: unknown[]
+) {
+	const now = Date.now();
+	const last = throttleLastFired.get(key) ?? 0;
+	if (now - last < intervalMs) return;
+	throttleLastFired.set(key, now);
+	log[level](message, ...args);
+}

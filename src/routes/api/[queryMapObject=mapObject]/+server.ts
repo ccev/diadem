@@ -1,20 +1,20 @@
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { error } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
+import { checkAnySubFeatureInBounds } from "@/lib/services/user/checkPerm";
+import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
+import { hasAnySubFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getLogger } from "@/lib/utils/logger";
+import { respond } from "@/lib/server/api/respond";
 import {
 	calculateRequestCharge,
-	rateLimit,
 	rateLimitConsume,
+	requestLimits,
 	rateLimitReward,
-	requestLimits
+	rateLimit
 } from "@/lib/server/api/rateLimit";
-import { respond } from "@/lib/server/api/respond";
-import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
-import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
-import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
-import { getLogger } from "@/lib/utils/logger";
-import { error } from "@sveltejs/kit";
 import { constants } from "http2";
-import type { RequestHandler } from "./$types";
 
 const log = getLogger("mapobjects");
 
@@ -23,11 +23,11 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 	const type = params.queryMapObject as MapObjectType;
 
 	const start = performance.now();
-	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user)) error(401);
+	if (!hasAnySubFeatureAnywhereServer(locals.perms, type, locals.user)) error(401);
 	const permCheckTime = performance.now();
 
 	const data: MapObjectRequestData = await request.json();
-	const permitted = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
+	const permitted = checkAnySubFeatureInBounds(locals.perms, type, data);
 
 	if (!permitted) {
 		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
@@ -60,7 +60,8 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		data.filter,
 		permitted.polygon,
 		data.since,
-		requestLimit
+		requestLimit,
+		locals.perms
 	).catch(async (e) => {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
 		throw e;
