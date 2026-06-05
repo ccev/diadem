@@ -3,7 +3,7 @@ export enum Menu {
 	FILTERS = "filters",
 	SCOUT = "scout",
 	TOOLS = "tools",
-	COVERAGE_MAP = "coveragemap"
+	COVERAGE_MAP = "coveragemap",
 }
 
 let openedMenu: Menu | null = $state(null);

@@ -64,6 +64,21 @@
 	--search-highlight: var(--color-amber-100);
 	--coverage-polygon-fill: rgba(0, 166, 244, 0.1);
 	--coverage-polygon-stroke: rgba(0, 166, 244, 0.5);
+	--wayfarer-l14-stroke: rgba(0, 187, 167, 0.6);
+    --wayfarer-l14-stroke-red: rgba(231, 0, 11, 0.9);
+	--wayfarer-l14-fill-red: rgba(231, 0, 11, 0.2);
+    --wayfarer-l14-stroke-amber: rgba(208, 135, 0, 0.9);
+	--wayfarer-l14-fill-amber: rgba(208, 135, 0, 0.2);
+    --wayfarer-l14-stroke-green: rgba(0, 166, 62, 0.9);
+	--wayfarer-l14-fill-green: rgba(0, 166, 62, 0.2);
+	--wayfarer-l17-stroke: rgba(0, 211, 242, 0.6);
+	--wayfarer-l17-fill: rgba(0, 211, 242, 0.4);
+	--wayfarer-fort-pokestop: rgb(81, 162, 255);
+	--wayfarer-fort-pokestop-stroke: rgb(20, 71, 230);
+	--wayfarer-fort-sponsored: rgb(244, 168, 255);
+	--wayfarer-fort-sponsored-stroke: rgb(168, 0, 183);
+	--wayfarer-fort-gym: rgb(255, 184, 106);
+	--wayfarer-fort-gym-stroke: rgb(159, 45, 0);
 }
 
 .dark {

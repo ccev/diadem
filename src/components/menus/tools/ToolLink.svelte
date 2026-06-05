@@ -20,7 +20,7 @@
 		title: string;
 		description: string;
 		onclick: () => void;
-		children: Snippet;
+		children?: Snippet;
 	} = $props();
 
 	let toolsClass: string = $derived(isMenuSidebar() ? "tools-sidebar" : "tools-mobile");
@@ -37,7 +37,7 @@
 		aria-hidden="true"
 	></div>
 
-	{@render children()}
+	{@render children?.()}
 
 	<div
 		class="absolute top-0 right-0 bg-linear-to-r from-background to-background/50 w-1/2 h-full"

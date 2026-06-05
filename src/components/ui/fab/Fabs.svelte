@@ -7,17 +7,25 @@
 	import { fade, slide } from "svelte/transition";
 	import maplibre from "maplibre-gl";
 	import SearchFab from "@/components/ui/fab/SearchFab.svelte";
+	import MapStyleFab from "@/components/ui/fab/MapStyleFab.svelte";
+	import type { MapStyle } from "@/lib/services/config/configTypes";
 
 	let {
 		map,
 		showSearch = true,
 		allowFollow = false,
-		searchMode = "main"
+		allowMapStyle = false,
+		searchMode = "main",
+		getStyleId = undefined,
+		setStyle = undefined
 	}: {
 		map: maplibre.Map | undefined;
 		showSearch?: boolean;
 		allowFollow?: boolean;
-		searchMode?: "main" | "coverage";
+		allowMapStyle?: boolean;
+		searchMode?: "main" | "coverage" | "wayfarer";
+		getStyleId?: () => string | undefined;
+		setStyle?: (style: MapStyle) => void;
 	} = $props();
 </script>
 
@@ -34,7 +42,11 @@
 	{/if}
 
 	{#if showSearch}
-		<SearchFab {searchMode} />
+		<SearchFab {searchMode} {map} />
+	{/if}
+
+	{#if allowMapStyle}
+		<MapStyleFab {getStyleId} {setStyle} />
 	{/if}
 
 	<LocateFab {map} {allowFollow} />

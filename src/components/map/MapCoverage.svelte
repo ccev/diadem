@@ -11,7 +11,7 @@
 	import {
 		clearMapPositionUrlParams,
 		getMapPositionFromUrlParams
-	} from "@/components/map/mapPositionParams";
+	} from "$lib/map/mapPositionParams.svelte";
 	import { onMount } from "svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { Coords } from "@/lib/utils/coordinates";

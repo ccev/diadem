@@ -21,7 +21,7 @@
 	import CoverageMapPopup from "@/components/menus/coverageMap/CoverageMapPopup.svelte";
 	import { setMap } from "@/lib/map/map.svelte";
 	import CoverageMapMenu from "@/components/menus/coverageMap/CoverageMapMenu.svelte";
-	import { clearMapPositionUrlParams } from "@/components/map/mapPositionParams";
+	import { clearMapPositionUrlParams } from "$lib/map/mapPositionParams.svelte";
 	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);

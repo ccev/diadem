@@ -13,16 +13,20 @@
 		SearchableType,
 		type SearchOptions
 	} from "@/lib/services/search.svelte";
+	import type maplibre from "maplibre-gl";
 	import { onShortcutSearch } from "@/lib/utils/keyboard";
 	import { onDestroy } from "svelte";
 	import MainSearchResults from "@/components/ui/search/MainSearchResults.svelte";
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
+	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
 
 	let {
-		searchMode = "main"
+		searchMode = "main",
+		map = undefined as maplibre.Map | undefined
 	}: {
-		searchMode?: "main" | "coverage";
+		searchMode?: "main" | "coverage" | "wayfarer";
+		map?: maplibre.Map | undefined;
 	} = $props();
 
 	let searchOptions: SearchOptions = $derived.by(() => {
@@ -31,6 +35,12 @@
 				types: [SearchableType.AREA, SearchableType.ADDRESS],
 				showRecents: false,
 				resultSnippet: coverageSearchResults
+			};
+		} else if (searchMode === "wayfarer") {
+			return {
+				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.GYM, SearchableType.POKESTOP],
+				showRecents: false,
+				resultSnippet: wayfarerSearchResults
 			};
 		} else {
 			return {
@@ -87,12 +97,16 @@
 	<CoverageSearchResults {results} />
 {/snippet}
 
+{#snippet wayfarerSearchResults(results: FuzzyResult<AnySearchEntry>[])}
+	<WayfarerSearchResults {results} {map} />
+{/snippet}
+
 {#if searchInitialized }
 	<Search {searchOptions} />
 {/if}
 
 {#if isSearchAllowed}
-	<BaseFab onclick={() => openSearchModal(searchOptions)}>
+	<BaseFab onclick={() => openSearchModal(searchOptions, map)}>
 		<SearchIcon size="24" />
 	</BaseFab>
 {/if}
