@@ -516,5 +516,18 @@
 	"defender_fed": "{count}x gefüttert",
 	"defender_won": "{count}x gewonnen",
 	"defender_lost": "{count}x verloren",
-	"defender_placed": "Platziert"
+	"defender_placed": "Platziert",
+	"nav_wayfarer": "Wayfarer Map",
+	"tool_wayfarer_title": "Wayfarer Map",
+	"tool_wayfarer_description": "Plane deine Wayfarer Einreichungen",
+	"wayfarer_sponsored": "Gesponsort",
+	"wayfarer_pokestops_required_for_gym": "Benötigte neue Pokéstops bis zur nächsten Arena: <b>{count}</b>",
+	"wayfarer_gym_limit_reached": "Die Zelle hat sein Arena-Limit erreicht",
+	"unknown_poi": "Unbekannter POI",
+	"is_a_pokestop": "Ist ein Pokéstop",
+	"is_a_gym": "Ist eine Arena",
+	"not_in_game": "Nicht im Spiel verfügbar",
+	"wayfarer_cell_title": "Level 14 Zelle",
+	"wayfarer_pokestops_count": "Pokéstops: <b>{count}</b>",
+	"wayfarer_gyms_count": "Arenen: <b>{count}</b>"
 }
