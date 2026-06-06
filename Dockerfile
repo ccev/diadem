@@ -14,6 +14,23 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN ./setup.sh && pnpm run build
 
+# Development image: full source + dev dependencies, runs the Vite dev server
+# (source maps, unminified code, error overlay) instead of the production build.
+# Select it by setting DIADEM_TARGET=dev (see .env / docker-compose.yml).
+FROM base AS dev
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN ./setup.sh
+RUN mkdir -p /app/config /app/logs
+RUN chmod +x docker-entrypoint.sh
+ENV NODE_ENV=development
+ENV DIADEM_TARGET=dev
+ENV HOST=0.0.0.0
+ENV PORT=3900
+EXPOSE 3900
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
 FROM node:22-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \

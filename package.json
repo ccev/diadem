@@ -82,9 +82,9 @@
 			"esbuild",
 			"sharp",
 			"workerd"
-		]
-	},
-	"patchedDependencies": {
-		"drizzle-kit@0.30.5": "patches/drizzle-kit@0.30.5.patch"
+		],
+		"patchedDependencies": {
+			"drizzle-kit@0.30.5": "patches/drizzle-kit@0.30.5.patch"
+		}
 	}
 }

@@ -34,3 +34,6 @@ vite.config.ts.timestamp-*
 
 # Docker
 docker-compose.yml
+
+# LLM bullshit
+.claude

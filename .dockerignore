@@ -43,3 +43,7 @@ coverage
 # Config (mounted at runtime, not baked in)
 # Keep config examples for build stage
 !config/*.example.*
+
+# LLM bullshit
+.claude
+CLAUDE.md

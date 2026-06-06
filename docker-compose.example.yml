@@ -3,13 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: ${DIADEM_TARGET:-runtime}
     image: diadem:latest
     container_name: diadem
     restart: unless-stopped
     ports:
       - "${DIADEM_PORT:-3900}:3900"
     environment:
-      - NODE_ENV=production
+      - DIADEM_TARGET=${DIADEM_TARGET:-runtime}
       - HOST=0.0.0.0
       - PORT=3900
     volumes:
@@ -24,13 +25,7 @@ services:
     networks:
       - diadem-network
     healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://localhost:3900').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
-        ]
+      test: [ "CMD", "node", "-e", "fetch('http://localhost:3900').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -50,7 +45,7 @@ services:
     networks:
       - diadem-network
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       interval: 10s
       timeout: 5s
       retries: 5
