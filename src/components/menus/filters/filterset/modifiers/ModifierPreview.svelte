@@ -268,7 +268,7 @@
 		source?.setData(previewData.features);
 	}
 
-	$effect(async () => {
+	$effect(() => {
 		// filterset state seems a bit messy, doesn't update with just filterset or filterset.modifiers
 		if (!bindMap) return;
 		filterset?.modifiers?.glow;

@@ -37,7 +37,7 @@
 	<ModifiersAttribute
 		data={thisData}
 		majorCategory={filterset?.majorCategory}
-		subCategory={filterset?.subCategory}
+		subCategory={filterset?.subCategory as FilterCategory | undefined}
 	/>
 {/snippet}
 
@@ -82,7 +82,7 @@
 				class="h-20! rounded-none! border-none!"
 				filterset={filterset?.data}
 				majorCategory={filterset?.majorCategory}
-				subCategory={filterset?.subCategory}
+				subCategory={filterset?.subCategory as FilterCategory | undefined}
 			/>
 			<Pencil class="ml-auto shrink-0 absolute right-4 top-1/2 -translate-y-1/2" size="14" />
 		</Button>

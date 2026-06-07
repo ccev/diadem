@@ -16,8 +16,6 @@
 
 <ToggleGroup
 	class="w-full px-1 py-1"
-	childCount={RAID_LEVELS.length}
-	evenColumns={false}
 	values={data.levels?.map(String) ?? []}
 	onchange={(values) => {
 		if (values.length > 0) {

@@ -12,7 +12,7 @@ export function isUiLeft() {
 }
 
 export function canNativeShare(content: ShareData) {
-	return navigator?.share && navigator.canShare && navigator.canShare(content);
+	return navigator?.share != null && navigator.canShare && navigator.canShare(content);
 }
 
 export function hasClipboardWrite() {
@@ -43,7 +43,7 @@ export function hasTouch() {
 	return (
 		"ontouchstart" in window ||
 		(navigator?.maxTouchPoints ?? 0) > 0 ||
-		(navigator?.msMaxTouchPoints ?? 0) > 0
+		((navigator as any)?.msMaxTouchPoints ?? 0) > 0
 	);
 }
 

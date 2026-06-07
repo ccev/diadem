@@ -273,7 +273,7 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 		navigator.geolocation.getCurrentPosition(
 			(s) => {
 				handleGeolocationPosition(s, map);
-				if (map) flyToLocation(map, currentLocation);
+				if (map && currentLocation) flyToLocation(map, currentLocation);
 				shouldUpdateLocation = watchId !== undefined;
 			},
 			(e) => {

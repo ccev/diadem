@@ -22,10 +22,9 @@
 	</div>
 
 	<RadioGroup
-		childCount={2}
 		value={filterType}
-		onValueChange={(value: InvasionFilterType) => {
-			filterType = value;
+		onValueChange={(value) => {
+			filterType = value as InvasionFilterType;
 
 			if (value === InvasionFilterType.CHARACTERS) {
 				delete data.rewards;

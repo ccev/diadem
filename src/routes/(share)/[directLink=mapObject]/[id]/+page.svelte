@@ -16,4 +16,4 @@
 	/>
 {/if}
 
-<RedirectFlash goal={data.title ?? m["pogo_" + data.type]()} />
+<RedirectFlash goal={data.title ?? (m as unknown as Record<string, () => string>)["pogo_" + data.type]()} />

@@ -25,7 +25,7 @@
 	}
 </script>
 
-{#snippet iconPickerPage(thisData)}
+{#snippet iconPickerPage(thisData: AnyFilterset)}
 	<IconPicker data={thisData} />
 {/snippet}
 
@@ -54,7 +54,7 @@
 		title={m.filter_name()}
 		value={filterTitle($state.snapshot(data))}
 		onchange={(e) => {
-			data.title.title = e.target?.value ?? "";
+			data.title.title = (e.target as HTMLInputElement)?.value ?? "";
 		}}
 	/>
 </div>

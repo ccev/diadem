@@ -172,7 +172,7 @@ export function defaultFilter(enabled: boolean = false) {
 }
 
 export function getDefaultIconSet(type: MapObjectType) {
-	let iconSet = getConfig().uiconSets.find((s) => s[type]?.default);
+	let iconSet = getConfig().uiconSets.find((s) => typeof s[type] === "object" && s[type]?.default);
 
 	if (!iconSet) {
 		iconSet = getConfig().uiconSets.find((s) => s.base?.default);

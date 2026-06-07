@@ -42,7 +42,7 @@
 				type="number"
 				{value}
 				onchange={(e) => {
-					value = Number(e.target?.value ?? value);
+					value = Number((e.target as HTMLInputElement)?.value ?? value);
 					onchange(value);
 				}}
 			/>

@@ -86,7 +86,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 
 		if (!showThis && filter.quest.enabled) {
 			for (const quest of data.quests) {
-				if (shouldDisplayQuest(quest, { mapId: undefined }, filter)) {
+				if (shouldDisplayQuest(quest, { mapId: "" }, filter)) {
 					showThis = true;
 					break;
 				}

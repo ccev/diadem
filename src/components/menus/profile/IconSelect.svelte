@@ -30,7 +30,7 @@
 		return allSets.map((s) => {
 			return {
 				value: s.id,
-				label: s.id === defaultSetId.id ? m.default_() : (s[type]?.name ?? s.name)
+				label: s.id === defaultSetId.id ? m.default_() : ((typeof s[type] === "object" && s[type] !== null ? (s[type] as { name?: string }).name : undefined) ?? s.name)
 			};
 		});
 	}
@@ -39,16 +39,14 @@
 {#if getUiconSets(type).length > 1}
 	<MenuGeneric {title}>
 		<RadioGroup
-			childCount={getUiconSets(type).length}
-			value={getUserSettings().uiconSet[type].id}
+			value={(getUserSettings().uiconSet as Record<string, { id: string }>)[type].id}
 			onValueChange={(value) => onIconChange(value, type)}
-			evenColumns={false}
 		>
 			{#each getUiconSets(type) as iconSet (iconSet.value)}
 				<SelectGroupItem class="p-4" value={iconSet.value}>
 					<img
 						class="w-5"
-						src={getIconForMap({ type, ...getIconParams }, iconSet.value)}
+						src={getIconForMap({ type, ...getIconParams } as Parameters<typeof getIconForMap>[0], iconSet.value)}
 						alt="{title} (Style: {iconSet.label})"
 					/>
 					{iconSet.label}

@@ -6,7 +6,7 @@ import DailyRotateFile from "winston-daily-rotate-file";
 const config = getServerConfig().log;
 
 const logFormat = format.printf(({ level, message, label, timestamp, levelLabel }) => {
-	let name = (label ?? "").padEnd(12);
+	let name = String(label ?? "").padEnd(12);
 	name = name.length > 12 ? name.slice(0, 12) : name;
 
 	const line = `${chalk.cyan(timestamp)} | ${levelLabel} | ${chalk.cyan(name)} | ${message}`;

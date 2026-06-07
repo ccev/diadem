@@ -9,7 +9,7 @@ export type UserData = {
 };
 
 let userDetails: UserData = $state({
-	permissions: {}
+	permissions: { everywhere: [], areas: [] }
 });
 
 export function getUserDetails() {
@@ -19,7 +19,7 @@ export function getUserDetails() {
 export async function updateUserDetails() {
 	const response = await fetch("/api/user/details");
 	userDetails = await response.json();
-	if (!userDetails.permissions) userDetails.permissions = {};
+	if (!userDetails.permissions) userDetails.permissions = { everywhere: [], areas: [] };
 }
 
 export async function updateUserPermissions() {

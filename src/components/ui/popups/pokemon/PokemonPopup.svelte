@@ -92,9 +92,10 @@
 </script>
 
 {#snippet timer()}
-	<IconValue Icon={hasTimer(data) ? Clock : ClockAlert}>
+	{@const timerData = data as { expire_timestamp: number | null | undefined; expire_timestamp_verified: number | boolean | null | undefined }}
+	<IconValue Icon={hasTimer(timerData) ? Clock : ClockAlert}>
 		<span>
-			{#if hasTimer(data)}
+			{#if hasTimer(timerData)}
 				{m.popup_despawns()}
 			{:else}
 				{m.popup_found()}
@@ -102,7 +103,7 @@
 		</span>
 
 		<TimeWithCountdown
-			expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
+			expireTime={hasTimer(timerData) ? data.expire_timestamp : data.first_seen_timestamp}
 		/>
 	</IconValue>
 {/snippet}
@@ -120,7 +121,7 @@
 		</IconValue>
 	{/if}
 
-	{#if Math.abs(data.changed - (data.updated ?? data.changed)) > 10}
+	{#if Math.abs((data.changed ?? 0) - (data.updated ?? data.changed ?? 0)) > 10}
 		<IconValue Icon={ArrowLeftRight}>
 			{m.popup_species_changed()}
 		</IconValue>
@@ -138,14 +139,14 @@
 		</IconValue>
 	{/if}
 
-	{#if data.cp !== null || data.level !== null}
+	{#if data.cp != null || data.level != null}
 		<IconValue Icon={ChartSpline}>
-			{#if data.cp !== null}
+			{#if data.cp != null}
 				<span class="font-semibold">
 					{m.pogo_cp({ cp: data.cp })}
 				</span>
 			{/if}
-			{#if data.level !== null}
+			{#if data.level != null}
 				({m.pogo_level({ level: data.level })})
 			{/if}
 		</IconValue>
@@ -300,7 +301,7 @@
 			{/if}
 		{/if}
 
-		{#if data.size !== null}
+		{#if data.size != null}
 			<IconValue Icon={Ruler}>
 				<span>
 					Size: <b>{getPokemonSize(data.size)}</b>

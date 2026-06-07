@@ -101,14 +101,14 @@
 			const directLinkData = getDirectLinkObject();
 			if (directLinkData) {
 				if (directLinkData.id) {
-					openMapObject(directLinkData);
+					openMapObject(directLinkData as unknown as Parameters<typeof openMapObject>[0]);
 				} else if ("noPermission" in directLinkData && directLinkData.noPermission) {
 					openToast(
-						m.direct_link_no_permission({ type: m["pogo_" + directLinkData.type]() }),
+						m.direct_link_no_permission({ type: (m as unknown as Record<string, () => string>)["pogo_" + directLinkData.type]() }),
 						5000
 					);
 				} else {
-					openToast(m.direct_link_not_found({ type: m["pogo_" + directLinkData.type]() }), 5000);
+					openToast(m.direct_link_not_found({ type: (m as unknown as Record<string, () => string>)["pogo_" + directLinkData.type]() }), 5000);
 				}
 			}
 

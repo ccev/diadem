@@ -25,13 +25,16 @@
 	} = $props();
 
 	type Reward = Extract<QuestReward, { type: typeof rewardType }>;
+	type RewardInfo = Reward["info"] & { amount?: number };
 	const rewards = $derived(
 		getQuestRewards(rewardType).sort((a, b) => {
-			const aId = getId(a.reward.info);
-			const bId = getId(b.reward.info);
+			const aInfo = a.reward.info as RewardInfo;
+			const bInfo = b.reward.info as RewardInfo;
+			const aId = getId(aInfo);
+			const bId = getId(bInfo);
 			return (
 				aId.localeCompare(bId, undefined, { numeric: true }) ||
-				(a.reward.info.amount ?? 0) - (b.reward.info.amount ?? 0)
+				(aInfo.amount ?? 0) - (bInfo.amount ?? 0)
 			);
 		})
 	);
@@ -41,19 +44,21 @@
 	}
 
 	function isSelected(reward: Reward) {
-		const key = getKey(getId(reward.info), reward.info.amount);
+		const info = reward.info as RewardInfo;
+		const key = getKey(getId(info), info.amount);
 		return data[attribute]?.some((r) => getKey(r.id, r.amount) === key) ?? false;
 	}
 
 	function onselect(reward: Reward, selected: boolean) {
-		let filterReward: FilterReward = { id: getId(reward.info) };
-		if (reward.info.amount !== undefined) filterReward.amount = reward.info.amount;
+		const info = reward.info as RewardInfo;
+		let filterReward: FilterReward = { id: getId(info) };
+		if (info.amount !== undefined) filterReward.amount = info.amount;
 
 		if (selected) {
 			if (!data[attribute]) data[attribute] = [];
 			data[attribute]!.push(filterReward);
 		} else {
-			const key = getKey(getId(reward.info), reward.info.amount);
+			const key = getKey(getId(info), info.amount);
 			data[attribute] = data[attribute]?.filter((r) => getKey(r.id, r.amount) !== key);
 		}
 
@@ -63,7 +68,7 @@
 
 {#if rewards.length > 0}
 	<MultiSelect>
-		{#each rewards as reward (getKey(getId(reward.reward.info), reward.reward.info.amount))}
+		{#each rewards as reward (getKey(getId(reward.reward.info as RewardInfo), (reward.reward.info as RewardInfo).amount))}
 			{@const selected = isSelected(reward.reward)}
 
 			<MultiSelectItem isSelected={selected} onclick={(value) => onselect(reward.reward, value)}>

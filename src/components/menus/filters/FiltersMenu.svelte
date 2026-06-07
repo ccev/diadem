@@ -13,7 +13,7 @@
 >
 	<SignInButton />
 	<FilterSection
-		requiredPermission="pokemon"
+		requiredPermission={MapObjectType.POKEMON}
 		title={m.pogo_pokemon()}
 		category="pokemon"
 		mapObject={MapObjectType.POKEMON}
@@ -21,7 +21,7 @@
 	/>
 
 	<FilterSection
-		requiredPermission="pokestop"
+		requiredPermission={MapObjectType.POKESTOP}
 		title={m.pogo_pokestops()}
 		category="pokestop"
 		mapObject={MapObjectType.POKESTOP}
