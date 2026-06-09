@@ -16,6 +16,7 @@ export type OpenModals = {
 	filtersetInvasion: boolean;
 	filtersetRaid: boolean;
 	filtersetMaxBattle: boolean;
+	stylePicker: boolean;
 };
 export type ModalType = keyof OpenModals;
 
@@ -28,7 +29,8 @@ let openModals: OpenModals = $state({
 	filtersetQuest: false,
 	filtersetInvasion: false,
 	filtersetRaid: false,
-	filtersetMaxBattle: false
+	filtersetMaxBattle: false,
+	stylePicker: false
 });
 
 let selectOptions: Snippet | undefined = $state(undefined);

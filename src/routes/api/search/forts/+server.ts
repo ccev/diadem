@@ -26,7 +26,7 @@ export async function POST({ request, locals }) {
 	if (hasPokestops && pokestopPermitted) {
 		const spatial = buildSpatialFilter(pokestopPermitted.polygon ?? null, pokestopPermitted.bounds);
 		queries.push(
-			"(SELECT 'p' AS type, name, id, url FROM pokestop WHERE " +
+			"(SELECT 'p' AS type, name, id, url, lat, lon FROM pokestop WHERE " +
 				spatial.sql +
 				" AND name IS NOT NULL AND deleted = 0)"
 		);
@@ -36,7 +36,7 @@ export async function POST({ request, locals }) {
 	if (hasGyms && gymPermitted) {
 		const spatial = buildSpatialFilter(gymPermitted.polygon ?? null, gymPermitted.bounds);
 		queries.push(
-			"(SELECT 'g' AS type, name, id, url FROM gym WHERE " +
+			"(SELECT 'g' AS type, name, id, url, lat, lon FROM gym WHERE " +
 				spatial.sql +
 				" AND name IS NOT NULL AND deleted = 0)"
 		);

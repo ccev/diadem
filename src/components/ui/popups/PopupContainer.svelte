@@ -26,11 +26,5 @@
 </script>
 
 {#if PopupComponent}
-	<div
-		class="w-full max-w-120 z-10"
-		style="pointer-events: all"
-		transition:slide={{ duration: 50 }}
-	>
-		<PopupComponent />
-	</div>
+	<PopupComponent />
 {/if}

@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { Binoculars, ChartColumnBig, Earth } from "lucide-svelte";
+	import { Binoculars, ChartColumnBig, Earth, MapPin } from "lucide-svelte";
 	import { FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 	import { getDefaultMapStyle } from "@/lib/services/themeMode";
 	import { CoverageMapLayerId, MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
 	import { getCoverageMapAreas, openCoverageMap } from "@/lib/features/coverageMap.svelte";
+	import { openWayfarerMap } from "@/lib/features/wayfarerMap.svelte";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
@@ -39,52 +40,52 @@
 				openMenu(Menu.SCOUT);
 			}}
 		>
-			{@const coords = getCoords(
-				new Coords(
-					(getConfig().mapPositions.scoutLat ?? 53.563) - 0.01,
-					(getConfig().mapPositions.scoutLon ?? 9.979) + 0.04
-				),
-				2
-			)}
-			{@const [smallPoints, bigPoints] = getScoutGeojsons(coords, 2)}
-			<MapLibre
-				class="absolute! top-0 right-0 h-full w-1/2"
-				center={[
-					getConfig().mapPositions.scoutLon ?? 9.979,
-					getConfig().mapPositions.scoutLat ?? 53.563
-				]}
-				zoom={getConfig().mapPositions.scoutZoom ?? 10.5}
-				filterLayers={(l) => l.type !== "symbol"}
-				style={getDefaultMapStyle().url}
-				attributionControl={false}
-				interactive={true}
-				zoomOnDoubleClick={false}
-			>
-				<GeoJSON id="scout-small" data={featureCollection(smallPoints)}>
-					<FillLayer
-						paint={{
-							"fill-color": ["get", "fillColor"],
-							"fill-opacity": 0.5
-						}}
-					/>
-					<LineLayer
-						layout={{ "line-cap": "round", "line-join": "round" }}
-						paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
-					/>
-				</GeoJSON>
-				<GeoJSON id="scout-big" data={featureCollection(bigPoints)}>
-					<FillLayer
-						paint={{
-							"fill-color": ["get", "fillColor"],
-							"fill-opacity": 0.5
-						}}
-					/>
-					<LineLayer
-						layout={{ "line-cap": "round", "line-join": "round" }}
-						paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
-					/>
-				</GeoJSON>
-			</MapLibre>
+			<!--{@const coords = getCoords(-->
+			<!--	new Coords(-->
+			<!--		(getConfig().mapPositions.scoutLat ?? 53.563) - 0.01,-->
+			<!--		(getConfig().mapPositions.scoutLon ?? 9.979) + 0.04-->
+			<!--	),-->
+			<!--	2-->
+			<!--)}-->
+			<!--{@const [smallPoints, bigPoints] = getScoutGeojsons(coords, 2)}-->
+			<!--<MapLibre-->
+			<!--	class="absolute! top-0 right-0 h-full w-1/2"-->
+			<!--	center={[-->
+			<!--		getConfig().mapPositions.scoutLon ?? 9.979,-->
+			<!--		getConfig().mapPositions.scoutLat ?? 53.563-->
+			<!--	]}-->
+			<!--	zoom={getConfig().mapPositions.scoutZoom ?? 10.5}-->
+			<!--	filterLayers={(l) => l.type !== "symbol"}-->
+			<!--	style={getDefaultMapStyle().url}-->
+			<!--	attributionControl={false}-->
+			<!--	interactive={true}-->
+			<!--	zoomOnDoubleClick={false}-->
+			<!--&gt;-->
+			<!--	<GeoJSON id="scout-small" data={featureCollection(smallPoints)}>-->
+			<!--		<FillLayer-->
+			<!--			paint={{-->
+			<!--				"fill-color": ["get", "fillColor"],-->
+			<!--				"fill-opacity": 0.5-->
+			<!--			}}-->
+			<!--		/>-->
+			<!--		<LineLayer-->
+			<!--			layout={{ "line-cap": "round", "line-join": "round" }}-->
+			<!--			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}-->
+			<!--		/>-->
+			<!--	</GeoJSON>-->
+			<!--	<GeoJSON id="scout-big" data={featureCollection(bigPoints)}>-->
+			<!--		<FillLayer-->
+			<!--			paint={{-->
+			<!--				"fill-color": ["get", "fillColor"],-->
+			<!--				"fill-opacity": 0.5-->
+			<!--			}}-->
+			<!--		/>-->
+			<!--		<LineLayer-->
+			<!--			layout={{ "line-cap": "round", "line-join": "round" }}-->
+			<!--			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}-->
+			<!--		/>-->
+			<!--	</GeoJSON>-->
+			<!--</MapLibre>-->
 		</ToolLink>
 	{/if}
 
@@ -95,32 +96,54 @@
 			description={m.tool_coverage_map_description()}
 			onclick={() => openCoverageMap()}
 		>
-			<MapLibre
-				class="absolute! top-0 right-0 h-full w-1/2"
-				center={[
-					getConfig().mapPositions.coverageLon ?? 9.979,
-					getConfig().mapPositions.coverageLat ?? 53.563
-				]}
-				zoom={getConfig().mapPositions.coverageZoom ?? 5.5}
-				filterLayers={(l) => l.type !== "symbol"}
-				style={getDefaultMapStyle().url}
-				attributionControl={false}
-				interactive={false}
-				zoomOnDoubleClick={false}
-			>
-				<GeoJSON id="tools-coveragemap" data={getCoverageMapAreas()}>
-					<FillLayer
-						paint={{
-							"fill-color": ["get", "fillColor"],
-							"fill-opacity": 0.5
-						}}
-					/>
-					<LineLayer
-						layout={{ "line-cap": "round", "line-join": "round" }}
-						paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
-					/>
-				</GeoJSON>
-			</MapLibre>
+<!--			<MapLibre-->
+<!--				class="absolute! top-0 right-0 h-full w-1/2"-->
+<!--				center={[-->
+<!--					getConfig().mapPositions.coverageLon ?? 9.979,-->
+<!--					getConfig().mapPositions.coverageLat ?? 53.563-->
+<!--				]}-->
+<!--				zoom={getConfig().mapPositions.coverageZoom ?? 5.5}-->
+<!--				filterLayers={(l) => l.type !== "symbol"}-->
+<!--				style={getDefaultMapStyle().url}-->
+<!--				attributionControl={false}-->
+<!--				interactive={false}-->
+<!--				zoomOnDoubleClick={false}-->
+<!--			>-->
+<!--				<GeoJSON id="tools-coveragemap" data={getCoverageMapAreas()}>-->
+<!--					<FillLayer-->
+<!--						paint={{-->
+<!--							"fill-color": ["get", "fillColor"],-->
+<!--							"fill-opacity": 0.5-->
+<!--						}}-->
+<!--					/>-->
+<!--					<LineLayer-->
+<!--						layout={{ "line-cap": "round", "line-join": "round" }}-->
+<!--						paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}-->
+<!--					/>-->
+<!--				</GeoJSON>-->
+<!--			</MapLibre>-->
 		</ToolLink>
 	{/if}
+
+	<ToolLink
+		Icon={MapPin}
+		title={m.tool_wayfarer_title()}
+		description={m.tool_wayfarer_description()}
+		onclick={() => openWayfarerMap()}
+	>
+<!--		<MapLibre-->
+<!--			class="absolute! top-0 right-0 h-full w-1/2"-->
+<!--			center={[-->
+<!--				getConfig().general.defaultLon ?? 9.979,-->
+<!--				getConfig().general.defaultLat ?? 53.563-->
+<!--			]}-->
+<!--			zoom={getConfig().general.defaultZoom ?? 5.5}-->
+<!--			filterLayers={(l) => l.type !== "symbol"}-->
+<!--			style={getDefaultMapStyle().url}-->
+<!--			attributionControl={false}-->
+<!--			interactive={false}-->
+<!--			zoomOnDoubleClick={false}-->
+<!--		>-->
+<!--		</MapLibre>-->
+	</ToolLink>
 </div>

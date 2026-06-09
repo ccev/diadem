@@ -19,13 +19,15 @@
 		children = undefined,
 		map = $bindable(),
 		initialCenter,
-		initialZoom
+		initialZoom,
+		style
 	}: {
 		onload?: (map: maplibre.Map) => void;
 		children?: Snippet;
 		map?: maplibre.Map | undefined;
 		initialCenter: Coords;
 		initialZoom: number;
+		style?: string | maplibre.StyleSpecification
 	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
@@ -51,7 +53,7 @@
 	center={initialCenter.maplibre()}
 	zoom={initialZoom}
 	class="h-screen w-full overflow-hidden"
-	style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
+	style={style ?? getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 	attributionControl={false}
 	interactive={!isAnyModalOpen()}
 	onload={onMapLoad}

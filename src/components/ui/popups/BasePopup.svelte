@@ -25,16 +25,26 @@
 		image,
 		title,
 		description = undefined,
-		content = undefined
+		content = undefined,
+		buttons = popupButtons,
+		canShare = true,
+		isExpanded = () => isPopupExpanded(getCurrentSelectedData()?.type),
+		onclose = closePopup,
+		class: class_ = ""
 	}: {
-		lat: number;
-		lon: number;
+		lat?: number;
+		lon?: number;
 		heightCol?: string;
 		heightExp?: string;
 		image: Snippet;
 		title: Snippet;
 		description?: Snippet;
 		content?: Snippet;
+		buttons?: Snippet<[number, number]>;
+		canShare?: boolean;
+		isExpanded?: () => boolean;
+		onclose?: () => void;
+		class?: string
 	} = $props();
 
 	function getShareUrl() {
@@ -42,69 +52,86 @@
 	}
 </script>
 
-<Card class="h-full relative overflow-hidden pt-4 mx-2">
-	<div class="absolute right-2 top-3 flex gap-1.5">
-		{#if canNativeShare({ url: getShareUrl() })}
-			<Button
-				variant="ghost"
-				size=""
-				class="rounded-full size-8 p-2"
-				title={m.popup_share()}
-				onclick={() => backupShareUrl(getShareUrl())}
-			>
-				<Share2 class="size-3.5" />
-			</Button>
-		{:else if hasClipboardWrite()}
-			<Button
-				variant="ghost"
-				size=""
-				class="rounded-full size-8 p-2"
-				title={m.copy_link()}
-				onclick={() => copyToClipboard(getShareUrl())}
-			>
-				<Copy class="size-3.5" />
-			</Button>
-		{/if}
-		<Button
-			variant="ghost"
-			size=""
-			class="rounded-full p-2 size-8"
-			title={m.close()}
-			onclick={closePopup}
-		>
-			<X class="size-4.5" />
-		</Button>
-	</div>
+{#snippet popupButtons(buttonLat: number, buttonLon: number)}
+	<PopupButtons lat={buttonLat} lon={buttonLon} />
+{/snippet}
 
-	<div class="flex pl-6 pr-3 w-full items-center mb-2">
-		{@render image()}
-		<div class="w-full h-fit ml-4 max-h-full">
-			<div class="mr-16">
-				{@render title()}
-			</div>
-
-			{#if !isPopupExpanded(getCurrentSelectedData()?.type)}
-				<div
-					class="mt-1"
-					in:slide={{ duration: 90, easing: cubicOut }}
-					out:slide={{ duration: 90, easing: cubicIn }}
-				>
-					{@render description?.()}
-				</div>
+<div
+	class="w-full max-w-120 z-10"
+	style="pointer-events: all"
+	transition:slide={{ duration: 50 }}
+>
+	<Card class="h-full relative overflow-hidden pt-4 mx-2 {class_}">
+		<div class="absolute right-2 top-3 flex gap-1.5">
+			{#if canShare}
+				{#if canNativeShare({ url: getShareUrl() })}
+					<Button
+						variant="ghost"
+						size=""
+						class="rounded-full size-8 p-2"
+						title={m.popup_share()}
+						onclick={() => backupShareUrl(getShareUrl())}
+					>
+						<Share2 class="size-3.5" />
+					</Button>
+				{:else if hasClipboardWrite()}
+					<Button
+						variant="ghost"
+						size=""
+						class="rounded-full size-8 p-2"
+						title={m.copy_link()}
+						onclick={() => copyToClipboard(getShareUrl())}
+					>
+						<Copy class="size-3.5" />
+					</Button>
+				{/if}
 			{/if}
-		</div>
-	</div>
 
-	{#if isPopupExpanded(getCurrentSelectedData()?.type)}
-		<div
-			class="px-6 overflow-y-auto mb-2"
-			style="max-height: calc(100vh - 26rem);"
-			in:slide={{ duration: 90, easing: cubicIn }}
-			out:slide={{ duration: 90, easing: cubicOut }}
-		>
-			{@render content?.()}
+			<Button
+				variant="ghost"
+				size=""
+				class="rounded-full p-2 size-8"
+				title={m.close()}
+				onclick={onclose}
+			>
+				<X class="size-4.5" />
+			</Button>
 		</div>
-	{/if}
 
-	<PopupButtons {lat} {lon} />
-</Card>
+		<div class="flex pl-6 pr-3 w-full items-center mb-2">
+			{@render image()}
+			<div class="w-full h-fit ml-4 max-h-full">
+				<div class="mr-16">
+					{@render title()}
+				</div>
+
+				{#if !isExpanded()}
+					<div
+						class="mt-1"
+						in:slide={{ duration: 90, easing: cubicOut }}
+						out:slide={{ duration: 90, easing: cubicIn }}
+					>
+						{@render description?.()}
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		{#if isExpanded()}
+			<div
+				class="px-6 overflow-y-auto mb-2"
+				style="max-height: calc(100vh - 26rem);"
+				in:slide={{ duration: 90, easing: cubicIn }}
+				out:slide={{ duration: 90, easing: cubicOut }}
+			>
+				{@render content?.()}
+			</div>
+		{/if}
+
+		{#if buttons && lat && lon}
+			{@render buttons(lat, lon)}
+		{/if}
+	</Card>
+</div>
+
+
