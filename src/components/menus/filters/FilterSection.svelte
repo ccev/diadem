@@ -60,12 +60,12 @@
 		sessionExpandedState[category as string] = subcategoriesExpanded;
 	});
 
-	function onEnabledChange(_, value: boolean) {
+	function onEnabledChange(_: FilterCategory, value: boolean) {
 		const filter: AnyFilter = getUserSettings().filters[category];
 		filter.enabled = value;
 
 		subCategories.forEach((subcategory) => {
-			getUserSettings().filters[category][subcategory.category].enabled = value;
+			(getUserSettings().filters[category] as unknown as Record<string, AnyFilter>)[subcategory.category].enabled = value;
 		});
 
 		updateUserSettings();
@@ -73,7 +73,7 @@
 	}
 
 	function onSubEnabledChange(thisCategory: FilterCategory, value: boolean) {
-		getUserSettings().filters[category][thisCategory].enabled = value;
+		(getUserSettings().filters[category] as unknown as Record<string, AnyFilter>)[thisCategory].enabled = value;
 
 		if (
 			value ||
@@ -117,7 +117,7 @@
 							filterModal={subcategory.filterModal}
 							isFilterable={subcategory.filterable ?? true}
 							onEnabledChange={onSubEnabledChange}
-							filter={getUserSettings().filters[category][subcategory.category]}
+							filter={(getUserSettings().filters[category] as unknown as Record<string, AnyFilter>)[subcategory.category]}
 						/>
 					{/each}
 				</div>

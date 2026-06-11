@@ -22,7 +22,8 @@ export async function ensureMapImage(map: maplibre.Map, props: MapObjectIconProp
 
 	if (pending) {
 		await pending;
-		if (!map.hasImage(imageId)) {
+		// The map may have been removed while we awaited the in-flight load.
+		if (!map._removed && !map.hasImage(imageId)) {
 			const imageData = loadedImages[imageId];
 			if (imageData) map.addImage(imageId, imageData);
 		}
@@ -41,7 +42,8 @@ export async function ensureMapImage(map: maplibre.Map, props: MapObjectIconProp
 			}
 		}
 
-		if (imageData && !map.hasImage(imageId)) {
+		// The map may have been removed while the image was loading.
+		if (imageData && !map._removed && !map.hasImage(imageId)) {
 			map.addImage(imageId, imageData);
 		}
 	})();

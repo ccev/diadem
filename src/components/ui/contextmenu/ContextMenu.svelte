@@ -130,8 +130,7 @@
 		Icon={Navigation}
 		label={m.context_menu_navigate_here()}
 		tag="a"
-		href={mapsUrl}
-		target="_blank"
+		{...{ href: mapsUrl, target: "_blank" } as any}
 	/>
 
 	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT) && getConfig().tools.scout}

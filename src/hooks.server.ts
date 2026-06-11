@@ -69,7 +69,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	}
 
 	if (user && !permissionCache.has(user.id)) {
-		user.permissions = await updatePermissions(user as User, session.discordToken, event.fetch);
+		user.permissions = await updatePermissions(user as unknown as User, session.discordToken, event.fetch);
 		permissionCache.set(user.id, undefined);
 	}
 
@@ -93,7 +93,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 			);
 			await invalidateSession(session.id);
 		} catch (e) {
-			console.error("Error while refreshing discord token: " + e.toString());
+			console.error("Error while refreshing discord token: " + String(e));
 			await invalidateSession(session.id);
 			// TODO: handle this properly
 		}

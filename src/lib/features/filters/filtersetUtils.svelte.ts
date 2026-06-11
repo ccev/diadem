@@ -50,13 +50,16 @@ export function filterTitle(filterset: AnyFilterset | undefined) {
 		const params = $state.snapshot(filterset.title.params);
 		if (params) {
 			for (const [key, value] of Object.entries(params)) {
+				// @ts-ignore
 				if (Object.hasOwn(m, value)) {
-					params[key] = m[value]();
+					// @ts-ignore
+					params[key] = m[value as string]();
 				}
 			}
 		}
 
-		return m[filterset.title.message](params);
+		// @ts-ignore
+		return (m as Record<string, (...args: unknown[]) => string>)[filterset.title.message](params);
 	}
 	if (filterset.title.message) {
 		return filterset.title.message;

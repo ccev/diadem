@@ -46,7 +46,7 @@
 		title={m.settings_load_map_objects_padding_title()}
 		description={m.settings_load_map_objects_padding_description()}
 		value={getUserSettings().loadMapObjectsPadding}
-		onchange={(e) => onSettingsChange("loadMapObjectsPadding", parseFloat(e.target.value) || 0)}
+		onchange={(e) => onSettingsChange("loadMapObjectsPadding", parseFloat((e.target as HTMLInputElement)?.value) || 0)}
 		min="0"
 		step="10"
 	/>

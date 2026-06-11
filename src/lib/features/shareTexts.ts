@@ -100,17 +100,17 @@ export function getShareTitle(data: MapData | null | undefined) {
 function getPokemonShareText(data: PokemonData) {
 	let text = "";
 
-	if (hasTimer(data)) {
+	if (hasTimer(data as Parameters<typeof hasTimer>[0])) {
 		text += `🕜 ${m.popup_despawns()} ${timestampToLocalTime(data.expire_timestamp)}\n`;
 	} else {
 		text += `🕜 ${m.popup_found()} ${timestampToLocalTime(data.first_seen_timestamp)}\n`;
 	}
 
-	if (data.cp !== null && data.level !== null) {
+	if (data.cp != null && data.level != null) {
 		text += `📈 ${m.pogo_cp({ cp: data.cp })} (${m.pogo_level({ level: data.level })})\n`;
 	}
 
-	if (data.iv !== null) {
+	if (data.iv != null) {
 		text += `📚 ${m.pogo_ivs()}: ${data.iv.toFixed(1)}% (${data.atk_iv ?? "?"}/${data.def_iv ?? "?"}/${data.sta_iv ?? "?"})\n`;
 	}
 

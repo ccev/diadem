@@ -26,7 +26,7 @@
 	} = $props();
 </script>
 
-{#snippet selectOption(label, optionValue)}
+{#snippet selectOption(label: string, optionValue: string)}
 	<Button
 		variant="ghost"
 		size=""

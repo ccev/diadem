@@ -250,7 +250,7 @@ export function setActiveSearchRaidBoss(
 		]
 	} as FiltersetRaid;
 
-	if (formId) filterset.bosses[0].form = formId;
+	if (formId && filterset.bosses) filterset.bosses[0].form = formId;
 
 	const filter = getDefaultGymFilter();
 	filter.gymPlain.enabled = false;

@@ -21,10 +21,9 @@
 	</div>
 
 	<RadioGroup
-		childCount={2}
 		value={filterType}
-		onValueChange={(value: RaidFilterType) => {
-			filterType = value;
+		onValueChange={(value) => {
+			filterType = value as RaidFilterType;
 
 			if (value === "level") {
 				delete data.bosses;

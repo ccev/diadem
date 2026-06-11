@@ -89,7 +89,7 @@ export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid 
 			});
 
 			title.message = "count_pokemon";
-			title.params = { count: filter.bosses.length };
+			title.params = { count: filter.bosses.length.toString() };
 		}
 	}
 

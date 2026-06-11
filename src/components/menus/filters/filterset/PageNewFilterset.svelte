@@ -32,7 +32,7 @@
 
 	// @ts-ignore
 	let premades = $derived(
-		getPremadeFiltersets(majorCategory) ?? getPremadeFiltersets(subCategory) ?? []
+		getPremadeFiltersets(majorCategory) ?? (subCategory ? getPremadeFiltersets(subCategory) : []) ?? []
 	);
 </script>
 

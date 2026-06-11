@@ -46,7 +46,7 @@
 					type="number"
 					value={valueMin}
 					onchange={(e) => {
-						valueMin = Number(e.target?.value ?? min);
+						valueMin = Number((e.target as HTMLInputElement)?.value ?? min);
 						onchange([valueMin, valueMax]);
 					}}
 				/>
@@ -55,7 +55,7 @@
 					type="number"
 					value={valueMax}
 					onchange={(e) => {
-						valueMax = Number(e.target?.value ?? max);
+						valueMax = Number((e.target as HTMLInputElement)?.value ?? max);
 						onchange([valueMin, valueMax]);
 					}}
 				/>

@@ -7,6 +7,9 @@ const config = {
 
 	kit: {
 		adapter: adapter(),
+		alias: {
+			"@": "src"
+		},
 		files: {
 			serviceWorker: "src/lib/serviceWorker/index.ts"
 		}

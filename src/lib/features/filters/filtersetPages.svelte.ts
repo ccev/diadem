@@ -7,6 +7,7 @@ import {
 	setCurrentSelectedFilterset,
 	updateDetailsCurrentSelectedFilterset
 } from "@/lib/features/filters/filtersetPageData.svelte.js";
+import type { FilterCategory } from "@/lib/features/filters/filters";
 import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { closeModal, type ModalType } from "@/lib/ui/modal.svelte.js";
@@ -79,7 +80,7 @@ const pageStates = new FiniteStateMachine<FiltersetPage, PageEvents>("base", {
 			const subCategory = getCurrentSelectedFilterset()?.subCategory;
 			// @ts-ignore
 			if (majorCategory)
-				setCurrentSelectedFilterset(majorCategory, subCategory, getNewFilterset(), false);
+				setCurrentSelectedFilterset(majorCategory, subCategory as FilterCategory | undefined, getNewFilterset(), false);
 			updateDetailsCurrentSelectedFilterset();
 			return pageForward("overview");
 		},

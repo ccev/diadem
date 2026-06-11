@@ -82,7 +82,7 @@
 								data={thisData}
 								attribute="item"
 								rewardType={RewardType.ITEM}
-								getId={(info) => String(info.item_id)}
+								getId={(info) => String((info as { item_id: number }).item_id)}
 							/>
 						{/snippet}
 					</Attribute>
@@ -100,7 +100,7 @@
 								data={thisData}
 								attribute="megaResource"
 								rewardType={RewardType.MEGA_ENERGY}
-								getId={(info) => String(info.pokemon_id)}
+								getId={(info) => String((info as { pokemon_id: number }).pokemon_id)}
 							/>
 						{/snippet}
 					</Attribute>
@@ -118,7 +118,7 @@
 								data={thisData}
 								attribute="candy"
 								rewardType={RewardType.CANDY}
-								getId={(info) => String(info.pokemon_id)}
+								getId={(info) => String((info as { pokemon_id: number }).pokemon_id)}
 							/>
 						{/snippet}
 					</Attribute>
@@ -136,7 +136,7 @@
 								data={thisData}
 								attribute="xlCandy"
 								rewardType={RewardType.XL_CANDY}
-								getId={(info) => String(info.pokemon_id)}
+								getId={(info) => String((info as { pokemon_id: number }).pokemon_id)}
 							/>
 						{/snippet}
 					</Attribute>

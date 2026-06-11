@@ -41,8 +41,8 @@
 		>
 			{@const coords = getCoords(
 				new Coords(
-					(getConfig().mapPositions.scoutLat ?? 53.563) - 0.01,
-					(getConfig().mapPositions.scoutLon ?? 9.979) + 0.04
+					(getConfig().mapPositions?.scoutLat ?? 53.563) - 0.01,
+					(getConfig().mapPositions?.scoutLon ?? 9.979) + 0.04
 				),
 				2
 			)}
@@ -50,10 +50,10 @@
 			<MapLibre
 				class="absolute! top-0 right-0 h-full w-1/2"
 				center={[
-					getConfig().mapPositions.scoutLon ?? 9.979,
-					getConfig().mapPositions.scoutLat ?? 53.563
+					getConfig().mapPositions?.scoutLon ?? 9.979,
+					getConfig().mapPositions?.scoutLat ?? 53.563
 				]}
-				zoom={getConfig().mapPositions.scoutZoom ?? 10.5}
+				zoom={getConfig().mapPositions?.scoutZoom ?? 10.5}
 				filterLayers={(l) => l.type !== "symbol"}
 				style={getDefaultMapStyle().url}
 				attributionControl={false}
@@ -98,10 +98,10 @@
 			<MapLibre
 				class="absolute! top-0 right-0 h-full w-1/2"
 				center={[
-					getConfig().mapPositions.coverageLon ?? 9.979,
-					getConfig().mapPositions.coverageLat ?? 53.563
+					getConfig().mapPositions?.coverageLon ?? 9.979,
+					getConfig().mapPositions?.coverageLat ?? 53.563
 				]}
-				zoom={getConfig().mapPositions.coverageZoom ?? 5.5}
+				zoom={getConfig().mapPositions?.coverageZoom ?? 5.5}
 				filterLayers={(l) => l.type !== "symbol"}
 				style={getDefaultMapStyle().url}
 				attributionControl={false}

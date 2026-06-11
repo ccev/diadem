@@ -90,7 +90,7 @@
 						{m.invasion_x_possible_rewards({ x: catchables.length })}
 					</IconValue>
 				</p>
-				{@render lineupSlot(catchables, undefined, false)}
+				{@render lineupSlot(catchables, undefined)}
 			{/if}
 		{/if}
 

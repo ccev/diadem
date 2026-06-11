@@ -45,7 +45,7 @@
 			case MapObjectType.ROUTE:
 				return data.name ?? m.pogo_route();
 			default:
-				return data.name ?? data.type;
+				return (data as { name?: string }).name ?? data.type;
 		}
 	}
 </script>
@@ -64,7 +64,7 @@
 				/>
 			{/if}
 			<p class="text-zinc-500 font-bold text-lg uppercase my-0 mt-2">
-				{m["pogo_" + data.type]()}
+				{(m as unknown as Record<string, () => string>)["pogo_" + data.type]?.()}
 			</p>
 
 			<p

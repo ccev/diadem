@@ -1,5 +1,6 @@
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
+import { getConfig } from "@/lib/services/config/config";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { UiconSetModifierType } from "@/lib/services/config/configTypes";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
@@ -72,7 +73,8 @@ export async function fetchStaticMapBase64(
 
 	const iconType: UiconSetModifierType =
 		options.data.type === MapObjectType.NEST ? MapObjectType.POKEMON : options.data.type;
-	const iconSet = getDefaultIconSet(iconType as MapObjectType);
+	const iconSetUS = getDefaultIconSet(iconType as MapObjectType);
+	const iconSet = getConfig().uiconSets.find((s) => s.id === iconSetUS.id);
 	const modifier = iconSet?.[iconType];
 	const baseModifier = iconSet?.base;
 	const scale =

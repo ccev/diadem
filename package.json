@@ -2,6 +2,7 @@
 	"name": "diadem",
 	"version": "0.1.0",
 	"type": "module",
+	"packageManager": "pnpm@9.15.9",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -78,10 +79,12 @@
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
-			"esbuild"
-		]
-	},
-	"patchedDependencies": {
-		"drizzle-kit@0.30.5": "patches/drizzle-kit@0.30.5.patch"
+			"esbuild",
+			"sharp",
+			"workerd"
+		],
+		"patchedDependencies": {
+			"drizzle-kit@0.30.5": "patches/drizzle-kit@0.30.5.patch"
+		}
 	}
 }

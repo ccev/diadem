@@ -95,3 +95,17 @@ docker compose up --build
 ```
 
 Then edit `config/config.toml` to point to the correct DB and API hosts for your environment.
+
+### Dev mode (debugging)
+
+By default the container runs the optimized production build. To debug an issue with
+readable, unminified code and source maps in your browser devtools, set `DIADEM_TARGET=dev`
+in your `.env` and rebuild:
+
+```bash
+echo "DIADEM_TARGET=dev" >> .env
+docker compose up -d --build
+```
+
+This runs the Vite dev server (with its error overlay) instead of `node build/index.js`.
+Set it back to `runtime` (or remove the line) and rebuild to return to production mode.

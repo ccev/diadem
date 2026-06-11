@@ -205,7 +205,7 @@ function filterset<Filterset extends AnyFilterset>(options: Params<Filterset>): 
 		},
 		enabled: true,
 		...rest
-	} as Filterset;
+	} as unknown as Filterset;
 	if (uicon) data.icon.uicon = uicon;
 	if (emoji) data.icon.emoji = emoji;
 

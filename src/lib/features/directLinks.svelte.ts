@@ -40,7 +40,7 @@ export function openMapObject(data: MapData, alwaysFly: boolean = false) {
 export async function openMapObjectFromId(type: MapObjectType, id: string) {
 	const response = await fetch("/api/" + type + "/" + id);
 	if (!response.ok) {
-		openToast(m.direct_link_not_found({ type: m["pogo_" + type]() }), 1000);
+		openToast(m.direct_link_not_found({ type: (m as unknown as Record<string, () => string>)["pogo_" + type]() }), 1000);
 		return;
 	}
 	const data: MapData = await response.json();

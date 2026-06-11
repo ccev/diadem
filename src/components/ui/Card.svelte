@@ -4,11 +4,11 @@
 
 	let {
 		class: class_ = "",
-		children = null,
+		children = undefined,
 		...rest
-	}: HTMLAttributes & {
+	}: HTMLAttributes<HTMLDivElement> & {
 		class?: string;
-		children?: Snippet | null;
+		children?: Snippet;
 	} = $props();
 </script>
 
