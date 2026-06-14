@@ -26,7 +26,6 @@ CREATE TABLE `verification` (
 	CONSTRAINT `verification_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-ALTER TABLE `user` MODIFY COLUMN `permissions` json;--> statement-breakpoint
 ALTER TABLE `user` MODIFY COLUMN `user_settings` json;--> statement-breakpoint
 ALTER TABLE `session` ADD `token` varchar(255) NOT NULL;--> statement-breakpoint
 ALTER TABLE `session` ADD `ip_address` text;--> statement-breakpoint
@@ -49,4 +48,5 @@ CREATE INDEX `session_user_id_idx` ON `session` (`user_id`);--> statement-breakp
 CREATE INDEX `session_expires_at_idx` ON `session` (`expires_at`);--> statement-breakpoint
 ALTER TABLE `session` DROP COLUMN `discord_token`;--> statement-breakpoint
 ALTER TABLE `session` DROP COLUMN `discord_refresh_token`;--> statement-breakpoint
-ALTER TABLE `session` DROP COLUMN `discord_last_refresh`;
+ALTER TABLE `session` DROP COLUMN `discord_last_refresh`;--> statement-breakpoint
+ALTER TABLE `user` DROP COLUMN `permissions`;

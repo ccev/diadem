@@ -1,8 +1,6 @@
 import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
-import { setPermissions } from "@/lib/server/auth/auth";
 import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
-import { type User } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
@@ -12,7 +10,6 @@ const log = getLogger("permissions");
 
 export type PermissionUser = {
 	id: string;
-	permissions: unknown;
 };
 
 let initializedEveryonePerms: boolean = false;
@@ -132,6 +129,5 @@ export async function updatePermissions(
 		}
 	}
 
-	await setPermissions(user.id, permissions);
 	return permissions;
 }

@@ -11,34 +11,10 @@ function getDefaultPerms(): Perms {
 	return { everywhere: [], areas: [] };
 }
 
-function parsePermissions(rawPermissions: unknown): Perms {
-	try {
-		const parsed = typeof rawPermissions === "string" ? JSON.parse(rawPermissions) : rawPermissions;
-		if (!parsed || typeof parsed !== "object") {
-			return getDefaultPerms();
-		}
-
-		const perms = parsed as Partial<Perms>;
-		return {
-			everywhere: Array.isArray(perms.everywhere) ? perms.everywhere : [],
-			areas: Array.isArray(perms.areas) ? perms.areas : []
-		};
-	} catch {
-		return getDefaultPerms();
-	}
-}
-
 export function generateUserId() {
 	// ID with 120 bits of entropy, or about the same as UUID v4.
 	const bytes = crypto.getRandomValues(new Uint8Array(15));
 	return encodeBase32LowerCase(bytes);
-}
-
-function coerceUser(result: typeof table.user.$inferSelect): User {
-	return {
-		...result,
-		permissions: parsePermissions(result.permissions)
-	};
 }
 
 function isDuplicateUserError(error: unknown) {
@@ -50,7 +26,7 @@ export async function getUserFromDiscordId(discordId: string) {
 
 	if (!result) return null;
 
-	return coerceUser(result);
+	return { ...result, permissions: getDefaultPerms() } as User;
 }
 
 export async function createUserFromDiscordId(discordId: string) {
@@ -62,7 +38,6 @@ export async function createUserFromDiscordId(discordId: string) {
 		email: `${discordId}@discord.internal`,
 		emailVerified: true,
 		discordId,
-		permissions: getDefaultPerms(),
 		userSettings: {},
 		createdAt: now,
 		updatedAt: now
@@ -87,10 +62,6 @@ export async function getOrCreateUserFromDiscordId(discordId: string) {
 		throw new Error(`failed to create user for Discord id ${discordId}`);
 	}
 	return user;
-}
-
-export async function setPermissions(userId: string, permissions: Perms) {
-	await db.update(table.user).set({ permissions }).where(eq(table.user.id, userId));
 }
 
 export function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {

@@ -20,7 +20,6 @@ export const user = mysqlTable(
 		emailVerified: boolean("email_verified").notNull(),
 		image: text("image"),
 		discordId: varchar("discord_id", { length: 255 }).notNull().unique(),
-		permissions: json("permissions"),
 		userSettings: json("user_settings"),
 		createdAt: datetime("created_at").notNull(),
 		updatedAt: datetime("updated_at").notNull()
