@@ -1,8 +1,8 @@
+import type { FilterRoute } from "@/lib/features/filters/filters";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
-import type { FilterRoute } from "@/lib/features/filters/filters";
-import { requestLimits } from "@/lib/server/api/rateLimit";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 	protected readonly type = MapObjectType.ROUTE;

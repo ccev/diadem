@@ -10,7 +10,6 @@
 	import PopupContainer from "@/components/ui/popups/PopupContainer.svelte";
 	import DesktopMenu from "@/components/menus/DesktopMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
 	import Home from "@/components/custom/Home.svelte";
 	import { isWebglSupported } from "@/lib/map/utils";
@@ -23,13 +22,18 @@
 	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
 	import InvasionFilterset from "@/components/menus/filters/filterset/invasion/InvasionFilterset.svelte";
 	import MaxBattleFilterset from "@/components/menus/filters/filterset/maxBattle/MaxBattleFilterset.svelte";
-	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
+	import {
+		isSearchViewActive,
+		resetActiveSearchFilter,
+		setActiveSearch
+	} from "@/lib/features/activeSearch.svelte.js";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
 	import { isOnMap } from "@/lib/utils/getMapPath";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import MapMain from "@/components/map/MapMain.svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type maplibre from "maplibre-gl";
+	import { onDestroy, onMount } from "svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -42,8 +46,6 @@
 
 	const errorHref = getConfig().general.customHome ? "/" : "";
 </script>
-
-<Metadata />
 
 {#if !isOnMap()}
 	<Home />
@@ -86,7 +88,7 @@
 		{/snippet}
 		{#snippet desktopRight()}
 			{#if !isSearchViewActive()}
-				<Fabs {map} />
+				<Fabs {map} allowFollow={true} />
 			{/if}
 			<PopupContainer />
 		{/snippet}
@@ -94,7 +96,7 @@
 		{#snippet mobileBottom()}
 			{#if !getOpenedMenu()}
 				{#if !isSearchViewActive()}
-					<Fabs {map} />
+					<Fabs {map} allowFollow={true} />
 				{/if}
 				<PopupContainer />
 			{/if}

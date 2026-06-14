@@ -1,11 +1,12 @@
-import type { StationData } from "@/lib/types/mapObjectData/station";
-import { mPokemon } from "@/lib/services/ingameLocale";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-import * as m from "@/lib/paraglide/messages";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
+import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { FilterNest, FilterStation } from "@/lib/features/filters/filters";
+import * as m from "@/lib/paraglide/messages";
+import { mPokemon } from "@/lib/services/ingameLocale";
+import { getMasterPokemon } from "@/lib/services/masterfile";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { StationData } from "@/lib/types/mapObjectData/station";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 export const STATION_SLOTS = 40;
@@ -22,6 +23,29 @@ export function isMaxBattleActive(data: Partial<StationData>) {
 			(data.start_time ?? 0) < currentTimestamp() &&
 			(data.end_time ?? 0) > currentTimestamp()
 	);
+}
+
+const MAX_BATTLE_FIELDS = [
+	"start_time",
+	"end_time",
+	"is_battle_available",
+	"battle_level",
+	"battle_pokemon_id",
+	"battle_pokemon_form",
+	"battle_pokemon_costume",
+	"battle_pokemon_gender",
+	"battle_pokemon_alignment",
+	"battle_pokemon_bread_mode",
+	"battle_pokemon_move_1",
+	"battle_pokemon_move_2",
+	"battle_pokemon_stamina",
+	"battle_pokemon_cp_multiplier"
+] as const satisfies readonly (keyof StationData)[];
+
+export function stripMaxBattleFields(data: Partial<StationData>) {
+	for (const field of MAX_BATTLE_FIELDS) {
+		delete data[field];
+	}
 }
 
 export function getStationPokemon(data: StationData): Partial<PokemonData> {
@@ -52,4 +76,25 @@ export function getActiveStationFilter() {
 		return activeSearch.filter as FilterStation;
 	}
 	return getUserSettings().filters.station;
+}
+
+export function calculateMaxBattleCp(station: StationData) {
+	if (
+		!station.battle_pokemon_id ||
+		!station.battle_pokemon_stamina ||
+		!station.battle_pokemon_cp_multiplier
+	)
+		return;
+
+	const pokemon = getMasterPokemon(station.battle_pokemon_id, station.battle_pokemon_form);
+
+	if (!pokemon) return;
+
+	const attack = pokemon.baseAtk + 15;
+	const defense = pokemon.baseDef + 15;
+	const stamina = station.battle_pokemon_stamina;
+	const cpMultiplier = station.battle_pokemon_cp_multiplier;
+
+	const cp = Math.floor((attack * cpMultiplier * Math.sqrt(defense * cpMultiplier * stamina)) / 10);
+	return cp < 10 ? 10 : cp;
 }

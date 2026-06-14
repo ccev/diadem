@@ -1,8 +1,6 @@
 import { db } from "@/lib/server/db/internal/index";
 import * as table from "@/lib/server/db/internal/schema";
 import { eq } from "drizzle-orm";
-import type { UserSettings } from "@/lib/services/userSettings.svelte.js";
-import type { Perms } from "@/lib/utils/features";
 
 export async function setUserSettings(userId: string, userSettings: string) {
 	const u = await db.update(table.user).set({ userSettings }).where(eq(table.user.id, userId));

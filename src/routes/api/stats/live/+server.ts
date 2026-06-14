@@ -1,5 +1,3 @@
-import { json } from "@sveltejs/kit";
-import TTLCache from "@isaacs/ttlcache";
 import {
 	type FortLiveStats,
 	type LiveStats,
@@ -7,6 +5,8 @@ import {
 	queryLivePokemonStats
 } from "@/lib/server/api/queryLiveStats";
 import { getLogger } from "@/lib/utils/logger";
+import TTLCache from "@isaacs/ttlcache";
+import { json } from "@sveltejs/kit";
 
 const log = getLogger("livestats");
 

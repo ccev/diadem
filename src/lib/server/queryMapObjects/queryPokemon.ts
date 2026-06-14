@@ -1,32 +1,24 @@
+import { shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
+import type { FilterPokemon } from "@/lib/features/filters/filters";
+import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi";
+import { requestLimits } from "@/lib/server/api/rateLimit";
 import {
 	MapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
-import type { FilterPokemon } from "@/lib/features/filters/filters";
-import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi";
 import type {
 	GolbatPokemonQuery,
 	GolbatPokemonSpecies
 } from "@/lib/server/queryMapObjects/queries";
-import { requestLimits } from "@/lib/server/api/rateLimit";
 import { getMasterPokemon } from "@/lib/services/masterfile";
-import {
-	getNormalizedForm,
-	showGreat,
-	showLittle,
-	showPvp,
-	showUltra
-} from "@/lib/utils/pokemonUtils";
-import { booleanPointInPolygon, featureCollection, point, pointsWithinPolygon } from "@turf/turf";
-import { error } from "@sveltejs/kit";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getLogger } from "@/lib/utils/logger";
+import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import { round } from "@/lib/utils/numberFormat";
+import { getNormalizedForm, League, showPvp } from "@/lib/utils/pokemonUtils";
+import { error } from "@sveltejs/kit";
+import { booleanPointInPolygon, point } from "@turf/turf";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -64,8 +56,11 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					examined -= 1;
 					continue;
 				}
+				const pokemon = this.makePokemon(p, filter);
+				// need to re-check pvp filters after removing mega evolutions
+				if (!shouldDisplayPokemon(pokemon, filter)) continue;
 
-				data.push(this.makePokemon(p, filter));
+				data.push(pokemon);
 			}
 
 			return { data, examined };
@@ -118,25 +113,39 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const greatRankings: PvpStats[] = [];
 		const ultraRankings: PvpStats[] = [];
 
-		for (const rankings of p.pvp?.little ?? []) {
+		for (const rankings of p.pvp?.[League.LITTLE] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
-				littleRankings.push(rankings);
+				this.makePvpStats(littleRankings, rankings);
 		}
-		for (const rankings of p.pvp?.great ?? []) {
+		for (const rankings of p.pvp?.[League.GREAT] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
-				greatRankings.push(rankings);
+				this.makePvpStats(greatRankings, rankings);
 		}
-		for (const rankings of p.pvp?.ultra ?? []) {
+		for (const rankings of p.pvp?.[League.ULTRA] ?? []) {
 			if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
-				ultraRankings.push(rankings);
+				this.makePvpStats(ultraRankings, rankings);
 		}
 		if (littleRankings.length || greatRankings.length || ultraRankings.length) {
 			pokemon.pvp = {};
-			if (littleRankings.length) pokemon.pvp.little = littleRankings;
-			if (greatRankings.length) pokemon.pvp.great = greatRankings;
-			if (ultraRankings.length) pokemon.pvp.ultra = ultraRankings;
+			if (littleRankings.length) pokemon.pvp[League.LITTLE] = littleRankings;
+			if (greatRankings.length) pokemon.pvp[League.GREAT] = greatRankings;
+			if (ultraRankings.length) pokemon.pvp[League.ULTRA] = ultraRankings;
 		}
 		return pokemon;
+	}
+
+	private makePvpStats(rankings: PvpStats[], stats: PvpStats) {
+		if (stats.evolution) return;
+		rankings.push({
+			pokemon_id: stats.pokemon ?? 0,
+			form: getNormalizedForm(stats.pokemon ?? 0, stats.form),
+			cap: stats.cap,
+			cp: stats.cp,
+			level: stats.level,
+			percentage: stats.percentage,
+			rank: stats.rank,
+			value: stats.value
+		});
 	}
 
 	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {

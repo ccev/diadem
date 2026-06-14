@@ -1,19 +1,18 @@
 import type {
 	ActiveInvasionCharacterStats,
-	InvasionPokemonStats,
 	ActiveRaidStats,
 	ContestStatsEntry,
 	EggStats,
+	InvasionPokemonStats,
 	MasterStats,
 	MaxBattleStatsEntry,
 	NestStatsEntry,
 	PokemonStatEntry,
-	QuestStats,
 	TotalPokemonStats
 } from "@/lib/server/api/queryStats";
-import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
+import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
+import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
 
 let masterStats: MasterStats | undefined = $state(undefined);
 

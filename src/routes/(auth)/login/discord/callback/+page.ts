@@ -1,9 +1,9 @@
-import type { PageLoad } from "./$types";
-import { openToast } from "@/lib/ui/toasts.svelte.js";
-import { redirect } from "@sveltejs/kit";
 import * as m from "@/lib/paraglide/messages";
-import { getMapPath } from "@/lib/utils/getMapPath";
 import { getConfig } from "@/lib/services/config/config";
+import { openToast } from "@/lib/ui/toasts.svelte.js";
+import { getMapPath } from "@/lib/utils/getMapPath";
+import { redirect } from "@sveltejs/kit";
+import type { PageLoad } from "./$types";
 
 export const load: PageLoad = (event) => {
 	if (event.data.error) {

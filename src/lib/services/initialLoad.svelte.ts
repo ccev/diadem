@@ -1,13 +1,13 @@
-import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
-import { loadMasterFile } from "@/lib/services/masterfile";
-import { loadKojiGeofences } from "@/lib/features/koji";
-import { updateSupportedFeatures } from "@/lib/services/supportedFeatures";
-import { getUserDetails, updateUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { browser } from "$app/environment";
-import { getUserSettings, getUserSettingsFromServer } from "@/lib/services/userSettings.svelte.js";
-import { loadRemoteLocale } from "@/lib/services/ingameLocale";
+import { loadKojiGeofences } from "@/lib/features/koji";
 import { loadMasterStats } from "@/lib/features/masterStats.svelte";
 import { getLocale } from "@/lib/paraglide/runtime";
+import { loadRemoteLocale } from "@/lib/services/ingameLocale";
+import { loadMasterFile } from "@/lib/services/masterfile";
+import { updateSupportedFeatures } from "@/lib/services/supportedFeatures";
+import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
+import { getUserDetails, updateUserDetails } from "@/lib/services/user/userDetails.svelte.js";
+import { getUserSettingsFromServer } from "@/lib/services/userSettings.svelte.js";
 
 export enum LoadedFeature {
 	ICON_SETS = "iconSets",

@@ -6,10 +6,10 @@
 	import * as m from "@/lib/paraglide/messages";
 	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { CircleAlert, Clock } from "lucide-svelte";
+	import { Clock } from "lucide-svelte";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
-	import { getArTag, getRewardText } from "@/lib/utils/pokestopUtils";
+	import { getRewardText } from "@/lib/utils/pokestopUtils";
 	import StatsDisplay from "@/components/ui/popups/common/StatsDisplay.svelte";
 	import { shouldDisplayQuest } from "@/lib/features/filterLogic/pokestop";
 
@@ -40,11 +40,6 @@
 		</div>
 		<div>
 			{#if !expanded}
-				<span
-					class="text-sm font-semibold border-border border rounded-full px-3 mr-1 py-1 whitespace-nowrap"
-				>
-					{getArTag(quest.isAr)}
-				</span>
 				<span>
 					{taskText}
 				</span>
@@ -54,13 +49,6 @@
 				</span>
 				<IconValue Icon={Clock}>
 					{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>
-				</IconValue>
-				<IconValue Icon={CircleAlert}>
-					{#if quest.isAr}
-						{m.quest_ar_notice()}
-					{:else}
-						{m.quest_noar_notice()}
-					{/if}
 				</IconValue>
 			{/if}
 		</div>

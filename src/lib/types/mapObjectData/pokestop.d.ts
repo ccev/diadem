@@ -1,5 +1,5 @@
-import type { PokemonData, PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
 
 export type PokestopData = {
@@ -29,10 +29,6 @@ export type PokestopData = {
 	first_seen_timestamp: number;
 	sponsor_id?: number;
 	partner_id?: string;
-	ar_scan_eligible?: number;
-	power_up_level?: number;
-	power_up_points?: number;
-	power_up_end_timestamp?: number;
 	alternative_quest_type?: number;
 	alternative_quest_timestamp?: number;
 	alternative_quest_target?: number;
@@ -81,7 +77,6 @@ export type Incident = {
 
 export type QuestData = {
 	reward: QuestReward;
-	isAr: boolean;
 	title: string;
 	target: number;
 	timestamp: number;

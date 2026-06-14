@@ -1,9 +1,9 @@
-import type { RequestHandler } from "./$types";
-import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
-import { render } from "svelte/server";
 import Base from "@/components/thumbnail/Base.svelte";
+import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
+import { render } from "svelte/server";
+import type { RequestHandler } from "./$types";
 
 const log = getLogger("thumbnail");
 

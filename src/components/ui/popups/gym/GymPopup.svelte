@@ -8,10 +8,9 @@
 	import { mMove, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-	import { ClockAlert, Smartphone, Trees, UserRoundCheck, UsersRound } from "lucide-svelte";
+	import { ClockAlert, Trees, UserRoundCheck, UsersRound } from "lucide-svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
-	import FortPowerUp from "@/components/ui/popups/common/FortPowerUp.svelte";
 	import GymDefenderOverview from "@/components/ui/popups/gym/GymDefenderOverview.svelte";
 	import {
 		getCurrentSelectedData,
@@ -19,7 +18,6 @@
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
 		getRaidPokemon,
 		GYM_SLOTS,
@@ -28,15 +26,14 @@
 		isRaidHatched
 	} from "@/lib/utils/gymUtils";
 	import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let data: GymData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as GymData) ?? (getCurrentSelectedData() as GymData)
 	);
-	let defenders: GymDefender[] = $derived(JSON.parse(data.defenders ?? "[]"));
+	useMetadata(() => ({ title: data ? (data.name ?? m.pogo_gym()) : undefined }));
 	let rsvps: Rsvp[] = $derived(JSON.parse(data.rsvps ?? "[]"));
 </script>
-
-<Metadata title={data.name ?? m.pogo_gym()} />
 
 {#snippet raidDisplay(expanded: boolean)}
 	{#if shouldDisplayRaid(data)}
@@ -169,14 +166,8 @@
 		<div class="[&>*:last-child]:mb-3">
 			{@render raidDisplay(true)}
 			{@render memberOverview()}
-			{#if !isFortOutdated(data.updated) && defenders}
-				<GymDefenderOverview {defenders} />
-			{/if}
-
-			{#if data.ar_scan_eligible}
-				<IconValue Icon={Smartphone}>
-					{m.ar_scannable()}
-				</IconValue>
+			{#if !isFortOutdated(data.updated) && data.defenders?.length}
+				<GymDefenderOverview defenders={data.defenders} />
 			{/if}
 
 			{#if data.ex_raid_eligible}
@@ -184,13 +175,6 @@
 					{m.ex_gym()}
 				</IconValue>
 			{/if}
-
-			<FortPowerUp
-				points={data.power_up_points}
-				level={data.power_up_level}
-				endTimestamp={data.power_up_end_timestamp}
-				updated={data.updated}
-			/>
 		</div>
 
 		<UpdatedTimes

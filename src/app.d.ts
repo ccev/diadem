@@ -1,5 +1,5 @@
-import type { AvailableLanguageTag } from '../../lib/paraglide/runtime';
-import type { ParaglideLocals } from '@inlang/paraglide-sveltekit';
+import type { ParaglideLocals } from "@inlang/paraglide-sveltekit";
+import type { AvailableLanguageTag } from "../../lib/paraglide/runtime";
 
 import type { Perms } from "@/lib/utils/features";
 import type { BetterAuthSessionData, BetterAuthUserData } from "@/lib/server/auth/betterAuth";

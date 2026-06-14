@@ -1,10 +1,9 @@
-import { error } from "@sveltejs/kit";
-import { getClientConfig } from "@/lib/services/config/config.server";
-import sharp, { type ResizeOptions } from "sharp";
-import { getServerLogger } from "@/lib/server/logging";
 import { ALLOWED_FORMATS, ALLOWED_WIDTHS } from "@/lib/services/assets";
-import { getLogger } from "@/lib/utils/logger";
+import { getClientConfig } from "@/lib/services/config/config.server";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
+import { getLogger } from "@/lib/utils/logger";
+import { error } from "@sveltejs/kit";
+import sharp from "sharp";
 
 const log = getLogger("uicons");
 

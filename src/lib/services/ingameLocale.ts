@@ -1,11 +1,10 @@
 import * as m from "@/lib/paraglide/messages";
 import { getLocale } from "@/lib/paraglide/runtime";
-import { SearchableType, type SearchEntry } from "@/lib/services/search.svelte";
-import { getIconPokemon } from "@/lib/services/uicons.svelte";
-import { formatNumber } from "@/lib/utils/numberFormat";
-import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
+import { formatNumber } from "@/lib/utils/numberFormat";
+import { League } from "@/lib/utils/pokemonUtils";
+import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -142,8 +141,6 @@ export function mPokemon(data: {
  * @param target The quest target
  */
 export function mQuest(questTitle?: string | null, target?: number | null) {
-	if (questTitle?.toLowerCase() === "geotarget_quest_description") return m.geotarget_quest();
-
 	// get basic quest text
 	let questText = mBasicId(
 		"quest",
@@ -245,4 +242,12 @@ export function mCharacter(characterId?: number | string | null) {
 		return character;
 	}
 	return m.character_grunt({ character });
+}
+
+export function mLeague(league: League) {
+	if (league === League.LITTLE) return m.little_league();
+	if (league === League.GREAT) return m.great_league();
+	if (league === League.ULTRA) return m.ultra_league();
+	if (league === League.MASTER) return m.master_league();
+	return m.unknown_league();
 }

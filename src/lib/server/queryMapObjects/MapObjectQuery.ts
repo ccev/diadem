@@ -1,8 +1,7 @@
-import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { query as dbQuery } from "@/lib/server/db/external/internalQuery";
+import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { buildSpatialFilter as defaultBuildSpatialFilter } from "@/lib/server/api/spatialFilter";
+import { query as dbQuery } from "@/lib/server/db/external/internalQuery";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 export type MapObjectResponse<T> = {

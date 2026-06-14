@@ -46,11 +46,12 @@ export async function getUserInfoResult(accessToken: string): Promise<DiscordUse
 
 	const user: DiscordUserData = await response.json();
 	return {
+	return {
 		status: response.status,
 		data: {
 			id: user.id,
 			username: "@" + user.username,
-			displayName: user.global_name,
+			displayName: user.global_name || user.username || "",
 			avatarUrl: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`
 		}
 	};

@@ -1,3 +1,4 @@
+import type { FilterCategory } from "@/lib/features/filters/filters";
 import type {
 	AnyFilterset,
 	BaseFilterset,
@@ -5,24 +6,22 @@ import type {
 	FiltersetMaxBattle,
 	FiltersetPokemon,
 	FiltersetQuest,
-	FiltersetRaid,
-	MinMax
+	FiltersetRaid
 } from "@/lib/features/filters/filtersets";
-import * as m from "@/lib/paraglide/messages";
-import type { FilterCategory } from "@/lib/features/filters/filters";
-import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtilsPokemon";
-import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
 import { generateInvasionFilterDetails } from "@/lib/features/filters/filterUtilsInvasion";
 import { generateMaxBattleFilterDetails } from "@/lib/features/filters/filterUtilsMaxBattle";
+import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtilsPokemon";
+import { generateQuestFilterDetails } from "@/lib/features/filters/filterUtilsQuest";
+import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
+import * as m from "@/lib/paraglide/messages";
 import {
 	getIconInvasion,
 	getIconPokemon,
 	getIconRaidEgg,
 	getIconReward
 } from "@/lib/services/uicons.svelte";
-import { RewardType } from "@/lib/utils/pokestopUtils";
 import { RaidLevel } from "@/lib/utils/gymUtils";
-import { generateQuestFilterDetails } from "@/lib/features/filters/filterUtilsQuest";
+import { RewardType } from "@/lib/utils/pokestopUtils";
 
 export function changeAttributeMinMax(
 	data: AnyFilterset,

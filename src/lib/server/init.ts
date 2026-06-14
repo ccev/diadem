@@ -1,8 +1,8 @@
-import { getLogger } from "@/lib/utils/logger";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
-import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
-import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider";
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
+import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider";
+import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
+import { getLogger } from "@/lib/utils/logger";
 
 export async function initDiadem() {
 	const log = getLogger("init");

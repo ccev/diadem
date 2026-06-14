@@ -1,13 +1,13 @@
-import { error, json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
-import { getLogger } from "@/lib/utils/logger";
-import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
-import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
-import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { rateLimitConsume } from "@/lib/server/api/rateLimit";
 import { respond } from "@/lib/server/api/respond";
+import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
+import { getLogger } from "@/lib/utils/logger";
+import { error, json } from "@sveltejs/kit";
 import { constants } from "http2";
+import type { RequestHandler } from "./$types";
 
 const log = getLogger("mapobject id");
 

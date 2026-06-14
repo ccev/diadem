@@ -1,4 +1,5 @@
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { League } from "@/lib/utils/pokemonUtils";
 
 export type PvpStats = {
 	cap: number;
@@ -6,9 +7,11 @@ export type PvpStats = {
 	form: number;
 	level: number;
 	percentage: number;
-	pokemon: number;
+	pokemon_id: number;
 	rank: number;
 	value: number;
+	pokemon?: number;
+	evolution?: number;
 };
 
 export type PokemonVisual = {
@@ -58,9 +61,9 @@ export type PokemonData = {
 	capture_2?: number;
 	capture_3?: number;
 	pvp?: {
-		little?: PvpStats[];
-		great?: PvpStats[];
-		ultra?: PvpStats[];
+		[League.LITTLE]?: PvpStats[];
+		[League.GREAT]?: PvpStats[];
+		[League.ULTRA]?: PvpStats[];
 	};
 	is_event?: number;
 	strong?: number;

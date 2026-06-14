@@ -1,18 +1,19 @@
-import { UICONS } from "uicons.js";
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getConfig } from "@/lib/services/config/config";
 import type { UiconSet } from "@/lib/services/config/configTypes";
+import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
+import { UICONS } from "uicons.js";
 
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { RewardType } from "@/lib/utils/pokestopUtils";
-import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { TappableData } from "@/lib/types/mapObjectData/tappable";
-import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { shouldDisplayIncident, shouldDisplayLure } from "@/lib/features/filterLogic/pokestop";
+import { MapObjectType, type MapData } from "@/lib/mapObjects/mapObjectTypes";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
+import { getLeagueCp, LeagueCp, type League } from "@/lib/utils/pokemonUtils";
+import { RewardType } from "@/lib/utils/pokestopUtils";
+import { isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 export const DEFAULT_UICONS = "DEFAULT";
 
@@ -31,8 +32,16 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 		console.error("Failed to load uicon set: " + id);
 		return;
 	}
-	const indexFile = await data.json();
-	newSet.init(indexFile);
+
+	const raw = await data.text();
+
+	try {
+		const indexFile = JSON.parse(raw);
+		newSet.init(indexFile);
+	} catch (e) {
+		console.error(raw);
+		console.error("Error while parsing uicon index " + id, e);
+	}
 }
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {
@@ -102,7 +111,6 @@ export function getIconPokestop(
 	data: Partial<PokestopData>,
 	iconSet: string = getUserSettings().uiconSet.pokestop.id
 ) {
-	// maybe this is not the right location for these modifations. can be moved later
 	let lureId = 0;
 	if (shouldDisplayLure(data)) {
 		lureId = data.lure_id ?? 0;
@@ -120,33 +128,24 @@ export function getIconPokestop(
 		}
 	}
 
-	const powerUp = isFortOutdated(data.updated) ? 0 : data.power_up_level;
-
-	return iconSets[iconSet].pokestop(
-		lureId,
-		displayType,
-		false, // quest active
-		Boolean(data.ar_scan_eligible),
-		powerUp
-	);
+	return iconSets[iconSet].pokestop(lureId, displayType, false);
 }
 
 export function getIconGym(
 	data: Partial<GymData>,
 	iconSet: string = getUserSettings().uiconSet.gym.id
 ) {
-	// maybe this is not the right location for these modifations. can be moved later
-	const powerUp = isFortOutdated(data.updated) ? 0 : data.power_up_level;
 	let availableSlots = data.availble_slots ? GYM_SLOTS - data.availble_slots : GYM_SLOTS;
 	if (isFortOutdated(data.updated)) availableSlots = GYM_SLOTS;
 
+	let teamId = data.team_id;
+	if (isFortOutdated(data.updated)) teamId = 0;
+
 	return iconSets[iconSet].gym(
-		data.team_id,
+		teamId,
 		availableSlots,
 		Boolean(data.in_battle),
-		Boolean(data.ex_raid_eligible),
-		Boolean(data.ar_scan_eligible),
-		powerUp
+		Boolean(data.ex_raid_eligible)
 	);
 }
 
@@ -241,15 +240,11 @@ export function getIconContest() {
 	return iconSets[DEFAULT_UICONS].misc("showcase");
 }
 
-export enum League {
-	LITTLE = 500,
-	GREAT = 1500,
-	ULTRA = 2500,
-	MASTER = 9000
-}
-
 export function getIconLeague(league: League) {
-	return iconSets[DEFAULT_UICONS].misc(league) ?? iconSets[DEFAULT_UICONS].misc(League.GREAT);
+	return (
+		iconSets[DEFAULT_UICONS].misc(getLeagueCp(league)) ??
+		iconSets[DEFAULT_UICONS].misc(LeagueCp.GREAT)
+	);
 }
 
 export function getIconTeam(teamId: number) {
@@ -260,17 +255,16 @@ export function getIconPokestopDirect(
 	lureId: number,
 	displayType: number | false,
 	questActive: boolean,
-	ar: boolean,
 	iconSet: string = getUserSettings().uiconSet.pokestop.id
 ) {
-	return iconSets[iconSet].pokestop(lureId, displayType, questActive, ar, 0);
+	return iconSets[iconSet].pokestop(lureId, displayType, questActive);
 }
 
 export function getIconGymDirect(
 	teamId: number,
 	iconSet: string = getUserSettings().uiconSet.gym.id
 ) {
-	return iconSets[iconSet].gym(teamId, 0, false, false, false, 0);
+	return iconSets[iconSet].gym(teamId);
 }
 
 export function getIconTappable(

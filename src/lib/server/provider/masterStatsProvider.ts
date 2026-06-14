@@ -1,10 +1,8 @@
-import type { MasterFile } from "@/lib/types/masterfile";
-import { getLogger } from "@/lib/utils/logger";
-import { BaseDataProvider } from "@/lib/server/provider/dataProvider";
-import { REFRESH_MASTER_STATS, REFRESH_MASTERFILE } from "@/lib/constants";
-import { sleep } from "@/lib/utils/time";
-import { type MasterStats, queryMasterStats } from "@/lib/server/api/queryStats";
+import { REFRESH_MASTER_STATS } from "@/lib/constants";
 import { setMasterStats } from "@/lib/features/masterStats.svelte";
+import { type MasterStats, queryMasterStats } from "@/lib/server/api/queryStats";
+import { BaseDataProvider } from "@/lib/server/provider/dataProvider";
+import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("q:masterstats");
 

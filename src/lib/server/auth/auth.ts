@@ -1,7 +1,9 @@
-import { eq } from "drizzle-orm";
-import { encodeBase32LowerCase } from "@oslojs/encoding";
 import { db } from "@/lib/server/db/internal";
 import * as table from "@/lib/server/db/internal/schema";
+import { sha256 } from "@oslojs/crypto/sha2";
+import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from "@oslojs/encoding";
+import type { RequestEvent } from "@sveltejs/kit";
+import { eq } from "drizzle-orm";
 
 import type { User } from "@/lib/server/db/internal/schema";
 import type { Perms } from "@/lib/utils/features";

@@ -1,22 +1,21 @@
 import type { AnyFilter } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { MapData, MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { Feature, MultiPolygon, Polygon } from "geojson";
 import {
-	type MapObjectResponse,
-	type MapObjectQuery
+	type MapObjectQuery,
+	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
-import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
-import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
-import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
 import { NestQuery } from "@/lib/server/queryMapObjects/queryNest";
-import { SpawnpointQuery } from "@/lib/server/queryMapObjects/querySpawnpoint";
+import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
+import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import { RouteQuery } from "@/lib/server/queryMapObjects/queryRoute";
+import { SpawnpointQuery } from "@/lib/server/queryMapObjects/querySpawnpoint";
+import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
 import { TappableQuery } from "@/lib/server/queryMapObjects/queryTappable";
-import { error } from "@sveltejs/kit";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import { error } from "@sveltejs/kit";
 
 const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.GYM]: new GymQuery(),

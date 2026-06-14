@@ -1,18 +1,18 @@
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
-import type { FilterPokestop } from "@/lib/features/filters/filters";
-import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { requestLimits } from "@/lib/server/api/rateLimit";
-import { queryJoined } from "@/lib/server/db/external/internalQuery";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import {
 	shouldDisplayIncident,
 	shouldDisplayLure,
 	shouldDisplayQuest
 } from "@/lib/features/filterLogic/pokestop";
-import { hasFortActiveLure, parseQuestReward } from "@/lib/utils/pokestopUtils";
+import type { FilterPokestop } from "@/lib/features/filters/filters";
+import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import { requestLimits } from "@/lib/server/api/rateLimit";
+import { queryJoined } from "@/lib/server/db/external/internalQuery";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { parseQuestReward } from "@/lib/utils/pokestopUtils";
 
 const FIELDS_POKESTOP = [
 	"pokestop.id",
@@ -27,10 +27,6 @@ const FIELDS_POKESTOP = [
 	"pokestop.first_seen_timestamp",
 	"pokestop.deleted",
 	"pokestop.lure_id",
-	"pokestop.ar_scan_eligible",
-	"pokestop.power_up_level",
-	"pokestop.power_up_points",
-	"pokestop.power_up_end_timestamp",
 	"pokestop.quest_timestamp",
 	"pokestop.quest_target",
 	"pokestop.quest_rewards",
@@ -85,11 +81,9 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 		let showThis = Boolean(filter.pokestopPlain.enabled || shouldDisplayLure(data, filter));
 
 		if (!showThis && filter.quest.enabled) {
-			for (const quest of data.quests) {
-				if (shouldDisplayQuest(quest, { mapId: undefined }, filter)) {
-					showThis = true;
-					break;
-				}
+			const quest = data.quests[0];
+			if (quest && shouldDisplayQuest(quest, { mapId: undefined }, filter)) {
+				showThis = true;
 			}
 		}
 
@@ -112,7 +106,6 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			if (reward)
 				data.quests.push({
 					reward,
-					isAr: false,
 					title: data.alternative_quest_title ?? "",
 					target: data.alternative_quest_target ?? 0,
 					timestamp: data.alternative_quest_timestamp ?? 0,
@@ -124,7 +117,6 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			if (reward)
 				data.quests.push({
 					reward,
-					isAr: true,
 					title: data.quest_title ?? "",
 					target: data.quest_target ?? 0,
 					timestamp: data.quest_timestamp ?? 0,

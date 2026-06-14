@@ -21,7 +21,7 @@
 
 	let query: string = $state("");
 
-	const uniqueLevels = [...new Set(bosses.map((b) => b.level))].sort((a, b) => a - b);
+	const uniqueLevels = $derived([...new Set(bosses.map((b) => b.level))].sort((a, b) => a - b));
 </script>
 
 <SearchBar placeholder={m.search_placeholder_pokemon()} class="mb-2 mt-1" bind:query />

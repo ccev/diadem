@@ -1,23 +1,23 @@
-import emojilib from "emojilib";
 import { IconCategory } from "@/lib/features/filters/icons";
+import * as m from "@/lib/paraglide/messages";
+import { mCharacter, mItem, mPokemon, mRaid, mType } from "@/lib/services/ingameLocale";
+import { getAllPokemon, getMasterFile } from "@/lib/services/masterfile";
 import {
-	getIconPokemon,
-	getIconRaidEgg,
+	getIconGymDirect,
+	getIconInvasion,
 	getIconItem,
 	getIconLeague,
-	getIconInvasion,
-	getIconType,
-	getIconTeam,
+	getIconPokemon,
 	getIconPokestopDirect,
-	getIconGymDirect,
+	getIconRaidEgg,
 	getIconReward,
 	getIconStation,
-	League
+	getIconTeam,
+	getIconType
 } from "@/lib/services/uicons.svelte";
-import { getAllPokemon, getMasterFile } from "@/lib/services/masterfile";
-import { mPokemon, mType, mRaid, mItem, mCharacter } from "@/lib/services/ingameLocale";
+import { League } from "@/lib/utils/pokemonUtils";
 import { RewardType } from "@/lib/utils/pokestopUtils";
-import * as m from "@/lib/paraglide/messages";
+import emojilib from "emojilib";
 
 export const COMMON_EMOJIS = [
 	// measurement / data
@@ -415,55 +415,41 @@ export function getPoiIcons(): IconPickerItem[] {
 		lure_id: number;
 		display_type: number | false;
 		quest_active: boolean;
-		ar: boolean;
 	}[] = [
 		{
 			key: "pokestop-base",
 			label: m.pogo_pokestop(),
 			lure_id: 0,
 			display_type: false,
-			quest_active: false,
-			ar: false
-		},
-		{
-			key: "pokestop-ar",
-			label: m.poi_pokestop_ar(),
-			lure_id: 0,
-			display_type: false,
-			quest_active: false,
-			ar: true
+			quest_active: false
 		},
 		{
 			key: "pokestop-invasion",
 			label: m.poi_pokestop_invasion(),
 			lure_id: 0,
 			display_type: 1,
-			quest_active: false,
-			ar: false
+			quest_active: false
 		},
 		{
 			key: "pokestop-gold",
 			label: m.poi_pokestop_gold(),
 			lure_id: 0,
 			display_type: 7,
-			quest_active: false,
-			ar: false
+			quest_active: false
 		},
 		{
 			key: "pokestop-kecleon",
 			label: m.poi_pokestop_kecleon(),
 			lure_id: 0,
 			display_type: 8,
-			quest_active: false,
-			ar: false
+			quest_active: false
 		},
 		{
 			key: "pokestop-contest",
 			label: m.poi_pokestop_contest(),
 			lure_id: 0,
 			display_type: 9,
-			quest_active: false,
-			ar: false
+			quest_active: false
 		}
 	];
 
@@ -475,22 +461,20 @@ export function getPoiIcons(): IconPickerItem[] {
 			label: m.poi_pokestop_lured({ lure: mItem(lureId) }),
 			lure_id: lureId,
 			display_type: false,
-			quest_active: false,
-			ar: false
+			quest_active: false
 		});
 	}
 
 	for (const v of pokestopVariants) {
 		items.push({
 			key: v.key,
-			iconUrl: getIconPokestopDirect(v.lure_id, v.display_type, v.quest_active, v.ar),
+			iconUrl: getIconPokestopDirect(v.lure_id, v.display_type, v.quest_active),
 			label: v.label,
 			category: IconCategory.POKESTOP,
 			params: {
 				lure_id: v.lure_id,
 				display_type: v.display_type,
-				quest_active: v.quest_active,
-				ar: v.ar
+				quest_active: v.quest_active
 			}
 		});
 	}

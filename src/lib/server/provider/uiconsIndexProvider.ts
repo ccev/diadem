@@ -1,9 +1,8 @@
-import { getClientConfig } from "@/lib/services/config/config.server";
-import { getLogger } from "@/lib/utils/logger";
-import { BaseDataProvider, BulkDataProvider } from "@/lib/server/provider/dataProvider";
 import { REFRESH_UICON_INDEX } from "@/lib/constants";
+import { BulkDataProvider } from "@/lib/server/provider/dataProvider";
+import { getClientConfig } from "@/lib/services/config/config.server";
 import type { UiconSet } from "@/lib/services/config/configTypes";
-import { sleep } from "@/lib/utils/time";
+import { getLogger } from "@/lib/utils/logger";
 
 type UiconIndex = Map<string, string>;
 

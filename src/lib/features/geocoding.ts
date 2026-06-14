@@ -1,8 +1,7 @@
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { getMap } from "@/lib/map/map.svelte";
 import { getLocale } from "@/lib/paraglide/runtime";
 import { addAddressSearchResults, setIsSearchingAddress } from "@/lib/services/search.svelte";
-import { getMap } from "@/lib/map/map.svelte";
-import type { BBox } from "geojson";
+import type { BBox, Geometry } from "geojson";
 
 const searchDebounceMs = 100;
 
@@ -11,13 +10,14 @@ export type AddressData = {
 	center: number[];
 	id: string;
 	bbox?: BBox;
+	geometry?: Geometry;
 };
 
 let abortController: AbortController | undefined = undefined;
 let debounceTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
-export async function searchAddress(query: string) {
-	if (query.length <= 2) return;
+export async function searchAddress(query: string, ignoreMinCharacters: boolean) {
+	if (!ignoreMinCharacters && query.length <= 2) return;
 
 	setIsSearchingAddress(true);
 

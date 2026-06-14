@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import { browser } from "$app/environment";
 	import type { PageProps } from "./$types";
 	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { m } from "@/lib/paraglide/messages";
+	import Metadata from "@/components/utils/Metadata.svelte";
 
 	let { data }: PageProps = $props();
 </script>

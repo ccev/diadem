@@ -3,7 +3,8 @@ export type optionalFeatures =
 	| "geocoding"
 	| "auth"
 	| "authRequired"
-	| "showFullscreenLogin";
+	| "showFullscreenLogin"
+	| "geometryLookup";
 
 export type SupportedFeatures = {
 	[key in optionalFeatures]: boolean;
@@ -14,7 +15,8 @@ let supportedFeatures: SupportedFeatures = {
 	geocoding: false,
 	auth: false,
 	authRequired: false,
-	showFullscreenLogin: false
+	showFullscreenLogin: false,
+	geometryLookup: false
 };
 
 export function isSupportedFeature(feature: optionalFeatures) {

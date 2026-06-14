@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getIsLoading, load } from "@/lib/services/initialLoad.svelte";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import Toast from "@/components/ui/Toast.svelte";
 	import { getIsToastOpen } from "@/lib/ui/toasts.svelte";
 	import Modal from "@/components/ui/modal/Modal.svelte";
@@ -12,8 +11,6 @@
 
 	onMount(() => load().then());
 </script>
-
-<Metadata />
 
 {#if getIsToastOpen()}
 	<Toast />

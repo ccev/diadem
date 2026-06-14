@@ -1,7 +1,6 @@
+import type { KojiFeatures } from "@/lib/features/koji";
 import { getServerConfig } from "@/lib/services/config/config.server";
-import type { KojiFeatures, KojiReference } from "@/lib/features/koji";
 import { getLogger } from "@/lib/utils/logger";
-import type { ServerConfig } from "@/lib/services/config/configTypes";
 import { buildUrl } from "@/lib/utils/url";
 
 const log = getLogger("koji");

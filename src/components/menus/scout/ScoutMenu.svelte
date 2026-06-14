@@ -22,7 +22,6 @@
 	import type { Feature, Polygon } from "geojson";
 	import { watch } from "runed";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
-	import Metadata from "@/components/utils/Metadata.svelte";
 
 	let size: 0 | 1 | 2 = $state(0);
 	let queuePosition: number | undefined = $state(undefined);
@@ -67,8 +66,6 @@
 		setScoutGeojson(smallPoints, bigPoints);
 	}
 </script>
-
-<Metadata title={m.nav_scout()} />
 
 <Card class="py-4 px-2">
 	<div class="flex flex-col gap-2">

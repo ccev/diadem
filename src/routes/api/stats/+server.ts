@@ -1,9 +1,5 @@
-import { json } from "@sveltejs/kit";
-import { type MasterStats, queryMasterStats } from "@/lib/server/api/queryStats";
-import TTLCache from "@isaacs/ttlcache";
-import { getLogger } from "@/lib/utils/logger";
-import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
+import { json } from "@sveltejs/kit";
 
 export async function GET() {
 	try {

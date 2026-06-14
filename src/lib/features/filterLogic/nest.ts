@@ -1,8 +1,8 @@
-import type { NestData } from "@/lib/types/mapObjectData/nest";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { getActiveNestFilter } from "@/lib/utils/nestUtils";
-import type { FiltersetNest } from "@/lib/features/filters/filtersets";
 import type { FilterNest } from "@/lib/features/filters/filters";
+import type { FiltersetNest } from "@/lib/features/filters/filtersets";
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import { getActiveNestFilter } from "@/lib/utils/nestUtils";
 
 export function matchNestFilterset(
 	nest: Partial<NestData>,

@@ -79,11 +79,18 @@
 					</span>
 				</div>
 				<div class="flex gap-x-4 gap-y-0 whitespace-nowrap flex-wrap">
-					<IconValue Icon={Candy}>{selectedDefender.times_fed}x fed</IconValue>
-					<IconValue Icon={Swords}>{selectedDefender.battles_won}x won</IconValue>
-					<IconValue Icon={Shield}>{selectedDefender.battles_lost}x lost</IconValue>
+					<IconValue Icon={Candy}>
+						{m.defender_fed({ count: selectedDefender.times_fed })}
+					</IconValue>
+					<IconValue Icon={Swords}>
+						{m.defender_won({ count: selectedDefender.battles_won })}
+					</IconValue>
+					<IconValue Icon={Shield}>
+						{m.defender_lost({ count: selectedDefender.battles_lost })}
+					</IconValue>
 				</div>
-				Placed <Countdown expireTime={selectedDefender.deployed_time} />
+				{m.defender_placed()}
+				<Countdown expireTime={selectedDefender.deployed_time} />
 			</div>
 		{/if}
 	</div>

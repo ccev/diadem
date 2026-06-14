@@ -1,10 +1,10 @@
-import { mCharacter, mPokemon } from "@/lib/services/ingameLocale";
-import * as m from "@/lib/paraglide/messages";
-import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 import type { FiltersetInvasion, FiltersetTitle } from "@/lib/features/filters/filtersets";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 import { getActiveCharacters, getInvasionCatchable } from "@/lib/features/masterStats.svelte";
+import * as m from "@/lib/paraglide/messages";
+import { mCharacter, mPokemon } from "@/lib/services/ingameLocale";
+import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 import { getId } from "@/lib/utils/uuid";
 
 export enum InvasionFilterType {

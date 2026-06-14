@@ -1,11 +1,11 @@
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getMap } from "@/lib/map/map.svelte";
 import { openPopup } from "@/lib/mapObjects/interact";
 import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-import { Coords } from "@/lib/utils/coordinates";
-import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-import { getMap } from "@/lib/map/map.svelte";
-import { openToast } from "@/lib/ui/toasts.svelte";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
+import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
+import { openToast } from "@/lib/ui/toasts.svelte";
+import { Coords } from "@/lib/utils/coordinates";
 
 export type DirectLinkData = { type: MapObjectType; noPermission?: boolean; id?: undefined };
 

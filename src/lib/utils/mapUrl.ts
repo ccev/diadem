@@ -1,5 +1,5 @@
-import type { Coords } from "@/lib/utils/coordinates";
 import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
+import type { Coords } from "@/lib/utils/coordinates";
 
 function getLinkGoogleMaps(coords: Coords) {
 	return `https://maps.google.com?q=${coords.lat},${coords.lon}`;

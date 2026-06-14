@@ -1,11 +1,12 @@
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { StationData } from "@/lib/types/mapObjectData/station";
+import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
 import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { isMaxBattleActive, stripMaxBattleFields } from "@/lib/utils/stationUtils";
 
 export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	protected readonly type = MapObjectType.STATION;
@@ -31,22 +32,32 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 		"updated",
 		"total_stationed_pokemon",
 		"total_stationed_gmax",
-		"stationed_pokemon"
+		"stationed_pokemon",
+		"battle_pokemon_stamina",
+		"battle_pokemon_cp_multiplier"
 	];
 	protected readonly limit = requestLimits[MapObjectType.STATION];
 	protected readonly idColumn = "station.id";
 
-	protected readonly extraWhere = ["end_time > UNIX_TIMESTAMP()"];
+	protected getFilterWhere(filter: FilterStation | undefined): { sql: string; values: unknown[] } {
+		if (filter && !filter.stationPlain.enabled && filter.maxBattle.enabled) {
+			return { sql: "end_time > UNIX_TIMESTAMP()", values: [] };
+		}
+		return { sql: "", values: [] };
+	}
 
 	filter(
 		data: MinMapObject<StationData>,
 		filter: FilterStation,
 		polygon: PermittedPolygon
 	): boolean {
-		return shouldDisplayStation(data, filter);
+		if (!shouldDisplayStation(data, filter)) return false;
+		if (!filter.maxBattle.enabled) stripMaxBattleFields(data);
+		return true;
 	}
 
 	prepare(data: MinMapObject<StationData>): void {
 		data.battle_pokemon_form = getNormalizedForm(data.battle_pokemon_id, data.battle_pokemon_form);
+		if (!isMaxBattleActive(data)) stripMaxBattleFields(data);
 	}
 }

@@ -45,17 +45,7 @@ export function makeOfflineAvailable() {
 			const url = new URL(event.request.url);
 			const cache = await caches.open(CACHE);
 
-			// `build`/`files` can always be served from the cache
-			if (ASSETS.includes(url.pathname)) {
-				const response = await cache.match(url.pathname);
-
-				if (response) {
-					return response;
-				}
-			}
-
-			// for everything else, try the network first, but
-			// fall back to the cache if we're offline
+			// when online, try the network first for all requests
 			try {
 				const response = await fetch(event.request);
 
@@ -71,10 +61,20 @@ export function makeOfflineAvailable() {
 
 				return response;
 			} catch (err) {
+				// fall back to the cache if we're offline
 				const response = await cache.match(event.request);
 
 				if (response) {
 					return response;
+				}
+
+				// for assets, also try matching by pathname
+				if (ASSETS.includes(url.pathname)) {
+					const assetResponse = await cache.match(url.pathname);
+
+					if (assetResponse) {
+						return assetResponse;
+					}
 				}
 
 				// if there's no cache, then just error out

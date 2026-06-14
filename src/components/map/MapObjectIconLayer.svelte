@@ -25,7 +25,12 @@
 	{eventsIfTopMost}
 	{interactive}
 	layout={{
-		"icon-image": ["get", "imageId"],
+		"icon-image": [
+			"case",
+			["get", "dimmed"],
+			["concat", ["get", "imageId"], "/dimmed"],
+			["get", "imageId"]
+		],
 		"icon-overlap": "always",
 		"icon-size": [
 			"*",
@@ -44,7 +49,9 @@
 		"text-font": ["IBM Plex Sans", "Open Sans", "Noto Sans", "Arial Unicode MS Bold", "sans-serif"]
 	}}
 	paint={{
+		"icon-opacity": ["case", ["get", "dimmed"], 0.4, 1],
 		"text-color": "#fafafa",
+		"text-opacity": ["case", ["get", "dimmed"], 0.45, 1],
 		"text-halo-color": "#09090b",
 		"text-halo-width": 1.5
 	}}

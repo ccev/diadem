@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-	import { Code } from "lucide-svelte";
+	import { Code, Wrench } from "lucide-svelte";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import NumberInput from "@/components/ui/input/NumberInput.svelte";
@@ -9,7 +9,7 @@
 	import { getMap, handleRotatePitchDisable, resetMap } from "@/lib/map/map.svelte";
 </script>
 
-<MenuCard title={m.settings_advanced()} Icon={Code}>
+<MenuCard title={m.settings_advanced()} Icon={Wrench}>
 	<Toggle
 		title={m.settings_show_debug_title()}
 		description={m.settings_show_debug_description()}

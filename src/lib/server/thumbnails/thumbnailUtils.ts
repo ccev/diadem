@@ -1,13 +1,12 @@
-import { getServerConfig } from "@/lib/services/config/config.server";
-import { getLogger } from "@/lib/utils/logger";
-import { getDefaultMapStyle } from "@/lib/services/themeMode";
-import type { Coords } from "@/lib/utils/coordinates";
-import { getIconForMap } from "@/lib/services/uicons.svelte";
-import { resize } from "@/lib/services/assets";
-import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { resize } from "@/lib/services/assets";
+import { getServerConfig } from "@/lib/services/config/config.server";
 import type { UiconSetModifierType } from "@/lib/services/config/configTypes";
+import { getDefaultMapStyle } from "@/lib/services/themeMode";
+import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { Coords } from "@/lib/utils/coordinates";
+import { getLogger } from "@/lib/utils/logger";
 import sharp from "sharp";
 
 const log = getLogger("thumbnail");

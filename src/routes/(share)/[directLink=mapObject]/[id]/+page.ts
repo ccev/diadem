@@ -1,7 +1,7 @@
-import type { PageLoad } from "./$types";
 import { browser } from "$app/environment";
 import { setDirectLinkObject } from "@/lib/features/directLinks.svelte.js";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
+import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ data, fetch }) => {
 	if (browser) {

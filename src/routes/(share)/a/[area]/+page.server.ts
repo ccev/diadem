@@ -1,13 +1,13 @@
-import type { PageServerLoad } from "./$types";
-import { error } from "@sveltejs/kit";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
 import { getFeatureJump } from "@/lib/utils/geo";
 import { getLogger } from "@/lib/utils/logger";
+import { error } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
 
 const log = getLogger("arealink");
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
-	const areaName = params.area;
+	const areaName = decodeURIComponent(params.area);
 
 	log.info("Direct area link called to %s", areaName);
 

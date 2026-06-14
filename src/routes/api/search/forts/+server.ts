@@ -1,12 +1,12 @@
-import { error, json } from "@sveltejs/kit";
-import { getLogger } from "@/lib/utils/logger";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
+import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
-import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { checkFeatureInBounds, type PermittedBounds } from "@/lib/services/user/checkPerm";
-import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
+import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
+import { getLogger } from "@/lib/utils/logger";
+import { error, json } from "@sveltejs/kit";
 
 const log = getLogger("fortsearch");
 
@@ -26,7 +26,7 @@ export async function POST({ request, locals }) {
 	if (hasPokestops && pokestopPermitted) {
 		const spatial = buildSpatialFilter(pokestopPermitted.polygon ?? null, pokestopPermitted.bounds);
 		queries.push(
-			"(SELECT 'p' AS type, name, id, url FROM pokestop WHERE " +
+			"(SELECT 'p' AS type, name, id, url, lat, lon FROM pokestop WHERE " +
 				spatial.sql +
 				" AND name IS NOT NULL AND deleted = 0)"
 		);
@@ -36,7 +36,7 @@ export async function POST({ request, locals }) {
 	if (hasGyms && gymPermitted) {
 		const spatial = buildSpatialFilter(gymPermitted.polygon ?? null, gymPermitted.bounds);
 		queries.push(
-			"(SELECT 'g' AS type, name, id, url FROM gym WHERE " +
+			"(SELECT 'g' AS type, name, id, url, lat, lon FROM gym WHERE " +
 				spatial.sql +
 				" AND name IS NOT NULL AND deleted = 0)"
 		);

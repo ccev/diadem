@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { MapLibre } from "svelte-maplibre";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
-	import { type Snippet } from "svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+	import { onDestroy, type Snippet } from "svelte";
 	import { handleRotatePitchDisable } from "@/lib/map/map.svelte";
 	import { onMapMove, onMapStyleDataLoading } from "@/lib/map/events";
 	import maplibre from "maplibre-gl";
@@ -9,19 +9,25 @@
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { getConfig } from "@/lib/services/config/config";
 	import type { Coords } from "@/lib/utils/coordinates";
+	import { closeMenu } from "@/lib/ui/menus.svelte";
+	import { clearActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
+	import { setCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+	import { resetLocate } from "@/lib/map/geolocate.svelte";
 
 	let {
 		onload = undefined,
 		children = undefined,
 		map = $bindable(),
 		initialCenter,
-		initialZoom
+		initialZoom,
+		style
 	}: {
 		onload?: (map: maplibre.Map) => void;
 		children?: Snippet;
 		map?: maplibre.Map | undefined;
 		initialCenter: Coords;
 		initialZoom: number;
+		style?: string | maplibre.StyleSpecification;
 	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
@@ -33,6 +39,13 @@
 
 		onload && onload(map);
 	}
+
+	onDestroy(() => {
+		closeMenu();
+		clearActiveSearchFilter();
+		setCurrentSelectedData(null);
+		resetLocate();
+	});
 </script>
 
 <MapLibre
@@ -40,7 +53,7 @@
 	center={initialCenter.maplibre()}
 	zoom={initialZoom}
 	class="h-screen w-full overflow-hidden"
-	style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
+	style={style ?? getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 	attributionControl={false}
 	interactive={!isAnyModalOpen()}
 	onload={onMapLoad}

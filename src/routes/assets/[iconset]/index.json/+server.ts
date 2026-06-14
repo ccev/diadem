@@ -1,6 +1,6 @@
-import { error } from "@sveltejs/kit";
-import { getClientConfig } from "@/lib/services/config/config.server";
 import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
+import { getClientConfig } from "@/lib/services/config/config.server";
+import { error } from "@sveltejs/kit";
 
 const config = getClientConfig();
 

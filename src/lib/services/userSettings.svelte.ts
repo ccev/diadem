@@ -1,4 +1,4 @@
-import { getConfig } from "@/lib/services/config/config";
+import { browser } from "$app/environment";
 import type {
 	FilterGym,
 	FilterNest,
@@ -10,13 +10,13 @@ import type {
 	FilterStation,
 	FilterTappable
 } from "@/lib/features/filters/filters";
-import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
-import { browser } from "$app/environment";
-import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { getConfig } from "@/lib/services/config/config";
 import type { AnySearchEntry } from "@/lib/services/search.svelte";
-import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
+import { getDefaultMapStyle } from "@/lib/services/themeMode";
+import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
+import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
 
 export type UiconSetUS = {
@@ -28,6 +28,26 @@ export enum ExternalMapProvider {
 	GOOGLE = "google",
 	APPLE = "apple"
 }
+
+type ActionState = {
+	expanded: boolean;
+	dimmed: {
+		mapIds: string[];
+	};
+	radius: {
+		mapIds: string[];
+		all: boolean;
+		extraRadius: boolean;
+	};
+	timer: {
+		mapIds: string[];
+		all: boolean;
+	};
+};
+
+type LegacyUserSettings = Partial<UserSettings> & {
+	expandedMapObjects?: MapObjectType[];
+};
 
 export type UserSettings = {
 	mapPosition: {
@@ -56,7 +76,6 @@ export type UserSettings = {
 	enableRotatePitch: boolean;
 	mapIconSize: number;
 	externalMapProvider: ExternalMapProvider;
-	expandedMapObjects: MapObjectType[];
 	filters: {
 		pokemon: FilterPokemon;
 		pokestop: FilterPokestop;
@@ -68,8 +87,27 @@ export type UserSettings = {
 		route: FilterRoute;
 		tappable: FilterTappable;
 	};
+	actions: Record<MapObjectType, ActionState>;
 	recentSearches: AnySearchEntry[];
 };
+
+function defaultActionState(): ActionState {
+	return {
+		expanded: false,
+		dimmed: {
+			mapIds: []
+		},
+		radius: {
+			mapIds: [],
+			all: false,
+			extraRadius: false
+		},
+		timer: {
+			mapIds: [],
+			all: false
+		}
+	};
+}
 
 export function getDefaultUserSettings(): UserSettings {
 	const general = getConfig().general;
@@ -102,7 +140,6 @@ export function getDefaultUserSettings(): UserSettings {
 		enableRotatePitch: true,
 		mapIconSize: 1,
 		externalMapProvider: ExternalMapProvider.GOOGLE,
-		expandedMapObjects: [],
 		filters: {
 			pokemon: { category: "pokemon", ...defaultFilter() },
 			pokestop: getDefaultPokestopFilter(),
@@ -120,6 +157,9 @@ export function getDefaultUserSettings(): UserSettings {
 			route: { category: "route", ...defaultFilter() },
 			tappable: { category: "tappable", ...defaultFilter() }
 		},
+		actions: Object.fromEntries(
+			Object.values(MapObjectType).map((type) => [type, defaultActionState()])
+		) as UserSettings["actions"],
 		recentSearches: []
 	};
 }
@@ -162,9 +202,9 @@ export async function getUserSettingsFromServer() {
 	}
 }
 
-export function setUserSettings(newUserSettings: UserSettings) {
-	// @ts-ignore
-	userSettings = deepMerge(getDefaultUserSettings(), newUserSettings);
+export function setUserSettings(newUserSettings: LegacyUserSettings) {
+	const mergedUserSettings = deepMerge(getDefaultUserSettings(), newUserSettings);
+	userSettings = migrateUserSettings(mergedUserSettings);
 }
 
 export function getUserSettings() {
@@ -193,4 +233,17 @@ function deepMerge(defaultObj: { [key: string]: any }, newObj: { [key: string]: 
 		}
 	}
 	return result;
+}
+
+function migrateUserSettings(settings: LegacyUserSettings): UserSettings {
+	if (settings.expandedMapObjects) {
+		for (const objectType of settings.expandedMapObjects) {
+			if (settings?.actions?.[objectType]) {
+				settings.actions[objectType].expanded = true;
+			}
+		}
+		delete settings.expandedMapObjects;
+	}
+
+	return settings as UserSettings;
 }

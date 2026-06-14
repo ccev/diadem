@@ -1,19 +1,19 @@
+import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
+import { getMap } from "@/lib/map/map.svelte";
 import { getBounds } from "@/lib/mapObjects/mapBounds";
 import {
 	cellToFeature,
 	getCoveringS2Cells,
 	type S2CellProperties
 } from "@/lib/mapObjects/s2cells.js";
-import { getMap } from "@/lib/map/map.svelte";
-import type { CellID } from "s2js/dist/s2/cellid";
-import { s2 } from "s2js";
-import type { WeatherData } from "@/lib/types/mapObjectData/weather";
-import TTLCache from "@isaacs/ttlcache";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
-import type { FeatureCollection, Polygon } from "geojson";
+import type { WeatherData } from "@/lib/types/mapObjectData/weather";
 import { Features } from "@/lib/utils/features";
+import TTLCache from "@isaacs/ttlcache";
+import type { FeatureCollection, Polygon } from "geojson";
+import { s2 } from "s2js";
+import type { CellID } from "s2js/dist/s2/cellid";
 
 const WEATHER_CELL_LEVEL = 10;
 const UPDATE_INTERVAL = 5 * 60 * 1000;

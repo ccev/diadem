@@ -1,14 +1,12 @@
-import { render } from "svelte/server";
-import Base from "@/components/thumbnail/Base.svelte";
-import { Resvg } from "@resvg/resvg-js";
-import satori from "satori";
-import { html } from "satori-html";
-import { readFileSync } from "fs";
-import { join } from "path";
 import { dev } from "$app/environment";
-import { getClientConfig } from "@/lib/services/config/config.server";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { getLogger } from "@/lib/utils/logger";
+import { Resvg } from "@resvg/resvg-js";
+import { readFileSync } from "fs";
+import { join } from "path";
+import satori from "satori";
+import { html } from "satori-html";
+import { render } from "svelte/server";
 
 const log = getLogger("thumbnail");
 

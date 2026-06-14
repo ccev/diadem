@@ -9,7 +9,8 @@ export type BadgeProperties =
 	| "imageSize"
 	| "isModifierBadge";
 
-const BADGE_SCALE_RATIO = 14 / 24;
+const BADGE_SCALE_RATIO = 0.75;
+const BADGE_OFFSET = 80;
 const EMOJI_SIZE = 64;
 const emojiImageCache = new Map<string, string>();
 
@@ -33,7 +34,7 @@ export function getBadgeFeature(
 		return;
 	}
 
-	const edgeOffset = (32 * (1 - BADGE_SCALE_RATIO)) / BADGE_SCALE_RATIO;
+	const edgeOffset = (BADGE_OFFSET * (1 - BADGE_SCALE_RATIO)) / BADGE_SCALE_RATIO;
 
 	return {
 		imageUrl,

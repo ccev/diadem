@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { IconCategory } from "@/lib/features/filters/icons";
+import { z } from "zod";
 
 const FiltersetModifiersSchema = z
 	.object({
@@ -76,13 +76,10 @@ export const FiltersetPokemonSchema = BaseFiltersetSchema.extend({
 
 export const FiltersetPokestopPlainSchema = BaseFiltersetSchema.extend({
 	isSponsored: z.boolean().optional(),
-	powerUpLevel: MinMaxSchema.optional(),
-	isArScanEligible: z.boolean().optional(),
 	hasDetatils: z.boolean().optional()
 });
 
 export const FiltersetQuestSchema = BaseFiltersetSchema.extend({
-	ar: z.enum(["ar", "noar", "all"]).optional(),
 	rewardType: z.number().optional(),
 	tasks: z.array(z.object({ title: z.string(), target: z.number() })).optional(),
 	pokemon: z.array(PokemonSchema).optional(),
@@ -105,8 +102,6 @@ export const FiltersetLureSchema = BaseFiltersetSchema.extend({
 
 export const FiltersetGymPlainSchema = BaseFiltersetSchema.extend({
 	isSponsored: z.boolean().optional(),
-	powerUpLevel: MinMaxSchema.optional(),
-	isArScanEligible: z.boolean().optional(),
 	hasDetatils: z.boolean().optional(),
 	defenderAmount: MinMaxSchema.optional()
 });

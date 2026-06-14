@@ -1,9 +1,9 @@
+import type { FilterGym } from "@/lib/features/filters/filters";
+import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getActiveGymFilter } from "@/lib/utils/gymUtils";
-import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
-import type { FilterGym } from "@/lib/features/filters/filters";
 
 export function matchRaidFilterset(
 	data: Partial<GymData>,

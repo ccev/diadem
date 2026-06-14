@@ -1,12 +1,12 @@
-import Sunny from "@/components/icons/weather/Sunny.svelte";
-import Rainy from "@/components/icons/weather/Rainy.svelte";
-import type { Component } from "svelte";
-import PartlyCloudy from "@/components/icons/weather/PartlyCloudy.svelte";
 import Cloudy from "@/components/icons/weather/Cloudy.svelte";
-import Windy from "@/components/icons/weather/Windy.svelte";
-import Snowy from "@/components/icons/weather/Snowy.svelte";
 import Fog from "@/components/icons/weather/Fog.svelte";
+import PartlyCloudy from "@/components/icons/weather/PartlyCloudy.svelte";
+import Rainy from "@/components/icons/weather/Rainy.svelte";
+import Snowy from "@/components/icons/weather/Snowy.svelte";
+import Sunny from "@/components/icons/weather/Sunny.svelte";
+import Windy from "@/components/icons/weather/Windy.svelte";
 import { CloudOff } from "lucide-svelte";
+import type { Component } from "svelte";
 
 const weatherIcons: { [key: number]: Component } = {
 	1: Sunny,

@@ -1,24 +1,44 @@
 <script lang="ts">
 	import { getConfig } from "@/lib/services/config/config";
+	import { getCurrentMetadata, type MetadataState } from "@/lib/ui/metadata.svelte";
 
 	let {
-		title,
-		embedTitle,
-		description,
-		thumbnail,
-		image,
-		color
-	}: {
-		title?: string;
-		embedTitle?: string;
-		description?: string;
-		thumbnail?: string;
-		image?: string;
-		color?: string;
-	} = $props();
+		title: titleProp,
+		embedTitle: embedTitleProp,
+		description: descriptionProp,
+		thumbnail: thumbnailProp,
+		image: imageProp,
+		color: colorProp
+	}: MetadataState = $props();
 
 	let config = $derived(getConfig());
 	let general = $derived(config.general);
+	let hasProps = $derived(
+		titleProp !== undefined ||
+			embedTitleProp !== undefined ||
+			descriptionProp !== undefined ||
+			thumbnailProp !== undefined ||
+			imageProp !== undefined ||
+			colorProp !== undefined
+	);
+	let metadata = $derived(
+		hasProps
+			? {
+					title: titleProp,
+					embedTitle: embedTitleProp,
+					description: descriptionProp,
+					thumbnail: thumbnailProp,
+					image: imageProp,
+					color: colorProp
+				}
+			: getCurrentMetadata()
+	);
+	let title = $derived(metadata.title);
+	let embedTitle = $derived(metadata.embedTitle);
+	let description = $derived(metadata.description);
+	let thumbnail = $derived(metadata.thumbnail);
+	let image = $derived(metadata.image);
+	let color = $derived(metadata.color);
 	let pageTitle = $derived(general.mapName + (title ? ` | ${title}` : ""));
 	let effectiveDescription = $derived(description ?? general.description);
 	let effectiveImage = $derived(image ?? general.image);

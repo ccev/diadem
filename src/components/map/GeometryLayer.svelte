@@ -57,6 +57,7 @@
 		<FillLayer
 			id={fillId}
 			{hoverCursor}
+			filter={["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]}
 			paint={{
 				"fill-color": ["get", "fillColor"],
 				"fill-opacity": 0.5
@@ -65,7 +66,10 @@
 		<LineLayer
 			id={strokeId}
 			layout={{ "line-cap": "round", "line-join": "round" }}
-			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
+			paint={{
+				"line-color": ["get", "strokeColor"],
+				"line-width": ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], 2, 7]
+			}}
 		/>
 	{/if}
 </GeoJSON>

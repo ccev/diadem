@@ -1,17 +1,17 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
+import { getLogger } from "@/lib/utils/logger";
 import {
 	bbox,
 	booleanPointInPolygon,
-	feature as makeFeature,
 	featureCollection,
 	intersect,
+	feature as makeFeature,
 	point,
 	polygon,
 	union
 } from "@turf/turf";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
-import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
-import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("permissions");
 

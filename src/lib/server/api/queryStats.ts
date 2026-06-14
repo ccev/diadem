@@ -1,10 +1,10 @@
 import { query } from "@/lib/server/db/external/internalQuery";
-import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import { getQuestKey, parseQuestReward, RewardType } from "@/lib/utils/pokestopUtils";
-import { getMasterFile, getMasterPokemon } from "@/lib/services/masterfile";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
+import { getMasterPokemon } from "@/lib/services/masterfile";
+import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getLogger } from "@/lib/utils/logger";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { getQuestKey, parseQuestReward, RewardType } from "@/lib/utils/pokestopUtils";
 
 const log = getLogger("masterstats");
 const scrapedDuckUrl = "https://raw.githubusercontent.com/bigfoott/ScrapedDuck/data/";
@@ -321,7 +321,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"FROM pokestop " +
 				"WHERE showcase_ranking_standard IS NOT NULL " +
 				"AND showcase_focus IS NOT NULL " +
-				"AND last_modified_timestamp > UNIX_TIMESTAMP() - 86400 " +
+				"AND showcase_expiry > UNIX_TIMESTAMP() " +
 				"GROUP BY 1, 2"
 		),
 		query<MaxBattleStatsRow[]>(
@@ -471,7 +471,8 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		const focusKey = JSON.stringify(focus);
 		const existingContest = activeContests.find(
 			(contest) =>
-				contest.ranking_standard === row.ranking_standard && JSON.stringify(contest.focus) === focusKey
+				contest.ranking_standard === row.ranking_standard &&
+				JSON.stringify(contest.focus) === focusKey
 		);
 
 		if (existingContest) {

@@ -1,9 +1,8 @@
-import { prefixes as localePrefixesObject } from "@/lib/services/ingameLocale";
-import { locales } from "@/lib/paraglide/runtime";
-import { getLogger } from "@/lib/utils/logger";
-import { BaseDataProvider, BulkDataProvider } from "@/lib/server/provider/dataProvider";
 import { REFRESH_REMOTE_LOCALE } from "@/lib/constants";
-import { sleep } from "@/lib/utils/time";
+import { locales } from "@/lib/paraglide/runtime";
+import { BulkDataProvider } from "@/lib/server/provider/dataProvider";
+import { prefixes as localePrefixesObject } from "@/lib/services/ingameLocale";
+import { getLogger } from "@/lib/utils/logger";
 import type { UiconsIndex } from "uicons.js";
 
 type Locales = (typeof locales)[number];

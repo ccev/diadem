@@ -1,7 +1,7 @@
-import { createLogger, format, transports } from "winston";
-import { getClientConfig, getServerConfig } from "@/lib/services/config/config.server";
-import DailyRotateFile from "winston-daily-rotate-file";
+import { getServerConfig } from "@/lib/services/config/config.server";
 import chalk from "chalk";
+import { createLogger, format, transports } from "winston";
+import DailyRotateFile from "winston-daily-rotate-file";
 
 const config = getServerConfig().log;
 

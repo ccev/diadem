@@ -1,5 +1,5 @@
 import { encode } from "@msgpack/msgpack";
-import { brotliCompressSync, gzipSync, constants } from "node:zlib";
+import { brotliCompressSync, constants, gzipSync } from "node:zlib";
 
 export function respond(request: Request, data: any, options?: ResponseInit): Response {
 	const accept = request.headers.get("Accept") ?? "";

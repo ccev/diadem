@@ -1,6 +1,5 @@
+import { getPokemonStats } from "@/lib/features/masterStats.svelte";
 import type { MasterFile, MasterPokemon, MasterWeather } from "@/lib/types/masterfile";
-import { getMasterStats, getPokemonStats } from "@/lib/features/masterStats.svelte";
-import { browser } from "$app/environment";
 
 const url = "/api/pogodata";
 let masterFile: MasterFile;
@@ -134,7 +133,8 @@ export function calculateCp(
 	const defense = stats.baseDef + iv[1];
 	const stamina = stats.baseSta + iv[2];
 
-	return Math.floor(
-		(attack * Math.sqrt(defense) * Math.sqrt(stamina) * Math.pow(multiplier, 2)) / 10
+	return Math.max(
+		10,
+		Math.floor((attack * Math.sqrt(defense) * Math.sqrt(stamina) * Math.pow(multiplier, 2)) / 10)
 	);
 }

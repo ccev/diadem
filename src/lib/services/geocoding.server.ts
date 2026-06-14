@@ -1,9 +1,8 @@
-import { getServerConfig } from "@/lib/services/config/config.server";
 import type { AddressData } from "@/lib/features/geocoding";
-import { error } from "@sveltejs/kit";
+import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
-import type { FeatureCollection, Point } from "geojson";
 import addressFormatter from "@fragaria/address-formatter";
+import type { FeatureCollection, Geometry, Point } from "geojson";
 
 const log = getLogger("addrsearch");
 
@@ -14,12 +13,14 @@ type NominatimProps = {
 		country?: string;
 		street?: string;
 		housenumber?: string;
-		place_id: number;
+		osm_id: number;
+		osm_type: string;
 	};
 };
 
 type PhotonProps = {
 	osm_id: number;
+	osm_type: string;
 	type?: string;
 	countrycode?: string;
 	name?: string;
@@ -58,6 +59,14 @@ export async function searchAddress(
 	return [];
 }
 
+export async function lookupGeometry(osmId: string) {
+	if (getServerConfig().nominatim?.url) {
+		return await nominatimLookupGeometry(osmId);
+	}
+
+	return undefined;
+}
+
 async function photonSearchAddress(
 	query: string,
 	language: string,
@@ -78,6 +87,10 @@ async function photonSearchAddress(
 		url += "&zoom=" + zoom;
 	}
 
+	if (config.hasGeometries) {
+		url += "&geometry=true";
+	}
+
 	const headers: HeadersInit = {};
 	if (config.basicAuth) {
 		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
@@ -95,16 +108,6 @@ async function photonSearchAddress(
 	}
 
 	const data: FeatureCollection<Point, PhotonProps> = await response.json();
-
-	for (const f of data.features) {
-		log.info(
-			addressFormatter.format(f.properties, {
-				abbreviate: true,
-				countryCode: f.properties.countrycode,
-				output: "array"
-			})[1]
-		);
-	}
 
 	return (
 		data?.features?.map((f) => {
@@ -141,12 +144,18 @@ async function photonSearchAddress(
 
 			const label = formattedAddressParts.join(", ");
 
-			return {
+			const data: AddressData = {
 				name: label,
-				id: p.osm_id.toString(),
+				id: `${p.osm_type}${p.osm_id}`,
 				center: f.geometry.coordinates,
 				bbox: p.extent
 			};
+
+			if (f.geometry.type !== "Point") {
+				data.geometry = f.geometry;
+			}
+
+			return data;
 		}) ?? []
 	);
 }
@@ -194,10 +203,39 @@ async function peliasSearchAddress(
 				name: f.properties.label,
 				id: f.properties.gid,
 				center: f.geometry.coordinates,
-				bbox: f.bbox
+				bbox: f.bbox,
+				geometry: f?.geometry
 			};
 		}) ?? []
 	);
+}
+
+async function nominatimRequest(url: string) {
+	const config = getServerConfig().nominatim;
+	if (!config || !config.url) return;
+
+	const headers: { [key: string]: string } = {
+		"Content-Type": "application/json"
+	};
+	if (config.basicAuth) {
+		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
+	}
+	if (config.userAgent) {
+		headers["User-Agent"] = config.userAgent;
+	}
+
+	const response = await fetch(url, {
+		method: "GET",
+		headers,
+		signal: AbortSignal.timeout(2000)
+	});
+
+	if (!response.ok) {
+		log.error("Nominatim request failed: %s", await response.text());
+		return;
+	}
+
+	return response;
 }
 
 async function nominatimSearchAddress(query: string, language: string): Promise<AddressData[]> {
@@ -209,30 +247,15 @@ async function nominatimSearchAddress(query: string, language: string): Promise<
 		"search" +
 		"?format=geocodejson" +
 		"&addressdetails=1" +
-		// "&layer=address" +
+		"&polygon_geojson=1" +
 		"&limit=3" +
 		"&accept-language=" +
 		language +
 		"&q=" +
 		query;
 
-	const headers: { [key: string]: string } = {
-		"Content-Type": "application/json"
-	};
-	if (config.basicAuth) {
-		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
-	}
-
-	const response = await fetch(nomiUrl, {
-		method: "GET",
-		headers,
-		signal: AbortSignal.timeout(2000)
-	});
-
-	if (!response.ok) {
-		log.error("Nominatim request failed: %s", await response.text());
-		return [];
-	}
+	const response = await nominatimRequest(nomiUrl);
+	if (!response) return [];
 
 	const data: FeatureCollection<Point, NominatimProps> = await response.json();
 
@@ -257,12 +280,31 @@ async function nominatimSearchAddress(query: string, language: string): Promise<
 				name += ", " + props.country;
 			}
 
-			return {
+			const data: AddressData = {
 				name,
-				id: props.place_id.toString(),
+				id: `${props.osm_type[0]}${props.osm_id}`,
 				center: f.geometry.coordinates,
 				bbox: f.bbox
 			};
+
+			if (f.geometry.type !== "Point") {
+				data.geometry = f.geometry;
+			}
+
+			return data;
 		}) ?? []
 	);
+}
+
+async function nominatimLookupGeometry(osmId: string): Promise<Geometry | undefined> {
+	const config = getServerConfig().nominatim;
+	if (!config || !config.url) return;
+
+	const url = config.url + "lookup?format=geojson&polygon_geojson=1&osm_ids=" + osmId;
+	const response = await nominatimRequest(url);
+	if (!response) return;
+
+	const featureCollection = (await response.json()) as FeatureCollection;
+
+	return featureCollection.features[0]?.geometry;
 }

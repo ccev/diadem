@@ -5,13 +5,14 @@
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import FrameRateControl from "@/lib/map/framerate";
 	import { tick } from "svelte";
+	import { getLastQueryTimestamps } from "@/lib/mapObjects/updateMapObject";
+	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
+	import Countdown from "@/components/utils/Countdown.svelte";
 
-	let rerender: boolean = $state(true);
-	const frameRateControl = new FrameRateControl({});
+	let rerender: number = $state(0);
 
 	function onMoveEndDebug() {
-		rerender = false;
-		tick().then(() => (rerender = true));
+		rerender += 1;
 	}
 
 	$effect(() => {
@@ -19,27 +20,37 @@
 		if (!map) return;
 
 		if (getUserSettings().showDebugMenu) {
-			map.addControl(frameRateControl);
 			map.on("moveend", onMoveEndDebug);
-		} else if (map.hasControl(frameRateControl)) {
-			map.removeControl(frameRateControl);
+		} else {
 			map.off("moveend", onMoveEndDebug);
 		}
+
+		return () => map.off("moveend", onMoveEndDebug);
 	});
 </script>
 
 {#if getUserSettings().showDebugMenu}
 	<Card class="font-mono fixed top-24 right-2 z-10 py-2 px-4 text-xs">
-		{#if rerender}
+		{#key rerender}
 			<div>
 				Zoom: {getMap()?.getZoom()?.toFixed(2)}
 			</div>
 			<div>
 				Center: {getMap()?.getCenter()?.lat?.toFixed(6)},{getMap()?.getCenter()?.lng?.toFixed(6)}
 			</div>
+		{/key}
+
+		<div>
+			Map Objects: {Object.keys(getMapObjects()).length}
+		</div>
+
+		<div class="mt-3">updated</div>
+
+		{#each getLastQueryTimestamps().entries() as [type, time]}
 			<div>
-				Map Objects: {Object.keys(getMapObjects()).length}
+				<span>{type}:</span>
+				<Countdown expireTime={time} />
 			</div>
-		{/if}
+		{/each}
 	</Card>
 {/if}

@@ -1,4 +1,3 @@
-import * as m from "@/lib/paraglide/messages";
 import type { FiltersetQuest, FiltersetTitle, MinMax } from "@/lib/features/filters/filtersets";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
@@ -9,8 +8,9 @@ import {
 	makeAttributeRangeLabel,
 	makeAttributeRewardPokemonLabel
 } from "@/lib/features/filters/makeAttributeChipLabel";
-import { mQuest } from "@/lib/services/ingameLocale";
 import { getActiveQuestRewards, getQuestStats } from "@/lib/features/masterStats.svelte";
+import * as m from "@/lib/paraglide/messages";
+import { mQuest } from "@/lib/services/ingameLocale";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import { getId } from "@/lib/utils/uuid";
@@ -31,17 +31,6 @@ const PREMADE_POKEMON_IDS = [147, 371, 610, 782, 374, 443];
 const PREMADE_RAREST_LIMIT = 15;
 
 type PremadeQuestReward = Extract<QuestReward, { type: RewardType.ITEM | RewardType.POKEMON }>;
-
-export enum QuestArType {
-	AR = "ar",
-	NOAR = "noar"
-}
-
-export function getAttributeLabelAr(ar: QuestArType | undefined) {
-	if (ar === QuestArType.AR) return m.quest_ar_tag();
-	if (ar === QuestArType.NOAR) return m.quest_noar_tag();
-	return m.both();
-}
 
 export function getAttributeLabelStardust(stardust: MinMax | undefined) {
 	return makeAttributeRangeLabel(stardust, questBounds.stardust.min, questBounds.stardust.max);

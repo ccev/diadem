@@ -1,16 +1,30 @@
 <script lang="ts">
-	import { isPopupExpanded, togglePopupExpanded } from "@/lib/ui/expandedPopups.js";
-	import { Eye, EyeClosed, Navigation, Share2 } from "lucide-svelte";
-	import Button from "@/components/ui/input/Button.svelte";
+	import {
+		getPopupActions,
+		isPopupActionActive,
+		isPopupExpanded,
+		PopupAction,
+		supportsPopupAction,
+		togglePopupAction,
+		togglePopupExpanded
+	} from "@/lib/ui/popupActions.js";
+	import {
+		CircleDot,
+		CircleOff,
+		Eye,
+		EyeClosed,
+		Minus,
+		Navigation,
+		Plus,
+		Timer,
+		TimerOff
+	} from "lucide-svelte";
 	import * as m from "@/lib/paraglide/messages";
-
-	import { getCurrentPath } from "@/lib/mapObjects/interact";
-	import { backupShareUrl, canBackupShare } from "@/lib/utils/device";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
-	import { getLocale } from "@/lib/paraglide/runtime";
+	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
 
 	let {
 		lat,
@@ -20,44 +34,59 @@
 		lon: number;
 	} = $props();
 
-	function getShareUrl() {
-		return window.location.origin + getCurrentPath() + "?lang=" + getLocale();
-	}
+	let selectedData = $derived(getCurrentSelectedData());
+	let selectedType = $derived(selectedData?.type);
+	let selectedMapId = $derived(selectedData?.mapId);
 </script>
 
-<div class="flex px-4 gap-1.5 absolute bottom-4 w-full">
-	<Button size="default" onclick={() => togglePopupExpanded(getCurrentSelectedData()?.type)}>
-		{#if isPopupExpanded(getCurrentSelectedData()?.type)}
-			<EyeClosed size="18" />
-			<span class="@max-[304px]:hidden">
-				{m.popup_hide_details()}
-			</span>
-		{:else}
-			<Eye size="18" />
-			<span class="@max-[304px]:hidden">
-				{m.popup_show_details()}
-			</span>
-		{/if}
-	</Button>
-	<Button
-		size="default"
-		variant="outline"
+<div class="flex px-4 gap-1.5 w-full overflow-x-auto pb-4">
+	<PopupButton
+		variant="default"
+		Icon={Plus}
+		label={m.popup_show_details()}
+		IconActive={Minus}
+		labelActive={m.popup_hide_details()}
+		active={isPopupExpanded(selectedType)}
+		onclick={() => togglePopupExpanded(selectedType)}
+	/>
+	<PopupButton
+		Icon={Navigation}
+		label={m.popup_navigate()}
 		tag="a"
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
-	>
-		<Navigation size="18" />
-		<span class="@max-[364px]:hidden">
-			{m.popup_navigate()}
-		</span>
-	</Button>
-
-	{#if canBackupShare({ url: getShareUrl() })}
-		<Button variant="outline" tag="button" onclick={() => backupShareUrl(getShareUrl())}>
-			<Share2 size="18" />
-			<span class="@max-[406px]:hidden">
-				{m.popup_share()}
-			</span>
-		</Button>
+	/>
+	{#if supportsPopupAction(selectedType, PopupAction.DIMMED)}
+		<PopupButton
+			Icon={EyeClosed}
+			label={m.popup_action_dim()}
+			IconActive={Eye}
+			labelActive={m.popup_action_undim()}
+			active={isPopupActionActive(selectedType, selectedMapId, PopupAction.DIMMED)}
+			onclick={() => togglePopupAction(selectedType, selectedMapId, PopupAction.DIMMED)}
+			actions={getPopupActions(selectedType, PopupAction.DIMMED)}
+		/>
+	{/if}
+	{#if supportsPopupAction(selectedType, PopupAction.RADIUS)}
+		<PopupButton
+			Icon={CircleDot}
+			label={m.popup_action_show_radius()}
+			IconActive={CircleOff}
+			labelActive={m.popup_action_hide_radius()}
+			active={isPopupActionActive(selectedType, selectedMapId, PopupAction.RADIUS)}
+			onclick={() => togglePopupAction(selectedType, selectedMapId, PopupAction.RADIUS)}
+			actions={getPopupActions(selectedType, PopupAction.RADIUS)}
+		/>
+	{/if}
+	{#if supportsPopupAction(selectedType, PopupAction.TIMER)}
+		<PopupButton
+			Icon={Timer}
+			label={m.popup_action_show_timer()}
+			IconActive={TimerOff}
+			labelActive={m.popup_action_hide_timer()}
+			active={isPopupActionActive(selectedType, selectedMapId, PopupAction.TIMER)}
+			onclick={() => togglePopupAction(selectedType, selectedMapId, PopupAction.TIMER)}
+			actions={getPopupActions(selectedType, PopupAction.TIMER)}
+		/>
 	{/if}
 </div>

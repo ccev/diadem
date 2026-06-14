@@ -1,18 +1,11 @@
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-import type { StationData } from "@/lib/types/mapObjectData/station";
-import type { NestData } from "@/lib/types/mapObjectData/nest";
-import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
-import type { TappableData } from "@/lib/types/mapObjectData/tappable";
-import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
-import type { MultiPolygon, Polygon } from "geojson";
 import {
-	getActivePokestopFilter,
-	hasFortActiveLure,
-	isIncidentInvasion
-} from "@/lib/utils/pokestopUtils";
+	FORT_OUTDATED_SECONDS,
+	SELECTED_MAP_OBJECT_SCALE,
+	SPAWNPOINT_OUTDATED_SECONDS
+} from "@/lib/constants";
+import { matchRaidFilterset, shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
+import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
 import {
 	matchInvasionFilterset,
 	matchQuestFilterset,
@@ -20,6 +13,21 @@ import {
 	shouldDisplayLure,
 	shouldDisplayQuest
 } from "@/lib/features/filterLogic/pokestop";
+import { matchMaxBattleFilterset, shouldDisplayStation } from "@/lib/features/filterLogic/station";
+import type { AnyFilterset, FiltersetQuest } from "@/lib/features/filters/filtersets";
+import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
+import {
+	getCircleFeature,
+	getIconFeature,
+	getPolygonFeature,
+	type MapObjectFeature,
+	type MapObjectIconProperties,
+	type MinMapObjectIconProperties
+} from "@/lib/map/render/featureTypes";
+import { getBadgeFeature } from "@/lib/map/render/modifierBadge";
+import { getUnderlayFeature } from "@/lib/map/render/modifierUnderlay";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
 import {
 	getCurrentUiconSetDetailsAllTypes,
 	getIconForMap,
@@ -29,33 +37,20 @@ import {
 	getIconRaidEgg,
 	getIconReward
 } from "@/lib/services/uicons.svelte";
-import {
-	FORT_OUTDATED_SECONDS,
-	SELECTED_MAP_OBJECT_SCALE,
-	SPAWNPOINT_OUTDATED_SECONDS
-} from "@/lib/constants";
-import type { UiconSet, UiconSetModifierType } from "@/lib/services/config/configTypes";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
+import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
+import { getActivePokestopFilter, isIncidentInvasion } from "@/lib/utils/pokestopUtils";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
-import { matchRaidFilterset, shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
-import { matchMaxBattleFilterset, shouldDisplayStation } from "@/lib/features/filterLogic/station";
-import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
-import { geojson, s2 } from "s2js";
-import {
-	getCircleFeature,
-	getIconFeature,
-	getPolygonFeature,
-	type MapObjectFeature,
-	type MapObjectIconProperties,
-	type MinMapObjectIconProperties
-} from "@/lib/map/render/featureTypes";
-import { type BadgeProperties, getBadgeFeature } from "@/lib/map/render/modifierBadge";
-import type { AnyFilterset, FiltersetQuest } from "@/lib/features/filters/filtersets";
-import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
-import { getUnderlayFeature } from "@/lib/map/render/modifierUnderlay";
-import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
+import { cellToPolygon } from "@/lib/mapObjects/s2cells";
+import type { MultiPolygon, Polygon } from "geojson";
 
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;
@@ -250,22 +245,21 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 		if (getActivePokestopFilter().quest.enabled || isSelectedOverwrite) {
 			const questModifiers = getConfigModifiers(this.iconSet, "quest");
-			for (const quest of data.quests) {
-				if (shouldDisplayQuest(quest, data)) {
-					showThis = true;
-					const mapId = data.mapId + "-quest-" + quest.isAr + "-" + quest.timestamp;
-					features.push(
-						...this.renderQuest(
-							data,
-							quest.reward,
-							matchQuestFilterset(quest),
-							mapId,
-							quest.expires ?? null,
-							questModifiers,
-							selectedScale
-						)
-					);
-				}
+			const quest = data.quests[0];
+			if (quest && shouldDisplayQuest(quest, data)) {
+				showThis = true;
+				const mapId = data.mapId + "-quest-" + quest.timestamp;
+				features.push(
+					...this.renderQuest(
+						data,
+						quest.reward,
+						matchQuestFilterset(quest),
+						mapId,
+						quest.expires ?? null,
+						questModifiers,
+						selectedScale
+					)
+				);
 			}
 		}
 
@@ -521,8 +515,7 @@ class TappableRenderer extends MapObjectRenderer<TappableData> {
 
 class S2CellRenderer extends MapObjectRenderer<S2CellData> {
 	public render(data: S2CellData, isSelected: boolean, isSelectedOverwrite: boolean) {
-		const cell = s2.Cell.fromCellID(data.cellId);
-		const polygon = geojson.toGeoJSON(cell) as Polygon;
+		const polygon = cellToPolygon(data.cellId);
 
 		return [
 			getPolygonFeature(data.mapId, [polygon.coordinates], {

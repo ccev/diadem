@@ -1,7 +1,7 @@
 import { getConfig } from "@/lib/services/config/config";
+import type { MapStyle } from "@/lib/services/config/configTypes";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import maplibre from "maplibre-gl";
-import type { MapStyle } from "@/lib/services/config/configTypes";
 
 export function mapStyleFromId(id: string) {
 	let styleConfig = getConfig().mapStyles.find((s) => s.id === id);

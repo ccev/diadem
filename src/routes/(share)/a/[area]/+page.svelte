@@ -2,10 +2,11 @@
 	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 	import type { PageProps } from "./$types";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import { onMount } from "svelte";
+	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let { data }: PageProps = $props();
+	useMetadata(() => ({ title: data.name }));
 
 	onMount(() => {
 		const userSettings = getUserSettings();
@@ -15,7 +16,5 @@
 		updateUserSettings();
 	});
 </script>
-
-<Metadata title={data.name} />
 
 <RedirectFlash goal={data.name} />

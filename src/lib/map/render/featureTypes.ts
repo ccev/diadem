@@ -1,5 +1,5 @@
-import type { Feature as GeojsonFeature, MultiPolygon, Point } from "geojson";
 import { resize } from "@/lib/services/assets";
+import type { Feature as GeojsonFeature, MultiPolygon, Point } from "geojson";
 
 export enum FeatureTypes {
 	ICON = 0,
@@ -14,6 +14,7 @@ export type MapObjectIconProperties = {
 	imageId: string;
 	imageSize: number;
 	selectedScale: number;
+	dimmed: boolean;
 	imageOffset?: [number, number];
 	isModifierBadge?: boolean;
 	isModifierUnderlay?: boolean;
@@ -22,8 +23,12 @@ export type MapObjectIconProperties = {
 	textOffset?: number;
 	expires: number | null;
 };
-export type MinMapObjectIconProperties = Omit<MapObjectIconProperties, "type" | "imageId"> & {
+export type MinMapObjectIconProperties = Omit<
+	MapObjectIconProperties,
+	"type" | "imageId" | "dimmed"
+> & {
 	imageId?: string;
+	dimmed?: boolean;
 };
 
 export type MapObjectPolygonProperties = {
@@ -33,6 +38,7 @@ export type MapObjectPolygonProperties = {
 	strokeColor: string;
 	selectedFill: string;
 	isSelected: boolean;
+	isActionRadius?: boolean;
 };
 
 export type MapObjectCircleProperties = {
@@ -84,6 +90,7 @@ export function getIconFeature(
 			...properties,
 			imageUrl,
 			imageId: properties.imageId ?? properties.imageUrl,
+			dimmed: properties.dimmed ?? false,
 			type: FeatureTypes.ICON
 		},
 		id

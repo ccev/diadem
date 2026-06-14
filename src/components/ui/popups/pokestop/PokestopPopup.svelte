@@ -9,9 +9,8 @@
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
-	import FortPowerUp from "@/components/ui/popups/common/FortPowerUp.svelte";
 	import { getConfig } from "@/lib/services/config/config";
-	import { ClockAlert, Crown, Smartphone, Sparkles } from "lucide-svelte";
+	import { ClockAlert, Crown, Sparkles } from "lucide-svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import QuestDisplay from "@/components/ui/popups/pokestop/QuestDisplay.svelte";
 	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";
@@ -23,7 +22,6 @@
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import {
 		hasFortActiveLure,
 		isIncidentContest,
@@ -40,14 +38,14 @@
 		shouldDisplayIncident,
 		shouldDisplayLure
 	} from "@/lib/features/filterLogic/pokestop";
+	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let data: PokestopData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokestopData) ??
 			(getCurrentSelectedData() as PokestopData)
 	);
+	useMetadata(() => ({ title: data ? (data.name ?? m.pogo_pokestop()) : undefined }));
 </script>
-
-<Metadata title={data.name ?? m.pogo_pokestop()} />
 
 {#snippet lureSection()}
 	{#if shouldDisplayLure(data)}
@@ -117,9 +115,9 @@
 
 	{#snippet description()}
 		<div class="[&>*:last-child]:border-none [&>*:last-child]:pb-0">
-			{#each data.quests as quest}
-				<QuestDisplay expanded={false} {quest} pokestop={data} />
-			{/each}
+			{#if data.quests[0]}
+				<QuestDisplay expanded={false} quest={data.quests[0]} pokestop={data} />
+			{/if}
 
 			{@render lureSection()}
 			{@render incidentSection(false)}
@@ -134,28 +132,15 @@
 
 	{#snippet content()}
 		<div class="[&>*:last-child]:mb-2">
-			{#each data.quests as quest}
-				<QuestDisplay expanded={true} {quest} pokestop={data} />
-			{/each}
+			{#if data.quests[0]}
+				<QuestDisplay expanded={true} quest={data.quests[0]} pokestop={data} />
+			{/if}
 
 			{@render lureSection()}
 			{@render incidentSection(true)}
 		</div>
 
-		<div class="[&>*:last-child]:mb-3">
-			{#if data.ar_scan_eligible}
-				<IconValue Icon={Smartphone}>
-					{m.ar_scannable()}
-				</IconValue>
-			{/if}
-
-			<FortPowerUp
-				points={data.power_up_points}
-				level={data.power_up_level}
-				endTimestamp={data.power_up_end_timestamp}
-				updated={data.updated}
-			/>
-		</div>
+		<div class="[&>*:last-child]:mb-3"></div>
 
 		<UpdatedTimes
 			updated={data.updated}

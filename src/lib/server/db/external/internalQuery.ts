@@ -1,8 +1,8 @@
-import mysql from "mysql2/promise";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getDbUri } from "@/lib/services/config/dbUri.server";
 import { getLogger } from "@/lib/utils/logger";
 import { error } from "@sveltejs/kit";
+import mysql from "mysql2/promise";
 
 const log = getLogger("query");
 

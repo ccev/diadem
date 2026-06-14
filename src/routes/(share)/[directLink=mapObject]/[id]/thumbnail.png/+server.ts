@@ -1,18 +1,18 @@
-import type { RequestHandler } from "./$types";
-import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
-import { render } from "svelte/server";
-import { getClientConfig } from "@/lib/services/config/config.server";
-import { getLogger } from "@/lib/utils/logger";
-import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
-import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/uicons.svelte";
-import { loadRemoteLocale } from "@/lib/services/ingameLocale";
-import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import MapObject from "@/components/thumbnail/MapObject.svelte";
+import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
 import { fetchStaticMapBase64, imageUrlToBase64 } from "@/lib/server/thumbnails/thumbnailUtils";
-import { Coords } from "@/lib/utils/coordinates";
+import { getClientConfig } from "@/lib/services/config/config.server";
+import { loadRemoteLocale } from "@/lib/services/ingameLocale";
+import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/uicons.svelte";
 import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
+import { Coords } from "@/lib/utils/coordinates";
+import { getLogger } from "@/lib/utils/logger";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
 import { error } from "@sveltejs/kit";
+import { render } from "svelte/server";
+import type { RequestHandler } from "./$types";
 
 const log = getLogger("thumbnail");
 

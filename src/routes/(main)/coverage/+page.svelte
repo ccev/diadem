@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { m } from "@/lib/paraglide/messages";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import MapCoverage from "@/components/map/MapCoverage.svelte";
-	import { Menu, openMenu } from "@/lib/ui/menus.svelte.js";
+	import { closeMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
-	import DesktopMenu from "@/components/menus/DesktopMenu.svelte";
 	import { setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import {
@@ -13,7 +11,7 @@
 		showCoverageMapTitle
 	} from "@/lib/features/coverageMap.svelte.js";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
-	import { onMount } from "svelte";
+	import { onDestroy, onMount, tick } from "svelte";
 	import { closePopup } from "@/lib/mapObjects/interact";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type maplibre from "maplibre-gl";
@@ -23,19 +21,26 @@
 	import CoverageMapPopup from "@/components/menus/coverageMap/CoverageMapPopup.svelte";
 	import { setMap } from "@/lib/map/map.svelte";
 	import CoverageMapMenu from "@/components/menus/coverageMap/CoverageMapMenu.svelte";
+	import { clearMapPositionUrlParams } from "$lib/map/mapPositionParams.svelte";
+	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	openMenu(Menu.COVERAGE_MAP);
+	useMetadata(() => ({ title: m.nav_coveragemap() }));
 
-	onMount(() => {
+	onMount(async () => {
+		await tick();
 		setMap(undefined);
 		openMenu(Menu.COVERAGE_MAP);
 		closePopup();
 		setIsContextMenuOpen(false);
+		clearMapPositionUrlParams();
+	});
+
+	onDestroy(() => {
+		closeMenu();
 	});
 </script>
-
-<Metadata title={m.nav_coveragemap()} />
 
 {#if !isWebglSupported()}
 	<ErrorPageWebGl />
@@ -45,7 +50,7 @@
 			<!--			<DesktopMenu />-->
 		{/snippet}
 		{#snippet desktopRight()}
-			<Fabs {map} showSearch={false} />
+			<Fabs {map} searchMode="coverage" />
 			<div class="px-2 -mt-2">
 				<CoverageMapPopup />
 			</div>
@@ -57,7 +62,7 @@
 					in:fly={{ x: isUiLeft() ? -20 : 20, duration: 70, delay: 100 }}
 					out:fly={{ x: isUiLeft() ? -20 : 20, duration: 70 }}
 				>
-					<Fabs {map} showSearch={false} />
+					<Fabs {map} searchMode="coverage" />
 				</div>
 
 				<div

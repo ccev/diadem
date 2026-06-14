@@ -5,7 +5,6 @@
 	import { Map } from "lucide-svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as turf from "@turf/turf";
 	import type { LucideIcon } from "@/lib/types/lucide";
 	import type { Snippet } from "svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
@@ -21,7 +20,7 @@
 		title: string;
 		description: string;
 		onclick: () => void;
-		children: Snippet;
+		children?: Snippet;
 	} = $props();
 
 	let toolsClass: string = $derived(isMenuSidebar() ? "tools-sidebar" : "tools-mobile");
@@ -38,7 +37,7 @@
 		aria-hidden="true"
 	></div>
 
-	{@render children()}
+	{@render children?.()}
 
 	<div
 		class="absolute top-0 right-0 bg-linear-to-r from-background to-background/50 w-1/2 h-full"

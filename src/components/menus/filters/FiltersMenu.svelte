@@ -1,14 +1,11 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
-	import Metadata from "@/components/utils/Metadata.svelte";
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { Features } from "@/lib/utils/features";
 </script>
-
-<Metadata title={m.nav_filters()} />
 
 <div
 	class="space-y-2 mb-0.5 overflow-x-hidden"

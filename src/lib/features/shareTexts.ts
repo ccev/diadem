@@ -1,21 +1,14 @@
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
-import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
-import { getBestRank, hasTimer, showGreat, showLittle, showUltra } from "@/lib/utils/pokemonUtils";
-import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
-import type { StationData } from "@/lib/types/mapObjectData/station";
-import {
-	getArTag,
-	getContestText,
-	getRewardText,
-	hasFortActiveLure,
-	isIncidentContest,
-	isIncidentInvasion,
-	isIncidentKecleon,
-	KECLEON_ID
-} from "@/lib/utils/pokestopUtils";
 import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import {
 	getRaidPokemon,
@@ -24,15 +17,28 @@ import {
 	isFortOutdated,
 	isRaidHatched
 } from "@/lib/utils/gymUtils";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
-import { getMmSsFromSeconds } from "@/lib/utils/time";
-import type { NestData } from "@/lib/types/mapObjectData/nest";
-import type { RouteData } from "@/lib/types/mapObjectData/route";
-import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { formatDecimal } from "@/lib/utils/numberFormat";
-import { getTappableName } from "@/lib/utils/tappableUtils";
+import {
+	getBestRank,
+	hasTimer,
+	League,
+	showGreat,
+	showLittle,
+	showUltra
+} from "@/lib/utils/pokemonUtils";
+import {
+	getContestText,
+	getRewardText,
+	hasFortActiveLure,
+	isIncidentContest,
+	isIncidentInvasion,
+	isIncidentKecleon,
+	KECLEON_ID
+} from "@/lib/utils/pokestopUtils";
 import { getStationTitle } from "@/lib/utils/stationUtils";
+import { getTappableName } from "@/lib/utils/tappableUtils";
+import { getMmSsFromSeconds } from "@/lib/utils/time";
+import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 
 // unused; was replaced by thumbnails
 export function getShareText(data: MapData): string {
@@ -108,15 +114,15 @@ function getPokemonShareText(data: PokemonData) {
 	}
 
 	if (showLittle(data, true)) {
-		text += `🏆 ${m.league_rank({ league: m.little_league() })}: ${getBestRank(data, "little")}\n`;
+		text += `🏆 ${m.league_rank({ league: m.little_league() })}: ${getBestRank(data, League.LITTLE)}\n`;
 	}
 
 	if (showGreat(data, true)) {
-		text += `🏆 ${m.league_rank({ league: m.great_league() })}: ${getBestRank(data, "great")}\n`;
+		text += `🏆 ${m.league_rank({ league: m.great_league() })}: ${getBestRank(data, League.GREAT)}\n`;
 	}
 
 	if (showUltra(data, true)) {
-		text += `🏆 ${m.league_rank({ league: m.ultra_league() })}: ${getBestRank(data, "ultra")}\n`;
+		text += `🏆 ${m.league_rank({ league: m.ultra_league() })}: ${getBestRank(data, League.ULTRA)}\n`;
 	}
 
 	return text;
@@ -125,10 +131,9 @@ function getPokemonShareText(data: PokemonData) {
 function getPokestopShareText(data: PokestopData) {
 	let text = "";
 
-	for (const quest of data.quests) {
-		if (!quest.target) continue;
-
-		const questTexts: string[] = [getArTag(quest.isAr)];
+	const quest = data.quests[0];
+	if (quest?.target) {
+		const questTexts: string[] = [];
 
 		const rewardText = getRewardText(quest.reward);
 		if (rewardText) questTexts.push(rewardText);
@@ -195,8 +200,12 @@ function getStationShareText(data: StationData) {
 	if (data.battle_pokemon_id) {
 		text += `📍 ${m.pogo_station()}: ${data.name}\n`;
 	}
-	text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, true)}\n`;
-	text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, true)}\n`;
+	if (data.start_time) {
+		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, true)}\n`;
+	}
+	if (data.end_time) {
+		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, true)}\n`;
+	}
 
 	return text;
 }

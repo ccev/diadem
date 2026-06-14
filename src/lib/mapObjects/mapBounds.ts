@@ -1,8 +1,7 @@
-import { type Map, type LngLatLike, type LngLat } from "maplibre-gl";
-import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { getMap } from "@/lib/map/map.svelte";
-import * as turf from "@turf/turf";
-import type { BBox } from "geojson";
+import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { buffer, bbox as makeBbox, point } from "@turf/turf";
+import maplibre, { type LngLat, type LngLatLike, type Map } from "maplibre-gl";
 
 export type Bounds = {
 	minLat: number;
@@ -67,20 +66,17 @@ export function getBounds(
 	};
 }
 
-export function getFixedBounds(km: number): Bounds {
-	const map = getMap();
-	if (!map) return emptyBounds;
-
+export function getFixedBounds(km: number, map: maplibre.Map): Bounds {
 	const mapCenter = map.getCenter();
-	const center = turf.point([mapCenter.lng, mapCenter.lat]);
-	const square = turf.buffer(center, km / 2, {
+	const center = point([mapCenter.lng, mapCenter.lat]);
+	const square = buffer(center, km / 2, {
 		units: "kilometers",
 		steps: 4
 	});
 
 	if (!square) return emptyBounds;
 
-	const bbox = turf.bbox(square);
+	const bbox = makeBbox(square);
 
 	// const center = map.project(map.getCenter());
 	//

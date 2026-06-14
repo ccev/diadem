@@ -1,7 +1,7 @@
 /**
  * Max Zoom level to still update the map while idling
  */
-export const UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM = 12;
+export const UPDATE_MAP_OBJECT_INTERVAL_MAX_ZOOM = 5;
 
 /**
  * Time to wait between idle map updates (ms)
@@ -57,6 +57,13 @@ export const SHINY_RATE_CACHE_DURATION = 60 * 60;
  * The radius in which a bot can see wild pokemon, in meters
  */
 export const RADIUS_POKEMON = 70;
+
+/**
+ * Player facing ranges
+ */
+export const RANGE_POKEMON = 40;
+export const RANGE_POKEMON_EXTENDED = 80;
+export const RANGE_FORTS = 80;
 
 /**
  * The radius in which scout mode requests cells, in meters

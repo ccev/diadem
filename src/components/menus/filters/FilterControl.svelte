@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, ChevronRight, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
+	import { ChevronRight, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
 	import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
@@ -36,6 +36,7 @@
 		mapObject,
 		filterModal = undefined,
 		isExpandable = false,
+		collapsibleByFiltersets = false,
 		isFilterable = true,
 		expanded = $bindable(false)
 	}: {
@@ -47,6 +48,7 @@
 		mapObject: MapObjectType;
 		filterModal?: ModalType | undefined;
 		isExpandable?: boolean;
+		collapsibleByFiltersets?: boolean;
 		isFilterable?: boolean;
 		subCategories?: FilterCategory[];
 		expanded?: boolean;
@@ -56,6 +58,10 @@
 	let hasAnyFilterset: boolean = $derived((filter?.filters?.length ?? 0) > 0);
 	let allFiltersetsDisabled: boolean = $derived(
 		hasAnyFilterset && filter.filters?.every((f) => !f.enabled)
+	);
+	let effectiveExpandable: boolean = $derived(
+		isExpandable ||
+			(collapsibleByFiltersets && isFilterable && hasAnyFilterset && filterModal !== undefined)
 	);
 
 	function onAddFilter() {
@@ -98,7 +104,7 @@
 
 <div class="py-2 pr-4 pl-0" class:py-0!={isEnabled && isFilterable && !hasAnyFilterset}>
 	<div class="flex gap-2 justify-start items-center whitespace-normal">
-		{#if !isExpandable}
+		{#if !effectiveExpandable}
 			<div class="pl-4 py-2">
 				<p class="font-semibold text-base">
 					{title}
@@ -123,13 +129,11 @@
 					<p class="font-semibold text-base">
 						{title}
 					</p>
-					{#if isExpandable}
-						<ChevronRight
-							size="16"
-							class="transition-[rotate] mt-px"
-							style="rotate: {expanded ? '90deg' : '0deg'}"
-						/>
-					{/if}
+					<ChevronRight
+						size="16"
+						class="transition-[rotate] mt-px"
+						style="rotate: {expanded ? '90deg' : '0deg'}"
+					/>
 				</div>
 
 				{#if isEnabled}
@@ -156,7 +160,7 @@
 	</div>
 
 	{#if isEnabled && isFilterable}
-		{#if hasAnyFilterset && filterModal}
+		{#if hasAnyFilterset && filterModal && (!collapsibleByFiltersets || expanded)}
 			<div class="w-full my-1 flex flex-col gap-1 pl-2" transition:slide={{ duration: 90 }}>
 				{#each filter.filters ?? [] as filterset (filterset.id)}
 					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} {mapObject} />

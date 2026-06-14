@@ -1,8 +1,6 @@
-import { m } from "@/lib/paraglide/messages";
 import type { IconCategory } from "@/lib/features/filters/icons";
-import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
+import { m } from "@/lib/paraglide/messages";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
-import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
 
 export type AnyFilterset =
 	| FiltersetPokemon
@@ -85,13 +83,10 @@ export type FiltersetPokemon = BaseFilterset & {
 
 export type FiltersetPokestopPlain = BaseFilterset & {
 	isSponsored?: boolean;
-	powerUpLevel?: MinMax;
-	isArScanEligible?: boolean;
 	hasDetatils?: boolean;
 };
 
 export type FiltersetQuest = BaseFilterset & {
-	ar?: QuestArType;
 	rewardType?: RewardType;
 	tasks?: { title: string; target: number }[];
 	pokemon?: Pokemon[];
@@ -126,8 +121,6 @@ export type FiltersetRoute = BaseFilterset & {};
 
 export type FiltersetGymPlain = BaseFilterset & {
 	isSponsored?: boolean;
-	powerUpLevel?: MinMax;
-	isArScanEligible?: boolean;
 	hasDetatils?: boolean;
 	defenderAmount?: MinMax;
 };

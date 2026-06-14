@@ -14,7 +14,7 @@ defaultNestName = "Unknown Nest"
 url = "http://127.0.0.1:7272"
 secret = ""
 
-# Optional Koji integrtion. Uncomment to disable
+# Optional Koji integrtion. Comment out to disable
 [server.koji]
 url = "http://127.0.0.1:8080"
 secret = "secret"
@@ -25,6 +25,7 @@ projectName = "reactmap"
 
 #[server.photon]
 #url = "https://photon.komoot.io/"  # You can use their public api, but consider self-hosting; it's pretty easy
+#hasGeometries = false  # Requires Photon to be started with -full-geometries
 
 #[server.pelias]
 #url = "https://api.geocode.earth/"
@@ -33,6 +34,7 @@ projectName = "reactmap"
 #[server.nominatim]
 #url = "http://127.0.0.1:500"
 #basicAuth = ""
+#userAgent = "Diadem / Contact: name@email.com"
 
 [server.auth]
 enabled = false
@@ -127,6 +129,7 @@ heavyFilterRatio = 0.2
 #rateLimit = 2000000
 #rateLimitTime = 3600
 
+# Connection to your Golbat DB, user should have SELECT permissions
 [server.db]
 host = "127.0.0.1"
 port = 3306
@@ -134,6 +137,7 @@ database = "golbat"
 user = ""
 password = ""
 
+# Connection to your Diadem DB, user should have ALL permissions
 [server.internalDb]
 host = "127.0.0.1"
 port = 3306
@@ -193,18 +197,6 @@ coverageMapZoom = 10
 styleLat = 53.563
 styleLon = 9.979
 styleZoom = 12
-
-# Tools Menu - Coverage Map - Background Map
-# Would generally recommend to set this to a position where you have areas
-coverageLat = 53.563
-coverageLon = 9.979
-coverageZoom = 5.5
-
-# Tools Menu - Scout - Background Map
-# Would generally recommend to set this to a position where you have areas
-scoutLat = 53.563
-scoutLon = 9.979
-scoutZoom = 10.5
 
 ### Map Styles
 

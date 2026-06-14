@@ -1,6 +1,5 @@
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import * as m from "@/lib/paraglide/messages";
-import { SvelteMap } from "svelte/reactivity";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 let countdowns = new Map<
 	symbol,

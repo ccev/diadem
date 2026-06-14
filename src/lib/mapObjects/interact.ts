@@ -1,20 +1,21 @@
-import { getConfig } from "@/lib/services/config/config";
-import type { MapMouseEvent } from "maplibre-gl";
-import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+import { replaceState } from "$app/navigation";
+import { page } from "$app/state";
+import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
+import { MapObjectLayerId } from "@/lib/map/layers";
+import { getMap } from "@/lib/map/map.svelte";
+import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
 import {
 	getCurrentSelectedData,
 	setCurrentSelectedData
 } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-import { getMapPath } from "@/lib/utils/getMapPath";
+import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
-import { getMap } from "@/lib/map/map.svelte";
-import { CoverageMapLayerId, MapObjectLayerId } from "@/lib/map/layers";
+import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+import { getConfig } from "@/lib/services/config/config";
 import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
-import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { Coords } from "@/lib/utils/coordinates";
-import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
-import { page } from "$app/state";
+import { getMapPath } from "@/lib/utils/getMapPath";
+import type { MapMouseEvent } from "maplibre-gl";
 
 export function closePopup() {
 	setCurrentSelectedData(null);
@@ -22,9 +23,6 @@ export function closePopup() {
 
 	// call this to remove selected data (if needed)
 	updateAllMapObjects(true, true).then();
-
-	const title = document.head.querySelector("title");
-	if (title) title.innerText = getConfig().general.mapName;
 }
 
 export function openPopup(data: MapData, isOverwrite: boolean = false) {
@@ -53,7 +51,7 @@ export function getCurrentPath() {
 }
 
 function setCurrentPath() {
-	history.replaceState(null, "", getCurrentPath());
+	replaceState(getCurrentPath(), {});
 }
 
 export function clickMapHandler(event: MapMouseEvent) {

@@ -11,11 +11,25 @@
 		getCurrentSelectedMapId
 	} from "@/lib/mapObjects/currentSelectedState.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { Clock, ClockArrowDown, ClockArrowUp, MapPinned, Star, UsersRound } from "lucide-svelte";
+	import {
+		ChartSpline,
+		Clock,
+		ClockArrowDown,
+		ClockArrowUp,
+		MapPinned,
+		Star,
+		UsersRound
+	} from "lucide-svelte";
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-	import { getStationPokemon, getStationTitle, STATION_SLOTS } from "@/lib/utils/stationUtils";
+	import {
+		calculateMaxBattleCp,
+		getStationPokemon,
+		getStationTitle,
+		STATION_SLOTS
+	} from "@/lib/utils/stationUtils";
+	import { formatNumber } from "@/lib/utils/numberFormat";
 
 	let data: StationData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as StationData) ??
@@ -30,12 +44,16 @@
 		</IconValue>
 	{/if}
 
-	<IconValue Icon={ClockArrowUp}>
-		{m.start()}: <TimeWithCountdown expireTime={data.start_time} showDate={true} />
-	</IconValue>
-	<IconValue Icon={ClockArrowDown}>
-		{m.end()}: <TimeWithCountdown expireTime={data.end_time} showDate={true} />
-	</IconValue>
+	{#if data.start_time}
+		<IconValue Icon={ClockArrowUp}>
+			{m.start()}: <TimeWithCountdown expireTime={data.start_time} showDate={true} />
+		</IconValue>
+	{/if}
+	{#if data.end_time}
+		<IconValue Icon={ClockArrowDown}>
+			{m.end()}: <TimeWithCountdown expireTime={data.end_time} showDate={true} />
+		</IconValue>
+	{/if}
 {/snippet}
 
 <BasePopup lat={data.lat} lon={data.lon}>
@@ -70,7 +88,14 @@
 			{@render basicInfo()}
 		</div>
 
-		{#if (data.start_time ?? 0) < currentTimestamp()}
+		{#if data.start_time && data.start_time < currentTimestamp()}
+			{#if data.battle_pokemon_stamina && data.battle_pokemon_cp_multiplier}
+				<IconValue Icon={ChartSpline}>
+					<b>{m.pogo_cp({ cp: calculateMaxBattleCp(data) })}</b>
+					({m.pogo_hp({ hp: formatNumber(data.battle_pokemon_stamina) })},
+					{m.cpm()}: {formatNumber(data.battle_pokemon_cp_multiplier)})
+				</IconValue>
+			{/if}
 			<IconValue Icon={Star}>
 				{m.x_start_max_battle({ level: data.battle_level ?? 0 })}
 			</IconValue>

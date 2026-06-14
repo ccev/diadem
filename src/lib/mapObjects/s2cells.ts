@@ -1,12 +1,12 @@
-import { geojson, r1, s1, s2 } from "s2js";
 import type { FilterS2Cell } from "@/lib/features/filters/filters";
-import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { getMap } from "@/lib/map/map.svelte.js";
-import type { Feature, Polygon } from "geojson";
-import type { CellID } from "s2js/dist/s2/cellid";
-import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import type { MapObjectPolygonProperties } from "@/lib/map/render/featureTypes";
+import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
+import type { Feature, Polygon } from "geojson";
+import { geojson, r1, s1, s2 } from "s2js";
+import type { CellID } from "s2js/dist/s2/cellid";
 
 const LIMIT_S2_CELLS = 5_000;
 
@@ -17,6 +17,26 @@ export type S2CellProperties = {
 export type S2CellFeature = Feature<Polygon, S2CellProperties>;
 
 const DEGREE = Math.PI / 180;
+
+export function cellToPolygon(cellId: CellID): Polygon {
+	const cell = s2.Cell.fromCellID(cellId);
+	const polygon = geojson.toGeoJSON(cell) as Polygon;
+	return {
+		type: "Polygon",
+		coordinates: polygon.coordinates.map((ring) => {
+			if (ring.length === 0) return ring;
+			const result = [ring[0]];
+			for (let i = 1; i < ring.length; i++) {
+				const prevLng = result[i - 1][0];
+				let lng = ring[i][0];
+				while (lng - prevLng > 180) lng -= 360;
+				while (lng - prevLng < -180) lng += 360;
+				result.push([lng, ring[i][1]]);
+			}
+			return result;
+		})
+	};
+}
 
 export function getCoveringS2Cells(bounds: Bounds, level: number): s2.CellUnion {
 	const regionCoverer = new s2.RegionCoverer({
@@ -40,7 +60,7 @@ export function cellToFeature(
 	idPrefix: string
 ): S2CellFeature {
 	const cell = s2.Cell.fromCellID(cellId);
-	const polygon = geojson.toGeoJSON(cell) as Polygon;
+	const polygon = cellToPolygon(cellId);
 	const mapId = idPrefix + "-s2cell-" + cell.id;
 
 	return {

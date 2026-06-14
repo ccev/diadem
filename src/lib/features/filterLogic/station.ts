@@ -1,8 +1,8 @@
-import type { StationData } from "@/lib/types/mapObjectData/station";
-import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { getActiveStationFilter, isMaxBattleActive } from "@/lib/utils/stationUtils";
-import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
 import type { FilterStation } from "@/lib/features/filters/filters";
+import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
+import type { StationData } from "@/lib/types/mapObjectData/station";
+import { getActiveStationFilter, isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 export function matchMaxBattleFilterset(
 	station: Partial<StationData>,

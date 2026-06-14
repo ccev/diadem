@@ -3,6 +3,7 @@
 	import {
 		type AnySearchEntry,
 		SearchableType,
+		setSearchedGeometry,
 		setSearchedLocation
 	} from "@/lib/services/search.svelte";
 	import {
@@ -36,6 +37,8 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { openMapObjectFromId } from "@/lib/features/directLinks.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
+	import { backgroundGeometryLookup } from "@/lib/services/search.svelte";
 
 	let {
 		results
@@ -60,6 +63,7 @@
 			onselect={() => {
 				const params = getFeatureJump(entry.feature);
 				jumpTo(params.coords, params.zoom);
+				setSearchedGeometry(entry.feature.geometry);
 				closeSearchModal();
 			}}
 		/>
@@ -69,7 +73,25 @@
 			onselect={() => {
 				const params = getFeatureJump(point(entry.point, undefined, { bbox: entry.bbox }));
 				jumpTo(params.coords, params.zoom);
-				setSearchedLocation(params.coords);
+
+				if (entry.geometry) {
+					setSearchedGeometry(entry.geometry);
+				} else if (isSupportedFeature("geometryLookup")) {
+					backgroundGeometryLookup(entry.key, params.coords).then();
+				} else {
+					setSearchedLocation(params.coords);
+				}
+
+				closeSearchModal();
+			}}
+		/>
+	{:else if entry.type === SearchableType.COORDINATES}
+		<SearchItem
+			{result}
+			onselect={() => {
+				const coords = new Coords(entry.lat, entry.lon);
+				jumpTo(coords, 16);
+				setSearchedLocation(coords);
 				closeSearchModal();
 			}}
 		/>

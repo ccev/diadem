@@ -1,11 +1,11 @@
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { GymData } from "@/lib/types/mapObjectData/gym";
+import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
 import type { FilterGym } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { shouldDisplayRaid } from "@/lib/features/filterLogic/gym";
+import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 	protected readonly type = MapObjectType.GYM;
@@ -37,11 +37,7 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		"availble_slots",
 		"in_battle",
 		"ex_raid_eligible",
-		"ar_scan_eligible",
-		"power_up_level",
-		"power_up_points",
-		"power_up_end_timestamp",
-		"defenders",
+		"defenders AS defenders_raw",
 		"rsvps",
 		"deleted"
 	];
@@ -63,5 +59,12 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 
 	prepare(data: MinMapObject<GymData>): void {
 		data.raid_pokemon_form = getNormalizedForm(data.raid_pokemon_id, data.raid_pokemon_form);
+
+		if (data.defenders_raw) {
+			data.defenders = JSON.parse(data.defenders_raw) as GymDefender[];
+			for (const defender of data?.defenders ?? []) {
+				defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
+			}
+		}
 	}
 }

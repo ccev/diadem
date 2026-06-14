@@ -32,6 +32,11 @@ export function resetJustChangedMenus() {
 }
 
 export function onMenuDrawerOpenChangeComplete(open: boolean) {
-	if (open || justChangedMenus) return;
+	if (open) return;
+	if (justChangedMenus) {
+		resetJustChangedMenus();
+		return;
+	}
+
 	closeMenu();
 }

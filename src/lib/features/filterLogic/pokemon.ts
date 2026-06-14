@@ -1,15 +1,19 @@
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { FilterPokemon } from "@/lib/features/filters/filters";
 import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
+import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import { getBestRank } from "@/lib/utils/pokemonUtils";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import { getBestRank, League } from "@/lib/utils/pokemonUtils";
 
 function inRange(value: number | null | undefined, range: MinMax): boolean {
 	if (value == null) return false;
 	return value >= range.min && value <= range.max;
 }
 
-export function matchPokemonFilterset(data: PokemonData): FiltersetPokemon | undefined {
-	const pokemonFilter = getUserSettings().filters.pokemon;
+export function matchPokemonFilterset(
+	data: PokemonData,
+	pokemonFilter: FilterPokemon = getUserSettings().filters.pokemon
+): FiltersetPokemon | undefined {
 	if (!pokemonFilter.enabled) return;
 
 	const filtersets = pokemonFilter.filters.filter((f) => f.enabled);
@@ -36,20 +40,32 @@ export function matchPokemonFilterset(data: PokemonData): FiltersetPokemon | und
 		}
 
 		if (filterset.pvpRankLittle) {
-			const rank = getBestRank(data, "little");
+			const rank = getBestRank(data, League.LITTLE);
 			if (!rank || !inRange(rank, filterset.pvpRankLittle)) continue;
 		}
 
 		if (filterset.pvpRankGreat) {
-			const rank = getBestRank(data, "great");
+			const rank = getBestRank(data, League.GREAT);
 			if (!rank || !inRange(rank, filterset.pvpRankGreat)) continue;
 		}
 
 		if (filterset.pvpRankUltra) {
-			const rank = getBestRank(data, "ultra");
+			const rank = getBestRank(data, League.ULTRA);
 			if (!rank || !inRange(rank, filterset.pvpRankUltra)) continue;
 		}
 
 		return filterset;
 	}
+}
+
+export function shouldDisplayPokemon(
+	data: PokemonData,
+	pokemonFilter: FilterPokemon = getUserSettings().filters.pokemon
+) {
+	if (isCurrentSelectedOverwrite(data.mapId)) return true;
+	if (!pokemonFilter.enabled) return false;
+	const filtersets = pokemonFilter.filters.filter((f) => f.enabled);
+	if (filtersets.length === 0) return true;
+
+	return Boolean(matchPokemonFilterset(data, pokemonFilter));
 }

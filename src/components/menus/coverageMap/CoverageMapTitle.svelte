@@ -6,10 +6,11 @@
 	import { getCoverageMapInvokedFromMap } from "@/lib/features/coverageMap.svelte";
 	import { goto } from "$app/navigation";
 	import { closeMenu } from "@/lib/ui/menus.svelte";
+	import { getMapPath } from "@/lib/utils/getMapPath";
 </script>
 
 <div
-	class="w-full pl-4 pr-2 py-2 flex items-center justify-between bg-card rounded-lg border border-border"
+	class="w-full pl-4 pr-2 py-2 flex flex-wrap gap-2 items-center justify-between bg-card rounded-lg border border-border"
 >
 	<h1 class="font-semibold">
 		{m.nav_coveragemap()}
@@ -25,8 +26,7 @@
 			size="sm"
 			variant="outline"
 			onclick={() => {
-				closeMenu();
-				goto("/map");
+				goto(getMapPath(getConfig()));
 			}}
 		>
 			<ArrowLeft class="size-4" />

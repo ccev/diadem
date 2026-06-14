@@ -1,14 +1,13 @@
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { NestData } from "@/lib/types/mapObjectData/nest";
+import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
 import type { FilterNest } from "@/lib/features/filters/filters";
-import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { Feature, MultiPolygon, Polygon } from "geojson";
+import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import { shouldDisplayNest } from "@/lib/features/filterLogic/nest";
+import type { NestData } from "@/lib/types/mapObjectData/nest";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	protected readonly type = MapObjectType.NEST;

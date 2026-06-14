@@ -1,9 +1,10 @@
-import { setPermissions } from "@/lib/server/auth/auth";
-import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
-import { getServerConfig } from "@/lib/services/config/config.server";
-import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
+import { setPermissions } from "@/lib/server/auth/auth";
+import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
+import { type User } from "@/lib/server/db/internal/schema";
+import { getServerConfig } from "@/lib/services/config/config.server";
+import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 

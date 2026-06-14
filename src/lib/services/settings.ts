@@ -1,19 +1,19 @@
-import { getConfig } from "@/lib/services/config/config";
-import {
-	ExternalMapProvider,
-	getUserSettings,
-	updateUserSettings,
-	type UserSettings
-} from "@/lib/services/userSettings.svelte";
 import {
 	deleteAllFeatures,
 	deleteAllFeaturesOfType,
 	updateFeatures
 } from "@/lib/map/featuresGen.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
+import { getConfig } from "@/lib/services/config/config";
+import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
+import {
+	ExternalMapProvider,
+	getUserSettings,
+	updateUserSettings,
+	type UserSettings
+} from "@/lib/services/userSettings.svelte";
 
 export const AVAILABLE_LANGUAGES = [
 	{
@@ -31,6 +31,10 @@ export const AVAILABLE_LANGUAGES = [
 	{
 		label: m.language_portuguese(),
 		value: "pt"
+	},
+	{
+		label: m.language_polish(),
+		value: "pl"
 	}
 ];
 

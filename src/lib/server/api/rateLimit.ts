@@ -1,8 +1,8 @@
-import { type IRateLimiterOptions, RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
-import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getServerConfig } from "@/lib/services/config/config.server";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getLogger } from "@/lib/utils/logger";
+import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
 
 const log = getLogger("ratelimit");
 const enabled = getServerConfig()?.limits?.enableRateLimiting ?? false;

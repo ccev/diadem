@@ -1,7 +1,7 @@
-import type { BBox, Feature, Position } from "geojson";
-import { bbox, centroid } from "@turf/turf";
-import { Coords } from "@/lib/utils/coordinates";
 import { getMap } from "@/lib/map/map.svelte";
+import { Coords } from "@/lib/utils/coordinates";
+import { bbox, centroid } from "@turf/turf";
+import type { BBox, Feature, Position } from "geojson";
 import type maplibre from "maplibre-gl";
 
 export function getFeatureJump(

@@ -1,7 +1,7 @@
-import { innerWidth } from "svelte/reactivity/window";
+import * as m from "@/lib/paraglide/messages";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
-import * as m from "@/lib/paraglide/messages";
+import { innerWidth } from "svelte/reactivity/window";
 
 export function isMenuSidebar() {
 	return (innerWidth.current ?? 0) > 725;

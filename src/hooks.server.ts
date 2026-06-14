@@ -14,6 +14,7 @@ import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissio
 import type { User } from "@/lib/server/db/internal/schema";
 import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import type { Perms } from "@/lib/utils/features";
+import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
 import { setServerLoggerFactory } from "@/lib/utils/logger";
@@ -21,7 +22,6 @@ import { getServerLogger } from "@/lib/server/logging";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
 import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
-import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 
 process.title = "Diadem";
 
@@ -31,11 +31,14 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 
 		// set locale for ssr metadata
 		const langParam = event.url.searchParams.get("lang");
-		if (langParam && (locales as readonly string[]).includes(langParam)) {
+		const isValidLang = !!langParam && (locales as readonly string[]).includes(langParam);
+		if (isValidLang) {
 			const store = serverAsyncLocalStorage?.getStore();
 			if (store) store.locale = langParam as (typeof locales)[number];
 		}
-		const effectiveLocale = langParam ?? locale;
+		// Use the validated lang only — `effectiveLocale` is interpolated into
+		// `<html lang="%lang%">` so any unvalidated value is reflected XSS.
+		const effectiveLocale = isValidLang ? langParam! : locale;
 
 		return resolve(event, {
 			transformPageChunk: ({ html }) => html.replace("%lang%", effectiveLocale)

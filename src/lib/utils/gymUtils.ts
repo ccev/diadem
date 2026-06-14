@@ -1,11 +1,11 @@
+import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
+import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
+import type { FilterGym } from "@/lib/features/filters/filters";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { FORT_OUTDATED_SECONDS } from "@/lib/constants";
-import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
-import type { FilterGym } from "@/lib/features/filters/filters";
-import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 export type RaidFilterType = "level" | "boss";
 export const GYM_SLOTS = 6;
