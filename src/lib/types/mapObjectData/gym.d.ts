@@ -36,14 +36,10 @@ export type GymData = {
 	partner_id?: string;
 	raid_pokemon_costume?: number;
 	raid_pokemon_evolution?: number;
-	ar_scan_eligible?: number;
-	power_up_level?: number;
-	power_up_points?: number;
-	power_up_end_timestamp?: number;
 	description?: string;
 	raid_pokemon_alignment?: number;
 	defenders_raw?: string;
-	defenders?: GymDefender[]
+	defenders?: GymDefender[];
 	rsvps?: string;
 };
 

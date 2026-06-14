@@ -1,3 +1,7 @@
+<script module lang="ts">
+	const sessionExpandedState: Record<string, boolean> = {};
+</script>
+
 <script lang="ts" generics="ParentCategory extends keyof UserSettings['filters']">
 	import Card from "@/components/ui/Card.svelte";
 	import { ChevronDown, ChevronUp, Eye, EyeOff, FunnelX, Plus } from "lucide-svelte";
@@ -5,6 +9,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import FilterControl from "@/components/menus/filters/FilterControl.svelte";
 
+	import { untrack } from "svelte";
 	import { slide } from "svelte/transition";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
@@ -59,7 +64,13 @@
 			: hasFeatureAnywhere(perms, requiredPermission)
 	);
 
-	let subcategoriesExpanded: boolean = $state(false);
+	let subcategoriesExpanded: boolean = $state(
+		untrack(() => sessionExpandedState[category as string] ?? false)
+	);
+
+	$effect(() => {
+		sessionExpandedState[category as string] = subcategoriesExpanded;
+	});
 
 	function onEnabledChange(_, value: boolean) {
 		const filter: AnyFilter = getUserSettings().filters[category];
@@ -101,6 +112,7 @@
 			majorCategory={category}
 			{onEnabledChange}
 			isExpandable={subCategories.length > 0}
+			collapsibleByFiltersets={subCategories.length === 0}
 			filter={getUserSettings().filters[category]}
 			bind:expanded={subcategoriesExpanded}
 		/>

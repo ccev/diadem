@@ -41,8 +41,9 @@
 	import MapCommon from "@/components/map/MapCommon.svelte";
 	import {
 		clearMapPositionUrlParams,
+		getInitialMapPositionMain,
 		getMapPositionFromUrlParams
-	} from "@/components/map/mapPositionParams";
+	} from "$lib/map/mapPositionParams.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import TimerLayer from "@/components/map/TimerLayer.svelte";
 	import LayerSearchedGeometry from "@/components/map/LayerSearchedGeometry.svelte";
@@ -53,20 +54,7 @@
 		map?: maplibre.Map | undefined;
 	} = $props();
 
-	const [center, zoom] = getMapPositionFromUrlParams();
-	const userSettings = getUserSettings();
-	if (center) {
-		userSettings.mapPosition.center.lat = center.lat;
-		userSettings.mapPosition.center.lng = center.lon;
-	}
-	if (zoom) {
-		userSettings.mapPosition.zoom = zoom;
-	}
-	if (center || zoom) {
-		updateUserSettings();
-	}
-
-	const mapPosition = $state.snapshot(getUserSettings().mapPosition);
+	const mapPosition = getInitialMapPositionMain();
 
 	async function onMapLoad(map: maplibre.Map) {
 		setMap(map);

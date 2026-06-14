@@ -321,7 +321,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"FROM pokestop " +
 				"WHERE showcase_ranking_standard IS NOT NULL " +
 				"AND showcase_focus IS NOT NULL " +
-				"AND last_modified_timestamp > UNIX_TIMESTAMP() - 86400 " +
+				"AND showcase_expiry > UNIX_TIMESTAMP() " +
 				"GROUP BY 1, 2"
 		),
 		query<MaxBattleStatsRow[]>(

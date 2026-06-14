@@ -13,30 +13,50 @@
 		SearchableType,
 		type SearchOptions
 	} from "@/lib/services/search.svelte";
+	import type maplibre from "maplibre-gl";
 	import { onShortcutSearch } from "@/lib/utils/keyboard";
 	import { onDestroy } from "svelte";
 	import MainSearchResults from "@/components/ui/search/MainSearchResults.svelte";
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
+	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
-		searchMode = "main"
+		searchMode = "main",
+		map = undefined as maplibre.Map | undefined
 	}: {
-		searchMode?: "main" | "coverage";
+		searchMode?: "main" | "coverage" | "wayfarer";
+		map?: maplibre.Map | undefined;
 	} = $props();
 
 	let searchOptions: SearchOptions = $derived.by(() => {
 		if (searchMode === "coverage") {
 			return {
-				types: [SearchableType.AREA, SearchableType.ADDRESS],
+				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.COORDINATES],
 				showRecents: false,
-				resultSnippet: coverageSearchResults
-			};
+				resultSnippet: coverageSearchResults,
+				textSearchHint: m.search_hint_coverage(),
+				textNoResults: m.search_no_results_generic()
+			} as SearchOptions;
+		} else if (searchMode === "wayfarer") {
+			return {
+				types: [
+					SearchableType.AREA,
+					SearchableType.ADDRESS,
+					SearchableType.GYM,
+					SearchableType.POKESTOP
+				],
+				showRecents: false,
+				resultSnippet: wayfarerSearchResults,
+				textSearchHint: m.search_hint_wayfarer(),
+				textNoResults: m.search_no_results_generic()
+			} as SearchOptions;
 		} else {
 			return {
 				showRecents: true,
 				resultSnippet: mainSearchResults
-			};
+			} as SearchOptions;
 		}
 	});
 
@@ -62,12 +82,12 @@
 	});
 
 	let isSearchAllowed = $derived(!isSearchViewActive() && hasSearchData);
-	let searchInitialized: boolean = $state(false)
+	let searchInitialized: boolean = $state(false);
 
 	$effect(() => {
 		if (isSearchAllowed) {
 			initSearch(searchOptions);
-			searchInitialized = true
+			searchInitialized = true;
 		}
 	});
 
@@ -87,12 +107,16 @@
 	<CoverageSearchResults {results} />
 {/snippet}
 
-{#if searchInitialized }
+{#snippet wayfarerSearchResults(results: FuzzyResult<AnySearchEntry>[])}
+	<WayfarerSearchResults {results} {map} />
+{/snippet}
+
+{#if searchInitialized}
 	<Search {searchOptions} />
 {/if}
 
 {#if isSearchAllowed}
-	<BaseFab onclick={() => openSearchModal(searchOptions)}>
+	<BaseFab onclick={() => openSearchModal(searchOptions, map)}>
 		<SearchIcon size="24" />
 	</BaseFab>
 {/if}

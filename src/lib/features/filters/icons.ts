@@ -54,8 +54,7 @@ export function getIcon(category: IconCategory, params: Params) {
 		return getIconPokestopDirect(
 			params.lure_id ?? 0,
 			params.display_type ?? false,
-			params.quest_active ?? false,
-			params.ar ?? false
+			params.quest_active ?? false
 		);
 	} else if (category === IconCategory.GYM) {
 		return getIconGymDirect(params.team_id ?? 0);

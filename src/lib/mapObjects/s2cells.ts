@@ -18,6 +18,26 @@ export type S2CellFeature = Feature<Polygon, S2CellProperties>;
 
 const DEGREE = Math.PI / 180;
 
+export function cellToPolygon(cellId: CellID): Polygon {
+	const cell = s2.Cell.fromCellID(cellId);
+	const polygon = geojson.toGeoJSON(cell) as Polygon;
+	return {
+		type: "Polygon",
+		coordinates: polygon.coordinates.map((ring) => {
+			if (ring.length === 0) return ring;
+			const result = [ring[0]];
+			for (let i = 1; i < ring.length; i++) {
+				const prevLng = result[i - 1][0];
+				let lng = ring[i][0];
+				while (lng - prevLng > 180) lng -= 360;
+				while (lng - prevLng < -180) lng += 360;
+				result.push([lng, ring[i][1]]);
+			}
+			return result;
+		})
+	};
+}
+
 export function getCoveringS2Cells(bounds: Bounds, level: number): s2.CellUnion {
 	const regionCoverer = new s2.RegionCoverer({
 		minLevel: level,
@@ -40,7 +60,7 @@ export function cellToFeature(
 	idPrefix: string
 ): S2CellFeature {
 	const cell = s2.Cell.fromCellID(cellId);
-	const polygon = geojson.toGeoJSON(cell) as Polygon;
+	const polygon = cellToPolygon(cellId);
 	const mapId = idPrefix + "-s2cell-" + cell.id;
 
 	return {

@@ -8,10 +8,9 @@
 	import { mMove, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-	import { ClockAlert, Smartphone, Trees, UserRoundCheck, UsersRound } from "lucide-svelte";
+	import { ClockAlert, Trees, UserRoundCheck, UsersRound } from "lucide-svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
-	import FortPowerUp from "@/components/ui/popups/common/FortPowerUp.svelte";
 	import GymDefenderOverview from "@/components/ui/popups/gym/GymDefenderOverview.svelte";
 	import {
 		getCurrentSelectedData,
@@ -171,24 +170,11 @@
 				<GymDefenderOverview defenders={data.defenders} />
 			{/if}
 
-			{#if data.ar_scan_eligible}
-				<IconValue Icon={Smartphone}>
-					{m.ar_scannable()}
-				</IconValue>
-			{/if}
-
 			{#if data.ex_raid_eligible}
 				<IconValue Icon={Trees}>
 					{m.ex_gym()}
 				</IconValue>
 			{/if}
-
-			<FortPowerUp
-				points={data.power_up_points}
-				level={data.power_up_level}
-				endTimestamp={data.power_up_end_timestamp}
-				updated={data.updated}
-			/>
 		</div>
 
 		<UpdatedTimes

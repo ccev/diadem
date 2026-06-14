@@ -1,6 +1,5 @@
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import type { FiltersetInvasion, FiltersetQuest } from "@/lib/features/filters/filtersets";
-import { QuestArType } from "@/lib/features/filters/filterUtilsQuest";
 import { getInvasionCatchable, hasInvasionLineup } from "@/lib/features/masterStats.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { Incident, PokestopData, QuestData } from "@/lib/types/mapObjectData/pokestop";
@@ -83,11 +82,6 @@ export function matchQuestFilterset(
 	if (questFilters.length === 0) return;
 
 	for (const questFilter of questFilters) {
-		if (questFilter.ar) {
-			if (questFilter.ar === QuestArType.AR && !quest.isAr) continue;
-			if (questFilter.ar === QuestArType.NOAR && quest.isAr) continue;
-		}
-
 		if (
 			questFilter.tasks &&
 			!questFilter.tasks.find((t) => t.title === quest.title && t.target === quest.target)

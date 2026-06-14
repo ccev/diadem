@@ -141,8 +141,6 @@ export function mPokemon(data: {
  * @param target The quest target
  */
 export function mQuest(questTitle?: string | null, target?: number | null) {
-	if (questTitle?.toLowerCase() === "geotarget_quest_description") return m.geotarget_quest();
-
 	// get basic quest text
 	let questText = mBasicId(
 		"quest",

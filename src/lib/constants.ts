@@ -39,11 +39,6 @@ export const POKEMON_MIN_RANK = 15;
 export const SELECTED_MAP_OBJECT_SCALE = 2;
 
 /**
- * Interval to refresh Discord Auth (seconds)
- */
-export const DISCORD_REFRESH_INTERVAL = 60 * 60 * 24;
-
-/**
  * Interval to update a user's permissions (i.e. what roles they have) (seconds)
  */
 export const PERMISSION_UPDATE_INTERVAL = 5 * 60;

@@ -1,49 +1,31 @@
-import { getDiscordAuth } from "@/lib/server/auth/discord";
-import { generateCodeVerifier, generateState } from "arctic";
-
+import type { RequestEvent } from "@sveltejs/kit";
+import { isAuthEnabled, signInWithDiscord } from "@/lib/server/auth/betterAuth";
+import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
-import type { RequestEvent } from "@sveltejs/kit";
-
-const SCOPES = ["identify", "guilds.members.read"];
 
 export async function GET(event: RequestEvent): Promise<Response> {
-	const discord = getDiscordAuth();
-	if (!discord) return new Response(null, { status: 404 });
+	if (!isAuthEnabled()) return new Response(null, { status: 404 });
 
-	const state = generateState();
-	const verifier = generateCodeVerifier();
-	const url = discord.createAuthorizationURL(state, verifier, SCOPES);
-
-	event.cookies.set("discord_state", state, {
-		path: "/",
-		httpOnly: true,
-		maxAge: 60 * 10,
-		sameSite: "lax"
-	});
-
-	event.cookies.set("discord_code_verifier", verifier, {
-		path: "/",
-		httpOnly: true,
-		maxAge: 60 * 10,
-		sameSite: "lax"
-	});
-
-	event.cookies.set(
-		"login_redirect",
-		event.url.searchParams.get("redir") ?? getMapPath(getClientConfig()),
-		{
-			path: "/",
-			httpOnly: true,
-			maxAge: 60 * 10,
-			sameSite: "lax"
-		}
+	const redirectPath = sanitizeRedirectPath(
+		event.url.searchParams.get("redir"),
+		getMapPath(getClientConfig())
 	);
+
+	const successCallback = `/login/discord/callback?redir=${encodeURIComponent(redirectPath)}`;
+	const errorCallback = `${successCallback}&error=1`;
+
+	const response = await signInWithDiscord(event, {
+		callbackURL: successCallback,
+		errorCallbackURL: errorCallback
+	});
+
+	if (!response?.url) {
+		return new Response(null, { status: 500 });
+	}
 
 	return new Response(null, {
 		status: 302,
-		headers: {
-			Location: url.toString()
-		}
+		headers: { Location: response.url }
 	});
 }

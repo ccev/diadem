@@ -44,12 +44,16 @@
 		</IconValue>
 	{/if}
 
-	<IconValue Icon={ClockArrowUp}>
-		{m.start()}: <TimeWithCountdown expireTime={data.start_time} showDate={true} />
-	</IconValue>
-	<IconValue Icon={ClockArrowDown}>
-		{m.end()}: <TimeWithCountdown expireTime={data.end_time} showDate={true} />
-	</IconValue>
+	{#if data.start_time}
+		<IconValue Icon={ClockArrowUp}>
+			{m.start()}: <TimeWithCountdown expireTime={data.start_time} showDate={true} />
+		</IconValue>
+	{/if}
+	{#if data.end_time}
+		<IconValue Icon={ClockArrowDown}>
+			{m.end()}: <TimeWithCountdown expireTime={data.end_time} showDate={true} />
+		</IconValue>
+	{/if}
 {/snippet}
 
 <BasePopup lat={data.lat} lon={data.lon}>
@@ -84,7 +88,7 @@
 			{@render basicInfo()}
 		</div>
 
-		{#if (data.start_time ?? 0) < currentTimestamp()}
+		{#if data.start_time && data.start_time < currentTimestamp()}
 			{#if data.battle_pokemon_stamina && data.battle_pokemon_cp_multiplier}
 				<IconValue Icon={ChartSpline}>
 					<b>{m.pogo_cp({ cp: calculateMaxBattleCp(data) })}</b>

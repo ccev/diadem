@@ -1,5 +1,5 @@
 import type { User } from "@/lib/server/db/internal/schema";
-import { isAuthRequired } from "@/lib/services/config/config.server";
+import { isAuthRequired } from "@/lib/server/auth/betterAuth";
 import { hasAnySubFeatureAnywhere, hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 
 import type { FeaturesKey, Perms } from "@/lib/utils/features";

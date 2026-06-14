@@ -37,13 +37,14 @@ projectName = "reactmap"
 #userAgent = "Diadem / Contact: name@email.com"
 
 [server.auth]
-enabled = true
+enabled = false
 optional = true
+secret = ""   # set to a random 32+ character string
+baseUrl = "https://map.co"
 
 [server.auth.discord]
 clientId = ""
 clientSecret = ""
-redirectUri = "https://map.co/login/discord/callback"
 
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
@@ -197,18 +198,6 @@ styleLat = 53.563
 styleLon = 9.979
 styleZoom = 12
 
-# Tools Menu - Coverage Map - Background Map
-# Would generally recommend to set this to a position where you have areas
-coverageLat = 53.563
-coverageLon = 9.979
-coverageZoom = 5.5
-
-# Tools Menu - Scout - Background Map
-# Would generally recommend to set this to a position where you have areas
-scoutLat = 53.563
-scoutLon = 9.979
-scoutZoom = 10.5
-
 ### Map Styles
 
 [[client.mapStyles]]
@@ -284,4 +273,3 @@ url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Hal
 
 base = { scale = 0.25 }
 pokemon = { scale = 0.4 }
-
