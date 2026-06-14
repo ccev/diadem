@@ -20,6 +20,7 @@
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
 	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
 		searchMode = "main",
@@ -34,19 +35,23 @@
 			return {
 				types: [SearchableType.AREA, SearchableType.ADDRESS],
 				showRecents: false,
-				resultSnippet: coverageSearchResults
-			};
+				resultSnippet: coverageSearchResults,
+				textSearchHint: m.search_hint_coverage(),
+				textNoResults: m.search_no_results_generic()
+			} as SearchOptions;
 		} else if (searchMode === "wayfarer") {
 			return {
 				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.GYM, SearchableType.POKESTOP],
 				showRecents: false,
-				resultSnippet: wayfarerSearchResults
-			};
+				resultSnippet: wayfarerSearchResults,
+				textSearchHint: m.search_hint_wayfarer(),
+				textNoResults: m.search_no_results_generic()
+			} as SearchOptions;
 		} else {
 			return {
 				showRecents: true,
 				resultSnippet: mainSearchResults
-			};
+			} as SearchOptions;
 		}
 	});
 

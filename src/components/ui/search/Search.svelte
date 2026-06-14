@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { MapPin, Nut, Search, Squirrel, X } from "lucide-svelte";
+	import { MapPin, Nut, Search, Spotlight, Squirrel, TextCursor, X } from "lucide-svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
@@ -11,8 +11,10 @@
 		getCurrentSearchResults,
 		getIsSearchingAddress,
 		search,
+		SearchableType,
 		type SearchOptions,
-		setCurrentSearchQuery
+		setCurrentSearchQuery,
+		shouldSearchType
 	} from "@/lib/services/search.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
@@ -84,36 +86,50 @@
 					<!--this sometimes shows up even though there's results. extra check to avoid that-->
 				{:else if results.length === 0 && !getIsSearchingAddress()}
 					<Command.Empty>
-						<div
-							class="w-full flex gap-4 --justify-center items-center px-4 py-3 text-muted-foreground text-sm"
-						>
-							{#if getCurrentSearchQuery()}
-								<Nut size="24" class="rotate-24" />
-							{:else}
-								<Squirrel size="24" />
-							{/if}
+						{#if !searchOptions.textSearchHint && !searchOptions.textNoResults}
+							<div
+								class="w-full flex gap-4 items-center px-4 pt-3 pb-1 text-muted-foreground text-sm"
+							>
+								{#if getCurrentSearchQuery()}
+									<Nut size="24" class="rotate-24" />
+								{:else}
+									<Squirrel size="24" />
+								{/if}
 
-							<div>
-								<p class="font-semibold">
-									{#if getCurrentSearchQuery()}
-										{m.nothing_found()}
-									{:else}
-										{m.nothing_to_see_here()}
-									{/if}
-								</p>
-								<p>
-									{#if isSupportedFeature("koji") && isSupportedFeature("geocoding")}
-										{m.search_hint()}
-									{:else if isSupportedFeature("koji")}
-										{m.search_hint_no_area()}
-									{:else if isSupportedFeature("geocoding")}
-										{m.search_hint_no_address()}
-									{:else}
-										{m.search_hint_no_area_address()}
-									{/if}
-								</p>
+								<div>
+									<p class="font-semibold">
+										{#if getCurrentSearchQuery()}
+											{m.nothing_found()}
+										{:else}
+											{m.nothing_to_see_here()}
+										{/if}
+									</p>
+									<p>
+										{#if isSupportedFeature("koji") && isSupportedFeature("geocoding")}
+											{m.search_hint()}
+										{:else if isSupportedFeature("koji")}
+											{m.search_hint_no_area()}
+										{:else if isSupportedFeature("geocoding")}
+											{m.search_hint_no_address()}
+										{:else}
+											{m.search_hint_no_area_address()}
+										{/if}
+									</p>
+								</div>
 							</div>
-						</div>
+						{:else}
+							<div
+								class="pt-1.5 pb-0.5 mt-1 px-2 text-sm text-muted-foreground flex gap-2 items-center"
+							>
+								<Spotlight class="shrink-0" size="16" />
+
+								{#if getCurrentSearchQuery()}
+									{searchOptions.textNoResults}
+								{:else}
+									{searchOptions.textSearchHint}
+								{/if}
+							</div>
+					{/if}
 					</Command.Empty>
 				{/if}
 

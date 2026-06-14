@@ -62,8 +62,6 @@ export function updateMapGeojsonSource(
 		return;
 	}
 
-	console.log(source)
-
 	if (!source) return;
 
 	source.setData(data);

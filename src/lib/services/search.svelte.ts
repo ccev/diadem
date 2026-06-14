@@ -187,7 +187,9 @@ export type SearchOptions = {
 	types?: SearchableType[];
 	showRecents?: boolean;
 	resultSnippet: Snippet<[FuzzyResult<AnySearchEntry>[]]>;
-	ignoreAddressMinCharacters?: boolean
+	ignoreAddressMinCharacters?: boolean;
+	textNoResults?: string;
+	textSearchHint?: string;
 };
 
 let currentSearchQuery = $state("");
@@ -263,7 +265,7 @@ export function openSearchModal(searchOptions: SearchOptions, map?: maplibre.Map
 	}
 }
 
-function shouldSearchType(type: SearchableType, searchOptions: SearchOptions) {
+export function shouldSearchType(type: SearchableType, searchOptions: SearchOptions) {
 	return !searchOptions.types || searchOptions.types.includes(type);
 }
 
