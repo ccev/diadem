@@ -574,7 +574,7 @@ async function getFortSearchEntries(searchOptions: SearchOptions, map?: maplibre
 		return fortData.data;
 	}
 
-	const bounds = getFixedBounds(8);
+	const bounds = getFixedBounds(8, usedMap);
 	const response = await fetch("/api/search/forts", {
 		body: JSON.stringify(bounds),
 		method: "POST"
