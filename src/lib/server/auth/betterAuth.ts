@@ -130,7 +130,7 @@ export const auth = IS_BETTER_AUTH_ENABLED
 	? betterAuth({
 			secret: authSecret!,
 			baseURL: authBaseUrl!,
-			basePath: "/api/auth",
+			basePath: "/login",
 			database: drizzleAdapter(db, {
 				provider: "mysql",
 				camelCase: true,

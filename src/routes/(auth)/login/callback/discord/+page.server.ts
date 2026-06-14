@@ -1,4 +1,4 @@
-import type { PageServerLoad } from "./$types";
+import type { PageServerLoad } from "../../../../../.svelte-kit/types/src/routes";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";

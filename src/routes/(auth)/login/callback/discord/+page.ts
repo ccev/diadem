@@ -3,7 +3,7 @@ import { getConfig } from "@/lib/services/config/config";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { redirect } from "@sveltejs/kit";
-import type { PageLoad } from "./$types";
+import type { PageLoad } from "../../../../../.svelte-kit/types/src/routes";
 
 export const load: PageLoad = (event) => {
 	if (event.data.error) {
