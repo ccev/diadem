@@ -38,5 +38,16 @@
 				closeSearchModal();
 			}}
 		/>
+	{:else if entry.type === SearchableType.COORDINATES}
+		<SearchItem
+			{result}
+			onselect={() => {
+				getCoverageMap()?.flyTo({
+					center: [entry.lon, entry.lat],
+					zoom: 16
+				});
+				closeSearchModal();
+			}}
+		/>
 	{/if}
 {/each}

@@ -33,7 +33,7 @@
 	let searchOptions: SearchOptions = $derived.by(() => {
 		if (searchMode === "coverage") {
 			return {
-				types: [SearchableType.AREA, SearchableType.ADDRESS],
+				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.COORDINATES],
 				showRecents: false,
 				resultSnippet: coverageSearchResults,
 				textSearchHint: m.search_hint_coverage(),

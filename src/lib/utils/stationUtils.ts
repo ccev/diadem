@@ -25,6 +25,29 @@ export function isMaxBattleActive(data: Partial<StationData>) {
 	);
 }
 
+const MAX_BATTLE_FIELDS = [
+	"start_time",
+	"end_time",
+	"is_battle_available",
+	"battle_level",
+	"battle_pokemon_id",
+	"battle_pokemon_form",
+	"battle_pokemon_costume",
+	"battle_pokemon_gender",
+	"battle_pokemon_alignment",
+	"battle_pokemon_bread_mode",
+	"battle_pokemon_move_1",
+	"battle_pokemon_move_2",
+	"battle_pokemon_stamina",
+	"battle_pokemon_cp_multiplier"
+] as const satisfies readonly (keyof StationData)[];
+
+export function stripMaxBattleFields(data: Partial<StationData>) {
+	for (const field of MAX_BATTLE_FIELDS) {
+		delete data[field];
+	}
+}
+
 export function getStationPokemon(data: StationData): Partial<PokemonData> {
 	return {
 		pokemon_id: data.battle_pokemon_id,
