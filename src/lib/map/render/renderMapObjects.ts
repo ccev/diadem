@@ -49,8 +49,8 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
 import { getActivePokestopFilter, isIncidentInvasion } from "@/lib/utils/pokestopUtils";
 import { getStationPokemon } from "@/lib/utils/stationUtils";
+import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
-import { geojson, s2 } from "s2js";
 
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;
@@ -516,8 +516,7 @@ class TappableRenderer extends MapObjectRenderer<TappableData> {
 
 class S2CellRenderer extends MapObjectRenderer<S2CellData> {
 	public render(data: S2CellData, isSelected: boolean, isSelectedOverwrite: boolean) {
-		const cell = s2.Cell.fromCellID(data.cellId);
-		const polygon = geojson.toGeoJSON(cell) as Polygon;
+		const polygon = cellToPolygon(data.cellId);
 
 		return [
 			getPolygonFeature(data.mapId, [polygon.coordinates], {

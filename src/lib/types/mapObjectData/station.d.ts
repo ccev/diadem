@@ -8,10 +8,10 @@ export type StationData = {
 	lon: number;
 	name: string;
 	cell_id: bigint;
-	start_time: number;
-	end_time: number;
+	start_time?: number;
+	end_time?: number;
 	cooldown_complete: number;
-	is_battle_available: number;
+	is_battle_available?: number;
 	is_inactive: number;
 	battle_level?: number;
 	battle_pokemon_id?: number;

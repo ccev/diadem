@@ -32,7 +32,7 @@ export function clearMapPositionUrlParams() {
 	replaceState(window.location.origin + window.location.pathname, {});
 }
 
-export function getInitialMapPoisitionMain() {
+export function getInitialMapPositionMain() {
 	const [center, zoom] = getMapPositionFromUrlParams();
 	const userSettings = getUserSettings();
 	if (center) {

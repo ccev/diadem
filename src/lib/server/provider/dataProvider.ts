@@ -7,7 +7,9 @@ export abstract class BaseDataProvider<T> {
 	protected interval: NodeJS.Timeout;
 
 	constructor(refreshSeconds: number) {
-		this.interval = setInterval(() => this.refresh(), refreshSeconds * 1000);
+		this.interval = setInterval(() => {
+			this.refresh().catch(() => {});
+		}, refreshSeconds * 1000);
 		this.interval?.unref?.();
 	}
 
@@ -19,10 +21,13 @@ export abstract class BaseDataProvider<T> {
 		}
 
 		this.fetchPromise = this.query();
-		const result = await this.fetchPromise;
-		this.fetchPromise = undefined;
-		this.cachedData = result;
-		return result;
+		try {
+			const result = await this.fetchPromise;
+			this.cachedData = result;
+			return result;
+		} finally {
+			this.fetchPromise = undefined;
+		}
 	}
 
 	public async get() {

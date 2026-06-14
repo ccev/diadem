@@ -85,6 +85,16 @@
 				closeSearchModal();
 			}}
 		/>
+	{:else if entry.type === SearchableType.COORDINATES}
+		<SearchItem
+			{result}
+			onselect={() => {
+				const coords = new Coords(entry.lat, entry.lon);
+				jumpTo(coords, 16);
+				setSearchedLocation(coords);
+				closeSearchModal();
+			}}
+		/>
 	{:else if entry.type === SearchableType.QUEST}
 		<SearchItem
 			{result}

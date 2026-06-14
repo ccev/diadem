@@ -45,6 +45,7 @@ export enum SearchableType {
 	POKEMON = "pokemon",
 	AREA = "area",
 	ADDRESS = "address",
+	COORDINATES = "coordinates",
 	GYM = "gym",
 	POKESTOP = "pokestop",
 	STATION = "station",
@@ -81,6 +82,13 @@ export type AddressSearchEntry = SearchEntry & {
 	point: [number, number];
 	bbox: undefined | BBox;
 	geometry: undefined | Geometry;
+};
+
+export type CoordinatesSearchEntry = SearchEntry & {
+	icon: string;
+	type: SearchableType.COORDINATES;
+	lat: number;
+	lon: number;
 };
 
 export type PokestopSearchEntry = SearchEntry & {
@@ -171,6 +179,7 @@ export type AnySearchEntry =
 	| MaxBattleLevelSearchEntry
 	| NestSearchEntry
 	| AddressSearchEntry
+	| CoordinatesSearchEntry
 	| GymSearchEntry
 	| PokestopSearchEntry;
 
@@ -188,6 +197,8 @@ export type SearchOptions = {
 	showRecents?: boolean;
 	resultSnippet: Snippet<[FuzzyResult<AnySearchEntry>[]]>;
 	ignoreAddressMinCharacters?: boolean;
+	textNoResults?: string;
+	textSearchHint?: string;
 };
 
 let currentSearchQuery = $state("");
@@ -263,7 +274,7 @@ export function openSearchModal(searchOptions: SearchOptions, map?: maplibre.Map
 	}
 }
 
-function shouldSearchType(type: SearchableType, searchOptions: SearchOptions) {
+export function shouldSearchType(type: SearchableType, searchOptions: SearchOptions) {
 	return !searchOptions.types || searchOptions.types.includes(type);
 }
 
@@ -516,13 +527,39 @@ export function initSearch(searchOptions: SearchOptions) {
 	fuzzy = createFuzzySearch(allSearchResults, { getText: (e) => [e.name, m[e.category]?.()] });
 }
 
+function parseCoordinates(query: string): { lat: number; lon: number } | undefined {
+	const match = query.trim().match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/);
+	if (!match) return;
+	const lat = parseFloat(match[1]);
+	const lon = parseFloat(match[2]);
+	if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return;
+	return { lat, lon };
+}
+
 export function search(query: string, limit: boolean, searchOptions: SearchOptions) {
 	if (shouldSearchType(SearchableType.ADDRESS, searchOptions) && isSupportedFeature("geocoding")) {
 		searchAddress(query, searchOptions?.ignoreAddressMinCharacters ?? false).then();
 	}
 
-	let results = fuzzy(query);
+	let results: FuzzyResult<AnySearchEntry>[] = fuzzy(query);
 	if (limit) results = results.slice(0, searchLimit);
+
+	if (shouldSearchType(SearchableType.COORDINATES, searchOptions)) {
+		const coords = parseCoordinates(query);
+		if (coords) {
+			const entry: CoordinatesSearchEntry = {
+				name: `${coords.lat}, ${coords.lon}`,
+				category: "coordinates",
+				key: `coordinates-${coords.lat}-${coords.lon}`,
+				icon: "MapPin",
+				type: SearchableType.COORDINATES,
+				lat: coords.lat,
+				lon: coords.lon
+			};
+			results = [{ item: entry, score: 0, matches: [] }, ...results];
+		}
+	}
+
 	searchResults = results;
 }
 
@@ -572,7 +609,7 @@ async function getFortSearchEntries(searchOptions: SearchOptions, map?: maplibre
 		return fortData.data;
 	}
 
-	const bounds = getFixedBounds(8);
+	const bounds = getFixedBounds(8, usedMap);
 	const response = await fetch("/api/search/forts", {
 		body: JSON.stringify(bounds),
 		method: "POST"

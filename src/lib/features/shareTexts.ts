@@ -202,8 +202,12 @@ function getStationShareText(data: StationData) {
 	if (data.battle_pokemon_id) {
 		text += `📍 ${m.pogo_station()}: ${data.name}\n`;
 	}
-	text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, true)}\n`;
-	text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, true)}\n`;
+	if (data.start_time) {
+		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, true)}\n`;
+	}
+	if (data.end_time) {
+		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, true)}\n`;
+	}
 
 	return text;
 }

@@ -12,6 +12,7 @@
 	import { setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
 	import maplibre from "maplibre-gl";
 	import type { MapStyle } from "@/lib/services/config/configTypes";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
 		getStyleId = undefined,
@@ -35,7 +36,7 @@
 
 <Modal modalType="stylePicker" class="w-[calc(100%-1rem)] max-w-md! pb-4 pt-3">
 	{#snippet title()}
-		<span class="font-semibold text-base px-4 pb-2">Map Style</span>
+		<span class="font-semibold text-base px-4 pb-2">{m.settings_map_style()}</span>
 	{/snippet}
 
 	<RadioGroup

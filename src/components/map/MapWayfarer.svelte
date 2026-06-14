@@ -25,7 +25,7 @@
 	import { CANDIDATE_ICONS, CANDIDATE_CATEGORIES } from "@/lib/services/wayfarerCandidateIcons";
 	import MapCommon from "@/components/map/MapCommon.svelte";
 	import {
-		getInitialMapPoisitionMain,
+		getInitialMapPositionMain,
 		getMapPositionFromUrlParams
 	} from "$lib/map/mapPositionParams.svelte";
 	import { getConfig } from "@/lib/services/config/config";
@@ -40,7 +40,7 @@
 		map?: maplibre.Map | undefined;
 	} = $props();
 
-	const mapPosition = getInitialMapPoisitionMain();
+	const mapPosition = getInitialMapPositionMain();
 
 	let fortData: FeatureCollection<Point> = $state(featureCollectionEmpty());
 	let cells14Data: FeatureCollection<Polygon> = $state(featureCollectionEmpty());

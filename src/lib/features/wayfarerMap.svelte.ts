@@ -44,10 +44,15 @@ export type OverpassCandidate = {
 	tags: Record<string, string>;
 };
 
+const FETCH_CACHE_TTL_MS = 30_000;
+
 let forts: FortData[] = $state([]);
 let pokestopCounts: Record<string, number> = $state({});
 let gymCounts: Record<string, number> = $state({});
 let lastFetchKey: string = "";
+let lastFetchAt = 0;
+let activeFetchController: AbortController | undefined;
+let activeFetchId = 0;
 let clickedFort: FortData | undefined = $state(undefined);
 let clickedL14Cell:
 	| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
@@ -153,30 +158,60 @@ export function getDimmedCandidateCount(): number {
 	return getUserSettings().wayfarerDimmedCandidates.length;
 }
 
+function buildFetchKey(cellIds: string[], countsOnly: boolean): string {
+	const prefix = countsOnly ? "c:" : "f:";
+	if (cellIds.length === 0) return prefix;
+	let min = cellIds[0];
+	let max = cellIds[0];
+	for (let i = 1; i < cellIds.length; i++) {
+		const id = cellIds[i];
+		if (id < min) min = id;
+		else if (id > max) max = id;
+	}
+	return prefix + cellIds.length + ":" + min + ":" + max;
+}
+
+export function resetWayfarerFetchCache() {
+	lastFetchKey = "";
+	lastFetchAt = 0;
+}
+
 export async function fetchWayfarerForts(
 	cellIds: string[],
 	countsOnly: boolean,
 	force: boolean = false
 ) {
-	const key = (countsOnly ? "c:" : "f:") + cellIds.slice().sort().join(",");
-	if (key === lastFetchKey && !force) return;
-	lastFetchKey = key;
+	const key = buildFetchKey(cellIds, countsOnly);
+	const now = Date.now();
+	const cacheValid = key === lastFetchKey && now - lastFetchAt < FETCH_CACHE_TTL_MS;
+	if (cacheValid && !force) return;
+
+	activeFetchController?.abort();
+	const controller = new AbortController();
+	activeFetchController = controller;
+	const fetchId = ++activeFetchId;
 
 	try {
 		const response = await fetch("/api/wayfarer/forts", {
 			body: JSON.stringify({ cellIds, countsOnly }),
-			method: "POST"
+			method: "POST",
+			signal: controller.signal
 		});
+		if (fetchId !== activeFetchId) return;
 		if (!response.ok) return;
 		const data = (await response.json()) as {
 			pokestopCounts: Record<string, number>;
 			gymCounts: Record<string, number>;
 			forts: FortData[];
 		};
+		if (fetchId !== activeFetchId) return;
 		pokestopCounts = data.pokestopCounts ?? {};
 		gymCounts = data.gymCounts ?? {};
 		forts = data.forts ?? [];
+		lastFetchKey = key;
+		lastFetchAt = now;
 	} catch (e) {
+		if ((e as Error).name === "AbortError") return;
 		console.error("Failed to fetch wayfarer forts", e);
 	}
 }
@@ -222,7 +257,7 @@ export function getWayfarerColors(): WayfarerColors {
 		fortSponsoredStroke: s.getPropertyValue("--wayfarer-fort-sponsored-stroke"),
 		fortGym: s.getPropertyValue("--wayfarer-fort-gym"),
 		fortGymStroke: s.getPropertyValue("--wayfarer-fort-gym-stroke"),
-		labelText: "#ffffff"
+		labelText: s.getPropertyValue("--wayfarer-label-text")
 	};
 }
 

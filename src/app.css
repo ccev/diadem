@@ -79,6 +79,7 @@
 	--wayfarer-fort-sponsored-stroke: rgb(168, 0, 183);
 	--wayfarer-fort-gym: rgb(255, 184, 106);
 	--wayfarer-fort-gym-stroke: rgb(159, 45, 0);
+	--wayfarer-label-text: #ffffff;
 }
 
 .dark {

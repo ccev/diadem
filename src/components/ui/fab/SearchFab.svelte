@@ -20,6 +20,7 @@
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
 	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
+	import * as m from "@/lib/paraglide/messages";
 
 	let {
 		searchMode = "main",
@@ -32,10 +33,11 @@
 	let searchOptions: SearchOptions = $derived.by(() => {
 		if (searchMode === "coverage") {
 			return {
-				types: [SearchableType.AREA, SearchableType.ADDRESS],
+				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.COORDINATES],
 				showRecents: false,
-				resultSnippet: coverageSearchResults
-			};
+				resultSnippet: coverageSearchResults,
+				textSearchHint: m.search_hint_coverage(),
+				textNoResults: m.search_no_results_generic()
 		} else if (searchMode === "wayfarer") {
 			return {
 				types: [
@@ -45,13 +47,14 @@
 					SearchableType.POKESTOP
 				],
 				showRecents: false,
-				resultSnippet: wayfarerSearchResults
-			};
+				resultSnippet: wayfarerSearchResults,
+				textSearchHint: m.search_hint_wayfarer(),
+				textNoResults: m.search_no_results_generic()
 		} else {
 			return {
 				showRecents: true,
 				resultSnippet: mainSearchResults
-			};
+			} as SearchOptions;
 		}
 	});
 

@@ -29,12 +29,22 @@ export async function POST({ request, locals }) {
 	const hasGyms = hasFeatureAnywhereServer(locals.perms, MapObjectType.GYM, locals.user);
 	if (!hasPokestops && !hasGyms) error(401);
 
-	const body = (await request.json()) as WayfarerFortsRequest;
+	let body: WayfarerFortsRequest;
+	try {
+		body = (await request.json()) as WayfarerFortsRequest;
+	} catch {
+		error(400, "Invalid JSON");
+	}
+
+	if (!body || !Array.isArray(body.cellIds)) {
+		error(400, "cellIds must be an array");
+	}
+
 	const countsOnly = !!body.countsOnly;
 	const maxCells = countsOnly ? MAX_CELLS_COUNTS_ONLY : MAX_CELLS_FORTS;
-	const cellIds = body.cellIds.slice(0, maxCells);
+	const rawCellIds = body.cellIds.slice(0, maxCells);
 
-	if (cellIds.length === 0) {
+	if (rawCellIds.length === 0) {
 		return json({ pokestopCounts: {}, gymCounts: {}, forts: [] } satisfies WayfarerFortsResponse);
 	}
 
@@ -43,9 +53,13 @@ export async function POST({ request, locals }) {
 	let minLon = 180;
 	let maxLon = -180;
 
-	for (const cellIdStr of cellIds) {
-		const cellId = BigInt(cellIdStr);
-		const cell = s2.Cell.fromCellID(cellId);
+	const cellIds: string[] = [];
+	for (const cellIdStr of rawCellIds) {
+		if (typeof cellIdStr !== "string" || !/^\d+$/.test(cellIdStr)) {
+			error(400, "cellIds must be numeric strings");
+		}
+		const cell = s2.Cell.fromCellID(BigInt(cellIdStr));
+		cellIds.push(cellIdStr);
 		const polygon = geojson.toGeoJSON(cell) as Polygon;
 		for (const ring of polygon.coordinates) {
 			for (const [lon, lat] of ring) {
@@ -63,7 +77,7 @@ export async function POST({ request, locals }) {
 	const gymPermitted = checkFeatureInBounds(locals.perms, MapObjectType.GYM, bounds);
 
 	const queries: string[] = [];
-	let values: any[] = [];
+	const values: unknown[] = [];
 
 	if (hasPokestops && pokestopPermitted) {
 		const spatial = buildSpatialFilter(pokestopPermitted.polygon ?? null, pokestopPermitted.bounds);
@@ -72,7 +86,7 @@ export async function POST({ request, locals }) {
 				spatial.sql +
 				" AND deleted = 0)"
 		);
-		values = values.concat(spatial.values);
+		values.push(...spatial.values);
 	}
 
 	if (hasGyms && gymPermitted) {
@@ -82,7 +96,7 @@ export async function POST({ request, locals }) {
 				spatial.sql +
 				" AND deleted = 0)"
 		);
-		values = values.concat(spatial.values);
+		values.push(...spatial.values);
 	}
 
 	if (queries.length === 0) error(401);
