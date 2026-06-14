@@ -27,7 +27,6 @@ import {
 	showUltra
 } from "@/lib/utils/pokemonUtils";
 import {
-	getArTag,
 	getContestText,
 	getRewardText,
 	hasFortActiveLure,
@@ -132,10 +131,9 @@ function getPokemonShareText(data: PokemonData) {
 function getPokestopShareText(data: PokestopData) {
 	let text = "";
 
-	for (const quest of data.quests) {
-		if (!quest.target) continue;
-
-		const questTexts: string[] = [getArTag(quest.isAr)];
+	const quest = data.quests[0];
+	if (quest?.target) {
+		const questTexts: string[] = [];
 
 		const rewardText = getRewardText(quest.reward);
 		if (rewardText) questTexts.push(rewardText);

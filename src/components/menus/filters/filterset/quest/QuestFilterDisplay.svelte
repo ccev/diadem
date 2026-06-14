@@ -10,7 +10,6 @@
 	import * as m from "@/lib/paraglide/messages";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import {
-		getAttributeLabelAr,
 		getAttributeLabelStardust,
 		getAttributeLabelXp
 	} from "@/lib/features/filters/filterUtilsQuest";
@@ -24,10 +23,6 @@
 </script>
 
 <FilterDisplay>
-	{#if data.ar}
-		<AttributeDisplay label={m.ar_layer()} value={getAttributeLabelAr(data.ar)} />
-	{/if}
-
 	{#if data.tasks}
 		<AttributeDisplay label={data.tasks.length === 1 ? m.task() : m.tasks()}>
 			<ul>

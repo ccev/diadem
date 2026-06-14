@@ -37,10 +37,6 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		"availble_slots",
 		"in_battle",
 		"ex_raid_eligible",
-		"ar_scan_eligible",
-		"power_up_level",
-		"power_up_points",
-		"power_up_end_timestamp",
 		"defenders AS defenders_raw",
 		"rsvps",
 		"deleted"

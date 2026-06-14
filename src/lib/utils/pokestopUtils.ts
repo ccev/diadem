@@ -53,11 +53,6 @@ export function parseQuestReward(reward?: string | null) {
 	return parsed;
 }
 
-export function getArTag(isAr: boolean) {
-	if (isAr) return m.quest_ar_tag();
-	return m.quest_noar_tag();
-}
-
 export function hasFortActiveLure(data: Partial<PokestopData>) {
 	return (
 		data.lure_id && data.lure_expire_timestamp && data.lure_expire_timestamp > currentTimestamp()

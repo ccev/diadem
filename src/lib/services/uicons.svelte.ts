@@ -111,7 +111,6 @@ export function getIconPokestop(
 	data: Partial<PokestopData>,
 	iconSet: string = getUserSettings().uiconSet.pokestop.id
 ) {
-	// maybe this is not the right location for these modifations. can be moved later
 	let lureId = 0;
 	if (shouldDisplayLure(data)) {
 		lureId = data.lure_id ?? 0;
@@ -129,23 +128,13 @@ export function getIconPokestop(
 		}
 	}
 
-	const powerUp = isFortOutdated(data.updated) ? 0 : data.power_up_level;
-
-	return iconSets[iconSet].pokestop(
-		lureId,
-		displayType,
-		false, // quest active
-		Boolean(data.ar_scan_eligible),
-		powerUp
-	);
+	return iconSets[iconSet].pokestop(lureId, displayType, false);
 }
 
 export function getIconGym(
 	data: Partial<GymData>,
 	iconSet: string = getUserSettings().uiconSet.gym.id
 ) {
-	// maybe this is not the right location for these modifations. can be moved later
-	const powerUp = isFortOutdated(data.updated) ? 0 : data.power_up_level;
 	let availableSlots = data.availble_slots ? GYM_SLOTS - data.availble_slots : GYM_SLOTS;
 	if (isFortOutdated(data.updated)) availableSlots = GYM_SLOTS;
 
@@ -156,9 +145,7 @@ export function getIconGym(
 		teamId,
 		availableSlots,
 		Boolean(data.in_battle),
-		Boolean(data.ex_raid_eligible),
-		Boolean(data.ar_scan_eligible),
-		powerUp
+		Boolean(data.ex_raid_eligible)
 	);
 }
 
@@ -268,17 +255,16 @@ export function getIconPokestopDirect(
 	lureId: number,
 	displayType: number | false,
 	questActive: boolean,
-	ar: boolean,
 	iconSet: string = getUserSettings().uiconSet.pokestop.id
 ) {
-	return iconSets[iconSet].pokestop(lureId, displayType, questActive, ar, 0);
+	return iconSets[iconSet].pokestop(lureId, displayType, questActive);
 }
 
 export function getIconGymDirect(
 	teamId: number,
 	iconSet: string = getUserSettings().uiconSet.gym.id
 ) {
-	return iconSets[iconSet].gym(teamId, 0, false, false, false, 0);
+	return iconSets[iconSet].gym(teamId);
 }
 
 export function getIconTappable(

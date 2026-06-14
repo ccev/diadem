@@ -245,22 +245,21 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 		if (getActivePokestopFilter().quest.enabled || isSelectedOverwrite) {
 			const questModifiers = getConfigModifiers(this.iconSet, "quest");
-			for (const quest of data.quests) {
-				if (shouldDisplayQuest(quest, data)) {
-					showThis = true;
-					const mapId = data.mapId + "-quest-" + quest.isAr + "-" + quest.timestamp;
-					features.push(
-						...this.renderQuest(
-							data,
-							quest.reward,
-							matchQuestFilterset(quest),
-							mapId,
-							quest.expires ?? null,
-							questModifiers,
-							selectedScale
-						)
-					);
-				}
+			const quest = data.quests[0];
+			if (quest && shouldDisplayQuest(quest, data)) {
+				showThis = true;
+				const mapId = data.mapId + "-quest-" + quest.timestamp;
+				features.push(
+					...this.renderQuest(
+						data,
+						quest.reward,
+						matchQuestFilterset(quest),
+						mapId,
+						quest.expires ?? null,
+						questModifiers,
+						selectedScale
+					)
+				);
 			}
 		}
 
