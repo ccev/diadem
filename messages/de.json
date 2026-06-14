@@ -529,7 +529,6 @@
 	"not_in_game": "Nicht im Spiel verfügbar",
 	"wayfarer_cell_title": "Level 14 Zelle",
 	"wayfarer_pokestops_count": "Pokéstops: <b>{count}</b>",
-	"wayfarer_gyms_count": "Arenen: <b>{count}</b>"
 	"wayfarer_gyms_count": "Arenen: <b>{count}</b>",
 	"search_hint_coverage": "Such nach Adressen oder Gebieten",
 	"search_hint_wayfarer": "Such nach Pokéstops, Adressen oder Gebieten",

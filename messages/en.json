@@ -621,9 +621,9 @@
 	"wayfarer_candidate_prop_opening_hours": "Opening times",
 	"wayfarer_candidate_prop_website": "Website",
 	"wayfarer_candidate_prop_inscription": "Inscription",
-	"popup_action_undim_all_candidate": "Undim all candidates"
+	"popup_action_undim_all_candidate": "Undim all candidates",
 	"search_hint_coverage": "Try searching an address or area",
 	"search_hint_wayfarer": "Try searching for Pokéstops, addresses or areas",
-	"search_no_results_generic": "Nothing came up"
+	"search_no_results_generic": "Nothing came up",
 	"coordinates": "Coordinates"
 }
