@@ -4,14 +4,9 @@ import {
 	isAuthFeatureEnabled,
 	signInWithDiscord
 } from "@/lib/server/auth/betterAuth";
+import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
-
-function sanitizeRedirectPath(redirectPath: string | null, fallback: string) {
-	if (!redirectPath) return fallback;
-	if (!redirectPath.startsWith("/") || redirectPath.startsWith("//")) return fallback;
-	return redirectPath;
-}
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	if (!isAuthFeatureEnabled()) return new Response(null, { status: 404 });

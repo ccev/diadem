@@ -12,7 +12,3 @@ export function getServerConfig() {
 export function getClientConfig() {
 	return config.client;
 }
-
-export function isAuthRequired() {
-	return config.server.auth.enabled && !config.server.auth.optional;
-}

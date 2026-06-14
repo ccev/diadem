@@ -1,8 +1,7 @@
 import { db } from "@/lib/server/db/internal";
 import * as table from "@/lib/server/db/internal/schema";
-import { sha256 } from "@oslojs/crypto/sha2";
-import { encodeBase32LowerCase, encodeBase64url, encodeHexLowerCase } from "@oslojs/encoding";
-import type { RequestEvent } from "@sveltejs/kit";
+import { isMysqlError } from "@/lib/server/db/internal/errorCodes";
+import { encodeBase32LowerCase } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 
 import type { User } from "@/lib/server/db/internal/schema";
@@ -43,10 +42,7 @@ function coerceUser(result: typeof table.user.$inferSelect): User {
 }
 
 function isDuplicateUserError(error: unknown) {
-	if (!error || typeof error !== "object") return false;
-
-	const mysqlError = error as { code?: string; errno?: number };
-	return mysqlError.code === "ER_DUP_ENTRY" || mysqlError.errno === 1062;
+	return isMysqlError(error, "ER_DUP_ENTRY", 1062);
 }
 
 export async function getUserFromDiscordId(discordId: string) {
@@ -60,19 +56,17 @@ export async function getUserFromDiscordId(discordId: string) {
 export async function createUserFromDiscordId(discordId: string) {
 	const userId = generateUserId();
 	const now = new Date();
-	await db
-		.insert(table.user)
-		.values({
-			id: userId,
-			name: `discord-${discordId}`,
-			email: `${discordId}@discord.diadem.local`,
-			emailVerified: true,
-			discordId,
-			permissions: getDefaultPerms(),
-			userSettings: {},
-			createdAt: now,
-			updatedAt: now
-		});
+	await db.insert(table.user).values({
+		id: userId,
+		name: `discord-${discordId}`,
+		email: `${discordId}@discord.internal`,
+		emailVerified: true,
+		discordId,
+		permissions: getDefaultPerms(),
+		userSettings: {},
+		createdAt: now,
+		updatedAt: now
+	});
 	return userId;
 }
 
@@ -97,4 +91,10 @@ export async function getOrCreateUserFromDiscordId(discordId: string) {
 
 export async function setPermissions(userId: string, permissions: Perms) {
 	await db.update(table.user).set({ permissions }).where(eq(table.user.id, userId));
+}
+
+export function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {
+	if (!redirectPath) return fallback;
+	if (!redirectPath.startsWith("/") || redirectPath.startsWith("//")) return fallback;
+	return redirectPath;
 }

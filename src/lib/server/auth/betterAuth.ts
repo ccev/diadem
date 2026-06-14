@@ -6,6 +6,7 @@ import { getTableColumns, getTableName, sql } from "drizzle-orm";
 
 import { db } from "@/lib/server/db/internal";
 import { account, session, user, verification } from "@/lib/server/db/internal/schema";
+import { isMysqlError } from "@/lib/server/db/internal/errorCodes";
 import { generateUserId } from "@/lib/server/auth/auth";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
@@ -58,13 +59,8 @@ if (authConfig.enabled && authErrors.length > 0) {
 
 export const IS_BETTER_AUTH_ENABLED = Boolean(authConfig.enabled);
 
-function hasMysqlCode(error: unknown, code: string, errno: number): boolean {
-	if (!error || typeof error !== "object") return false;
-	const e = error as { code?: string; errno?: number };
-	return e.code === code || e.errno === errno;
-}
-const isMissingTableError = (error: unknown) => hasMysqlCode(error, "ER_NO_SUCH_TABLE", 1146);
-const isMissingColumnError = (error: unknown) => hasMysqlCode(error, "ER_BAD_FIELD_ERROR", 1054);
+const isMissingTableError = (error: unknown) => isMysqlError(error, "ER_NO_SUCH_TABLE", 1146);
+const isMissingColumnError = (error: unknown) => isMysqlError(error, "ER_BAD_FIELD_ERROR", 1054);
 
 async function assertBetterAuthSchemaReady() {
 	const missingTables: string[] = [];

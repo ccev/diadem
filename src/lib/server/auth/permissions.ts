@@ -86,7 +86,6 @@ export async function updatePermissions(
 	thisFetch: typeof fetch
 ) {
 	const guildCache: { [key: string]: DiscordGuildData } = {};
-	const authConfig = getServerConfig().auth;
 	const permConfig = getServerConfig().permissions;
 	const canCheckGuildRules = accessToken.trim().length > 0;
 
@@ -96,7 +95,7 @@ export async function updatePermissions(
 		JSON.stringify(await getEveryonePerms(thisFetch, geofences))
 	);
 
-	if (permConfig && authConfig.enabled) {
+	if (permConfig) {
 		for (const rule of permConfig) {
 			let ruleApplies = !!rule.loggedIn || !!rule.everyone;
 

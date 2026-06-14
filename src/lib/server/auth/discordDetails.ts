@@ -57,7 +57,10 @@ export async function getUserInfoResult(accessToken: string): Promise<DiscordUse
 }
 
 export async function getGuildMemberInfo(guildId: string, accessToken: string) {
-	const response = await fetch(`${endpoint}/guilds/${guildId}/member`, getFetchOptions(accessToken));
+	const response = await fetch(
+		`${endpoint}/guilds/${guildId}/member`,
+		getFetchOptions(accessToken)
+	);
 	if (response.status === 404) {
 		return { roles: [] } as DiscordGuildData;
 	}

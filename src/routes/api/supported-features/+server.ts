@@ -22,4 +22,4 @@ export const GET: RequestHandler = async ({ locals }) => {
 			Boolean(config.nominatim?.url) &&
 			(!Boolean(config.pelias?.url) || Boolean(config.photon?.url))
 	} as SupportedFeatures);
-}
+};

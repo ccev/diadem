@@ -2,15 +2,10 @@ import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";
+import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getLogger } from "@/lib/utils/logger";
 
-const log = getLogger("callback-discord")
-
-function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {
-	if (!redirectPath) return fallback;
-	if (!redirectPath.startsWith("/") || redirectPath.startsWith("//")) return fallback;
-	return redirectPath;
-}
+const log = getLogger("callback-discord");
 
 export const load: PageServerLoad = async (event) => {
 	const redirectLink = sanitizeRedirectPath(
@@ -25,13 +20,13 @@ export const load: PageServerLoad = async (event) => {
 	};
 
 	if (event.url.searchParams.get("error") === "1") {
-		log.info("Discord Login failed with error=1 url parameter")
+		log.info("Discord Login failed with error=1 url parameter");
 		response.error = "Discord Login failed";
 		return response;
 	}
 
 	if (!event.locals.user) {
-		log.info("Discord Login failed: no event.locals.user")
+		log.info("Discord Login failed: no event.locals.user");
 		response.error = "Discord Login failed";
 		return response;
 	}
