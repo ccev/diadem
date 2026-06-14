@@ -1,7 +1,10 @@
-import type { PageServerLoad } from "../../../../../.svelte-kit/types/src/routes";
+import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";
+import { getLogger } from "@/lib/utils/logger";
+
+const log = getLogger("callback-discord")
 
 function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {
 	if (!redirectPath) return fallback;
@@ -22,11 +25,13 @@ export const load: PageServerLoad = async (event) => {
 	};
 
 	if (event.url.searchParams.get("error") === "1") {
+		log.info("Discord Login failed with error=1 url parameter")
 		response.error = "Discord Login failed";
 		return response;
 	}
 
 	if (!event.locals.user || !event.locals.authUser) {
+		log.info("Discord Login failed: no event.locals.user or event.locals.authUser")
 		response.error = "Discord Login failed";
 		return response;
 	}

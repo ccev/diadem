@@ -130,7 +130,7 @@ export const auth = IS_BETTER_AUTH_ENABLED
 	? betterAuth({
 			secret: authSecret!,
 			baseURL: authBaseUrl!,
-			basePath: "/login",
+			basePath: "/api/auth",
 			database: drizzleAdapter(db, {
 				provider: "mysql",
 				camelCase: true,
@@ -170,11 +170,12 @@ export const auth = IS_BETTER_AUTH_ENABLED
 				discord: {
 					clientId: discordClientId!,
 					clientSecret: discordClientSecret!,
+					disableDefaultScope: true,
 					scope: ["identify", "guilds.members.read"],
 					mapProfileToUser: (profile) => ({
 						discordId: profile.id,
 						name: profile.global_name || profile.username,
-						email: `${profile.id}@discord.diadem.local`,
+						email: `${profile.id}@discord.internal`,
 						emailVerified: true,
 						image: profile.image_url || undefined
 					})

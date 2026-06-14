@@ -1,6 +1,5 @@
 import type { Handle, ServerInit } from "@sveltejs/kit";
-import { building } from "$app/environment";
-import { svelteKitHandler } from "better-auth/svelte-kit";
+
 import { getOrCreateUserFromDiscordId } from "@/lib/server/auth/auth";
 import {
 	assertBetterAuthStartupReadiness,
@@ -17,7 +16,7 @@ import type { Perms } from "@/lib/utils/features";
 import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
-import { setServerLoggerFactory } from "@/lib/utils/logger";
+import { getLogger, setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
@@ -48,7 +47,7 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 const permissionCache: TTLCache<string, undefined> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
 });
-const authLogger = getServerLogger("auth");
+const authLog = getLogger("auth");
 const permissionUpdateInFlight = new Map<string, Promise<Perms>>();
 
 function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typeof fetch) {
@@ -64,7 +63,15 @@ function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typ
 
 const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	if (!auth) return resolve(event);
-	return svelteKitHandler({ event, resolve, auth, building });
+	const basePath = auth.options.basePath || "/api/auth";
+	const pathname = event.url.pathname;
+	const isAuth = pathname.startsWith(basePath.endsWith("/") ? basePath : `${basePath}/`);
+	if (isAuth) {
+		const response = await auth.handler(event.request);
+		authLog.debug(`handleBetterAuth: auth.handler returned status=${response.status} for ${event.url.pathname}`);
+		return response;
+	}
+	return resolve(event);
 };
 
 const handleAuth: Handle = async ({ event, resolve }) => {
@@ -84,7 +91,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 	const discordId = authSession.user.discordId;
 	if (!discordId) {
-		authLogger.warning("Authenticated user has no discordId in Better Auth session");
+		authLog.warning("Authenticated user has no discordId in Better Auth session");
 		return resolve(event);
 	}
 
