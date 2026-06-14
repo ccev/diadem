@@ -158,6 +158,10 @@ export type ServerConfig = {
 		basicAuth?: string;
 		userAgent?: string;
 	};
+	overpass?: {
+		url: string;
+		userAgent?: string;
+	};
 	pelias?: {
 		url: string;
 		apiKey?: string;

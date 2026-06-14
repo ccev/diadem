@@ -1,5 +1,10 @@
 import { goto } from "$app/navigation";
-import { L14_HIGHLIGHT, WayfarerLayerId } from "@/lib/map/layers";
+import {
+	L14_HIGHLIGHT,
+	MapSourceId,
+	WayfarerLayerId,
+	updateMapGeojsonSource
+} from "@/lib/map/layers";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
 import maplibre from "maplibre-gl";
@@ -8,6 +13,8 @@ import { closeMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
 import { getCoveringS2Cells } from "@/lib/mapObjects/s2cells";
 import type { MapStyle } from "@/lib/services/config/configTypes";
 import { getMapStyle } from "@/lib/utils/mapStyle";
+import { getCandidateMapImageId } from "@/lib/services/wayfarerCandidateIcons";
+import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 
 const MAX_S2_CELLS = 5000;
 export const WAYFARER_CELLS_14_MIN_ZOOM = 10;
@@ -29,6 +36,14 @@ export type FortData = {
 	first_seen_timestamp: number;
 };
 
+export type OverpassCandidate = {
+	id: number;
+	osmType: "node" | "way" | "relation";
+	lat: number;
+	lon: number;
+	tags: Record<string, string>;
+};
+
 const FETCH_CACHE_TTL_MS = 30_000;
 
 let forts: FortData[] = $state([]);
@@ -44,6 +59,14 @@ let clickedL14Cell:
 	| undefined = $state(undefined);
 let invokedFromMap: boolean = $state(false);
 let style: MapStyle | undefined = $state(undefined);
+
+let candidates: OverpassCandidate[] = $state([]);
+let candidatesLoading: boolean = $state(false);
+let clickedCandidate: OverpassCandidate | undefined = $state(undefined);
+
+function candidateKey(c: { osmType: string; id: number }) {
+	return c.osmType + "-" + c.id;
+}
 
 export function getWayfarerStyle() {
 	return style ? getMapStyle(style) : undefined;
@@ -68,6 +91,7 @@ export function getClickedL14Cell() {
 export function setClickedFort(fort: FortData | undefined) {
 	clickedFort = fort;
 	clickedL14Cell = undefined;
+	clickedCandidate = undefined;
 }
 
 export function setClickedL14Cell(
@@ -77,11 +101,61 @@ export function setClickedL14Cell(
 ) {
 	clickedL14Cell = cell;
 	clickedFort = undefined;
+	clickedCandidate = undefined;
 }
 
 export function clearClicked() {
 	clickedFort = undefined;
 	clickedL14Cell = undefined;
+	clickedCandidate = undefined;
+}
+
+export function getCandidates() {
+	return candidates;
+}
+
+export function getCandidatesLoading() {
+	return candidatesLoading;
+}
+
+export function getClickedCandidate() {
+	return clickedCandidate;
+}
+
+export function setClickedCandidate(c: OverpassCandidate | undefined) {
+	clickedCandidate = c;
+	clickedFort = undefined;
+	clickedL14Cell = undefined;
+}
+
+export function isCandidateDimmed(c: OverpassCandidate): boolean {
+	return getUserSettings().wayfarerDimmedCandidates.includes(candidateKey(c));
+}
+
+export function toggleCandidateDimmed(c: OverpassCandidate, map: maplibre.Map | undefined) {
+	const key = candidateKey(c);
+	const settings = getUserSettings();
+	if (settings.wayfarerDimmedCandidates.includes(key)) {
+		settings.wayfarerDimmedCandidates = settings.wayfarerDimmedCandidates.filter(
+			(id) => id !== key
+		);
+	} else {
+		settings.wayfarerDimmedCandidates = [...settings.wayfarerDimmedCandidates, key];
+	}
+	updateUserSettings();
+	if (map)
+		updateMapGeojsonSource(map, MapSourceId.WAYFARER_CANDIDATES, generateCandidatesGeoJSON());
+}
+
+export function clearDimmedCandidates(map: maplibre.Map | undefined) {
+	getUserSettings().wayfarerDimmedCandidates = [];
+	updateUserSettings();
+	if (map)
+		updateMapGeojsonSource(map, MapSourceId.WAYFARER_CANDIDATES, generateCandidatesGeoJSON());
+}
+
+export function getDimmedCandidateCount(): number {
+	return getUserSettings().wayfarerDimmedCandidates.length;
 }
 
 function buildFetchKey(cellIds: string[], countsOnly: boolean): string {
@@ -233,6 +307,68 @@ export type FortPointProperties = {
 	fortPartnerId?: string;
 	fortSponsorId?: number;
 };
+
+export type CandidatePointProperties = {
+	id: string;
+	osmType: string;
+	candidateKey: string;
+	name: string;
+	iconImage: string;
+	dimmed: boolean;
+};
+
+export function generateCandidatesGeoJSON(): FeatureCollection<Point, CandidatePointProperties> {
+	const dimmedSet = new Set(getUserSettings().wayfarerDimmedCandidates);
+	return featureCollection(
+		candidates.map((c) => {
+			const key = candidateKey(c);
+			return {
+				type: "Feature" as const,
+				geometry: { type: "Point" as const, coordinates: [c.lon, c.lat] },
+				properties: {
+					id: key,
+					osmType: c.osmType,
+					candidateKey: key,
+					name: c.tags.name ?? "",
+					iconImage: getCandidateMapImageId(c.tags),
+					dimmed: dimmedSet.has(key)
+				}
+			};
+		})
+	);
+}
+
+export async function fetchCandidatesForCurrentBounds(map: maplibre.Map) {
+	candidatesLoading = true;
+	try {
+		const b = map.getBounds();
+		const response = await fetch("/api/wayfarer/candidates", {
+			method: "POST",
+			body: JSON.stringify({
+				bounds: {
+					minLat: b.getSouth(),
+					maxLat: b.getNorth(),
+					minLon: b.getWest(),
+					maxLon: b.getEast()
+				}
+			})
+		});
+		if (!response.ok) {
+			console.warn("Wayfarer candidates: server returned", response.status);
+			return;
+		}
+		const data = await response.json();
+		const incoming = (data.candidates ?? []) as OverpassCandidate[];
+		const existingKeys = new Set(candidates.map((c) => c.osmType + "-" + c.id));
+		const merged = incoming.filter((c) => !existingKeys.has(c.osmType + "-" + c.id));
+		candidates = [...candidates, ...merged];
+		updateMapGeojsonSource(map, MapSourceId.WAYFARER_CANDIDATES, generateCandidatesGeoJSON());
+	} catch (e) {
+		console.error("Failed to fetch wayfarer candidates", e);
+	} finally {
+		candidatesLoading = false;
+	}
+}
 
 type S2CellPolygonProperties = {
 	id: string;
@@ -409,6 +545,19 @@ export function wayfarerMapClickHandler(event: maplibre.MapMouseEvent) {
 			const fort = forts.find((f) => f.type + "-" + f.id === props.id);
 			if (fort) {
 				setClickedFort(fort);
+				return;
+			}
+		}
+	}
+
+	const candidateLayers = existingLayers(map, [WayfarerLayerId.CANDIDATE_CIRCLES]);
+	if (candidateLayers.length > 0) {
+		const candidateFeatures = map.queryRenderedFeatures(event.point, { layers: candidateLayers });
+		if (candidateFeatures.length > 0) {
+			const props = candidateFeatures[0].properties as CandidatePointProperties;
+			const c = candidates.find((c) => c.osmType + "-" + c.id === props.id);
+			if (c) {
+				setClickedCandidate(c);
 				return;
 			}
 		}

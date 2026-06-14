@@ -37,8 +37,8 @@
 				showRecents: false,
 				resultSnippet: coverageSearchResults,
 				textSearchHint: m.search_hint_coverage(),
-				textNoResults: m.search_no_results_generic()
-			} as SearchOptions;
+				textNoResults: m.search_no_results_generic(),
+			};
 		} else if (searchMode === "wayfarer") {
 			return {
 				types: [
@@ -50,13 +50,13 @@
 				showRecents: false,
 				resultSnippet: wayfarerSearchResults,
 				textSearchHint: m.search_hint_wayfarer(),
-				textNoResults: m.search_no_results_generic()
-			} as SearchOptions;
+				textNoResults: m.search_no_results_generic(),
+			};
 		} else {
 			return {
 				showRecents: true,
-				resultSnippet: mainSearchResults
-			} as SearchOptions;
+				resultSnippet: mainSearchResults,
+			};
 		}
 	});
 

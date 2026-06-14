@@ -12,6 +12,7 @@
 		fetchWayfarerForts,
 		generateFortGeoJSON,
 		generateWayfarerData,
+		generateCandidatesGeoJSON,
 		wayfarerMapClickHandler,
 		getWayfarerColors,
 		WAYFARER_CELLS_14_MIN_ZOOM,
@@ -21,6 +22,7 @@
 		WAYFARER_LABELS_MIN_ZOOM,
 		getWayfarerStyle
 	} from "@/lib/features/wayfarerMap.svelte";
+	import { CANDIDATE_ICONS, CANDIDATE_CATEGORIES } from "@/lib/services/wayfarerCandidateIcons";
 	import MapCommon from "@/components/map/MapCommon.svelte";
 	import {
 		getInitialMapPositionMain,
@@ -44,6 +46,7 @@
 	let cells14Data: FeatureCollection<Polygon> = $state(featureCollectionEmpty());
 	let cells17Data: FeatureCollection<Polygon> = $state(featureCollectionEmpty());
 	let labelsData: FeatureCollection<Point> = $state(featureCollectionEmpty());
+	let candidatesData: FeatureCollection<Point> = $derived(generateCandidatesGeoJSON());
 
 	function featureCollectionEmpty<T extends Point | Polygon>() {
 		return { type: "FeatureCollection" as const, features: [] } as FeatureCollection<T>;
@@ -79,6 +82,62 @@
 				WAYFARER_DIAMOND_PINK_ID,
 				makeDiamondImage(c.fortSponsored, c.fortSponsoredStroke)
 			);
+		}
+	}
+
+	let iconContainer: HTMLDivElement | undefined = $state();
+
+	const CANDIDATE_ICON_SIZE = 36;
+	const CANDIDATE_INNER_ICON_SIZE = 22;
+	const CANDIDATE_ICON_COLOR = "#06b6d4";
+
+	function extractCandidateSvg(category: string): string | undefined {
+		const svg = iconContainer?.querySelector<SVGSVGElement>(`[data-cat="${category}"] svg`);
+		if (!svg) return undefined;
+		const clone = svg.cloneNode(true) as SVGSVGElement;
+		clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+		clone.setAttribute("stroke", CANDIDATE_ICON_COLOR);
+		clone.setAttribute("width", String(CANDIDATE_INNER_ICON_SIZE));
+		clone.setAttribute("height", String(CANDIDATE_INNER_ICON_SIZE));
+		return new XMLSerializer().serializeToString(clone);
+	}
+
+	async function makeCandidateIconImage(category: string): Promise<ImageData | undefined> {
+		const svgString = extractCandidateSvg(category);
+		if (!svgString) return undefined;
+
+		const size = CANDIDATE_ICON_SIZE;
+		const canvas = document.createElement("canvas");
+		canvas.width = size;
+		canvas.height = size;
+		const ctx = canvas.getContext("2d")!;
+
+		ctx.fillStyle = "#ffffff";
+		ctx.strokeStyle = CANDIDATE_ICON_COLOR;
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.stroke();
+
+		const img = new Image();
+		return new Promise((resolve) => {
+			img.onload = () => {
+				const offset = (size - CANDIDATE_INNER_ICON_SIZE) / 2;
+				ctx.drawImage(img, offset, offset, CANDIDATE_INNER_ICON_SIZE, CANDIDATE_INNER_ICON_SIZE);
+				resolve(ctx.getImageData(0, 0, size, size));
+			};
+			img.onerror = () => resolve(undefined);
+			img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+		});
+	}
+
+	async function loadCandidateIcons(m: maplibre.Map) {
+		for (const category of CANDIDATE_CATEGORIES) {
+			const id = CANDIDATE_ICONS[category].mapImageId;
+			if (m.hasImage(id)) continue;
+			const image = await makeCandidateIconImage(category);
+			if (image && !m.hasImage(id)) m.addImage(id, image);
 		}
 	}
 
@@ -130,14 +189,17 @@
 	bind:map
 	initialCenter={Coords.infer(mapPosition.center)}
 	initialZoom={mapPosition.zoom}
-	onload={(loadedMap) => {
+	onload={async (loadedMap) => {
 		loadDiamondImages(loadedMap);
+		await loadCandidateIcons(loadedMap);
 		loadedMap.on("styledataloading", () => {
 			loadDiamondImages(loadedMap);
+			loadCandidateIcons(loadedMap);
 			updateWayfarerData(loadedMap);
 
 			loadedMap?.once("styledata", () => {
 				updateMapGeojsonSource(loadedMap, MapSourceId.WAYFARER_FORTS, fortData);
+				updateMapGeojsonSource(loadedMap, MapSourceId.WAYFARER_CANDIDATES, candidatesData);
 			});
 		});
 
@@ -220,6 +282,22 @@
 		/>
 	</GeoJSON>
 
+	<GeoJSON id={MapSourceId.WAYFARER_CANDIDATES} data={candidatesData}>
+		<SymbolLayer
+			id={WayfarerLayerId.CANDIDATE_CIRCLES}
+			layout={{
+				"icon-image": ["get", "iconImage"],
+				"icon-size": 0.75,
+				"icon-allow-overlap": true,
+				"icon-ignore-placement": true
+			}}
+			paint={{
+				"icon-opacity": ["case", ["get", "dimmed"], 0.3, 1] as ExpressionSpecification
+			}}
+			hoverCursor="pointer"
+		/>
+	</GeoJSON>
+
 	<GeoJSON id={MapSourceId.WAYFARER_FORTS} data={fortData}>
 		<CircleLayer
 			id={WayfarerLayerId.FORT_CIRCLES}
@@ -263,3 +341,15 @@
 		/>
 	</GeoJSON>
 </MapCommon>
+
+<div
+	bind:this={iconContainer}
+	class="absolute pointer-events-none opacity-0 size-0 overflow-hidden -z-50"
+>
+	{#each CANDIDATE_CATEGORIES as category (category)}
+		{@const Icon = CANDIDATE_ICONS[category].Icon}
+		<div data-cat={category}>
+			<Icon size={CANDIDATE_INNER_ICON_SIZE} strokeWidth={2.25} color={CANDIDATE_ICON_COLOR} />
+		</div>
+	{/each}
+</div>

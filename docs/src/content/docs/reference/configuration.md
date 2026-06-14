@@ -116,6 +116,19 @@ url = "https://nominatim.openstreetmap.org/"
 
 - `userAgent`: Set this to something unique if you're using public nominatim
 
+### `server.overpass`
+
+```toml
+[server.overpass]
+url = "https://overpass-api.de/api/interpreter"
+userAgent = "diadem, contact: <>"
+```
+
+Used by the Wayfarer Map's "Find candidates" feature to query OpenStreetMap for potential wayspot candidates. Requires a public Overpass API instance.
+
+- `url`: URL of the Overpass API interpreter endpoint
+- `userAgent`: A descriptive user agent string (required by many public instances)
+
 ## `server.auth`
 
 ```toml
