@@ -29,13 +29,19 @@ export type FortData = {
 	first_seen_timestamp: number;
 };
 
+const FETCH_CACHE_TTL_MS = 30_000;
+
 let forts: FortData[] = $state([]);
 let pokestopCounts: Record<string, number> = $state({});
 let gymCounts: Record<string, number> = $state({});
 let lastFetchKey: string = "";
+let lastFetchAt = 0;
+let activeFetchController: AbortController | undefined;
+let activeFetchId = 0;
 let clickedFort: FortData | undefined = $state(undefined);
-let clickedL14Cell: { cellId: string; center: [number, number]; fortCount: number; gymCount: number } | undefined =
-	$state(undefined);
+let clickedL14Cell:
+	| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
+	| undefined = $state(undefined);
 let invokedFromMap: boolean = $state(false);
 let style: MapStyle | undefined = $state(undefined);
 
@@ -65,7 +71,9 @@ export function setClickedFort(fort: FortData | undefined) {
 }
 
 export function setClickedL14Cell(
-	cell: { cellId: string; center: [number, number]; fortCount: number; gymCount: number } | undefined
+	cell:
+		| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
+		| undefined
 ) {
 	clickedL14Cell = cell;
 	clickedFort = undefined;
@@ -76,30 +84,60 @@ export function clearClicked() {
 	clickedL14Cell = undefined;
 }
 
+function buildFetchKey(cellIds: string[], countsOnly: boolean): string {
+	const prefix = countsOnly ? "c:" : "f:";
+	if (cellIds.length === 0) return prefix;
+	let min = cellIds[0];
+	let max = cellIds[0];
+	for (let i = 1; i < cellIds.length; i++) {
+		const id = cellIds[i];
+		if (id < min) min = id;
+		else if (id > max) max = id;
+	}
+	return prefix + cellIds.length + ":" + min + ":" + max;
+}
+
+export function resetWayfarerFetchCache() {
+	lastFetchKey = "";
+	lastFetchAt = 0;
+}
+
 export async function fetchWayfarerForts(
 	cellIds: string[],
 	countsOnly: boolean,
 	force: boolean = false
 ) {
-	const key = (countsOnly ? "c:" : "f:") + cellIds.slice().sort().join(",");
-	if (key === lastFetchKey && !force) return;
-	lastFetchKey = key;
+	const key = buildFetchKey(cellIds, countsOnly);
+	const now = Date.now();
+	const cacheValid = key === lastFetchKey && now - lastFetchAt < FETCH_CACHE_TTL_MS;
+	if (cacheValid && !force) return;
+
+	activeFetchController?.abort();
+	const controller = new AbortController();
+	activeFetchController = controller;
+	const fetchId = ++activeFetchId;
 
 	try {
 		const response = await fetch("/api/wayfarer/forts", {
 			body: JSON.stringify({ cellIds, countsOnly }),
-			method: "POST"
+			method: "POST",
+			signal: controller.signal
 		});
+		if (fetchId !== activeFetchId) return;
 		if (!response.ok) return;
 		const data = (await response.json()) as {
 			pokestopCounts: Record<string, number>;
 			gymCounts: Record<string, number>;
 			forts: FortData[];
 		};
+		if (fetchId !== activeFetchId) return;
 		pokestopCounts = data.pokestopCounts ?? {};
 		gymCounts = data.gymCounts ?? {};
 		forts = data.forts ?? [];
+		lastFetchKey = key;
+		lastFetchAt = now;
 	} catch (e) {
+		if ((e as Error).name === "AbortError") return;
 		console.error("Failed to fetch wayfarer forts", e);
 	}
 }
@@ -130,22 +168,22 @@ export type WayfarerColors = {
 export function getWayfarerColors(): WayfarerColors {
 	const s = getComputedStyle(document.documentElement);
 	return {
-		l14Stroke:         s.getPropertyValue("--wayfarer-l14-stroke"),
-		l14StrokeRed:      s.getPropertyValue("--wayfarer-l14-stroke-red"),
-		l14StrokeAmber:    s.getPropertyValue("--wayfarer-l14-stroke-amber"),
-		l14StrokeGreen:    s.getPropertyValue("--wayfarer-l14-stroke-green"),
-		l14FillRed:        s.getPropertyValue("--wayfarer-l14-fill-red"),
-		l14FillAmber:      s.getPropertyValue("--wayfarer-l14-fill-amber"),
-		l14FillGreen:      s.getPropertyValue("--wayfarer-l14-fill-green"),
-		l17Stroke:         s.getPropertyValue("--wayfarer-l17-stroke"),
-		l17Fill:           s.getPropertyValue("--wayfarer-l17-fill"),
-		fortPokestop:      s.getPropertyValue("--wayfarer-fort-pokestop"),
+		l14Stroke: s.getPropertyValue("--wayfarer-l14-stroke"),
+		l14StrokeRed: s.getPropertyValue("--wayfarer-l14-stroke-red"),
+		l14StrokeAmber: s.getPropertyValue("--wayfarer-l14-stroke-amber"),
+		l14StrokeGreen: s.getPropertyValue("--wayfarer-l14-stroke-green"),
+		l14FillRed: s.getPropertyValue("--wayfarer-l14-fill-red"),
+		l14FillAmber: s.getPropertyValue("--wayfarer-l14-fill-amber"),
+		l14FillGreen: s.getPropertyValue("--wayfarer-l14-fill-green"),
+		l17Stroke: s.getPropertyValue("--wayfarer-l17-stroke"),
+		l17Fill: s.getPropertyValue("--wayfarer-l17-fill"),
+		fortPokestop: s.getPropertyValue("--wayfarer-fort-pokestop"),
 		fortPokestopStroke: s.getPropertyValue("--wayfarer-fort-pokestop-stroke"),
-		fortSponsored:     s.getPropertyValue("--wayfarer-fort-sponsored"),
+		fortSponsored: s.getPropertyValue("--wayfarer-fort-sponsored"),
 		fortSponsoredStroke: s.getPropertyValue("--wayfarer-fort-sponsored-stroke"),
-		fortGym:           s.getPropertyValue("--wayfarer-fort-gym"),
-		fortGymStroke:     s.getPropertyValue("--wayfarer-fort-gym-stroke"),
-		labelText:         "#ffffff",
+		fortGym: s.getPropertyValue("--wayfarer-fort-gym"),
+		fortGymStroke: s.getPropertyValue("--wayfarer-fort-gym-stroke"),
+		labelText: s.getPropertyValue("--wayfarer-label-text")
 	};
 }
 
@@ -223,10 +261,8 @@ export function generateWayfarerData(
 	labels: FeatureCollection<Point, L14LabelProperties>;
 	cellIds: string[];
 } | null {
-	const l14Cells =
-		zoom >= WAYFARER_CELLS_14_MIN_ZOOM ? getCoveringS2Cells(bounds, 14) : null;
-	const l17Cells =
-		zoom >= WAYFARER_CELLS_17_MIN_ZOOM ? getCoveringS2Cells(bounds, 17) : null;
+	const l14Cells = zoom >= WAYFARER_CELLS_14_MIN_ZOOM ? getCoveringS2Cells(bounds, 14) : null;
+	const l17Cells = zoom >= WAYFARER_CELLS_17_MIN_ZOOM ? getCoveringS2Cells(bounds, 17) : null;
 
 	// L17 occupancy is derived from full fort data and only meaningful at higher zoom
 	// (when forts are fetched). At low zoom (countsOnly), forts is empty so the set stays empty.
@@ -401,12 +437,11 @@ export function wayfarerMapClickHandler(event: maplibre.MapMouseEvent) {
 		}
 	}
 
-
 	clearClicked();
 }
 
 export function openWayfarerMap() {
-	closeMenu()
+	closeMenu();
 	invokedFromMap = true;
 	goto("/wayfarer").then();
 }
@@ -421,10 +456,13 @@ export function getPokestopsRequiredForNewGym(count: number, gyms: number): numb
 	return threshold - count;
 }
 
-export function getWayfarerCellHighlight(count: number, gyms: number): "" | "red" | "amber" | "green" {
+export function getWayfarerCellHighlight(
+	count: number,
+	gyms: number
+): "" | "red" | "amber" | "green" {
 	if (count <= 0) return "";
 	if (gyms >= 3) return "red";
-	const remaining = getPokestopsRequiredForNewGym(count, gyms)
+	const remaining = getPokestopsRequiredForNewGym(count, gyms);
 	if (remaining === 2) return "amber";
 	if (remaining === 1) return "green";
 	return "";

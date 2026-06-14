@@ -43,7 +43,7 @@ export type GymData = {
 	description?: string;
 	raid_pokemon_alignment?: number;
 	defenders_raw?: string;
-	defenders?: GymDefender[]
+	defenders?: GymDefender[];
 	rsvps?: string;
 };
 

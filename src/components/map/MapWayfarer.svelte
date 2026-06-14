@@ -2,7 +2,12 @@
 	import maplibre from "maplibre-gl";
 	import { GeoJSON, FillLayer, LineLayer, CircleLayer, SymbolLayer } from "svelte-maplibre";
 	import type { ExpressionSpecification } from "maplibre-gl";
-	import { MapSourceId, WayfarerLayerId, updateMapGeojsonSource, L14_HIGHLIGHT } from "@/lib/map/layers";
+	import {
+		MapSourceId,
+		WayfarerLayerId,
+		updateMapGeojsonSource,
+		L14_HIGHLIGHT
+	} from "@/lib/map/layers";
 	import {
 		fetchWayfarerForts,
 		generateFortGeoJSON,
@@ -13,10 +18,14 @@
 		WAYFARER_DIAMOND_WHITE_ID,
 		WAYFARER_DIAMOND_PINK_ID,
 		WAYFARER_FORTS_MIN_ZOOM,
-		WAYFARER_LABELS_MIN_ZOOM, getWayfarerStyle
+		WAYFARER_LABELS_MIN_ZOOM,
+		getWayfarerStyle
 	} from "@/lib/features/wayfarerMap.svelte";
 	import MapCommon from "@/components/map/MapCommon.svelte";
-	import { getInitialMapPoisitionMain, getMapPositionFromUrlParams } from "$lib/map/mapPositionParams.svelte";
+	import {
+		getInitialMapPositionMain,
+		getMapPositionFromUrlParams
+	} from "$lib/map/mapPositionParams.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
@@ -29,7 +38,7 @@
 		map?: maplibre.Map | undefined;
 	} = $props();
 
-	const mapPosition = getInitialMapPoisitionMain();
+	const mapPosition = getInitialMapPositionMain();
 
 	let fortData: FeatureCollection<Point> = $state(featureCollectionEmpty());
 	let cells14Data: FeatureCollection<Polygon> = $state(featureCollectionEmpty());
@@ -66,7 +75,10 @@
 			m.addImage(WAYFARER_DIAMOND_WHITE_ID, makeDiamondImage(c.fortGym, c.fortGymStroke));
 		}
 		if (!m.hasImage(WAYFARER_DIAMOND_PINK_ID)) {
-			m.addImage(WAYFARER_DIAMOND_PINK_ID, makeDiamondImage(c.fortSponsored, c.fortSponsoredStroke));
+			m.addImage(
+				WAYFARER_DIAMOND_PINK_ID,
+				makeDiamondImage(c.fortSponsored, c.fortSponsoredStroke)
+			);
 		}
 	}
 
@@ -101,8 +113,7 @@
 			labelsData = featureCollectionEmpty();
 		}
 
-		fortData =
-			zoom >= WAYFARER_FORTS_MIN_ZOOM ? generateFortGeoJSON() : featureCollectionEmpty();
+		fortData = zoom >= WAYFARER_FORTS_MIN_ZOOM ? generateFortGeoJSON() : featureCollectionEmpty();
 
 		if (zoom < WAYFARER_LABELS_MIN_ZOOM) {
 			labelsData = featureCollectionEmpty();
@@ -122,12 +133,12 @@
 	onload={(loadedMap) => {
 		loadDiamondImages(loadedMap);
 		loadedMap.on("styledataloading", () => {
-			loadDiamondImages(loadedMap)
+			loadDiamondImages(loadedMap);
 			updateWayfarerData(loadedMap);
 
 			loadedMap?.once("styledata", () => {
 				updateMapGeojsonSource(loadedMap, MapSourceId.WAYFARER_FORTS, fortData);
-			})
+			});
 		});
 
 		loadedMap.on("click", wayfarerMapClickHandler);
@@ -241,12 +252,12 @@
 				"text-field": ["get", "label"],
 				"text-size": 16,
 				"text-allow-overlap": true,
-				"text-ignore-placement": true,
+				"text-ignore-placement": true
 			}}
 			paint={{
 				"text-color": ["get", "labelText"],
 				"text-halo-color": ["get", "labelHalo"],
-				"text-halo-width": 1.75,
+				"text-halo-width": 1.75
 			}}
 			hoverCursor="pointer"
 		/>

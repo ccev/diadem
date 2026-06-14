@@ -27,7 +27,7 @@
 		map?: maplibre.Map | undefined;
 		initialCenter: Coords;
 		initialZoom: number;
-		style?: string | maplibre.StyleSpecification
+		style?: string | maplibre.StyleSpecification;
 	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
@@ -44,7 +44,7 @@
 		closeMenu();
 		clearActiveSearchFilter();
 		setCurrentSelectedData(null);
-		resetLocate()
+		resetLocate();
 	});
 </script>
 

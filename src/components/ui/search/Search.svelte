@@ -129,7 +129,7 @@
 									{searchOptions.textSearchHint}
 								{/if}
 							</div>
-					{/if}
+						{/if}
 					</Command.Empty>
 				{/if}
 

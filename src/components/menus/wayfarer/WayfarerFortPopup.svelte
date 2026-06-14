@@ -31,33 +31,28 @@
 
 		{#snippet title()}
 			<div class="text-lg font-semibold tracking-tight">
-			<span>
-				{#if data.name}
-					{data.name}
-				{:else}
-					{#if data.type === "g"}
+				<span>
+					{#if data.name}
+						{data.name}
+					{:else if data.type === "g"}
 						{m.unknown_gym()}
 					{:else if data.type === "p"}
 						{m.unknown_pokestop()}
 					{:else}
 						{m.unknown_poi()}
 					{/if}
-				{/if}
-			</span>
+				</span>
 			</div>
 		{/snippet}
 
 		{#snippet content()}
 			{#if data.description}
 				<div class="flex mb-3">
-					<div
-						class="w-0.5 my-1 bg-border shrink-0 ml-0.5 mr-2.5"
-					></div>
+					<div class="w-0.5 my-1 bg-border shrink-0 ml-0.5 mr-2.5"></div>
 					<p>
 						{data.description}
 					</p>
 				</div>
-
 			{/if}
 
 			<IconValue Icon={MapPin}>

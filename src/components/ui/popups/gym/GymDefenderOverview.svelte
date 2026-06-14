@@ -89,7 +89,8 @@
 						{m.defender_lost({ count: selectedDefender.battles_lost })}
 					</IconValue>
 				</div>
-				{m.defender_placed()} <Countdown expireTime={selectedDefender.deployed_time} />
+				{m.defender_placed()}
+				<Countdown expireTime={selectedDefender.deployed_time} />
 			</div>
 		{/if}
 	</div>

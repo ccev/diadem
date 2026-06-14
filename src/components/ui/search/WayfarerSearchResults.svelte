@@ -1,26 +1,20 @@
 <script lang="ts">
 	import type { FuzzyResult } from "@nozbe/microfuzz";
-	import {
-		type AnySearchEntry,
-		SearchableType,
-		type GymSearchEntry,
-		type PokestopSearchEntry
-	} from "@/lib/services/search.svelte";
+	import { type AnySearchEntry, SearchableType } from "@/lib/services/search.svelte";
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
 	import { getFeatureJump } from "@/lib/utils/geo";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";
 	import { point } from "@turf/turf";
 	import { resize } from "@/lib/services/assets";
 	import { getIconGym, getIconPokestop } from "@/lib/services/uicons.svelte";
-	import type { AreaSearchEntry, AddressSearchEntry } from "@/lib/services/search.svelte";
 	import type maplibre from "maplibre-gl";
 
 	let {
 		results,
 		map
 	}: {
-		results: FuzzyResult<AnySearchEntry>[],
-		map: maplibre.Map | undefined
+		results: FuzzyResult<AnySearchEntry>[];
+		map: maplibre.Map | undefined;
 	} = $props();
 
 	function wayfarerFlyTo(coords: maplibre.LngLatLike, zoom: number) {
@@ -34,8 +28,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				const areaEntry = entry as AreaSearchEntry;
-				const params = getFeatureJump(areaEntry.feature, true, map);
+				const params = getFeatureJump(entry.feature, true, map);
 				wayfarerFlyTo(params.coords.maplibre(), params.zoom);
 				closeSearchModal();
 			}}
@@ -44,9 +37,8 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				const addrEntry = entry as AddressSearchEntry;
 				const params = getFeatureJump(
-					point(addrEntry.point, undefined, { bbox: addrEntry.bbox }),
+					point(entry.point, undefined, { bbox: entry.bbox }),
 					true,
 					map
 				);
@@ -60,8 +52,7 @@
 			fortImage={true}
 			imageUrl={resize(getIconPokestop({}), { width: 64 })}
 			onselect={() => {
-				const psEntry = entry as PokestopSearchEntry;
-				wayfarerFlyTo([psEntry.lon, psEntry.lat], 17);
+				wayfarerFlyTo([entry.lon, entry.lat], 17);
 				closeSearchModal();
 			}}
 		/>
@@ -71,8 +62,7 @@
 			fortImage={true}
 			imageUrl={resize(getIconGym({ team_id: 0 }), { width: 64 })}
 			onselect={() => {
-				const gymEntry = entry as GymSearchEntry;
-				wayfarerFlyTo([gymEntry.lon, gymEntry.lat], 17);
+				wayfarerFlyTo([entry.lon, entry.lat], 17);
 				closeSearchModal();
 			}}
 		/>

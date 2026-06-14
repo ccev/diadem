@@ -40,7 +40,8 @@
 	import { FeatureTypes } from "@/lib/map/render/featureTypes";
 	import MapCommon from "@/components/map/MapCommon.svelte";
 	import {
-		clearMapPositionUrlParams, getInitialMapPoisitionMain,
+		clearMapPositionUrlParams,
+		getInitialMapPositionMain,
 		getMapPositionFromUrlParams
 	} from "$lib/map/mapPositionParams.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
@@ -53,7 +54,7 @@
 		map?: maplibre.Map | undefined;
 	} = $props();
 
-	const mapPosition = getInitialMapPoisitionMain();
+	const mapPosition = getInitialMapPositionMain();
 
 	async function onMapLoad(map: maplibre.Map) {
 		setMap(map);
