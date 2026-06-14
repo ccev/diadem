@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
 	const sessionExpandedState: Record<string, boolean> = {};
 </script>
 

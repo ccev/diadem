@@ -46,7 +46,6 @@ export async function getUserInfoResult(accessToken: string): Promise<DiscordUse
 
 	const user: DiscordUserData = await response.json();
 	return {
-	return {
 		status: response.status,
 		data: {
 			id: user.id,
