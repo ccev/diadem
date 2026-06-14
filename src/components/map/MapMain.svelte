@@ -40,7 +40,8 @@
 	import { FeatureTypes } from "@/lib/map/render/featureTypes";
 	import MapCommon from "@/components/map/MapCommon.svelte";
 	import {
-		clearMapPositionUrlParams, getInitialMapPoisitionMain,
+		clearMapPositionUrlParams,
+		getInitialMapPoisitionMain,
 		getMapPositionFromUrlParams
 	} from "$lib/map/mapPositionParams.svelte";
 	import { Coords } from "@/lib/utils/coordinates";

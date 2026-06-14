@@ -187,7 +187,7 @@ export type SearchOptions = {
 	types?: SearchableType[];
 	showRecents?: boolean;
 	resultSnippet: Snippet<[FuzzyResult<AnySearchEntry>[]]>;
-	ignoreAddressMinCharacters?: boolean
+	ignoreAddressMinCharacters?: boolean;
 };
 
 let currentSearchQuery = $state("");

@@ -12,7 +12,8 @@ export enum MapSourceId {
 	WAYFARER_FORTS = "wayfarerForts",
 	WAYFARER_CELLS_14 = "wayfarerCells14",
 	WAYFARER_CELLS_17 = "wayfarerCells17",
-	WAYFARER_CELL_LABELS = "wayfarerCellLabels"
+	WAYFARER_CELL_LABELS = "wayfarerCellLabels",
+	WAYFARER_CANDIDATES = "wayfarerCandidates"
 }
 
 export enum MapObjectLayerId {
@@ -40,7 +41,8 @@ export enum WayfarerLayerId {
 	CELLS_14_LINE_GREEN = "wayfarerCells14LineGreen",
 	CELLS_17_LINE = "wayfarerCells17Line",
 	CELLS_17_FILL = "wayfarerCells17Fill",
-	CELL_LABELS = "wayfarerCellLabels"
+	CELL_LABELS = "wayfarerCellLabels",
+	CANDIDATE_CIRCLES = "wayfarerCandidateCircles"
 }
 
 export const L14_HIGHLIGHT = {
@@ -62,7 +64,7 @@ export function updateMapGeojsonSource(
 		return;
 	}
 
-	console.log(source)
+	console.log(source);
 
 	if (!source) return;
 

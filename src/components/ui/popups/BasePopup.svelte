@@ -44,7 +44,7 @@
 		canShare?: boolean;
 		isExpanded?: () => boolean;
 		onclose?: () => void;
-		class?: string
+		class?: string;
 	} = $props();
 
 	function getShareUrl() {
@@ -56,11 +56,7 @@
 	<PopupButtons lat={buttonLat} lon={buttonLon} />
 {/snippet}
 
-<div
-	class="w-full max-w-120 z-10"
-	style="pointer-events: all"
-	transition:slide={{ duration: 50 }}
->
+<div class="w-full max-w-120 z-10" style="pointer-events: all" transition:slide={{ duration: 50 }}>
 	<Card class="h-full relative overflow-hidden pt-4 mx-2 {class_}">
 		<div class="absolute right-2 top-3 flex gap-1.5">
 			{#if canShare}
@@ -133,5 +129,3 @@
 		{/if}
 	</Card>
 </div>
-
-

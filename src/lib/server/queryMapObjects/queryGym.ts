@@ -65,9 +65,9 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		data.raid_pokemon_form = getNormalizedForm(data.raid_pokemon_id, data.raid_pokemon_form);
 
 		if (data.defenders_raw) {
-			data.defenders = JSON.parse(data.defenders_raw) as GymDefender[]
+			data.defenders = JSON.parse(data.defenders_raw) as GymDefender[];
 			for (const defender of data?.defenders ?? []) {
-				defender.form = getNormalizedForm(defender.pokemon_id, defender.form)
+				defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
 			}
 		}
 	}

@@ -58,15 +58,22 @@
 						{m.wayfarer_gym_limit_reached()}
 					</IconValue>
 				{:else}
-					{@html m.wayfarer_pokestops_required_for_gym({ count: getPokestopsRequiredForNewGym(data.fortCount, data.gymCount) })}
+					{@html m.wayfarer_pokestops_required_for_gym({
+						count: getPokestopsRequiredForNewGym(data.fortCount, data.gymCount)
+					})}
 				{/if}
 			</p>
 
-			<IconValue Icon={Circle}
-			           class="*:fill-(--wayfarer-fort-pokestop) *:stroke-(--wayfarer-fort-pokestop-stroke)">
+			<IconValue
+				Icon={Circle}
+				class="*:fill-(--wayfarer-fort-pokestop) *:stroke-(--wayfarer-fort-pokestop-stroke)"
+			>
 				{@html m.wayfarer_pokestops_count({ count: data.fortCount - data.gymCount })}
 			</IconValue>
-			<IconValue Icon={Diamond} class="*:fill-(--wayfarer-fort-gym) *:stroke-(--wayfarer-fort-gym-stroke)">
+			<IconValue
+				Icon={Diamond}
+				class="*:fill-(--wayfarer-fort-gym) *:stroke-(--wayfarer-fort-gym-stroke)"
+			>
 				{@html m.wayfarer_gyms_count({ count: data.gymCount })}
 			</IconValue>
 		{/snippet}

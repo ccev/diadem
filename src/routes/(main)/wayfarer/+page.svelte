@@ -14,6 +14,7 @@
 	import WayfarerFortPopup from "@/components/menus/wayfarer/WayfarerFortPopup.svelte";
 	import WayfarerCellPopup from "@/components/menus/wayfarer/WayfarerCellPopup.svelte";
 	import WayfarerTitle from "@/components/menus/wayfarer/WayfarerTitle.svelte";
+	import WayfarerCandidatePopup from "@/components/menus/wayfarer/WayfarerCandidatePopup.svelte";
 	import { getWayfarerStyleId, setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
@@ -42,6 +43,7 @@
 
 			<WayfarerFortPopup />
 			<WayfarerCellPopup />
+			<WayfarerCandidatePopup {map} />
 		{/snippet}
 
 		{#snippet mobileBottom()}
@@ -55,6 +57,7 @@
 
 			<WayfarerFortPopup />
 			<WayfarerCellPopup />
+			<WayfarerCandidatePopup {map} />
 		{/snippet}
 	</MapMenuUi>
 
@@ -62,7 +65,7 @@
 		class="fixed top-2 left-0 right-0 z-20 px-2 max-w-md"
 		transition:fly={{ duration: 90, y: -14 }}
 	>
-		<WayfarerTitle />
+		<WayfarerTitle {map} />
 	</div>
 
 	<MapWayfarer bind:map />

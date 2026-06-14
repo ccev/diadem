@@ -4,7 +4,8 @@ export type optionalFeatures =
 	| "auth"
 	| "authRequired"
 	| "showFullscreenLogin"
-	| "geometryLookup";
+	| "geometryLookup"
+	| "overpass";
 
 export type SupportedFeatures = {
 	[key in optionalFeatures]: boolean;
@@ -16,7 +17,8 @@ let supportedFeatures: SupportedFeatures = {
 	auth: false,
 	authRequired: false,
 	showFullscreenLogin: false,
-	geometryLookup: false
+	geometryLookup: false,
+	overpass: false
 };
 
 export function isSupportedFeature(feature: optionalFeatures) {

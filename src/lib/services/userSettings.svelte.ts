@@ -89,6 +89,7 @@ export type UserSettings = {
 	};
 	actions: Record<MapObjectType, ActionState>;
 	recentSearches: AnySearchEntry[];
+	wayfarerDimmedCandidates: string[];
 };
 
 function defaultActionState(): ActionState {
@@ -160,7 +161,8 @@ export function getDefaultUserSettings(): UserSettings {
 		actions: Object.fromEntries(
 			Object.values(MapObjectType).map((type) => [type, defaultActionState()])
 		) as UserSettings["actions"],
-		recentSearches: []
+		recentSearches: [],
+		wayfarerDimmedCandidates: []
 	};
 }
 

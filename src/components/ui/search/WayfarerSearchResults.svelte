@@ -19,8 +19,8 @@
 		results,
 		map
 	}: {
-		results: FuzzyResult<AnySearchEntry>[],
-		map: maplibre.Map | undefined
+		results: FuzzyResult<AnySearchEntry>[];
+		map: maplibre.Map | undefined;
 	} = $props();
 
 	function wayfarerFlyTo(coords: maplibre.LngLatLike, zoom: number) {

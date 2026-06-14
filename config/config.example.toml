@@ -36,6 +36,10 @@ projectName = "reactmap"
 #basicAuth = ""
 #userAgent = "Diadem / Contact: name@email.com"
 
+#[server.overpass]
+#url = "https://overpass-api.de/api/interpreter"
+#userAgent = "diadem, contact: <>"
+
 [server.auth]
 enabled = true
 optional = true

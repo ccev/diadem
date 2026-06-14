@@ -38,7 +38,12 @@
 			};
 		} else if (searchMode === "wayfarer") {
 			return {
-				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.GYM, SearchableType.POKESTOP],
+				types: [
+					SearchableType.AREA,
+					SearchableType.ADDRESS,
+					SearchableType.GYM,
+					SearchableType.POKESTOP
+				],
 				showRecents: false,
 				resultSnippet: wayfarerSearchResults
 			};
@@ -72,12 +77,12 @@
 	});
 
 	let isSearchAllowed = $derived(!isSearchViewActive() && hasSearchData);
-	let searchInitialized: boolean = $state(false)
+	let searchInitialized: boolean = $state(false);
 
 	$effect(() => {
 		if (isSearchAllowed) {
 			initSearch(searchOptions);
-			searchInitialized = true
+			searchInitialized = true;
 		}
 	});
 
@@ -101,7 +106,7 @@
 	<WayfarerSearchResults {results} {map} />
 {/snippet}
 
-{#if searchInitialized }
+{#if searchInitialized}
 	<Search {searchOptions} />
 {/if}
 
