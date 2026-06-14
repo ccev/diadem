@@ -35,10 +35,10 @@ projectName = "reactmap"
 #basicAuth = ""
 
 [server.auth]
-enabled = true
+enabled = false
 optional = true
-secret = ""   # Required when enabled. Random 32+ chars (or set BETTER_AUTH_SECRET env)
-baseUrl = ""  # Required when enabled. Public app URL, e.g. "https://map.co"
+secret = ""   # set to a random 32+ character string
+baseUrl = "https://map.co"
 
 [server.auth.discord]
 clientId = ""
