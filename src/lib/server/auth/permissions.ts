@@ -1,16 +1,13 @@
 import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
 import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
+import type { User } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("permissions");
-
-export type PermissionUser = {
-	id: string;
-};
 
 let initializedEveryonePerms: boolean = false;
 let everyonePerms: Perms = { everywhere: [], areas: [] };
@@ -78,7 +75,7 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 }
 
 export async function updatePermissions(
-	user: PermissionUser,
+	user: User,
 	accessToken: string,
 	thisFetch: typeof fetch
 ) {

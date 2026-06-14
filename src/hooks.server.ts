@@ -1,12 +1,12 @@
 import type { Handle, ServerInit } from "@sveltejs/kit";
 
-import { getOrCreateUserFromDiscordId } from "@/lib/server/auth/auth";
+import { getUserByDiscordId } from "@/lib/server/auth/auth";
 import {
-	assertBetterAuthStartupReadiness,
+	AUTH_BASE_PATH,
 	auth,
 	getAuthSession,
 	getDiscordAccessToken,
-	isAuthFeatureEnabled
+	isAuthEnabled
 } from "@/lib/server/auth/betterAuth";
 import TTLCache from "@isaacs/ttlcache";
 import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
@@ -16,7 +16,7 @@ import type { Perms } from "@/lib/utils/features";
 import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
-import { getLogger, setServerLoggerFactory } from "@/lib/utils/logger";
+import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
@@ -44,10 +44,10 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 		});
 	});
 
-const permissionCache: TTLCache<string, undefined> = new TTLCache({
+const permissionCache: TTLCache<string, Perms> = new TTLCache({
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
 });
-const authLog = getLogger("auth");
+const authLog = getServerLogger("auth");
 const permissionUpdateInFlight = new Map<string, Promise<Perms>>();
 
 function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typeof fetch) {
@@ -62,18 +62,15 @@ function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typ
 }
 
 const handleAuth: Handle = async ({ event, resolve }) => {
-	if (auth) {
-		const basePath = auth.options.basePath || "/api/auth";
-		if (event.url.pathname.startsWith(basePath.endsWith("/") ? basePath : `${basePath}/`)) {
-			return auth.handler(event.request);
-		}
+	if (auth && event.url.pathname.startsWith(`${AUTH_BASE_PATH}/`)) {
+		return auth.handler(event.request);
 	}
 
 	event.locals.perms = await getEveryonePerms(event.fetch);
 	event.locals.user = null;
 	event.locals.session = null;
 
-	if (!isAuthFeatureEnabled()) {
+	if (!isAuthEnabled()) {
 		return resolve(event);
 	}
 
@@ -88,17 +85,27 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const user = await getOrCreateUserFromDiscordId(discordId);
-	if (!permissionCache.has(user.id)) {
+	const user = await getUserByDiscordId(discordId);
+	if (!user) {
+		authLog.warning(`No user row found for Discord id ${discordId}`);
+		return resolve(event);
+	}
+
+	let perms = permissionCache.get(user.id);
+	if (!perms) {
 		const accessToken = await getDiscordAccessToken(event);
-		user.permissions = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
-		permissionCache.set(user.id, undefined);
+		try {
+			perms = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
+			permissionCache.set(user.id, perms);
+		} catch (error) {
+			authLog.warning(`Failed to update permissions for user ${user.id}: ${error}`);
+			perms = event.locals.perms;
+		}
 	}
 
 	event.locals.user = user;
-	event.locals.user.name = authSession.user.name || authSession.user.email || user.name;
 	event.locals.session = authSession.session;
-	event.locals.perms = user.permissions;
+	event.locals.perms = perms;
 	return resolve(event);
 };
 
@@ -117,8 +124,6 @@ export const init: ServerInit = async () => {
 			crit: (message, ...args) => winstonLogger.crit(message, ...args)
 		};
 	});
-
-	await assertBetterAuthStartupReadiness();
 
 	const { initDiadem } = await import("@/lib/server/init");
 	await initDiadem();

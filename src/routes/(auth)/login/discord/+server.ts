@@ -1,32 +1,23 @@
 import type { RequestEvent } from "@sveltejs/kit";
-import {
-	getAuthBaseUrl,
-	isAuthFeatureEnabled,
-	signInWithDiscord
-} from "@/lib/server/auth/betterAuth";
+import { isAuthEnabled, signInWithDiscord } from "@/lib/server/auth/betterAuth";
 import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 
 export async function GET(event: RequestEvent): Promise<Response> {
-	if (!isAuthFeatureEnabled()) return new Response(null, { status: 404 });
+	if (!isAuthEnabled()) return new Response(null, { status: 404 });
 
 	const redirectPath = sanitizeRedirectPath(
 		event.url.searchParams.get("redir"),
 		getMapPath(getClientConfig())
 	);
 
-	const callbackBaseUrl = getAuthBaseUrl()!;
-	const successCallbackURL = new URL("/login/discord/callback", callbackBaseUrl);
-	successCallbackURL.searchParams.set("redir", redirectPath);
-
-	const errorCallbackURL = new URL("/login/discord/callback", callbackBaseUrl);
-	errorCallbackURL.searchParams.set("redir", redirectPath);
-	errorCallbackURL.searchParams.set("error", "1");
+	const successCallback = `/login/discord/callback?redir=${encodeURIComponent(redirectPath)}`;
+	const errorCallback = `${successCallback}&error=1`;
 
 	const response = await signInWithDiscord(event, {
-		callbackURL: successCallbackURL.toString(),
-		errorCallbackURL: errorCallbackURL.toString()
+		callbackURL: successCallback,
+		errorCallbackURL: errorCallback
 	});
 
 	if (!response?.url) {
@@ -35,8 +26,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	return new Response(null, {
 		status: 302,
-		headers: {
-			Location: response.url
-		}
+		headers: { Location: response.url }
 	});
 }

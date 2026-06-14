@@ -32,11 +32,6 @@ function getFetchOptions(accessToken: string): RequestInit {
 	};
 }
 
-export async function getUserInfo(accessToken: string): Promise<DiscordUser | undefined> {
-	const result = await getUserInfoResult(accessToken);
-	return result.data;
-}
-
 export async function getUserInfoResult(accessToken: string): Promise<DiscordUserInfoResult> {
 	const response = await fetch(endpoint, getFetchOptions(accessToken));
 

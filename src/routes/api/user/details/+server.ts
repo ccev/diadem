@@ -7,7 +7,7 @@ import { getDiscordAccessToken, signOut } from "@/lib/server/auth/betterAuth";
 import { getServerLogger } from "@/lib/server/logging";
 import type { RequestHandler } from "./$types";
 
-const authLogger = getServerLogger("auth");
+const log = getServerLogger("auth");
 
 export const GET: RequestHandler = async (event) => {
 	const user = event.locals.user;
@@ -20,9 +20,7 @@ export const GET: RequestHandler = async (event) => {
 
 	const accessToken = await getDiscordAccessToken(event);
 	if (!accessToken) {
-		return json({
-			permissions: user.permissions
-		} as UserData);
+		return json({ permissions: event.locals.perms } as UserData);
 	}
 
 	const userInfoResult = await getUserInfoResult(accessToken);
@@ -36,21 +34,19 @@ export const GET: RequestHandler = async (event) => {
 			} as UserData);
 		}
 
-		return json({
-			permissions: user.permissions
-		} as UserData);
+		return json({ permissions: event.locals.perms } as UserData);
 	}
 
 	let isMember: boolean | undefined;
 	try {
 		isMember = await isGuildMember(getClientConfig().discord.serverId, accessToken);
 	} catch (error) {
-		authLogger.warning(`Error checking Discord guild membership: ${error}`);
+		log.warning(`Error checking Discord guild membership: ${error}`);
 	}
 
 	return json({
 		details: data,
-		permissions: user.permissions,
+		permissions: event.locals.perms,
 		isGuildMember: isMember
 	} as UserData);
 };

@@ -9,8 +9,6 @@ import {
 	varchar
 } from "drizzle-orm/mysql-core";
 
-import type { Perms } from "@/lib/utils/features";
-
 export const user = mysqlTable(
 	"user",
 	{
@@ -96,4 +94,4 @@ export const verification = mysqlTable(
 	})
 );
 
-export type User = typeof user.$inferSelect & { permissions: Perms };
+export type User = typeof user.$inferSelect;

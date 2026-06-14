@@ -273,13 +273,6 @@
 					"notNull": true,
 					"autoincrement": false
 				},
-				"permissions": {
-					"name": "permissions",
-					"type": "json",
-					"primaryKey": false,
-					"notNull": false,
-					"autoincrement": false
-				},
 				"user_settings": {
 					"name": "user_settings",
 					"type": "json",

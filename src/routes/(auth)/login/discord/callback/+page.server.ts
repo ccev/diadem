@@ -1,16 +1,16 @@
 import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
-import { isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";
+import { isAuthRequired } from "@/lib/server/auth/betterAuth";
 import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
-import { getLogger } from "@/lib/utils/logger";
+import { getServerLogger } from "@/lib/server/logging";
 
-const log = getLogger("callback-discord");
+const log = getServerLogger("auth");
 
 export const load: PageServerLoad = async (event) => {
 	const redirectLink = sanitizeRedirectPath(
 		event.url.searchParams.get("redir"),
-		isAuthRequiredEnabled() ? "/" : getMapPath(getClientConfig())
+		isAuthRequired() ? "/" : getMapPath(getClientConfig())
 	);
 
 	const response: { error: string | undefined; redir: string; name: string } = {
@@ -19,18 +19,14 @@ export const load: PageServerLoad = async (event) => {
 		name: ""
 	};
 
-	if (event.url.searchParams.get("error") === "1") {
-		log.info("Discord Login failed with error=1 url parameter");
-		response.error = "Discord Login failed";
+	if (event.locals.user) {
+		response.name = event.locals.user.name || "";
 		return response;
 	}
 
-	if (!event.locals.user) {
-		log.info("Discord Login failed: no event.locals.user");
-		response.error = "Discord Login failed";
-		return response;
-	}
-
-	response.name = event.locals.user.name || "";
+	const reason =
+		event.url.searchParams.get("error") === "1" ? "error=1 url parameter" : "no event.locals.user";
+	log.info(`Discord Login failed: ${reason}`);
+	response.error = "Discord Login failed";
 	return response;
 };

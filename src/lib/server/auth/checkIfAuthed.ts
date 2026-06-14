@@ -1,11 +1,11 @@
 import type { User } from "@/lib/server/db/internal/schema";
-import { isAuthRequiredEnabled } from "@/lib/server/auth/betterAuth";
+import { isAuthRequired } from "@/lib/server/auth/betterAuth";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 
 import type { FeaturesKey, Perms } from "@/lib/utils/features";
 
 export function checkIfAuthed(user: User | null) {
-	return Boolean(!isAuthRequiredEnabled() || user);
+	return Boolean(!isAuthRequired() || user);
 }
 
 export function hasFeatureAnywhereServer(perms: Perms, feature: FeaturesKey, user: User | null) {
