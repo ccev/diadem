@@ -187,7 +187,6 @@ export const auth = IS_BETTER_AUTH_ENABLED
 type AuthInstance = NonNullable<typeof auth>;
 export type BetterAuthSession = AuthInstance["$Infer"]["Session"];
 export type BetterAuthSessionData = BetterAuthSession["session"];
-export type BetterAuthUserData = BetterAuthSession["user"];
 
 export function isAuthFeatureEnabled() {
 	return IS_BETTER_AUTH_ENABLED;

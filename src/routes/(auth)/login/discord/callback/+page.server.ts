@@ -30,12 +30,12 @@ export const load: PageServerLoad = async (event) => {
 		return response;
 	}
 
-	if (!event.locals.user || !event.locals.authUser) {
-		log.info("Discord Login failed: no event.locals.user or event.locals.authUser")
+	if (!event.locals.user) {
+		log.info("Discord Login failed: no event.locals.user")
 		response.error = "Discord Login failed";
 		return response;
 	}
 
-	response.name = event.locals.authUser.name || event.locals.authUser.email || "";
+	response.name = event.locals.user.name || "";
 	return response;
 };

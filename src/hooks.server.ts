@@ -61,24 +61,17 @@ function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typ
 	return updatePromise;
 }
 
-const handleBetterAuth: Handle = async ({ event, resolve }) => {
-	if (!auth) return resolve(event);
-	const basePath = auth.options.basePath || "/api/auth";
-	const pathname = event.url.pathname;
-	const isAuth = pathname.startsWith(basePath.endsWith("/") ? basePath : `${basePath}/`);
-	if (isAuth) {
-		const response = await auth.handler(event.request);
-		authLog.debug(`handleBetterAuth: auth.handler returned status=${response.status} for ${event.url.pathname}`);
-		return response;
-	}
-	return resolve(event);
-};
-
 const handleAuth: Handle = async ({ event, resolve }) => {
+	if (auth) {
+		const basePath = auth.options.basePath || "/api/auth";
+		if (event.url.pathname.startsWith(basePath.endsWith("/") ? basePath : `${basePath}/`)) {
+			return auth.handler(event.request);
+		}
+	}
+
 	event.locals.perms = await getEveryonePerms(event.fetch);
 	event.locals.user = null;
 	event.locals.session = null;
-	event.locals.authUser = null;
 
 	if (!isAuthFeatureEnabled()) {
 		return resolve(event);
@@ -103,8 +96,8 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	}
 
 	event.locals.user = user;
+	event.locals.user.name = authSession.user.name || authSession.user.email || user.name;
 	event.locals.session = authSession.session;
-	event.locals.authUser = authSession.user;
 	event.locals.perms = user.permissions;
 	return resolve(event);
 };
@@ -206,4 +199,4 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 	});
 };
 
-export const handle: Handle = sequence(paraglideHandle, handleBetterAuth, handleAuth, handleSeo);
+export const handle: Handle = sequence(paraglideHandle, handleAuth, handleSeo);
