@@ -1,5 +1,11 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { Features, type FeaturesKey, type Perms } from "@/lib/utils/features";
+import {
+	Features,
+	featureImplies,
+	featureWildcardAncestors,
+	type FeaturesKey,
+	type Perms
+} from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import {
 	bbox,
@@ -18,7 +24,13 @@ const log = getLogger("permissions");
 function isFeatureInFeatureList(featureList: FeaturesKey[] | undefined, feature: FeaturesKey) {
 	if (featureList === undefined) return false;
 
-	return featureList.includes(Features.ALL) || featureList.includes(feature);
+	if (featureList.includes(Features.ALL) || featureList.includes(feature)) return true;
+
+	const wildcards = featureWildcardAncestors[feature];
+	if (wildcards !== undefined && wildcards.some((wildcard) => featureList.includes(wildcard)))
+		return true;
+
+	return featureList.some((held) => featureImplies[held]?.includes(feature));
 }
 
 export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
@@ -30,6 +42,10 @@ export function hasFeatureAnywhere(perms: Perms, feature: FeaturesKey) {
 		}
 	}
 	return false;
+}
+
+export function hasAnyFeatureAnywhere(perms: Perms, features: FeaturesKey[]) {
+	return features.some((feature) => hasFeatureAnywhere(perms, feature));
 }
 
 export type PermittedPolygon = Feature<Polygon | MultiPolygon> | null;
@@ -44,7 +60,19 @@ export function checkFeatureInBounds(
 	feature: FeaturesKey,
 	bounds: Bounds
 ): PermittedBounds | null {
-	if (isFeatureInFeatureList(perms.everywhere, feature)) return { bounds, polygon: null };
+	return checkFeaturesInBounds(perms, [feature], bounds);
+}
+
+// Union of the permitted areas across a set of features (e.g. a whole object family), so an
+// object is returned when any of them is permitted there. Per-feature stripping happens later.
+export function checkFeaturesInBounds(
+	perms: Perms,
+	features: FeaturesKey[],
+	bounds: Bounds
+): PermittedBounds | null {
+	if (features.some((feature) => isFeatureInFeatureList(perms.everywhere, feature))) {
+		return { bounds, polygon: null };
+	}
 
 	const start = performance.now();
 
@@ -60,19 +88,17 @@ export function checkFeatureInBounds(
 
 	const permittedPolygons: Feature<Polygon>[] = [];
 	for (const area of perms.areas) {
-		if (isFeatureInFeatureList(area.features, feature)) {
+		if (features.some((feature) => isFeatureInFeatureList(area.features, feature))) {
 			if (area.polygon) {
 				permittedPolygons.push(makeFeature(area.polygon));
 			}
 		}
 	}
 
-	// If no permitted areas have this feature (or none have polygons), deny access
 	if (permittedPolygons.length === 0) {
 		return null;
 	}
 
-	// Find intersection of viewport with each permitted area and collect results
 	let combinedIntersection: PermittedPolygon = null;
 	for (const permittedPolygon of permittedPolygons) {
 		const areaIntersection = intersect(featureCollection([viewportPolygon, permittedPolygon]));
@@ -91,14 +117,13 @@ export function checkFeatureInBounds(
 	}
 
 	log.debug(
-		"calculated area intersections | areas: %d | feature: %s | any match permissions: %s | took: %fms",
+		"calculated area intersections | areas: %d | features: %s | any match permissions: %s | took: %fms",
 		permittedPolygons.length,
-		feature,
+		features.join(","),
 		Boolean(combinedIntersection),
 		(performance.now() - start).toFixed(1)
 	);
 
-	// If no intersection with any permitted area, deny access
 	if (!combinedIntersection) {
 		return null;
 	}
@@ -147,4 +172,45 @@ export function isPointInAllowedArea(
 	);
 
 	return isAllowed;
+}
+
+// Precomputes, for a fixed set of features, whether each is granted everywhere and the polygons
+// granting it, so the query layer can strip per object: "everywhere" needs no geometry, otherwise
+// a point-in-polygon test.
+export class FeaturePermissionContext {
+	private readonly everywhere = new Set<FeaturesKey>();
+	private readonly areaPolygons = new Map<FeaturesKey, Feature<Polygon>[]>();
+
+	constructor(perms: Perms, features: FeaturesKey[]) {
+		for (const feature of features) {
+			if (isFeatureInFeatureList(perms.everywhere, feature)) {
+				this.everywhere.add(feature);
+				continue;
+			}
+
+			const polygons: Feature<Polygon>[] = [];
+			for (const area of perms.areas ?? []) {
+				if (isFeatureInFeatureList(area.features, feature) && area.polygon) {
+					polygons.push(makeFeature(area.polygon));
+				}
+			}
+			if (polygons.length > 0) {
+				this.areaPolygons.set(feature, polygons);
+			}
+		}
+	}
+
+	allowedEverywhere(feature: FeaturesKey): boolean {
+		return this.everywhere.has(feature);
+	}
+
+	isAllowedAt(feature: FeaturesKey, lat: number, lon: number): boolean {
+		if (this.everywhere.has(feature)) return true;
+
+		const polygons = this.areaPolygons.get(feature);
+		if (!polygons) return false;
+
+		const turfPoint = point([lon, lat]);
+		return polygons.some((poly) => booleanPointInPolygon(turfPoint, poly));
+	}
 }

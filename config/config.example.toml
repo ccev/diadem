@@ -63,7 +63,20 @@ serverId = "1359028304128245934"
 #
 # Allows access to:
 #   - areas:    name[]    (area name, as configured in koji)
-#   - features: feature[] (*, pokemon, gym, pokestop, station, weather, s2cell, scout)
+#   - features: feature[] (* for anything, or a feature key from the list below)
+#
+# Feature keys. A key ending in `*` is a wildcard that grants everything nested below it;
+# you can also grant the individual sub-features instead. The full hierarchy:
+#
+# * (everything)
+#   map_object* (every map object)
+#     pokemon* / pokemon (no iv/pvp/cp/level), pokemon_iv, pokemon_pvp (full: iv + pvp)
+#     pokestop* / pokestop, quest, invasion, lure, contest, kecleon, golden_pokestop
+#     gym* / gym, raid
+#     station* / station, max_battle
+#     minor_map_object* (map objects with no sub-features) / nest, tappable, s2cell, spawnpoint, route
+#   tool* / scout, coverage_map, wayfarer_map
+#   ui* / search, weather
 #
 # Below are some examples
 
@@ -72,23 +85,23 @@ serverId = "1359028304128245934"
 everyone = true
 features = ["*"]
 
-# Every user gets access to gyms and pokestops in New York
+# Every user gets access to gyms (incl. raids) and pokestops (incl quests, lures, etc) in New York
 #[[server.permissions]]
 #everyone = true
 #areas = ["New York"]
-#features = ["gym", "pokestop"]
+#features = ["gym*", "pokestop*"]
 
-# Every logged-in user gets access to all Power Spots
+# Every logged-in user gets access to basic Power Spots
 # Above permissions are also granted, since these users also fulfill those requirements
 #[[server.permissions]]
 #loggedIn = true
 #features = ["station"]
 
-# Every user who's a member of my Malte# server gets access to all Pokemon and Scout
+# Every user who's a member of my Malte# server gets access to Pokemon (with IV, but no PVP) and Scout
 # Above permissions are also granted, since these users also fulfill those requirements
 #[[server.permissions]]
 #guildId = "1359028304128245934"
-#features = ["pokemon", "scout"]
+#features = ["pokemon_iv", "scout"]
 
 # Every user with that specific role gets access to every feature in Tokyo
 # Above permissions are also granted, since these users also fulfill those requirements

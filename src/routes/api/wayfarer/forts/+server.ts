@@ -1,8 +1,8 @@
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
+import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import { error, json } from "@sveltejs/kit";
 import { geojson, s2 } from "s2js";
@@ -25,9 +25,7 @@ export type WayfarerFortsResponse = {
 };
 
 export async function POST({ request, locals }) {
-	const hasPokestops = hasFeatureAnywhereServer(locals.perms, MapObjectType.POKESTOP, locals.user);
-	const hasGyms = hasFeatureAnywhereServer(locals.perms, MapObjectType.GYM, locals.user);
-	if (!hasPokestops && !hasGyms) error(401);
+	if (!hasFeatureAnywhereServer(locals.perms, Features.WAYFARER_MAP, locals.user)) error(401);
 
 	let body: WayfarerFortsRequest;
 	try {
@@ -73,30 +71,28 @@ export async function POST({ request, locals }) {
 
 	const bounds = { minLat, maxLat, minLon, maxLon };
 
-	const pokestopPermitted = checkFeatureInBounds(locals.perms, MapObjectType.POKESTOP, bounds);
-	const gymPermitted = checkFeatureInBounds(locals.perms, MapObjectType.GYM, bounds);
+	// Governed solely by the `wayfarer_map` feature; pokestop/gym grants don't affect it.
+	const permitted = checkFeatureInBounds(locals.perms, Features.WAYFARER_MAP, bounds);
 
 	const queries: string[] = [];
 	const values: unknown[] = [];
 
-	if (hasPokestops && pokestopPermitted) {
-		const spatial = buildSpatialFilter(pokestopPermitted.polygon ?? null, pokestopPermitted.bounds);
+	if (permitted) {
+		const pokestopSpatial = buildSpatialFilter(permitted.polygon ?? null, permitted.bounds);
 		queries.push(
 			"(SELECT 'p' AS type, id, lat, lon, name, url, description, partner_id, sponsor_id, updated, first_seen_timestamp FROM pokestop WHERE " +
-				spatial.sql +
+				pokestopSpatial.sql +
 				" AND deleted = 0)"
 		);
-		values.push(...spatial.values);
-	}
+		values.push(...pokestopSpatial.values);
 
-	if (hasGyms && gymPermitted) {
-		const spatial = buildSpatialFilter(gymPermitted.polygon ?? null, gymPermitted.bounds);
+		const gymSpatial = buildSpatialFilter(permitted.polygon ?? null, permitted.bounds);
 		queries.push(
 			"(SELECT 'g' AS type, id, lat, lon, name, url, description, partner_id, sponsor_id, updated, first_seen_timestamp FROM gym WHERE " +
-				spatial.sql +
+				gymSpatial.sql +
 				" AND deleted = 0)"
 		);
-		values.push(...spatial.values);
+		values.push(...gymSpatial.values);
 	}
 
 	if (queries.length === 0) error(401);

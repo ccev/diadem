@@ -3,8 +3,10 @@ import type { FilterGym } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
+import { Features } from "@/lib/utils/features";
+import { stripRaidFields } from "@/lib/utils/gymUtils";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 
 export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
@@ -53,11 +55,21 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		return { sql: "", values: [] };
 	}
 
-	filter(data: MinMapObject<GymData>, filter: FilterGym, polygon: PermittedPolygon): boolean {
-		return Boolean(filter.gymPlain.enabled || shouldDisplayRaid(data, filter));
+	filter(
+		data: MinMapObject<GymData>,
+		filter: FilterGym,
+		polygon: PermittedPolygon,
+		context?: FeaturePermissionContext
+	): boolean {
+		const plainPermitted = !context || context.isAllowedAt(Features.GYM, data.lat, data.lon);
+		return Boolean((plainPermitted && filter.gymPlain.enabled) || shouldDisplayRaid(data, filter));
 	}
 
-	prepare(data: MinMapObject<GymData>): void {
+	prepare(data: MinMapObject<GymData>, context?: FeaturePermissionContext): void {
+		if (context && !context.isAllowedAt(Features.RAID, data.lat, data.lon)) {
+			stripRaidFields(data);
+		}
+
 		data.raid_pokemon_form = getNormalizedForm(data.raid_pokemon_id, data.raid_pokemon_form);
 
 		if (data.defenders_raw) {

@@ -3,8 +3,9 @@ import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { StationData } from "@/lib/types/mapObjectData/station";
+import { Features } from "@/lib/utils/features";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { isMaxBattleActive, stripMaxBattleFields } from "@/lib/utils/stationUtils";
 
@@ -49,15 +50,36 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	filter(
 		data: MinMapObject<StationData>,
 		filter: FilterStation,
-		polygon: PermittedPolygon
+		polygon: PermittedPolygon,
+		context?: FeaturePermissionContext
 	): boolean {
-		if (!shouldDisplayStation(data, filter)) return false;
-		if (!filter.maxBattle.enabled) stripMaxBattleFields(data);
+		const plainPermitted = !context || context.isAllowedAt(Features.STATION, data.lat, data.lon);
+		const maxBattlePermitted =
+			!context || context.isAllowedAt(Features.MAX_BATTLE, data.lat, data.lon);
+
+		const effectiveFilter: FilterStation =
+			plainPermitted && maxBattlePermitted
+				? filter
+				: {
+						...filter,
+						stationPlain: plainPermitted
+							? filter.stationPlain
+							: { ...filter.stationPlain, enabled: false },
+						maxBattle: maxBattlePermitted
+							? filter.maxBattle
+							: { ...filter.maxBattle, enabled: false }
+					};
+
+		if (!shouldDisplayStation(data, effectiveFilter)) return false;
+		if (!filter.maxBattle.enabled || !maxBattlePermitted) stripMaxBattleFields(data);
 		return true;
 	}
 
-	prepare(data: MinMapObject<StationData>): void {
+	prepare(data: MinMapObject<StationData>, context?: FeaturePermissionContext): void {
 		data.battle_pokemon_form = getNormalizedForm(data.battle_pokemon_id, data.battle_pokemon_form);
 		if (!isMaxBattleActive(data)) stripMaxBattleFields(data);
+		if (context && !context.isAllowedAt(Features.MAX_BATTLE, data.lat, data.lon)) {
+			stripMaxBattleFields(data);
+		}
 	}
 }

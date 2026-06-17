@@ -14,7 +14,7 @@ import { RouteQuery } from "@/lib/server/queryMapObjects/queryRoute";
 import { SpawnpointQuery } from "@/lib/server/queryMapObjects/querySpawnpoint";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
 import { TappableQuery } from "@/lib/server/queryMapObjects/queryTappable";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { error } from "@sveltejs/kit";
 
 const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
@@ -40,19 +40,21 @@ export async function queryMapObjects<Data extends MapData>(
 	filter: AnyFilter | undefined,
 	polygon: PermittedPolygon = null,
 	since?: number,
-	limit?: number
+	limit?: number,
+	context?: FeaturePermissionContext
 ): Promise<MapObjectResponse<Data>> {
 	if (filter !== undefined && !filter.enabled) {
 		return { examined: 0, data: [] };
 	}
 
-	return getQuery(type).getMultiple(bounds, filter, polygon, since, limit);
+	return getQuery(type).getMultiple(bounds, filter, polygon, since, limit, context);
 }
 
 export async function querySingleMapObject(
 	type: MapObjectType,
 	id: string,
-	thisFetch: typeof fetch = fetch
+	thisFetch: typeof fetch = fetch,
+	context?: FeaturePermissionContext
 ) {
-	return getQuery(type).getSingle(id, thisFetch);
+	return getQuery(type).getSingle(id, thisFetch, context);
 }

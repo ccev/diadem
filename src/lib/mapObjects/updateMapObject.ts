@@ -12,8 +12,9 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+import { hasAnyFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+import { featureFamily } from "@/lib/utils/features";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
@@ -75,7 +76,7 @@ export async function updateMapObject(
 	signal?: AbortSignal,
 	onlyChanged: boolean = false
 ) {
-	if (!hasFeatureAnywhere(getUserDetails().permissions, type)) return;
+	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
 	if (type === MapObjectType.ROUTE) return;
 
 	let filter: AnyFilter | undefined = undefined;

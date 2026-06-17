@@ -8,9 +8,10 @@ import {
 	requestLimits
 } from "@/lib/server/api/rateLimit";
 import { respond } from "@/lib/server/api/respond";
-import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
-import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
+import { checkFeaturesInBounds, FeaturePermissionContext } from "@/lib/services/user/checkPerm";
+import { featureFamily } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import { error } from "@sveltejs/kit";
 import { constants } from "http2";
@@ -21,17 +22,20 @@ const log = getLogger("mapobjects");
 export const POST: RequestHandler = async ({ request, locals, params, getClientAddress }) => {
 	const rateLimitKey = locals.user?.id ?? getClientAddress();
 	const type = params.queryMapObject as MapObjectType;
+	const family = featureFamily[type];
 
 	const start = performance.now();
-	if (!hasFeatureAnywhereServer(locals.perms, params.queryMapObject, locals.user)) error(401);
+	if (!hasAnyFeatureAnywhereServer(locals.perms, family, locals.user)) error(401);
 	const permCheckTime = performance.now();
 
 	const data: MapObjectRequestData = await request.json();
-	const permitted = checkFeatureInBounds(locals.perms, params.queryMapObject, data);
+	const permitted = checkFeaturesInBounds(locals.perms, family, data);
 
 	if (!permitted) {
 		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
 	}
+
+	const permissionContext = new FeaturePermissionContext(locals.perms, family);
 
 	const requestLimit = requestLimits[type];
 	const [allowed, _, totalLimit, headers] = await rateLimitConsume(
@@ -60,7 +64,8 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		data.filter,
 		permitted.polygon,
 		data.since,
-		requestLimit
+		requestLimit,
+		permissionContext
 	).catch(async (e) => {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
 		throw e;

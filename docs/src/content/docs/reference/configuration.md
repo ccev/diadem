@@ -163,7 +163,7 @@ Permission rules are an array of sets:
 # guildId = "123..."
 # roleId = "123..."
 # areas = ["London"]
-features = ["gym", "pokestop"]
+features = ["gym*", "quest"]
 ```
 
 Rules are additive. For every rule a user matches, they get access to all its areas and features. `config.example.toml` shows some examples.
@@ -180,10 +180,36 @@ Grant fields:
 - `areas`: Koji area names (optional)
 - `features`: one or more feature keys
 
-Supported feature keys include:
+Feature keys are granular. The bare family keys are the **narrow** grant; the `*`-suffixed
+key grants the whole family, and `*` grants everything. Umbrella wildcards group several
+features together (e.g. `map_object*`, `tool*`). Data you are not permitted to see is never
+sent by the server, and features you cannot access are hidden in the UI (including the search
+index and the search box itself).
 
-- `*` for everything
-- `pokemon`, `pokestop`, `gym`, `station`, `nest`, `spawnpoint`, `route`, `tappable`, `s2cell`, `weather`, `scout`
+:::caution[Breaking change]
+`pokemon`, `pokestop`, `gym`, and `station` previously granted the **entire** family. They
+now grant only the narrow subset (basic pokemon / plain pokestop / plain gym / plain station).
+Use the `*`-suffixed wildcard (`pokemon*`, `pokestop*`, `gym*`, `station*`) to restore the old
+"whole family" behaviour. Configs using `*` are unaffected.
+:::
+
+Supported feature keys:
+
+- `*` — everything
+- **Pokemon:** `pokemon` (basic — no iv/pvp/cp/level), `pokemon_iv` (iv/cp/level), `pokemon_pvp` (full — iv + pvp), `pokemon*`
+- **Pokestops:** `pokestop` (plain), `quest`, `invasion`, `lure`, `contest`, `kecleon`, `golden_pokestop`, `pokestop*`
+- **Gyms:** `gym` (plain), `raid`, `gym*`
+- **Stations:** `station` (plain), `max_battle`, `station*`
+- **Other map objects:** `nest`, `tappable`, `s2cell`, `spawnpoint`, `route`
+- **Tools:** `scout`, `coverage_map`, `wayfarer_map`
+- **UI:** `search`, `weather`
+
+Umbrella wildcards bundle several of the above:
+
+- `map_object*` — every map object (`pokemon*`, `pokestop*`, `gym*`, `station*` and all minor map objects)
+- `minor_map_object*` — map objects with no sub-features (`nest`, `tappable`, `s2cell`, `spawnpoint`, `route`)
+- `tool*` — `scout`, `coverage_map`, `wayfarer_map`
+- `ui*` — `search`, `weather`
 
 ## `server.limits`
 

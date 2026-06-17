@@ -60,6 +60,9 @@
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import CompactPvpEntry from "./CompactPvpEntry.svelte";
 	import { useMetadata } from "@/lib/ui/metadata.svelte";
+	import { isPointInAllowedArea } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import { Features } from "@/lib/utils/features";
 
 	let data: PokemonData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
@@ -67,7 +70,10 @@
 	);
 	useMetadata(() => ({ title: data ? mPokemon(data) : undefined }));
 
-	// let masterPokemon: MasterPokemon | undefined = $derived(getMasterPokemon(data.pokemon_id))
+	let canSeeIv = $derived(
+		data &&
+			isPointInAllowedArea(getUserDetails().permissions, Features.POKEMON_IV, data.lat, data.lon)
+	);
 
 	let stats: PokemonStats | undefined = $derived(
 		getMasterPokemonStats(data.pokemon_id, data.form ?? 0)
@@ -132,20 +138,20 @@
 		</IconValue>
 	{/if}
 
-	{#if !data.iv && data.iv !== 0}
+	{#if canSeeIv && !data.iv && data.iv !== 0}
 		<IconValue Icon={SearchX}>
 			{m.popup_no_iv_scanned()}
 		</IconValue>
 	{/if}
 
-	{#if data.cp !== null || data.level !== null}
+	{#if data.cp != null || data.level != null}
 		<IconValue Icon={ChartSpline}>
-			{#if data.cp !== null}
+			{#if data.cp != null}
 				<span class="font-semibold">
 					{m.pogo_cp({ cp: data.cp })}
 				</span>
 			{/if}
-			{#if data.level !== null}
+			{#if data.level != null}
 				({m.pogo_level({ level: data.level })})
 			{/if}
 		</IconValue>
@@ -284,7 +290,7 @@
 			{/if}
 		</IconValue>
 
-		{#if data.gender !== null}
+		{#if data.gender != null}
 			{#if data.gender === 1}
 				<IconValue Icon={Mars}>
 					{m.pokemon_gender()}: <b>{m.pokemon_gender_male()}</b>
@@ -300,7 +306,7 @@
 			{/if}
 		{/if}
 
-		{#if data.size !== null}
+		{#if data.size != null}
 			<IconValue Icon={Ruler}>
 				<span>
 					Size: <b>{getPokemonSize(data.size)}</b>

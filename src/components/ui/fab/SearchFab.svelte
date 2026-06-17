@@ -16,6 +16,9 @@
 	import type maplibre from "maplibre-gl";
 	import { onShortcutSearch } from "@/lib/utils/keyboard";
 	import { onDestroy } from "svelte";
+	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import { Features } from "@/lib/utils/features";
 	import MainSearchResults from "@/components/ui/search/MainSearchResults.svelte";
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
 	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
@@ -81,7 +84,11 @@
 		}
 	});
 
-	let isSearchAllowed = $derived(!isSearchViewActive() && hasSearchData);
+	let hasSearchPermission = $derived(
+		searchMode !== "main" || hasFeatureAnywhere(getUserDetails().permissions, Features.SEARCH)
+	);
+
+	let isSearchAllowed = $derived(!isSearchViewActive() && hasSearchData && hasSearchPermission);
 	let searchInitialized: boolean = $state(false);
 
 	$effect(() => {

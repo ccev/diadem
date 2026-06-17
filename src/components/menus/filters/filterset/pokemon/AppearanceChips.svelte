@@ -7,14 +7,16 @@
 
 	let {
 		data,
-		sizeBounds
+		sizeBounds,
+		showSize = true
 	}: {
 		data: FiltersetPokemon;
 		sizeBounds: MinMax;
+		showSize?: boolean;
 	} = $props();
 </script>
 
-{#if data.size}
+{#if showSize && data.size}
 	<AttributeChip
 		label={getAttributeLabelSize(data.size)}
 		isEmpty={false}
@@ -34,6 +36,6 @@
 		}}
 	/>
 {/each}
-{#if !data.size && !data.gender}
+{#if !(showSize && data.size) && !data.gender}
 	<AttributeChip isEmpty={true} />
 {/if}

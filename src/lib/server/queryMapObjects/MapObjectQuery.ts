@@ -2,7 +2,7 @@ import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { type MapData, MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { buildSpatialFilter as defaultBuildSpatialFilter } from "@/lib/server/api/spatialFilter";
 import { query as dbQuery } from "@/lib/server/db/external/internalQuery";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 
 export type MapObjectResponse<T> = {
 	examined: number;
@@ -18,16 +18,23 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number
+		limit?: number,
+		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MinMapObject<MapObject>>>;
 
 	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
 
-	filter(data: MinMapObject<MapObject>, filter: Filter, polygon: PermittedPolygon): boolean {
+	filter(
+		data: MinMapObject<MapObject>,
+		filter: Filter,
+		polygon: PermittedPolygon,
+		context?: FeaturePermissionContext
+	): boolean {
 		return true;
 	}
 
-	prepare(_data: MinMapObject<MapObject>): void {}
+	// When a permission context is given, strips sub-features/data the user can't see at this location.
+	prepare(_data: MinMapObject<MapObject>, _context?: FeaturePermissionContext): void {}
 
 	makeMapObject(data: MinMapObject<MapObject>): MapObject {
 		return {
@@ -42,17 +49,18 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		filter: Filter | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number
+		limit?: number,
+		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MapObject>> {
-		const result = await this.query(bounds, filter, polygon, since, limit);
+		const result = await this.query(bounds, filter, polygon, since, limit, context);
 		for (const item of result.data) {
-			this.prepare(item);
+			this.prepare(item, context);
 		}
 
 		let examined = result.examined;
 		const data: MapObject[] = [];
 		for (const item of result.data) {
-			if (!filter || this.filter(item, filter, polygon)) {
+			if (!filter || this.filter(item, filter, polygon, context)) {
 				data.push(this.makeMapObject(item));
 			}
 		}
@@ -60,12 +68,12 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		return { examined, data };
 	}
 
-	public async getSingle(id: string, thisFetch?: typeof fetch) {
+	public async getSingle(id: string, thisFetch?: typeof fetch, context?: FeaturePermissionContext) {
 		const mapObjects = await this.querySingle(id, thisFetch);
 		if (!mapObjects.length || !mapObjects[0]) return;
 
 		const mapObject = mapObjects[0];
-		this.prepare(mapObject);
+		this.prepare(mapObject, context);
 		return this.makeMapObject(mapObject);
 	}
 }

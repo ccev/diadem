@@ -4,7 +4,7 @@
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import { Features } from "@/lib/utils/features";
+	import { featureFamily, Features } from "@/lib/utils/features";
 </script>
 
 <div
@@ -13,7 +13,7 @@
 >
 	<SignInButton />
 	<FilterSection
-		requiredPermission="pokemon"
+		requiredPermission={featureFamily[MapObjectType.POKEMON]}
 		title={m.pogo_pokemon()}
 		category="pokemon"
 		mapObject={MapObjectType.POKEMON}
@@ -21,43 +21,93 @@
 	/>
 
 	<FilterSection
-		requiredPermission="pokestop"
+		requiredPermission={Features.POKESTOP}
 		title={m.pogo_pokestops()}
 		category="pokestop"
 		mapObject={MapObjectType.POKESTOP}
 		isFilterable={false}
 		subCategories={[
-			{ title: m.plain_pokestops(), category: "pokestopPlain", filterable: false },
-			{ title: m.pogo_quests(), category: "quest", filterModal: "filtersetQuest" },
-			{ title: m.pogo_invasion(), category: "invasion", filterModal: "filtersetInvasion" },
-			{ title: m.lures(), category: "lure", filterable: false },
-			{ title: m.contests(), category: "contest", filterable: false },
-			{ title: m.kecleon(), category: "kecleon", filterable: false },
-			{ title: m.golden_pokestops(), category: "goldPokestop", filterable: false }
+			{
+				title: m.plain_pokestops(),
+				category: "pokestopPlain",
+				requiredPermission: Features.POKESTOP,
+				filterable: false
+			},
+			{
+				title: m.pogo_quests(),
+				category: "quest",
+				requiredPermission: Features.QUEST,
+				filterModal: "filtersetQuest"
+			},
+			{
+				title: m.pogo_invasion(),
+				category: "invasion",
+				requiredPermission: Features.INVASION,
+				filterModal: "filtersetInvasion"
+			},
+			{ title: m.lures(), category: "lure", requiredPermission: Features.LURE, filterable: false },
+			{
+				title: m.contests(),
+				category: "contest",
+				requiredPermission: Features.CONTEST,
+				filterable: false
+			},
+			{
+				title: m.kecleon(),
+				category: "kecleon",
+				requiredPermission: Features.KECLEON,
+				filterable: false
+			},
+			{
+				title: m.golden_pokestops(),
+				category: "goldPokestop",
+				requiredPermission: Features.GOLDEN_POKESTOP,
+				filterable: false
+			}
 		]}
 	/>
 
 	<FilterSection
-		requiredPermission={MapObjectType.GYM}
+		requiredPermission={Features.GYM}
 		title={m.pogo_gyms()}
 		category="gym"
 		mapObject={MapObjectType.GYM}
 		isFilterable={false}
 		subCategories={[
-			{ title: m.plain_gyms(), category: "gymPlain", filterable: false },
-			{ title: m.raids(), category: "raid", filterModal: "filtersetRaid" }
+			{
+				title: m.plain_gyms(),
+				category: "gymPlain",
+				requiredPermission: Features.GYM,
+				filterable: false
+			},
+			{
+				title: m.raids(),
+				category: "raid",
+				requiredPermission: Features.RAID,
+				filterModal: "filtersetRaid"
+			}
 		]}
 	/>
 
 	<FilterSection
-		requiredPermission={MapObjectType.STATION}
+		requiredPermission={Features.STATION}
 		title={m.pogo_stations()}
 		category={MapObjectType.STATION}
 		mapObject={MapObjectType.STATION}
 		isFilterable={false}
 		subCategories={[
-			{ title: m.plain_stations(), category: "stationPlain", filterable: false },
-			{ title: m.max_battles(), category: "maxBattle", filterModal: "filtersetMaxBattle" }
+			{
+				title: m.plain_stations(),
+				category: "stationPlain",
+				requiredPermission: Features.STATION,
+				filterable: false
+			},
+			{
+				title: m.max_battles(),
+				category: "maxBattle",
+				requiredPermission: Features.MAX_BATTLE,
+				filterModal: "filtersetMaxBattle"
+			}
 		]}
 	/>
 

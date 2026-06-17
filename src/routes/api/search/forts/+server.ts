@@ -1,24 +1,24 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
-import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { query } from "@/lib/server/db/external/internalQuery";
 import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
+import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import { error, json } from "@sveltejs/kit";
 
 const log = getLogger("fortsearch");
 
 export async function POST({ request, locals }) {
-	let hasPokestops = hasFeatureAnywhereServer(locals.perms, MapObjectType.POKESTOP, locals.user);
-	let hasGyms = hasFeatureAnywhereServer(locals.perms, MapObjectType.GYM, locals.user);
+	let hasPokestops = hasAnyFeatureAnywhereServer(locals.perms, [Features.POKESTOP], locals.user);
+	let hasGyms = hasAnyFeatureAnywhereServer(locals.perms, [Features.GYM], locals.user);
 	if (!hasPokestops && !hasGyms) error(401);
 
 	const bounds = (await request.json()) as Bounds;
 
-	const pokestopPermitted = checkFeatureInBounds(locals.perms, MapObjectType.POKESTOP, bounds);
-	const gymPermitted = checkFeatureInBounds(locals.perms, MapObjectType.GYM, bounds);
+	const pokestopPermitted = checkFeatureInBounds(locals.perms, Features.POKESTOP, bounds);
+	const gymPermitted = checkFeatureInBounds(locals.perms, Features.GYM, bounds);
 
 	const queries = [];
 	let values: any[] = [];

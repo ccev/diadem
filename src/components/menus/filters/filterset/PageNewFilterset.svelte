@@ -8,17 +8,18 @@
 		getFiltersetPageTransition
 	} from "@/lib/features/filters/filtersetPages.svelte.js";
 	import {
-		type SelectedFiltersetData,
 		setCurrentSelectedFilterset
 	} from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import Separator from "@/components/ui/Separator.svelte";
-	import {
-		getPremadeFiltersets,
-		premadeFiltersets
-	} from "@/lib/features/filters/premadeFiltersets";
+	import { getPremadeFiltersets } from "@/lib/features/filters/premadeFiltersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
+	import type { AnyFilterset, FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import { pokemonFiltersetRequiredFeature } from "@/lib/features/filters/filterUtilsPokemon";
+	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import { Features } from "@/lib/utils/features";
 	import { getId } from "@/lib/utils/uuid";
 	import { m } from "@/lib/paraglide/messages";
 
@@ -26,14 +27,22 @@
 		majorCategory,
 		subCategory = undefined
 	}: {
-		majorCategory: SelectedFiltersetData["majorCategory"];
+		majorCategory: FilterCategory;
 		subCategory?: FilterCategory;
 	} = $props();
 
-	// @ts-ignore
-	let premades = $derived(
-		getPremadeFiltersets(majorCategory) ?? getPremadeFiltersets(subCategory) ?? []
+	function isPremadePermitted(filterset: AnyFilterset): boolean {
+		if (majorCategory !== "pokemon" && subCategory !== "pokemon") return true;
+
+		const required = pokemonFiltersetRequiredFeature(filterset as FiltersetPokemon);
+		if (required === Features.POKEMON) return true;
+		return hasFeatureAnywhere(getUserDetails().permissions, required);
+	}
+
+	let allPremades = $derived(
+		getPremadeFiltersets(majorCategory) ?? (subCategory ? getPremadeFiltersets(subCategory) : []) ?? []
 	);
+	let premades = $derived(allPremades.filter(isPremadePermitted));
 </script>
 
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
@@ -48,7 +57,7 @@
 
 	<div class="-mx-4 px-4">
 		<div class="flex flex-col gap-1">
-			{#each premades as filterset}
+			{#each premades as filterset (filterset.id)}
 				<Button
 					class="w-full flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pl-4 pr-2"
 					size=""

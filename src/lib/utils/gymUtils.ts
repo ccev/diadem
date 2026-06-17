@@ -10,6 +10,27 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 export type RaidFilterType = "level" | "boss";
 export const GYM_SLOTS = 6;
 
+const RAID_FIELDS = [
+	"raid_end_timestamp",
+	"raid_spawn_timestamp",
+	"raid_battle_timestamp",
+	"raid_pokemon_id",
+	"raid_level",
+	"raid_pokemon_move_1",
+	"raid_pokemon_move_2",
+	"raid_pokemon_form",
+	"raid_pokemon_cp",
+	"raid_is_exclusive",
+	"raid_pokemon_gender",
+	"raid_pokemon_costume",
+	"raid_pokemon_evolution",
+	"raid_pokemon_alignment"
+] as const satisfies readonly (keyof GymData)[];
+
+export function stripRaidFields(data: Partial<GymData>) {
+	for (const field of RAID_FIELDS) delete data[field];
+}
+
 export enum RaidLevel {
 	STAR_1 = 1,
 	SHADOW_STAR_1 = 11,

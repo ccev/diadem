@@ -10,27 +10,31 @@
 
 	let {
 		data,
-		sizeBounds
+		sizeBounds,
+		showSize = true
 	}: {
 		data: FiltersetPokemon;
 		sizeBounds: MinMax;
+		showSize?: boolean;
 	} = $props();
 
 	let thisValues = $derived(data.gender?.map(String) ?? ["1", "2", "3"]);
 </script>
 
-<SliderRange
-	min={sizeBounds.min}
-	max={sizeBounds.max}
-	title={m.pokemon_size()}
-	valueMin={data.size?.min ?? sizeBounds.min}
-	valueMax={data.size?.max ?? sizeBounds.max}
-	onchange={([min, max]) =>
-		changeAttributeMinMax(data, "size", sizeBounds.min, sizeBounds.max, min, max)}
-	labels={pokemonSizes}
-/>
+{#if showSize}
+	<SliderRange
+		min={sizeBounds.min}
+		max={sizeBounds.max}
+		title={m.pokemon_size()}
+		valueMin={data.size?.min ?? sizeBounds.min}
+		valueMax={data.size?.max ?? sizeBounds.max}
+		onchange={([min, max]) =>
+			changeAttributeMinMax(data, "size", sizeBounds.min, sizeBounds.max, min, max)}
+		labels={pokemonSizes}
+	/>
+{/if}
 
-<div class="mt-4">
+<div class:mt-4={showSize}>
 	<div class="text-base font-semibold mb-2">
 		{m.pokemon_gender()}
 	</div>

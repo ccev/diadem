@@ -5,6 +5,14 @@ import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChi
 import * as m from "@/lib/paraglide/messages";
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { getPokemonSize, League } from "@/lib/utils/pokemonUtils";
+import { Features, type FeaturesKey } from "@/lib/utils/features";
+
+export function pokemonFiltersetRequiredFeature(fs: FiltersetPokemon): FeaturesKey {
+	if (fs.pvpRankLittle || fs.pvpRankGreat || fs.pvpRankUltra) return Features.POKEMON_PVP;
+	if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size)
+		return Features.POKEMON_IV;
+	return Features.POKEMON;
+}
 
 export const pokemonBounds = {
 	ivProduct: {

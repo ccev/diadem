@@ -17,7 +17,8 @@ import { m } from "@/lib/paraglide/messages";
 import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import { getAllLureModuleIds } from "@/lib/services/masterfile";
 import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+import { hasAnyFeatureAnywhere, hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+import { featureFamily, Features } from "@/lib/utils/features";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { openModal } from "@/lib/ui/modal.svelte";
@@ -297,7 +298,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let pokemonEntries: PokemonSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.POKEMON, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.POKEMON)
+		hasAnyFeatureAnywhere(permissions, featureFamily[MapObjectType.POKEMON])
 	) {
 		pokemonEntries = getSpawnablePokemon().map((p) => {
 			return {
@@ -318,7 +319,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let questEntries: QuestSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.QUEST, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+		hasFeatureAnywhere(permissions, Features.QUEST)
 	) {
 		questEntries =
 			getActiveQuestRewards()?.map((r) => {
@@ -341,7 +342,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let kecleonEntries: KecleonSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.KECLEON, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+		hasFeatureAnywhere(permissions, Features.KECLEON)
 	) {
 		kecleonEntries = [
 			{
@@ -356,7 +357,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let contestEntries: ContestSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.CONTEST, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+		hasFeatureAnywhere(permissions, Features.CONTEST)
 	) {
 		contestEntries = getActiveContests().map((contest) => {
 			return {
@@ -373,7 +374,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let lureEntries: LureSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.LURE, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+		hasFeatureAnywhere(permissions, Features.LURE)
 	) {
 		lureEntries = getAllLureModuleIds().map((lure) => {
 			return {
@@ -389,7 +390,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let invasionEntries: InvasionSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.INVASION, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.POKESTOP)
+		hasFeatureAnywhere(permissions, Features.INVASION)
 	) {
 		invasionEntries = getActiveCharacters().map((character) => {
 			return {
@@ -408,7 +409,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	if (
 		(shouldSearchType(SearchableType.RAID_LEVEL, searchOptions) ||
 			shouldSearchType(SearchableType.RAID_BOSS, searchOptions)) &&
-		hasFeatureAnywhere(permissions, MapObjectType.GYM)
+		hasFeatureAnywhere(permissions, Features.RAID)
 	) {
 		raidBossEntries = getActiveRaids()
 			.map((raidBoss) => {
@@ -443,7 +444,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	let maxBattleBossEntries: MaxBattleBossSearchEntry[] = [];
 	if (
 		shouldSearchType(SearchableType.MAX_BATTLE_BOSS, searchOptions) &&
-		hasFeatureAnywhere(permissions, MapObjectType.STATION)
+		hasFeatureAnywhere(permissions, Features.MAX_BATTLE)
 	) {
 		maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
 			return {
@@ -595,8 +596,14 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 }
 
 async function getFortSearchEntries(searchOptions: SearchOptions, map?: maplibre.Map) {
-	const hasPokestops = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.POKESTOP);
-	const hasGyms = hasFeatureAnywhere(getUserDetails().permissions, MapObjectType.GYM);
+	const hasPokestops = hasAnyFeatureAnywhere(
+		getUserDetails().permissions,
+		[Features.POKESTOP]
+	);
+	const hasGyms = hasAnyFeatureAnywhere(
+		getUserDetails().permissions,
+		[Features.GYM]
+	);
 	if (!hasGyms && !hasPokestops) return;
 
 	const usedMap = map ?? getMap();

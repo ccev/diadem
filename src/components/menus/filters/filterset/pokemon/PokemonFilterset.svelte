@@ -23,10 +23,16 @@
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import PokemonSelectPage from "@/components/menus/filters/filterset/multiselect/PokemonSelectPage.svelte";
 	import { getSpawnablePokemon } from "@/lib/features/masterStats.svelte";
+	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import { Features } from "@/lib/utils/features";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		| FiltersetPokemon
 		| undefined;
+
+	let canIv = $derived(hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_IV));
+	let canPvp = $derived(hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_PVP));
 </script>
 
 <FiltersetModal
@@ -62,152 +68,156 @@
 					{/snippet}
 				</Attribute>
 				<Attribute label={m.pokemon_looks()}>
-					<AppearanceChips {data} sizeBounds={pokemonBounds.size} />
+					<AppearanceChips {data} sizeBounds={pokemonBounds.size} showSize={canIv} />
 					{#snippet page(thisData: FiltersetPokemon)}
-						<AppearanceAttribute data={thisData} sizeBounds={pokemonBounds.size} />
+						<AppearanceAttribute data={thisData} sizeBounds={pokemonBounds.size} showSize={canIv} />
 					{/snippet}
 				</Attribute>
 			</AttributesOverview>
-			<AttributesOverview>
-				<Attribute label={m.pogo_ivs()}>
-					<IvChips {data} ivBounds={pokemonBounds.iv} percBounds={pokemonBounds.ivProduct} />
-					{#snippet page(thisData: FiltersetPokemon)}
-						<IvAttribute
-							data={thisData}
-							ivBounds={pokemonBounds.iv}
-							percBounds={pokemonBounds.ivProduct}
+			{#if canIv}
+				<AttributesOverview>
+					<Attribute label={m.pogo_ivs()}>
+						<IvChips {data} ivBounds={pokemonBounds.iv} percBounds={pokemonBounds.ivProduct} />
+						{#snippet page(thisData: FiltersetPokemon)}
+							<IvAttribute
+								data={thisData}
+								ivBounds={pokemonBounds.iv}
+								percBounds={pokemonBounds.ivProduct}
+							/>
+						{/snippet}
+					</Attribute>
+					<Attribute label={m.cp()}>
+						<AttributeChip
+							label={getAttributeLabelCp(data?.cp)}
+							isEmpty={!data.cp}
+							onremove={() => delete data.cp}
 						/>
-					{/snippet}
-				</Attribute>
-				<Attribute label={m.cp()}>
-					<AttributeChip
-						label={getAttributeLabelCp(data?.cp)}
-						isEmpty={!data.cp}
-						onremove={() => delete data.cp}
-					/>
-					{#snippet page(thisData: FiltersetPokemon)}
-						<SliderRange
-							min={pokemonBounds.cp.min}
-							max={pokemonBounds.cp.max}
-							title={m.cp()}
-							valueMin={thisData.cp?.min ?? pokemonBounds.cp.min}
-							valueMax={thisData.cp?.max ?? pokemonBounds.cp.max}
-							onchange={([min, max]) =>
-								changeAttributeMinMax(
-									thisData,
-									"cp",
-									pokemonBounds.cp.min,
-									pokemonBounds.cp.max,
-									min,
-									max
-								)}
+						{#snippet page(thisData: FiltersetPokemon)}
+							<SliderRange
+								min={pokemonBounds.cp.min}
+								max={pokemonBounds.cp.max}
+								title={m.cp()}
+								valueMin={thisData.cp?.min ?? pokemonBounds.cp.min}
+								valueMax={thisData.cp?.max ?? pokemonBounds.cp.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"cp",
+										pokemonBounds.cp.min,
+										pokemonBounds.cp.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+					<Attribute label={m.level()}>
+						<AttributeChip
+							label={getAttributeLabelLevel(data?.level)}
+							isEmpty={!data.level}
+							onremove={() => delete data.level}
 						/>
-					{/snippet}
-				</Attribute>
-				<Attribute label={m.level()}>
-					<AttributeChip
-						label={getAttributeLabelLevel(data?.level)}
-						isEmpty={!data.level}
-						onremove={() => delete data.level}
-					/>
-					{#snippet page(thisData: FiltersetPokemon)}
-						<SliderRange
-							min={pokemonBounds.level.min}
-							max={pokemonBounds.level.max}
-							title={m.level()}
-							valueMin={thisData.level?.min ?? pokemonBounds.level.min}
-							valueMax={thisData.level?.max ?? pokemonBounds.level.max}
-							onchange={([min, max]) =>
-								changeAttributeMinMax(
-									thisData,
-									"level",
-									pokemonBounds.level.min,
-									pokemonBounds.level.max,
-									min,
-									max
-								)}
-						/>
-					{/snippet}
-				</Attribute>
-			</AttributesOverview>
+						{#snippet page(thisData: FiltersetPokemon)}
+							<SliderRange
+								min={pokemonBounds.level.min}
+								max={pokemonBounds.level.max}
+								title={m.level()}
+								valueMin={thisData.level?.min ?? pokemonBounds.level.min}
+								valueMax={thisData.level?.max ?? pokemonBounds.level.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"level",
+										pokemonBounds.level.min,
+										pokemonBounds.level.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+				</AttributesOverview>
+			{/if}
 
-			<AttributesOverview>
-				<Attribute label={m.little_league()}>
-					<AttributeChip
-						label={getAttributeLabelRank(data?.pvpRankLittle)}
-						isEmpty={!data.pvpRankLittle}
-						onremove={() => delete data.pvpRankLittle}
-					/>
-					{#snippet page(thisData: FiltersetPokemon)}
-						<SliderRange
-							min={pokemonBounds.rank.min}
-							max={pokemonBounds.rank.max}
-							title={m.little_league_rank()}
-							valueMin={thisData.pvpRankLittle?.min ?? pokemonBounds.rank.min}
-							valueMax={thisData.pvpRankLittle?.max ?? pokemonBounds.rank.max}
-							onchange={([min, max]) =>
-								changeAttributeMinMax(
-									thisData,
-									"pvpRankLittle",
-									pokemonBounds.rank.min,
-									pokemonBounds.rank.max,
-									min,
-									max
-								)}
+			{#if canPvp}
+				<AttributesOverview>
+					<Attribute label={m.little_league()}>
+						<AttributeChip
+							label={getAttributeLabelRank(data?.pvpRankLittle)}
+							isEmpty={!data.pvpRankLittle}
+							onremove={() => delete data.pvpRankLittle}
 						/>
-					{/snippet}
-				</Attribute>
-				<Attribute label={m.great_league()}>
-					<AttributeChip
-						label={getAttributeLabelRank(data?.pvpRankGreat)}
-						isEmpty={!data.pvpRankGreat}
-						onremove={() => delete data.pvpRankGreat}
-					/>
-					{#snippet page(thisData: FiltersetPokemon)}
-						<SliderRange
-							min={pokemonBounds.rank.min}
-							max={pokemonBounds.rank.max}
-							title={m.great_league_rank()}
-							valueMin={thisData.pvpRankGreat?.min ?? pokemonBounds.rank.min}
-							valueMax={thisData.pvpRankGreat?.max ?? pokemonBounds.rank.max}
-							onchange={([min, max]) =>
-								changeAttributeMinMax(
-									thisData,
-									"pvpRankGreat",
-									pokemonBounds.rank.min,
-									pokemonBounds.rank.max,
-									min,
-									max
-								)}
+						{#snippet page(thisData: FiltersetPokemon)}
+							<SliderRange
+								min={pokemonBounds.rank.min}
+								max={pokemonBounds.rank.max}
+								title={m.little_league_rank()}
+								valueMin={thisData.pvpRankLittle?.min ?? pokemonBounds.rank.min}
+								valueMax={thisData.pvpRankLittle?.max ?? pokemonBounds.rank.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"pvpRankLittle",
+										pokemonBounds.rank.min,
+										pokemonBounds.rank.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+					<Attribute label={m.great_league()}>
+						<AttributeChip
+							label={getAttributeLabelRank(data?.pvpRankGreat)}
+							isEmpty={!data.pvpRankGreat}
+							onremove={() => delete data.pvpRankGreat}
 						/>
-					{/snippet}
-				</Attribute>
-				<Attribute label={m.ultra_league()}>
-					<AttributeChip
-						label={getAttributeLabelRank(data?.pvpRankUltra)}
-						isEmpty={!data.pvpRankUltra}
-						onremove={() => delete data.pvpRankUltra}
-					/>
-					{#snippet page(thisData: FiltersetPokemon)}
-						<SliderRange
-							min={pokemonBounds.rank.min}
-							max={pokemonBounds.rank.max}
-							title={m.ultra_league_rank()}
-							valueMin={thisData.pvpRankUltra?.min ?? pokemonBounds.rank.min}
-							valueMax={thisData.pvpRankUltra?.max ?? pokemonBounds.rank.max}
-							onchange={([min, max]) =>
-								changeAttributeMinMax(
-									thisData,
-									"pvpRankUltra",
-									pokemonBounds.rank.min,
-									pokemonBounds.rank.max,
-									min,
-									max
-								)}
+						{#snippet page(thisData: FiltersetPokemon)}
+							<SliderRange
+								min={pokemonBounds.rank.min}
+								max={pokemonBounds.rank.max}
+								title={m.great_league_rank()}
+								valueMin={thisData.pvpRankGreat?.min ?? pokemonBounds.rank.min}
+								valueMax={thisData.pvpRankGreat?.max ?? pokemonBounds.rank.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"pvpRankGreat",
+										pokemonBounds.rank.min,
+										pokemonBounds.rank.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+					<Attribute label={m.ultra_league()}>
+						<AttributeChip
+							label={getAttributeLabelRank(data?.pvpRankUltra)}
+							isEmpty={!data.pvpRankUltra}
+							onremove={() => delete data.pvpRankUltra}
 						/>
-					{/snippet}
-				</Attribute>
-			</AttributesOverview>
+						{#snippet page(thisData: FiltersetPokemon)}
+							<SliderRange
+								min={pokemonBounds.rank.min}
+								max={pokemonBounds.rank.max}
+								title={m.ultra_league_rank()}
+								valueMin={thisData.pvpRankUltra?.min ?? pokemonBounds.rank.min}
+								valueMax={thisData.pvpRankUltra?.max ?? pokemonBounds.rank.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"pvpRankUltra",
+										pokemonBounds.rank.min,
+										pokemonBounds.rank.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+				</AttributesOverview>
+			{/if}
 		{/if}
 	{/snippet}
 </FiltersetModal>

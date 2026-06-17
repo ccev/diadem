@@ -13,8 +13,9 @@ import type {
 	GolbatPokemonSpecies
 } from "@/lib/server/queryMapObjects/queries";
 import { getMasterPokemon } from "@/lib/services/masterfile";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
+import { Features } from "@/lib/utils/features";
 import { round } from "@/lib/utils/numberFormat";
 import { getNormalizedForm, League, showPvp } from "@/lib/utils/pokemonUtils";
 import { error } from "@sveltejs/kit";
@@ -29,9 +30,10 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		filter: FilterPokemon | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number
+		limit?: number,
+		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
-		const golbatQueries = this.buildGolbatQueries(filter);
+		const golbatQueries = this.buildGolbatQueries(filter, context);
 
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 
@@ -56,7 +58,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 					examined -= 1;
 					continue;
 				}
-				const pokemon = this.makePokemon(p, filter);
+				const pokemon = this.makePokemon(p, filter, context);
 				// need to re-check pvp filters after removing mega evolutions
 				if (!shouldDisplayPokemon(pokemon, filter)) continue;
 
@@ -73,10 +75,35 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		return mon ? [this.makePokemon(mon, undefined)] : [];
 	}
 
+	prepare(data: MinMapObject<PokemonData>, context?: FeaturePermissionContext): void {
+		if (!context) return;
+
+		const ivAllowed = context.isAllowedAt(Features.POKEMON_IV, data.lat, data.lon);
+		const pvpAllowed = context.isAllowedAt(Features.POKEMON_PVP, data.lat, data.lon);
+
+		if (!ivAllowed) {
+			data.iv = undefined;
+			data.atk_iv = undefined;
+			data.def_iv = undefined;
+			data.sta_iv = undefined;
+			data.size = undefined;
+		}
+		if (!pvpAllowed) data.pvp = undefined;
+		if (!ivAllowed && !pvpAllowed) {
+			data.cp = undefined;
+			data.level = undefined;
+		}
+	}
+
 	private makePokemon(
 		p: MinMapObject<PokemonData>,
-		filter: FilterPokemon | undefined
+		filter: FilterPokemon | undefined,
+		context?: FeaturePermissionContext
 	): PokemonData {
+		const ivAllowed = !context || context.isAllowedAt(Features.POKEMON_IV, p.lat, p.lon);
+		const pvpAllowed = !context || context.isAllowedAt(Features.POKEMON_PVP, p.lat, p.lon);
+		const statsAllowed = ivAllowed || pvpAllowed;
+
 		const pokemon = {
 			id: p.id,
 			lat: round(p.lat, 6),
@@ -88,13 +115,13 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			alignment: p.alignment,
 			bread_mode: p.bread_mode,
 			temp_evolution_id: p.temp_evolution_id,
-			cp: p.cp,
-			level: p.level,
-			iv: p.iv || p.iv === 0 ? round(p.iv, 2) : undefined,
-			atk_iv: p.atk_iv,
-			def_iv: p.def_iv,
-			sta_iv: p.sta_iv,
-			size: p.size,
+			cp: statsAllowed ? p.cp : undefined,
+			level: statsAllowed ? p.level : undefined,
+			iv: ivAllowed && (p.iv || p.iv === 0) ? round(p.iv, 2) : undefined,
+			atk_iv: ivAllowed ? p.atk_iv : undefined,
+			def_iv: ivAllowed ? p.def_iv : undefined,
+			sta_iv: ivAllowed ? p.sta_iv : undefined,
+			size: ivAllowed ? p.size : undefined,
 			weather: p.weather,
 			strong: p.strong,
 			move_1: p.move_1,
@@ -109,27 +136,29 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			seen_type: p.seen_type
 		} as PokemonData;
 
-		const littleRankings: PvpStats[] = [];
-		const greatRankings: PvpStats[] = [];
-		const ultraRankings: PvpStats[] = [];
+		if (pvpAllowed) {
+			const littleRankings: PvpStats[] = [];
+			const greatRankings: PvpStats[] = [];
+			const ultraRankings: PvpStats[] = [];
 
-		for (const rankings of p.pvp?.[League.LITTLE] ?? []) {
-			if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
-				this.makePvpStats(littleRankings, rankings);
-		}
-		for (const rankings of p.pvp?.[League.GREAT] ?? []) {
-			if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
-				this.makePvpStats(greatRankings, rankings);
-		}
-		for (const rankings of p.pvp?.[League.ULTRA] ?? []) {
-			if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
-				this.makePvpStats(ultraRankings, rankings);
-		}
-		if (littleRankings.length || greatRankings.length || ultraRankings.length) {
-			pokemon.pvp = {};
-			if (littleRankings.length) pokemon.pvp[League.LITTLE] = littleRankings;
-			if (greatRankings.length) pokemon.pvp[League.GREAT] = greatRankings;
-			if (ultraRankings.length) pokemon.pvp[League.ULTRA] = ultraRankings;
+			for (const rankings of p.pvp?.[League.LITTLE] ?? []) {
+				if (showPvp(rankings.rank, "pvpRankLittle", false, filter ?? null))
+					this.makePvpStats(littleRankings, rankings);
+			}
+			for (const rankings of p.pvp?.[League.GREAT] ?? []) {
+				if (showPvp(rankings.rank, "pvpRankGreat", false, filter ?? null))
+					this.makePvpStats(greatRankings, rankings);
+			}
+			for (const rankings of p.pvp?.[League.ULTRA] ?? []) {
+				if (showPvp(rankings.rank, "pvpRankUltra", false, filter ?? null))
+					this.makePvpStats(ultraRankings, rankings);
+			}
+			if (littleRankings.length || greatRankings.length || ultraRankings.length) {
+				pokemon.pvp = {};
+				if (littleRankings.length) pokemon.pvp[League.LITTLE] = littleRankings;
+				if (greatRankings.length) pokemon.pvp[League.GREAT] = greatRankings;
+				if (ultraRankings.length) pokemon.pvp[League.ULTRA] = ultraRankings;
+			}
 		}
 		return pokemon;
 	}
@@ -148,7 +177,15 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		});
 	}
 
-	private buildGolbatQueries(filter: FilterPokemon | undefined): GolbatPokemonQuery[] {
+	private buildGolbatQueries(
+		filter: FilterPokemon | undefined,
+		context?: FeaturePermissionContext
+	): GolbatPokemonQuery[] {
+		// Numeric iv/pvp constraints would leak whether unseen mons match. Only push them to
+		// Golbat when the tier is granted globally; otherwise drop them and strip per-object.
+		const ivConstraintsAllowed = !context || context.allowedEverywhere(Features.POKEMON_IV);
+		const pvpConstraintsAllowed = !context || context.allowedEverywhere(Features.POKEMON_PVP);
+
 		const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
 		if (enabledFilters.length === 0) {
 			return [{ pokemon: [] }];
@@ -188,17 +225,23 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 				}
 			}
 
-			if (filter.iv) query.iv = filter.iv;
-			if (filter.ivAtk) query.atk_iv = filter.ivAtk;
-			if (filter.ivDef) query.def_iv = filter.ivDef;
-			if (filter.ivSta) query.sta_iv = filter.ivSta;
-			if (filter.level) query.level = filter.level;
-			if (filter.cp) query.cp = filter.cp;
+			if (ivConstraintsAllowed) {
+				if (filter.iv) query.iv = filter.iv;
+				if (filter.ivAtk) query.atk_iv = filter.ivAtk;
+				if (filter.ivDef) query.def_iv = filter.ivDef;
+				if (filter.ivSta) query.sta_iv = filter.ivSta;
+				if (filter.size) query.size = filter.size;
+			}
+			if (ivConstraintsAllowed || pvpConstraintsAllowed) {
+				if (filter.level) query.level = filter.level;
+				if (filter.cp) query.cp = filter.cp;
+			}
 			if (filter.gender) query.gender = filter.gender;
-			if (filter.size) query.size = filter.size;
-			if (filter.pvpRankLittle) query.pvp_little = filter.pvpRankLittle;
-			if (filter.pvpRankGreat) query.pvp_great = filter.pvpRankGreat;
-			if (filter.pvpRankUltra) query.pvp_ultra = filter.pvpRankUltra;
+			if (pvpConstraintsAllowed) {
+				if (filter.pvpRankLittle) query.pvp_little = filter.pvpRankLittle;
+				if (filter.pvpRankGreat) query.pvp_great = filter.pvpRankGreat;
+				if (filter.pvpRankUltra) query.pvp_ultra = filter.pvpRankUltra;
+			}
 
 			return query;
 		});
