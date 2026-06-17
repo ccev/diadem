@@ -22,7 +22,8 @@
 		[MapObjectType.TAPPABLE]: TappablePopup
 	};
 
-	let PopupComponent = $derived(popupComponents[getCurrentSelectedData()?.type]);
+	const type = $derived(getCurrentSelectedData()?.type);
+	let PopupComponent = $derived(type !== undefined ? (popupComponents as any)[type] : undefined);
 </script>
 
 {#if PopupComponent}

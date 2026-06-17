@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
 	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
-	import { getUserSettings } from "@/lib/services/userSettings.svelte";
+	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
 	import {
 		AVAILABLE_LANGUAGES,
@@ -28,7 +28,7 @@
 	<MenuGeneric title={m.settings_theme()}>
 		<RadioGroup
 			value={mode.current}
-			onValueChange={setThemeMode}
+			onValueChange={setThemeMode as (value: string) => void}
 			class="self-center justify-center"
 		>
 			<SelectGroupItem class="p-4" value="light">
@@ -48,7 +48,6 @@
 
 	<MenuGeneric title={m.settings_map_style()}>
 		<RadioGroup
-			childCount={getConfig().mapStyles.length}
 			value={getUserSettings().mapStyle.id}
 			onValueChange={onMapStyleChange}
 			class="self-center justify-center"
@@ -57,10 +56,10 @@
 				<SelectGroupItem class="overflow-hidden" value={mapStyle.id}>
 					<MapLibre
 						center={[
-							getConfig().mapPositions.styleLon ?? 9.979,
-							getConfig().mapPositions.styleLat ?? 53.563
+							getConfig().mapPositions?.styleLon ?? 9.979,
+							getConfig().mapPositions?.styleLat ?? 53.563
 						]}
-						zoom={getConfig().mapPositions.styleZoom ?? 12}
+						zoom={getConfig().mapPositions?.styleZoom ?? 12}
 						filterLayers={(l) => l.type !== "symbol"}
 						class="w-20 h-18 border-b-2 border-accent"
 						style={getMapStyle(mapStyle)}
@@ -94,7 +93,8 @@
 		class="py-3 px-4 "
 		title={m.settings_external_map_provider()}
 		value={getUserSettings().externalMapProvider}
-		onselect={(mapProvider) => onSettingsChange("externalMapProvider", mapProvider)}
+		onselect={(mapProvider) =>
+			onSettingsChange("externalMapProvider", mapProvider as ExternalMapProvider)}
 		options={AVAILABLE_MAP_PROVIDERS}
 	/>
 
@@ -102,7 +102,7 @@
 		class="py-3 px-4 "
 		title={m.settings_language()}
 		value={getLocale()}
-		onselect={(locale) => setLocale(locale)}
+		onselect={(locale) => setLocale(locale as Parameters<typeof setLocale>[0])}
 		options={AVAILABLE_LANGUAGES}
 	/>
 

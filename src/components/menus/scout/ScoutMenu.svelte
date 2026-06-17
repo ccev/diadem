@@ -73,7 +73,7 @@
 		<div data-vaul-no-drag>
 			<SliderSteps
 				value={size}
-				onchange={updatePoints}
+				onchange={(v) => updatePoints(v as 0 | 1 | 2)}
 				steps={[0, 1, 2]}
 				labels={{
 					0: "S",

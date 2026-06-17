@@ -121,62 +121,64 @@ export function matchQuestFilterset(
 			return questFilter;
 		}
 
-		if (
-			questFilter.pokemon &&
-			quest.reward.type === RewardType.POKEMON &&
-			questFilter.pokemon.find(
-				(p) => p.pokemon_id === quest.reward.info.pokemon_id && p.form === quest.reward.info.form
-			)
-		) {
-			return questFilter;
+		if (questFilter.pokemon && quest.reward.type === RewardType.POKEMON) {
+			const info = quest.reward.info;
+			if (
+				questFilter.pokemon.find((p) => p.pokemon_id === info.pokemon_id && p.form === info.form)
+			) {
+				return questFilter;
+			}
 		}
 
-		if (
-			questFilter.item &&
-			quest.reward.type === RewardType.ITEM &&
-			questFilter.item.find(
-				(i) =>
-					i.id === quest.reward.info.item_id.toString() &&
-					(i.amount === undefined || i.amount === quest.reward.info.amount)
-			)
-		) {
-			return questFilter;
+		if (questFilter.item && quest.reward.type === RewardType.ITEM) {
+			const info = quest.reward.info;
+			if (
+				questFilter.item.find(
+					(i) =>
+						i.id === info.item_id.toString() && (i.amount === undefined || i.amount === info.amount)
+				)
+			) {
+				return questFilter;
+			}
 		}
 
-		if (
-			questFilter.megaResource &&
-			quest.reward.type === RewardType.MEGA_ENERGY &&
-			questFilter.megaResource.find(
-				(i) =>
-					i.id === quest.reward.info.pokemon_id.toString() &&
-					(i.amount === undefined || i.amount === quest.reward.info.amount)
-			)
-		) {
-			return questFilter;
+		if (questFilter.megaResource && quest.reward.type === RewardType.MEGA_ENERGY) {
+			const info = quest.reward.info;
+			if (
+				questFilter.megaResource.find(
+					(i) =>
+						i.id === info.pokemon_id.toString() &&
+						(i.amount === undefined || i.amount === info.amount)
+				)
+			) {
+				return questFilter;
+			}
 		}
 
-		if (
-			questFilter.candy &&
-			quest.reward.type === RewardType.CANDY &&
-			questFilter.candy.find(
-				(i) =>
-					i.id === quest.reward.info.pokemon_id.toString() &&
-					(i.amount === undefined || i.amount === quest.reward.info.amount)
-			)
-		) {
-			return questFilter;
+		if (questFilter.candy && quest.reward.type === RewardType.CANDY) {
+			const info = quest.reward.info;
+			if (
+				questFilter.candy.find(
+					(i) =>
+						i.id === info.pokemon_id.toString() &&
+						(i.amount === undefined || i.amount === info.amount)
+				)
+			) {
+				return questFilter;
+			}
 		}
 
-		if (
-			questFilter.xlCandy &&
-			quest.reward.type === RewardType.XL_CANDY &&
-			questFilter.xlCandy.find(
-				(i) =>
-					(i.id === quest.reward.info.pokemon_id.toString() && i.amount === undefined) ||
-					i.amount === quest.reward.info.amount
-			)
-		) {
-			return questFilter;
+		if (questFilter.xlCandy && quest.reward.type === RewardType.XL_CANDY) {
+			const info = quest.reward.info;
+			if (
+				questFilter.xlCandy.find(
+					(i) =>
+						i.id === info.pokemon_id.toString() &&
+						(i.amount === undefined || i.amount === info.amount)
+				)
+			) {
+				return questFilter;
+			}
 		}
 	}
 }

@@ -13,8 +13,7 @@ const log = getServerLogger("auth");
 
 const authConfig = getServerConfig().auth;
 const discordConfig = authConfig.discord;
-const authSecret =
-	authConfig.secret || process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET;
+const authSecret = authConfig.secret || process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET;
 
 export const AUTH_BASE_PATH = "/api/auth";
 export const IS_AUTH_ENABLED = Boolean(authConfig.enabled);
@@ -200,8 +199,7 @@ async function revokeDiscordToken(accessToken: string) {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded",
-				Authorization:
-					"Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
+				Authorization: "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
 			},
 			body: new URLSearchParams({ token: accessToken, token_type_hint: "access_token" })
 		});

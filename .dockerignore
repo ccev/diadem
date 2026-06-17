@@ -42,4 +42,12 @@ coverage
 
 # Config (mounted at runtime, not baked in)
 # Keep config examples for build stage
+config/*
 !config/*.example.*
+
+# Assistant files
+.claude
+CLAUDE.md
+
+# VSCode
+.vscode

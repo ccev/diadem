@@ -91,7 +91,7 @@
 		{#if data.start_time && data.start_time < currentTimestamp()}
 			{#if data.battle_pokemon_stamina && data.battle_pokemon_cp_multiplier}
 				<IconValue Icon={ChartSpline}>
-					<b>{m.pogo_cp({ cp: calculateMaxBattleCp(data) })}</b>
+					<b>{m.pogo_cp({ cp: calculateMaxBattleCp(data) ?? 0 })}</b>
 					({m.pogo_hp({ hp: formatNumber(data.battle_pokemon_stamina) })},
 					{m.cpm()}: {formatNumber(data.battle_pokemon_cp_multiplier)})
 				</IconValue>

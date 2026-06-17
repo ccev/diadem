@@ -221,7 +221,7 @@ export function getIconReward(
 			rewardType = "";
 	}
 
-	return iconSets[DEFAULT_UICONS].reward(rewardType, id, info.amount ?? 0);
+	return iconSets[DEFAULT_UICONS].reward(rewardType as Lowercase<string>, id, info.amount ?? 0);
 }
 
 export function getIconItem(itemId: number | string, amount: number = 0) {

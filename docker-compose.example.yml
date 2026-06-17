@@ -3,13 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: ${DIADEM_TARGET:-runtime}
     image: diadem:latest
     container_name: diadem
     restart: unless-stopped
     ports:
       - "${DIADEM_PORT:-3900}:3900"
     environment:
-      - NODE_ENV=production
+      - DIADEM_TARGET=${DIADEM_TARGET:-runtime}
       - HOST=0.0.0.0
       - PORT=3900
     volumes:
@@ -69,3 +70,6 @@ networks:
   diadem-network:
     name: diadem-network
     driver: bridge
+    driver_opts:
+      # mariadb gets sad if the docker network mtu is larger than the host's
+      com.docker.network.driver.mtu: ${DOCKER_MTU:-1500}

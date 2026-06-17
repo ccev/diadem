@@ -5,9 +5,12 @@ import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
+import { mAny } from "@/lib/utils/anyMessage";
 import { Coords } from "@/lib/utils/coordinates";
 
-export type DirectLinkData = { type: MapObjectType; noPermission?: boolean; id?: undefined };
+export type DirectLinkData =
+	| MapData
+	| { type: MapObjectType; noPermission?: boolean; id?: undefined };
 
 let directLinkObject: DirectLinkData | undefined = $state(undefined);
 
@@ -40,7 +43,12 @@ export function openMapObject(data: MapData, alwaysFly: boolean = false) {
 export async function openMapObjectFromId(type: MapObjectType, id: string) {
 	const response = await fetch("/api/" + type + "/" + id);
 	if (!response.ok) {
-		openToast(m.direct_link_not_found({ type: m["pogo_" + type]() }), 1000);
+		openToast(
+			m.direct_link_not_found({
+				type: mAny("pogo_" + type)
+			}),
+			1000
+		);
 		return;
 	}
 	const data: MapData = await response.json();

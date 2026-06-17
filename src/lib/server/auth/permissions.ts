@@ -74,11 +74,7 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 	return everyonePerms;
 }
 
-export async function updatePermissions(
-	user: User,
-	accessToken: string,
-	thisFetch: typeof fetch
-) {
+export async function updatePermissions(user: User, accessToken: string, thisFetch: typeof fetch) {
 	const guildCache: { [key: string]: DiscordGuildData } = {};
 	const permConfig = getServerConfig().permissions;
 	const canCheckGuildRules = accessToken.trim().length > 0;

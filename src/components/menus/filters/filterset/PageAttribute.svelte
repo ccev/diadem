@@ -22,6 +22,6 @@
 
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
 	{#if getCurrentSelectedAttribute()}
-		{@render getCurrentAttributePage().snippet?.(getCurrentSelectedAttribute())}
+		{@render getCurrentAttributePage().snippet?.(getCurrentSelectedAttribute()!)}
 	{/if}
 </div>

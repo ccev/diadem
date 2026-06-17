@@ -39,7 +39,7 @@
 			getUserSettings().mapIconSize
 		],
 		"icon-allow-overlap": true,
-		"icon-offset": ["get", "imageOffset"],
+		"icon-offset": ["coalesce", ["get", "imageOffset"], ["literal", [0, 0]]],
 		"icon-rotate": ["coalesce", ["get", "imageRotation"], 0],
 		"text-field": ["coalesce", ["get", "textLabel"], ""],
 		"text-anchor": "top",
@@ -49,9 +49,9 @@
 		"text-font": ["IBM Plex Sans", "Open Sans", "Noto Sans", "Arial Unicode MS Bold", "sans-serif"]
 	}}
 	paint={{
-		"icon-opacity": ["case", ["get", "dimmed"], 0.4, 1],
+		"icon-opacity": ["case", ["coalesce", ["get", "dimmed"], false], 0.4, 1],
 		"text-color": "#fafafa",
-		"text-opacity": ["case", ["get", "dimmed"], 0.45, 1],
+		"text-opacity": ["case", ["coalesce", ["get", "dimmed"], false], 0.45, 1],
 		"text-halo-color": "#09090b",
 		"text-halo-width": 1.5
 	}}

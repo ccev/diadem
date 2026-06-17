@@ -100,9 +100,9 @@ export function getAllPokemon(onlyActive: boolean = false): { pokemon_id: number
 }
 
 export function getMasterWeather(
-	weatherId: string | number | undefined
+	weatherId: string | number | null | undefined
 ): MasterWeather | undefined {
-	if (weatherId === undefined) return undefined;
+	if (weatherId === undefined || weatherId === null) return undefined;
 
 	return masterFile.weather["" + weatherId];
 }

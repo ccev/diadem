@@ -10,7 +10,7 @@ export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): Filt
 	};
 
 	setFilterIcon(filter, {
-		uicon: { category: IconCategory.STATION, params: true }
+		uicon: { category: IconCategory.STATION, params: true as unknown as Record<string, any> }
 	});
 
 	if (filter.bosses && filter.bosses.length > 0) {

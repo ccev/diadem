@@ -3,7 +3,7 @@
 	import MenuContainer from "@/components/menus/MenuContainer.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
 	import { fly } from "svelte/transition";
-	import * as m from "@/lib/paraglide/messages";
+	import { mAny } from "@/lib/utils/anyMessage";
 	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
 </script>
 
@@ -15,7 +15,7 @@
 		class="w-full py-1 sticky top-[7px] flex items-center justify-between z-10 bg-card border border-b-border mt-2"
 	>
 		<h1 class="font-bold text-base tracking-tight mx-4">
-			{m["nav_" + getOpenedMenu()]?.()}
+			{mAny("nav_" + getOpenedMenu())}
 		</h1>
 		<CloseButton onclick={closeMenu} class="mr-2" />
 	</div>

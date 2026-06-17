@@ -43,7 +43,7 @@
 			<ModifierPreview
 				filterset={filterset.data}
 				majorCategory={filterset?.majorCategory}
-				subCategory={filterset?.subCategory}
+				subCategory={filterset?.subCategory as FilterCategory | undefined}
 			/>
 		</div>
 	{/if}

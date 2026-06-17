@@ -35,6 +35,7 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
+	import { mAny } from "@/lib/utils/anyMessage";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
 	import { FeatureTypes } from "@/lib/map/render/featureTypes";
@@ -92,11 +93,18 @@
 					openMapObject(directLinkData);
 				} else if ("noPermission" in directLinkData && directLinkData.noPermission) {
 					openToast(
-						m.direct_link_no_permission({ type: m["pogo_" + directLinkData.type]() }),
+						m.direct_link_no_permission({
+							type: mAny("pogo_" + directLinkData.type)
+						}),
 						5000
 					);
 				} else {
-					openToast(m.direct_link_not_found({ type: m["pogo_" + directLinkData.type]() }), 5000);
+					openToast(
+						m.direct_link_not_found({
+							type: mAny("pogo_" + directLinkData.type)
+						}),
+						5000
+					);
 				}
 			}
 
@@ -165,26 +173,31 @@
 			id={MapObjectLayerId.RADIUS_FILL}
 			filter={["==", ["get", "isActionRadius"], true]}
 			paint={{
-				"fill-color": ["get", "fillColor"]
+				"fill-color": ["coalesce", ["get", "fillColor"], "transparent"]
 			}}
 		/>
 		<LineLayer
 			id={MapObjectLayerId.RADIUS_STROKE}
 			filter={["==", ["get", "isActionRadius"], true]}
 			layout={{ "line-cap": "round", "line-join": "round" }}
-			paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}
+			paint={{ "line-color": ["coalesce", ["get", "strokeColor"], "transparent"], "line-width": 2 }}
 		/>
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
 			paint={{
-				"fill-color": ["case", ["get", "isSelected"], ["get", "selectedFill"], ["get", "fillColor"]]
+				"fill-color": [
+					"case",
+					["coalesce", ["get", "isSelected"], false],
+					["coalesce", ["get", "selectedFill"], "transparent"],
+					["coalesce", ["get", "fillColor"], "transparent"]
+				]
 			}}
 			hoverCursor="pointer"
 		/>
 		<LineLayer
 			id={MapObjectLayerId.POLYGON_STROKE}
 			layout={{ "line-cap": "round", "line-join": "round" }}
-			paint={{ "line-color": ["get", "strokeColor"], "line-width": 1 }}
+			paint={{ "line-color": ["coalesce", ["get", "strokeColor"], "transparent"], "line-width": 1 }}
 			hoverCursor="pointer"
 		/>
 		<CircleLayer
@@ -198,9 +211,9 @@
 					["get", "selectedScale"],
 					getUserSettings().mapIconSize
 				],
-				"circle-color": ["get", "fillColor"],
+				"circle-color": ["coalesce", ["get", "fillColor"], "transparent"],
 				"circle-stroke-width": 1,
-				"circle-stroke-color": ["get", "strokeColor"]
+				"circle-stroke-color": ["coalesce", ["get", "strokeColor"], "transparent"]
 			}}
 			eventsIfTopMost={true}
 		/>

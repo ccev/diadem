@@ -62,7 +62,8 @@ function getHeaders(data: RateLimiterRes): Record<string, string> {
 	return beforeNext(Math.ceil(data.msBeforeNext / 1000));
 }
 
-function getLimiter(type: MapObjectType): RateLimiterMemory {
+function getLimiter(type: MapObjectType | undefined): RateLimiterMemory {
+	if (!type) throw new Error("Limiter type is required");
 	const limiter = mapObjectLimiters.get(type);
 	if (!limiter) throw new Error("Limiter of type " + type + " does not exist");
 	return limiter;

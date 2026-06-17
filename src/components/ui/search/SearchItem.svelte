@@ -5,7 +5,7 @@
 	import { type AnySearchEntry, highlightSearchMatches } from "@/lib/services/search.svelte";
 	import { Command } from "bits-ui";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-	import { m } from "@/lib/paraglide/messages";
+	import { mAny } from "@/lib/utils/anyMessage";
 
 	let {
 		onselect,
@@ -37,7 +37,7 @@
 >
 	<div class="w-full flex gap-2 items-center text-start">
 		{#if result.item.icon}
-			<LucideIcon class="shrink-0 size-4 mx-0.5" name={result.item.icon} />
+			<LucideIcon class="shrink-0 size-4 mx-0.5" name={result.item.icon as any} />
 		{/if}
 		{#if imageUrl || result.item.imageUrl}
 			<img
@@ -60,7 +60,7 @@
 			class="text-muted-foreground shrink-0 ml-auto overflow-x-hidden text-right font-normal!"
 			{@attach highlightSearchMatches(result.matches[1])}
 		>
-			{m[result.item.category]?.() ?? ""}
+			{mAny(result.item.category)}
 		</span>
 	</div>
 </Command.Item>

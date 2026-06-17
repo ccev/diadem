@@ -84,6 +84,11 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 		this.iconModifiers = getConfigModifiers(this.iconSet, type);
 	}
 
+	// hack to silence some warnings caused by css variables that haven't been resolved yet trying to be parsed as a color
+	protected cssColor(name: string): string {
+		return this.styles.getPropertyValue(name) || "transparent";
+	}
+
 	protected getBasicProps(
 		data: MapObject,
 		selectedScale: number,
@@ -466,16 +471,16 @@ class NestRenderer extends MapObjectRenderer<NestData> {
 			}),
 			getCircleFeature(data.mapId, [data.lon, data.lat], {
 				id: data.mapId,
-				strokeColor: this.styles.getPropertyValue("--nest-circle-stroke"),
-				fillColor: this.styles.getPropertyValue("--nest-circle"),
+				strokeColor: this.cssColor("--nest-circle-stroke"),
+				fillColor: this.cssColor("--nest-circle"),
 				radius: 52 * this.iconModifiers.scale,
 				selectedScale
 			}),
 			getPolygonFeature(data.mapId, polygon, {
 				id: data.mapId,
-				strokeColor: this.styles.getPropertyValue("--nest-polygon-stroke"),
-				fillColor: this.styles.getPropertyValue("--nest-polygon"),
-				selectedFill: this.styles.getPropertyValue("--nest-polygon-selected"),
+				strokeColor: this.cssColor("--nest-polygon-stroke"),
+				fillColor: this.cssColor("--nest-polygon"),
+				selectedFill: this.cssColor("--nest-polygon-selected"),
 				isSelected
 			})
 		];
@@ -493,8 +498,8 @@ class SpawnpointRenderer extends MapObjectRenderer<SpawnpointData> {
 		return [
 			getCircleFeature(data.mapId, [data.lon, data.lat], {
 				id: data.mapId,
-				strokeColor: this.styles.getPropertyValue(cssVar + "-stroke"),
-				fillColor: this.styles.getPropertyValue(cssVar),
+				strokeColor: this.cssColor(cssVar + "-stroke"),
+				fillColor: this.cssColor(cssVar),
 				radius: 3,
 				selectedScale
 			})
@@ -520,9 +525,9 @@ class S2CellRenderer extends MapObjectRenderer<S2CellData> {
 		return [
 			getPolygonFeature(data.mapId, [polygon.coordinates], {
 				id: data.mapId,
-				strokeColor: this.styles.getPropertyValue("--s2cell-polygon-stroke"),
-				fillColor: this.styles.getPropertyValue("--s2cell-polygon"),
-				selectedFill: this.styles.getPropertyValue("--s2cell-polygon-selected"),
+				strokeColor: this.cssColor("--s2cell-polygon-stroke"),
+				fillColor: this.cssColor("--s2cell-polygon"),
+				selectedFill: this.cssColor("--s2cell-polygon-selected"),
 				isSelected: false
 			})
 		];

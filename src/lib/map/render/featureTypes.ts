@@ -80,6 +80,10 @@ export function getIconFeature(
 		imageUrl = resize(imageUrl, { width: 64 });
 	}
 
+	// fixes some warnings about types
+	const { imageOffset, ...rest } = properties;
+	const hasOffset = !!imageOffset && (imageOffset[0] !== 0 || imageOffset[1] !== 0);
+
 	return {
 		type: "Feature",
 		geometry: {
@@ -87,7 +91,8 @@ export function getIconFeature(
 			coordinates
 		},
 		properties: {
-			...properties,
+			...rest,
+			...(hasOffset ? { imageOffset } : {}),
 			imageUrl,
 			imageId: properties.imageId ?? properties.imageUrl,
 			dimmed: properties.dimmed ?? false,

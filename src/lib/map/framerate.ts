@@ -1,7 +1,31 @@
+import type maplibre from "maplibre-gl";
+
+interface FrameRateOptions {
+	background: string;
+	barWidth: number;
+	color: string;
+	font: string;
+	graphHeight: number;
+	graphWidth: number;
+	graphTop: number;
+	graphRight: number;
+	width: number;
+}
+
 class FrameRateControl {
-	constructor(options) {
+	frames: number;
+	totalTime: number;
+	totalFrames: number;
+	options: FrameRateOptions;
+	map: maplibre.Map | null = null;
+	container: HTMLDivElement | null = null;
+	readOutput: HTMLDivElement | null = null;
+	canvas: HTMLCanvasElement | null = null;
+	time: number | null = null;
+
+	constructor(options?: Partial<FrameRateOptions>) {
 		const dpr = window.devicePixelRatio;
-		const defaultOptions = {
+		const defaultOptions: FrameRateOptions = {
 			background: "rgba(0,0,0,0.9)",
 			barWidth: 4 * dpr,
 			color: "#7cf859",
@@ -16,10 +40,10 @@ class FrameRateControl {
 		this.frames = 0;
 		this.totalTime = 0;
 		this.totalFrames = 0;
-		this.options = { ...options, ...defaultOptions };
+		this.options = { ...defaultOptions, ...options };
 	}
 
-	onAdd = (map) => {
+	onAdd = (map: maplibre.Map) => {
 		this.map = map;
 
 		const dpr = window.devicePixelRatio;
@@ -56,7 +80,7 @@ class FrameRateControl {
 	onMoveStart = () => {
 		this.frames = 0;
 		this.time = performance.now();
-		this.map.on("render", this.onRender);
+		this.map!.on("render", this.onRender);
 	};
 
 	onMoveEnd = () => {
@@ -64,40 +88,41 @@ class FrameRateControl {
 		this.updateGraph(this.getFPS(now));
 		this.frames = 0;
 		this.time = null;
-		this.map.off("render", this.onRender);
+		this.map!.off("render", this.onRender);
 	};
 
 	onRender = () => {
 		this.frames++;
 		const now = performance.now();
-		if (now >= this.time + 1e3) {
+		if (now >= this.time! + 1e3) {
 			this.updateGraph(this.getFPS(now));
 			this.frames = 0;
 			this.time = now;
 		}
 	};
 
-	getFPS = (now) => {
-		(this.totalTime += now - this.time), (this.totalFrames += this.frames);
-		return Math.round((1e3 * this.frames) / (now - this.time)) || 0;
+	getFPS = (now: number) => {
+		this.totalTime += now - this.time!;
+		this.totalFrames += this.frames;
+		return Math.round((1e3 * this.frames) / (now - this.time!)) || 0;
 	};
 
-	updateGraph = (fpsNow) => {
+	updateGraph = (fpsNow: number) => {
 		const { barWidth, graphRight, graphTop, graphWidth, graphHeight, background, color } =
 			this.options;
 
-		const context = this.canvas.getContext("2d");
+		const context = this.canvas!.getContext("2d")!;
 		const fps = Math.round((1e3 * this.totalFrames) / this.totalTime) || 0;
-		const rect = (graphHeight, barWidth);
+		const rect = barWidth;
 
 		context.fillStyle = background;
 		context.globalAlpha = 1;
 		context.fillRect(0, 0, graphWidth, graphTop);
 		context.fillStyle = color;
 
-		this.readOutput.textContent = `${fpsNow} FPS (${fps} Avg)`;
+		this.readOutput!.textContent = `${fpsNow} FPS (${fps} Avg)`;
 		context.drawImage(
-			this.canvas,
+			this.canvas!,
 			graphRight + rect,
 			graphTop,
 			graphWidth - rect,
@@ -119,17 +144,13 @@ class FrameRateControl {
 	};
 
 	onRemove = () => {
-		this.map.off("render", this.onRender);
-		this.map.off("movestart", this.onMoveStart);
-		this.map.off("moveend", this.onMoveEnd);
-		this.container.parentNode.removeChild(this.container);
+		this.map!.off("render", this.onRender);
+		this.map!.off("movestart", this.onMoveStart);
+		this.map!.off("moveend", this.onMoveEnd);
+		this.container!.parentNode!.removeChild(this.container!);
 		this.map = null;
 		return this;
 	};
-}
-
-if (window?.mapboxgl) {
-	mapboxgl.FrameRateControl = FrameRateControl;
 }
 
 export default FrameRateControl;

@@ -58,8 +58,10 @@ export function onIconChange(iconSetId: string, iconType: MapObjectType) {
 	const iconSet = getUiconSetDetails(iconSetId);
 	if (!iconSet) return;
 
-	getUserSettings().uiconSet[iconType].id = iconSet.id;
-	getUserSettings().uiconSet[iconType].url = iconSet.url;
+	(getUserSettings().uiconSet as Record<string, { id: string; url: string }>)[iconType].id =
+		iconSet.id;
+	(getUserSettings().uiconSet as Record<string, { id: string; url: string }>)[iconType].url =
+		iconSet.url;
 	updateUserSettings();
 	if (iconType === "pokemon") {
 		// pretty much all features can have pokemon on them, so reset them all

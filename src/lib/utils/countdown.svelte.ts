@@ -41,9 +41,9 @@ function updateAllCountdowns() {
 			const hours = Math.floor(absRemainingTime / 3600);
 			if (absRemainingTime >= 60 * 60) {
 				if (isPast) {
-					formattedTimeValue = m.time_format_h_m_ago({ h: hours, m: minutes, s: seconds });
+					formattedTimeValue = m.time_format_h_m_ago({ h: hours, m: minutes });
 				} else {
-					formattedTimeValue = m.time_format_h_m({ h: hours, m: minutes, s: seconds });
+					formattedTimeValue = m.time_format_h_m({ h: hours, m: minutes });
 				}
 			} else {
 				if (isPast) {

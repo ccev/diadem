@@ -5,7 +5,7 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import type { MasterPokemon } from "@/lib/types/masterfile";
 
 export enum League {
@@ -142,7 +142,9 @@ export function hasTimer(data: {
 }
 
 export function getBestRank(data: Partial<PokemonData>, league: League) {
-	const ranks = data.pvp?.[league]?.map((l) => l.rank) ?? [0];
+	const ranks = (data.pvp as Record<string, PvpStats[] | undefined> | undefined)?.[league]?.map(
+		(l) => l.rank
+	) ?? [0];
 	const best = Math.min(...ranks);
 	if (!Number.isInteger(best)) return 0;
 	return best;
@@ -196,7 +198,7 @@ export function showUltra(
 }
 
 export function getPokemonSize(size: number) {
-	return pokemonSizes[size] ?? "?";
+	return (pokemonSizes as Record<number, string>)[size] ?? "?";
 }
 
 export function getGenderLabel(gender: number) {

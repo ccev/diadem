@@ -5,6 +5,7 @@
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { getStationTitle } from "@/lib/utils/stationUtils";
+	import { mAny } from "@/lib/utils/anyMessage";
 	import type { StationData } from "@/lib/types/mapObjectData/station";
 	import type { NestData } from "@/lib/types/mapObjectData/nest";
 	import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
@@ -45,7 +46,7 @@
 			case MapObjectType.ROUTE:
 				return data.name ?? m.pogo_route();
 			default:
-				return data.name ?? data.type;
+				return (data as { name?: string }).name ?? data.type;
 		}
 	}
 </script>
@@ -64,7 +65,7 @@
 				/>
 			{/if}
 			<p class="text-zinc-500 font-bold text-lg uppercase my-0 mt-2">
-				{m["pogo_" + data.type]()}
+				{mAny("pogo_" + data.type)}
 			</p>
 
 			<p

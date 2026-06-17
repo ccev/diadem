@@ -1,4 +1,4 @@
-import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
+import type { AnyFilter, FilterCategory, FilterS2Cell } from "@/lib/features/filters/filters";
 import type { AnyFilterset, BaseFilterset } from "@/lib/features/filters/filtersets";
 import { generateFilterDetails } from "@/lib/features/filters/filtersetUtils.svelte";
 import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
@@ -11,6 +11,8 @@ import {
 } from "@/lib/services/userSettings.svelte";
 import { openModal } from "@/lib/ui/modal.svelte";
 import { getId } from "@/lib/utils/uuid";
+
+type FilterWithFilters = Exclude<AnyFilter, FilterS2Cell>;
 
 type DataGeneric<M extends keyof UserSettings["filters"]> = {
 	majorCategory: M;
@@ -31,10 +33,11 @@ export function setCurrentSelectedFilterset(
 	inEdit: boolean,
 	isShared: boolean = false
 ) {
-	// @ts-ignore my IDE doesn't allow the correct subCategory as defined in DataGeneric here, so this is easier with autocomplete
 	filtersetPageData = {
-		majorCategory,
-		subCategory,
+		majorCategory: majorCategory as keyof UserSettings["filters"],
+		subCategory: subCategory as
+			| keyof UserSettings["filters"][keyof UserSettings["filters"]]
+			| undefined,
 		data,
 		inEdit,
 		isShared,
@@ -50,7 +53,7 @@ export function getCurrentSelectedFilterset() {
 	return filtersetPageData;
 }
 
-function getFilter<Filterset extends AnyFilter>(): Filterset | undefined {
+function getFilter<Filterset extends FilterWithFilters>(): Filterset | undefined {
 	const selectedFilterset = getCurrentSelectedFilterset();
 	if (!selectedFilterset) return;
 
@@ -136,7 +139,11 @@ export function saveCurrentSelectedAttribute() {
 export function updateDetailsCurrentSelectedFilterset() {
 	const filterset = getCurrentSelectedFilterset();
 	if (filterset)
-		generateFilterDetails(filterset.majorCategory, filterset.subCategory, filterset.data);
+		generateFilterDetails(
+			filterset.majorCategory,
+			filterset.subCategory as FilterCategory,
+			filterset.data
+		);
 }
 
 export function toggleFilterset(filterset: AnyFilterset, mapObject: MapObjectType) {
@@ -175,7 +182,10 @@ export function openFiltersetModal() {
 	const filterset = getCurrentSelectedFilterset();
 	if (!filterset) return;
 
-	const { majorCategory, subCategory } = filterset;
+	const { majorCategory, subCategory } = filterset as {
+		majorCategory: FilterCategory;
+		subCategory: FilterCategory | undefined;
+	};
 
 	if (majorCategory === "pokemon") {
 		openModal("filtersetPokemon");

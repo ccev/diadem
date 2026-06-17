@@ -92,7 +92,7 @@
 					value={data.modifiers.showLabel}
 					onchange={(e) => {
 						if (data.modifiers) {
-							const value = e.target?.value?.trim();
+							const value = (e.target as HTMLInputElement)?.value?.trim();
 							if (value) {
 								data.modifiers.showLabel = value;
 							} else {

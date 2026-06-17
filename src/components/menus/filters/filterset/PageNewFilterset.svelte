@@ -7,9 +7,7 @@
 		filtersetPageSelect,
 		getFiltersetPageTransition
 	} from "@/lib/features/filters/filtersetPages.svelte.js";
-	import {
-		setCurrentSelectedFilterset
-	} from "@/lib/features/filters/filtersetPageData.svelte.js";
+	import { setCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import Separator from "@/components/ui/Separator.svelte";
@@ -40,7 +38,9 @@
 	}
 
 	let allPremades = $derived(
-		getPremadeFiltersets(majorCategory) ?? (subCategory ? getPremadeFiltersets(subCategory) : []) ?? []
+		getPremadeFiltersets(majorCategory) ??
+			(subCategory ? getPremadeFiltersets(subCategory) : []) ??
+			[]
 	);
 	let premades = $derived(allPremades.filter(isPremadePermitted));
 </script>
