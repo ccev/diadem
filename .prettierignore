@@ -6,3 +6,6 @@ yarn.lock
 # Markdown
 *.md
 *.mdx
+
+# Generated
+src/lib/paraglide

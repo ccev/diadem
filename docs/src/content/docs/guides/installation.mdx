@@ -86,26 +86,44 @@ This guide walks through the baseline install for a Diadem instance.
 
 ## Docker quick start
 
-For containerized setup:
+For containerized setup using the published `ccev/diadem:latest` image:
 
 ```bash
 cp config/config.example.toml config/config.toml
 cp docker-compose.example.yml docker-compose.yml
-docker compose up --build
+docker compose pull
+docker compose up -d
 ```
 
 Then edit `config/config.toml` to point to the correct DB and API hosts for your environment.
 
-### Dev mode (debugging)
-
-By default the container runs the optimized production build. To debug an issue with
-readable, unminified code and source maps in your browser devtools, set `DIADEM_TARGET=dev`
-in your `.env` and rebuild:
+To update an existing Docker install:
 
 ```bash
+docker compose pull
+docker compose up -d
+```
+
+### Dev mode (debugging)
+
+By default Docker uses the optimized published image. To debug an issue with readable,
+unminified code and source maps in your browser devtools, build the local `dev` target
+with a compose override:
+
+```bash
+cat > docker-compose.override.yml <<'EOF'
+services:
+  diadem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    image: diadem:dev
+EOF
 echo "DIADEM_TARGET=dev" >> .env
 docker compose up -d --build
 ```
 
 This runs the Vite dev server (with its error overlay) instead of `node build/index.js`.
-Set it back to `runtime` (or remove the line) and rebuild to return to production mode.
+Remove `docker-compose.override.yml`, set `DIADEM_TARGET=runtime` (or remove the line),
+and run `docker compose pull && docker compose up -d` to return to the published image.
