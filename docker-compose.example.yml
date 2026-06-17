@@ -1,6 +1,6 @@
 services:
   diadem:
-    image: ccev/diadem:latest
+    image: ghcr.io/ccev/diadem:latest
     container_name: diadem
     restart: unless-stopped
     ports:
