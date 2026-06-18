@@ -5,12 +5,14 @@ type PushState = {
 	supported: boolean;
 	subscribed: boolean;
 	busy: boolean;
+	error: string | null;
 };
 
 const state: PushState = $state({
 	supported: browser && "serviceWorker" in navigator && "PushManager" in window,
 	subscribed: false,
-	busy: false
+	busy: false,
+	error: null
 });
 
 export function getPushState() {
@@ -36,9 +38,13 @@ export async function refreshPushState() {
 export async function subscribeToPush() {
 	if (!state.supported || state.busy) return;
 	state.busy = true;
+	state.error = null;
 	try {
 		const permission = await Notification.requestPermission();
-		if (permission !== "granted") return;
+		if (permission !== "granted") {
+			state.error = `Notification permission ${permission}.`;
+			return;
+		}
 
 		const key = getConfig()?.push?.vapidPublicKey;
 		if (!key) throw new Error("Push not configured on server");
@@ -48,12 +54,20 @@ export async function subscribeToPush() {
 			userVisibleOnly: true,
 			applicationServerKey: urlBase64ToUint8Array(key)
 		});
-		await fetch("/api/notifications/subscribe", {
+		const res = await fetch("/api/notifications/subscribe", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(sub.toJSON())
 		});
+		// Only consider ourselves subscribed if the server stored it. Otherwise
+		// the browser would be subscribed with no server record (pushes never arrive).
+		if (!res.ok) {
+			await sub.unsubscribe().catch(() => {});
+			throw new Error(`Server rejected subscription (${res.status}).`);
+		}
 		state.subscribed = true;
+	} catch (err) {
+		state.error = err instanceof Error ? err.message : "Failed to enable push.";
 	} finally {
 		state.busy = false;
 	}
@@ -62,6 +76,7 @@ export async function subscribeToPush() {
 export async function unsubscribeFromPush() {
 	if (!state.supported || state.busy) return;
 	state.busy = true;
+	state.error = null;
 	try {
 		const reg = await navigator.serviceWorker.ready;
 		const sub = await reg.pushManager.getSubscription();
@@ -74,6 +89,8 @@ export async function unsubscribeFromPush() {
 			await sub.unsubscribe();
 		}
 		state.subscribed = false;
+	} catch (err) {
+		state.error = err instanceof Error ? err.message : "Failed to disable push.";
 	} finally {
 		state.busy = false;
 	}

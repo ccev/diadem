@@ -114,6 +114,9 @@
 			<p class="text-muted-foreground mt-2 text-sm">
 				Supported: {push.supported} · Subscribed: {push.subscribed} · {pushStatus}
 			</p>
+			{#if push.error}
+				<p class="text-destructive mt-1 text-sm">{push.error}</p>
+			{/if}
 		</div>
 
 		<div class="border-t pt-4">
