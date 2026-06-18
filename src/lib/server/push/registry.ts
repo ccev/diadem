@@ -1,4 +1,3 @@
-import { getUserById } from "@/lib/server/auth/auth";
 import {
 	getPushAlerts,
 	getPushSubscriptions,
@@ -7,7 +6,7 @@ import {
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { getLogger } from "@/lib/utils/logger";
-import { buildContextForUser } from "./permissions";
+import { getSharedPushContext } from "./permissions";
 import type { PushAlertRule, StoredSubscription } from "./types";
 
 const log = getLogger("push");
@@ -24,6 +23,7 @@ type Entry = {
 };
 
 const entries = new Map<string, Entry>();
+const inFlightEntries = new Map<string, Promise<Entry | null>>();
 const rateState = new Map<string, { windowStart: number; count: number }>();
 const dedupe = new Map<string, number>(); // `${encounterId}:${ruleId}` -> despawnMs
 
@@ -36,22 +36,33 @@ export function invalidateUser(userId: string): void {
 }
 
 async function buildEntry(userId: string): Promise<Entry | null> {
-	const [rules, subscriptions, user] = await Promise.all([
+	const [rules, subscriptions, context] = await Promise.all([
 		getPushAlerts(userId),
 		getPushSubscriptions(userId),
-		getUserById(userId)
+		getSharedPushContext()
 	]);
 	const enabledRules = rules.filter((r) => r.enabled);
-	if (!user || enabledRules.length === 0 || subscriptions.length === 0) return null;
+	if (enabledRules.length === 0 || subscriptions.length === 0) return null;
 
-	const context = await buildContextForUser(user);
-	return { userId, rules: enabledRules, subscriptions, context, expiresAt: Date.now() + ENTRY_TTL_MS };
+	return {
+		userId,
+		rules: enabledRules,
+		subscriptions,
+		context,
+		expiresAt: Date.now() + ENTRY_TTL_MS
+	};
 }
 
 async function getEntry(userId: string): Promise<Entry | null> {
 	const cached = entries.get(userId);
 	if (cached && cached.expiresAt > Date.now()) return cached;
-	const fresh = await buildEntry(userId);
+
+	let building = inFlightEntries.get(userId);
+	if (!building) {
+		building = buildEntry(userId).finally(() => inFlightEntries.delete(userId));
+		inFlightEntries.set(userId, building);
+	}
+	const fresh = await building;
 	if (fresh) entries.set(userId, fresh);
 	else entries.delete(userId);
 	return fresh;
@@ -82,8 +93,16 @@ export function alreadyAlerted(encounterId: string, ruleId: string, despawnMs: n
 	const existing = dedupe.get(key);
 	if (existing && existing > now) return true;
 
-	if (dedupe.size > DEDUPE_MAX) {
+	if (dedupe.size >= DEDUPE_MAX) {
 		for (const [k, expiry] of dedupe) if (expiry <= now) dedupe.delete(k);
+		// If still over the cap (many live entries), drop the oldest insertions.
+		if (dedupe.size >= DEDUPE_MAX) {
+			let overflow = dedupe.size - DEDUPE_MAX + 1;
+			for (const k of dedupe.keys()) {
+				dedupe.delete(k);
+				if (--overflow <= 0) break;
+			}
+		}
 	}
 	dedupe.set(key, despawnMs > now ? despawnMs : now + 60_000);
 	return false;

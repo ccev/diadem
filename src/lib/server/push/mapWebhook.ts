@@ -20,6 +20,11 @@ export function mapGolbatPokemon(body: unknown): MatchablePokemon[] {
 		if (entry.type !== "pokemon") continue;
 		const m = entry.message as Record<string, unknown>;
 
+		// Skip nearby/cell spawns: their lat/lon is an approximate cell center,
+		// not the real spawn point, so they are unsuitable for location alerts.
+		const seenType = typeof m.seen_type === "string" ? m.seen_type : "";
+		if (seenType === "nearby_cell" || seenType === "nearby_stop") continue;
+
 		const pokemonId = num(m.pokemon_id);
 		const lat = num(m.latitude);
 		const lon = num(m.longitude);
@@ -30,7 +35,7 @@ export function mapGolbatPokemon(body: unknown): MatchablePokemon[] {
 		const staIv = num(m.individual_stamina);
 		const iv =
 			atkIv != null && defIv != null && staIv != null
-				? ((atkIv + defIv + staIv) / 45) * 100
+				? Math.min(100, ((atkIv + defIv + staIv) / 45) * 100)
 				: undefined;
 
 		result.push({
