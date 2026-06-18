@@ -1,20 +1,27 @@
 {
-	"version": "7",
-	"dialect": "mysql",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "5",
-			"when": 1749908787000,
-			"tag": "0000_fixed_madrox",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "5",
-			"when": 1781451699413,
-			"tag": "0001_majestic_bucky",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1749908787000,
+      "tag": "0000_fixed_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1781451699413,
+      "tag": "0001_majestic_bucky",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781806433775,
+      "tag": "0002_push_notifications",
+      "breakpoints": true
+    }
+  ]
 }
