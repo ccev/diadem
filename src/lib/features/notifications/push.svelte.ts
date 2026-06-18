@@ -31,6 +31,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 export async function refreshPushState() {
 	if (!state.supported) return;
 	const reg = await navigator.serviceWorker.ready;
+	await reg.update();
 	const sub = await reg.pushManager.getSubscription();
 	state.subscribed = !!sub;
 }
@@ -50,6 +51,7 @@ export async function subscribeToPush() {
 		if (!key) throw new Error("Push not configured on server");
 
 		const reg = await navigator.serviceWorker.ready;
+		await reg.update();
 		const sub = await reg.pushManager.subscribe({
 			userVisibleOnly: true,
 			applicationServerKey: urlBase64ToUint8Array(key)

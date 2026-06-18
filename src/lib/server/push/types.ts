@@ -31,4 +31,5 @@ export type PushPayload = {
 	body: string;
 	tag: string;
 	url: string;
+	icon: string;
 };

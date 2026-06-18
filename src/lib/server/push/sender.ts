@@ -26,9 +26,12 @@ export async function sendToSubscription(
 	if (!ensureConfigured()) return { pruned: false };
 
 	try {
-		await webpush.sendNotification(
+		const result = await webpush.sendNotification(
 			{ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
 			JSON.stringify(payload)
+		);
+		log.info(
+			`Push accepted (${result.statusCode}) for ${sub.endpointHash}: title=${payload.title}, tag=${payload.tag}`
 		);
 		return { pruned: false };
 	} catch (err) {

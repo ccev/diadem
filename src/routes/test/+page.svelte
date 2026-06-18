@@ -13,16 +13,18 @@
 		unsubscribeFromPush
 	} from "@/lib/features/notifications/push.svelte";
 	import type { PushAlertRule } from "@/lib/features/notifications/pushTypes";
+	import { onMount } from "svelte";
 
 	let sentCount = $state(0);
 	let pushStatus = $state("");
+	let fakeGolbatStatus = $state("");
 	const push = getPushState();
 
 	let rules = $state<PushAlertRule[]>([]);
 	let newPokemonId = $state(0);
 	let newMinIv = $state(0);
 
-	$effect(() => {
+	onMount(() => {
 		refreshPushState();
 		loadRules();
 	});
@@ -30,7 +32,10 @@
 	async function loadRules() {
 		const res = await fetch("/api/notifications/alerts");
 		const data = await res.json();
-		if (!data.error) rules = data.result;
+		if (!data.error) {
+			const result = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
+			rules = Array.isArray(result) ? result : [];
+		}
 	}
 
 	async function saveRules() {
@@ -80,6 +85,16 @@
 		const res = await fetch("/api/notifications/test", { method: "POST" });
 		const data = await res.json();
 		pushStatus = data.error ? `Error: ${data.error}` : `Sent to ${data.sent} device(s).`;
+	}
+
+	async function sendFakeGolbatWebhook() {
+		fakeGolbatStatus = "Sending fake Golbat webhook...";
+		const res = await fetch("/test/fake-golbat", { method: "POST" });
+		const data = await res.json();
+		const dispatch = data.dispatch;
+		fakeGolbatStatus = data.error
+			? `Error: ${data.error}`
+			: `Generated ${data.generated} spawn(s), received ${data.received}, entries ${dispatch?.entries ?? 0}, matched ${dispatch?.matched ?? 0}, sent ${dispatch?.sent ?? 0}, denied ${dispatch?.permissionDenied ?? 0}, missed ${dispatch?.ruleMiss ?? 0}, IV denied ${dispatch?.ivDenied ?? 0}.`;
 	}
 </script>
 
@@ -149,6 +164,13 @@
 					</li>
 				{/each}
 			</ul>
+
+			<div class="mt-4 flex flex-wrap items-center gap-3">
+				<Button variant="secondary" onclick={sendFakeGolbatWebhook} disabled={!push.subscribed}>
+					Send fake Golbat webhook
+				</Button>
+				<p class="text-muted-foreground text-sm">{fakeGolbatStatus}</p>
+			</div>
 		</div>
 
 		<p class="text-muted-foreground text-sm">Visible in-app notifications: {getNotifications().length}</p>

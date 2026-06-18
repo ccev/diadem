@@ -15,18 +15,27 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 export function setupPushHandlers(): void {
 	self.addEventListener("push", (event) => {
-		let data: { title?: string; body?: string; tag?: string; url?: string } = {};
-		try {
-			data = event.data?.json() ?? {};
-		} catch {
-			data = { title: "Notification", body: event.data?.text() ?? "" };
-		}
 		event.waitUntil(
-			self.registration.showNotification(data.title ?? "Notification", {
-				body: data.body,
-				tag: data.tag,
-				data: { url: data.url }
-			})
+			(async () => {
+				let data: { title?: string; body?: string; tag?: string; url?: string, icon?: string } = {};
+				try {
+					data = event.data?.json() ?? {};
+				} catch {
+					data = { title: "Notification", body: event.data?.text() ?? "" };
+				}
+
+				try {
+					await self.registration.showNotification(data.title ?? "Notification", {
+						body: data.body,
+						tag: data.tag,
+						icon: data.icon,
+						data: { url: data.url }
+					});
+					console.info("Push notification shown", data);
+				} catch (err) {
+					console.error("Push notification failed", err, data);
+				}
+			})()
 		);
 	});
 

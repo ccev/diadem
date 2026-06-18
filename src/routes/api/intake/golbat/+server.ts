@@ -33,10 +33,11 @@ export async function POST({ request }) {
 
 	const pokemon = mapGolbatPokemon(body);
 	// Ack immediately; matching is fast (in-memory) so we await it here.
+	let dispatch = null;
 	try {
-		await dispatchPokemon(pokemon);
+		dispatch = await dispatchPokemon(pokemon);
 	} catch (err) {
 		log.error(`intake dispatch failed: ${err}`);
 	}
-	return json({ ok: true, received: pokemon.length });
+	return json({ ok: true, received: pokemon.length, dispatch });
 }

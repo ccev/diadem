@@ -4,7 +4,7 @@ import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
-import { UICONS } from "uicons.js";
+import { UICONS, type UiconsIndex } from "uicons.js";
 
 import { shouldDisplayIncident, shouldDisplayLure } from "@/lib/features/filterLogic/pokestop";
 import { MapObjectType, type MapData } from "@/lib/mapObjects/mapObjectTypes";
@@ -42,6 +42,19 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 		console.error(raw);
 		console.error("Error while parsing uicon index " + id, e);
 	}
+}
+
+export function initIconSetFromIndex(id: string, url: string, indexFile: UiconsIndex) {
+	if (id in iconSets) return;
+
+	url = url.endsWith("/") ? url.slice(0, -1) : url;
+	const newSet = new UICONS(url);
+	iconSets[id] = newSet;
+	newSet.init(indexFile);
+}
+
+export function hasIconSet(id: string) {
+	return id in iconSets;
 }
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {

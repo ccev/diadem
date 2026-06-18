@@ -15,7 +15,7 @@ const ASSETS = [
 	...files.filter((f) => !f.endsWith(".gitkeep")) // everything in `static` except .gitkeep
 ];
 
-export function makeOfflineAvailable() {
+	export function makeOfflineAvailable() {
 	self.addEventListener("install", (event) => {
 		// Create a new cache and add all files to it
 		async function addFilesToCache() {
@@ -23,7 +23,7 @@ export function makeOfflineAvailable() {
 			await cache.addAll(ASSETS);
 		}
 
-		event.waitUntil(addFilesToCache());
+		event.waitUntil(addFilesToCache().then(() => self.skipWaiting()));
 	});
 
 	self.addEventListener("activate", (event) => {
@@ -34,7 +34,7 @@ export function makeOfflineAvailable() {
 			}
 		}
 
-		event.waitUntil(deleteOldCaches());
+		event.waitUntil(deleteOldCaches().then(() => self.clients.claim()));
 	});
 
 	self.addEventListener("fetch", (event) => {

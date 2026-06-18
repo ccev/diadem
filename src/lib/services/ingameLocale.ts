@@ -22,6 +22,14 @@ export const prefixes = {
 
 let remoteLocales: { [key: string]: { [key: string]: string } } = {};
 
+export function setRemoteLocales(locales: { [key: string]: { [key: string]: string } }) {
+	remoteLocales = locales;
+}
+
+export function setRemoteLocale(languageTag: string, data: { [key: string]: string }) {
+	remoteLocales[languageTag] = data;
+}
+
 export async function loadRemoteLocale(languageTag: string, thisFetch: typeof fetch = fetch) {
 	if (Object.keys(remoteLocales).includes(languageTag)) return;
 
