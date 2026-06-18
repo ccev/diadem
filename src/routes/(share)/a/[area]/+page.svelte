@@ -11,7 +11,7 @@
 	useMetadata(() => ({ title: data.feature.properties.name }));
 
 	onMount(() => {
-		setDirectLinkFeature(data.feature)
+		setDirectLinkFeature(data.feature);
 
 		const jump = getFeatureJump(data.feature);
 		const userSettings = getUserSettings();

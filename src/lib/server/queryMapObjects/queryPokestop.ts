@@ -171,9 +171,10 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			};
 
 			if (data.showcase_rankings) {
-				data.contest_rankings = (JSON.parse(data.showcase_rankings) || data.contest_rankings) as ContestRankings;
-				data.contest_rankings.total_entries = data.contest_rankings.total_entries || 0
-				data.contest_rankings.last_update = data.contest_rankings.last_update || 0
+				data.contest_rankings = (JSON.parse(data.showcase_rankings) ||
+					data.contest_rankings) as ContestRankings;
+				data.contest_rankings.total_entries = data.contest_rankings.total_entries || 0;
+				data.contest_rankings.last_update = data.contest_rankings.last_update || 0;
 
 				data.contest_rankings.contest_entries = data.contest_rankings.contest_entries.map((e) => {
 					return {

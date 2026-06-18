@@ -29,7 +29,7 @@
 
 {#if quest.title && quest.reward && shouldDisplayQuest(quest, pokestop)}
 	<PokestopSection titleParts={[m.pogo_quest(), rewardText]}>
-		<div class="flex gap-2 items-center ">
+		<div class="flex gap-2 items-center">
 			<div class="w-7 h-7 shrink-0">
 				{#if quest.reward}
 					<ImagePopup
@@ -40,9 +40,9 @@
 				{/if}
 			</div>
 			<div>
-			<span>
-				{taskText}
-			</span>
+				<span>
+					{taskText}
+				</span>
 				{#if expanded}
 					<IconValue Icon={Clock}>
 						{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>

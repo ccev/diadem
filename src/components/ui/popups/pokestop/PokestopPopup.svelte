@@ -55,9 +55,9 @@
 					<ImagePopup src={getIconItem(data.lure_id ?? 0)} alt="TBD" class="w-7" />
 				</div>
 				<div>
-				<span>
-					{m.lasts_until()}:
-				</span>
+					<span>
+						{m.lasts_until()}:
+					</span>
 					<TimeWithCountdown expireTime={data.lure_expire_timestamp} showHours={false} />
 					<!--TODO: show verified lure time-->
 				</div>
@@ -86,7 +86,6 @@
 							<TimeWithCountdown expireTime={incident.expiration} showHours={false} />
 						</div>
 					</div>
-
 				</PokestopSection>
 			{:else if isIncidentContest(incident)}
 				<ContestDisplay {expanded} {incident} {data} />

@@ -2,7 +2,11 @@
 	import { CircleLayer, FillLayer, GeoJSON, LineLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
-	import { getDirectLinkFeature, getDirectLinkObject, openMapObject } from "@/lib/features/directLinks.svelte.js";
+	import {
+		getDirectLinkFeature,
+		getDirectLinkObject,
+		openMapObject
+	} from "@/lib/features/directLinks.svelte.js";
 	import { clickMapHandler, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";

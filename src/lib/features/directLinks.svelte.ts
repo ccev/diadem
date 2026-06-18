@@ -14,7 +14,7 @@ export type DirectLinkData =
 	| { type: MapObjectType; noPermission?: boolean; id?: undefined };
 
 let directLinkObject: DirectLinkData | undefined = $state(undefined);
-let directLinkFeature: KojiFeature | undefined = $state(undefined)
+let directLinkFeature: KojiFeature | undefined = $state(undefined);
 
 export function getDirectLinkObject() {
 	return directLinkObject;
@@ -25,11 +25,11 @@ export function setDirectLinkObject(data: DirectLinkData) {
 }
 
 export function setDirectLinkFeature(feature: KojiFeature) {
-	directLinkFeature = feature
+	directLinkFeature = feature;
 }
 
 export function getDirectLinkFeature() {
-	return directLinkFeature
+	return directLinkFeature;
 }
 
 export function openMapObject(data: MapData, alwaysFly: boolean = false) {

@@ -80,7 +80,6 @@
 		</p>
 	</div>
 
-
 	<div class="mt-2 ml-1">
 		{#if hasLineup && !expanded}
 			{#if catchables.length > 1}
