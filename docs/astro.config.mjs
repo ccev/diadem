@@ -29,7 +29,8 @@ export default defineConfig({
 						{ label: "Caching", slug: "guides/cache" },
 						{ label: "Extending Diadem", slug: "guides/extending" },
 						{ label: "Self-host address search", slug: "guides/photon" },
-						{ label: "Self-host map tiles", slug: "guides/tileserver" }
+						{ label: "Self-host map tiles", slug: "guides/tileserver" },
+						{ label: "Web Push Spawn Alerts", slug: "guides/web-push" }
 					]
 				},
 				{

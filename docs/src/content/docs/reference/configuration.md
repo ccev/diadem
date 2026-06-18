@@ -264,6 +264,29 @@ password = ""
 - `server.db`: external Golbat DB used for data queries (user needs SELECT permissions)
 - `server.internalDb`: internal Diadem DB used for users/sessions (user needs ALL permissions)
 
+## `server.push`
+
+Controls Web Push spawn alerts. See the [Web Push guide](/guides/web-push/) for full setup instructions.
+
+```toml
+[server.push]
+enabled = true
+vapidPublicKey = "..."
+vapidPrivateKey = "..."
+vapidSubject = "mailto:you@example.com"
+maxPerUserPerHour = 30
+intakeSecret = "long-random-string"
+```
+
+- `enabled`: Toggles the entire push feature on or off.
+- `vapidPublicKey`: VAPID public key sent to browsers when they subscribe. Generate with `pnpm run push:keys`.
+- `vapidPrivateKey`: VAPID private key used to sign push requests. **Server-only — never expose this.** Generate with `pnpm run push:keys`.
+- `vapidSubject`: A `mailto:` address identifying your server to push services.
+- `maxPerUserPerHour`: Per-user hourly alert cap. Prevents flooding individual users.
+- `intakeSecret`: Shared secret that Golbat must send as `Authorization: Bearer <intakeSecret>` when posting spawns to `/intake/golbat`. **Server-only — never expose this.** Generate with e.g. `openssl rand -hex 32`.
+
+After enabling push for the first time, run `pnpm run db:push` to create the `push_subscription` table.
+
 ## `client.general`
 
 ```toml
