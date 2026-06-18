@@ -14,5 +14,5 @@ export async function GET({ locals }) {
 
 	if (!userSettings) return json({ error: "No data", result: {} });
 
-	return json({ result: JSON.parse(userSettings) });
+	return json({ result: userSettings });
 }

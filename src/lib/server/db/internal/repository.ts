@@ -4,17 +4,23 @@ import { and, eq } from "drizzle-orm";
 import { randomUUID, createHash } from "node:crypto";
 import type { PushAlertRule, StoredSubscription } from "@/lib/server/push/types";
 
-export async function setUserSettings(userId: string, userSettings: string) {
-	const u = await db.update(table.user).set({ userSettings }).where(eq(table.user.id, userId));
+function parseJsonColumn<T>(value: unknown): T | undefined {
+	if (value == null) return undefined;
+	if (typeof value !== "string") return value as T;
+	return JSON.parse(value) as T;
 }
 
-export async function getUserSettings(userId: string): Promise<undefined | string> {
+export async function setUserSettings(userId: string, userSettings: unknown) {
+	await db.update(table.user).set({ userSettings }).where(eq(table.user.id, userId));
+}
+
+export async function getUserSettings<T = unknown>(userId: string): Promise<T | undefined> {
 	const [result] = await db
 		.select({ user: { userSettings: table.user.userSettings } })
 		.from(table.user)
 		.where(eq(table.user.id, userId));
 
-	return result?.user?.userSettings as string | undefined;
+	return parseJsonColumn<T>(result?.user?.userSettings);
 }
 
 export function hashEndpoint(endpoint: string): string {
@@ -104,7 +110,7 @@ export async function getPushAlerts(userId: string): Promise<PushAlertRule[]> {
 		.select({ pushAlerts: table.user.pushAlerts })
 		.from(table.user)
 		.where(eq(table.user.id, userId));
-	return (row?.pushAlerts as PushAlertRule[] | null) ?? [];
+	return parseJsonColumn<PushAlertRule[]>(row?.pushAlerts) ?? [];
 }
 
 export async function setPushAlerts(userId: string, rules: PushAlertRule[]): Promise<void> {
