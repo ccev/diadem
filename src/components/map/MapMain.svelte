@@ -2,7 +2,7 @@
 	import { CircleLayer, FillLayer, GeoJSON, LineLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, onMount, tick } from "svelte";
-	import { getDirectLinkObject, openMapObject } from "@/lib/features/directLinks.svelte.js";
+	import { getDirectLinkFeature, getDirectLinkObject, openMapObject } from "@/lib/features/directLinks.svelte.js";
 	import { clickMapHandler, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
@@ -48,6 +48,9 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import TimerLayer from "@/components/map/TimerLayer.svelte";
 	import LayerSearchedGeometry from "@/components/map/LayerSearchedGeometry.svelte";
+	import { getFeatureJump } from "$lib/utils/geo";
+	import { jumpTo } from "$lib/map/utils";
+	import { setSearchedGeometry } from "$lib/services/search.svelte";
 
 	let {
 		map = $bindable()
@@ -87,6 +90,13 @@
 				LoadedFeature.USER_DETAILS
 			)
 		) {
+			const directLinkFeature = getDirectLinkFeature();
+			if (directLinkFeature) {
+				const params = getFeatureJump(directLinkFeature, true);
+				jumpTo(params.coords, params.zoom);
+				setSearchedGeometry(directLinkFeature.geometry);
+			}
+
 			const directLinkData = getDirectLinkObject();
 			if (directLinkData) {
 				if (directLinkData.id) {

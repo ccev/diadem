@@ -27,12 +27,7 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 		error(404);
 	}
 
-	const jumpTo = getFeatureJump(feature);
-
 	return {
-		lat: jumpTo.coords.lat,
-		lon: jumpTo.coords.lon,
-		zoom: jumpTo.zoom,
-		name: feature.properties.name
+		feature
 	};
 };

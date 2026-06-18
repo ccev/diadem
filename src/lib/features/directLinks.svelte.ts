@@ -7,12 +7,14 @@ import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings
 import { openToast } from "@/lib/ui/toasts.svelte";
 import { mAny } from "@/lib/utils/anyMessage";
 import { Coords } from "@/lib/utils/coordinates";
+import { type KojiFeature } from "@/lib/features/koji";
 
 export type DirectLinkData =
 	| MapData
 	| { type: MapObjectType; noPermission?: boolean; id?: undefined };
 
 let directLinkObject: DirectLinkData | undefined = $state(undefined);
+let directLinkFeature: KojiFeature | undefined = $state(undefined)
 
 export function getDirectLinkObject() {
 	return directLinkObject;
@@ -20,6 +22,14 @@ export function getDirectLinkObject() {
 
 export function setDirectLinkObject(data: DirectLinkData) {
 	directLinkObject = data;
+}
+
+export function setDirectLinkFeature(feature: KojiFeature) {
+	directLinkFeature = feature
+}
+
+export function getDirectLinkFeature() {
+	return directLinkFeature
 }
 
 export function openMapObject(data: MapData, alwaysFly: boolean = false) {
