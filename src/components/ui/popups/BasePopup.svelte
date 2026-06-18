@@ -27,6 +27,7 @@
 		description = undefined,
 		content = undefined,
 		buttons = popupButtons,
+		descriptionBelow = undefined,
 		canShare = true,
 		isExpanded = () => isPopupExpanded(getCurrentSelectedData()?.type),
 		onclose = closePopup,
@@ -41,6 +42,7 @@
 		description?: Snippet;
 		content?: Snippet;
 		buttons?: Snippet<[number, number]>;
+		descriptionBelow?: Snippet;
 		canShare?: boolean;
 		isExpanded?: () => boolean;
 		onclose?: () => void;
@@ -101,7 +103,7 @@
 					{@render title()}
 				</div>
 
-				{#if !isExpanded()}
+				{#if !isExpanded() && description}
 					<div
 						class="mt-1"
 						in:slide={{ duration: 90, easing: cubicOut }}
@@ -112,6 +114,16 @@
 				{/if}
 			</div>
 		</div>
+
+		{#if !isExpanded() && descriptionBelow}
+			<div
+				class="px-4 overflow-y-auto mb-2"
+				in:slide={{ duration: 90, easing: cubicOut }}
+				out:slide={{ duration: 90, easing: cubicIn }}
+			>
+				{@render descriptionBelow?.()}
+			</div>
+		{/if}
 
 		{#if isExpanded()}
 			<div

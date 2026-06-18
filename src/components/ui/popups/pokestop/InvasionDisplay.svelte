@@ -63,31 +63,30 @@
 	</div>
 {/snippet}
 
-<PokestopSection>
-	<div class="w-7 h-7 shrink-0">
-		<ImagePopup
-			src={getIconInvasion(incident.character, incident.confirmed)}
-			alt={mCharacter(incident.character)}
-			class="w-7"
-		/>
+<PokestopSection titleParts={[m.pogo_invasion(), mCharacter(incident.character)]}>
+	<div class="flex gap-2 items-center">
+		<div class="w-7 h-7 shrink-0">
+			<ImagePopup
+				src={getIconInvasion(incident.character, incident.confirmed)}
+				alt={mCharacter(incident.character)}
+				class="w-7"
+			/>
+		</div>
+
+		<p>
+			{m.lasts_until()}
+
+			<TimeWithCountdown expireTime={incident.expiration} showHours={incident.display_type !== 1} />
+		</p>
 	</div>
 
-	<div>
-		<span>
-			{mCharacter(incident.character)}
 
-			{#if incident.confirmed}
-				({m.confirmed()})
-			{/if}
-		</span>
-
-		<TimeWithCountdown expireTime={incident.expiration} showHours={incident.display_type !== 1} />
-
+	<div class="mt-2 ml-1">
 		{#if hasLineup && !expanded}
 			{#if catchables.length > 1}
 				<p class="text-muted-foreground mb-0.5">
 					<IconValue Icon={Trophy}>
-						{m.invasion_x_possible_rewards({ x: catchables.length })}
+						{m.invasion_x_possible_rewards({ x: catchables.length })}:
 					</IconValue>
 				</p>
 				{@render lineupSlot(catchables, undefined)}

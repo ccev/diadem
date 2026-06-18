@@ -49,16 +49,18 @@
 
 {#snippet lureSection()}
 	{#if shouldDisplayLure(data)}
-		<PokestopSection>
-			<div class="w-7 h-7 shrink-0">
-				<ImagePopup src={getIconItem(data.lure_id ?? 0)} alt="TBD" class="w-7" />
-			</div>
-			<div>
+		<PokestopSection titleParts={[mItem(data.lure_id)]}>
+			<div class="flex items-center gap-2">
+				<div class="w-7 h-7 shrink-0">
+					<ImagePopup src={getIconItem(data.lure_id ?? 0)} alt="TBD" class="w-7" />
+				</div>
+				<div>
 				<span>
-					{mItem(data.lure_id)}
+					{m.lasts_until()}:
 				</span>
-				<TimeWithCountdown expireTime={data.lure_expire_timestamp} showHours={false} />
-				<!--TODO: show verified lure time-->
+					<TimeWithCountdown expireTime={data.lure_expire_timestamp} showHours={false} />
+					<!--TODO: show verified lure time-->
+				</div>
 			</div>
 		</PokestopSection>
 	{/if}
@@ -70,18 +72,21 @@
 			{#if isIncidentInvasion(incident)}
 				<InvasionDisplay {expanded} {incident} />
 			{:else if isIncidentKecleon(incident)}
-				<PokestopSection>
-					<div class="w-7 h-7 shrink-0">
-						<ImagePopup
-							src={getIconPokemon({ pokemon_id: KECLEON_ID })}
-							alt={mPokemon({ pokemon_id: KECLEON_ID })}
-							class="w-7"
-						/>
+				<PokestopSection titleParts={[m.kecleon()]}>
+					<div class="flex gap-2 items-center">
+						<div class="w-7 h-7 shrink-0">
+							<ImagePopup
+								src={getIconPokemon({ pokemon_id: KECLEON_ID })}
+								alt={mPokemon({ pokemon_id: KECLEON_ID })}
+								class="w-7"
+							/>
+						</div>
+						<div>
+							{m.lasts_until()}:
+							<TimeWithCountdown expireTime={incident.expiration} showHours={false} />
+						</div>
 					</div>
-					<div>
-						{mPokemon({ pokemon_id: KECLEON_ID })}
-						<TimeWithCountdown expireTime={incident.expiration} showHours={false} />
-					</div>
+
 				</PokestopSection>
 			{:else if isIncidentContest(incident)}
 				<ContestDisplay {expanded} {incident} {data} />
@@ -113,8 +118,8 @@
 		</div>
 	{/snippet}
 
-	{#snippet description()}
-		<div class="[&>*:last-child]:border-none [&>*:last-child]:pb-0">
+	{#snippet descriptionBelow()}
+		<div class="space-y-1.5">
 			{#if data.quests[0]}
 				<QuestDisplay expanded={false} quest={data.quests[0]} pokestop={data} />
 			{/if}
@@ -122,7 +127,9 @@
 			{@render lureSection()}
 			{@render incidentSection(false)}
 		</div>
+	{/snippet}
 
+	{#snippet description()}
 		{#if isFortOutdated(data.updated)}
 			<IconValue Icon={ClockAlert}>
 				{m.outdated_message()}
@@ -131,7 +138,7 @@
 	{/snippet}
 
 	{#snippet content()}
-		<div class="[&>*:last-child]:mb-2">
+		<div class="space-y-1.5">
 			{#if data.quests[0]}
 				<QuestDisplay expanded={true} quest={data.quests[0]} pokestop={data} />
 			{/if}

@@ -14,6 +14,7 @@
 	import * as m from "@/lib/paraglide/messages";
 	import { CONTEST_SLOTS, getContestIcon, getContestText } from "@/lib/utils/pokestopUtils";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";
 
 	let {
 		expanded,
@@ -25,16 +26,6 @@
 		data: PokestopData;
 	} = $props();
 
-	const defaultContestRankings: ContestRankings = {
-		total_entries: 0,
-		last_update: 0,
-		contest_entries: []
-	};
-
-	const contestRankings: ContestRankings = $derived(
-		data?.showcase_rankings ? JSON.parse(data.showcase_rankings) : defaultContestRankings
-	);
-
 	const image = $derived(getContestIcon(data.contest_focus));
 
 	const name: string = $derived(
@@ -44,9 +35,14 @@
 	);
 
 	const hasNoDetails = $derived((data?.showcase_expiry ?? 0) < currentTimestamp());
+	let titleParts = $derived.by(() => {
+		const parts = [m.contest()] as string[];
+		if (name) parts.push(name);
+		return parts;
+	});
 </script>
 
-<div class="py-2 border-border border-b group-last:mb-2">
+<PokestopSection {titleParts}>
 	<div class="flex items-center gap-2">
 		{#if !hasNoDetails}
 			<div class="w-7 h-7 shrink-0">
@@ -55,27 +51,21 @@
 		{/if}
 		<div>
 			<div>
-				{#if !hasNoDetails}
-					{m.contest()}: <b>{name}</b>
-				{:else}
-					{m.contest()}
-				{/if}
-			</div>
-
-			<div>
-				Ends
+				{m.raid_ends()}
 				<TimeWithCountdown expireTime={incident.expiration} showHours={true} />
 			</div>
 		</div>
 	</div>
 
 	{#if expanded && !hasNoDetails}
-		<div class="mt-2">
-			<IconValue Icon={UsersRound}>
-				Entries: <b>{contestRankings.total_entries}</b>/{CONTEST_SLOTS}
-			</IconValue>
-		</div>
-		{#each contestRankings.contest_entries as entry}
+		{#if data.contest_rankings}
+			<div class="mt-2">
+				<IconValue Icon={UsersRound}>
+					Entries: <b>{data.contest_rankings.total_entries}</b>/{CONTEST_SLOTS}
+				</IconValue>
+			</div>
+		{/if}
+		{#each data?.contest_rankings?.contest_entries ?? [] as entry}
 			<div class="flex gap-1 items-center">
 				<div class="rounded-full w-4 h-4 flex items-center justify-center">
 					<span>{entry.rank}.</span>
@@ -90,4 +80,4 @@
 			</div>
 		{/each}
 	{/if}
-</div>
+</PokestopSection>

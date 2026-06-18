@@ -9,7 +9,7 @@ import { requestLimits } from "@/lib/server/api/rateLimit";
 import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { ContestRankings, Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { Features } from "@/lib/utils/features";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
@@ -163,6 +163,25 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 
 		if (data.showcase_focus && (data.showcase_expiry ?? 0) > currentTimestamp()) {
 			data.contest_focus = JSON.parse(data.showcase_focus);
+
+			data.contest_rankings = {
+				total_entries: 0,
+				last_update: 0,
+				contest_entries: []
+			};
+
+			if (data.showcase_rankings) {
+				data.contest_rankings = (JSON.parse(data.showcase_rankings) || data.contest_rankings) as ContestRankings;
+				data.contest_rankings.total_entries = data.contest_rankings.total_entries || 0
+				data.contest_rankings.last_update = data.contest_rankings.last_update || 0
+
+				data.contest_rankings.contest_entries = data.contest_rankings.contest_entries.map((e) => {
+					return {
+						...e,
+						form: getNormalizedForm(e.pokemon_id, e.form)
+					};
+				});
+			}
 
 			if (data.contest_focus?.type === "pokemon") {
 				data.contest_focus.pokemon_form = getNormalizedForm(

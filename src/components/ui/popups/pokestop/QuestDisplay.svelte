@@ -28,29 +28,27 @@
 </script>
 
 {#if quest.title && quest.reward && shouldDisplayQuest(quest, pokestop)}
-	<PokestopSection>
-		<div class="w-7 h-7 shrink-0">
-			{#if quest.reward}
-				<ImagePopup
-					src={getIconReward(quest.reward.type, quest.reward.info)}
-					alt={rewardText}
-					class="w-7 h-7"
-				/>
-			{/if}
-		</div>
-		<div>
-			{#if !expanded}
-				<span>
-					{taskText}
-				</span>
-			{:else}
-				<span>
-					<b>{rewardText}</b> · {taskText}
-				</span>
-				<IconValue Icon={Clock}>
-					{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>
-				</IconValue>
-			{/if}
+	<PokestopSection titleParts={[m.pogo_quest(), rewardText]}>
+		<div class="flex gap-2 items-center ">
+			<div class="w-7 h-7 shrink-0">
+				{#if quest.reward}
+					<ImagePopup
+						src={getIconReward(quest.reward.type, quest.reward.info)}
+						alt={rewardText}
+						class="w-7 h-7"
+					/>
+				{/if}
+			</div>
+			<div>
+			<span>
+				{taskText}
+			</span>
+				{#if expanded}
+					<IconValue Icon={Clock}>
+						{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>
+					</IconValue>
+				{/if}
+			</div>
 		</div>
 	</PokestopSection>
 {/if}

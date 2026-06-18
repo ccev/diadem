@@ -526,5 +526,6 @@
 	"search_hint_coverage": "Try searching an address or area",
 	"search_hint_wayfarer": "Try searching for Pokéstops, addresses or areas",
 	"search_no_results_generic": "Nothing came up",
-	"coordinates": "Coordinates"
+	"coordinates": "Coordinates",
+	"lasts_until": "Lasts until"
 }

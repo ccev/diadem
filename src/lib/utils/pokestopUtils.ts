@@ -112,6 +112,7 @@ const CONTEST_FIELDS = [
 	"showcase_pokemon_form_id",
 	"showcase_focus",
 	"contest_focus",
+	"contest_rankings",
 	"showcase_pokemon_type_id",
 	"showcase_ranking_standard",
 	"showcase_expiry",
