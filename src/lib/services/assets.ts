@@ -13,3 +13,11 @@ export function resize(url: string, options?: ResizeOptions) {
 	url += params.join("&");
 	return url;
 }
+
+/**
+ * Request the image padded to a centered square at its original largest
+ * dimension (width === height === max(originalWidth, originalHeight)).
+ */
+export function square(url: string) {
+	return url + "?square=1";
+}

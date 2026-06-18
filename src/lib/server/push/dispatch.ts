@@ -36,7 +36,7 @@ import {
 	getIconStation
 } from "$lib/services/uicons.svelte";
 import { mCharacter, mPokemon, mQuest, mRaid } from "$lib/services/ingameLocale";
-import { resize } from "@/lib/services/assets";
+import { square } from "@/lib/services/assets";
 
 const log = getLogger("push");
 
@@ -118,11 +118,11 @@ function dedupeKey(obj: MatchableObject): { key: string; expiryMs: number } {
 }
 
 /** Direct link to a map object's popup, e.g. `/pokemon/<id>` — mirrors the
- *  in-app share url (BasePopup getShareUrl: origin + /<type>/<id> + ?lang). */
+ *  in-app share url (BasePopup getShareUrl) but kept scope-relative so the
+ *  service worker opens it inside the installed PWA, not the browser. */
 function directLink(type: string, id: string): string {
-	const general = getClientConfig().general;
-	const origin = general.url ?? "";
-	return `${origin}/${type}/${encodeURIComponent(id)}?lang=${general.defaultLocale}`;
+	const lang = getClientConfig().general.defaultLocale;
+	return `/${type}/${encodeURIComponent(id)}?lang=${lang}`;
 }
 
 /**
@@ -142,7 +142,7 @@ function proxiedIcon(iconUrl: string): string {
 		const path = iconUrl.slice(base.length).replace(/^\/+/, "");
 		url = `${origin}/assets/${DEFAULT_UICONS}/${path}`;
 	}
-	return resize(url, { width: 64 });
+	return square(url);
 }
 
 async function buildPokemonPayload(p: MatchablePokemon, tag: string): Promise<PushPayload> {
@@ -408,7 +408,7 @@ export async function dispatchTest(userId: string): Promise<number> {
 		title: "Test push",
 		body: "Web Push is working on this device.",
 		tag: "test",
-		url: getClientConfig().general.url ?? "/",
+		url: "/",
 		icon,
 		badge: icon
 	};

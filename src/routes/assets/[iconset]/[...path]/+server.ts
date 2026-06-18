@@ -12,6 +12,7 @@ export async function GET({ params, fetch, url }) {
 	const config = getClientConfig();
 
 	const width = url.searchParams.get("w");
+	const squareParam = url.searchParams.get("square");
 	const formatParam = url.searchParams.get("format");
 	const iconSetId = params.iconset;
 	const iconPath = params.path;
@@ -39,8 +40,21 @@ export async function GET({ params, fetch, url }) {
 		}
 		const fetchDone = performance.now();
 
-		let sharpImage = sharp(Buffer.from(await res.arrayBuffer()));
-		if (width) {
+		const inputBuffer = Buffer.from(await res.arrayBuffer());
+		let sharpImage = sharp(inputBuffer);
+		if (squareParam) {
+			// Pad to a centered square at the original largest dimension.
+			const meta = await sharp(inputBuffer).metadata();
+			const size = Math.max(meta.width ?? 0, meta.height ?? 0);
+			if (size > 0) {
+				sharpImage = sharpImage.resize({
+					width: size,
+					height: size,
+					fit: "contain",
+					background: { r: 0, g: 0, b: 0, alpha: 0 }
+				});
+			}
+		} else if (width) {
 			sharpImage = sharpImage.resize({
 				width: Number(width),
 				withoutEnlargement: false
