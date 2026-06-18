@@ -55,6 +55,13 @@ This guide walks through the baseline install for a Diadem instance.
 		PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 pm2 start build/index.js -n "diadem"
 		```
 
+		For multi-core production servers, run the cluster entrypoint instead. `DIADEM_WORKERS=auto`
+		starts one worker per available CPU core; you can also set a fixed number such as `DIADEM_WORKERS=4`.
+
+		```bash
+		PORT=3900 HOST=127.0.0.1 FORCE_COLOR=1 DIADEM_WORKERS=auto node cluster.mjs
+		```
+
 	6. Reverse Proxy (optional)
 
 		For production use, it's probably a good idea to set up Diadem behind a reverse proxy. Here's a
@@ -67,6 +74,43 @@ This guide walks through the baseline install for a Diadem instance.
 		}
 		```
 </Steps>
+
+## Running With systemd
+
+For a `systemd` deployment, point `ExecStart` at the cluster entrypoint to distribute requests
+across CPU cores while keeping a single service and port.
+
+```ini
+[Unit]
+Description=Diadem
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/path/to/diadem
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3900
+Environment=FORCE_COLOR=1
+Environment=DIADEM_WORKERS=auto
+ExecStart=/usr/bin/node cluster.mjs
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+After changing the unit, reload and restart it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart diadem
+```
+
+Cluster mode starts multiple Diadem processes. Each worker has its own in-memory caches, rate
+limit counters, and MySQL pools. If strict rate limits matter, account for the worker count or use
+one worker until rate limiting is backed by shared storage.
 
 ## Updating
 

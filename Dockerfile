@@ -40,6 +40,7 @@ RUN groupadd --gid 1001 diadem && \
     useradd --uid 1001 --gid diadem --shell /bin/bash --create-home diadem
 COPY --from=builder --chown=diadem:diadem /app/build ./build
 COPY --from=builder --chown=diadem:diadem /app/package.json ./
+COPY --from=builder --chown=diadem:diadem /app/cluster.mjs ./
 COPY --from=deps --chown=diadem:diadem /app/node_modules ./node_modules
 
 # Files needed for drizzle-kit db:push at runtime

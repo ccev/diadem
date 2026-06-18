@@ -34,5 +34,8 @@ if [ "${DIADEM_TARGET:-}" = "dev" ]; then
     exec pnpm exec vite dev --host "${HOST:-0.0.0.0}" --port "${PORT:-3900}"
 else
     echo "Starting Diadem..."
+    if [ -n "${DIADEM_WORKERS:-}" ] && [ "${DIADEM_WORKERS}" != "1" ]; then
+        exec node cluster.mjs
+    fi
     exec node build/index.js
 fi
