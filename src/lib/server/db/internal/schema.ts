@@ -2,6 +2,7 @@ import {
 	boolean,
 	datetime,
 	index,
+	int,
 	json,
 	mysqlTable,
 	text,
@@ -19,6 +20,7 @@ export const user = mysqlTable(
 		image: text("image"),
 		discordId: varchar("discord_id", { length: 255 }).notNull().unique(),
 		userSettings: json("user_settings"),
+		pushAlerts: json("push_alerts"),
 		createdAt: datetime("created_at").notNull(),
 		updatedAt: datetime("updated_at").notNull()
 	},
@@ -95,3 +97,29 @@ export const verification = mysqlTable(
 );
 
 export type User = typeof user.$inferSelect;
+
+export const pushSubscription = mysqlTable(
+	"push_subscription",
+	{
+		id: varchar("id", { length: 255 }).primaryKey(),
+		userId: varchar("user_id", { length: 255 })
+			.notNull()
+			.references(() => user.id),
+		endpoint: text("endpoint").notNull(),
+		endpointHash: varchar("endpoint_hash", { length: 64 }).notNull(),
+		p256dh: text("p256dh").notNull(),
+		auth: text("auth").notNull(),
+		userAgent: text("user_agent"),
+		failureCount: int("failure_count").notNull().default(0),
+		createdAt: datetime("created_at").notNull(),
+		updatedAt: datetime("updated_at").notNull()
+	},
+	(table) => ({
+		endpointHashUnique: uniqueIndex("push_subscription_endpoint_hash_unique").on(
+			table.endpointHash
+		),
+		userIdIdx: index("push_subscription_user_id_idx").on(table.userId)
+	})
+);
+
+export type PushSubscriptionRow = typeof pushSubscription.$inferSelect;
