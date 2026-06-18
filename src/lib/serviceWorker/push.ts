@@ -23,7 +23,8 @@ export function setupPushHandlers(): void {
 					tag?: string;
 					url?: string;
 					icon?: string;
-					image?: string;
+					badge?: string;
+					timestamp?: number;
 					address?: string;
 				} = {};
 				try {
@@ -36,13 +37,14 @@ export function setupPushHandlers(): void {
 					const body = data.address
 						? `${data.body ?? ""}\n📍 ${data.address}`.trim()
 						: data.body;
-					// `image` (big picture) is widely supported but missing from the
+					// `timestamp` is a valid Notification option but missing from the
 					// webworker lib's NotificationOptions, so attach it via a cast.
-					const options: NotificationOptions & { image?: string } = {
+					const options: NotificationOptions & { timestamp?: number } = {
 						body,
 						tag: data.tag,
 						icon: data.icon,
-						image: data.image,
+						badge: data.badge,
+						timestamp: data.timestamp,
 						data: { url: data.url }
 					};
 					await self.registration.showNotification(data.title ?? "Notification", options);

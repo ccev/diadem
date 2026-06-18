@@ -28,6 +28,7 @@ import { getClientConfig } from "@/lib/services/config/config.server";
 import { Features, type FeaturesKey } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import {
+	DEFAULT_UICONS,
 	getIconInvasion,
 	getIconPokemon,
 	getIconRaidEgg,
@@ -37,16 +38,6 @@ import {
 import { mCharacter, mPokemon, mQuest, mRaid } from "$lib/services/ingameLocale";
 
 const log = getLogger("push");
-
-function getPushPokemonIconSet(): string {
-	const uiconSets = getClientConfig().uiconSets;
-	return (
-		uiconSets.find((set) => typeof set.pokemon === "object" && set.pokemon?.default)?.id ??
-		uiconSets.find((set) => set.base?.default)?.id ??
-		uiconSets[0]?.id ??
-		"DEFAULT"
-	);
-}
 
 export type DispatchStats = {
 	objects: number;
@@ -125,28 +116,27 @@ function dedupeKey(obj: MatchableObject): { key: string; expiryMs: number } {
 	}
 }
 
-function clientUrl(lat: number, lon: number): string {
-	return `${getClientConfig().general.url ?? ""}/@/${lat}/${lon}/18`;
+/** Direct link to a map object's popup, e.g. `/pokemon/<id>` — mirrors the
+ *  in-app share url (BasePopup getShareUrl: origin + /<type>/<id> + ?lang). */
+function directLink(type: string, id: string): string {
+	const general = getClientConfig().general;
+	const origin = general.url ?? "";
+	return `${origin}/${type}/${encodeURIComponent(id)}?lang=${general.defaultLocale}`;
 }
 
-async function buildPokemonPayload(
-	p: MatchablePokemon,
-	tag: string
-): Promise<PushPayload> {
+async function buildPokemonPayload(p: MatchablePokemon, tag: string): Promise<PushPayload> {
 	const ivText = p.iv != null ? ` ${Math.round(p.iv)}%` : "";
 	const lvlText = p.level != null ? ` L${p.level}` : "";
-	const icon = getIconPokemon(
-		{ pokemon_id: p.pokemonId, form: p.form },
-		getPushPokemonIconSet()
-	);
+	const icon = getIconPokemon({ pokemon_id: p.pokemonId, form: p.form }, DEFAULT_UICONS);
 	const address = (await getPushAddress(p.lat, p.lon)) ?? undefined;
 	return finalizePayload({
 		kind: "pokemon",
 		title: mPokemon({ pokemon_id: p.pokemonId, form: p.form }),
 		body: `#${p.pokemonId}${ivText}${lvlText}`,
 		icon,
-		lat: p.lat,
-		lon: p.lon,
+		type: "pokemon",
+		id: p.encounterId,
+		timestamp: p.despawnMs || undefined,
 		tag,
 		address
 	});
@@ -156,16 +146,12 @@ async function buildRaidPayload(r: MatchableRaid, tag: string): Promise<PushPayl
 	const isEgg = r.pokemonId === 0;
 	const title = isEgg
 		? mRaid(r.level)
-		: mPokemon({
-				pokemon_id: r.pokemonId,
-				form: r.form,
-				temp_evolution_id: r.tempEvolutionId
-			});
+		: mPokemon({ pokemon_id: r.pokemonId, form: r.form, temp_evolution_id: r.tempEvolutionId });
 	const icon = isEgg
 		? getIconRaidEgg(r.level)
 		: getIconPokemon(
 				{ pokemon_id: r.pokemonId, form: r.form, temp_evolution_id: r.tempEvolutionId },
-				getPushPokemonIconSet()
+				DEFAULT_UICONS
 			);
 	const address = (await getPushAddress(r.lat, r.lon)) ?? undefined;
 	return finalizePayload({
@@ -173,8 +159,9 @@ async function buildRaidPayload(r: MatchableRaid, tag: string): Promise<PushPayl
 		title,
 		body: mRaid(r.level),
 		icon,
-		lat: r.lat,
-		lon: r.lon,
+		type: "gym",
+		id: r.gymId,
+		timestamp: r.endMs || r.startMs || undefined,
 		tag,
 		address
 	});
@@ -194,17 +181,15 @@ async function buildQuestPayload(q: MatchableQuest, tag: string): Promise<PushPa
 		title: text,
 		body: text,
 		icon,
-		lat: q.lat,
-		lon: q.lon,
+		type: "pokestop",
+		id: q.pokestopId,
+		timestamp: q.updatedMs || undefined,
 		tag,
 		address
 	});
 }
 
-async function buildInvasionPayload(
-	i: MatchableInvasion,
-	tag: string
-): Promise<PushPayload> {
+async function buildInvasionPayload(i: MatchableInvasion, tag: string): Promise<PushPayload> {
 	const icon = getIconInvasion(i.character, i.confirmed);
 	const address = (await getPushAddress(i.lat, i.lon)) ?? undefined;
 	return finalizePayload({
@@ -212,35 +197,31 @@ async function buildInvasionPayload(
 		title: mCharacter(i.character),
 		body: i.confirmed ? "Confirmed invasion" : "Invasion",
 		icon,
-		lat: i.lat,
-		lon: i.lon,
+		type: "pokestop",
+		id: i.pokestopId,
+		timestamp: i.expirationMs || undefined,
 		tag,
 		address
 	});
 }
 
-async function buildMaxBattlePayload(
-	m: MatchableMaxBattle,
-	tag: string
-): Promise<PushPayload> {
+async function buildMaxBattlePayload(m: MatchableMaxBattle, tag: string): Promise<PushPayload> {
 	const hasBoss = m.pokemonId !== 0;
 	const title = hasBoss
 		? mPokemon({ pokemon_id: m.pokemonId, form: m.form, bread_mode: m.breadMode })
 		: (m.name ?? "Max Battle");
 	const icon = hasBoss
-		? getIconPokemon(
-				{ pokemon_id: m.pokemonId, form: m.form, bread_mode: m.breadMode },
-				getPushPokemonIconSet()
-			)
-		: getIconStation(true);
+		? getIconPokemon({ pokemon_id: m.pokemonId, form: m.form, bread_mode: m.breadMode }, DEFAULT_UICONS)
+		: getIconStation(true, DEFAULT_UICONS);
 	const address = (await getPushAddress(m.lat, m.lon)) ?? undefined;
 	return finalizePayload({
 		kind: "maxBattle",
 		title,
 		body: "Max Battle",
 		icon,
-		lat: m.lat,
-		lon: m.lon,
+		type: "station",
+		id: m.stationId,
+		timestamp: m.endMs || m.startMs || undefined,
 		tag,
 		address
 	});
@@ -251,22 +232,24 @@ function finalizePayload(input: {
 	title: string;
 	body: string;
 	icon: string;
-	lat: number;
-	lon: number;
+	type: string;
+	id: string;
 	tag: string;
+	timestamp?: number;
 	address?: string;
 }): PushPayload {
-	// Keep the address as a structured field. The in-app toast renders it on its
-	// own line with a pin; the system notification appends it to the body (done
-	// in the service worker, which has no separate address slot).
+	// Icon-only (no image), badge same as the icon, a direct deep link, and the
+	// associated event timestamp. Address stays structured for the in-app toast;
+	// the service worker appends it to the system-notification body.
 	return {
 		kind: input.kind,
 		title: input.title,
 		body: input.body,
 		tag: input.tag,
-		url: clientUrl(input.lat, input.lon),
+		url: directLink(input.type, input.id),
 		icon: input.icon,
-		image: input.icon,
+		badge: input.icon,
+		timestamp: input.timestamp,
 		address: input.address
 	};
 }
@@ -391,13 +374,15 @@ export async function dispatchObjects(objects: MatchableObject[]): Promise<Dispa
 export async function dispatchTest(userId: string): Promise<number> {
 	const { getPushSubscriptions } = await import("@/lib/server/db/internal/repository");
 	const subs = await getPushSubscriptions(userId);
+	const icon = getIconPokemon({ pokemon_id: 1, form: 0 }, DEFAULT_UICONS);
 	const payload: PushPayload = {
 		kind: "test",
 		title: "Test push",
 		body: "Web Push is working on this device.",
 		tag: "test",
 		url: getClientConfig().general.url ?? "/",
-		icon: getIconPokemon({ pokemon_id: 1, form: 0 }, getPushPokemonIconSet())
+		icon,
+		badge: icon
 	};
 	let sent = 0;
 	for (const sub of subs) {

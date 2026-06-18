@@ -104,7 +104,7 @@ export type PushPayload = {
 	tag: string;
 	url: string;
 	icon: string;
-	image?: string; // big-picture (same as icon by default)
-	subtitle?: string;
+	badge: string;
+	timestamp?: number; // associated event timestamp (ms): despawn/end/expiry
 	address?: string;
 };
