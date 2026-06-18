@@ -354,7 +354,9 @@ export async function dispatchObjects(objects: MatchableObject[]): Promise<Dispa
 			if (!matched) continue;
 
 			const { key, expiryMs } = dedupeKey(obj);
-			if (alreadyAlerted(key, "", expiryMs)) {
+			// Scope dedupe per-user: one alert per object per user. Without the
+			// userId the first matching user would dedupe out everyone else.
+			if (alreadyAlerted(`${entry.userId}:${key}`, "", expiryMs)) {
 				stats.deduped += 1;
 				continue;
 			}
