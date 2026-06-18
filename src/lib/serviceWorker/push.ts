@@ -32,20 +32,6 @@ export function setupPushHandlers(): void {
 					data = { title: "Notification", body: event.data?.text() ?? "" };
 				}
 
-				// If the app is open and focused, render the nicer in-app toast and
-				// skip the OS notification (avoids a redundant duplicate).
-				const clients = await self.clients.matchAll({
-					type: "window",
-					includeUncontrolled: true
-				});
-				const hasVisible = clients.some((client) => client.visibilityState === "visible");
-				if (hasVisible) {
-					for (const client of clients) {
-						client.postMessage({ type: "push-notification", payload: data });
-					}
-					return;
-				}
-
 				try {
 					const body = data.address
 						? `${data.body ?? ""}\n📍 ${data.address}`.trim()

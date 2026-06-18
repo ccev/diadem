@@ -3,7 +3,6 @@
 	import {
 		dismissNotification,
 		getNotifications,
-		sendNotification,
 		type AppNotification
 	} from "@/lib/features/notifications/notifications.svelte";
 	import { goto } from "$app/navigation";
@@ -38,28 +37,6 @@
 		dismissNotification(notification.id);
 	}
 
-	// Foreground pushes are forwarded by the service worker as messages so we can
-	// render the nicer in-app toast instead of an OS notification.
-	$effect(() => {
-		if (!("serviceWorker" in navigator)) return;
-
-		function onMessage(event: MessageEvent) {
-			if (event.data?.type !== "push-notification") return;
-			const p = event.data.payload ?? {};
-			sendNotification({
-				title: p.title ?? "Notification",
-				body: p.body,
-				icon: p.icon,
-				address: p.address,
-				kind: p.kind,
-				url: p.url,
-				timeoutMs: 8000
-			});
-		}
-
-		navigator.serviceWorker.addEventListener("message", onMessage);
-		return () => navigator.serviceWorker.removeEventListener("message", onMessage);
-	});
 </script>
 
 {#if getNotifications().length > 0}
