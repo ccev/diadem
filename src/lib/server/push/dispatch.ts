@@ -36,6 +36,7 @@ import {
 	getIconStation
 } from "$lib/services/uicons.svelte";
 import { mCharacter, mPokemon, mQuest, mRaid } from "$lib/services/ingameLocale";
+import { resize } from "@/lib/services/assets";
 
 const log = getLogger("push");
 
@@ -124,6 +125,26 @@ function directLink(type: string, id: string): string {
 	return `${origin}/${type}/${encodeURIComponent(id)}?lang=${general.defaultLocale}`;
 }
 
+/**
+ * Server-side getIcon* returns the raw uicon (GitHub) URL, where `?w=64` is
+ * ignored. Route it through the app's `/assets/DEFAULT/` proxy (which sharp-
+ * resizes) so notification icons are a consistent 64px square and not cropped.
+ */
+function proxiedIcon(iconUrl: string): string {
+	const config = getClientConfig();
+	const origin = config.general.url ?? "";
+	const base = (config.uiconSets.find((s) => s.id === DEFAULT_UICONS)?.url ?? "").replace(
+		/\/+$/,
+		""
+	);
+	let url = iconUrl;
+	if (base && iconUrl.startsWith(base)) {
+		const path = iconUrl.slice(base.length).replace(/^\/+/, "");
+		url = `${origin}/assets/${DEFAULT_UICONS}/${path}`;
+	}
+	return resize(url, { width: 64 });
+}
+
 async function buildPokemonPayload(p: MatchablePokemon, tag: string): Promise<PushPayload> {
 	const ivText = p.iv != null ? ` ${Math.round(p.iv)}%` : "";
 	const lvlText = p.level != null ? ` L${p.level}` : "";
@@ -168,12 +189,17 @@ async function buildRaidPayload(r: MatchableRaid, tag: string): Promise<PushPayl
 }
 
 async function buildQuestPayload(q: MatchableQuest, tag: string): Promise<PushPayload> {
-	const icon = getIconReward(q.rewardType, {
-		item_id: q.reward.itemId,
-		pokemon_id: q.reward.pokemonId,
-		form: q.reward.form,
-		amount: q.reward.amount
-	});
+	// RewardType.POKEMON (7): getIconReward delegates to getIconPokemon with a
+	// client-only default set, so resolve it explicitly against DEFAULT here.
+	const icon =
+		q.rewardType === 7
+			? getIconPokemon({ pokemon_id: q.reward.pokemonId, form: q.reward.form }, DEFAULT_UICONS)
+			: getIconReward(q.rewardType, {
+					item_id: q.reward.itemId,
+					pokemon_id: q.reward.pokemonId,
+					form: q.reward.form,
+					amount: q.reward.amount
+				});
 	const text = mQuest(q.title, q.target);
 	const address = (await getPushAddress(q.lat, q.lon)) ?? undefined;
 	return finalizePayload({
@@ -241,14 +267,16 @@ function finalizePayload(input: {
 	// Icon-only (no image), badge same as the icon, a direct deep link, and the
 	// associated event timestamp. Address stays structured for the in-app toast;
 	// the service worker appends it to the system-notification body.
+	// Route through the asset proxy at a 64px width so icons aren't cropped.
+	const icon = proxiedIcon(input.icon);
 	return {
 		kind: input.kind,
 		title: input.title,
 		body: input.body,
 		tag: input.tag,
 		url: directLink(input.type, input.id),
-		icon: input.icon,
-		badge: input.icon,
+		icon,
+		badge: icon,
 		timestamp: input.timestamp,
 		address: input.address
 	};
@@ -374,7 +402,7 @@ export async function dispatchObjects(objects: MatchableObject[]): Promise<Dispa
 export async function dispatchTest(userId: string): Promise<number> {
 	const { getPushSubscriptions } = await import("@/lib/server/db/internal/repository");
 	const subs = await getPushSubscriptions(userId);
-	const icon = getIconPokemon({ pokemon_id: 1, form: 0 }, DEFAULT_UICONS);
+	const icon = proxiedIcon(getIconPokemon({ pokemon_id: 1, form: 0 }, DEFAULT_UICONS));
 	const payload: PushPayload = {
 		kind: "test",
 		title: "Test push",
