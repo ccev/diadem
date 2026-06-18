@@ -133,6 +133,10 @@ export type ClientConfig = {
 		coverageMap: boolean;
 		scout: boolean;
 	};
+	push?: {
+		enabled: boolean;
+		vapidPublicKey: string;
+	};
 };
 
 export type ServerConfig = {
@@ -174,6 +178,14 @@ export type ServerConfig = {
 	auth: Auth;
 	permissions?: Permissions[];
 	staticMap?: StaticMap;
+	push?: {
+		enabled: boolean;
+		vapidPublicKey: string;
+		vapidPrivateKey: string;
+		vapidSubject: string;
+		maxPerUserPerHour: number;
+		intakeSecret: string;
+	};
 	limits?: {
 		enableRateLimiting?: boolean;
 		nonDeltaMultiplier?: number;

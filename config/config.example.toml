@@ -286,3 +286,11 @@ url = "https://raw.githubusercontent.com/jms412/PkmnShuffleMap/master/UICONS_Hal
 
 base = { scale = 0.25 }
 pokemon = { scale = 0.4 }
+
+[server.push]
+enabled = true
+vapidPublicKey = "PASTE_PUBLIC_KEY"
+vapidPrivateKey = "PASTE_PRIVATE_KEY"
+vapidSubject = "mailto:you@example.com"
+maxPerUserPerHour = 30
+intakeSecret = "CHANGE_ME_LONG_RANDOM_STRING"

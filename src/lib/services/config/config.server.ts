@@ -10,5 +10,11 @@ export function getServerConfig() {
 }
 
 export function getClientConfig() {
-	return config.client;
+	const push = config.server.push;
+	return {
+		...config.client,
+		push: push?.enabled
+			? { enabled: true, vapidPublicKey: push.vapidPublicKey }
+			: { enabled: false, vapidPublicKey: "" }
+	} satisfies Config["client"];
 }
