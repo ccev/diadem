@@ -256,11 +256,13 @@ function finalizePayload(input: {
 	tag: string;
 	address?: string;
 }): PushPayload {
-	const body = input.address ? `${input.body}\n${input.address}` : input.body;
+	// Keep the address as a structured field. The in-app toast renders it on its
+	// own line with a pin; the system notification appends it to the body (done
+	// in the service worker, which has no separate address slot).
 	return {
 		kind: input.kind,
 		title: input.title,
-		body,
+		body: input.body,
 		tag: input.tag,
 		url: clientUrl(input.lat, input.lon),
 		icon: input.icon,

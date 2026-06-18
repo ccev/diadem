@@ -9,6 +9,14 @@ export type NotificationTarget = {
 export type NotificationInput = {
 	title: string;
 	body?: string;
+	/** Entity image (uicon URL) shown as the toast thumbnail. */
+	icon?: string;
+	/** Reverse-geocoded address, shown on its own line with a pin. */
+	address?: string;
+	/** Object kind (pokemon, raid, quest, invasion, maxBattle) — drives the accent. */
+	kind?: string;
+	/** Deep link opened when the toast is clicked. */
+	url?: string;
 	target?: NotificationTarget;
 	data?: Record<string, unknown>;
 	native?: boolean;

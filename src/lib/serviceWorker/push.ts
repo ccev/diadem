@@ -17,21 +17,49 @@ export function setupPushHandlers(): void {
 	self.addEventListener("push", (event) => {
 		event.waitUntil(
 			(async () => {
-				let data: { title?: string; body?: string; tag?: string; url?: string, icon?: string } = {};
+				let data: {
+					title?: string;
+					body?: string;
+					tag?: string;
+					url?: string;
+					icon?: string;
+					image?: string;
+					address?: string;
+				} = {};
 				try {
 					data = event.data?.json() ?? {};
 				} catch {
 					data = { title: "Notification", body: event.data?.text() ?? "" };
 				}
 
+				// If the app is open and focused, render the nicer in-app toast and
+				// skip the OS notification (avoids a redundant duplicate).
+				const clients = await self.clients.matchAll({
+					type: "window",
+					includeUncontrolled: true
+				});
+				const hasVisible = clients.some((client) => client.visibilityState === "visible");
+				if (hasVisible) {
+					for (const client of clients) {
+						client.postMessage({ type: "push-notification", payload: data });
+					}
+					return;
+				}
+
 				try {
-					await self.registration.showNotification(data.title ?? "Notification", {
-						body: data.body,
+					const body = data.address
+						? `${data.body ?? ""}\n📍 ${data.address}`.trim()
+						: data.body;
+					// `image` (big picture) is widely supported but missing from the
+					// webworker lib's NotificationOptions, so attach it via a cast.
+					const options: NotificationOptions & { image?: string } = {
+						body,
 						tag: data.tag,
 						icon: data.icon,
+						image: data.image,
 						data: { url: data.url }
-					});
-					console.info("Push notification shown", data);
+					};
+					await self.registration.showNotification(data.title ?? "Notification", options);
 				} catch (err) {
 					console.error("Push notification failed", err, data);
 				}
