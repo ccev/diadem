@@ -14,6 +14,11 @@ export async function getUserByDiscordId(discordId: string) {
 	return result ?? null;
 }
 
+export async function getUserById(id: string) {
+	const [row] = await db.select().from(table.user).where(eq(table.user.id, id));
+	return row ?? null;
+}
+
 // Reject anything that isn't a path on this origin. Blocks protocol-relative
 // (`//evil.com`) and absolute URLs so we can't be used as an open redirect.
 export function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {
