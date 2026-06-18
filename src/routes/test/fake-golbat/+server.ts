@@ -3,7 +3,8 @@ import { getClientConfig, getServerConfig } from "@/lib/services/config/config.s
 import { getLogger } from "@/lib/utils/logger";
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import type { MinMax, PushAlertRule } from "@/lib/server/push/types";
+import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
+import type { MinMax } from "@/lib/server/push/types";
 
 const log = getLogger("push");
 
@@ -34,24 +35,24 @@ function ivStats(range: MinMax | undefined): {
 	return { individual_attack: 15, individual_defense: 15, individual_stamina: 15 };
 }
 
-function fakePokemonMessage(rule: PushAlertRule, index: number) {
-	const configuredPokemon = rule.pokemon?.[0];
+function fakePokemonMessage(filterset: FiltersetPokemon, index: number) {
+	const configuredPokemon = filterset.pokemon?.[0];
 	const now = Math.floor(Date.now() / 1000);
 	const general = getClientConfig().general;
 
 	return {
-		encounter_id: `diadem-test-${Date.now()}-${index}-${rule.id}`,
+		encounter_id: `diadem-test-${Date.now()}-${index}-${filterset.id}`,
 		pokemon_id: configuredPokemon?.pokemon_id ?? 1,
 		form: configuredPokemon?.form ?? 0,
 		latitude: general.defaultLat ?? 51.516855,
 		longitude: general.defaultLon ?? -0.0805,
 		disappear_time: now + 900,
 		seen_type: "wild",
-		...ivStats(rule.iv),
-		pokemon_level: valueInRange(rule.level, 35),
-		cp: valueInRange(rule.cp, 1500),
-		size: valueInRange(rule.size, 1),
-		gender: rule.gender?.[0] ?? 1
+		...ivStats(filterset.iv),
+		pokemon_level: valueInRange(filterset.level, 35),
+		cp: valueInRange(filterset.cp, 1500),
+		size: valueInRange(filterset.size, 1),
+		gender: filterset.gender?.[0] ?? 1
 	};
 }
 
@@ -61,15 +62,18 @@ export const POST: RequestHandler = async ({ fetch, locals }) => {
 	const push = getServerConfig().push;
 	if (!push?.enabled) return json({ error: "Push disabled" }, { status: 503 });
 
-	const rules = (await getPushAlerts(locals.user.id)).filter((rule) => rule.enabled);
-	if (rules.length === 0) return json({ error: "No enabled alert rules" }, { status: 400 });
+	const pokemonRules = (await getPushAlerts(locals.user.id)).pokemon.filter(
+		(filterset) => filterset.enabled
+	);
+	if (pokemonRules.length === 0)
+		return json({ error: "No enabled alert rules" }, { status: 400 });
 
-	const body = rules.map((rule, index) => ({
+	const body = pokemonRules.map((filterset, index) => ({
 		type: "pokemon",
-		message: fakePokemonMessage(rule, index)
+		message: fakePokemonMessage(filterset, index)
 	}));
 	log.info(
-		`Sending fake Golbat webhook for user ${locals.user.id}: rules=${rules.length}, pokemon=${body.length}`
+		`Sending fake Golbat webhook for user ${locals.user.id}: rules=${pokemonRules.length}, pokemon=${body.length}`
 	);
 
 	const response = await fetch("/api/intake/golbat", {

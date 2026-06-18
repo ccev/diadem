@@ -3,7 +3,14 @@ import type { User } from "@/lib/server/db/internal/schema";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { Features } from "@/lib/utils/features";
 
-const WATCHED_FEATURES = [Features.POKEMON, Features.POKEMON_IV];
+const WATCHED_FEATURES = [
+	Features.POKEMON,
+	Features.POKEMON_IV,
+	Features.RAID,
+	Features.QUEST,
+	Features.INVASION,
+	Features.MAX_BATTLE
+];
 const CONTEXT_TTL_MS = 300_000;
 
 let cached: { context: FeaturePermissionContext; expiresAt: number } | null = null;

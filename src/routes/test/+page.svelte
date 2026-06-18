@@ -12,7 +12,11 @@
 		subscribeToPush,
 		unsubscribeFromPush
 	} from "@/lib/features/notifications/push.svelte";
-	import type { PushAlertRule } from "@/lib/features/notifications/pushTypes";
+	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
+	import {
+		emptyPushAlertRules,
+		type PushAlertRules
+	} from "@/lib/features/notifications/pushTypes";
 	import { onMount } from "svelte";
 
 	let sentCount = $state(0);
@@ -20,7 +24,7 @@
 	let fakeGolbatStatus = $state("");
 	const push = getPushState();
 
-	let rules = $state<PushAlertRule[]>([]);
+	let rules = $state<PushAlertRules>(emptyPushAlertRules());
 	let newPokemonId = $state(0);
 	let newMinIv = $state(0);
 
@@ -34,7 +38,7 @@
 		const data = await res.json();
 		if (!data.error) {
 			const result = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
-			rules = Array.isArray(result) ? result : [];
+			rules = result ?? emptyPushAlertRules();
 		}
 	}
 
@@ -48,21 +52,22 @@
 
 	function addRule() {
 		if (!newPokemonId) return;
-		const rule: PushAlertRule = {
+		const filterset: FiltersetPokemon = {
 			id: crypto.randomUUID(),
 			enabled: true,
-			name: `#${newPokemonId}`,
-			pokemon: [{ pokemon_id: newPokemonId }]
+			title: { message: "", title: `#${newPokemonId}` },
+			icon: { isUserSelected: false },
+			pokemon: [{ pokemon_id: newPokemonId, form: 0 }]
 		};
-		if (newMinIv > 0) rule.iv = { min: newMinIv, max: 100 };
-		rules = [...rules, rule];
+		if (newMinIv > 0) filterset.iv = { min: newMinIv, max: 100 };
+		rules.pokemon = [...rules.pokemon, filterset];
 		newPokemonId = 0;
 		newMinIv = 0;
 		saveRules();
 	}
 
 	function removeRule(id: string) {
-		rules = rules.filter((r) => r.id !== id);
+		rules.pokemon = rules.pokemon.filter((r) => r.id !== id);
 		saveRules();
 	}
 
@@ -157,9 +162,9 @@
 			</div>
 
 			<ul class="mt-4 flex flex-col gap-2">
-				{#each rules as rule (rule.id)}
+				{#each rules.pokemon as rule (rule.id)}
 					<li class="flex items-center justify-between rounded border px-3 py-2 text-sm">
-						<span>{rule.name} {rule.iv ? `(IV ≥ ${rule.iv.min}%)` : ""}</span>
+						<span>{rule.title.title} {rule.iv ? `(IV ≥ ${rule.iv.min}%)` : ""}</span>
 						<Button variant="ghost" size="" onclick={() => removeRule(rule.id)}>Remove</Button>
 					</li>
 				{/each}

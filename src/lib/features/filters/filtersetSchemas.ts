@@ -114,9 +114,13 @@ export const FiltersetRaidSchema = BaseFiltersetSchema.extend({
 
 export const FiltersetStationPlainSchema = BaseFiltersetSchema.extend({});
 
+const BreadModePokemonSchema = PokemonSchema.extend({
+	bread_mode: z.number().optional()
+});
+
 export const FiltersetMaxBattleSchema = BaseFiltersetSchema.extend({
 	levels: z.array(z.number()).optional(),
-	bosses: z.array(PokemonSchema).optional(),
+	bosses: z.array(BreadModePokemonSchema).optional(),
 	isActive: z.boolean().optional(),
 	hasGmax: z.boolean().optional()
 });

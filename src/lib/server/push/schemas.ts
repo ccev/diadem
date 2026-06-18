@@ -1,22 +1,19 @@
+import {
+	FiltersetInvasionSchema,
+	FiltersetMaxBattleSchema,
+	FiltersetPokemonSchema,
+	FiltersetQuestSchema,
+	FiltersetRaidSchema
+} from "@/lib/features/filters/filtersetSchemas";
 import { z } from "zod";
 
-const minMax = z.object({ min: z.number(), max: z.number() });
-
-export const alertRuleSchema = z.object({
-	id: z.string().min(1).max(64),
-	enabled: z.boolean(),
-	name: z.string().max(120).optional(),
-	pokemon: z
-		.array(z.object({ pokemon_id: z.number().int(), form: z.number().int().optional() }))
-		.optional(),
-	iv: minMax.optional(),
-	level: minMax.optional(),
-	cp: minMax.optional(),
-	size: minMax.optional(),
-	gender: z.array(z.number().int()).optional()
+export const pushAlertRulesSchema = z.object({
+	pokemon: z.array(FiltersetPokemonSchema).max(100).default([]),
+	raid: z.array(FiltersetRaidSchema).max(100).default([]),
+	quest: z.array(FiltersetQuestSchema).max(100).default([]),
+	invasion: z.array(FiltersetInvasionSchema).max(100).default([]),
+	maxBattle: z.array(FiltersetMaxBattleSchema).max(100).default([])
 });
-
-export const alertRulesSchema = z.array(alertRuleSchema).max(50);
 
 export const subscriptionSchema = z.object({
 	endpoint: z.string().url(),

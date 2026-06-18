@@ -1,5 +1,5 @@
-import { dispatchPokemon } from "@/lib/server/push/dispatch";
-import { mapGolbatPokemon } from "@/lib/server/push/mapWebhook";
+import { dispatchObjects } from "@/lib/server/push/dispatch";
+import { mapGolbatBatch } from "@/lib/server/push/mapWebhook";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 import { json } from "@sveltejs/kit";
@@ -31,13 +31,13 @@ export async function POST({ request }) {
 		return json({ error: "Invalid JSON" }, { status: 400 });
 	}
 
-	const pokemon = mapGolbatPokemon(body);
+	const objects = mapGolbatBatch(body);
 	// Ack immediately; matching is fast (in-memory) so we await it here.
 	let dispatch = null;
 	try {
-		dispatch = await dispatchPokemon(pokemon);
+		dispatch = await dispatchObjects(objects);
 	} catch (err) {
 		log.error(`intake dispatch failed: ${err}`);
 	}
-	return json({ ok: true, received: pokemon.length, dispatch });
+	return json({ ok: true, received: objects.length, dispatch });
 }

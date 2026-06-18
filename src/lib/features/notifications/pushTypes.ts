@@ -1,14 +1,25 @@
-export type MinMax = { min: number; max: number };
+import type {
+	FiltersetInvasion,
+	FiltersetMaxBattle,
+	FiltersetPokemon,
+	FiltersetQuest,
+	FiltersetRaid
+} from "@/lib/features/filters/filtersets";
 
-/** A single alert rule. Lean, self-contained — NOT the map-filter Filterset. */
-export type PushAlertRule = {
-	id: string;
-	enabled: boolean;
-	name?: string;
-	pokemon?: { pokemon_id: number; form?: number }[];
-	iv?: MinMax;
-	level?: MinMax;
-	cp?: MinMax;
-	size?: MinMax;
-	gender?: number[];
+export type { MinMax } from "@/lib/features/filters/filtersets";
+
+/** Per-category push alert rules. Reuses the app's filterset shapes (same as
+ *  map filters) but stored separately under user.pushAlerts. */
+export type PushAlertRules = {
+	pokemon: FiltersetPokemon[];
+	raid: FiltersetRaid[];
+	quest: FiltersetQuest[];
+	invasion: FiltersetInvasion[];
+	maxBattle: FiltersetMaxBattle[];
 };
+
+export type PushAlertCategory = keyof PushAlertRules;
+
+export function emptyPushAlertRules(): PushAlertRules {
+	return { pokemon: [], raid: [], quest: [], invasion: [], maxBattle: [] };
+}

@@ -7,7 +7,7 @@ import { getServerConfig } from "@/lib/services/config/config.server";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { getLogger } from "@/lib/utils/logger";
 import { getSharedPushContext } from "./permissions";
-import type { PushAlertRule, StoredSubscription } from "./types";
+import type { PushAlertRules, StoredSubscription } from "./types";
 
 const log = getLogger("push");
 
@@ -16,7 +16,7 @@ const DEDUPE_MAX = 50_000;
 
 type Entry = {
 	userId: string;
-	rules: PushAlertRule[];
+	rules: PushAlertRules;
 	subscriptions: StoredSubscription[];
 	context: FeaturePermissionContext;
 	expiresAt: number;
@@ -41,8 +41,22 @@ async function buildEntry(userId: string): Promise<Entry | null> {
 		getPushSubscriptions(userId),
 		getSharedPushContext()
 	]);
-	const enabledRules = rules.filter((r) => r.enabled);
-	if (enabledRules.length === 0 || subscriptions.length === 0) return null;
+
+	const enabledRules: PushAlertRules = {
+		pokemon: rules.pokemon.filter((r) => r.enabled),
+		raid: rules.raid.filter((r) => r.enabled),
+		quest: rules.quest.filter((r) => r.enabled),
+		invasion: rules.invasion.filter((r) => r.enabled),
+		maxBattle: rules.maxBattle.filter((r) => r.enabled)
+	};
+
+	const totalEnabled =
+		enabledRules.pokemon.length +
+		enabledRules.raid.length +
+		enabledRules.quest.length +
+		enabledRules.invasion.length +
+		enabledRules.maxBattle.length;
+	if (totalEnabled === 0 || subscriptions.length === 0) return null;
 
 	return {
 		userId,

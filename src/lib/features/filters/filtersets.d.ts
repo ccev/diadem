@@ -135,7 +135,7 @@ export type FiltersetRaid = BaseFilterset & {
 
 export type FiltersetStationPlain = BaseFilterset & {};
 
-type BreadModePokemon = Pokemon & { bread_mode: number | undefined };
+type BreadModePokemon = Pokemon & { bread_mode?: number };
 
 export type FiltersetMaxBattle = BaseFilterset & {
 	levels?: number[];

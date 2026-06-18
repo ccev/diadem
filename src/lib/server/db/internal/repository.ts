@@ -2,7 +2,9 @@ import { db } from "@/lib/server/db/internal/index";
 import * as table from "@/lib/server/db/internal/schema";
 import { and, eq } from "drizzle-orm";
 import { randomUUID, createHash } from "node:crypto";
-import type { PushAlertRule, StoredSubscription } from "@/lib/server/push/types";
+import { emptyPushAlertRules, type PushAlertRules } from "@/lib/server/push/types";
+import { pushAlertRulesSchema } from "@/lib/server/push/schemas";
+import type { StoredSubscription } from "@/lib/server/push/types";
 
 function parseJsonColumn<T>(value: unknown): T | undefined {
 	if (value == null) return undefined;
@@ -105,15 +107,22 @@ export async function getPushSubscriptions(userId: string): Promise<StoredSubscr
 	}));
 }
 
-export async function getPushAlerts(userId: string): Promise<PushAlertRule[]> {
+export async function getPushAlerts(userId: string): Promise<PushAlertRules> {
 	const [row] = await db
 		.select({ pushAlerts: table.user.pushAlerts })
 		.from(table.user)
 		.where(eq(table.user.id, userId));
-	return parseJsonColumn<PushAlertRule[]>(row?.pushAlerts) ?? [];
+
+	const raw = parseJsonColumn<unknown>(row?.pushAlerts);
+	if (raw == null) return emptyPushAlertRules();
+
+	// Tolerate legacy array storage and any invalid shape by resetting to empty.
+	const parsed = pushAlertRulesSchema.safeParse(raw);
+	if (!parsed.success) return emptyPushAlertRules();
+	return parsed.data;
 }
 
-export async function setPushAlerts(userId: string, rules: PushAlertRule[]): Promise<void> {
+export async function setPushAlerts(userId: string, rules: PushAlertRules): Promise<void> {
 	await db.update(table.user).set({ pushAlerts: rules }).where(eq(table.user.id, userId));
 }
 
