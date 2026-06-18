@@ -308,3 +308,185 @@ async function nominatimLookupGeometry(osmId: string): Promise<Geometry | undefi
 
 	return featureCollection.features[0]?.geometry;
 }
+
+export async function reverseAddress(
+	lat: number,
+	lon: number,
+	language: string
+): Promise<string | null> {
+	const config = getServerConfig();
+
+	if (config.photon && config.photon.url) {
+		try {
+			const result = await photonReverseAddress(lat, lon, language);
+			if (result) return result;
+		} catch (err) {
+			log.error("Photon reverse geocode failed: %s", err);
+		}
+	}
+
+	if (config.pelias && config.pelias.url) {
+		try {
+			const result = await peliasReverseAddress(lat, lon);
+			if (result) return result;
+		} catch (err) {
+			log.error("Pelias reverse geocode failed: %s", err);
+		}
+	}
+
+	if (config.nominatim && config.nominatim.url) {
+		try {
+			const result = await nominatimReverseAddress(lat, lon, language);
+			if (result) return result;
+		} catch (err) {
+			log.error("Nominatim reverse geocode failed: %s", err);
+		}
+	}
+
+	return null;
+}
+
+async function photonReverseAddress(
+	lat: number,
+	lon: number,
+	language: string
+): Promise<string | null> {
+	const config = getServerConfig().photon;
+	if (!config || !config.url) return null;
+
+	const url = config.url + `reverse?lat=${lat}&lon=${lon}&lang=${language}&limit=1`;
+
+	const headers: HeadersInit = {};
+	if (config.basicAuth) {
+		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
+	}
+
+	const response = await fetch(url, {
+		method: "GET",
+		signal: AbortSignal.timeout(2000),
+		headers
+	});
+
+	if (!response.ok) {
+		log.error("Photon reverse request failed [%d] %s", response.status, await response.text());
+		return null;
+	}
+
+	const data: FeatureCollection<Point, PhotonProps> = await response.json();
+	const f = data?.features?.[0];
+	if (!f) return null;
+
+	const p = f.properties;
+
+	if (p.name && p.type) {
+		p[p.type] = p.name;
+	}
+
+	let formattedAddressParts = addressFormatter.format(
+		{
+			house: p.house,
+			road: p.street,
+			houseNumber: p.housenumber,
+			neighbourhood: p.district,
+			city: p.city,
+			county: p.county,
+			state: p.state,
+			postcode: p.postcode,
+			country: p.country,
+			countryCode: p.countrycode
+		},
+		{
+			abbreviate: false,
+			cleanupPostcode: true,
+			countryCode: p.countrycode,
+			output: "array"
+		}
+	);
+
+	if (!["city", "county", "state", "country"].includes(p.type ?? "")) {
+		formattedAddressParts = formattedAddressParts.slice(0, -1);
+	}
+
+	const label = formattedAddressParts.join(", ");
+	return label || null;
+}
+
+async function peliasReverseAddress(lat: number, lon: number): Promise<string | null> {
+	const config = getServerConfig().pelias;
+	if (!config || !config.url) return null;
+
+	let url = config.url + `v1/reverse?point.lat=${lat}&point.lon=${lon}&size=1`;
+
+	if (config.apiKey) {
+		url += "&api_key=" + config.apiKey;
+	}
+
+	const headers: HeadersInit = {};
+	if (config.basicAuth) {
+		headers["Authorization"] = `Basic ${btoa(config.basicAuth)}`;
+	}
+
+	const response = await fetch(url, {
+		method: "GET",
+		signal: AbortSignal.timeout(2000),
+		headers
+	});
+
+	if (!response.ok) {
+		log.error("Pelias reverse request failed [%d] %s", response.status, await response.text());
+		return null;
+	}
+
+	const data: FeatureCollection<Point, PeliasProps> = await response.json();
+	const label = data?.features?.[0]?.properties?.label;
+	return label ?? null;
+}
+
+type NominatimReverseResult = {
+	display_name: string;
+	address?: {
+		road?: string;
+		house_number?: string;
+		suburb?: string;
+		city?: string;
+		town?: string;
+		village?: string;
+	};
+};
+
+async function nominatimReverseAddress(
+	lat: number,
+	lon: number,
+	language: string
+): Promise<string | null> {
+	const config = getServerConfig().nominatim;
+	if (!config || !config.url) return null;
+
+	const url =
+		config.url +
+		`reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&accept-language=${language}`;
+
+	const response = await nominatimRequest(url);
+	if (!response) return null;
+
+	const data: NominatimReverseResult = await response.json();
+	if (!data) return null;
+
+	const addr = data.address;
+	if (addr) {
+		let name = "";
+		if (addr.road) {
+			name = addr.road;
+			if (addr.house_number) {
+				name += " " + addr.house_number;
+			}
+		}
+		const locality = addr.city ?? addr.town ?? addr.village ?? addr.suburb;
+		if (locality) {
+			name += (name ? ", " : "") + locality;
+		}
+		if (name) return name;
+	}
+
+	return data.display_name ?? null;
+}
