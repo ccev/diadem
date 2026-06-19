@@ -1,4 +1,5 @@
 import { getConfig } from "@/lib/services/config/config";
+import { getInstanceUrl } from "@/lib/native/runtime";
 import type { UiconSet } from "@/lib/services/config/configTypes";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
@@ -45,8 +46,13 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 }
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {
+	// On native, asset URLs must be absolute (the instance origin): unlike the
+	// map's fetch-based image loads, UI <img> tags and CSS url() bypass the
+	// native fetch wrapper, so a relative "/assets/..." would resolve to the
+	// local webview origin and 404. getInstanceUrl() is "" on web (unchanged).
+	const base = getInstanceUrl();
 	await Promise.all(
-		getConfig().uiconSets.map((s) => initIconSet(s.id, `/assets/${s.id}/`, thisFetch))
+		getConfig().uiconSets.map((s) => initIconSet(s.id, `${base}/assets/${s.id}/`, thisFetch))
 	);
 }
 

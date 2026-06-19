@@ -27,7 +27,18 @@ export function rewriteInstanceUrl(
 		return null;
 	}
 
-	// Only rewrite requests aimed at our own webview origin.
+	// Already absolute instance URLs (e.g. UICONS image URLs built with the
+	// instance base) must still go through CapacitorHttp — both for the native
+	// cookie jar/bearer and so maplibre's loadImage gets a CORS-clean Response.
+	let instanceOrigin: string;
+	try {
+		instanceOrigin = new URL(instanceUrl).origin;
+	} catch {
+		return null;
+	}
+	if (parsed.origin === instanceOrigin) return parsed.href;
+
+	// Local-origin /api and /assets paths → rewrite to the instance.
 	if (parsed.origin !== localOrigin) return null;
 
 	const matches = INSTANCE_PREFIXES.some(
