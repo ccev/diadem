@@ -19,6 +19,12 @@ importers:
       '@capacitor/core':
         specifier: ^7
         version: 7.6.7
+      '@capacitor/geolocation':
+        specifier: ^7
+        version: 7.1.8(@capacitor/core@7.6.7)
+      '@capacitor/status-bar':
+        specifier: ^7
+        version: 7.0.6(@capacitor/core@7.6.7)
       '@fragaria/address-formatter':
         specifier: ^6.7.1
         version: 6.7.1
@@ -289,6 +295,19 @@ packages:
 
   '@capacitor/core@7.6.7':
     resolution: {integrity: sha512-DR0kqfcsDzWhvskz+sJWy41cdv+P1ITjmOYYG5WSV88EO6tx5Tf82M61vp4NjV7rfQDUAQjBAypgaTiB2/2oEg==}
+
+  '@capacitor/geolocation@7.1.8':
+    resolution: {integrity: sha512-x/rJieD2N2zlGvXFRD3ru4ArJWTwXAIYmyhfo5zg4F1DKGos7mCCOvIOSVMdfQmt14SCsmJeO9Qe8EtDGNGCrw==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/status-bar@7.0.6':
+    resolution: {integrity: sha512-7AVqj46b26QikImQzWfsJmzG8NUJZBGkrVSuoeTo+SX/YH3hXH0MqwwFgMqMGHfa/BICDgSvTjM9miVFlq0+RQ==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/synapse@1.0.4':
+    resolution: {integrity: sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==}
 
   '@cloudflare/kv-asset-handler@0.3.4':
     resolution: {integrity: sha512-YLPHc8yASwjNkmcDMQMY35yiWjoKAKnhUbPRszBRS0YgH+IXtsMp61j+yTcnCE3oO2DgP0U3iejLC8FTtKDC8Q==}
@@ -4429,6 +4448,17 @@ snapshots:
   '@capacitor/core@7.6.7':
     dependencies:
       tslib: 2.8.1
+
+  '@capacitor/geolocation@7.1.8(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
+      '@capacitor/synapse': 1.0.4
+
+  '@capacitor/status-bar@7.0.6(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
+
+  '@capacitor/synapse@1.0.4': {}
 
   '@cloudflare/kv-asset-handler@0.3.4':
     dependencies:

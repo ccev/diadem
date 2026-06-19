@@ -1,4 +1,5 @@
 import { getMap } from "@/lib/map/map.svelte";
+import { isNative } from "@/lib/native/runtime";
 import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { round } from "@/lib/utils/numberFormat";
@@ -246,6 +247,38 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 		return;
 	}
 
+	if (isNative()) {
+		// On native the OS location permission must be granted before the WebView
+		// will service navigator.geolocation; request it via the Capacitor plugin.
+		void ensureNativeLocationPermission().then((granted) => {
+			if (granted) {
+				beginLocate(map, allowFollow);
+			} else {
+				geolocationEnabled = false;
+				openToast(m.locate_error_support());
+			}
+		});
+		return;
+	}
+
+	beginLocate(map, allowFollow);
+}
+
+async function ensureNativeLocationPermission(): Promise<boolean> {
+	try {
+		const { Geolocation } = await import("@capacitor/geolocation");
+		let status = await Geolocation.checkPermissions();
+		if (status.location !== "granted" && status.coarseLocation !== "granted") {
+			status = await Geolocation.requestPermissions();
+		}
+		return status.location === "granted" || status.coarseLocation === "granted";
+	} catch (e) {
+		console.error("Failed to request native location permission", e);
+		return false;
+	}
+}
+
+function beginLocate(map: maplibre.Map | undefined, allowFollow: boolean) {
 	if (!navigator.geolocation) {
 		geolocationEnabled = false;
 		openToast(m.locate_error_support());
