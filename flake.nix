@@ -28,14 +28,14 @@
           buildInputs = [
             pkgs.nodejs_22
             pkgs.pnpm
-            pkgs.jdk17
+            pkgs.jdk21
             pkgs.gradle
             androidSdk
           ];
 
           ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
           ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
-          JAVA_HOME = "${pkgs.jdk17}";
+          JAVA_HOME = "${pkgs.jdk21}";
 
           shellHook = ''
             export PATH="$ANDROID_HOME/platform-tools:$PATH"
