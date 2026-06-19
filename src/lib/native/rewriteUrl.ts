@@ -5,7 +5,9 @@ const INSTANCE_PREFIXES = ["/api/", "/assets/"];
  * Decide whether a request URL should be redirected to the remote instance.
  * Returns the rewritten absolute URL, or null to leave the request untouched.
  *
- * @param requestUrl absolute URL of the outgoing request
+ * @param requestUrl outgoing request URL — absolute, OR a root-relative path
+ *   like "/api/config" (SvelteKit's load fetch strips the origin for
+ *   same-origin requests, so the wrapper sees relative paths here)
  * @param instanceUrl normalized instance origin ("" = none configured)
  * @param localOrigin the webview's own origin (requests to this origin are candidates)
  */
@@ -18,7 +20,9 @@ export function rewriteInstanceUrl(
 
 	let parsed: URL;
 	try {
-		parsed = new URL(requestUrl);
+		// Resolve relative paths against the webview origin so "/api/config"
+		// becomes "<localOrigin>/api/config" rather than throwing.
+		parsed = new URL(requestUrl, localOrigin);
 	} catch {
 		return null;
 	}

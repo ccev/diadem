@@ -30,4 +30,18 @@ describe("rewriteInstanceUrl", () => {
 	it("returns null when there is no instance configured", () => {
 		expect(rewriteInstanceUrl(`${LOCAL}/api/config`, "", LOCAL)).toBeNull();
 	});
+	// SvelteKit's load fetch passes same-origin requests as relative paths
+	// (it strips the origin in resolve_fetch_url), so the rewriter must resolve
+	// them against localOrigin instead of throwing on `new URL(relative)`.
+	it("rewrites a RELATIVE /api path (the form SvelteKit load fetch passes)", () => {
+		expect(rewriteInstanceUrl("/api/config", INSTANCE, LOCAL)).toBe("https://demap.co/api/config");
+	});
+	it("rewrites a relative /assets path", () => {
+		expect(rewriteInstanceUrl("/assets/pokemon/1.png", INSTANCE, LOCAL)).toBe(
+			"https://demap.co/assets/pokemon/1.png"
+		);
+	});
+	it("does NOT rewrite an unrelated relative path", () => {
+		expect(rewriteInstanceUrl("/map", INSTANCE, LOCAL)).toBeNull();
+	});
 });
