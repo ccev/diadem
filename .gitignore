@@ -40,3 +40,9 @@ docker-compose.yml
 
 # VSCode stuff
 .vscode
+
+# Capacitor / native
+/android
+/ios
+/build
+.gradle
