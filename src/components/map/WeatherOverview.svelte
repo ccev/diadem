@@ -78,7 +78,7 @@
 
 {#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather()) && hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS) && !isSearchViewActive()}
 	<div
-		class="pointer-events-none fixed top-2 z-10"
+		class="pointer-events-none fixed top-[calc(0.5rem+env(safe-area-inset-top))] z-10"
 		class:right-2={!isUiLeft() || isMenuSidebar()}
 		class:left-2={isUiLeft() && !isMenuSidebar()}
 		transition:fade={{ duration: 90 }}

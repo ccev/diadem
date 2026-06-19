@@ -70,7 +70,7 @@
 	<ContextMenu />
 
 	{#if isSearchViewActive()}
-		<div class="fixed z-10 top-2 px-2 w-full pointer-events-none">
+		<div class="fixed z-10 top-[calc(0.5rem+env(safe-area-inset-top))] px-2 w-full pointer-events-none">
 			<ActiveSearchView />
 		</div>
 	{/if}

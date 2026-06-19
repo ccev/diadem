@@ -153,7 +153,7 @@
 		</div>
 	{/if}
 {:else if getIsContextMenuOpen()}
-	<div class="w-full fixed bottom-2 px-2 z-50" transition:slide={{ duration: 70 }}>
+	<div class="w-full fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] px-2 z-50" transition:slide={{ duration: 70 }}>
 		<div
 			bind:this={div}
 			class="w-full flex flex-col bg-popover text-popover-foreground rounded-md border p-1 py-2 shadow-md focus:outline-hidden"

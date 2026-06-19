@@ -37,7 +37,7 @@
 	>
 		<Drawer.Portal>
 			<Drawer.Content
-				class="duration-150! rounded-t-xl fixed flex flex-col bottom-0 z-10 px-2 py-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm focus:outline-none"
+				class="duration-150! rounded-t-xl fixed flex flex-col bottom-0 z-10 px-2 py-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm focus:outline-none pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]"
 			>
 				<div class="w-10 mx-auto mb-2 rounded-full bg-ring h-1 shrink-0"></div>
 				<div class="{contentClass} bg-background rounded-lg border border-border">
