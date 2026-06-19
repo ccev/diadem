@@ -433,6 +433,15 @@ git add src/lib/native/nativeFetch.ts
 git commit -m "feat(native): CapacitorHttp-backed fetch wrapper for instance requests"
 ```
 
+> **Post-review hardening (applied):** the wrapper MUST send `Accept-Encoding: identity`
+> on rewritten requests — `src/lib/server/api/respond.ts` brotli/gzip-compresses every
+> `/api` response, and a `Response` reconstructed from CapacitorHttp bytes is NOT
+> auto-decompressed, so `parseResponse` would silently fail (empty map). It must also
+> pass a `null` body for null-body statuses (204/205/304) to avoid a `Response`
+> constructor `TypeError`, forward `AbortSignal` (throw `AbortError`), and normalize
+> request bodies. See commit `cf32f82`. This wrapper is mutually exclusive with
+> Capacitor's built-in `CapacitorHttp.enabled` flag — do not enable it.
+
 ---
 
 ## Task 6: Install the wrapper before the app boots
