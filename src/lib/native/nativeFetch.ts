@@ -13,6 +13,21 @@ function base64ToBytes(base64: string): Uint8Array {
 	return bytes;
 }
 
+/**
+ * Reconstruct response body bytes from CapacitorHttp's `response.data`, whose
+ * shape depends on the response content-type:
+ *  - binary/blob (images, msgpack) → base64 string
+ *  - application/json → an already-parsed JS object/array (CapacitorHttp parses
+ *    JSON even when responseType is "blob"), which we must re-serialize.
+ * (Note: CapacitorHttp's JSON parse can lose precision on >2^53 integers; acceptable
+ * for now since 64-bit ids are sent as strings or via msgpack.)
+ */
+export function capacitorResponseBytes(data: unknown): Uint8Array {
+	if (data == null) return new Uint8Array();
+	if (typeof data === "string") return base64ToBytes(data);
+	return new TextEncoder().encode(JSON.stringify(data));
+}
+
 function buildRequestHeaders(init?: RequestInit, req?: Request): Record<string, string> {
 	const out: Record<string, string> = {};
 	const h = init?.headers ?? req?.headers;
@@ -82,8 +97,7 @@ export function installNativeFetch(): void {
 
 		if (aborted(signal)) throw new DOMException("Aborted", "AbortError");
 
-		const bytes =
-			typeof response.data === "string" ? base64ToBytes(response.data) : new Uint8Array();
+		const bytes = capacitorResponseBytes(response.data);
 		const body = NULL_BODY_STATUSES.has(response.status) ? null : bytes;
 
 		const responseHeaders = new Headers();
