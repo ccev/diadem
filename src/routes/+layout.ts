@@ -2,7 +2,7 @@ import { browser } from "$app/environment";
 import { redirect } from "@sveltejs/kit";
 import { setConfig } from "@/lib/services/config/config";
 import { getMapPath } from "@/lib/utils/getMapPath";
-import { isNative } from "@/lib/native/runtime";
+import { getInstanceUrl, isNative } from "@/lib/native/runtime";
 import {
 	getDefaultUserSettings,
 	setUserSettings,
@@ -13,6 +13,11 @@ import type { LayoutLoad } from "./$types";
 export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, url }) => {
+	// First run on native (no instance chosen yet): show the instance-gate screen.
+	if (isNative() && !getInstanceUrl()) {
+		return { needsInstanceGate: true };
+	}
+
 	// If the instance is unreachable (offline, down, wrong URL), surface a retry
 	// screen instead of crashing to a blank page — the whole native app depends
 	// on the remote instance.

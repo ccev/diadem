@@ -4,6 +4,7 @@
 	import { ModeWatcher } from "mode-watcher";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import InstanceUnreachable from "@/components/ui/InstanceUnreachable.svelte";
+	import InstanceGate from "@/components/ui/InstanceGate.svelte";
 	import { onMount } from "svelte";
 
 	let { children, data } = $props();
@@ -12,7 +13,9 @@
 	onMount(() => document.getElementById("initial-loader")?.remove());
 </script>
 
-{#if data?.configError}
+{#if data?.needsInstanceGate}
+	<InstanceGate />
+{:else if data?.configError}
 	<InstanceUnreachable />
 {:else}
 	<Metadata />
