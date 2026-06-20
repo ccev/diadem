@@ -16,6 +16,12 @@ importers:
       '@capacitor/android':
         specifier: ^7
         version: 7.6.7(@capacitor/core@7.6.7)
+      '@capacitor/app':
+        specifier: ^7
+        version: 7.1.2(@capacitor/core@7.6.7)
+      '@capacitor/browser':
+        specifier: ^7
+        version: 7.0.5(@capacitor/core@7.6.7)
       '@capacitor/clipboard':
         specifier: ^7
         version: 7.0.4(@capacitor/core@7.6.7)
@@ -25,6 +31,9 @@ importers:
       '@capacitor/geolocation':
         specifier: ^7
         version: 7.1.8(@capacitor/core@7.6.7)
+      '@capacitor/preferences':
+        specifier: ^7
+        version: 7.0.4(@capacitor/core@7.6.7)
       '@capacitor/share':
         specifier: ^7
         version: 7.0.4(@capacitor/core@7.6.7)
@@ -294,6 +303,16 @@ packages:
     peerDependencies:
       '@capacitor/core': ^7.6.0
 
+  '@capacitor/app@7.1.2':
+    resolution: {integrity: sha512-d4I/oF/PRu4megL7/IGKYfe5j7yzSON1FRFgq6kH+m5kH6g7V+wyjHRLauCzGNjdRx4S+nWOumINds0qcRBtKg==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/browser@7.0.5':
+    resolution: {integrity: sha512-YF/kC1m1e6c81X/agtAnYItVlqiQ/nXLG+Q3QXNDuiMoRynqa3Guu8ZaV9kWvqQcHoE2w18xz7WGpPOuh+R1fA==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   '@capacitor/cli@7.6.7':
     resolution: {integrity: sha512-nV9j1+431/rsiabGs1UK0SbETrl2JfAf3SSlsM9RbMMjAL7WmruxnlJcbB9IXPoa6L99GljSO5q/9UCNvYz6Ag==}
     engines: {node: '>=20.0.0'}
@@ -309,6 +328,11 @@ packages:
 
   '@capacitor/geolocation@7.1.8':
     resolution: {integrity: sha512-x/rJieD2N2zlGvXFRD3ru4ArJWTwXAIYmyhfo5zg4F1DKGos7mCCOvIOSVMdfQmt14SCsmJeO9Qe8EtDGNGCrw==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/preferences@7.0.4':
+    resolution: {integrity: sha512-TJhkwaI2RCs/iDC9PjNczZV4h6JM4gUtTuKMeFdy0OwGgFEHf4TrtW2mFMc1TnPDalYQ91p9NT+UKgiJs9/xtg==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -4439,6 +4463,14 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.6.7
 
+  '@capacitor/app@7.1.2(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
+
+  '@capacitor/browser@7.0.5(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
+
   '@capacitor/cli@7.6.7':
     dependencies:
       '@ionic/cli-framework-output': 2.2.8
@@ -4473,6 +4505,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.6.7
       '@capacitor/synapse': 1.0.4
+
+  '@capacitor/preferences@7.0.4(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
 
   '@capacitor/share@7.0.4(@capacitor/core@7.6.7)':
     dependencies:

@@ -1,6 +1,7 @@
 import { CapacitorHttp } from "@capacitor/core";
 import { getInstanceUrl, isNative } from "@/lib/native/runtime";
 import { rewriteInstanceUrl } from "@/lib/native/rewriteUrl";
+import { getBearerToken } from "@/lib/native/auth";
 
 // NOTE: This wrapper is mutually exclusive with Capacitor's built-in
 // `CapacitorHttp.enabled` config flag, which also patches window.fetch. Do NOT
@@ -52,6 +53,12 @@ function buildRequestHeaders(init?: RequestInit, req?: Request): Record<string, 
 	// CapacitorHttp's bytes is NOT auto-decompressed — so .json()/msgpack would
 	// receive compressed bytes and fail silently. "identity" => plain bytes.
 	out["Accept-Encoding"] = "identity";
+
+	// Native has no cookies — authenticate instance requests with the bearer token.
+	const hasAuth = Object.keys(out).some((k) => k.toLowerCase() === "authorization");
+	const token = getBearerToken();
+	if (token && !hasAuth) out["Authorization"] = `Bearer ${token}`;
+
 	return out;
 }
 

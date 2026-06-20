@@ -42,9 +42,12 @@
 	},
 	"dependencies": {
 		"@capacitor/android": "^7",
+		"@capacitor/app": "^7",
+		"@capacitor/browser": "^7",
 		"@capacitor/clipboard": "^7",
 		"@capacitor/core": "^7",
 		"@capacitor/geolocation": "^7",
+		"@capacitor/preferences": "^7",
 		"@capacitor/share": "^7",
 		"@capacitor/status-bar": "^7",
 		"@fragaria/address-formatter": "^6.7.1",

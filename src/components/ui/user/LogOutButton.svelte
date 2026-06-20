@@ -6,6 +6,8 @@
 	import { isSupportedFeature, updateSupportedFeatures } from "@/lib/services/supportedFeatures";
 	import { getLoginLink } from "@/lib/services/user/login";
 	import { updateUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import { isNative } from "@/lib/native/runtime";
+	import { clearStoredToken } from "@/lib/native/auth";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
 	import * as m from "@/lib/paraglide/messages";
 
@@ -19,6 +21,9 @@
 				openToast(m.signout_toast_error(), 10000);
 				return;
 			}
+
+			// Drop the local bearer token so subsequent requests are unauthenticated.
+			if (isNative()) await clearStoredToken();
 
 			clearMap();
 			await Promise.all([updateSupportedFeatures(), updateUserDetails()]);
