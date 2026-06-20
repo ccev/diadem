@@ -14,18 +14,31 @@ function base64ToBytes(base64: string): Uint8Array {
 }
 
 /**
- * Reconstruct response body bytes from CapacitorHttp's `response.data`, whose
- * shape depends on the response content-type:
- *  - binary/blob (images, msgpack) → base64 string
- *  - application/json → an already-parsed JS object/array (CapacitorHttp parses
- *    JSON even when responseType is "blob"), which we must re-serialize.
- * (Note: CapacitorHttp's JSON parse can lose precision on >2^53 integers; acceptable
- * for now since 64-bit ids are sent as strings or via msgpack.)
+ * Reconstruct response body bytes from CapacitorHttp's `response.data`, which is
+ * inconsistently one of three shapes:
+ *  - a parsed JS object/array — CapacitorHttp parsed an application/json body
+ *    (seen for some JSON responses) → re-serialize it.
+ *  - a raw text string — other JSON/text bodies come back as the literal text
+ *    (e.g. SvelteKit's json() responses) → encode the characters directly.
+ *  - a base64 string — binary bodies (images, msgpack) → base64-decode.
+ * `typeof` can't tell a raw-text string from a base64 string, so we key off the
+ * response content type and fall back to text if base64 decoding fails.
+ * (Note: CapacitorHttp's JSON parse can lose precision on >2^53 integers; 64-bit
+ * ids in our payloads are sent as strings, so this is acceptable.)
  */
-export function capacitorResponseBytes(data: unknown): Uint8Array {
+export function capacitorResponseBytes(data: unknown, contentType = ""): Uint8Array {
 	if (data == null) return new Uint8Array();
-	if (typeof data === "string") return base64ToBytes(data);
-	return new TextEncoder().encode(JSON.stringify(data));
+	if (typeof data !== "string") return new TextEncoder().encode(JSON.stringify(data));
+
+	const isTextual = /^\s*(text\/|application\/(json|xml|javascript)|application\/[\w.-]+\+json)/i.test(
+		contentType
+	);
+	if (isTextual) return new TextEncoder().encode(data);
+	try {
+		return base64ToBytes(data);
+	} catch {
+		return new TextEncoder().encode(data);
+	}
 }
 
 function buildRequestHeaders(init?: RequestInit, req?: Request): Record<string, string> {
@@ -97,13 +110,13 @@ export function installNativeFetch(): void {
 
 		if (aborted(signal)) throw new DOMException("Aborted", "AbortError");
 
-		const bytes = capacitorResponseBytes(response.data);
-		const body = NULL_BODY_STATUSES.has(response.status) ? null : bytes;
-
 		const responseHeaders = new Headers();
 		for (const [key, value] of Object.entries(response.headers ?? {})) {
 			responseHeaders.set(key, String(value));
 		}
+
+		const bytes = capacitorResponseBytes(response.data, responseHeaders.get("content-type") ?? "");
+		const body = NULL_BODY_STATUSES.has(response.status) ? null : bytes;
 
 		return new Response(body, {
 			status: response.status,

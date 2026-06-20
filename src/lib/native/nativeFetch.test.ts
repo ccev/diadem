@@ -14,9 +14,24 @@ describe("capacitorResponseBytes", () => {
 		const bytes = capacitorResponseBytes([1, 2, 3]);
 		expect(JSON.parse(decode(bytes))).toEqual([1, 2, 3]);
 	});
-	// Binary / blob responses (images, msgpack) come back as a base64 string.
-	it("decodes a base64 string body", () => {
-		expect(decode(capacitorResponseBytes(btoa("hello")))).toBe("hello");
+	// Some JSON/text bodies come back as the raw literal text (e.g. SvelteKit's
+	// json()); with a textual content-type they must be encoded as-is, NOT atob'd.
+	it("encodes a raw JSON text string when content-type is application/json", () => {
+		const body = '{"forts":[],"gymCounts":{}}';
+		expect(decode(capacitorResponseBytes(body, "application/json"))).toBe(body);
+	});
+	it("encodes raw text for text/* content types", () => {
+		expect(decode(capacitorResponseBytes("hello world", "text/plain; charset=utf-8"))).toBe(
+			"hello world"
+		);
+	});
+	// Binary responses (images, msgpack) come back as a base64 string.
+	it("base64-decodes a binary content type", () => {
+		expect(decode(capacitorResponseBytes(btoa("hello"), "image/png"))).toBe("hello");
+	});
+	it("falls back to text when a non-binary content type isn't valid base64", () => {
+		// '{' is not valid base64; without a textual content-type we must not crash.
+		expect(decode(capacitorResponseBytes("{not base64", ""))).toBe("{not base64");
 	});
 	it("returns empty bytes for null/undefined", () => {
 		expect(capacitorResponseBytes(null).length).toBe(0);
