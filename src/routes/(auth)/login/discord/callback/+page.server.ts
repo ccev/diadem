@@ -1,7 +1,8 @@
+import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
-import { isAuthRequired } from "@/lib/server/auth/betterAuth";
+import { generateNativeAuthToken, isAuthRequired } from "@/lib/server/auth/betterAuth";
 import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getServerLogger } from "@/lib/server/logging";
 
@@ -12,6 +13,20 @@ export const load: PageServerLoad = async (event) => {
 		event.url.searchParams.get("redir"),
 		isAuthRequired() ? "/" : getMapPath(getClientConfig())
 	);
+
+	// Native login: hand the freshly-established session to the app via a one-time
+	// token on the diadem:// deep link, instead of rendering the web callback page.
+	if (event.url.searchParams.get("native") === "1") {
+		if (event.locals.user) {
+			const token = await generateNativeAuthToken(event);
+			if (token) {
+				const params = new URLSearchParams({ token, redir: redirectLink });
+				throw redirect(302, `diadem://auth?${params.toString()}`);
+			}
+		}
+		log.info("Native Discord login failed before token handoff");
+		throw redirect(302, "diadem://auth?error=1");
+	}
 
 	const response: { error: string | undefined; redir: string; name: string } = {
 		error: undefined,

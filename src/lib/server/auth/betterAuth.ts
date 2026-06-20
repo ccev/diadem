@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { bearer, oneTimeToken } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { parseSetCookieHeader } from "better-auth/cookies";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -29,7 +30,17 @@ export const auth = IS_AUTH_ENABLED
 				usePlural: false,
 				schema: { user, session, account, verification }
 			}),
-			trustedOrigins: authConfig.baseUrl ? [authConfig.baseUrl] : [],
+			trustedOrigins: [
+				...(authConfig.baseUrl ? [authConfig.baseUrl] : []),
+				// Native (Capacitor) webview origins + custom scheme, so the app can
+				// call auth endpoints (bearer/one-time-token) and use the deep-link callback.
+				"https://localhost",
+				"capacitor://localhost",
+				"diadem://"
+			],
+			// bearer: accept Authorization: Bearer <session token> (native has no cookies).
+			// oneTimeToken: hand a session to the app after browser OAuth via a short-lived token.
+			plugins: [bearer(), oneTimeToken()],
 			advanced: {
 				database: {
 					generateId: () => generateUserId()
@@ -169,6 +180,24 @@ export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSes
 		return result.response;
 	} catch (error) {
 		log.warning(`Failed to read auth session: ${error}`);
+		return null;
+	}
+}
+
+/**
+ * Mint a short-lived one-time token for the current session, used to hand the
+ * session to the native app after browser-based OAuth (the app exchanges it at
+ * POST /api/auth/one-time-token/verify and then authenticates via bearer token).
+ */
+export async function generateNativeAuthToken(event: RequestEvent): Promise<string | null> {
+	if (!auth) return null;
+	try {
+		const result = await auth.api.generateOneTimeToken({
+			headers: event.request.headers
+		});
+		return result?.token ?? null;
+	} catch (error) {
+		log.warning(`Failed to generate native auth token: ${error}`);
 		return null;
 	}
 }
