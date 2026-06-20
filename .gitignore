@@ -15,6 +15,7 @@ coverage/*
 .output
 .vercel
 /.svelte-kit
+/.svelte-kit-native
 /build
 
 # OS

@@ -18,7 +18,9 @@
 						mode === "dark" ||
 						((!mode || mode === "system") &&
 							window.matchMedia("(prefers-color-scheme: dark)").matches);
-					if (dark) document.documentElement.classList.add("theme-dark-preload");
+					// Add the real `.dark` class so themed CSS vars apply immediately,
+					// including on error/unreachable screens that render before mode-watcher.
+					if (dark) document.documentElement.classList.add("dark");
 				} catch (e) {}
 			})();
 		</script>
@@ -26,7 +28,7 @@
 			html {
 				background: oklch(1 0 0);
 			}
-			html.theme-dark-preload {
+			html.dark {
 				background: oklch(0.145 0 0);
 			}
 			#initial-loader {

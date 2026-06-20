@@ -9,6 +9,9 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
+		// Native builds use a separate working dir so they don't clobber the
+		// generated types/files of a concurrently-running `pnpm run dev` server.
+		outDir: isNative ? ".svelte-kit-native" : ".svelte-kit",
 		adapter: isNative
 			? adapterStatic({ fallback: "index.html", strict: false })
 			: adapterNode(),
