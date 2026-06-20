@@ -13,8 +13,17 @@ import type { LayoutLoad } from "./$types";
 export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, url }) => {
-	const configResponse = await fetch("/api/config");
-	const config = await configResponse.json();
+	// If the instance is unreachable (offline, down, wrong URL), surface a retry
+	// screen instead of crashing to a blank page — the whole native app depends
+	// on the remote instance.
+	let config;
+	try {
+		const configResponse = await fetch("/api/config");
+		if (!configResponse.ok) throw new Error(`config ${configResponse.status}`);
+		config = await configResponse.json();
+	} catch {
+		return { configError: true };
+	}
 	setConfig(config);
 
 	let rawUserSettings: string | null = null;

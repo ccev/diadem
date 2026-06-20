@@ -26,19 +26,38 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 			return;
 		}
 		// diadem://pokemon/123  ->  /pokemon/123
-		await navigate(`/${url.hostname}${url.pathname}${url.search}`);
+		await routeDeepLink(`/${url.hostname}${url.pathname}`);
 		return;
 	}
 
 	// https://<instance>/<path>  ->  /<path>
 	const instance = getInstanceUrl();
 	if (instance && rawUrl.startsWith(instance)) {
-		await navigate(`${url.pathname}${url.search}`);
+		await routeDeepLink(url.pathname);
 	}
 }
 
-async function navigate(path: string): Promise<void> {
+async function routeDeepLink(path: string): Promise<void> {
+	const segments = path.split("/").filter(Boolean);
 	const { goto } = await import("$app/navigation");
+
+	// Direct map-object link (/pokemon/123, /gym/abc, …): the web route is SSR-only,
+	// so on native we drive the client loader directly instead of navigating to it.
+	if (segments.length === 2) {
+		const [type, id] = segments;
+		const { allMapObjectTypes } = await import("@/lib/mapObjects/mapObjectTypes");
+		if ((allMapObjectTypes as readonly string[]).includes(type)) {
+			const { getConfig } = await import("@/lib/services/config/config");
+			const { getMapPath } = await import("@/lib/utils/getMapPath");
+			const { openMapObjectFromId } = await import("@/lib/features/directLinks.svelte");
+			await goto(getMapPath(getConfig()));
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			await openMapObjectFromId(type as any, id);
+			return;
+		}
+	}
+
+	// Client-side routes (e.g. /wayfarer, /coverage) navigate directly.
 	await goto(path);
 }
 
