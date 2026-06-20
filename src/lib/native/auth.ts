@@ -48,33 +48,24 @@ export async function startNativeLogin(provider = "discord", redir = "/"): Promi
 }
 
 /**
- * Exchange the one-time token from the deep link for a bearer session token and
- * persist it. Returns true on success.
+ * Validate the session token handed off via the deep link (using the bearer
+ * plugin) and persist it. Returns true on success.
  */
-export async function completeNativeLogin(oneTimeToken: string): Promise<boolean> {
+export async function completeNativeLogin(token: string): Promise<boolean> {
 	const instance = getInstanceUrl();
-	if (!instance) return false;
+	if (!instance || !token) return false;
 	try {
-		const res = await fetch(`${instance}/api/auth/one-time-token/verify`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ token: oneTimeToken })
+		const res = await fetch(`${instance}/api/auth/get-session`, {
+			headers: { Authorization: `Bearer ${token}` }
 		});
-		// The bearer plugin returns the session token in the set-auth-token header;
-		// fall back to the session token in the body.
-		const headerToken = res.headers.get("set-auth-token");
-		const data = (await res.json().catch(() => null)) as
-			| { token?: string; session?: { token?: string } }
-			| null;
-		const token = headerToken ?? data?.session?.token ?? data?.token ?? null;
-		console.log(
-			`[auth] verify status=${res.status} ok=${res.ok} set-auth-token=${headerToken ? "yes" : "no"} bodyToken=${data?.session?.token ? "yes" : "no"} -> ${token ? "stored" : "NONE"}`
-		);
-		if (!res.ok || !token) return false;
+		const data = (await res.json().catch(() => null)) as { user?: unknown } | null;
+		const ok = res.ok && !!data?.user;
+		console.log(`[auth] validate token status=${res.status} ok=${ok}`);
+		if (!ok) return false;
 		await persistToken(token);
 		return true;
 	} catch (e) {
-		console.log(`[auth] verify threw: ${(e as Error)?.name}: ${(e as Error)?.message}`);
+		console.log(`[auth] validate threw: ${(e as Error)?.name}: ${(e as Error)?.message}`);
 		return false;
 	} finally {
 		try {

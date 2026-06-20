@@ -185,21 +185,17 @@ export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSes
 }
 
 /**
- * Mint a short-lived one-time token for the current session, used to hand the
- * session to the native app after browser-based OAuth (the app exchanges it at
- * POST /api/auth/one-time-token/verify and then authenticates via bearer token).
+ * The current session's bearer token, for handing the session to the native app
+ * after browser OAuth. The session cookie value is `<token>.<signature>`; the
+ * bearer plugin authenticates `Authorization: Bearer <token>`, so we hand the app
+ * the raw token. (Preferred over one-time tokens, whose single-use consume path
+ * is unreliable with this DB adapter.)
  */
-export async function generateNativeAuthToken(event: RequestEvent): Promise<string | null> {
-	if (!auth) return null;
-	try {
-		const result = await auth.api.generateOneTimeToken({
-			headers: event.request.headers
-		});
-		return result?.token ?? null;
-	} catch (error) {
-		log.warning(`Failed to generate native auth token: ${error}`);
-		return null;
-	}
+export function getNativeAuthToken(event: RequestEvent): string | null {
+	const cookie = event.cookies.getAll().find((c) => c.name.includes("session_token"));
+	if (!cookie?.value) return null;
+	const token = decodeURIComponent(cookie.value).split(".")[0];
+	return token || null;
 }
 
 export async function getDiscordAccessToken(event: RequestEvent): Promise<string | null> {
