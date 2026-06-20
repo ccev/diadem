@@ -21,6 +21,7 @@
 		isMenuSidebar,
 		isUiLeft
 	} from "@/lib/utils/device";
+	import { toPublicUrl } from "@/lib/native/runtime";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
@@ -105,7 +106,7 @@
 		url.searchParams.set("lon", center.lon.toString());
 		if (zoom) url.searchParams.set("zoom", zoom.toString());
 
-		backupShareUrl(url.toString());
+		backupShareUrl(toPublicUrl(url.toString()));
 	}
 </script>
 
