@@ -4,8 +4,12 @@
 	import { ModeWatcher } from "mode-watcher";
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import InstanceUnreachable from "@/components/ui/InstanceUnreachable.svelte";
+	import { onMount } from "svelte";
 
 	let { children, data } = $props();
+
+	// The static shell shows a themed loader until the app mounts; remove it now.
+	onMount(() => document.getElementById("initial-loader")?.remove());
 </script>
 
 {#if data?.configError}
