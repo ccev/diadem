@@ -134,6 +134,9 @@ export async function fetchWayfarerForts(
 		pokestopCounts = data.pokestopCounts ?? {};
 		gymCounts = data.gymCounts ?? {};
 		forts = data.forts ?? [];
+		console.log(
+			`[wayfarer] forts=${forts.length} pokestopCounts=${Object.keys(pokestopCounts).length} gymCounts=${Object.keys(gymCounts).length}`
+		);
 		lastFetchKey = key;
 		lastFetchAt = now;
 	} catch (e) {

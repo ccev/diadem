@@ -16,12 +16,18 @@ importers:
       '@capacitor/android':
         specifier: ^7
         version: 7.6.7(@capacitor/core@7.6.7)
+      '@capacitor/clipboard':
+        specifier: ^7
+        version: 7.0.4(@capacitor/core@7.6.7)
       '@capacitor/core':
         specifier: ^7
         version: 7.6.7
       '@capacitor/geolocation':
         specifier: ^7
         version: 7.1.8(@capacitor/core@7.6.7)
+      '@capacitor/share':
+        specifier: ^7
+        version: 7.0.4(@capacitor/core@7.6.7)
       '@capacitor/status-bar':
         specifier: ^7
         version: 7.0.6(@capacitor/core@7.6.7)
@@ -293,11 +299,21 @@ packages:
     engines: {node: '>=20.0.0'}
     hasBin: true
 
+  '@capacitor/clipboard@7.0.4':
+    resolution: {integrity: sha512-+kiTRFjwD5UiWRg/m1JA/0Z0DDdsZLa25MLqI1e3MUi3yNZIwVZV5Oj6v4O0gxmpoBxf5A1L1v3weq+vWOBUuQ==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   '@capacitor/core@7.6.7':
     resolution: {integrity: sha512-DR0kqfcsDzWhvskz+sJWy41cdv+P1ITjmOYYG5WSV88EO6tx5Tf82M61vp4NjV7rfQDUAQjBAypgaTiB2/2oEg==}
 
   '@capacitor/geolocation@7.1.8':
     resolution: {integrity: sha512-x/rJieD2N2zlGvXFRD3ru4ArJWTwXAIYmyhfo5zg4F1DKGos7mCCOvIOSVMdfQmt14SCsmJeO9Qe8EtDGNGCrw==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/share@7.0.4':
+    resolution: {integrity: sha512-wNXxmXUcChrtbZ5jQv8scFIbIGKo3rk6B7qpWySxfUhYJP5NANgAqQ9Z69m0k/zYsucdh66SBU7XW1ykd9aUug==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -4445,6 +4461,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@capacitor/clipboard@7.0.4(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
+
   '@capacitor/core@7.6.7':
     dependencies:
       tslib: 2.8.1
@@ -4453,6 +4473,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.6.7
       '@capacitor/synapse': 1.0.4
+
+  '@capacitor/share@7.0.4(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
 
   '@capacitor/status-bar@7.0.6(@capacitor/core@7.6.7)':
     dependencies:
