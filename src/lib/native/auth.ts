@@ -60,20 +60,21 @@ export async function completeNativeLogin(oneTimeToken: string): Promise<boolean
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ token: oneTimeToken })
 		});
-		if (!res.ok) return false;
 		// The bearer plugin returns the session token in the set-auth-token header;
-		// fall back to a token in the body if a server doesn't set the header.
-		let token = res.headers.get("set-auth-token");
-		if (!token) {
-			const data = (await res.json().catch(() => null)) as
-				| { token?: string; session?: { token?: string } }
-				| null;
-			token = data?.session?.token ?? data?.token ?? null;
-		}
-		if (!token) return false;
+		// fall back to the session token in the body.
+		const headerToken = res.headers.get("set-auth-token");
+		const data = (await res.json().catch(() => null)) as
+			| { token?: string; session?: { token?: string } }
+			| null;
+		const token = headerToken ?? data?.session?.token ?? data?.token ?? null;
+		console.log(
+			`[auth] verify status=${res.status} ok=${res.ok} set-auth-token=${headerToken ? "yes" : "no"} bodyToken=${data?.session?.token ? "yes" : "no"} -> ${token ? "stored" : "NONE"}`
+		);
+		if (!res.ok || !token) return false;
 		await persistToken(token);
 		return true;
-	} catch {
+	} catch (e) {
+		console.log(`[auth] verify threw: ${(e as Error)?.name}: ${(e as Error)?.message}`);
 		return false;
 	} finally {
 		try {
