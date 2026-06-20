@@ -42,11 +42,21 @@ async function navigate(path: string): Promise<void> {
 	await goto(path);
 }
 
-/** Register the OS deep-link listener (Capacitor App appUrlOpen). No-op off native. */
+let lastHandled = "";
+
+/** Register the OS deep-link listener + handle a cold-start launch URL. No-op off native. */
 export async function installDeepLinks(): Promise<void> {
 	if (!isNative()) return;
 	const { App } = await import("@capacitor/app");
 	await App.addListener("appUrlOpen", (event) => {
+		if (event.url === lastHandled) return;
+		lastHandled = event.url;
 		void handleDeepLink(event.url);
 	});
+	// Cold start: the app may have been launched by a deep link.
+	const launch = await App.getLaunchUrl();
+	if (launch?.url && launch.url !== lastHandled) {
+		lastHandled = launch.url;
+		void handleDeepLink(launch.url);
+	}
 }

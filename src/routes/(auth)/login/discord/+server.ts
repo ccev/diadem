@@ -14,9 +14,12 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	// Native (Capacitor) logins finish by handing the session to the app via a
 	// deep link instead of rendering the web callback page.
-	const nativeParam = event.url.searchParams.get("native") === "1" ? "&native=1" : "";
+	const isNativeLogin = event.url.searchParams.get("native") === "1";
+	const appId = event.url.searchParams.get("app");
+	const nativeParam = isNativeLogin ? "&native=1" : "";
+	const appParam = isNativeLogin && appId ? `&app=${encodeURIComponent(appId)}` : "";
 
-	const successCallback = `/login/discord/callback?redir=${encodeURIComponent(redirectPath)}${nativeParam}`;
+	const successCallback = `/login/discord/callback?redir=${encodeURIComponent(redirectPath)}${nativeParam}${appParam}`;
 	const errorCallback = `${successCallback}&error=1`;
 
 	const response = await signInWithDiscord(event, {

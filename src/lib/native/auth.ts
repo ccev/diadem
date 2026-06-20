@@ -42,7 +42,17 @@ async function persistToken(token: string | null): Promise<void> {
 export async function startNativeLogin(provider = "discord", redir = "/"): Promise<void> {
 	const instance = getInstanceUrl();
 	if (!instance) return;
-	const url = `${instance}/login/${provider}?native=1&redir=${encodeURIComponent(redir)}`;
+	const params = new URLSearchParams({ native: "1", redir });
+	// Pass the app id so the callback can return via an intent:// URL targeting this
+	// package directly — avoiding the browser's "open in app?" disambiguation prompt.
+	try {
+		const { App } = await import("@capacitor/app");
+		const id = (await App.getInfo()).id;
+		if (id) params.set("app", id);
+	} catch {
+		/* App.getInfo unavailable — fall back to the plain diadem:// scheme */
+	}
+	const url = `${instance}/login/${provider}?${params.toString()}`;
 	const { Browser } = await import("@capacitor/browser");
 	await Browser.open({ url });
 }

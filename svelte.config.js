@@ -17,6 +17,11 @@ const config = {
 		},
 		files: {
 			serviceWorker: "src/lib/serviceWorker/index.ts"
+		},
+		// The PWA service worker is pointless inside Capacitor and actively breaks
+		// cross-origin map tiles (it intercepts and fails them). Don't register it natively.
+		serviceWorker: {
+			register: !isNative
 		}
 	},
 

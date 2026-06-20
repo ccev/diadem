@@ -11,6 +11,15 @@ import { isNative } from "@/lib/native/runtime";
 export function installNativeUi(): void {
 	if (!isNative()) return;
 
+	// Kill any service worker registered by an earlier build — it intercepts and
+	// breaks cross-origin map tiles, and is unnecessary inside the native shell.
+	if ("serviceWorker" in navigator) {
+		navigator.serviceWorker
+			.getRegistrations()
+			.then((regs) => regs.forEach((r) => void r.unregister()))
+			.catch(() => {});
+	}
+
 	const viewport = document.querySelector('meta[name="viewport"]');
 	if (viewport) {
 		const content = viewport.getAttribute("content") ?? "";
