@@ -97,6 +97,15 @@ export function installNativeFetch(): void {
 			if (bodySource) {
 				const text = await bodySource.clone().text();
 				data = text || undefined;
+				// Preserve the body's Content-Type. A browser fetch() with a string body
+				// implicitly sets text/plain; CapacitorHttp sends no content-type, and some
+				// endpoints reject that (400). Carry over the implicit/explicit type unless
+				// the caller already set one.
+				const hasContentType = Object.keys(headers).some(
+					(k) => k.toLowerCase() === "content-type"
+				);
+				const bodyContentType = bodySource.headers.get("content-type");
+				if (!hasContentType && bodyContentType) headers["Content-Type"] = bodyContentType;
 			}
 		}
 
