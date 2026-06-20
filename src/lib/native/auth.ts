@@ -59,13 +59,10 @@ export async function completeNativeLogin(token: string): Promise<boolean> {
 			headers: { Authorization: `Bearer ${token}` }
 		});
 		const data = (await res.json().catch(() => null)) as { user?: unknown } | null;
-		const ok = res.ok && !!data?.user;
-		console.log(`[auth] validate token status=${res.status} ok=${ok}`);
-		if (!ok) return false;
+		if (!res.ok || !data?.user) return false;
 		await persistToken(token);
 		return true;
-	} catch (e) {
-		console.log(`[auth] validate threw: ${(e as Error)?.name}: ${(e as Error)?.message}`);
+	} catch {
 		return false;
 	} finally {
 		try {

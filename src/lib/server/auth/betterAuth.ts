@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { bearer, oneTimeToken } from "better-auth/plugins";
+import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { parseSetCookieHeader } from "better-auth/cookies";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -39,8 +39,7 @@ export const auth = IS_AUTH_ENABLED
 				"diadem://"
 			],
 			// bearer: accept Authorization: Bearer <session token> (native has no cookies).
-			// oneTimeToken: hand a session to the app after browser OAuth via a short-lived token.
-			plugins: [bearer(), oneTimeToken()],
+			plugins: [bearer()],
 			advanced: {
 				database: {
 					generateId: () => generateUserId()
