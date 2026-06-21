@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group
+      android:scaleX="0.8"
+      android:scaleY="0.8"
+      android:translateX="10.8"
+      android:translateY="10.8">
+    <clip-path
+        android:pathData="M0,0h108v108h-108zM45.15,52.93C45.4,53.61 44.94,54.25 44.12,54.6C43.36,54.93 42.57,54.5 42.44,54.43C41.72,54.03 41.41,53.33 41.09,52.36C40.56,50.76 39.92,49.2 39.35,47.61C38.56,45.37 38.12,44.68 38.34,44.52C39.52,43.66 44.36,51.42 45.15,52.93Z"/>
+    <path
+        android:pathData="M61.87,60.41C61.5,65.84 67.36,70.13 66.84,66.25C65.62,57.25 66.3,41.53 75.35,37.97C81,35.74 86.81,45.78 84.87,37.97C81.25,23.47 59.08,26.39 50.1,33.31C46.67,35.95 43.11,39.13 45.16,42.45C49.33,49.2 57.39,40.89 62.47,45.78C65.34,50.19 62.48,51.11 61.87,60.41Z"
+        android:fillColor="#000000"/>
+    <path
+        android:pathData="M39.33,41.7L46.2,49.47C46.64,49.97 47.32,50.19 47.98,50.04L58.09,47.72C59.84,47.32 61.22,49.21 60.31,50.76L55.04,59.7C54.7,60.27 54.71,60.99 55.05,61.56L60.37,70.46C61.3,72 59.93,73.9 58.18,73.51L48.05,71.26C47.4,71.12 46.72,71.34 46.28,71.85L39.46,79.66C38.28,81.02 36.05,80.3 35.88,78.51L34.88,68.19C34.82,67.52 34.4,66.95 33.78,66.68L24.24,62.61C22.59,61.91 22.58,59.57 24.23,58.85L33.74,54.72C34.35,54.45 34.77,53.87 34.83,53.2L35.76,42.87C35.92,41.09 38.14,40.36 39.33,41.7V41.7Z"
+        android:fillColor="#000000"/>
+  </group>
+</vector>
