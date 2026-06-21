@@ -8,17 +8,17 @@ import { Steps } from "@astrojs/starlight/components";
 Diadem can be wrapped as a native **Android** and **iOS** app using
 [Capacitor](https://capacitorjs.com). The native app bundles the Diadem
 **client** and runs it in a system webview as a thin client: every request
-(`/api/*`, `/assets/*`, authentication) is sent to a remote Diadem instance —
-no server code ships in the app.
+is sent to a remote Diadem instance.
 
 Two flavours are possible from the same codebase:
 
-- **Generic app** — on first launch the user is asked for the URL of the Diadem
+- **Generic app**: on first launch the user is asked for the URL of the Diadem
   instance to connect to (the _instance gate_). They can change it later under
-  **Profile → Instance**.
-- **Branded app** — an instance URL is baked in at build time, so the gate and
+  **Profile → Instance**. This is meant for public builds that are hosted on
+  app stores and the likes.
+- **Branded app**: an instance URL is baked in at build time, so the gate and
   the instance switcher are hidden and the app always connects to that one
-  instance (e.g. for hosting a dedicated app for your own community).
+  instance. This is meant for when you want to build native Diadem yourself.
 
 The map still renders with **MapLibre GL JS** inside the webview. (Native
 MapLibre rendering is not used.)
@@ -28,8 +28,7 @@ MapLibre rendering is not used.)
 - Everything from the normal [installation](/guides/installation) (Node 22+, pnpm)
 - **JDK 21** and the **Android SDK** (Capacitor 7 builds against Java 21)
 - A connected Android device with USB debugging, or an emulator
-- **iOS only:** a Mac with Xcode and an Apple Developer account — iOS cannot be
-  built on Linux/Windows
+- **iOS only:** a Mac with Xcode and an Apple Developer account
 
 ### NixOS
 
@@ -46,14 +45,10 @@ On other systems, install JDK 21 + the Android SDK yourself and set
 ## How a native build works
 
 ```
-pnpm build (BUILD_TARGET=native)   ->  static client in build/
+BUILD_TARGET=native pnpm build     ->  static client in build/
 npx cap sync android               ->  copies build/ into the android/ project
 ./gradlew assembleDebug            ->  produces the APK
 ```
-
-`BUILD_TARGET=native` switches SvelteKit to a static (SPA) build using
-`adapter-static`, output to `build/`, which is then wrapped by Capacitor. The
-normal `pnpm build` (server build with `adapter-node`) is unaffected.
 
 :::note
 The native build uses a separate `.svelte-kit-native/` working directory, so you
@@ -66,11 +61,11 @@ Build a debug APK and run it on a connected device.
 
 <Steps>
 
-1. Enter the toolchain shell (NixOS) and confirm the device is connected:
+1. Confirm the device is connected and enter the nix shell (if on NixOS):
 
    ```bash
-   nix develop
    adb devices
+   nix develop
    ```
 
 2. Build the client, sync, and install the Android platform (first time only):
@@ -108,7 +103,7 @@ before rebuilding.
   ```
 
 - Discord/OAuth login opens the system browser and returns to the app via
-  `diadem://auth`. This works against any Diadem instance — the required
+  `diadem://auth`. This works against any Diadem instance, the required
   `bearer` auth support is built into the Diadem server.
 
 ## Production builds
@@ -166,7 +161,7 @@ npx cap open ios       # opens Xcode
 
 Set the signing team in Xcode, then **Archive** and upload to App Store Connect.
 
-## Branded builds — embedding an instance URL
+## Branded builds and embedding an instance URL
 
 To ship an app that always connects to one instance (hiding the gate and the
 **Profile → Instance** switcher), set `VITE_DIADEM_INSTANCE` at build time:
@@ -186,7 +181,7 @@ VITE_DIADEM_INSTANCE=https://map.example.com
 
 When set:
 
-- the **first-run instance gate** is skipped — the app connects straight to that URL,
+- the **first-run instance gate** is skipped, the app connects straight to that URL,
 - the **Instance** section in the profile menu is hidden,
 - the URL cannot be changed at runtime.
 
@@ -197,7 +192,7 @@ Leave `VITE_DIADEM_INSTANCE` unset to build the generic app with the instance ga
 App id, name, icon and splash live in the native projects:
 
 - **App id / name:** `capacitor.config.ts` (`appId`, `appName`). The default id is
-  `ee.malt.diadem` — change it before publishing your own app.
+  `ee.malt.diadem`, change it before publishing your own app.
 - **Icons / splash:** replace the generated assets under `android/app/src/main/res/`
   (and `ios/App/App/Assets.xcassets/` on iOS), e.g. with
   [`@capacitor/assets`](https://github.com/ionic-team/capacitor-assets).
