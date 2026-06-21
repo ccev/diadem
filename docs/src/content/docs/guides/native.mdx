@@ -1,0 +1,205 @@
+---
+title: Native apps (iOS & Android)
+description: Build Diadem as a native Android/iOS app with Capacitor
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+Diadem can be wrapped as a native **Android** and **iOS** app using
+[Capacitor](https://capacitorjs.com). The native app bundles the Diadem
+**client** and runs it in a system webview as a thin client: every request
+(`/api/*`, `/assets/*`, authentication) is sent to a remote Diadem instance —
+no server code ships in the app.
+
+Two flavours are possible from the same codebase:
+
+- **Generic app** — on first launch the user is asked for the URL of the Diadem
+  instance to connect to (the _instance gate_). They can change it later under
+  **Profile → Instance**.
+- **Branded app** — an instance URL is baked in at build time, so the gate and
+  the instance switcher are hidden and the app always connects to that one
+  instance (e.g. for hosting a dedicated app for your own community).
+
+The map still renders with **MapLibre GL JS** inside the webview. (Native
+MapLibre rendering is not used.)
+
+## Requirements
+
+- Everything from the normal [installation](/guides/installation) (Node 22+, pnpm)
+- **JDK 21** and the **Android SDK** (Capacitor 7 builds against Java 21)
+- A connected Android device with USB debugging, or an emulator
+- **iOS only:** a Mac with Xcode and an Apple Developer account — iOS cannot be
+  built on Linux/Windows
+
+### NixOS
+
+A dev shell with the full Android toolchain (Node, JDK 21, Android SDK, Gradle)
+is provided in `flake.nix`. Run native build commands inside it:
+
+```bash
+nix develop
+```
+
+On other systems, install JDK 21 + the Android SDK yourself and set
+`ANDROID_HOME`/`JAVA_HOME`.
+
+## How a native build works
+
+```
+pnpm build (BUILD_TARGET=native)   ->  static client in build/
+npx cap sync android               ->  copies build/ into the android/ project
+./gradlew assembleDebug            ->  produces the APK
+```
+
+`BUILD_TARGET=native` switches SvelteKit to a static (SPA) build using
+`adapter-static`, output to `build/`, which is then wrapped by Capacitor. The
+normal `pnpm build` (server build with `adapter-node`) is unaffected.
+
+:::note
+The native build uses a separate `.svelte-kit-native/` working directory, so you
+can safely build the app while a `pnpm run dev` server is running.
+:::
+
+## Development builds
+
+Build a debug APK and run it on a connected device.
+
+<Steps>
+
+1. Enter the toolchain shell (NixOS) and confirm the device is connected:
+
+   ```bash
+   nix develop
+   adb devices
+   ```
+
+2. Build the client, sync, and install the Android platform (first time only):
+
+   ```bash
+   BUILD_TARGET=native pnpm build
+   npx cap add android      # first time only
+   npx cap sync android
+   ```
+
+3. Build, install, and launch the debug APK:
+
+   ```bash
+   npx cap run android
+   ```
+
+   Or build the APK manually and install it:
+
+   ```bash
+   cd android && ./gradlew assembleDebug
+   adb install -r app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+</Steps>
+
+After changing client code, re-run `BUILD_TARGET=native pnpm build && npx cap sync android`
+before rebuilding.
+
+### Testing deep links and auth
+
+- Deep links use the `diadem://` scheme. Simulate one with:
+
+  ```bash
+  adb shell am start -a android.intent.action.VIEW -d "diadem://pokemon/<id>"
+  ```
+
+- Discord/OAuth login opens the system browser and returns to the app via
+  `diadem://auth`. This works against any Diadem instance — the required
+  `bearer` auth support is built into the Diadem server.
+
+## Production builds
+
+### Android (Google Play)
+
+Play requires a **signed App Bundle** (`.aab`).
+
+<Steps>
+
+1. Create a keystore (once) and keep it safe:
+
+   ```bash
+   keytool -genkey -v -keystore diadem.keystore -alias diadem \
+     -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Tell Gradle how to sign by creating `android/keystore.properties` (do **not**
+   commit it):
+
+   ```properties
+   storeFile=/absolute/path/to/diadem.keystore
+   storePassword=...
+   keyAlias=diadem
+   keyPassword=...
+   ```
+
+   and wiring it into `android/app/build.gradle` (`signingConfigs` +
+   `buildTypes.release.signingConfig`) per the
+   [Capacitor signing docs](https://capacitorjs.com/docs/android/deploying-to-google-play).
+
+3. Build the release bundle:
+
+   ```bash
+   BUILD_TARGET=native pnpm build
+   npx cap sync android
+   cd android && ./gradlew bundleRelease
+   # -> android/app/build/outputs/bundle/release/app-release.aab
+   ```
+
+</Steps>
+
+Upload the `.aab` to the Play Console.
+
+### iOS (App Store)
+
+On a Mac:
+
+```bash
+BUILD_TARGET=native pnpm build
+npx cap add ios        # first time only
+npx cap sync ios
+npx cap open ios       # opens Xcode
+```
+
+Set the signing team in Xcode, then **Archive** and upload to App Store Connect.
+
+## Branded builds — embedding an instance URL
+
+To ship an app that always connects to one instance (hiding the gate and the
+**Profile → Instance** switcher), set `VITE_DIADEM_INSTANCE` at build time:
+
+```bash
+BUILD_TARGET=native VITE_DIADEM_INSTANCE=https://map.example.com pnpm build
+npx cap sync android
+cd android && ./gradlew assembleDebug   # or bundleRelease
+```
+
+Or put it in a `.env` file (gitignored) so every build picks it up:
+
+```ini
+# .env
+VITE_DIADEM_INSTANCE=https://map.example.com
+```
+
+When set:
+
+- the **first-run instance gate** is skipped — the app connects straight to that URL,
+- the **Instance** section in the profile menu is hidden,
+- the URL cannot be changed at runtime.
+
+Leave `VITE_DIADEM_INSTANCE` unset to build the generic app with the instance gate.
+
+## Customising app identity
+
+App id, name, icon and splash live in the native projects:
+
+- **App id / name:** `capacitor.config.ts` (`appId`, `appName`). The default id is
+  `ee.malt.diadem` — change it before publishing your own app.
+- **Icons / splash:** replace the generated assets under `android/app/src/main/res/`
+  (and `ios/App/App/Assets.xcassets/` on iOS), e.g. with
+  [`@capacitor/assets`](https://github.com/ionic-team/capacitor-assets).
+- **Deep-link scheme:** the `diadem://` intent filter is in
+  `android/app/src/main/AndroidManifest.xml`.
