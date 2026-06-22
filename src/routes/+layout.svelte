@@ -9,7 +9,7 @@
 
 	let { children, data } = $props();
 
-	// The static shell shows a themed loader until the app mounts; remove it now.
+	// remove static loader
 	onMount(() => document.getElementById("initial-loader")?.remove());
 </script>
 
