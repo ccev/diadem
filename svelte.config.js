@@ -9,8 +9,6 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		// Native builds use a separate working dir so they don't clobber the
-		// generated types/files of a concurrently-running `pnpm run dev` server.
 		outDir: isNative ? ".svelte-kit-native" : ".svelte-kit",
 		adapter: isNative
 			? adapterStatic({ fallback: "index.html", strict: false })
@@ -21,8 +19,6 @@ const config = {
 		files: {
 			serviceWorker: "src/lib/serviceWorker/index.ts"
 		},
-		// The PWA service worker is pointless inside Capacitor and actively breaks
-		// cross-origin map tiles (it intercepts and fails them). Don't register it natively.
 		serviceWorker: {
 			register: !isNative
 		}

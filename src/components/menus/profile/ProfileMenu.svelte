@@ -6,7 +6,7 @@
 	import SectionAdvanced from "@/components/menus/profile/SectionAdvanced.svelte";
 	import SectionInstance from "@/components/menus/profile/SectionInstance.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
-	import { hasHardcodedInstance, isNative } from "@/lib/native/runtime";
+	import { isInstanceUrlBaked, isNative } from "@/lib/native/runtime";
 </script>
 
 <div class="space-y-2">
@@ -18,8 +18,8 @@
 
 	<SectionAppearance />
 	<SectionIcons />
-	<SectionAdvanced />
-	{#if isNative() && !hasHardcodedInstance()}
+	{#if isNative() && !isInstanceUrlBaked()}
 		<SectionInstance />
 	{/if}
+	<SectionAdvanced />
 </div>

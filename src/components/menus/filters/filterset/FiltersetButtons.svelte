@@ -22,7 +22,7 @@
 		canNativeShare,
 		hasClipboardWrite
 	} from "@/lib/utils/device";
-	import { getPublicOrigin } from "@/lib/native/runtime";
+	import { getRootOrigin } from "@/lib/native/runtime";
 	import * as m from "@/lib/paraglide/messages";
 	import { isOpenModal, type ModalType } from "@/lib/ui/modal.svelte";
 	import { closeModal } from "@/lib/ui/modal.svelte.js";
@@ -55,9 +55,9 @@
 		if (filterset) {
 			let subCat = "";
 			if (filterset.subCategory) subCat = `/${filterset.subCategory}`;
-			return `${getPublicOrigin()}/filter/${filterset.majorCategory}${subCat}/${getCurrentSelectedFiltersetEncoded()}`;
+			return `${getRootOrigin()}/filter/${filterset.majorCategory}${subCat}/${getCurrentSelectedFiltersetEncoded()}`;
 		} else {
-			return getPublicOrigin();
+			return getRootOrigin();
 		}
 	}
 </script>

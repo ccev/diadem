@@ -1,7 +1,8 @@
 <script lang="ts">
 	import MenuCard from "@/components/menus/MenuCard.svelte";
+	import * as m from "@/lib/paraglide/messages";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Server } from "lucide-svelte";
+	import { LoaderCircle, Save, Server } from "lucide-svelte";
 	import {
 		getInstanceUrl,
 		normalizeInstanceUrl,
@@ -9,6 +10,7 @@
 		validateInstance
 	} from "@/lib/native/runtime";
 	import { clearStoredToken } from "@/lib/native/auth";
+	import Input from "@/components/ui/input/Input.svelte";
 
 	let value = $state(getInstanceUrl());
 	let error = $state("");
@@ -18,41 +20,49 @@
 		error = "";
 		const normalized = normalizeInstanceUrl(value);
 		if (!normalized) {
-			error = "Enter a valid URL.";
+			error = m.error_invalid_url();
 			return;
 		}
 		if (normalized === getInstanceUrl()) return;
 		saving = true;
 		if (!(await validateInstance(normalized))) {
-			error = "Couldn't reach a Diadem instance at that URL.";
+			error = m.error_connect_instance();
 			saving = false;
 			return;
 		}
 		await setInstanceUrl(normalized);
-		// A different instance means a different session — drop the stored token.
 		await clearStoredToken();
 		window.location.reload();
 	}
 </script>
 
-<MenuCard title="Instance" Icon={Server}>
+<MenuCard title={m.instance()} Icon={Server}>
 	<div class="flex flex-col gap-2 px-4 py-3">
-		<p class="text-sm text-muted-foreground">The Diadem instance this app connects to.</p>
-		<input
-			bind:value
+		<p class="font-normal text-sm">
+			{m.instance_description()}
+		</p>
+		<Input
+			class="w-full mt-2 py-6"
 			type="url"
 			inputmode="url"
 			autocapitalize="none"
 			autocorrect="off"
 			spellcheck="false"
-			placeholder="https://map.example.com"
-			class="w-full rounded-md border border-input bg-card px-3 py-2 text-foreground outline-none focus:border-ring"
+			placeholder="https://diadem.co"
+			{value}
+			onchange={(e) => value = (e.target as HTMLInputElement)?.value ?? ""}
 		/>
 		{#if error}
-			<p class="text-sm text-destructive">{error}</p>
+			<p class="text-sm text-destructive-foreground">{error}</p>
 		{/if}
 		<Button variant="secondary" onclick={save} disabled={saving}>
-			{saving ? "Connecting…" : "Save & reconnect"}
+			{#if saving}
+				<LoaderCircle class="size-3.5 animate-spin" />
+				{m.connecting()}
+			{:else}
+				<Save class="size-3.5" />
+				{m.save()}
+			{/if}
 		</Button>
 	</div>
 </MenuCard>

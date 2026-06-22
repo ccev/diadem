@@ -91,7 +91,6 @@
 	</MenuGeneric>
 
 	{#if !isNative()}
-		<!-- Native uses a generic geo: link routed by the OS, so the provider choice is hidden. -->
 		<Select
 			class="py-3 px-4 "
 			title={m.settings_external_map_provider()}

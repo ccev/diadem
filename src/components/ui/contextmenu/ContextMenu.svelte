@@ -21,13 +21,14 @@
 		isMenuSidebar,
 		isUiLeft
 	} from "@/lib/utils/device";
-	import { toPublicUrl } from "@/lib/native/runtime";
+	import { getRootOrigin } from "@/lib/native/runtime";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { getMap } from "@/lib/map/map.svelte";
 	import { Features } from "@/lib/utils/features";
 	import { getConfig } from "@/lib/services/config/config";
+	import { getMapPath } from "$lib/utils/getMapPath";
 
 	let div = $state<HTMLDivElement>();
 	let style: string = $state("");
@@ -101,12 +102,12 @@
 		const center = Coords.infer(event.lngLat);
 		const zoom = getMap()?.getZoom();
 
-		const url = new URL(window.location.href);
+		const url = new URL(getRootOrigin() + getMapPath(getConfig()));
 		url.searchParams.set("lat", center.lat.toString());
 		url.searchParams.set("lon", center.lon.toString());
 		if (zoom) url.searchParams.set("zoom", zoom.toString());
 
-		backupShareUrl(toPublicUrl(url.toString()));
+		backupShareUrl(url.toString());
 	}
 </script>
 
@@ -154,7 +155,7 @@
 		</div>
 	{/if}
 {:else if getIsContextMenuOpen()}
-	<div class="w-full fixed bottom-[calc(0.5rem+env(safe-area-inset-bottom))] px-2 z-50" transition:slide={{ duration: 70 }}>
+	<div class="w-full fixed bottom-safe-inset-bottom px-2 z-50" transition:slide={{ duration: 70 }}>
 		<div
 			bind:this={div}
 			class="w-full flex flex-col bg-popover text-popover-foreground rounded-md border p-1 py-2 shadow-md focus:outline-hidden"

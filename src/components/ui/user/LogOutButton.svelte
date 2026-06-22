@@ -22,7 +22,6 @@
 				return;
 			}
 
-			// Drop the local bearer token so subsequent requests are unauthenticated.
 			if (isNative()) await clearStoredToken();
 
 			clearMap();

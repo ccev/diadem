@@ -128,7 +128,6 @@
 	"quest_candy": "{count} {pokemon} Candy",
 	"quest_xl_candy": "{count} {pokemon} Candy XL",
 	"quest_mega_resource": "{count} {pokemon} Mega Energy",
-	"quest_mega_resource": "{count} {pokemon} Mega Energy",
 	"signin_toast_error": "Error while signing in, please try again",
 	"signin_toast_success": "Signed in as {name}",
 	"signout": "Unlink Discord",
@@ -527,5 +526,10 @@
 	"search_hint_wayfarer": "Try searching for Pokéstops, addresses or areas",
 	"search_no_results_generic": "Nothing came up",
 	"coordinates": "Coordinates",
-	"lasts_until": "Lasts until"
+	"lasts_until": "Lasts until",
+	"instance": "Instance",
+	"instance_description": "Set the URL of the Diadem instance to connect to",
+	"connecting": "Connecting",
+	"error_invalid_url": "Enter a valid URL",
+	"error_connect_instance": "Couldn't reach Diadem instance on that URL"
 }

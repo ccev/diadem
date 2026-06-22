@@ -18,7 +18,7 @@
 </script>
 
 {#if isMenuSidebar()}
-	<div class="fixed z-10 bottom-[calc(0.5rem+env(safe-area-inset-bottom))] w-full flex pointer-events-none items-end h-full">
+	<div class="fixed z-10 bottom-safe-inset-bottom w-full flex pointer-events-none items-end h-full">
 		<div
 			class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88"
 		>
@@ -33,7 +33,7 @@
 	<MobileMenu />
 
 	<div
-		class="fixed z-20 bottom-[calc(0.5rem+env(safe-area-inset-bottom))] w-full flex flex-col pointer-events-none gap-2"
+		class="fixed z-20 bottom-safe-inset-bottom w-full flex flex-col pointer-events-none gap-2"
 		class:items-end={!isUiLeft()}
 		class:items-start={isUiLeft()}
 	>

@@ -1,11 +1,10 @@
 import { Capacitor } from "@capacitor/core";
 
-/** True only inside a Capacitor native shell (iOS/Android), false in any browser. */
 export function isNative(): boolean {
 	return Capacitor.isNativePlatform();
 }
 
-/** Normalize a user/instance URL: trim, add https:// if no scheme, drop trailing slash. */
+/** Normalize an instance URL: trim, add https:// if no scheme, drop trailing slash. */
 export function normalizeInstanceUrl(raw: string): string {
 	const trimmed = raw.trim();
 	if (!trimmed) return "";
@@ -15,27 +14,13 @@ export function normalizeInstanceUrl(raw: string): string {
 
 const INSTANCE_KEY = "diadem_instance_url";
 
-// In-memory copy of the configured instance origin so fetch wrappers can read it
-// synchronously. Loaded once at boot from the build-time hardcode or Preferences.
 let instanceUrl = "";
+let instanceUrlBaked: boolean = false;
 
-/**
- * A build-time hardcoded instance (branded single-instance app). When set, the
- * instance is fixed and the gate/instance-switcher are hidden.
- */
-export function getHardcodedInstance(): string {
-	const baked = import.meta.env.VITE_DIADEM_INSTANCE as string | undefined;
-	return normalizeInstanceUrl(baked ?? "");
+export function isInstanceUrlBaked(): boolean {
+	return instanceUrlBaked;
 }
 
-export function hasHardcodedInstance(): boolean {
-	return Boolean(getHardcodedInstance());
-}
-
-/**
- * The remote Diadem instance the app talks to. "" on web/dev (relative
- * same-origin fetches) and until an instance is chosen on native.
- */
 export function getInstanceUrl(): string {
 	return instanceUrl;
 }
@@ -46,11 +31,14 @@ export async function loadInstanceUrl(): Promise<void> {
 		instanceUrl = "";
 		return;
 	}
-	const hardcoded = getHardcodedInstance();
-	if (hardcoded) {
-		instanceUrl = hardcoded;
+
+	const baked = normalizeInstanceUrl(import.meta.env.VITE_DIADEM_INSTANCE as string | undefined ?? "");
+	if (baked) {
+		instanceUrl = baked;
+		instanceUrlBaked = true
 		return;
 	}
+
 	try {
 		const { Preferences } = await import("@capacitor/preferences");
 		const { value } = await Preferences.get({ key: INSTANCE_KEY });
@@ -91,7 +79,7 @@ export async function validateInstance(url: string): Promise<boolean> {
 
 /** Persist and apply a chosen instance origin (no-op when hardcoded). */
 export async function setInstanceUrl(url: string): Promise<void> {
-	if (hasHardcodedInstance()) return;
+	if (instanceUrlBaked) return;
 	instanceUrl = normalizeInstanceUrl(url);
 	try {
 		const { Preferences } = await import("@capacitor/preferences");
@@ -102,23 +90,6 @@ export async function setInstanceUrl(url: string): Promise<void> {
 	}
 }
 
-/**
- * Origin to use in user-shareable URLs. On native the webview origin is
- * https://localhost, which is useless to share — use the instance origin
- * instead. On web this is just the page origin.
- */
-export function getPublicOrigin(): string {
+export function getRootOrigin(): string {
 	return getInstanceUrl() || window.location.origin;
-}
-
-/** Rewrite a same-origin app URL so it points at the shareable instance origin. */
-export function toPublicUrl(href: string): string {
-	const instance = getInstanceUrl();
-	if (!instance) return href;
-	try {
-		const u = new URL(href, window.location.origin);
-		return `${instance}${u.pathname}${u.search}${u.hash}`;
-	} catch {
-		return href;
-	}
 }
