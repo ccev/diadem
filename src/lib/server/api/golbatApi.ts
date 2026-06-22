@@ -24,7 +24,9 @@ async function callGolbat<T>(
 	const start = performance.now();
 	const url = new URL(path, config.url);
 
-	const headers: HeadersInit = {};
+	const headers: HeadersInit = {
+		"Content-Type": "application/json"
+	};
 
 	if (config.auth) {
 		headers["Authorization"] = config.auth;
