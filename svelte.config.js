@@ -10,9 +10,7 @@ const config = {
 
 	kit: {
 		outDir: isNative ? ".svelte-kit-native" : ".svelte-kit",
-		adapter: isNative
-			? adapterStatic({ fallback: "index.html", strict: false })
-			: adapterNode(),
+		adapter: isNative ? adapterStatic({ fallback: "index.html", strict: false }) : adapterNode(),
 		alias: {
 			"@": "src"
 		},
