@@ -81,9 +81,8 @@ export function capacitorResponseBytes(data: unknown, contentType = ""): Uint8Ar
 	if (data == null) return new Uint8Array();
 	if (typeof data !== "string") return new TextEncoder().encode(JSON.stringify(data));
 
-	const isTextual = /^\s*(text\/|application\/(json|xml|javascript)|application\/[\w.-]+\+json)/i.test(
-		contentType
-	);
+	const isTextual =
+		/^\s*(text\/|application\/(json|xml|javascript)|application\/[\w.-]+\+json)/i.test(contentType);
 	if (isTextual) return new TextEncoder().encode(data);
 	try {
 		return base64ToBytes(data);
@@ -158,9 +157,7 @@ export function installNativeFetch(): void {
 				// implicitly sets text/plain; CapacitorHttp sends no content-type, and some
 				// endpoints reject that (400). Carry over the implicit/explicit type unless
 				// the caller already set one.
-				const hasContentType = Object.keys(headers).some(
-					(k) => k.toLowerCase() === "content-type"
-				);
+				const hasContentType = Object.keys(headers).some((k) => k.toLowerCase() === "content-type");
 				const bodyContentType = bodySource.headers.get("content-type");
 				if (!hasContentType && bodyContentType) headers["Content-Type"] = bodyContentType;
 			}

@@ -94,32 +94,32 @@
 			description={m.tool_coverage_map_description()}
 			onclick={() => openCoverageMap()}
 		>
-<!--			<MapLibre-->
-<!--				class="absolute! top-0 right-0 h-full w-1/2"-->
-<!--				center={[-->
-<!--					getConfig().mapPositions?.coverageLon ?? 9.979,-->
-<!--					getConfig().mapPositions?.coverageLat ?? 53.563-->
-<!--				]}-->
-<!--				zoom={getConfig().mapPositions?.coverageZoom ?? 5.5}-->
-<!--				filterLayers={(l) => l.type !== "symbol"}-->
-<!--				style={getDefaultMapStyle().url}-->
-<!--				attributionControl={false}-->
-<!--				interactive={false}-->
-<!--				zoomOnDoubleClick={false}-->
-<!--			>-->
-<!--				<GeoJSON id="tools-coveragemap" data={getCoverageMapAreas()}>-->
-<!--					<FillLayer-->
-<!--						paint={{-->
-<!--							"fill-color": ["get", "fillColor"],-->
-<!--							"fill-opacity": 0.5-->
-<!--						}}-->
-<!--					/>-->
-<!--					<LineLayer-->
-<!--						layout={{ "line-cap": "round", "line-join": "round" }}-->
-<!--						paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}-->
-<!--					/>-->
-<!--				</GeoJSON>-->
-<!--			</MapLibre>-->
+			<!--			<MapLibre-->
+			<!--				class="absolute! top-0 right-0 h-full w-1/2"-->
+			<!--				center={[-->
+			<!--					getConfig().mapPositions?.coverageLon ?? 9.979,-->
+			<!--					getConfig().mapPositions?.coverageLat ?? 53.563-->
+			<!--				]}-->
+			<!--				zoom={getConfig().mapPositions?.coverageZoom ?? 5.5}-->
+			<!--				filterLayers={(l) => l.type !== "symbol"}-->
+			<!--				style={getDefaultMapStyle().url}-->
+			<!--				attributionControl={false}-->
+			<!--				interactive={false}-->
+			<!--				zoomOnDoubleClick={false}-->
+			<!--			>-->
+			<!--				<GeoJSON id="tools-coveragemap" data={getCoverageMapAreas()}>-->
+			<!--					<FillLayer-->
+			<!--						paint={{-->
+			<!--							"fill-color": ["get", "fillColor"],-->
+			<!--							"fill-opacity": 0.5-->
+			<!--						}}-->
+			<!--					/>-->
+			<!--					<LineLayer-->
+			<!--						layout={{ "line-cap": "round", "line-join": "round" }}-->
+			<!--						paint={{ "line-color": ["get", "strokeColor"], "line-width": 2 }}-->
+			<!--					/>-->
+			<!--				</GeoJSON>-->
+			<!--			</MapLibre>-->
 		</ToolLink>
 	{/if}
 

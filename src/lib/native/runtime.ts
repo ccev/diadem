@@ -32,10 +32,12 @@ export async function loadInstanceUrl(): Promise<void> {
 		return;
 	}
 
-	const baked = normalizeInstanceUrl(import.meta.env.VITE_DIADEM_INSTANCE as string | undefined ?? "");
+	const baked = normalizeInstanceUrl(
+		(import.meta.env.VITE_DIADEM_INSTANCE as string | undefined) ?? ""
+	);
 	if (baked) {
 		instanceUrl = baked;
-		instanceUrlBaked = true
+		instanceUrlBaked = true;
 		return;
 	}
 

@@ -11,5 +11,5 @@ export async function startLogin(provider = "discord") {
 		await startNativeLogin(provider, window.location.pathname);
 		return;
 	}
-	goto(getLoginLink()).then()
+	goto(getLoginLink()).then();
 }

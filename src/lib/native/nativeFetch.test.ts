@@ -50,9 +50,9 @@ describe("rewriteInstanceUrl", () => {
 	// still be routed through CapacitorHttp (returned unchanged), not left to a
 	// cross-origin webview fetch that would taint the WebGL texture.
 	it("routes an already-absolute instance URL through unchanged", () => {
-		expect(rewriteInstanceUrl("https://demap.co/assets/DEFAULT/pokemon/1.png", INSTANCE, LOCAL)).toBe(
-			"https://demap.co/assets/DEFAULT/pokemon/1.png"
-		);
+		expect(
+			rewriteInstanceUrl("https://demap.co/assets/DEFAULT/pokemon/1.png", INSTANCE, LOCAL)
+		).toBe("https://demap.co/assets/DEFAULT/pokemon/1.png");
 	});
 	it("still ignores absolute external URLs even when an instance is set", () => {
 		expect(rewriteInstanceUrl("https://tiles.example.com/1.pbf", INSTANCE, LOCAL)).toBeNull();

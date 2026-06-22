@@ -255,10 +255,7 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 	beginLocate(map, allowFollow);
 }
 
-async function nativeLocationHandler(
-	map: maplibre.Map | undefined,
-	allowFollow: boolean
-) {
+async function nativeLocationHandler(map: maplibre.Map | undefined, allowFollow: boolean) {
 	try {
 		const { Geolocation } = await import("@capacitor/geolocation");
 		let status = await Geolocation.checkPermissions();
