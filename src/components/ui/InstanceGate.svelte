@@ -39,7 +39,7 @@
 	style:padding-bottom="env(safe-area-inset-bottom)"
 >
 	<div class="flex flex-col items-center gap-2">
-		<img src="/favicon.png" alt="Diadem" class="mb-1 h-16 w-16" />
+		<img src="/favicon.svg" alt="Diadem" class="mb-1 h-16 w-16" />
 		<h1 class="text-xl font-semibold text-foreground">Connect to Diadem</h1>
 		<p class="max-w-sm text-sm text-muted-foreground">
 			Enter the URL of the Diadem instance you want to use.

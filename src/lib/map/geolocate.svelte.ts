@@ -248,33 +248,34 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 	}
 
 	if (isNative()) {
-		// On native the OS location permission must be granted before the WebView
-		// will service navigator.geolocation; request it via the Capacitor plugin.
-		void ensureNativeLocationPermission().then((granted) => {
-			if (granted) {
-				beginLocate(map, allowFollow);
-			} else {
-				geolocationEnabled = false;
-				openToast(m.locate_error_support());
-			}
-		});
+		void nativeLocationHandler(map, allowFollow);
 		return;
 	}
 
 	beginLocate(map, allowFollow);
 }
 
-async function ensureNativeLocationPermission(): Promise<boolean> {
+async function nativeLocationHandler(
+	map: maplibre.Map | undefined,
+	allowFollow: boolean
+) {
 	try {
 		const { Geolocation } = await import("@capacitor/geolocation");
 		let status = await Geolocation.checkPermissions();
 		if (status.location !== "granted" && status.coarseLocation !== "granted") {
 			status = await Geolocation.requestPermissions();
 		}
-		return status.location === "granted" || status.coarseLocation === "granted";
+		const granted = status.location === "granted" || status.coarseLocation === "granted";
+		if (granted) {
+			beginLocate(map, allowFollow);
+		} else {
+			geolocationEnabled = false;
+			openToast(m.locate_error_perms());
+		}
 	} catch (e) {
 		console.error("Failed to request native location permission", e);
-		return false;
+		geolocationEnabled = false;
+		openToast(m.locate_error_support());
 	}
 }
 

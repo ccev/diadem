@@ -13,8 +13,6 @@ export function isUiLeft() {
 }
 
 export function canNativeShare(content: ShareData) {
-	// The Web Share API is unavailable in the Android System WebView; on native
-	// we share via the Capacitor Share plugin, which is always available.
 	if (isNative()) return true;
 	return navigator?.share != null && navigator.canShare && navigator.canShare(content);
 }
