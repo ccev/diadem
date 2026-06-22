@@ -18,9 +18,7 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 		return { needsInstanceGate: true };
 	}
 
-	// If the instance is unreachable (offline, down, wrong URL), surface a retry
-	// screen instead of crashing to a blank page — the whole native app depends
-	// on the remote instance.
+	// show an error if instance isn't reachable
 	let config;
 	try {
 		const configResponse = await fetch("/api/config");
@@ -44,7 +42,7 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 
 	updateUserSettings();
 
-	// On native, never show the custom Home page — go straight to the map.
+	// no Home on native, redirect to map
 	if (isNative()) {
 		const mapPath = getMapPath(config);
 		if (url.pathname === "/" && mapPath !== "/") {

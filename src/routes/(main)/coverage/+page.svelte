@@ -73,8 +73,7 @@
 					<CoverageMapPopup />
 				</div>
 
-				<!-- subtract the safe-area inset the mobile UI container adds, so the popup
-				     sits just above the (non-inset) menu drawer instead of leaving a gap -->
+				<!-- bit hacky to ensure good styling on native builds -->
 				<div
 					style:height="calc({coverageMapSnapPoints[0]} - 8px - env(safe-area-inset-bottom))"
 				></div>
