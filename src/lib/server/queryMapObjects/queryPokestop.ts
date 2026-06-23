@@ -176,7 +176,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 				data.contest_rankings.total_entries = data.contest_rankings.total_entries || 0;
 				data.contest_rankings.last_update = data.contest_rankings.last_update || 0;
 
-				data.contest_rankings.contest_entries = data.contest_rankings.contest_entries.map((e) => {
+				data.contest_rankings.contest_entries = (data.contest_rankings.contest_entries ?? []).map((e) => {
 					return {
 						...e,
 						form: getNormalizedForm(e.pokemon_id, e.form)
