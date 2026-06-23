@@ -18,8 +18,8 @@
 
 	<SectionAppearance />
 	<SectionIcons />
+	<SectionAdvanced />
 	{#if isNative() && !isInstanceUrlBaked()}
 		<SectionInstance />
 	{/if}
-	<SectionAdvanced />
 </div>

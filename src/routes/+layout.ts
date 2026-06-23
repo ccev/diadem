@@ -25,7 +25,7 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 		if (!configResponse.ok) throw new Error(`config ${configResponse.status}`);
 		config = await configResponse.json();
 	} catch {
-		return { configError: true };
+		return { configError: true, offline: browser && !navigator.onLine };
 	}
 	setConfig(config);
 

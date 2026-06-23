@@ -50,13 +50,16 @@ export async function loadInstanceUrl(): Promise<void> {
 	}
 }
 
+type InstanceConfig = { general?: { mapName?: string } };
+
 /**
- * Check a URL actually hosts a Diadem instance (its /api/config returns config).
- * Uses CapacitorHttp directly since the instance isn't configured yet.
+ * Fetch a candidate instance's /api/config and return it if it looks like a
+ * Diadem instance (has `general`), else null. Uses CapacitorHttp directly since
+ * the instance isn't configured yet.
  */
-export async function validateInstance(url: string): Promise<boolean> {
+async function fetchInstanceConfig(url: string): Promise<InstanceConfig | null> {
 	const normalized = normalizeInstanceUrl(url);
-	if (!normalized) return false;
+	if (!normalized) return null;
 	try {
 		const { CapacitorHttp } = await import("@capacitor/core");
 		const res = await CapacitorHttp.request({
@@ -64,22 +67,27 @@ export async function validateInstance(url: string): Promise<boolean> {
 			method: "GET",
 			headers: { "Accept-Encoding": "identity" }
 		});
-		if (res.status !== 200) return false;
+		if (res.status !== 200) return null;
 		let config: unknown = res.data;
 		if (typeof config === "string") {
 			try {
 				config = JSON.parse(config);
 			} catch {
-				return false;
+				return null;
 			}
 		}
-		return !!config && typeof config === "object" && "general" in config;
+		if (!config || typeof config !== "object" || !("general" in config)) return null;
+		return config as InstanceConfig;
 	} catch {
-		return false;
+		return null;
 	}
 }
 
-/** Persist and apply a chosen instance origin (no-op when hardcoded). */
+export async function fetchInstanceMapName(url: string): Promise<string | null> {
+	const config = await fetchInstanceConfig(url);
+	return config?.general?.mapName ?? null;
+}
+
 export async function setInstanceUrl(url: string): Promise<void> {
 	if (instanceUrlBaked) return;
 	instanceUrl = normalizeInstanceUrl(url);

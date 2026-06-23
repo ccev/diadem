@@ -35,7 +35,7 @@
 			</p>
 		{/if}
 
-		<div class="mt-4 flex justify-center w-full gap-2">
+		<div class="mt-4 flex justify-center flex-wrap w-full gap-2 *:flex-1">
 			{#if href && linkLabel}
 				<Button variant={extraButtons ? "secondary" : "default"} tag="a" {href}>
 					{linkLabel}
