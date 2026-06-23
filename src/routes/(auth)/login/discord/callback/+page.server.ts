@@ -3,6 +3,7 @@ import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { getNativeAuthToken, isAuthRequired } from "@/lib/server/auth/betterAuth";
+import { issueNativeCode } from "@/lib/server/auth/nativeHandoff";
 import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getServerLogger } from "@/lib/server/logging";
 
@@ -27,13 +28,16 @@ export const load: PageServerLoad = async (event) => {
 	);
 
 	// Native login: hand the freshly-established session to the app via a one-time
-	// token on the diadem:// deep link, instead of rendering the web callback page.
+	// CODE on the diadem:// deep link (never the token itself). The app exchanges
+	// the code + its PKCE verifier for the token over HTTPS — see nativeHandoff.ts.
 	if (event.url.searchParams.get("native") === "1") {
 		const appId = event.url.searchParams.get("app");
-		if (event.locals.user) {
+		const challenge = event.url.searchParams.get("challenge");
+		if (event.locals.user && challenge) {
 			const token = getNativeAuthToken(event);
 			if (token) {
-				const params = new URLSearchParams({ token, redir: redirectLink });
+				const code = issueNativeCode(token, challenge);
+				const params = new URLSearchParams({ code, redir: redirectLink });
 				throw redirect(302, nativeReturnUrl(`auth?${params.toString()}`, appId));
 			}
 		}

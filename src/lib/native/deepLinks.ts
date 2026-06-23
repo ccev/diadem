@@ -1,12 +1,16 @@
-import { getInstanceUrl, isNative } from "@/lib/native/runtime";
+import { isNative } from "@/lib/native/runtime";
 import { completeNativeLogin } from "@/lib/native/auth";
 
 /**
- * Handle an incoming deep link URL. Two kinds:
- *  - diadem://auth?token=... — the OAuth handoff: exchange the one-time token for
- *    a bearer session, then reload so all auth-gated data refetches authenticated.
- *  - diadem://<path> or https://<instance>/<path> — a content link (/a, /pokemon/<id>,
- *    /wayfarer, …): navigate the SPA to that route.
+ * Handle an incoming deep link URL (always the diadem:// scheme — that's the only
+ * scheme the Android manifest registers). Two kinds:
+ *  - diadem://auth?code=... — the OAuth handoff: exchange the one-time code for a
+ *    bearer session, then reload so all auth-gated data refetches authenticated.
+ *  - diadem://<path> — a content link (/a, /pokemon/<id>, /wayfarer, …): navigate
+ *    the SPA to that route.
+ *
+ * (Plain https://<instance>/<path> links are NOT handled: delivering them to the
+ * app would require verified Android App Links, which aren't configured.)
  */
 export async function handleDeepLink(rawUrl: string): Promise<void> {
 	let url: URL;
@@ -16,25 +20,19 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 		return;
 	}
 
-	if (url.protocol === "diadem:") {
-		if (url.hostname === "auth") {
-			const token = url.searchParams.get("token");
-			if (token && (await completeNativeLogin(token))) {
-				// Reboot the SPA so every load()/fetch reruns with the bearer token.
-				window.location.reload();
-			}
-			return;
+	if (url.protocol !== "diadem:") return;
+
+	if (url.hostname === "auth") {
+		const code = url.searchParams.get("code");
+		if (code && (await completeNativeLogin(code))) {
+			// Reboot the SPA so every load()/fetch reruns with the bearer token.
+			window.location.reload();
 		}
-		// diadem://pokemon/123  ->  /pokemon/123
-		await routeDeepLink(`/${url.hostname}${url.pathname}`);
 		return;
 	}
 
-	// https://<instance>/<path>  ->  /<path>
-	const instance = getInstanceUrl();
-	if (instance && rawUrl.startsWith(instance)) {
-		await routeDeepLink(url.pathname);
-	}
+	// diadem://pokemon/123  ->  /pokemon/123
+	await routeDeepLink(`/${url.hostname}${url.pathname}`);
 }
 
 async function routeDeepLink(path: string): Promise<void> {

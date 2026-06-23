@@ -34,15 +34,58 @@ async function persistToken(token: string | null): Promise<void> {
 	}
 }
 
+const VERIFIER_KEY = "diadem_pkce_verifier";
+
+function base64url(bytes: Uint8Array): string {
+	let binary = "";
+	for (const b of bytes) binary += String.fromCharCode(b);
+	return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/**
+ * Create a PKCE verifier/challenge pair. The verifier is kept on-device; only
+ * the challenge (sha256, base64url) is sent to the server, so a hijacked deep
+ * link can't be exchanged without the verifier.
+ */
+async function createPkce(): Promise<{ verifier: string; challenge: string }> {
+	const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
+	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+	return { verifier, challenge: base64url(new Uint8Array(digest)) };
+}
+
+// Persisted so the verifier survives if the app is evicted while the system
+// browser is in the foreground (cold-start deep link).
+async function storeVerifier(verifier: string): Promise<void> {
+	try {
+		const { Preferences } = await import("@capacitor/preferences");
+		await Preferences.set({ key: VERIFIER_KEY, value: verifier });
+	} catch {
+		/* best effort */
+	}
+}
+
+async function takeVerifier(): Promise<string | null> {
+	try {
+		const { Preferences } = await import("@capacitor/preferences");
+		const { value } = await Preferences.get({ key: VERIFIER_KEY });
+		await Preferences.remove({ key: VERIFIER_KEY });
+		return value ?? null;
+	} catch {
+		return null;
+	}
+}
+
 /**
  * Begin login: open the instance's OAuth flow in the system browser. The flow
- * ends by redirecting to diadem://auth?token=..., handled by the deep-link
- * listener which calls completeNativeLogin().
+ * ends by redirecting to diadem://auth?code=..., handled by the deep-link
+ * listener which calls completeNativeLogin() to exchange the code for the token.
  */
 export async function startNativeLogin(provider = "discord", redir = "/"): Promise<void> {
 	const instance = getInstanceUrl();
 	if (!instance) return;
-	const params = new URLSearchParams({ native: "1", redir });
+	const { verifier, challenge } = await createPkce();
+	await storeVerifier(verifier);
+	const params = new URLSearchParams({ native: "1", redir, challenge });
 	// Pass the app id so the callback can return via an intent:// URL targeting this
 	// package directly — avoiding the browser's "open in app?" disambiguation prompt.
 	try {
@@ -58,19 +101,23 @@ export async function startNativeLogin(provider = "discord", redir = "/"): Promi
 }
 
 /**
- * Validate the session token handed off via the deep link (using the bearer
- * plugin) and persist it. Returns true on success.
+ * Exchange the one-time code from the deep link (plus our stored PKCE verifier)
+ * for the session token over HTTPS, then persist it. Returns true on success.
  */
-export async function completeNativeLogin(token: string): Promise<boolean> {
+export async function completeNativeLogin(code: string): Promise<boolean> {
 	const instance = getInstanceUrl();
-	if (!instance || !token) return false;
+	if (!instance || !code) return false;
 	try {
-		const res = await fetch(`${instance}/api/auth/get-session`, {
-			headers: { Authorization: `Bearer ${token}` }
+		const verifier = await takeVerifier();
+		if (!verifier) return false;
+		const res = await fetch(`${instance}/api/native/exchange`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ code, verifier })
 		});
-		const data = (await res.json().catch(() => null)) as { user?: unknown } | null;
-		if (!res.ok || !data?.user) return false;
-		await persistToken(token);
+		const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
+		if (!res.ok || typeof data?.token !== "string" || !data.token) return false;
+		await persistToken(data.token);
 		return true;
 	} catch {
 		return false;

@@ -24,14 +24,20 @@
 
 	async function checkConnection() {
 		if (checking || connecting) return;
+		const target = value;
 		failed = false;
 		checking = true;
 
-		let name = null
+		let name = null;
 		try {
-			name = await fetchInstanceMapName(value);
-		} catch (e) {
-			name = null
+			name = await fetchInstanceMapName(target);
+		} catch {
+			name = null;
+		}
+
+		if (target !== value) {
+			checking = false;
+			return;
 		}
 
 		checking = false;
