@@ -147,13 +147,21 @@ jobs:
           tag_name: v${{ steps.ver.outputs.version }}
           name: Diadem v${{ steps.ver.outputs.version }}
           body: |
+            # 🌠 Diadem v${{ steps.ver.outputs.version }}
+
+            ## Changelog
+
             ${{ inputs.changelog }}
 
-            ---
-            **Download**
-            - [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
-            - [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
-            - APK attached below
+            ## Installation
+
+            Find update instructions in [the docs](https://diadem.malt.ee/guides/installation/#updating)
+
+            ### Android App
+
+            - Download on [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
+            - Download on [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
+            - Download the APK on GitHub
           files: ${{ steps.art.outputs.apk }}
 
       - name: Upload to Google Play
@@ -176,27 +184,38 @@ jobs:
           V: ${{ steps.ver.outputs.version }}
           CHANGELOG: ${{ inputs.changelog }}
           GH_URL: ${{ steps.gh.outputs.url }}
-          APK: ${{ steps.art.outputs.apk }}
         run: |
-          # Discord embed description limit is 4096 chars; trim to be safe.
-          desc="$(printf '%s' "$CHANGELOG" | head -c 3500)"
+          body="$(cat <<EOF
+          # 🌠 Diadem v${V}
+
+          ## Changelog
+
+          ${CHANGELOG}
+
+          ## Installation
+
+          Find update instructions in [the docs](https://diadem.malt.ee/guides/installation/#updating)
+
+          ### Android App
+
+          - Download on [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
+          - Download on [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
+          - Download the APK on GitHub
+          EOF
+          )"
           jq -nc \
-            --arg V "$V" \
-            --arg desc "$desc" \
-            --arg play "https://play.google.com/store/apps/details?id=ee.malt.diadem" \
-            --arg fdroid "https://f-droid.org/packages/ee.malt.diadem/" \
+            --arg content "$body" \
             --arg gh "$GH_URL" \
             '{
-              content: ("**Diadem v" + $V + "** is out"),
-              embeds: [{
-                title: ("Diadem v" + $V),
-                description: $desc,
-                color: 3447003,
-                fields: [
-                  {name: "Google Play", value: $play, inline: true},
-                  {name: "F-Droid", value: $fdroid, inline: true},
-                  {name: "GitHub", value: $gh, inline: false}
-                ]
+              content: $content,
+              components: [{
+                type: 1,
+                components: [{
+                  type: 2,
+                  style: 5,
+                  label: "GitHub Release",
+                  url: $gh
+                }]
               }]
             }' > payload.json
-          curl -fsS -F "payload_json=<payload.json" -F "files[0]=@${APK}" "$WEBHOOK"
+          curl -fsS -H "Content-Type: application/json" -d @payload.json "$WEBHOOK"

@@ -115,13 +115,19 @@ one worker until rate limiting is backed by shared storage.
 ## Updating
 
 <Steps>
-	1. Install dependencies and build
+	1. Pull the latest changes
+
+		```bash
+		git pull
+		```
+
+	2. Install dependencies and build
 
 		```bash
 		pnpm install
 		pnpm run build
 		```
-	2. Restart
+	3. Restart
 		```bash
 		pm2 restart diadem
 		```
