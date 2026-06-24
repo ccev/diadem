@@ -161,7 +161,7 @@ jobs:
 
             - Download on [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
             - Download on [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
-            - Download the APK on GitHub
+            - [Download the APK on GitHub](https://github.com/ccev/diadem/releases/download/v${{ steps.ver.outputs.version }}/diadem-${{ steps.ver.outputs.version }}.apk)
           files: ${{ steps.art.outputs.apk }}
 
       - name: Upload to Google Play
@@ -206,7 +206,7 @@ jobs:
 
           - Download on [Google Play](<https://play.google.com/store/apps/details?id=ee.malt.diadem>)
           - Download on [F-Droid](<https://f-droid.org/packages/ee.malt.diadem/>)
-          - Download the APK on GitHub
+          - [Download the APK on GitHub](<https://github.com/ccev/diadem/releases/download/v${V}/diadem-${V}.apk>)
           EOF
           )"
           jq -nc \
