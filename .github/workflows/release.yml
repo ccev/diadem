@@ -185,6 +185,12 @@ jobs:
           CHANGELOG: ${{ inputs.changelog }}
           GH_URL: ${{ steps.gh.outputs.url }}
         run: |
+          if [[ "$WEBHOOK" == *\?* ]]; then
+            WEBHOOK_WITH_COMPONENTS="${WEBHOOK}&with_components=true"
+          else
+            WEBHOOK_WITH_COMPONENTS="${WEBHOOK}?with_components=true"
+          fi
+
           body="$(cat <<EOF
           # 🌠 Diadem v${V}
 
@@ -194,12 +200,12 @@ jobs:
 
           ## Installation
 
-          Find update instructions in [the docs](https://diadem.malt.ee/guides/installation/#updating)
+          Find update instructions in [the docs](<https://diadem.malt.ee/guides/installation/#updating>)
 
           ### Android App
 
-          - Download on [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
-          - Download on [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
+          - Download on [Google Play](<https://play.google.com/store/apps/details?id=ee.malt.diadem>)
+          - Download on [F-Droid](<https://f-droid.org/packages/ee.malt.diadem/>)
           - Download the APK on GitHub
           EOF
           )"
@@ -218,4 +224,4 @@ jobs:
                 }]
               }]
             }' > payload.json
-          curl -fsS -H "Content-Type: application/json" -d @payload.json "$WEBHOOK"
+          curl -fsS -H "Content-Type: application/json" -d @payload.json "$WEBHOOK_WITH_COMPONENTS"
