@@ -49,6 +49,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prepare default config files
+        run: bash setup.sh
+
       - name: Detect optional targets
         id: flags
         env:
