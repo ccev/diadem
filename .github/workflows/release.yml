@@ -145,10 +145,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.ver.outputs.version }}
-          name: Diadem v${{ steps.ver.outputs.version }}
+          name: 🌠 Diadem v${{ steps.ver.outputs.version }}
           body: |
-            # 🌠 Diadem v${{ steps.ver.outputs.version }}
-
             ## Changelog
 
             ${{ inputs.changelog }}
