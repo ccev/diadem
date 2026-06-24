@@ -58,7 +58,7 @@
 		mapName = name;
 		await setInstanceUrl(value);
 		await clearStoredToken();
-		window.location.reload();
+		window.location.assign("/");
 	}
 
 	function onkeydown(e: KeyboardEvent) {

@@ -22,7 +22,7 @@
 		disconnecting = true;
 		await clearStoredToken();
 		await setInstanceUrl("");
-		window.location.reload();
+		window.location.assign("/");
 	}
 </script>
 

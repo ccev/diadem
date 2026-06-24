@@ -20,7 +20,7 @@
 			onclick={async () => {
 				await clearStoredToken();
 				await setInstanceUrl("");
-				window.location.reload();
+				window.location.assign("/");
 			}}
 			class="w-full justify-center"
 		>
