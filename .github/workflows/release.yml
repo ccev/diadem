@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref }}
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
@@ -130,7 +130,7 @@ jobs:
           git add android/app/build.gradle package.json fastlane distribution
           git commit -m "release: v${V}"
           git tag "v${V}"
-          git push origin HEAD:main
+          git push origin HEAD:${{ github.ref_name }}
           git push origin "v${V}"
 
       - name: Create GitHub release
