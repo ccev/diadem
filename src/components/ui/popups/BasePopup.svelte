@@ -16,6 +16,7 @@
 		copyToClipboard,
 		hasClipboardWrite
 	} from "@/lib/utils/device";
+	import { getRootOrigin } from "@/lib/native/runtime";
 	import { getLocale } from "@/lib/paraglide/runtime";
 	import * as m from "@/lib/paraglide/messages";
 
@@ -50,7 +51,7 @@
 	} = $props();
 
 	function getShareUrl() {
-		return window.location.origin + getCurrentPath() + "?lang=" + getLocale();
+		return getRootOrigin() + getCurrentPath() + "?lang=" + getLocale();
 	}
 </script>
 

@@ -2,14 +2,59 @@
 <html lang="%lang%">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<meta
 			name="viewport"
 			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
 		/>
+		<script>
+			// Pick the persisted theme before render so the initial loading screen
+			// (shown between the splash and the app) isn't a white flash in dark mode.
+			(function () {
+				try {
+					var s = JSON.parse(localStorage.getItem("userSettings") || "{}");
+					var mode = s && s.themeMode;
+					var dark =
+						mode === "dark" ||
+						((!mode || mode === "system") &&
+							window.matchMedia("(prefers-color-scheme: dark)").matches);
+					// Add the real `.dark` class so themed CSS vars apply immediately,
+					// including on error/unreachable screens that render before mode-watcher.
+					if (dark) document.documentElement.classList.add("dark");
+				} catch (e) {}
+			})();
+		</script>
+		<style>
+			html {
+				background: oklch(1 0 0);
+			}
+
+			html.dark {
+				background: oklch(0.145 0 0);
+			}
+
+			#initial-loader {
+				position: fixed;
+				inset: 0;
+				z-index: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: inherit;
+			}
+
+			#initial-loader img {
+				width: 88px;
+				height: 88px;
+				border-radius: calc(infinity * 1px);
+			}
+		</style>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
+		<div id="initial-loader">
+			<img src="%sveltekit.assets%/loader.svg" alt="Loading" />
+		</div>
 		<div style="display: contents; height: 100%">%sveltekit.body%</div>
 	</body>
 </html>

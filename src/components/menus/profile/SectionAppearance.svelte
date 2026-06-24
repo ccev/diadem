@@ -3,6 +3,7 @@
 	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
 	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
+	import { isNative } from "@/lib/native/runtime";
 	import {
 		AVAILABLE_LANGUAGES,
 		AVAILABLE_MAP_PROVIDERS,
@@ -89,14 +90,16 @@
 		/>
 	</MenuGeneric>
 
-	<Select
-		class="py-3 px-4 "
-		title={m.settings_external_map_provider()}
-		value={getUserSettings().externalMapProvider}
-		onselect={(mapProvider) =>
-			onSettingsChange("externalMapProvider", mapProvider as ExternalMapProvider)}
-		options={AVAILABLE_MAP_PROVIDERS}
-	/>
+	{#if !isNative()}
+		<Select
+			class="py-3 px-4 "
+			title={m.settings_external_map_provider()}
+			value={getUserSettings().externalMapProvider}
+			onselect={(mapProvider) =>
+				onSettingsChange("externalMapProvider", mapProvider as ExternalMapProvider)}
+			options={AVAILABLE_MAP_PROVIDERS}
+		/>
+	{/if}
 
 	<Select
 		class="py-3 px-4 "

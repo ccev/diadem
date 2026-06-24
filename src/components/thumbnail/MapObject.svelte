@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from "/static/favicon.png?inline";
+	import favicon from "/static/favicon.svg?inline";
 	import { getClientConfig } from "@/lib/services/config/config.server";
 	import * as m from "@/lib/paraglide/messages";
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";

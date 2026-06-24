@@ -30,7 +30,7 @@
 >
 	<Drawer.Portal>
 		<Drawer.Content
-			class="duration-150! fixed flex flex-col bottom-0 z-10 px-2 pt-2 w-full h-fit border border-t-border bg-card/60 backdrop-blur-sm rounded-t-xl"
+			class="duration-150! fixed flex flex-col bottom-0 z-10 px-2 pt-2 w-full h-fit border border-t-border bg-card/60 backdrop-blur-sm rounded-t-xl pb-[env(safe-area-inset-bottom)]"
 		>
 			<MobileTitle />
 

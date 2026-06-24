@@ -8,6 +8,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+	/* Safe-area offsets for native (notch/status/nav bars), with the usual 0.5rem*/
+	--spacing-safe-inset-top: calc(0.5rem + env(safe-area-inset-top));
+	--spacing-safe-inset-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+}
+
 :root {
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.145 0 0);

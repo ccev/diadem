@@ -15,7 +15,12 @@ coverage/*
 .output
 .vercel
 /.svelte-kit
+/.svelte-kit-native
 /build
+
+# Release artifacts (built by CI / locally)
+*.apk
+*.aab
 
 # OS
 .DS_Store
@@ -40,3 +45,9 @@ docker-compose.yml
 
 # VSCode stuff
 .vscode
+
+# Capacitor / native
+# android/ is committed (it holds native config: manifest permissions, deep-link
+# intent filters, icons). Its own android/.gitignore excludes build output.
+/ios
+.gradle

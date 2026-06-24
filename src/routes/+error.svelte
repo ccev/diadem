@@ -1,19 +1,18 @@
 <script lang="ts">
 	import { page } from "$app/state";
-	import Card from "@/components/ui/Card.svelte";
-	import Button from "@/components/ui/input/Button.svelte";
-	import ErrorPage from "@/components/ui/ErrorPage.svelte";
+	import StatusScreen from "@/components/ui/StatusScreen.svelte";
 	import * as m from "@/lib/paraglide/messages";
+	import { isNative } from "$lib/native/runtime";
+	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 
 	const status = page.status;
-	let error: string;
-
-	if (status === 404) {
-		error = m.error_404();
-	} else {
-		error = "" + status;
-		if (page.error) error += ": " + page.error.message;
-	}
+	const title = status === 404 ? m.error_404() : m.status_generic_title();
+	const description =
+		status === 404 ? undefined : status + (page.error ? ": " + page.error.message : "");
 </script>
 
-<ErrorPage {error} />
+{#if isNative()}
+	<StatusScreen {title} {description} />
+{:else}
+	<ErrorPage error={title} {description} />
+{/if}

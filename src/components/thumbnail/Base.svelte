@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from "/static/favicon.png?inline";
+	import favicon from "/static/favicon.svg?inline";
 
 	let { title }: { title: string } = $props();
 </script>

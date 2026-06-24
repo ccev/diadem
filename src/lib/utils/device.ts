@@ -1,5 +1,6 @@
 import * as m from "@/lib/paraglide/messages";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
+import { isNative } from "@/lib/native/runtime";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { innerWidth } from "svelte/reactivity/window";
 
@@ -12,14 +13,23 @@ export function isUiLeft() {
 }
 
 export function canNativeShare(content: ShareData) {
+	if (isNative()) return true;
 	return navigator?.share != null && navigator.canShare && navigator.canShare(content);
 }
 
 export function hasClipboardWrite() {
-	return navigator.clipboard && navigator.clipboard.writeText;
+	if (isNative()) return true;
+	return Boolean(navigator.clipboard && navigator.clipboard.writeText);
 }
 
 export function copyToClipboard(content: string) {
+	if (isNative()) {
+		void import("@capacitor/clipboard")
+			.then(({ Clipboard }) => Clipboard.write({ string: content }))
+			.then(() => openToast(m.clipboard_copied()))
+			.catch(() => openToast(m.clipboard_error()));
+		return;
+	}
 	navigator.clipboard
 		.writeText(content)
 		.then(() => openToast(m.clipboard_copied()))
@@ -31,6 +41,14 @@ export function canBackupShare(shareData: ShareData) {
 }
 
 export function backupShareUrl(url: string) {
+	if (isNative()) {
+		void import("@capacitor/share")
+			.then(({ Share }) => Share.share({ url }))
+			.catch(() => {
+				// user cancelled the share sheet, or sharing failed — ignore
+			});
+		return;
+	}
 	const shareData = { url };
 	if (canNativeShare(shareData)) {
 		navigator.share(shareData).then();

@@ -1,4 +1,5 @@
 import { getMap } from "@/lib/map/map.svelte";
+import { isNative } from "@/lib/native/runtime";
 import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { round } from "@/lib/utils/numberFormat";
@@ -246,6 +247,36 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 		return;
 	}
 
+	if (isNative()) {
+		void nativeLocationHandler(map, allowFollow);
+		return;
+	}
+
+	beginLocate(map, allowFollow);
+}
+
+async function nativeLocationHandler(map: maplibre.Map | undefined, allowFollow: boolean) {
+	try {
+		const { Geolocation } = await import("@capacitor/geolocation");
+		let status = await Geolocation.checkPermissions();
+		if (status.location !== "granted" && status.coarseLocation !== "granted") {
+			status = await Geolocation.requestPermissions();
+		}
+		const granted = status.location === "granted" || status.coarseLocation === "granted";
+		if (granted) {
+			beginLocate(map, allowFollow);
+		} else {
+			geolocationEnabled = false;
+			openToast(m.locate_error_perms());
+		}
+	} catch (e) {
+		console.error("Failed to request native location permission", e);
+		geolocationEnabled = false;
+		openToast(m.locate_error_support());
+	}
+}
+
+function beginLocate(map: maplibre.Map | undefined, allowFollow: boolean) {
 	if (!navigator.geolocation) {
 		geolocationEnabled = false;
 		openToast(m.locate_error_support());

@@ -138,7 +138,10 @@ export async function fetchWayfarerForts(
 		lastFetchAt = now;
 	} catch (e) {
 		if ((e as Error).name === "AbortError") return;
-		console.error("Failed to fetch wayfarer forts", e);
+		console.error(
+			`Failed to fetch wayfarer forts: ${(e as Error)?.name}: ${(e as Error)?.message}`,
+			e
+		);
 	}
 }
 

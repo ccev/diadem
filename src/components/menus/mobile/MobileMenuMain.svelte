@@ -37,7 +37,7 @@
 >
 	<Drawer.Portal>
 		<Drawer.Content
-			class="{contentClass} duration-150! fixed flex flex-col bottom-0 z-10 px-2 pt-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm"
+			class="{contentClass} duration-150! fixed flex flex-col bottom-0 z-10 px-2 pt-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
 		>
 			<MobileTitle />
 
@@ -50,6 +50,10 @@
 
 <style>
 	:global(.drawer-full) {
+		/* Only inset for the status bar when the drawer is expanded to the top;
+		   at the partial snap point it sits below the status bar already. */
+		padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
+
 		& .content {
 			overflow-y: auto;
 		}

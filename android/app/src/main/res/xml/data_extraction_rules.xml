@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ backup/transfer rules. The native bearer session token lives in
+  Capacitor Preferences (SharedPreferences "CapacitorStorage"); exclude all
+  shared prefs from both cloud backup and device-to-device transfer so the
+  reusable credential can't be carried off the device.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="." />
+    </device-transfer>
+</data-extraction-rules>

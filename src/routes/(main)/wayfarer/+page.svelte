@@ -59,7 +59,7 @@
 	</MapMenuUi>
 
 	<div
-		class="fixed top-2 left-0 right-0 z-20 px-2 max-w-md"
+		class="fixed top-safe-inset-top left-0 right-0 z-20 px-2 max-w-md"
 		transition:fly={{ duration: 90, y: -14 }}
 	>
 		<WayfarerTitle />

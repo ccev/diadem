@@ -1,4 +1,5 @@
 import { getConfig } from "@/lib/services/config/config";
+import { getInstanceUrl } from "@/lib/native/runtime";
 import type { UiconSet } from "@/lib/services/config/configTypes";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
@@ -45,8 +46,9 @@ export async function initIconSet(id: string, url: string, thisFetch: typeof fet
 }
 
 export async function initAllIconSets(thisFetch: typeof fetch = fetch) {
+	const base = getInstanceUrl();
 	await Promise.all(
-		getConfig().uiconSets.map((s) => initIconSet(s.id, `/assets/${s.id}/`, thisFetch))
+		getConfig().uiconSets.map((s) => initIconSet(s.id, `${base}/assets/${s.id}/`, thisFetch))
 	);
 }
 

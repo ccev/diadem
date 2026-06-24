@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { parseSetCookieHeader } from "better-auth/cookies";
 import type { RequestEvent } from "@sveltejs/kit";
@@ -29,7 +30,16 @@ export const auth = IS_AUTH_ENABLED
 				usePlural: false,
 				schema: { user, session, account, verification }
 			}),
-			trustedOrigins: authConfig.baseUrl ? [authConfig.baseUrl] : [],
+			trustedOrigins: [
+				...(authConfig.baseUrl ? [authConfig.baseUrl] : []),
+				// Native (Capacitor) webview origins + custom scheme, so the app can
+				// call auth endpoints (bearer/one-time-token) and use the deep-link callback.
+				"https://localhost",
+				"capacitor://localhost",
+				"diadem://"
+			],
+			// bearer: accept Authorization: Bearer <session token> (native has no cookies).
+			plugins: [bearer()],
 			advanced: {
 				database: {
 					generateId: () => generateUserId()
@@ -171,6 +181,20 @@ export async function getAuthSession(event: RequestEvent): Promise<BetterAuthSes
 		log.warning(`Failed to read auth session: ${error}`);
 		return null;
 	}
+}
+
+/**
+ * The current session's bearer token, for handing the session to the native app
+ * after browser OAuth. The session cookie value is `<token>.<signature>`; the
+ * bearer plugin authenticates `Authorization: Bearer <token>`, so we hand the app
+ * the raw token. (Preferred over one-time tokens, whose single-use consume path
+ * is unreliable with this DB adapter.)
+ */
+export function getNativeAuthToken(event: RequestEvent): string | null {
+	const cookie = event.cookies.getAll().find((c) => c.name.includes("session_token"));
+	if (!cookie?.value) return null;
+	const token = decodeURIComponent(cookie.value).split(".")[0];
+	return token || null;
 }
 
 export async function getDiscordAccessToken(event: RequestEvent): Promise<string | null> {

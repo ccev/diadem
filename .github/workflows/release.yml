@@ -1,0 +1,194 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version name: blank = auto-bump last number"
+        required: false
+        type: string
+      changelog:
+        description: "Changelog (markdown)"
+        required: true
+        type: string
+      play_track:
+        description: "Google Play track"
+        required: false
+        default: internal
+        type: choice
+        options: [internal, alpha, beta, production]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Detect optional targets
+        id: flags
+        env:
+          PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          DISCORD: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          [ -n "$PLAY" ] && echo "play=true" >> "$GITHUB_OUTPUT" || echo "play=false" >> "$GITHUB_OUTPUT"
+          [ -n "$DISCORD" ] && echo "discord=true" >> "$GITHUB_OUTPUT" || echo "discord=false" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: node scripts/release/set-version.mjs "$INPUT_VERSION"
+
+      - name: Summary
+        run: |
+          echo "### Diadem release" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Previous: \`${{ steps.ver.outputs.old_version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- New: \`${{ steps.ver.outputs.version }}\` (versionCode ${{ steps.ver.outputs.version_code }})" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Write changelog files (F-Droid + Play)
+        env:
+          CHANGELOG: ${{ inputs.changelog }}
+          CODE: ${{ steps.ver.outputs.version_code }}
+        run: |
+          mkdir -p fastlane/metadata/android/en-US/changelogs
+          printf '%s\n' "$CHANGELOG" > "fastlane/metadata/android/en-US/changelogs/${CODE}.txt"
+          # Google Play "what's new" (r0adkll expects whatsnew-<locale>)
+          mkdir -p distribution/whatsnew
+          printf '%s\n' "$CHANGELOG" > distribution/whatsnew/whatsnew-en-US
+
+      - name: Build web client
+        run: BUILD_TARGET=native pnpm build
+
+      - name: Capacitor sync
+        run: pnpm exec cap sync android
+
+      - name: Decode signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > android/upload-keystore.jks
+          cat > android/keystore.properties <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=${STORE_PW}
+          keyAlias=${ALIAS}
+          keyPassword=${KEY_PW}
+          EOF
+
+      - name: Build signed APK + AAB
+        run: ./gradlew assembleRelease bundleRelease
+        working-directory: android
+
+      - name: Stage artifacts
+        id: art
+        env:
+          V: ${{ steps.ver.outputs.version }}
+        run: |
+          apk="diadem-${V}.apk"
+          aab="diadem-${V}.aab"
+          cp android/app/build/outputs/apk/release/app-release.apk "$apk"
+          cp android/app/build/outputs/bundle/release/app-release.aab "$aab"
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+          echo "aab=$aab" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump + changelog and tag
+        env:
+          V: ${{ steps.ver.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android/app/build.gradle package.json fastlane distribution
+          git commit -m "release: v${V}"
+          git tag "v${V}"
+          git push origin HEAD:main
+          git push origin "v${V}"
+
+      - name: Create GitHub release
+        id: gh
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: Diadem v${{ steps.ver.outputs.version }}
+          body: |
+            ${{ inputs.changelog }}
+
+            ---
+            **Download**
+            - [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
+            - [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
+            - APK attached below
+          files: ${{ steps.art.outputs.apk }}
+
+      - name: Upload to Google Play
+        if: steps.flags.outputs.play == 'true'
+        continue-on-error: true
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ee.malt.diadem
+          releaseFiles: ${{ steps.art.outputs.aab }}
+          track: ${{ inputs.play_track }}
+          status: completed
+          whatsNewDirectory: distribution/whatsnew
+
+      - name: Notify Discord
+        if: steps.flags.outputs.discord == 'true'
+        continue-on-error: true
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          V: ${{ steps.ver.outputs.version }}
+          CHANGELOG: ${{ inputs.changelog }}
+          GH_URL: ${{ steps.gh.outputs.url }}
+          APK: ${{ steps.art.outputs.apk }}
+        run: |
+          # Discord embed description limit is 4096 chars; trim to be safe.
+          desc="$(printf '%s' "$CHANGELOG" | head -c 3500)"
+          jq -nc \
+            --arg V "$V" \
+            --arg desc "$desc" \
+            --arg play "https://play.google.com/store/apps/details?id=ee.malt.diadem" \
+            --arg fdroid "https://f-droid.org/packages/ee.malt.diadem/" \
+            --arg gh "$GH_URL" \
+            '{
+              content: ("**Diadem v" + $V + "** is out"),
+              embeds: [{
+                title: ("Diadem v" + $V),
+                description: $desc,
+                color: 3447003,
+                fields: [
+                  {name: "Google Play", value: $play, inline: true},
+                  {name: "F-Droid", value: $fdroid, inline: true},
+                  {name: "GitHub", value: $gh, inline: false}
+                ]
+              }]
+            }' > payload.json
+          curl -fsS -F "payload_json=<payload.json" -F "files[0]=@${APK}" "$WEBHOOK"

@@ -73,13 +73,19 @@
 					<CoverageMapPopup />
 				</div>
 
-				<div style:height="calc({coverageMapSnapPoints[0]} - 8px)"></div>
+				<!-- bit hacky to ensure good styling on native builds -->
+				<div
+					style:height="calc({coverageMapSnapPoints[0]} - 8px - env(safe-area-inset-bottom))"
+				></div>
 			{/if}
 		{/snippet}
 
 		{#snippet mobileTop()}
 			{#if showCoverageMapTitle()}
-				<div class="fixed top-2 z-20 w-full px-2" transition:fly={{ duration: 90, y: -14 }}>
+				<div
+					class="fixed top-safe-inset-top z-20 w-full px-2"
+					transition:fly={{ duration: 90, y: -14 }}
+				>
 					<CoverageMapTitle />
 				</div>
 			{/if}
