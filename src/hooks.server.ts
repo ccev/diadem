@@ -62,6 +62,13 @@ function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typ
 }
 
 const handleAuth: Handle = async ({ event, resolve }) => {
+	if (process.env.BUILD_TARGET === "native") {
+		event.locals.perms = { everywhere: [], areas: [] };
+		event.locals.user = null;
+		event.locals.session = null;
+		return resolve(event);
+	}
+
 	if (auth && event.url.pathname.startsWith(`${AUTH_BASE_PATH}/`)) {
 		return auth.handler(event.request);
 	}
