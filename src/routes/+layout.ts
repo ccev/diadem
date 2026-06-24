@@ -13,10 +13,10 @@ import type { LayoutLoad } from "./$types";
 export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, url }) => {
-	const nativeBuild = !browser && import.meta.env.VITE_BUILD_TARGET === "native";
+	if (!browser) return;
 
 	// First run on native (no instance chosen yet): show the instance-gate screen.
-	if ((isNative() || nativeBuild) && !getInstanceUrl()) {
+	if (isNative() && !getInstanceUrl()) {
 		return { needsInstanceGate: true };
 	}
 
