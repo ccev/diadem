@@ -9,3 +9,20 @@ yarn.lock
 
 # Generated
 src/lib/paraglide
+
+# Build output
+build
+.svelte-kit
+.svelte-kit-native
+coverage
+docs/dist
+docs/.astro
+
+# Android: gradle output, caches, and the web assets Capacitor syncs in
+android/**/build
+android/.gradle
+android/app/src/main/assets
+
+# Release artifacts
+*.apk
+*.aab

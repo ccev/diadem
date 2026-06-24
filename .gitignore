@@ -18,6 +18,10 @@ coverage/*
 /.svelte-kit-native
 /build
 
+# Release artifacts (built by CI / locally)
+*.apk
+*.aab
+
 # OS
 .DS_Store
 Thumbs.db

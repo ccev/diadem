@@ -3,7 +3,12 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { Unplug } from "lucide-svelte";
-	import { getInstanceUrl, isInstanceUrlBaked, isNative, setInstanceUrl } from "@/lib/native/runtime";
+	import {
+		getInstanceUrl,
+		isInstanceUrlBaked,
+		isNative,
+		setInstanceUrl
+	} from "@/lib/native/runtime";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { getConfig } from "$lib/services/config/config";
 
@@ -34,7 +39,9 @@
 		{#if canDisconnect}
 			<Button variant="ghost" onclick={disconnect} disabled={disconnecting}>
 				<Unplug class="size-3.5" />
-				{m.disconnect_from_name({ name: getConfig()?.general?.mapName || getInstanceUrl() || m.diadem_map() })}
+				{m.disconnect_from_name({
+					name: getConfig()?.general?.mapName || getInstanceUrl() || m.diadem_map()
+				})}
 			</Button>
 		{/if}
 	{/snippet}

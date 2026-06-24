@@ -110,8 +110,8 @@
 	</div>
 
 	<div
-		class="flex flex-col justify-center relative gap-6 h-full pt-safe-inset-top pb-safe-inset-bottom mb-8 mt-4 w-full px-6">
-
+		class="flex flex-col justify-center relative gap-6 h-full pt-safe-inset-top pb-safe-inset-bottom mb-8 mt-4 w-full px-6"
+	>
 		<div class="flex flex-col items-center justify-center text-sky-100 w-full h-full">
 			<h1 class="arched-title flex items-baseline text-6xl font-bold tracking-[0.15em] mb-4">
 				{#each title as t, i (i)}
@@ -140,21 +140,21 @@
 			</div>
 			<div class="relative w-full">
 				{#if checking || mapName || failed}
-				<div
-					class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 fixed w-full justify-center right-0 left-0"
-					transition:fly={{ duration: 140, y: -10 }}
-				>
-					{#if checking}
-						<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
-						{m.connection_checking()}
-					{:else if mapName}
-						<CircleCheck class="size-4 stroke-[2.5] mt-0.5" />
-						{m.connecting_to_name({ name: mapName })}
-					{:else if failed}
-						<CircleX class="size-4 stroke-[2.5]" />
-						{m.connection_failed()}
-					{/if}
-				</div>
+					<div
+						class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 fixed w-full justify-center right-0 left-0"
+						transition:fly={{ duration: 140, y: -10 }}
+					>
+						{#if checking}
+							<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
+							{m.connection_checking()}
+						{:else if mapName}
+							<CircleCheck class="size-4 stroke-[2.5] mt-0.5" />
+							{m.connecting_to_name({ name: mapName })}
+						{:else if failed}
+							<CircleX class="size-4 stroke-[2.5]" />
+							{m.connection_failed()}
+						{/if}
+					</div>
 				{/if}
 			</div>
 		</div>
@@ -169,65 +169,64 @@
 				{m.connect()}
 				<ArrowRight class="size-4 stroke-[2.5]" />
 			</Button>
-<!--			<Button-->
-<!--				variant=""-->
-<!--				onclick={checkConnection}-->
-<!--				class="bg-linear-0 from-indigo-700/50 from-5%  via-indigo-600/75 to-95% to-indigo-600/90 w-full max-w-sm h-16 rounded-md outline-indigo-600/80 outline-2 text-sky-100/75 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"-->
-<!--			>-->
-<!--				&lt;!&ndash;			<Radio class="size-4 stroke-[2.5]" />&ndash;&gt;-->
-<!--				{#if checking}-->
-<!--					<LoaderCircle class="size-4 stroke-[2.5] animate-spin" />-->
-<!--					Checking...-->
-<!--				{:else if mapName}-->
-<!--					<CircleCheck class="size-4 stroke-[2.5]" />-->
-<!--					{mapName} works-->
-<!--				{:else if failed}-->
-<!--					<CircleX class="size-4 stroke-[2.5]" />-->
-<!--					Connection failed-->
-<!--				{:else}-->
-<!--					Check connection-->
-<!--				{/if}-->
+			<!--			<Button-->
+			<!--				variant=""-->
+			<!--				onclick={checkConnection}-->
+			<!--				class="bg-linear-0 from-indigo-700/50 from-5%  via-indigo-600/75 to-95% to-indigo-600/90 w-full max-w-sm h-16 rounded-md outline-indigo-600/80 outline-2 text-sky-100/75 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"-->
+			<!--			>-->
+			<!--				&lt;!&ndash;			<Radio class="size-4 stroke-[2.5]" />&ndash;&gt;-->
+			<!--				{#if checking}-->
+			<!--					<LoaderCircle class="size-4 stroke-[2.5] animate-spin" />-->
+			<!--					Checking...-->
+			<!--				{:else if mapName}-->
+			<!--					<CircleCheck class="size-4 stroke-[2.5]" />-->
+			<!--					{mapName} works-->
+			<!--				{:else if failed}-->
+			<!--					<CircleX class="size-4 stroke-[2.5]" />-->
+			<!--					Connection failed-->
+			<!--				{:else}-->
+			<!--					Check connection-->
+			<!--				{/if}-->
 
-<!--			</Button>-->
+			<!--			</Button>-->
 		</div>
-
 	</div>
 </div>
 
 <style>
-    .arched-title span {
-        display: inline-block;
-        transform-origin: center bottom;
-    }
+	.arched-title span {
+		display: inline-block;
+		transform-origin: center bottom;
+	}
 
-    .twinkle {
-        position: absolute;
-        border-radius: 9999px;
-        background: #ffffff;
-        box-shadow: 0 0 6px 1px rgba(191, 219, 254, 0.85);
-        opacity: 0.15;
-        animation-name: twinkle;
-        animation-timing-function: ease-in-out;
-        animation-iteration-count: infinite;
-        will-change: opacity, transform;
-    }
+	.twinkle {
+		position: absolute;
+		border-radius: 9999px;
+		background: #ffffff;
+		box-shadow: 0 0 6px 1px rgba(191, 219, 254, 0.85);
+		opacity: 0.15;
+		animation-name: twinkle;
+		animation-timing-function: ease-in-out;
+		animation-iteration-count: infinite;
+		will-change: opacity, transform;
+	}
 
-    @keyframes twinkle {
-        0%,
-        100% {
-            opacity: 0.12;
-            transform: scale(0.6);
-        }
-        50% {
-            opacity: 0.9;
-            transform: scale(1);
-        }
-    }
+	@keyframes twinkle {
+		0%,
+		100% {
+			opacity: 0.12;
+			transform: scale(0.6);
+		}
+		50% {
+			opacity: 0.9;
+			transform: scale(1);
+		}
+	}
 
-    @media (prefers-reduced-motion: reduce) {
-        .twinkle {
-            animation: none;
-            opacity: 0.5;
-        }
-    }
+	@media (prefers-reduced-motion: reduce) {
+		.twinkle {
+			animation: none;
+			opacity: 0.5;
+		}
+	}
 </style>

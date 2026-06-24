@@ -20,13 +20,12 @@
 	<InstanceGate />
 {:else if data?.configError}
 	{#if data.offline}
-		<StatusScreen
-			title={m.status_offline_title()}
-			description={m.status_offline_desc()}
-		/>
+		<StatusScreen title={m.status_offline_title()} description={m.status_offline_desc()} />
 	{:else}
 		<StatusScreen
-			title={m.status_unreachable_title({ name: getConfig()?.general?.mapName || getInstanceUrl() || m.diadem_map() })}
+			title={m.status_unreachable_title({
+				name: getConfig()?.general?.mapName || getInstanceUrl() || m.diadem_map()
+			})}
 			description={m.status_unreachable_desc()}
 		/>
 	{/if}

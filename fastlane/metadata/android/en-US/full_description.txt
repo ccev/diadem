@@ -1,0 +1,14 @@
+🌠 Diadem
+
+Diadem is a next-gen GO Map. Use this app to connect to any Diadem Map covering your area.
+
+Features:
+• Connect to any Diadem Map
+• Modern UI
+• Great performance
+• Easy to use
+• 100% open-source
+
+This app is purely a client, you will connect to a backend hosted by third-parties. They will be responsible for how they collect and store your data.
+
+Diadem is free software, licensed under the GNU AGPL-3.0. Source code: https://github.com/ccev/diadem
