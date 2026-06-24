@@ -13,6 +13,9 @@ const config = {
 		alias: {
 			"@": "src"
 		},
+		prerender: {
+			entries: isNative ? [] : ["*"]
+		},
 		files: {
 			serviceWorker: "src/lib/serviceWorker/index.ts"
 		},

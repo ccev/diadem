@@ -125,6 +125,8 @@ export const init: ServerInit = async () => {
 		};
 	});
 
+	if (process.env.BUILD_TARGET === "native") return;
+
 	const { initDiadem } = await import("@/lib/server/init");
 	await initDiadem();
 };
