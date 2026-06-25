@@ -31,6 +31,9 @@ importers:
       '@capacitor/geolocation':
         specifier: ^7
         version: 7.1.8(@capacitor/core@7.6.7)
+      '@capacitor/ios':
+        specifier: ^7
+        version: 7.6.7(@capacitor/core@7.6.7)
       '@capacitor/preferences':
         specifier: ^7
         version: 7.0.4(@capacitor/core@7.6.7)
@@ -330,6 +333,11 @@ packages:
     resolution: {integrity: sha512-x/rJieD2N2zlGvXFRD3ru4ArJWTwXAIYmyhfo5zg4F1DKGos7mCCOvIOSVMdfQmt14SCsmJeO9Qe8EtDGNGCrw==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/ios@7.6.7':
+    resolution: {integrity: sha512-ZXw1tO1orV6yDpkJyXxoerLC6S+UW8HFa280TX57Pgo4tPwuqWDF22vInjaolKmL/+k70R+zuRjul+hhiBWvlw==}
+    peerDependencies:
+      '@capacitor/core': ^7.6.0
 
   '@capacitor/preferences@7.0.4':
     resolution: {integrity: sha512-TJhkwaI2RCs/iDC9PjNczZV4h6JM4gUtTuKMeFdy0OwGgFEHf4TrtW2mFMc1TnPDalYQ91p9NT+UKgiJs9/xtg==}
@@ -4505,6 +4513,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.6.7
       '@capacitor/synapse': 1.0.4
+
+  '@capacitor/ios@7.6.7(@capacitor/core@7.6.7)':
+    dependencies:
+      '@capacitor/core': 7.6.7
 
   '@capacitor/preferences@7.0.4(@capacitor/core@7.6.7)':
     dependencies:

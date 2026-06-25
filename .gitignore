@@ -47,7 +47,6 @@ docker-compose.yml
 .vscode
 
 # Capacitor / native
-# android/ is committed (it holds native config: manifest permissions, deep-link
-# intent filters, icons). Its own android/.gitignore excludes build output.
-/ios
+# android/ and ios/ are committed (they hold native config: manifest permissions,
+# deep-link registration, icons). Their own .gitignore files exclude build output.
 .gradle
