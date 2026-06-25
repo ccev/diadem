@@ -1,0 +1,1 @@
+* Adds a GMS-free APK build target (for F-Droid and ungoogled devices)
