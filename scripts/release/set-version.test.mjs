@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeVersion, toSemver } from "./set-version.mjs";
+import { computeVersion, toSemver, bumpPbxproj } from "./set-version.mjs";
 
 // Minimal build.gradle snippet with the two version lines + a sibling line we
 // assert is left untouched.
@@ -60,5 +60,26 @@ describe("toSemver (package.json sync)", () => {
 	});
 	it("leaves a full semver untouched", () => {
 		expect(toSemver("1.2.3")).toBe("1.2.3");
+	});
+});
+
+describe("bumpPbxproj (iOS version sync)", () => {
+	const pbx = `
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 6;
+				MARKETING_VERSION = 0.6.0;
+				...Release config...
+				CURRENT_PROJECT_VERSION = 6;
+				MARKETING_VERSION = 0.6.0;
+	`;
+	it("rewrites every MARKETING_VERSION and CURRENT_PROJECT_VERSION occurrence", () => {
+		const out = bumpPbxproj(pbx, "0.3.0", 3);
+		expect(out).not.toMatch(/0\.6\.0/);
+		expect(out).not.toMatch(/CURRENT_PROJECT_VERSION = 6/);
+		expect(out.match(/MARKETING_VERSION = 0\.3\.0;/g)).toHaveLength(2);
+		expect(out.match(/CURRENT_PROJECT_VERSION = 3;/g)).toHaveLength(2);
+	});
+	it("leaves unrelated settings intact", () => {
+		expect(bumpPbxproj(pbx, "0.3.0", 3)).toContain("CODE_SIGN_STYLE = Manual;");
 	});
 });

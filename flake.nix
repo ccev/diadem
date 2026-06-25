@@ -31,6 +31,7 @@
             pkgs.jdk21
             pkgs.gradle
             androidSdk
+            pkgs.fdroidserver
           ];
 
           ANDROID_HOME = "${androidSdk}/libexec/android-sdk";

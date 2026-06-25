@@ -1,6 +1,7 @@
 {
 	"name": "diadem",
-	"version": "0.3.0",
+	"version": "0.6.0",
+	"license": "AGPL-3.0-only",
 	"type": "module",
 	"packageManager": "pnpm@9.15.9",
 	"scripts": {
@@ -17,7 +18,11 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"cap:sync": "cap sync",
-		"build:native": "BUILD_TARGET=native vite build && cap sync"
+		"cap:sync:android": "cap sync android",
+		"cap:sync:ios": "cap sync ios",
+		"build:native": "BUILD_TARGET=native vite build",
+		"build:native:android": "BUILD_TARGET=native vite build && cap sync android",
+		"build:native:ios": "BUILD_TARGET=native vite build && cap sync ios"
 	},
 	"devDependencies": {
 		"@capacitor/cli": "^7",
@@ -47,6 +52,7 @@
 		"@capacitor/clipboard": "^7",
 		"@capacitor/core": "^7",
 		"@capacitor/geolocation": "^7",
+		"@capacitor/ios": "^7",
 		"@capacitor/preferences": "^7",
 		"@capacitor/share": "^7",
 		"@capacitor/status-bar": "^7",

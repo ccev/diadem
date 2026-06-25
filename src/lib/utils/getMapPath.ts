@@ -1,4 +1,5 @@
 import { page } from "$app/state";
+import { isNative } from "@/lib/native/runtime";
 import { getConfig } from "@/lib/services/config/config";
 import type { ClientConfig } from "@/lib/services/config/configTypes";
 
@@ -12,5 +13,6 @@ export function getMapPath(config: ClientConfig, suffix: string = "") {
 }
 
 export function isOnMap() {
+	if (isNative()) return true;
 	return !getConfig().general.customHome || page.params.map === "map";
 }

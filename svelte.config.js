@@ -9,10 +9,12 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		outDir: isNative ? ".svelte-kit-native" : ".svelte-kit",
 		adapter: isNative ? adapterStatic({ fallback: "index.html", strict: false }) : adapterNode(),
 		alias: {
 			"@": "src"
+		},
+		prerender: {
+			entries: isNative ? [] : ["*"]
 		},
 		files: {
 			serviceWorker: "src/lib/serviceWorker/index.ts"

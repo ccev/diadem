@@ -28,7 +28,16 @@ MapLibre rendering is not used.)
 - Everything from the normal [installation](/guides/installation) (Node 22+, pnpm)
 - **JDK 21** and the **Android SDK** (Capacitor 7 builds against Java 21)
 - A connected Android device with USB debugging, or an emulator
-- **iOS only:** a Mac with Xcode and an Apple Developer account
+- **iOS only:** a Mac with Xcode, CocoaPods, and an Apple Developer account for App Store/TestFlight uploads
+
+On macOS, make sure the full Xcode install is selected, not only the Command
+Line Tools:
+
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+xcodebuild -version
+pod --version
+```
 
 ### NixOS
 
@@ -45,14 +54,16 @@ On other systems, install JDK 21 + the Android SDK yourself and set
 ## How a native build works
 
 ```
-BUILD_TARGET=native pnpm build     ->  static client in build/
-npx cap sync android               ->  copies build/ into the android/ project
-./gradlew assembleDebug            ->  produces the APK
+pnpm run build:native              ->  static client in build/
+pnpm run build:native:android      ->  build client and sync android/
+pnpm run build:native:ios          ->  build client and sync ios/
 ```
 
-:::note
-The native build uses a separate `.svelte-kit-native/` working directory, so you
-can safely build the app while a `pnpm run dev` server is running.
+After syncing, build the native project with Gradle, Xcode, or Capacitor.
+
+:::caution
+Native and web builds use the normal `.svelte-kit/` working directory. Avoid
+running a native build while `pnpm run dev` or another build is active.
 :::
 
 ## Development builds
@@ -68,12 +79,10 @@ Build a debug APK and run it on a connected device.
    nix develop
    ```
 
-2. Build the client, sync, and install the Android platform (first time only):
+2. Build the client and sync the Android platform:
 
    ```bash
-   BUILD_TARGET=native pnpm build
-   npx cap add android      # first time only
-   npx cap sync android
+   pnpm run build:native:android
    ```
 
 3. Build, install, and launch the debug APK:
@@ -91,8 +100,46 @@ Build a debug APK and run it on a connected device.
 
 </Steps>
 
-After changing client code, re-run `BUILD_TARGET=native pnpm build && npx cap sync android`
-before rebuilding.
+After changing client code, re-run `pnpm run build:native:android` before rebuilding.
+
+### iOS simulator builds
+
+Build and run the app on an iOS simulator from a Mac with Xcode installed.
+
+<Steps>
+
+1. Build the client and sync the iOS platform:
+
+   ```bash
+   pnpm run build:native:ios
+   ```
+
+2. Open the workspace in Xcode and run the **App** scheme on an iOS simulator:
+
+   ```bash
+   npx cap open ios
+   ```
+
+3. Or build from the CLI against an installed simulator runtime:
+
+   ```bash
+   xcrun simctl list devices available
+   xcodebuild -workspace ios/App/App.xcworkspace \
+     -scheme App \
+     -configuration Debug \
+     -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+     build
+   ```
+
+</Steps>
+
+After changing client code, re-run `pnpm run build:native:ios` before rebuilding.
+
+Test iOS deep links in the booted simulator with:
+
+```bash
+xcrun simctl openurl booted "diadem://pokemon/<id>"
+```
 
 ### Testing deep links and auth
 
@@ -138,8 +185,7 @@ Play requires a **signed App Bundle** (`.aab`).
 3. Build the release bundle:
 
    ```bash
-   BUILD_TARGET=native pnpm build
-   npx cap sync android
+   pnpm run build:native:android
    cd android && ./gradlew bundleRelease
    # -> android/app/build/outputs/bundle/release/app-release.aab
    ```
@@ -153,13 +199,13 @@ Upload the `.aab` to the Play Console.
 On a Mac:
 
 ```bash
-BUILD_TARGET=native pnpm build
-npx cap add ios        # first time only
-npx cap sync ios
+pnpm run build:native:ios
 npx cap open ios       # opens Xcode
 ```
 
-Set the signing team in Xcode, then **Archive** and upload to App Store Connect.
+Set the signing team and bundle id in Xcode, then **Archive** and upload to App
+Store Connect. The committed project registers the `diadem://` URL scheme for
+OAuth/deep links and includes the location usage description required by iOS.
 
 ## Branded builds and embedding an instance URL
 
@@ -167,8 +213,7 @@ To ship an app that always connects to one instance (hiding the gate and the
 **Profile → Instance** switcher), set `VITE_DIADEM_INSTANCE` at build time:
 
 ```bash
-BUILD_TARGET=native VITE_DIADEM_INSTANCE=https://map.example.com pnpm build
-npx cap sync android
+VITE_DIADEM_INSTANCE=https://map.example.com pnpm run build:native:android
 cd android && ./gradlew assembleDebug   # or bundleRelease
 ```
 
@@ -197,4 +242,5 @@ App id, name, icon and splash live in the native projects:
   (and `ios/App/App/Assets.xcassets/` on iOS), e.g. with
   [`@capacitor/assets`](https://github.com/ionic-team/capacitor-assets).
 - **Deep-link scheme:** the `diadem://` intent filter is in
-  `android/app/src/main/AndroidManifest.xml`.
+  `android/app/src/main/AndroidManifest.xml`; the iOS URL scheme is in
+  `ios/App/App/Info.plist`.

@@ -13,6 +13,8 @@ import type { LayoutLoad } from "./$types";
 export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, url }) => {
+	if (!browser) return;
+
 	// First run on native (no instance chosen yet): show the instance-gate screen.
 	if (isNative() && !getInstanceUrl()) {
 		return { needsInstanceGate: true };

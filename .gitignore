@@ -1,6 +1,4 @@
 node_modules
-.idea
-.zed
 config/*
 !config/*example*
 config.toml
@@ -10,6 +8,10 @@ static/custom/*
 src/routes/(custom)/*
 src/custom.css
 coverage/*
+
+# IDEs
+.idea
+.zed
 
 # Output
 .output
@@ -40,14 +42,15 @@ vite.config.ts.timestamp-*
 # Docker
 docker-compose.yml
 
-# LLM bullshit
+# LLMs
 .claude
+.opencode
 
 # VSCode stuff
 .vscode
 
 # Capacitor / native
-# android/ is committed (it holds native config: manifest permissions, deep-link
-# intent filters, icons). Its own android/.gitignore excludes build output.
-/ios
 .gradle
+
+# F-Droid repo cloned locally
+/fdroiddata

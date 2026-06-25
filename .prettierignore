@@ -23,6 +23,12 @@ android/**/build
 android/.gradle
 android/app/src/main/assets
 
+# iOS: Xcode/CocoaPods output and web assets Capacitor syncs in
+ios/App/build
+ios/App/Pods
+ios/App/App/public
+ios/DerivedData
+
 # Release artifacts
 *.apk
 *.aab
