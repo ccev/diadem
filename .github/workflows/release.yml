@@ -166,6 +166,17 @@ jobs:
           echo "apk=$apk" >> "$GITHUB_OUTPUT"
           echo "aab=$aab" >> "$GITHUB_OUTPUT"
 
+      - name: Build no-GMS APK
+        id: nogms
+        env:
+          V: ${{ steps.ver.outputs.version }}
+        run: |
+          pnpm run native:android:nogms
+          (cd android && ./gradlew assembleRelease)
+          apk="diadem-${V}-no-gms.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk "$apk"
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+
       - name: Commit version bump + changelog and tag
         env:
           V: ${{ steps.ver.outputs.version }}
@@ -198,7 +209,9 @@ jobs:
             - Download on [Google Play](https://play.google.com/store/apps/details?id=ee.malt.diadem)
             - Download on [F-Droid](https://f-droid.org/packages/ee.malt.diadem/)
             - Download the APK on [GitHub](https://github.com/ccev/diadem/releases/download/v${{ steps.ver.outputs.version }}/diadem-${{ steps.ver.outputs.version }}.apk)
-          files: ${{ steps.art.outputs.apk }}
+          files: |
+            ${{ steps.art.outputs.apk }}
+            ${{ steps.nogms.outputs.apk }}
 
       - name: Upload to Google Play
         if: steps.flags.outputs.play == 'true'

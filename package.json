@@ -22,7 +22,8 @@
 		"cap:sync:ios": "cap sync ios",
 		"build:native": "BUILD_TARGET=native vite build",
 		"build:native:android": "BUILD_TARGET=native vite build && cap sync android",
-		"build:native:ios": "BUILD_TARGET=native vite build && cap sync ios"
+		"build:native:ios": "BUILD_TARGET=native vite build && cap sync ios",
+		"native:android:nogms": "bash scripts/native/build-nogms.sh"
 	},
 	"devDependencies": {
 		"@capacitor/cli": "^7",

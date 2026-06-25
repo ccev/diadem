@@ -256,6 +256,11 @@ export function updateLocation(map: maplibre.Map | undefined, allowFollow: boole
 }
 
 async function nativeLocationHandler(map: maplibre.Map | undefined, allowFollow: boolean) {
+	// no-gms builds should use the web api
+	if (import.meta.env.VITE_NO_GMS) {
+		beginLocate(map, allowFollow);
+		return;
+	}
 	try {
 		const { Geolocation } = await import("@capacitor/geolocation");
 		let status = await Geolocation.checkPermissions();
