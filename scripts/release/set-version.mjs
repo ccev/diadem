@@ -8,10 +8,12 @@
 // Auto-bump increments the LAST dotted component of versionName and always
 // increments versionCode by 1 (Play/F-Droid require a strictly higher code).
 // In GitHub Actions it also writes old_version/version/version_code to GITHUB_OUTPUT.
-import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const GRADLE = "android/app/build.gradle";
+const PKG = "package.json";
+const PBXPROJ = "ios/App/App.xcodeproj/project.pbxproj";
 
 /**
  * Compute the next version from build.gradle source text. Pure (no I/O).
@@ -63,6 +65,21 @@ export function toSemver(versionName) {
 	return parts.join(".");
 }
 
+/**
+ * Sync the iOS Xcode project version. `MARKETING_VERSION` mirrors the semver
+ * name and `CURRENT_PROJECT_VERSION` mirrors the Android versionCode, so all
+ * platforms share one version. Both appear once per build config. Pure (no I/O).
+ * @param {string} src - project.pbxproj contents
+ * @param {string} semver - e.g. "0.3.0"
+ * @param {number} code - the shared build number (= Android versionCode)
+ * @returns {string}
+ */
+export function bumpPbxproj(src, semver, code) {
+	return src
+		.replace(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${semver};`)
+		.replace(/CURRENT_PROJECT_VERSION = [^;]+;/g, `CURRENT_PROJECT_VERSION = ${code};`);
+}
+
 function cli() {
 	const args = process.argv.slice(2);
 	const printOnly = args.includes("--print");
@@ -91,13 +108,21 @@ function cli() {
 
 	// Keep package.json's npm version in sync (semver-normalised, e.g. 0.3 -> 0.3.0).
 	// Minimal text replace so the rest of package.json formatting is untouched.
-	const PKG = "package.json";
 	const pkgVersion = toSemver(result.newName);
 	const pkgSrc = readFileSync(PKG, "utf8");
 	writeFileSync(PKG, pkgSrc.replace(/("version"\s*:\s*")[^"]*(")/, `$1${pkgVersion}$2`));
 
+	// Keep the iOS Xcode project in sync, if present.
+	let iosNote = "";
+	if (existsSync(PBXPROJ)) {
+		writeFileSync(PBXPROJ, bumpPbxproj(readFileSync(PBXPROJ, "utf8"), pkgVersion, result.newCode));
+		iosNote = `, iOS ${pkgVersion} (${result.newCode})`;
+	}
+
 	console.error(`old: ${result.oldName} (code ${result.oldCode})`);
-	console.error(`new: ${result.newName} (code ${result.newCode}), package.json ${pkgVersion}`);
+	console.error(
+		`new: ${result.newName} (code ${result.newCode}), package.json ${pkgVersion}${iosNote}`
+	);
 
 	if (process.env.GITHUB_OUTPUT) {
 		appendFileSync(

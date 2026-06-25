@@ -28,6 +28,10 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      version_code: ${{ steps.ver.outputs.version_code }}
+      ios: ${{ steps.flags.outputs.ios }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,9 +61,11 @@ jobs:
         env:
           PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           DISCORD: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ASC_KEY: ${{ secrets.ASC_API_KEY }}
         run: |
           [ -n "$PLAY" ] && echo "play=true" >> "$GITHUB_OUTPUT" || echo "play=false" >> "$GITHUB_OUTPUT"
           [ -n "$DISCORD" ] && echo "discord=true" >> "$GITHUB_OUTPUT" || echo "discord=false" >> "$GITHUB_OUTPUT"
+          [ -n "$ASC_KEY" ] && echo "ios=true" >> "$GITHUB_OUTPUT" || echo "ios=false" >> "$GITHUB_OUTPUT"
 
       - name: Bump version
         id: ver
@@ -134,7 +140,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add android/app/build.gradle package.json fastlane
+          git add android/app/build.gradle package.json fastlane ios/App/App.xcodeproj/project.pbxproj
           git commit -m "release: v${V}"
           git tag "v${V}"
           git push origin HEAD:${{ github.ref_name }}
@@ -223,3 +229,129 @@ jobs:
               }]
             }' > payload.json
           curl -fsS -H "Content-Type: application/json" -d @payload.json "$WEBHOOK_WITH_COMPONENTS"
+
+  # Required secrets (the job is skipped entirely if ASC_API_KEY is unset):
+  #   ASC_API_KEY     — contents of the App Store Connect API key .p8 file
+  #   ASC_KEY_ID      — that key's ID
+  #   ASC_ISSUER_ID   — the API key issuer ID
+  #   IOS_TEAM_ID     — Apple Developer team ID (e.g. LPDWSHTK9L)
+  # One-time: create the app in App Store Connect with bundle id ee.malt.diadem and
+  # do one manual TestFlight upload first (the API can't create the app).
+  ios:
+    needs: release
+    if: needs.release.outputs.ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.version }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare default config files
+        run: bash setup.sh
+
+      - name: Sync SvelteKit
+        run: pnpm exec svelte-kit sync
+
+      - name: Build web client
+        run: BUILD_TARGET=native pnpm build
+
+      - name: Capacitor sync (iOS — also runs pod install)
+        run: pnpm exec cap sync ios
+
+      - name: Write App Store Connect API key
+        id: asc
+        env:
+          ASC_API_KEY: ${{ secrets.ASC_API_KEY }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          dir="$RUNNER_TEMP/private_keys"
+          mkdir -p "$dir"
+          key="$dir/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s' "$ASC_API_KEY" > "$key"
+          echo "key_path=$key" >> "$GITHUB_OUTPUT"
+
+      - name: Archive
+        env:
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_PATH: ${{ steps.asc.outputs.key_path }}
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+            -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            archive
+
+      - name: Export IPA
+        env:
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_PATH: ${{ steps.asc.outputs.key_path }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>destination</key><string>export</string>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Stage IPA
+        id: ipa
+        env:
+          V: ${{ needs.release.outputs.version }}
+        run: |
+          ipa="diadem-${V}.ipa"
+          cp "$RUNNER_TEMP/export/App.ipa" "$ipa"
+          echo "ipa=$ipa" >> "$GITHUB_OUTPUT"
+
+      - name: Attach IPA to the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.release.outputs.version }}
+          append_body: true
+          body: |
+
+            ### iOS App
+
+            - Available on TestFlight, and on the App Store once published
+            - Download the IPA on [GitHub](https://github.com/ccev/diadem/releases/download/v${{ needs.release.outputs.version }}/${{ steps.ipa.outputs.ipa }}) (App Store build — install via a sideloading tool that re-signs it)
+          files: ${{ steps.ipa.outputs.ipa }}
+
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: ${{ runner.temp }}/export/App.ipa
+          issuer-id: ${{ secrets.ASC_ISSUER_ID }}
+          api-key-id: ${{ secrets.ASC_KEY_ID }}
+          api-private-key: ${{ secrets.ASC_API_KEY }}
