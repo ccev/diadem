@@ -1,6 +1,6 @@
 {
 	"name": "diadem",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"license": "AGPL-3.0-only",
 	"type": "module",
 	"packageManager": "pnpm@9.15.9",

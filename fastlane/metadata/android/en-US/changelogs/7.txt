@@ -1,0 +1,5 @@
+* Add a release pipeline and tagged releases
+* Add native iOS builds
+* Prepare for F-Droid releases
+* Introduce a Diadem logo
+* Minor fixes regarding native builds
