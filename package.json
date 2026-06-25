@@ -20,7 +20,7 @@
 		"cap:sync": "cap sync",
 		"cap:sync:android": "cap sync android",
 		"cap:sync:ios": "cap sync ios",
-		"build:native": "BUILD_TARGET=native vite build && cap sync",
+		"build:native": "BUILD_TARGET=native vite build",
 		"build:native:android": "BUILD_TARGET=native vite build && cap sync android",
 		"build:native:ios": "BUILD_TARGET=native vite build && cap sync ios"
 	},

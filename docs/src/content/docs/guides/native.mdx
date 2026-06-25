@@ -54,17 +54,16 @@ On other systems, install JDK 21 + the Android SDK yourself and set
 ## How a native build works
 
 ```
-BUILD_TARGET=native pnpm build     ->  static client in build/
-npx cap sync android               ->  copies build/ into the android/ project
-./gradlew assembleDebug            ->  produces the APK
+pnpm run build:native              ->  static client in build/
+pnpm run build:native:android      ->  build client and sync android/
+pnpm run build:native:ios          ->  build client and sync ios/
 ```
 
-Use `pnpm run build:native:android` or `pnpm run build:native:ios` to sync only
-one native platform.
+After syncing, build the native project with Gradle, Xcode, or Capacitor.
 
-:::note
-The native build uses a separate `.svelte-kit-native/` working directory, so you
-can safely build the app while a `pnpm run dev` server is running.
+:::caution
+Native and web builds use the normal `.svelte-kit/` working directory. Avoid
+running a native build while `pnpm run dev` or another build is active.
 :::
 
 ## Development builds
@@ -80,12 +79,10 @@ Build a debug APK and run it on a connected device.
    nix develop
    ```
 
-2. Build the client, sync, and install the Android platform (first time only):
+2. Build the client and sync the Android platform:
 
    ```bash
-   BUILD_TARGET=native pnpm build
-   npx cap add android      # first time only
-   npx cap sync android
+   pnpm run build:native:android
    ```
 
 3. Build, install, and launch the debug APK:
@@ -103,8 +100,7 @@ Build a debug APK and run it on a connected device.
 
 </Steps>
 
-After changing client code, re-run `BUILD_TARGET=native pnpm build && npx cap sync android`
-before rebuilding.
+After changing client code, re-run `pnpm run build:native:android` before rebuilding.
 
 ### iOS simulator builds
 
@@ -112,12 +108,10 @@ Build and run the app on an iOS simulator from a Mac with Xcode installed.
 
 <Steps>
 
-1. Build the client, sync, and install the iOS platform (first time only):
+1. Build the client and sync the iOS platform:
 
    ```bash
-   BUILD_TARGET=native pnpm build
-   npx cap add ios        # first time only
-   npx cap sync ios
+   pnpm run build:native:ios
    ```
 
 2. Open the workspace in Xcode and run the **App** scheme on an iOS simulator:
@@ -139,8 +133,7 @@ Build and run the app on an iOS simulator from a Mac with Xcode installed.
 
 </Steps>
 
-After changing client code, re-run `BUILD_TARGET=native pnpm build && npx cap sync ios`
-before rebuilding.
+After changing client code, re-run `pnpm run build:native:ios` before rebuilding.
 
 Test iOS deep links in the booted simulator with:
 
@@ -192,8 +185,7 @@ Play requires a **signed App Bundle** (`.aab`).
 3. Build the release bundle:
 
    ```bash
-   BUILD_TARGET=native pnpm build
-   npx cap sync android
+   pnpm run build:native:android
    cd android && ./gradlew bundleRelease
    # -> android/app/build/outputs/bundle/release/app-release.aab
    ```
@@ -207,8 +199,7 @@ Upload the `.aab` to the Play Console.
 On a Mac:
 
 ```bash
-BUILD_TARGET=native pnpm build
-npx cap sync ios
+pnpm run build:native:ios
 npx cap open ios       # opens Xcode
 ```
 
@@ -222,8 +213,7 @@ To ship an app that always connects to one instance (hiding the gate and the
 **Profile → Instance** switcher), set `VITE_DIADEM_INSTANCE` at build time:
 
 ```bash
-BUILD_TARGET=native VITE_DIADEM_INSTANCE=https://map.example.com pnpm build
-npx cap sync android
+VITE_DIADEM_INSTANCE=https://map.example.com pnpm run build:native:android
 cd android && ./gradlew assembleDebug   # or bundleRelease
 ```
 

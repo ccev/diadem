@@ -213,6 +213,9 @@ jobs:
           - Download the APK on [GitHub](<https://github.com/ccev/diadem/releases/download/v${V}/diadem-${V}.apk>)
           EOF
           )"
+          if ((${#body} > 1900)); then
+            body="${body:0:1900}"$'\n\n...'
+          fi
           jq -nc \
             --arg content "$body" \
             --arg gh "$GH_URL" \
@@ -344,9 +347,9 @@ jobs:
 
             ### iOS App
 
-            - Available on TestFlight, and on the App Store once published
-            - Download the IPA on [GitHub](https://github.com/ccev/diadem/releases/download/v${{ needs.release.outputs.version }}/${{ steps.ipa.outputs.ipa }}) (App Store build — install via a sideloading tool that re-signs it)
+            - Download the IPA on [GitHub](https://github.com/ccev/diadem/releases/download/v${{ needs.release.outputs.version }}/${{ steps.ipa.outputs.ipa }})
           files: ${{ steps.ipa.outputs.ipa }}
+          # TODO: add download link if available on app store
 
       - name: Upload to TestFlight
         uses: apple-actions/upload-testflight-build@v3
