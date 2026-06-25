@@ -8,8 +8,8 @@ on:
         required: false
         type: string
       changelog:
-        description: "Changelog (markdown)"
-        required: true
+        description: "Changelog override (blank = newest draft release body)"
+        required: false
         type: string
       play_track:
         description: "Google Play track"
@@ -73,15 +73,47 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
         run: node scripts/release/set-version.mjs "$INPUT_VERSION"
 
+      - name: Resolve changelog
+        id: changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_CHANGELOG: ${{ inputs.changelog }}
+        run: |
+          if [ -n "$INPUT_CHANGELOG" ]; then
+            changelog="$INPUT_CHANGELOG"
+            source="workflow input"
+          else
+            release_json="$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --jq 'map(select(.draft)) | sort_by(.updated_at) | last // {}')"
+            changelog="$(jq -r '.body // ""' <<< "$release_json")"
+            draft_id="$(jq -r '.id // ""' <<< "$release_json")"
+            source="draft release ${draft_id}"
+          fi
+
+          if [ -z "$changelog" ]; then
+            echo "No changelog input and no non-empty draft release body found" >&2
+            exit 1
+          fi
+
+          delimiter="CHANGELOG_EOF_$(date +%s%N)"
+          {
+            echo "body<<$delimiter"
+            printf '%s\n' "$changelog"
+            echo "$delimiter"
+            echo "source=$source"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Using changelog from $source"
+
       - name: Summary
         run: |
           echo "### Diadem release" >> "$GITHUB_STEP_SUMMARY"
           echo "- Previous: \`${{ steps.ver.outputs.old_version }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- New: \`${{ steps.ver.outputs.version }}\` (versionCode ${{ steps.ver.outputs.version_code }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Changelog: ${{ steps.changelog.outputs.source }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Write fastlane changelog
         env:
-          CHANGELOG: ${{ inputs.changelog }}
+          CHANGELOG: ${{ steps.changelog.outputs.body }}
           CODE: ${{ steps.ver.outputs.version_code }}
         run: |
           mkdir -p fastlane/metadata/android/en-US/changelogs
@@ -155,7 +187,7 @@ jobs:
           body: |
             ## Changelog
 
-            ${{ inputs.changelog }}
+            ${{ steps.changelog.outputs.body }}
 
             ## Installation
 
@@ -186,7 +218,7 @@ jobs:
         env:
           WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
           V: ${{ steps.ver.outputs.version }}
-          CHANGELOG: ${{ inputs.changelog }}
+          CHANGELOG: ${{ steps.changelog.outputs.body }}
           GH_URL: ${{ steps.gh.outputs.url }}
         run: |
           if [[ "$WEBHOOK" == *\?* ]]; then
