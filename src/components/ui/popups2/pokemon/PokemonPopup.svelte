@@ -5,16 +5,28 @@
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 	import {
 		Apple,
-		BicepsFlexed, ChartColumn,
+		BicepsFlexed,
+		ChartColumn,
 		ChartSpline,
 		ChevronDown,
-		CircleDot, CircleSmall,
+		CircleDot,
+		CircleSmall,
 		Clock,
-		Copy, Crown, Flower, HatGlasses,
-		Info, Mars, Navigation, Ruler,
+		Copy,
+		Crown,
+		Flower,
+		HatGlasses,
+		Info,
+		Mars,
+		Navigation,
+		Ruler,
 		Search,
-		Share2, Sparkles,
-		SquareChartGantt, Sword, Swords, Venus,
+		Share2,
+		Sparkles,
+		SquareChartGantt,
+		Sword,
+		Swords,
+		Venus,
 		X
 	} from "lucide-svelte";
 
@@ -32,6 +44,7 @@
 	}
 
 	let showIvBreakdown: boolean = $state(false);
+	let mapExpandedRadius: boolean = $state(false);
 
 	function pokemonName(data: Partial<PokemonData>) {
 		return mPokemon(data);
@@ -42,18 +55,29 @@
 	}
 
 	function canSeeIv(data: PokemonData) {
-		return data && isPointInAllowedArea(getUserDetails().permissions, Features.POKEMON_IV, data.lat, data.lon);
+		return (
+			data &&
+			isPointInAllowedArea(getUserDetails().permissions, Features.POKEMON_IV, data.lat, data.lon)
+		);
 	}
 </script>
 
 <script lang="ts">
 	import { Drawer } from "diadem-vaul-svelte";
 	import { getMapObjects } from "$lib/mapObjects/mapObjectsState.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "$lib/mapObjects/currentSelectedState.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "$lib/mapObjects/currentSelectedState.svelte";
 	import { useMetadata } from "$lib/ui/metadata.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
-	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
+	import {
+		backupShareUrl,
+		canNativeShare,
+		copyToClipboard,
+		hasClipboardWrite
+	} from "$lib/utils/device";
 	import Button from "@/components/ui/input/Button.svelte";
 
 	import { getRootOrigin } from "$lib/native/runtime";
@@ -64,24 +88,28 @@
 	import { mItem, mMove } from "$lib/services/ingameLocale";
 	import QuestIcon from "@/components/icons/QuestIcon.svelte";
 	import InvasionIcon from "@/components/icons/InvasionIcon.svelte";
-	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
-	import { getMapStyle, mapStyleFromId } from "$lib/utils/mapStyle";
+	import {
+		getPokemonStats as getMasterPokemonStats,
+		type PokemonStats
+	} from "$lib/features/masterStats.svelte";
 	import { getUserSettings } from "$lib/services/userSettings.svelte";
-	import { getConfig } from "$lib/services/config/config";
-	import { CircleLayer, GeoJSON, MapLibre, Marker } from "svelte-maplibre";
-	import { MapSourceId } from "$lib/map/layers";
-	import { point } from "@turf/turf";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
 	import { Features } from "$lib/utils/features";
 	import type { FilterPokemon } from "$lib/features/filters/filters";
-	import { POKEMON_MIN_RANK } from "$lib/constants";
-	import { formatNumber, formatNumberCompact, formatPercentage, formatRatio } from "$lib/utils/numberFormat";
+	import { POKEMON_MIN_RANK, RANGE_POKEMON } from "$lib/constants";
+	import {
+		formatNumber,
+		formatNumberCompact,
+		formatPercentage,
+		formatRatio
+	} from "$lib/utils/numberFormat";
 	import {
 		getBestRank,
-		getPokemonSize, getRarityLabel,
+		getPokemonSize,
+		getRarityLabel,
 		hasTimer,
 		League,
 		showGreat,
@@ -101,15 +129,18 @@
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import SimpleOverviewCard from "@/components/ui/popups2/common/SimpleOverviewCard.svelte";
 	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
-	import { ArrowLeftRight, RulerDimensionLine } from "lucide-svelte";
+	import { ArrowLeftRight, Expand, RulerDimensionLine } from "lucide-svelte";
 	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
 	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
 	import IvBreakdown from "@/components/ui/popups2/pokemon/IvBreakdown.svelte";
+	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
+	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
+	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 
 	let data: PokemonData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
-		(getCurrentSelectedData() as PokemonData)
+			(getCurrentSelectedData() as PokemonData)
 	);
 	useMetadata(() => ({ title: data ? mPokemon(data) : undefined }));
 
@@ -149,66 +180,48 @@
 {#snippet overview(d: MapData)}
 	{@const data = d as PokemonData}
 
-	<SimpleOverviewCard
-		title={hasTimer(data) ? m.popup_despawns() : m.popup_found()}
-	>
-		<Countdown
-			expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
-		/>
+	<SimpleOverviewCard title={hasTimer(data) ? m.popup_despawns() : m.popup_found()}>
+		<Countdown expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp} />
 	</SimpleOverviewCard>
 
 	{#if data.iv != null}
-		<SimpleOverviewCard
-			title={m.pogo_ivs()}
-		>
+		<SimpleOverviewCard title={m.pogo_ivs()}>
 			{@render coloredIvs(data.iv, 1)}
 		</SimpleOverviewCard>
 	{/if}
 
 	{#if showLittle(data)}
-		<SimpleOverviewCard
-			title={m.little_league()}
-		>
+		<SimpleOverviewCard title={m.little_league()}>
 			#{getBestRank(data, League.LITTLE)}
 		</SimpleOverviewCard>
 	{/if}
 
 	{#if showGreat(data)}
-		<SimpleOverviewCard
-			title={m.great_league()}
-		>
+		<SimpleOverviewCard title={m.great_league()}>
 			#{getBestRank(data, League.GREAT)}
 		</SimpleOverviewCard>
 	{/if}
 
 	{#if showUltra(data)}
-		<SimpleOverviewCard
-			title={m.ultra_league()}
-		>
+		<SimpleOverviewCard title={m.ultra_league()}>
 			#{getBestRank(data, League.ULTRA)}
 		</SimpleOverviewCard>
 	{/if}
 
 	{#if data.size && [1, 5].includes(data.size)}
-		<SimpleOverviewCard
-			title={m.pokemon_size()}
-		>
+		<SimpleOverviewCard title={m.pokemon_size()}>
 			{getPokemonSize(data.size)}
 		</SimpleOverviewCard>
 	{/if}
 
 	{#if data.cp != null}
-		<SimpleOverviewCard
-			title={m.cp()}
-		>
+		<SimpleOverviewCard title={m.cp()}>
 			{data.cp}
 		</SimpleOverviewCard>
 	{/if}
 
 	{#if data.level != null}
-		<SimpleOverviewCard
-			title={m.level()}
-		>
+		<SimpleOverviewCard title={m.level()}>
 			{data.level}
 		</SimpleOverviewCard>
 	{/if}
@@ -231,16 +244,24 @@
 
 		<div class="flex justify-between text-xl mt-3 items-center gap-4">
 			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full">
+				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full"
+			>
 				<Clock class="size-4" />
 				<p>
-					{timestampToLocalTime(hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp, false, true)}
+					{timestampToLocalTime(
+						hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp,
+						false,
+						true
+					)}
 				</p>
 			</div>
 
 			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full">
-				<Countdown expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp} />
+				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full"
+			>
+				<Countdown
+					expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
+				/>
 			</div>
 		</div>
 
@@ -255,11 +276,7 @@
 		<!--Special seen types-->
 		{#if data.seen_type?.includes("lure")}
 			<BasicMainCard class="flex gap-4 font-medium items-center justify-center">
-				<img
-					class="w-8 shrink-0"
-					src={resize(getIconItem(501), { width: 64 })}
-					alt={mItem(501)}
-				/>
+				<img class="w-8 shrink-0" src={resize(getIconItem(501), { width: 64 })} alt={mItem(501)} />
 				{m.notice_lure({ name: speciesName(data) })}
 			</BasicMainCard>
 		{:else if data.seen_type?.includes("tappable")}
@@ -313,7 +330,7 @@
 			<BasicMainCard class="flex gap-4 font-medium items-center justify-center">
 				<ImagePopup
 					class="size-10 shrink-0"
-					src={resize(getIconPokemon(displayPokemon), { width: 64 })}
+					src={getIconPokemon(displayPokemon)}
 					alt={mPokemon(displayPokemon)}
 				/>
 				{m.notice_disguise({
@@ -331,10 +348,7 @@
 		{/if}
 	</div>
 
-	<TitledMainSection
-		Icon={SquareChartGantt}
-		title={m.values()}
-	>
+	<TitledMainSection Icon={SquareChartGantt} title={m.values()}>
 		<StatsMainCard>
 			{#if data.iv != null}
 				<div>
@@ -342,7 +356,7 @@
 						variant=""
 						size=""
 						class="flex text-base! font-normal! justify-between! w-full"
-						onclick={() => showIvBreakdown = !showIvBreakdown}
+						onclick={() => (showIvBreakdown = !showIvBreakdown)}
 					>
 						<p class="text-muted-foreground">
 							{m.iv_product_label_long()}
@@ -366,32 +380,25 @@
 			{/if}
 
 			{#if data.cp}
-				<StatsMainCardEntry
-					name={m.cp()}
-					value={data.cp}
-				/>
+				<StatsMainCardEntry name={m.cp()} value={data.cp} />
 			{/if}
 			{#if data.level}
-				<StatsMainCardEntry
-					name={m.level()}
-					value={data.level}
-				/>
+				<StatsMainCardEntry name={m.level()} value={data.level} />
 			{/if}
 		</StatsMainCard>
 	</TitledMainSection>
 
 	<!--Shiny / Rarity-->
-	<TitledMainSection
-		Icon={ChartColumn}
-		title={m.stats()}
-	>
+	<TitledMainSection Icon={ChartColumn} title={m.stats()}>
 		{#snippet rightPart()}
 			<p class="text-sm text-muted-foreground">
 				{#if stats}
 					{m.last_x_days({ days: formatNumber(stats.total.days) })} ·
 				{/if}
 				{#if statsEntry}
-					{m.total_seen()}: {formatNumberCompact(statsEntry?.shiny?.total ?? statsEntry?.spawns?.count)}
+					{m.total_seen()}: {formatNumberCompact(
+						statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
+					)}
 				{/if}
 			</p>
 		{/snippet}
@@ -402,19 +409,18 @@
 			{:else}
 				<StatsMainCardEntry
 					Icon={Sparkles}
-					name={statsEntry.shiny && statsEntry.shiny.shinies > 0 ? m.shiny_rate() : m.contest_shiny()}
-					value={statsEntry.shiny && statsEntry.shiny.shinies > 0 ? formatRatio(statsEntry.shiny.shinies, statsEntry.shiny.total) : m.no_shinies_seen()}
+					name={statsEntry.shiny && statsEntry.shiny.shinies > 0
+						? m.shiny_rate()
+						: m.contest_shiny()}
+					value={statsEntry.shiny && statsEntry.shiny.shinies > 0
+						? formatRatio(statsEntry.shiny.shinies, statsEntry.shiny.total)
+						: m.no_shinies_seen()}
 				/>
-				<StatsMainCardEntry
-					Icon={Crown}
-					name={m.rarity()}
-				>
+				<StatsMainCardEntry Icon={Crown} name={m.rarity()}>
 					{#snippet value()}
 						{#if statsEntry.spawns && statsEntry.spawns.count > 0}
 							<p class="flex gap-2">
-								<span
-									class="text-muted-foreground"
-								>
+								<span class="text-muted-foreground">
 									{formatRatio(statsEntry.spawns.count, stats.total.count)}
 								</span>
 								<span class="text-muted-foreground">·</span>
@@ -429,6 +435,75 @@
 		</StatsMainCard>
 	</TitledMainSection>
 
+	<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>
+		<MainAccessMap
+			lat={data.lat}
+			lon={data.lon}
+			type={MapObjectType.POKEMON}
+			uiconType="pokemon"
+			radius={mapExpandedRadius ? 80 : 40}
+			zoom={mapExpandedRadius ? 15.5 : 16.5}
+			icon={resize(getIconPokemon(data), { width: 64 })}
+		/>
+		<Button
+			variant="secondary"
+			class="mt-2"
+			onclick={() => mapExpandedRadius = !mapExpandedRadius}
+		>
+			<Expand class="size-3.5" />
+			{m.popup_action_spacial_rend()}
+		</Button>
+	</TitledMainSection>
+
+	<TitledMainSection Icon={Info} title={m.about_this_pokemon({ name: speciesName(data) })}>
+		<StatsMainCard>
+			<StatsMainCardEntry
+				Icon={data.gender === 1 ? Mars : data.gender === 2 ? Venus : CircleSmall}
+				name={m.pokemon_gender()}
+			>
+				{#snippet value()}
+					{#if data.gender != null}
+						{#if data.gender === 1}
+							{m.pokemon_gender_male()}
+						{:else if data.gender === 2}
+							{m.pokemon_gender_female()}
+						{:else}
+							{m.pokemon_gender_neutral()}
+						{/if}
+					{:else}
+						<span class="text-muted-foreground">
+							{m.unknown()}
+						</span>
+					{/if}
+				{/snippet}
+			</StatsMainCardEntry>
+			<StatsMainCardEntry
+				Icon={Ruler}
+				name={m.pokemon_size()}
+				value={data.size != null ? getPokemonSize(data.size) : m.unknown()}
+			/>
+			<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
+				{#snippet value()}
+					<p class="flex gap-2">
+						{#if data.move_1 && data.move_2}
+							<span>{mMove(data.move_1)}</span>
+							<span>·</span>
+							<span>{mMove(data.move_2)}</span>
+						{:else}
+							{m.unknown()}
+						{/if}
+					</p>
+				{/snippet}
+			</StatsMainCardEntry>
+
+			<UpdatedTimes
+				firstSeen={data.first_seen_timestamp}
+				updated={Math.abs((data?.first_seen_timestamp ?? 0) - (data?.updated ?? 0)) > 5
+					? data.updated
+					: undefined}
+			/>
+		</StatsMainCard>
+	</TitledMainSection>
 {/snippet}
 
 {#snippet coloredIvs(iv: number, decimals: number)}
@@ -460,14 +535,11 @@
 					<ImagePopup alt={mPokemon(data)} src={getIconPokemon(data)} class="size-14" />
 				</div>
 				<div>
-					<p class="text-muted-foreground text-sm font-medium">
-						Wild Pokemon
-					</p>
+					<p class="text-muted-foreground text-sm font-medium">Wild Pokemon</p>
 					<h1 class="font-semibold text-xl">
 						{mPokemon(data)}
 					</h1>
 				</div>
-
 
 				<div class="absolute right-2 top-3 flex gap-1.5">
 					{#if canNativeShare({ url: getShareUrl() })}
@@ -505,7 +577,6 @@
 			</div>
 
 			{#if activeSnapPoint !== 1}
-
 				<div class="mt-4 w-full">
 					<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4">
 						<div class="border bg-accent border-border rounded-lg px-4 py-2">
@@ -516,9 +587,7 @@
 									{m.popup_found()}
 								{/if}
 							</p>
-							<p
-								class="font-semibold text-xl"
-							>
+							<p class="font-semibold text-xl">
 								<Countdown
 									expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
 								/>
@@ -548,9 +617,7 @@
 								<p class="flex items-center gap-1 text-muted-foreground text-sm font-semibold">
 									{m.little_league()}
 								</p>
-								<p
-									class="font-semibold text-xl"
-								>
+								<p class="font-semibold text-xl">
 									#{getBestRank(data, League.LITTLE)}
 								</p>
 							</div>
@@ -561,9 +628,7 @@
 								<p class="flex items-center gap-1 text-muted-foreground text-sm font-semibold">
 									{m.great_league()}
 								</p>
-								<p
-									class="font-semibold text-xl"
-								>
+								<p class="font-semibold text-xl">
 									#{getBestRank(data, League.GREAT)}
 								</p>
 							</div>
@@ -574,9 +639,7 @@
 								<p class="flex items-center gap-1 text-muted-foreground text-sm font-semibold">
 									{m.ultra_league()}
 								</p>
-								<p
-									class="font-semibold text-xl"
-								>
+								<p class="font-semibold text-xl">
 									#{getBestRank(data, League.ULTRA)}
 								</p>
 							</div>
@@ -587,9 +650,7 @@
 								<p class="flex items-center gap-1 text-muted-foreground text-sm font-semibold">
 									{m.cp()}
 								</p>
-								<p
-									class="font-semibold text-xl"
-								>
+								<p class="font-semibold text-xl">
 									{data.cp}
 								</p>
 							{/if}
@@ -600,9 +661,7 @@
 								<p class="flex items-center gap-1 text-muted-foreground text-sm font-semibold">
 									{m.level()}
 								</p>
-								<p
-									class="font-semibold text-xl"
-								>
+								<p class="font-semibold text-xl">
 									{data.level}
 								</p>
 							{/if}
@@ -619,7 +678,10 @@
 						Icon={Navigation}
 						label={m.popup_navigate()}
 						tag="a"
-						href={getMapsUrl(new Coords(data.lat, data.lon), getShareTitle(getCurrentSelectedData()))}
+						href={getMapsUrl(
+							new Coords(data.lat, data.lon),
+							getShareTitle(getCurrentSelectedData())
+						)}
 						target="_blank"
 					/>
 				{:else}
@@ -634,13 +696,12 @@
 				<!--				</h2>-->
 
 				<div class="bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg">
-					<p class="font-semibold ml-1">
-						Disappear Time
-					</p>
+					<p class="font-semibold ml-1">Disappear Time</p>
 
 					<div class="flex justify-between text-xl mt-4 items-center gap-4">
 						<div
-							class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full">
+							class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full"
+						>
 							<Clock class="size-4" />
 							<p>
 								{timestampToLocalTime(data.expire_timestamp, false, true)}
@@ -648,12 +709,11 @@
 						</div>
 
 						<div
-							class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full">
+							class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full"
+						>
 							<!--							<Clock class="size-4" />-->
 							<Countdown expireTime={data.expire_timestamp} />
 						</div>
-
-
 					</div>
 				</div>
 
@@ -664,9 +724,7 @@
 								<PartlyCloudy class="size-3.5" />
 								Weather Boosted
 							</div>
-							<div class="text-muted-foreground">
-								Partly Cloudy
-							</div>
+							<div class="text-muted-foreground">Partly Cloudy</div>
 						</div>
 
 						<div class="flex justify-between">
@@ -674,9 +732,7 @@
 								<Ruler class="size-3.5" />
 								Large
 							</div>
-							<div class="text-muted-foreground">
-								XXL
-							</div>
+							<div class="text-muted-foreground">XXL</div>
 						</div>
 
 						<div class="flex justify-between">
@@ -721,8 +777,6 @@
 							</div>
 						</div>
 					</div>
-
-
 				</div>
 
 				<h2 class="mb-2 flex items-center gap-1.5 font-semibold">
@@ -730,16 +784,16 @@
 					Values
 				</h2>
 
-				<div class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg">
+				<div
+					class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg"
+				>
 					{#if data.iv || data.iv === 0}
 						<div>
 							<button
 								class="flex justify-between w-full"
-								onclick={() => showIvBreakdown = !showIvBreakdown}
+								onclick={() => (showIvBreakdown = !showIvBreakdown)}
 							>
-								<p class="text-muted-foreground">
-									Total IV
-								</p>
+								<p class="text-muted-foreground">Total IV</p>
 								<div class="flex items-center">
 									<ChevronDown class="size-3.5 mr-2" />
 									<p
@@ -756,9 +810,7 @@
 							{#if showIvBreakdown}
 								<div class="mt-3 mb-4 space-y-1" transition:slide={{ duration: 110 }}>
 									<div class="flex justify-between">
-										<p class="text-muted-foreground">
-											Attack
-										</p>
+										<p class="text-muted-foreground">Attack</p>
 										<div class="flex items-center">
 											<Meter.Root
 												min={0}
@@ -775,12 +827,9 @@
 												{data.atk_iv}
 											</p>
 										</div>
-
 									</div>
 									<div class="flex justify-between">
-										<p class="text-muted-foreground">
-											Defense
-										</p>
+										<p class="text-muted-foreground">Defense</p>
 										<div class="flex items-center">
 											<Meter.Root
 												min={0}
@@ -797,12 +846,9 @@
 												{data.def_iv}
 											</p>
 										</div>
-
 									</div>
 									<div class="flex justify-between">
-										<p class="text-muted-foreground">
-											Stamina
-										</p>
+										<p class="text-muted-foreground">Stamina</p>
 										<div class="flex items-center">
 											<Meter.Root
 												min={0}
@@ -819,7 +865,6 @@
 												{data.sta_iv}
 											</p>
 										</div>
-
 									</div>
 								</div>
 							{/if}
@@ -865,7 +910,9 @@
 				</div>
 
 				<div>
-					<div class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg">
+					<div
+						class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg"
+					>
 						{#if stats && stats.entry}
 							{@const entry = stats.entry}
 
@@ -892,8 +939,9 @@
 								</div>
 								{#if entry.spawns && entry.spawns.count > 0}
 									<p class="flex gap-2">
-										<span
-											class="text-muted-foreground">{formatRatio(entry.spawns.count, stats.total.count)}</span>
+										<span class="text-muted-foreground"
+											>{formatRatio(entry.spawns.count, stats.total.count)}</span
+										>
 										<span class="text-muted-foreground">·</span>
 										<span>{getRarityLabel(entry.spawns.count, stats.total.count)}</span>
 									</p>
@@ -912,44 +960,22 @@
 					Access this {mPokemon({ pokemon_id: data.pokemon_id })}
 				</h2>
 
-				<MapLibre
-					center={[data.lon, data.lat]}
-					zoom={17}
-					style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
-					class="w-full h-46 border border-border rounded-lg"
-					attributionControl={false}
-					minZoom={getConfig().general.minZoom}
-					maxZoom={getConfig().general.maxZoom}
-				>
-					<Marker lngLat={[data.lon, data.lat]} class="size-8">
-						<ImagePopup alt={mPokemon(data)} src={getIconPokemon(data)} />
-					</Marker>
-
-					<GeoJSON
-						id={MapSourceId.MAP_OBJECTS}
-						data={point([data.lon, data.lat])}
-					>
-						<CircleLayer
-							id="changelater3h298"
-							paint={{
-							"circle-radius": 60,
-							"circle-color": "rgba(200, 200, 200, 0.1)",
-							"circle-stroke-width": 1,
-							"circle-stroke-color": "rgba(200, 200, 200, 0.3)"
-						}}
-							eventsIfTopMost={true}
-						/>
-					</GeoJSON>
-
-
-				</MapLibre>
+				<MainAccessMap
+					lat={data.lat}
+					lon={data.lon}
+					type={MapObjectType.POKEMON}
+					icon={getIconPokemon(data)}
+					radius={RANGE_POKEMON}
+				/>
 
 				<h2 class="mb-2 flex items-center gap-1.5 font-semibold">
 					<Info class="size-3.5" />
 					About this {mPokemon({ pokemon_id: data.pokemon_id })}
 				</h2>
 
-				<div class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg">
+				<div
+					class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg"
+				>
 					<div class="flex justify-between">
 						<div class="flex gap-1.5 text-muted-foreground items-center">
 							{#if data.gender === 1}
@@ -970,9 +996,7 @@
 								{m.pokemon_gender_neutral()}
 							{/if}
 						{:else}
-							<span class="text-muted-foreground">
-								unknown
-							</span>
+							<span class="text-muted-foreground"> unknown </span>
 						{/if}
 					</div>
 
@@ -984,9 +1008,7 @@
 						{#if data.size != null}
 							{getPokemonSize(data.size)}
 						{:else}
-							<span class="text-muted-foreground">
-								unknown
-							</span>
+							<span class="text-muted-foreground"> unknown </span>
 						{/if}
 					</div>
 
@@ -1001,12 +1023,9 @@
 								<span>·</span>
 								<span>{mMove(data.move_2)}</span>
 							{:else}
-								<span class="text-muted-foreground">
-									unknown
-								</span>
+								<span class="text-muted-foreground"> unknown </span>
 							{/if}
 						</p>
-
 					</div>
 					<div class="flex justify-between">
 						<div class="flex gap-1.5 text-muted-foreground items-center">
@@ -1024,29 +1043,27 @@
 					</div>
 				</div>
 			</div>
-
-
 		</Drawer.Content>
 	</Drawer.Portal>
 </Drawer.Root>
 
 <style>
-    :global(.drawer-full) {
-        /* Only inset for the status bar when the drawer is expanded to the top;
+	:global(.drawer-full) {
+		/* Only inset for the status bar when the drawer is expanded to the top;
 		   at the partial snap point it sits below the status bar already. */
-        padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
+		padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
 
-        & .content {
-            overflow-y: auto;
-        }
-    }
+		& .content {
+			overflow-y: auto;
+		}
+	}
 
-    :global(.drawer-partial) {
-        border-top-left-radius: calc(var(--radius) + 4px);
-        border-top-right-radius: calc(var(--radius) + 4px);
+	:global(.drawer-partial) {
+		border-top-left-radius: calc(var(--radius) + 4px);
+		border-top-right-radius: calc(var(--radius) + 4px);
 
-        & .content {
-            overflow-y: hidden;
-        }
-    }
+		& .content {
+			overflow-y: hidden;
+		}
+	}
 </style>

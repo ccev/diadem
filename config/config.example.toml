@@ -218,12 +218,21 @@ id = "positron"
 name = "Positron"
 url = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
 default = "light"
+theme = "light"
 
 [[client.mapStyles]]
 id = "dark"
 name = "Dark"
 url = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 default = "dark"
+theme = "dark"
+
+[[client.mapStyles]]
+id = "satellite"
+name = "Satellite"
+url = "https://tiles.example.com/satellite/{z}/{x}/{y}.png"
+theme = "satellite"
+raster = { tileSize = 256, min = 0, max = 20 }
 
 [[client.mapStyles]]
 id = "voyager"

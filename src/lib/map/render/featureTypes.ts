@@ -76,7 +76,7 @@ export function getIconFeature(
 	properties: MinMapObjectIconProperties
 ): MapObjectIconFeature {
 	let imageUrl = properties.imageUrl;
-	if (!imageUrl.startsWith("data:") && imageUrl) {
+	if (!imageUrl.startsWith("data:") && imageUrl && !imageUrl.includes("w=")) {
 		imageUrl = resize(imageUrl, { width: 64 });
 	}
 

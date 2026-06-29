@@ -91,6 +91,7 @@ export type MapStyle = {
 	name: string;
 	url: string;
 	default?: "dark" | "light";
+	theme?: "dark" | "light" | "satellite";
 	colors?: "dark" | "light";
 	raster?: {
 		min: number;

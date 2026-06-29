@@ -560,5 +560,8 @@
 	"stamina": "HP",
 	"stats_unavailable": "Stats unavailable for this {name}",
 	"no_shinies_seen": "None seen",
-	"unavailable": "Unavailable"
+	"unavailable": "Unavailable",
+	"about_this_pokemon": "About this {name}",
+	"access_this_pokemon": "Access this {name}",
+	"unknown": "Unknown"
 }
