@@ -39,17 +39,18 @@
 	let selectedMapId = $derived(selectedData?.mapId);
 </script>
 
-<div class="flex px-4 gap-1.5 w-full overflow-x-auto pb-2">
+<div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">
+<!--	<PopupButton-->
+<!--		variant="default"-->
+<!--		Icon={Plus}-->
+<!--		label={m.popup_show_details()}-->
+<!--		IconActive={Minus}-->
+<!--		labelActive={m.popup_hide_details()}-->
+<!--		active={isPopupExpanded(selectedType)}-->
+<!--		onclick={() => togglePopupExpanded(selectedType)}-->
+<!--	/>-->
 	<PopupButton
 		variant="default"
-		Icon={Plus}
-		label={m.popup_show_details()}
-		IconActive={Minus}
-		labelActive={m.popup_hide_details()}
-		active={isPopupExpanded(selectedType)}
-		onclick={() => togglePopupExpanded(selectedType)}
-	/>
-	<PopupButton
 		Icon={Navigation}
 		label={m.popup_navigate()}
 		tag="a"

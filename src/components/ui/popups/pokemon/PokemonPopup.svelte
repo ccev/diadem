@@ -98,10 +98,7 @@
 </script>
 
 {#snippet timer()}
-	{@const timerData = data as {
-		expire_timestamp: number | null | undefined;
-		expire_timestamp_verified: number | boolean | null | undefined;
-	}}
+	{@const timerData = data as Pick<PokemonData, "expire_timestamp" | "expire_timestamp_verified">}
 	<IconValue Icon={hasTimer(timerData) ? Clock : ClockAlert}>
 		<span>
 			{#if hasTimer(timerData)}

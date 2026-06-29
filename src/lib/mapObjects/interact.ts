@@ -37,8 +37,8 @@ export function updateCurrentPath() {
 	setCurrentPath();
 }
 
-export function getCurrentPath() {
-	const data = getCurrentSelectedData();
+export function getCurrentPath(options: { data?: MapData } | undefined = undefined) {
+	const data = options?.data ?? getCurrentSelectedData();
 	if (data) {
 		return `/${data.type}/${data.id}`;
 	}

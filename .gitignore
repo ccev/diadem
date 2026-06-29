@@ -54,3 +54,6 @@ docker-compose.yml
 
 # F-Droid repo cloned locally
 /fdroiddata
+
+# Local dependency clones
+/diadem-vaul-svelte

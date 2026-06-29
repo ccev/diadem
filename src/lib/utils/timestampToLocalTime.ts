@@ -9,10 +9,14 @@ export function timestampToLocalTime(
 	if (!timestamp) return "";
 
 	const date = new Date(timestamp * 1000);
-	const timeString = date.toLocaleTimeString(undefined, {
+
+	const options: Intl.DateTimeFormatOptions = {
 		hour: "2-digit",
 		minute: "2-digit"
-	});
+	}
+	if (showSeconds) options.second = "2-digit"
+
+	const timeString = date.toLocaleTimeString(undefined, options);
 
 	if (showDate) {
 		const today = new Date();
