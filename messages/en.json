@@ -563,5 +563,6 @@
 	"unavailable": "Unavailable",
 	"about_this_pokemon": "About this {name}",
 	"access_this_pokemon": "Access this {name}",
-	"unknown": "Unknown"
+	"unknown": "Unknown",
+	"normal": "Normal"
 }

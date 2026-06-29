@@ -75,12 +75,12 @@
 					</div>
 				{/if}
 
-				<div class="absolute right-2 top-3 flex gap-1.5">
+				<div class="absolute right-2 top-2 flex gap-3">
 					{#if canNativeShare({ url: getShareUrl() })}
 						<Button
 							variant="ghost"
 							size=""
-							class="rounded-full size-8 p-2"
+							class="rounded-full p-2 size-9 bg-accent/50"
 							title={m.popup_share()}
 							onclick={() => backupShareUrl(getShareUrl())}
 						>
@@ -90,7 +90,7 @@
 						<Button
 							variant="ghost"
 							size=""
-							class="rounded-full size-8 p-2"
+							class="rounded-full p-2 size-9 bg-accent/50"
 							title={m.copy_link()}
 							onclick={() => copyToClipboard(getShareUrl())}
 						>
@@ -101,7 +101,7 @@
 					<Button
 						variant="ghost"
 						size=""
-						class="rounded-full p-2 size-8"
+						class="rounded-full p-2 size-9 bg-accent/50"
 						title={m.close()}
 						onclick={() => setCurrentSelectedData(null)}
 					>
