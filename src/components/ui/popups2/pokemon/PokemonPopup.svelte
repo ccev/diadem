@@ -270,7 +270,11 @@
 
 		{#if !hasTimer(data)}
 			<p class="text-muted-foreground mt-4 text-sm px-1">
-				{m.unknown_spawnpoint_notice()}
+				{#if data.seen_type?.includes("nearby")}
+					{m.unknown_spawnpoint_notice_nearby()}
+				{:else}
+					{m.unknown_spawnpoint_notice()}
+				{/if}
 			</p>
 		{/if}
 	</BasicMainCard>
@@ -454,33 +458,35 @@
 		</StatsMainCard>
 	</TitledMainSection>
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>
-		<div class="relative">
-			<MainAccessMap
-				lat={data.lat}
-				lon={data.lon}
-				type={MapObjectType.POKEMON}
-				uiconType="pokemon"
-				radius={mapExpandedRadius ? 80 : 40}
-				zoom={mapExpandedRadius ? 15.5 : 16.5}
-				icon={resize(getIconPokemon(data), { width: 64 })}
-			/>
-			<Button
-				variant="outline"
-				size="sm"
-				class="mt-2 absolute top-3 right-3 bg-accent! hover:bg-background! active:bg-background!"
-				onclick={() => mapExpandedRadius = !mapExpandedRadius}
-			>
-				{#if mapExpandedRadius}
-					<Shrink class="size-3.5" />
-					{m.normal()}
-				{:else}
-					<Expand class="size-3.5" />
-					{m.popup_action_spacial_rend()}
-				{/if}
-			</Button>
-		</div>
-	</TitledMainSection>
+	{#if !data.seen_type?.includes("nearby")}
+		<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>
+			<div class="relative">
+				<MainAccessMap
+					lat={data.lat}
+					lon={data.lon}
+					type={MapObjectType.POKEMON}
+					uiconType="pokemon"
+					radius={mapExpandedRadius ? 80 : 40}
+					zoom={mapExpandedRadius ? 15.5 : 16.5}
+					icon={resize(getIconPokemon(data), { width: 64 })}
+				/>
+				<Button
+					variant="outline"
+					size="sm"
+					class="mt-2 absolute top-3 right-3 bg-accent! hover:bg-background! active:bg-background!"
+					onclick={() => mapExpandedRadius = !mapExpandedRadius}
+				>
+					{#if mapExpandedRadius}
+						<Shrink class="size-3.5" />
+						{m.normal()}
+					{:else}
+						<Expand class="size-3.5" />
+						{m.popup_action_spacial_rend()}
+					{/if}
+				</Button>
+			</div>
+		</TitledMainSection>
+	{/if}
 
 	<TitledMainSection Icon={Info} title={m.about_this_pokemon({ name: speciesName(data) })}>
 		<StatsMainCard>

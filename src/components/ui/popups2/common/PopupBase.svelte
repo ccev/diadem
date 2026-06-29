@@ -110,8 +110,7 @@
 				</div>
 			</div>
 
-			{#if activeSnapPoint !== 1}
-
+			<!--{#if activeSnapPoint !== 1}-->
 				<div class="mt-4 w-full">
 					<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4">
 						{#if props && data}
@@ -119,7 +118,7 @@
 						{/if}
 					</div>
 				</div>
-			{/if}
+			<!--{/if}-->
 
 			<div class="mt-5">
 				{#if activeSnapPoint === 1}

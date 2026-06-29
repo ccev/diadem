@@ -546,6 +546,7 @@
 	"wild_pokemon": "Wild Pokémon",
 	"disappear_time": "Disappear Time",
 	"unknown_spawnpoint_notice": "This spawnpoint's disappear time is not yet known. It will be learned over time",
+	"unknown_spawnpoint_notice_nearby": "This Pokémon's disappear time is unknown",
 	"notice_xxl": "It's huge! This {name} is XXL",
 	"notice_xxs": "It's tiny! This {name} is XXS",
 	"notice_lure": "This {name} comes from a Lure Module",
