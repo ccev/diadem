@@ -555,6 +555,11 @@
 	"notice_nearby": "This {name} was seen nearby. Its location is estimated and details are unknown",
 	"notice_wild": "This {name} has not yet been scanned completely. Its details are unknown",
 	"notice_mighty": "This is a Mighty Pokémon! Its stats are much better than usual, but it's extra difficult to catch",
+	"notice_hundo": "Hundo! This {name} has 100% IV",
+	"notice_nundo": "Nundo! This {name} has 0% IV",
+	"notice_extremely_rare": "What a sight! {name} are extremely rare at 1 in {chance}",
+	"notice_pvp_rank": "Cool! This {name} performs great in {league}",
+	"listed_and": "{part1} and {part2}",
 	"values": "Values",
 	"attack": "Attack",
 	"defense": "Defense",
@@ -564,6 +569,8 @@
 	"unavailable": "Unavailable",
 	"about_this_pokemon": "About this {name}",
 	"access_this_pokemon": "Access this {name}",
+	"matching_filtersets": "Matching Filters",
 	"unknown": "Unknown",
-	"normal": "Normal"
+	"normal": "Normal",
+	"filters_dont_match_pokemon": "None of your filters match this Pokémon"
 }

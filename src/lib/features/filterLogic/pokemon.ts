@@ -10,6 +10,44 @@ function inRange(value: number | null | undefined, range: MinMax): boolean {
 	return value >= range.min && value <= range.max;
 }
 
+function pokemonMatchesFilterset(data: PokemonData, filterset: FiltersetPokemon): boolean {
+	if (
+		filterset.pokemon &&
+		!filterset.pokemon.find((p) => p.pokemon_id === data.pokemon_id && p.form === data.form)
+	) {
+		return false;
+	}
+
+	if (filterset.iv && !inRange(data.iv, filterset.iv)) return false;
+	if (filterset.cp && !inRange(data.cp, filterset.cp)) return false;
+	if (filterset.ivAtk && !inRange(data.atk_iv, filterset.ivAtk)) return false;
+	if (filterset.ivDef && !inRange(data.def_iv, filterset.ivDef)) return false;
+	if (filterset.ivSta && !inRange(data.sta_iv, filterset.ivSta)) return false;
+	if (filterset.level && !inRange(data.level, filterset.level)) return false;
+	if (filterset.size && !inRange(data.size, filterset.size)) return false;
+
+	if (filterset.gender && data.gender != null && !filterset.gender.includes(data.gender)) {
+		return false;
+	}
+
+	if (filterset.pvpRankLittle) {
+		const rank = getBestRank(data, League.LITTLE);
+		if (!rank || !inRange(rank, filterset.pvpRankLittle)) return false;
+	}
+
+	if (filterset.pvpRankGreat) {
+		const rank = getBestRank(data, League.GREAT);
+		if (!rank || !inRange(rank, filterset.pvpRankGreat)) return false;
+	}
+
+	if (filterset.pvpRankUltra) {
+		const rank = getBestRank(data, League.ULTRA);
+		if (!rank || !inRange(rank, filterset.pvpRankUltra)) return false;
+	}
+
+	return true;
+}
+
 export function matchPokemonFilterset(
 	data: PokemonData,
 	pokemonFilter: FilterPokemon = getUserSettings().filters.pokemon
@@ -20,42 +58,18 @@ export function matchPokemonFilterset(
 	if (filtersets.length === 0) return;
 
 	for (const filterset of filtersets) {
-		if (
-			filterset.pokemon &&
-			!filterset.pokemon.find((p) => p.pokemon_id === data.pokemon_id && p.form === data.form)
-		) {
-			continue;
-		}
-
-		if (filterset.iv && !inRange(data.iv, filterset.iv)) continue;
-		if (filterset.cp && !inRange(data.cp, filterset.cp)) continue;
-		if (filterset.ivAtk && !inRange(data.atk_iv, filterset.ivAtk)) continue;
-		if (filterset.ivDef && !inRange(data.def_iv, filterset.ivDef)) continue;
-		if (filterset.ivSta && !inRange(data.sta_iv, filterset.ivSta)) continue;
-		if (filterset.level && !inRange(data.level, filterset.level)) continue;
-		if (filterset.size && !inRange(data.size, filterset.size)) continue;
-
-		if (filterset.gender && data.gender != null && !filterset.gender.includes(data.gender)) {
-			continue;
-		}
-
-		if (filterset.pvpRankLittle) {
-			const rank = getBestRank(data, League.LITTLE);
-			if (!rank || !inRange(rank, filterset.pvpRankLittle)) continue;
-		}
-
-		if (filterset.pvpRankGreat) {
-			const rank = getBestRank(data, League.GREAT);
-			if (!rank || !inRange(rank, filterset.pvpRankGreat)) continue;
-		}
-
-		if (filterset.pvpRankUltra) {
-			const rank = getBestRank(data, League.ULTRA);
-			if (!rank || !inRange(rank, filterset.pvpRankUltra)) continue;
-		}
-
-		return filterset;
+		if (pokemonMatchesFilterset(data, filterset)) return filterset;
 	}
+}
+
+export function matchPokemonFiltersets(
+	data: PokemonData,
+	pokemonFilter: FilterPokemon = getUserSettings().filters.pokemon
+): FiltersetPokemon[] {
+	if (!pokemonFilter.enabled) return [];
+	return pokemonFilter.filters.filter(
+		(filterset) => filterset.enabled && pokemonMatchesFilterset(data, filterset)
+	);
 }
 
 export function shouldDisplayPokemon(

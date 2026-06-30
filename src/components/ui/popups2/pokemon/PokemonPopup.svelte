@@ -1,35 +1,71 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBase.svelte";
 	import * as m from "$lib/paraglide/messages";
-	import { mPokemon } from "$lib/services/ingameLocale";
+	import { mItem, mMove, mPokemon, mWeather } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
+	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
+	import Button from "@/components/ui/input/Button.svelte";
+	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
+	import Countdown from "@/components/utils/Countdown.svelte";
+	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
+	import SimpleOverviewCard from "@/components/ui/popups2/common/SimpleOverviewCard.svelte";
+	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
+	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
+	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
+	import IvBreakdown from "@/components/ui/popups2/pokemon/IvBreakdown.svelte";
+	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
+	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
+	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
+	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
+	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
+	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
+	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
+	import { Features } from "$lib/utils/features";
+	import { formatNumber, formatNumberCompact, formatPercentage, formatRatio } from "$lib/utils/numberFormat";
 	import {
-		Apple,
+		getBestRank,
+		getPokemonSize,
+		getRarityLabel,
+		hasTimer,
+		League,
+		showGreat,
+		showLittle,
+		showUltra
+	} from "$lib/utils/pokemonUtils";
+	import { slide } from "svelte/transition";
+	import { resize } from "$lib/services/assets";
+	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
+	import { getWeatherIcon } from "$lib/utils/weatherIcons";
+	import { getUserSettings } from "$lib/services/userSettings.svelte";
+	import { matchPokemonFiltersets } from "$lib/features/filterLogic/pokemon";
+	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
+	import {
+		ArrowLeftRight,
 		BicepsFlexed,
 		ChartColumn,
-		ChartSpline,
 		ChevronDown,
 		CircleDot,
 		CircleSmall,
 		Clock,
-		Copy,
 		Crown,
-		Flower,
-		HatGlasses,
+		Expand,
 		Info,
 		Mars,
-		Navigation,
 		Ruler,
-		Search,
-		Share2,
+		RulerDimensionLine,
+		Shrink,
 		Sparkles,
+		Spotlight,
 		SquareChartGantt,
-		Sword,
 		Swords,
-		Venus,
-		X
+		Trash2,
+		Venus
 	} from "lucide-svelte";
+	import { getMapObjects } from "$lib/mapObjects/mapObjectsState.svelte";
+	import { getCurrentSelectedData, getCurrentSelectedMapId } from "$lib/mapObjects/currentSelectedState.svelte";
+	import { useMetadata } from "$lib/ui/metadata.svelte";
 
+	// @ts-expect-error Svelte snippets are declared below and exported at compile time.
 	export { image, overview, main };
 
 	export function getPopupPropsPokemon(data: MapData) {
@@ -37,8 +73,11 @@
 		return {
 			type: m.wild_pokemon(),
 			title: pokemonName(data),
+			// @ts-expect-error Svelte snippets are declared below and available at compile time.
 			image,
+			// @ts-expect-error Svelte snippets are declared below and available at compile time.
 			overview,
+			// @ts-expect-error Svelte snippets are declared below and available at compile time.
 			main
 		} as MapObjectPopupProps;
 	}
@@ -60,116 +99,39 @@
 			isPointInAllowedArea(getUserDetails().permissions, Features.POKEMON_IV, data.lat, data.lon)
 		);
 	}
+
+	function getPvpNotice(data: PokemonData) {
+		const leagues = [
+			{ league: m.little_league(), rank: getBestRank(data, League.LITTLE) },
+			{ league: m.great_league(), rank: getBestRank(data, League.GREAT) },
+			{ league: m.ultra_league(), rank: getBestRank(data, League.ULTRA) }
+		]
+			.filter(({ rank }) => rank > 0 && rank <= 5)
+			.map(({ league }) => league)
+
+		if (leagues.length === 0) return undefined
+		if (leagues.length === 1) return leagues[0]
+
+		return m.listed_and({
+			part1: leagues.slice(0, leagues.length - 1).join(", "),
+			part2: leagues[leagues.length - 1]
+		})
+
+	}
+
 </script>
 
 <script lang="ts">
-	import { Drawer } from "diadem-vaul-svelte";
-	import { getMapObjects } from "$lib/mapObjects/mapObjectsState.svelte";
-	import {
-		getCurrentSelectedData,
-		getCurrentSelectedMapId
-	} from "$lib/mapObjects/currentSelectedState.svelte";
-	import { useMetadata } from "$lib/ui/metadata.svelte";
-	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
-	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
-	import {
-		backupShareUrl,
-		canNativeShare,
-		copyToClipboard,
-		hasClipboardWrite
-	} from "$lib/utils/device";
-	import Button from "@/components/ui/input/Button.svelte";
 
-	import { getRootOrigin } from "$lib/native/runtime";
-	import { getCurrentPath } from "$lib/mapObjects/interact";
-	import { getLocale } from "$lib/paraglide/runtime";
-	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
-	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
-	import { mItem, mMove, mWeather } from "$lib/services/ingameLocale";
-	import QuestIcon from "@/components/icons/QuestIcon.svelte";
-	import InvasionIcon from "@/components/icons/InvasionIcon.svelte";
-	import {
-		getPokemonStats as getMasterPokemonStats,
-		type PokemonStats
-	} from "$lib/features/masterStats.svelte";
-	import { getUserSettings } from "$lib/services/userSettings.svelte";
-	import Countdown from "@/components/utils/Countdown.svelte";
-	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
-	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
-	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
-	import { Features } from "$lib/utils/features";
-	import type { FilterPokemon } from "$lib/features/filters/filters";
-	import { POKEMON_MIN_RANK, RANGE_POKEMON } from "$lib/constants";
-	import {
-		formatDecimal,
-		formatNumber,
-		formatNumberCompact,
-		formatPercentage,
-		formatRatio
-	} from "$lib/utils/numberFormat";
-	import {
-		getBestRank,
-		getPokemonSize,
-		getRarityLabel,
-		hasTimer,
-		League,
-		showGreat,
-		showLittle,
-		showUltra
-	} from "$lib/utils/pokemonUtils";
-	import { Meter } from "bits-ui";
-	import { slide, fly } from "svelte/transition";
-	import { getLoadingProgress } from "$lib/services/initialLoad.svelte";
-	import PartlyCloudy from "@/components/icons/weather/PartlyCloudy.svelte";
-	import { resize } from "$lib/services/assets";
-	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { getMapsUrl } from "$lib/utils/mapUrl";
-	import { Coords } from "$lib/utils/coordinates";
-	import { getShareTitle } from "$lib/features/shareTexts";
-	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
-	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
-	import SimpleOverviewCard from "@/components/ui/popups2/common/SimpleOverviewCard.svelte";
-	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
-	import { ArrowLeftRight, Expand, RulerDimensionLine, Shrink } from "lucide-svelte";
-	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
-	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
-	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
-	import IvBreakdown from "@/components/ui/popups2/pokemon/IvBreakdown.svelte";
-	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
-	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
-	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
-	import { getWeatherIcon } from "$lib/utils/weatherIcons";
+
+	import { SlidersHorizontal } from "lucide-svelte";
+	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 
 	let data: PokemonData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
 		(getCurrentSelectedData() as PokemonData)
 	);
 	useMetadata(() => ({ title: data ? mPokemon(data) : undefined }));
-
-	const snapPoints = ["250px", 1];
-	let activeSnapPoint: number | string = $state(snapPoints[0]);
-
-	function getMaxPvpRank(
-		filterAttribute: "pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra",
-		filter: FilterPokemon
-	) {
-		const ranks = [POKEMON_MIN_RANK];
-		const filters = filter.filters.filter((f) => f.enabled);
-		for (const filter of filters) {
-			if (filter[filterAttribute]) {
-				ranks.push(filter[filterAttribute].max);
-			}
-		}
-		return Math.max(...ranks);
-	}
-
-	let maxLittleRank = $derived(getMaxPvpRank("pvpRankLittle", getUserSettings().filters.pokemon));
-	let maxGreatRank = $derived(getMaxPvpRank("pvpRankGreat", getUserSettings().filters.pokemon));
-	let maxUltraRank = $derived(getMaxPvpRank("pvpRankUltra", getUserSettings().filters.pokemon));
-
-	function getShareUrl() {
-		return getRootOrigin() + getCurrentPath() + "?lang=" + getLocale();
-	}
 </script>
 
 {#snippet image(d: MapData)}
@@ -234,6 +196,7 @@
 	{@const stats: PokemonStats | undefined = getMasterPokemonStats(data.pokemon_id, data.form ?? 0)}
 	{@const statsEntry = stats?.entry}
 	{@const WeatherIcon = getWeatherIcon(data.weather)}
+	{@const pvpNotice = getPvpNotice(data)}
 
 	<!-- Disappear Time-->
 	<BasicMainCard>
@@ -310,8 +273,8 @@
 
 		<!--XXL/XXS notice-->
 		{#if data.size && [1, 5].includes(data.size)}
-			<BasicMainCard class="flex gap-2 font-medium items-center justify-center">
-				<RulerDimensionLine class="size-4" />
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<RulerDimensionLine class="size-4 mt-1" />
 				{#if data.size === 1}
 					{m.notice_xxs({ name: speciesName(data) })}
 				{:else if data.size === 5}
@@ -325,6 +288,43 @@
 			<BasicMainCard class="flex gap-2 justify-center">
 				<BicepsFlexed class="size-4 mt-0.5" />
 				{m.notice_mighty()}
+			</BasicMainCard>
+		{/if}
+
+		<!--IV notices-->
+		{#if data.iv != null && data.iv > 99}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<span>
+					💯
+				</span>
+				{m.notice_hundo({ name: speciesName(data) })}
+			</BasicMainCard>
+		{:else if data.iv === 0}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<Trash2 class="size-4 mt-1" />
+				{m.notice_nundo({ name: speciesName(data) })}
+			</BasicMainCard>
+		{/if}
+
+		<!--Rarity notice-->
+		{#if stats && statsEntry && statsEntry.spawns && statsEntry.spawns.count / stats.total.count <= 0.000001}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<Spotlight class="size-4 mt-1" />
+				{m.notice_extremely_rare({
+					name: speciesName(data),
+					chance: formatNumber(stats.total.count / statsEntry.spawns.count, { maximumFractionDigits: 0 })
+				})}
+			</BasicMainCard>
+		{/if}
+
+		<!--PVP rank notices-->
+		{#if pvpNotice}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<Swords class="size-4 mt-1" />
+				{m.notice_pvp_rank({
+					name: speciesName(data),
+					league: pvpNotice
+				})}
 			</BasicMainCard>
 		{/if}
 
@@ -379,9 +379,9 @@
 						</Button>
 						{#if showIvBreakdown}
 							<div class="mt-4 mb-5 space-y-1" transition:slide={{ duration: 110 }}>
-								<IvBreakdown name={m.attack()} value={data.atk_iv} />
-								<IvBreakdown name={m.defense()} value={data.def_iv} />
-								<IvBreakdown name={m.stamina()} value={data.sta_iv} />
+								<IvBreakdown name={m.attack()} value={data.atk_iv ?? 0} />
+								<IvBreakdown name={m.defense()} value={data.def_iv ?? 0} />
+								<IvBreakdown name={m.stamina()} value={data.sta_iv ?? 0} />
 							</div>
 						{/if}
 					</div>
@@ -393,9 +393,7 @@
 				{#if data.level}
 					<StatsMainCardEntry name={m.level()} value={data.level} />
 				{/if}
-				<StatsMainCardEntry
-					name={m.weather_boost()}
-				>
+				<StatsMainCardEntry name={m.weather_boost()}>
 					{#snippet value()}
 						{#if data.weather}
 							<div class="flex items-center gap-1.5">
@@ -450,7 +448,7 @@
 								<span>{getRarityLabel(statsEntry.spawns.count, stats.total.count)}</span>
 							</p>
 						{:else}
-							{m.unvailable()}
+							{m.unavailable()}
 						{/if}
 					{/snippet}
 				</StatsMainCardEntry>
@@ -474,7 +472,7 @@
 					variant="outline"
 					size="sm"
 					class="mt-2 absolute top-3 right-3 bg-accent! hover:bg-background! active:bg-background!"
-					onclick={() => mapExpandedRadius = !mapExpandedRadius}
+					onclick={() => (mapExpandedRadius = !mapExpandedRadius)}
 				>
 					{#if mapExpandedRadius}
 						<Shrink class="size-3.5" />
@@ -485,6 +483,29 @@
 					{/if}
 				</Button>
 			</div>
+		</TitledMainSection>
+	{/if}
+
+	{#if getUserSettings().filters.pokemon.enabled && getUserSettings().filters.pokemon.filters.find(f => f.enabled)}
+		<TitledMainSection Icon={SlidersHorizontal} title={m.matching_filtersets()}>
+			<BasicMainCard>
+				{@const filtersets = matchPokemonFiltersets(data)}
+
+				{#if filtersets.length === 0}
+					<p>
+						{m.filters_dont_match_pokemon()}
+					</p>
+				{/if}
+				<div class="flex flex-wrap gap-3">
+					{#each filtersets as filterset}
+						<div class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md">
+							<FiltersetIcon {filterset} size={4} />
+							{filterTitle(filterset)}
+						</div>
+					{/each}
+				</div>
+
+			</BasicMainCard>
 		</TitledMainSection>
 	{/if}
 

@@ -134,7 +134,10 @@ export function getActivePokemonFilter() {
 	return getUserSettings().filters.pokemon;
 }
 
-export function hasTimer(data: Pick<PokemonData, "expire_timestamp" | "expire_timestamp_verified">) {
+export function hasTimer(data: {
+	expire_timestamp?: number | null;
+	expire_timestamp_verified?: boolean | number | null;
+}) {
 	return data.expire_timestamp && data.expire_timestamp_verified;
 }
 

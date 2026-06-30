@@ -12,7 +12,9 @@
 	import TappablePopup from "@/components/ui/popups/tappable/TappablePopup.svelte";
 	import NewPokestopPopup from "@/components/ui/popups/NewPokestopPopup.svelte";
 	import NewPokemonPopup from "@/components/ui/popups/NewPokemonPopup.svelte";
-	import PopupBase, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBase.svelte";
+	import PopupBase, {
+		type MapObjectPopupProps
+	} from "@/components/ui/popups2/common/PopupBase.svelte";
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
 	import * as m from "$lib/paraglide/messages";
@@ -29,22 +31,24 @@
 		[MapObjectType.TAPPABLE]: TappablePopup
 	};
 
-	const propMap: Record<MapObjectType, (data: MapData) => MapObjectPopupProps> = {
-		[MapObjectType.POKEMON]: getPopupPropsPokemon,
-	}
+	const propMap: Partial<Record<MapObjectType, (data: MapData) => MapObjectPopupProps>> = {
+		[MapObjectType.POKEMON]: getPopupPropsPokemon
+	};
 
-	let data = $derived(getCurrentSelectedData())
-	let snapshotData: MapData | undefined = $state(undefined)
+	let data = $derived(getCurrentSelectedData());
+	let snapshotData: MapData | undefined = $state(undefined);
 	watch(
 		() => data,
 		() => {
 			if (data) {
-				snapshotData = $state.snapshot(data)
+				snapshotData = $state.snapshot(data);
 			}
 		}
-	)
+	);
 
-	let props = $derived(snapshotData ? propMap[(snapshotData as MapData).type](snapshotData as MapData) : undefined)
+	let props = $derived(
+		snapshotData ? propMap[(snapshotData as MapData).type]?.(snapshotData as MapData) : undefined
+	);
 </script>
 
 <PopupBase
