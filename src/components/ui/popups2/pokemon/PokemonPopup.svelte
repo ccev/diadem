@@ -1,5 +1,5 @@
 <script module lang="ts">
-	import type { MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBase.svelte";
+	import type { MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseDrawer.svelte";
 	import * as m from "$lib/paraglide/messages";
 	import { mItem, mMove, mPokemon, mWeather } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";

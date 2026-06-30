@@ -88,10 +88,12 @@
 			{/if}
 		{/snippet}
 		{#snippet desktopRight()}
-			{#if !isSearchViewActive()}
-				<Fabs {map} allowFollow={true} />
-			{/if}
-			<PopupContainer />
+			<div class="w-full flex">
+				{#if !isSearchViewActive()}
+					<Fabs {map} allowFollow={true} />
+				{/if}
+				<PopupContainer alwaysExpanded={true} />
+			</div>
 		{/snippet}
 
 		{#snippet mobileBottom()}
