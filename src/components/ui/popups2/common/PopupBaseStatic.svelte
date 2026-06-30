@@ -1,6 +1,7 @@
 <script module lang="ts">
 	import type { Snippet } from "svelte";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
+	import { useMetadata } from "$lib/ui/metadata.svelte";
 
 	export type MapObjectPopupProps = {
 		type: string,
@@ -38,6 +39,8 @@
 		props: MapObjectPopupProps | undefined,
 		onlyShowNavigationButton: boolean
 	} = $props();
+
+	useMetadata(() => ({ title: props ? props.title : undefined }));
 
 	function getShareUrl() {
 		return getRootOrigin() + getCurrentPath({ data }) + "?lang=" + getLocale();

@@ -54,6 +54,7 @@
 		Ruler,
 		RulerDimensionLine,
 		Shrink,
+		SlidersHorizontal,
 		Sparkles,
 		Spotlight,
 		SquareChartGantt,
@@ -61,9 +62,7 @@
 		Trash2,
 		Venus
 	} from "lucide-svelte";
-	import { getMapObjects } from "$lib/mapObjects/mapObjectsState.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "$lib/mapObjects/currentSelectedState.svelte";
-	import { useMetadata } from "$lib/ui/metadata.svelte";
+	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 
 	// @ts-expect-error Svelte snippets are declared below and exported at compile time.
 	export { image, overview, main };
@@ -118,20 +117,6 @@
 		})
 
 	}
-
-</script>
-
-<script lang="ts">
-
-
-	import { SlidersHorizontal } from "lucide-svelte";
-	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
-
-	let data: PokemonData = $derived(
-		(getMapObjects()[getCurrentSelectedMapId()] as PokemonData) ??
-		(getCurrentSelectedData() as PokemonData)
-	);
-	useMetadata(() => ({ title: data ? mPokemon(data) : undefined }));
 </script>
 
 {#snippet image(d: MapData)}
