@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import { X } from "lucide-svelte";
+	import { X } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filterColors } from "@/lib/features/filters/colors";

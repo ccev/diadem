@@ -3,7 +3,7 @@
 	import type { Snippet } from "svelte";
 	import type { LucideIcon } from "@/lib/types/lucide";
 	import * as m from "@/lib/paraglide/messages";
-	import { Image } from "lucide-svelte";
+	import { Image } from "@lucide/svelte";
 
 	let {
 		title,

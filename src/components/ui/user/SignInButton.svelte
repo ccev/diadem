@@ -2,7 +2,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { startLogin } from "@/lib/services/user/login";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
-	import { X } from "lucide-svelte";
+	import { X } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";

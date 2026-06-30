@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { X } from "lucide-svelte";
+	import { X } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
 

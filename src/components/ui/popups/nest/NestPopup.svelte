@@ -10,7 +10,7 @@
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte";
 	import { m } from "@/lib/paraglide/messages";
-	import { CircleSlash2, Clock, MapPinned, RotateCcw, Trees, VectorSquare } from "lucide-svelte";
+	import { CircleSlash2, Clock, MapPinned, RotateCcw, Trees, VectorSquare } from "@lucide/svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { formatDecimal, formatNumber, formatPercentage } from "@/lib/utils/numberFormat";

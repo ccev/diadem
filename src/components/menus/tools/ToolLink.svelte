@@ -2,7 +2,7 @@
 	import { getDefaultMapStyle } from "@/lib/services/themeMode";
 	import { MapObjectLayerId } from "@/lib/map/layers";
 	import { FillLayer, GeoJSON, MapLibre } from "svelte-maplibre";
-	import { Map } from "lucide-svelte";
+	import { Map } from "@lucide/svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import type { LucideIcon } from "@/lib/types/lucide";

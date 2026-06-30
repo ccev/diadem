@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "lucide-svelte";
+	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "@lucide/svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import * as m from "@/lib/paraglide/messages";

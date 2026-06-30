@@ -4,7 +4,7 @@
 	import { pokemonSizes } from "@/lib/utils/pokemonUtils";
 	import ToggleGroup from "@/components/ui/input/selectgroup/ToggleGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
-	import { CircleSmall, Mars, Venus } from "lucide-svelte";
+	import { CircleSmall, Mars, Venus } from "@lucide/svelte";
 	import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 

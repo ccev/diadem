@@ -9,7 +9,7 @@
 	import { resize } from "@/lib/services/assets";
 	import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 	import { League } from "@/lib/utils/pokemonUtils";
-	import { ChartSpline, Gauge, Info, Trophy } from "lucide-svelte";
+	import { ChartSpline, Gauge, Info, Trophy } from "@lucide/svelte";
 	import { slide } from "svelte/transition";
 	import Separator from "@/components/ui/Separator.svelte";
 	import CompactPvpEntry from "@/components/ui/popups/pokemon/CompactPvpEntry.svelte";

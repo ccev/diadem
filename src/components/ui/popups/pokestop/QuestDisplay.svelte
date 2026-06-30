@@ -6,7 +6,7 @@
 	import * as m from "@/lib/paraglide/messages";
 	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { Clock } from "lucide-svelte";
+	import { Clock } from "@lucide/svelte";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { getRewardText } from "@/lib/utils/pokestopUtils";

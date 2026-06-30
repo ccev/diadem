@@ -2,7 +2,7 @@
 	import { getToastText, closeToast } from "@/lib/ui/toasts.svelte.js";
 	import { slide } from "svelte/transition";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { X } from "lucide-svelte";
+	import { X } from "@lucide/svelte";
 </script>
 
 <div class="top-safe-inset-top flex w-full justify-center px-2 pointer-events-none fixed z-100">

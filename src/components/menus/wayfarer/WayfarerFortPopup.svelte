@@ -4,7 +4,7 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import { getIconGym, getIconPokestop } from "@/lib/services/uicons.svelte";
-	import { BadgeEuro, MapPin } from "lucide-svelte";
+	import { BadgeEuro, MapPin } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 

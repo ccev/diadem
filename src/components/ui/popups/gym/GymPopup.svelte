@@ -8,7 +8,7 @@
 	import { mMove, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-	import { ClockAlert, Trees, UserRoundCheck, UsersRound } from "lucide-svelte";
+	import { ClockAlert, Trees, UserRoundCheck, UsersRound } from "@lucide/svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import GymDefenderOverview from "@/components/ui/popups/gym/GymDefenderOverview.svelte";

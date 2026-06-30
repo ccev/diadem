@@ -2,7 +2,7 @@
 	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import Search from "@/components/ui/search/Search.svelte";
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
-	import { Search as SearchIcon } from "lucide-svelte";
+	import { Search as SearchIcon } from "@lucide/svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";

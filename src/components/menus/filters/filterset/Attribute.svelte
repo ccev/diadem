@@ -1,6 +1,6 @@
 <script lang="ts" generics="T extends AnyFilterset">
 	import Button from "@/components/ui/input/Button.svelte";
-	import { ChevronRight } from "lucide-svelte";
+	import { ChevronRight } from "@lucide/svelte";
 	import type { Snippet } from "svelte";
 	import {
 		filtersetPageEditAttribute,

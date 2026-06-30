@@ -2,13 +2,13 @@
 	import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 	import Button from "@/components/ui/input/Button.svelte";
 	import LucideIcon from "@/components/utils/LucideIcon.svelte";
-	import { ChevronRight } from "lucide-svelte";
+	import { ChevronRight } from "@lucide/svelte";
 	import { selectCoverageMapArea } from "@/lib/features/coverageMap.svelte";
 	import { SvelteSet } from "svelte/reactivity";
 	import { slide } from "svelte/transition";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { m } from "@/lib/paraglide/messages";
-	import type * as icons from "lucide-svelte";
+	import type * as icons from "@lucide/svelte";
 
 	let expandedAreas: Set<number> = new SvelteSet();
 

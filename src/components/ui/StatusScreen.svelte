@@ -2,7 +2,7 @@
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { Unplug } from "lucide-svelte";
+	import { Unplug } from "@lucide/svelte";
 	import {
 		getInstanceUrl,
 		isInstanceUrlBaked,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Image } from "lucide-svelte";
+	import { Image } from "@lucide/svelte";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import IconSelect from "@/components/menus/profile/IconSelect.svelte";

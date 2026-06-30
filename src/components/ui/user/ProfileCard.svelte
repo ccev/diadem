@@ -7,7 +7,7 @@
 	// noinspection ES6UnusedImports
 	import { Avatar } from "bits-ui";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
-	import { Link2Off, LogOut } from "lucide-svelte";
+	import { Link2Off, LogOut } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
 
 	let details = $derived(getUserDetails().details);

@@ -8,7 +8,7 @@
 	import TextSeparator from "@/components/utils/TextSeparator.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { Candy, Heart, HeartPulse, Shield, Swords } from "lucide-svelte";
+	import { Candy, Heart, HeartPulse, Shield, Swords } from "@lucide/svelte";
 	import { slide } from "svelte/transition";
 	import { onMount } from "svelte";
 

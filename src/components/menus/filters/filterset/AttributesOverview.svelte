@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Card from "@/components/ui/Card.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { ChevronRight } from "lucide-svelte";
+	import { ChevronRight } from "@lucide/svelte";
 	import type { Snippet } from "svelte";
 
 	let {

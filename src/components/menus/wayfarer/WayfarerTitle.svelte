@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { m } from "@/lib/paraglide/messages";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { ArrowLeft } from "lucide-svelte";
+	import { ArrowLeft } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { getWayfarerInvokedFromMap } from "@/lib/features/wayfarerMap.svelte";
 	import { goto } from "$app/navigation";

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CircleUserRound, PocketKnife, Settings2 } from "lucide-svelte";
+	import { CircleUserRound, PocketKnife, Settings2 } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";

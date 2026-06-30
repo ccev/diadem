@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { untrack } from "svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { ArrowRight, CircleCheck, CircleX, LoaderCircle } from "lucide-svelte";
+	import { ArrowRight, CircleCheck, CircleX, LoaderCircle } from "@lucide/svelte";
 	import { fetchInstanceMapName, setInstanceUrl } from "@/lib/native/runtime";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { fly } from "svelte/transition";

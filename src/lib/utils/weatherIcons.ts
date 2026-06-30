@@ -5,7 +5,7 @@ import Rainy from "@/components/icons/weather/Rainy.svelte";
 import Snowy from "@/components/icons/weather/Snowy.svelte";
 import Sunny from "@/components/icons/weather/Sunny.svelte";
 import Windy from "@/components/icons/weather/Windy.svelte";
-import { CloudOff } from "lucide-svelte";
+import { CloudOff } from "@lucide/svelte";
 import type { Component } from "svelte";
 
 const weatherIcons: { [key: number]: Component } = {

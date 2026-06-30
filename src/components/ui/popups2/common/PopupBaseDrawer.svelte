@@ -5,7 +5,7 @@
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Copy, Navigation, Share2, X } from "lucide-svelte";
+	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
 	import { getRootOrigin } from "$lib/native/runtime";
 	import { getCurrentPath } from "$lib/mapObjects/interact";
 	import { getLocale } from "$lib/paraglide/runtime";

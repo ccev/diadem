@@ -10,7 +10,7 @@
 	import { mItem, mPokemon } from "@/lib/services/ingameLocale";
 	import { getIconPokemon, getIconTappable } from "@/lib/services/uicons.svelte";
 	import { m } from "@/lib/paraglide/messages";
-	import { Clock, ClockAlert, RotateCcw, Trees } from "lucide-svelte";
+	import { Clock, ClockAlert, RotateCcw, Trees } from "@lucide/svelte";
 	import { formatDecimal } from "@/lib/utils/numberFormat";
 	import { hasTimer } from "@/lib/utils/pokemonUtils";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";

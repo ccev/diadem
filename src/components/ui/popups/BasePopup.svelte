@@ -2,7 +2,7 @@
 	import { isPopupExpanded } from "@/lib/ui/popupActions.js";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import Card from "@/components/ui/Card.svelte";
-	import { Copy, Share2, X } from "lucide-svelte";
+	import { Copy, Share2, X } from "@lucide/svelte";
 	import type { Snippet } from "svelte";
 	import { slide } from "svelte/transition";
 	import { cubicIn, cubicOut } from "svelte/easing";

@@ -18,7 +18,7 @@
 		Plus,
 		Timer,
 		TimerOff
-	} from "lucide-svelte";
+	} from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { Coords } from "@/lib/utils/coordinates";

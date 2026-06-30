@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
-	import { Layers2 } from "lucide-svelte";
+	import { Layers2 } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { MapLibre } from "svelte-maplibre";
 	import { getMapStyle } from "@/lib/utils/mapStyle";

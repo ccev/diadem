@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from "svelte/transition";
-	import { Binoculars, Clipboard, Navigation, Pin } from "lucide-svelte";
+	import { Binoculars, Clipboard, Navigation, Pin } from "@lucide/svelte";
 	import ContextMenuItem from "@/components/ui/contextmenu/ContextMenuItem.svelte";
 	import * as m from "@/lib/paraglide/messages";
 

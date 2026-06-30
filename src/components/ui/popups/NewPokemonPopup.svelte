@@ -21,7 +21,7 @@
 		Share2, Sparkles,
 		SquareChartGantt, Sword, Swords, Venus,
 		X
-	} from "lucide-svelte";
+	} from "@lucide/svelte";
 	import { getRootOrigin } from "$lib/native/runtime";
 	import { getCurrentPath } from "$lib/mapObjects/interact";
 	import { getLocale } from "$lib/paraglide/runtime";

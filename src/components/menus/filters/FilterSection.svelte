@@ -4,7 +4,7 @@
 
 <script lang="ts" generics="ParentCategory extends keyof UserSettings['filters']">
 	import Card from "@/components/ui/Card.svelte";
-	import { ChevronDown, ChevronUp, Eye, EyeOff, FunnelX, Plus } from "lucide-svelte";
+	import { ChevronDown, ChevronUp, Eye, EyeOff, FunnelX, Plus } from "@lucide/svelte";
 	import MenuGeneric from "@/components/menus/MenuGeneric.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import FilterControl from "@/components/menus/filters/FilterControl.svelte";

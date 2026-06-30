@@ -19,7 +19,7 @@
 		MapPinned,
 		Star,
 		UsersRound
-	} from "lucide-svelte";
+	} from "@lucide/svelte";
 	import TimeWithCountdown from "@/components/ui/popups/common/TimeWithCountdown.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import { currentTimestamp } from "@/lib/utils/currentTimestamp";

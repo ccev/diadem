@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Search, X } from "lucide-svelte";
+	import { Search, X } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getActiveSearch, resetActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
 	import { m } from "@/lib/paraglide/messages";

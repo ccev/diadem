@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronRight, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
+	import { ChevronRight, Eye, EyeClosed, FunnelPlus } from "@lucide/svelte";
 	import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import Switch from "@/components/ui/input/Switch.svelte";

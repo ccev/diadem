@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Pencil, Share, Share2, Trash } from "lucide-svelte";
+	import { Pencil, Share, Share2, Trash } from "@lucide/svelte";
 	import { fly } from "svelte/transition";
 	import {
 		filtersetPageClose,

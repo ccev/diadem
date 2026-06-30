@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
-	import { Code, Wrench } from "lucide-svelte";
+	import { Code, Wrench } from "@lucide/svelte";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import NumberInput from "@/components/ui/input/NumberInput.svelte";

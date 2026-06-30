@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { UsersRound } from "lucide-svelte";
+	import { UsersRound } from "@lucide/svelte";
 	import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte.js";
 	import { mAlignment, mGeneration, mPokemon, mType } from "@/lib/services/ingameLocale.js";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";

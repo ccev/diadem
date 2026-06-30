@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Binoculars, Earth, MapPin } from "lucide-svelte";
+	import { Binoculars, Earth, MapPin } from "@lucide/svelte";
 	import { FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 	import ToolLink from "@/components/menus/tools/ToolLink.svelte";
 	import { getCoverageMapAreas, openCoverageMap } from "@/lib/features/coverageMap.svelte";

@@ -61,7 +61,7 @@
 		Swords,
 		Trash2,
 		Venus
-	} from "lucide-svelte";
+	} from "@lucide/svelte";
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 
 	// @ts-expect-error Svelte snippets are declared below and exported at compile time.

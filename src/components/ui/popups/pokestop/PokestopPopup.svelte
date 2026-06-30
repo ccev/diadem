@@ -10,7 +10,7 @@
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { getConfig } from "@/lib/services/config/config";
-	import { ClockAlert, Crown, Sparkles } from "lucide-svelte";
+	import { ClockAlert, Crown, Sparkles } from "@lucide/svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import QuestDisplay from "@/components/ui/popups/pokestop/QuestDisplay.svelte";
 	import PokestopSection from "@/components/ui/popups/pokestop/PokestopSection.svelte";

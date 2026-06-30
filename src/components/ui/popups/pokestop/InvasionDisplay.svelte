@@ -15,7 +15,7 @@
 	import type { InvasionPokemonStats } from "@/lib/server/api/queryStats";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { ShieldHalf, Tally1, Trophy } from "lucide-svelte";
+	import { ShieldHalf, Tally1, Trophy } from "@lucide/svelte";
 
 	let {
 		expanded,

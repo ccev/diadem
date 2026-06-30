@@ -26,7 +26,7 @@
 		Swords,
 		Telescope,
 		Venus
-	} from "lucide-svelte";
+	} from "@lucide/svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { mMove, mPokemon, mWeather } from "@/lib/services/ingameLocale";

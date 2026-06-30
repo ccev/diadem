@@ -7,7 +7,7 @@
 	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint.d.ts";
-	import { CircleAlert, Clock, ClockAlert, Search, SearchCheck } from "lucide-svelte";
+	import { CircleAlert, Clock, ClockAlert, Search, SearchCheck } from "@lucide/svelte";
 	import { hasTimer } from "@/lib/utils/pokemonUtils";
 	import * as m from "@/lib/paraglide/messages";
 	import Countdown from "@/components/utils/Countdown.svelte";
