@@ -106,7 +106,7 @@
 </div>
 <!--{/if}-->
 
-<div class="mt-5">
+<div class="mt-5" data-popup-initial-snap-point-end>
 	{#if onlyShowNavigationButton}
 		<PopupButton
 			class="mx-4 w-full"

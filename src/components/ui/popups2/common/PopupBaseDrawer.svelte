@@ -14,8 +14,9 @@
 </script>
 
 <script lang="ts">
-	import { onDestroy, untrack } from "svelte";
+	import { onDestroy, tick, untrack } from "svelte";
 	import { Drawer } from "diadem-vaul-svelte";
+	import { watch } from "runed";
 	import { setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 	import type { Coords } from "$lib/utils/coordinates";
 	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
@@ -26,17 +27,50 @@
 		coords,
 		props,
 		data,
-		initialSnapPoint = "250px"
 	}: {
 		open: boolean,
 		coords: Coords,
 		data: MapData | undefined
 		props: MapObjectPopupProps | undefined,
-		initialSnapPoint?: SnapPoint
 	} = $props();
+
+	let initialSnapPoint: SnapPoint = $state("250px");
 
 	let snapPoints: SnapPoint[] = $derived([initialSnapPoint, 1]);
 	let activeSnapPoint: SnapPoint = $state(untrack(() => initialSnapPoint));
+
+	function updateInitialSnapPoint() {
+		if (typeof document === "undefined") return;
+
+		const drawerElement = document.querySelector<HTMLElement>("[data-vaul-drawer]");
+		const endElement = drawerElement?.querySelector<HTMLElement>("[data-popup-initial-snap-point-end]");
+		if (!(drawerElement instanceof HTMLElement) || !endElement) return;
+
+		const distance = endElement.getBoundingClientRect().bottom - drawerElement.getBoundingClientRect().top;
+		if (distance <= 0) return;
+
+		const nextSnapPoint = `${Math.ceil(distance + 16)}px`;
+		const wasAtInitialSnapPoint = activeSnapPoint === initialSnapPoint;
+
+		initialSnapPoint = nextSnapPoint;
+
+		if (wasAtInitialSnapPoint || activeSnapPoint !== 1) {
+			tick().then(() => {
+				activeSnapPoint = nextSnapPoint;
+			})
+		}
+	}
+
+	watch(
+		() => [data, props, open],
+		() => {
+			if (!open) return;
+
+			tick().then(() => {
+				updateInitialSnapPoint();
+			});
+		}
+	);
 
 	function resetActiveSnapPoint() {
 		activeSnapPoint = snapPoints[0];
