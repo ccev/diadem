@@ -293,6 +293,19 @@ function getAreaSearchEntries() {
 	});
 }
 
+export function getActiveSearchQuestParams(reward: QuestReward) {
+	const reward2 = { type: reward.type, info: { ...reward.info, amount: 0 } } as QuestReward;
+	let rewardName = getRewardText(reward2);
+	if (reward2.type === RewardType.POKEMON) {
+		rewardName = m.x_quests({ x: rewardName });
+	}
+
+	return {
+		reward: reward2,
+		name: rewardName
+	}
+}
+
 export function initSearch(searchOptions: SearchOptions) {
 	const permissions = getUserDetails().permissions;
 
@@ -324,17 +337,13 @@ export function initSearch(searchOptions: SearchOptions) {
 	) {
 		questEntries =
 			getActiveQuestRewards()?.map((r) => {
-				const reward = { type: r.type, info: { ...r.info, amount: 0 } } as QuestReward;
-				let rewardName = getRewardText(reward);
-				if (reward.type === RewardType.POKEMON) {
-					rewardName = m.x_quests({ x: rewardName });
-				}
+				const { name, reward } = getActiveSearchQuestParams(r)
 
 				return {
-					name: rewardName,
 					category: "pogo_quests",
 					key: "quest-" + JSON.stringify(reward),
 					type: SearchableType.QUEST,
+					name,
 					reward
 				} as QuestSearchEntry;
 			}) ?? [];

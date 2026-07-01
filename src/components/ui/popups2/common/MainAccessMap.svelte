@@ -51,41 +51,26 @@
 		const iconSet = getUiconSetDetails(getUserSettings().uiconSet[uiconType]?.id ?? "");
 		const modifiers = getConfigModifiers(iconSet, type);
 
-		const radiusFeature = circle(accessCenter, radius, {
-			steps: 96,
-			units: "meters"
-		}) as Feature<Polygon>;
-
-
 		const features: MapObjectFeature[] = [
 			getIconFeature(ACCESS_MAP_ID, accessCenter, {
 				id: ACCESS_MAP_ID,
 				imageUrl: icon,
-				imageSize: modifiers.scale * 2,
+				imageSize: modifiers.scale * 1.5,
 				selectedScale: 1,
 				imageOffset: [modifiers.offsetX, modifiers.offsetY],
 				expires: null
 			})
 		];
 
-		let center = accessCenter;
-		const offset = [modifiers.offsetX, modifiers.offsetY];
-		if (offset[0] !== 0 || offset[1] !== 0) {
-			try {
-				const projected = map.project({ lng: accessCenter[0], lat: accessCenter[1] });
-				projected.x += offset[0] / 2;
-				projected.y += offset[1] / 2;
-				const shifted = map.unproject(projected);
-				center = [shifted.lng, shifted.lat];
-			} catch {
-				center = accessCenter;
-			}
-		}
+		const radiusFeature = circle(accessCenter, radius, {
+			steps: 96,
+			units: "meters"
+		}) as Feature<Polygon>;
 
 		const iconFeatures = features.filter((feature) => isFeatureIcon(feature)) as MapObjectIconFeature[];
 
 		return {
-			center,
+			accessCenter,
 			features: {
 				type: "FeatureCollection" as const,
 				features: [radiusFeature, ...iconFeatures]
@@ -100,7 +85,7 @@
 	async function updateAccessMap(map: maplibre.Map) {
 		const accessData = makeAccessData(map);
 
-		map.setCenter(accessData.center);
+		map.setCenter(accessData.accessCenter);
 
 		await ensureMapImages(
 			map,

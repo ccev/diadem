@@ -7,9 +7,15 @@
 	}: {
 		class?: string,
 		children?: Snippet
-	} = $props()
+	} = $props();
 </script>
 
-<div class="bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg {class_}">
+<div class="basic-main-card bg-accent text-accent-foreground px-4 pt-4 pb-4 border border-border rounded-lg {class_}">
 	{@render children?.()}
 </div>
+
+<style>
+	.basic-main-card:has(> :global(button:last-child)) {
+		padding-bottom: 0;
+	}
+</style>

@@ -107,7 +107,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchKecleon(entry.name);
+				setActiveSearchKecleon();
 			}}
 			imageUrl={resize(getIconPokemon({ pokemon_id: KECLEON_ID }), { width: 64 })}
 		/>

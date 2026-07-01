@@ -1,18 +1,23 @@
+<script module lang="ts">
+	import { SvelteSet } from "svelte/reactivity";
+
+	type SnapPoint = string | number;
+	type ResetDrawerSnapPoint = () => void;
+
+	const resetPopupBaseDrawerSnapPointCallbacks = new SvelteSet<ResetDrawerSnapPoint>();
+
+	export function resetPopupBaseDrawerSnapPoint() {
+		for (const reset of resetPopupBaseDrawerSnapPointCallbacks) {
+			reset();
+		}
+	}
+</script>
+
 <script lang="ts">
+	import { onDestroy, untrack } from "svelte";
 	import { Drawer } from "diadem-vaul-svelte";
-	import { getCurrentSelectedData, setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
-	import * as m from "$lib/paraglide/messages";
-	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
-	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
-	import Button from "@/components/ui/input/Button.svelte";
-	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
-	import { getRootOrigin } from "$lib/native/runtime";
-	import { getCurrentPath } from "$lib/mapObjects/interact";
-	import { getLocale } from "$lib/paraglide/runtime";
-	import { getMapsUrl } from "$lib/utils/mapUrl";
-	import { Coords } from "$lib/utils/coordinates";
-	import { getShareTitle } from "$lib/features/shareTexts";
-	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
+	import { setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
+	import type { Coords } from "$lib/utils/coordinates";
 	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 
@@ -20,16 +25,25 @@
 		open = $bindable(false),
 		coords,
 		props,
-		data
+		data,
+		initialSnapPoint = "250px"
 	}: {
 		open: boolean,
 		coords: Coords,
 		data: MapData | undefined
-		props: MapObjectPopupProps | undefined
+		props: MapObjectPopupProps | undefined,
+		initialSnapPoint?: SnapPoint
 	} = $props();
 
-	const snapPoints = ["250px", 1];
-	let activeSnapPoint: number | string = $state(snapPoints[0]);
+	let snapPoints: SnapPoint[] = $derived([initialSnapPoint, 1]);
+	let activeSnapPoint: SnapPoint = $state(untrack(() => initialSnapPoint));
+
+	function resetActiveSnapPoint() {
+		activeSnapPoint = snapPoints[0];
+	}
+
+	resetPopupBaseDrawerSnapPointCallbacks.add(resetActiveSnapPoint);
+	onDestroy(() => resetPopupBaseDrawerSnapPointCallbacks.delete(resetActiveSnapPoint));
 </script>
 
 <Drawer.Root

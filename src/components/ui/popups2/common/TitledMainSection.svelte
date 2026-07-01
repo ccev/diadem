@@ -6,16 +6,18 @@
 		Icon = undefined,
 		title,
 		children,
-		rightPart
+		rightPart,
+		disabled = false
 	}: {
 		Icon?: LucideIcon
 		title: string,
 		children: Snippet,
-		rightPart?: Snippet
+		rightPart?: Snippet,
+		disabled?: boolean
 	} = $props();
 </script>
 
-<section>
+<section class:opacity-50={disabled}>
 	<div class="flex justify-between gap-2 items-center mb-2">
 		<h2 class="flex items-center gap-1.5 font-semibold">
 			{#if Icon}

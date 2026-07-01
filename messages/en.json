@@ -573,5 +573,14 @@
 	"unknown": "Unknown",
 	"normal": "Normal",
 	"filters_dont_match_pokemon": "None of your filters match this Pokémon",
-	"lure_module": "Lure Module"
+	"lure_module": "Lure Module",
+	"character_grunts": "{character} Grunts",
+	"male_grunt": "Male Grunt",
+	"female_grunt": "Female Grunt",
+	"male_grunts": "Male Grunts",
+	"female_grunts": "Female Grunts",
+	"male_type": "Male {type}",
+	"female_type": "Female {type}",
+	"giovanni_or_decoy": "Giovanni or Decoy",
+	"decoy": "Decoy"
 }

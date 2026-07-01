@@ -16,6 +16,7 @@ import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokest
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 import { getDefaultPokestopFilter, RewardType } from "@/lib/utils/pokestopUtils";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
+import { m } from "@/lib/paraglide/messages";
 
 export type ActiveSearchParams = {
 	filter: AnyFilter;
@@ -145,13 +146,13 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 	});
 }
 
-export function setActiveSearchKecleon(name: string) {
+export function setActiveSearchKecleon() {
 	const filter = getDefaultPokestopFilter();
 	filter.kecleon.enabled = true;
 	filter.enabled = true;
 
 	setActiveSearch({
-		name,
+		name: m.kecleon_pokestops(),
 		mapObject: MapObjectType.POKESTOP,
 		filter: filter
 	});

@@ -4,17 +4,19 @@
 	import type { Snippet } from "svelte";
 
 	let {
+		class: class_ = "",
 		Icon,
 		name,
 		value
 	}: {
+		class?: string,
 		Icon?: LucideIcon
 		name: any | Snippet,
 		value: any | Snippet,
 	} = $props();
 </script>
 
-<div class="flex justify-between">
+<div class="flex justify-between {class_}">
 	{#if typeof name === "function"}
 		{@render name()}
 	{:else}
