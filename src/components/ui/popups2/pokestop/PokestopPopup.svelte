@@ -1,7 +1,7 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import * as m from "$lib/paraglide/messages";
-	import { mCharacter, mPokemon, mQuest } from "$lib/services/ingameLocale";
+	import { mAlignment, mCharacter, mItem, mPokemon, mQuest } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import Button from "@/components/ui/input/Button.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
@@ -9,9 +9,16 @@
 	import OverviewCard from "@/components/ui/popups2/common/OverviewCard.svelte";
 	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
 	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
-	import { getIconInvasion, getIconPokemon, getIconPokestop, getIconReward } from "$lib/services/uicons.svelte";
+	import {
+		getIconInvasion,
+		getIconItem,
+		getIconPokemon,
+		getIconPokestop,
+		getIconReward
+	} from "$lib/services/uicons.svelte";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import {
+		ArrowRight,
 		BadgeCheck,
 		CircleAlert,
 		CircleDot,
@@ -20,14 +27,15 @@
 		Info,
 		Medal,
 		Rat,
+		ShieldHalf,
 		SlidersHorizontal,
-		UsersRound,
-		ArrowRight
+		UsersRound
 	} from "@lucide/svelte";
 	import type { Incident, PokestopData } from "$lib/types/mapObjectData/pokestop";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
 	import {
 		CONTEST_SLOTS,
+		getContestIcon,
 		getContestText,
 		getRewardText,
 		isIncidentContest,
@@ -51,14 +59,21 @@
 	import type { ActiveInvasionCharacterStats } from "$lib/server/api/queryStats";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import MainCardBigIcon from "@/components/ui/popups2/common/MainCardBigIcon.svelte";
-	import { getContestIcon } from "$lib/utils/pokestopUtils";
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
-	import { getIconItem } from "$lib/services/uicons.svelte";
-	import { mAlignment, mItem } from "$lib/services/ingameLocale";
 	import { isFortOutdated } from "$lib/utils/gymUtils";
 	import BigExpireTime from "@/components/ui/popups2/common/BigExpireTime.svelte";
 	import InvasionLineupEntry from "@/components/ui/popups2/common/InvasionLineupEntry.svelte";
 	import BigIconOverview from "@/components/ui/popups2/common/BigIconOverview.svelte";
+	import QuickSearchButton from "@/components/ui/popups2/common/QuickSearchButton.svelte";
+	import {
+		setActiveSearchInvasion,
+		setActiveSearchKecleon,
+		setActiveSearchQuest
+	} from "$lib/features/activeSearch.svelte";
+	import { getActiveSearchQuestParams } from "$lib/services/search.svelte";
+	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte";
+	import { openModal } from "$lib/ui/modal.svelte";
+	import Countdown from "@/components/utils/Countdown.svelte";
 
 	export { image, overview, main };
 
@@ -140,19 +155,6 @@
 		}
 	}
 </script>
-<script>
-	import { ShieldHalf } from "@lucide/svelte";
-	import QuickSearchButton from "@/components/ui/popups2/common/QuickSearchButton.svelte";
-	import {
-		setActiveSearchInvasion,
-		setActiveSearchKecleon,
-		setActiveSearchQuest
-	} from "$lib/features/activeSearch.svelte";
-	import { getActiveSearchQuestParams } from "$lib/services/search.svelte";
-	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte";
-	import { openModal } from "$lib/ui/modal.svelte";
-	import Countdown from "@/components/utils/Countdown.svelte";
-</script>
 
 {#snippet image(d: MapData)}
 	{@const data = d as PokestopData}
@@ -173,7 +175,7 @@
 	{#if quest}
 		<OverviewCard
 			Icon={QuestIcon2}
-			title="Quest"
+			title={m.pogo_quest()}
 		>
 			<BigIconOverview>
 				{#snippet image()}
@@ -199,7 +201,7 @@
 		{@const reward = getInvasionReward(invasion, getInvasionLineup(invasion.character))}
 		<OverviewCard
 			Icon={InvasionIcon2}
-			title="Team Rocket"
+			title={m.pogo_invasion()}
 		>
 			<BigIconOverview>
 				{#snippet image()}
@@ -340,12 +342,14 @@
 	{#if isFortOutdated(data?.updated)}
 		<BasicMainCard class="font-medium">
 			<IconValue Icon={CircleAlert}>
-				This Pokestop is outdated! It was last seen {timestampToLocalTime(data.updated, {
-				showDate: true,
-				showSeconds: false,
-				showTime: false,
-				longMonth: true
-			})}
+				{m.pokestop_outdated_notice({
+					time: timestampToLocalTime(data.updated, {
+						showDate: true,
+						showSeconds: false,
+						showTime: false,
+						longMonth: true
+					})
+				})}
 			</IconValue>
 
 		</BasicMainCard>
@@ -357,7 +361,7 @@
 		>
 			<BasicMainCard>
 				{#if !quest}
-					No Quest was scanned here today
+					{m.no_quest_scanned_today()}
 				{:else}
 					<MainCardBigIcon
 						src={getIconReward(quest.reward.type, quest.reward.info)}
@@ -382,7 +386,7 @@
 					/>
 
 					<QuickSearchButton
-						label="Find more {getRewardText(quest.reward)} Quests"
+						label={m.find_more_x_quests({ x: getRewardText(quest.reward) })}
 						onclick={() => {
 							const { name, reward } = getActiveSearchQuestParams(quest.reward)
 							setActiveSearchQuest(name, reward)
@@ -400,7 +404,7 @@
 			<div class="space-y-4">
 				{#if invasions.length === 0}
 					<BasicMainCard>
-						No Team Rocket Grunts are currently at this Pokestop
+						{m.no_invasions_at_pokestop()}
 					</BasicMainCard>
 				{/if}
 				{#each invasions as invasion (invasion.id)}
@@ -419,7 +423,7 @@
 
 						{#if reward}
 							<IconValue class="mt-5" Icon={BadgeCheck}>
-								Confirmed Reward
+								{m.confirmed_reward()}
 							</IconValue>
 							<div class="bg-accent-highlight rounded-md p-3 mt-2">
 								<div class="flex gap-4 w-full justify-center items-center">
@@ -438,7 +442,7 @@
 								{#if lineup?.second?.[0]?.encounter}
 									<div class="flex flex-col items-center mt-5 mb-1">
 										<p class="">
-											or 16% chance to get:
+											{m.or_x_chance_to_get({ chance: 16 })}
 										</p>
 
 										<div class="flex gap-3 mt-2">
@@ -466,7 +470,7 @@
 						{#if lineup}
 							<div class="-mx-4 mt-5">
 								<IconValue class="mb-1.5 px-4" Icon={ShieldHalf}>
-									Possible Lineup
+									{m.possible_lineup()}
 								</IconValue>
 								<div class="w-full flex overflow-x-auto *:shrink-0 gap-3 px-4 mt-2">
 									<InvasionLineupEntry
@@ -492,7 +496,7 @@
 						{/if}
 
 						<QuickSearchButton
-							label="Find more {mCharacter(invasion.character, { plural: true })}"
+							label={m.find_more_x({ x: mCharacter(invasion.character, { plural: true }) })}
 							onclick={() => {
 								setActiveSearchInvasion(name, invasion.character);
 							}}
@@ -509,14 +513,16 @@
 		>
 			<BasicMainCard>
 				{#if !data?.lure_expire_timestamp}
-					No Lure Module was ever seen here
+					{m.no_lure_seen_here()}
 				{:else if data.lure_expire_timestamp < currentTimestamp()}
 					<IconValue Icon={Clock}>
-						Last Lure module ended {timestampToLocalTime(data.lure_expire_timestamp, {
-						showDate: true,
-						showSeconds: false,
-						longMonth: true
-					})}
+						{m.last_lure_ended({
+							time: timestampToLocalTime(data.lure_expire_timestamp, {
+								showDate: true,
+								showSeconds: false,
+								longMonth: true
+							})
+						})}
 					</IconValue>
 				{:else}
 					<MainCardBigIcon
@@ -537,18 +543,18 @@
 		>
 			<BasicMainCard>
 				{#if kecleons.length === 0}
-					There's no Kecleon hiding here
+					{m.no_kecleon_hiding_here()}
 				{:else}
 					<MainCardBigIcon
 						src={getIconPokemon({ pokemon_id: KECLEON_ID })}
 						alt={mPokemon({ pokemon_id: KECLEON_ID })}
-						title="A Kecleon is hiding here"
+						title={m.kecleon_hiding_here()}
 					/>
 
 					<BigExpireTime expire={kecleons[0]?.expiration ?? 0} />
 
 					<QuickSearchButton
-						label="Find more Kecleon"
+						label={m.find_more_x({ x: m.kecleon() })}
 						onclick={setActiveSearchKecleon}
 					/>
 				{/if}
@@ -563,14 +569,16 @@
 			{#if contests.length === 0 || (data?.showcase_expiry ?? 0) < currentTimestamp()}
 				<BasicMainCard>
 					{#if !data.showcase_expiry}
-						This Pokestop never hosted a showcase
+						{m.pokestop_never_hosted_showcase()}
 					{:else}
 						<IconValue Icon={Clock}>
-							Last showcase ended {timestampToLocalTime(data.showcase_expiry, {
-							showDate: true,
-							showSeconds: false,
-							longMonth: true
-						})}
+							{m.last_showcase_ended({
+								time: timestampToLocalTime(data.showcase_expiry, {
+									showDate: true,
+									showSeconds: false,
+									longMonth: true
+								})
+							})}
 						</IconValue>
 					{/if}
 				</BasicMainCard>
@@ -584,7 +592,7 @@
 					<MainCardBigIcon src={getContestIcon(data.contest_focus)} alt={name} title={name} />
 
 					<div class="space-y-3">
-						<StatsMainCardEntry Icon={UsersRound} name="Entries">
+						<StatsMainCardEntry Icon={UsersRound} name={m.entries()}>
 							{#snippet value()}
 							<span>
 								{#if data.contest_rankings}
@@ -607,7 +615,7 @@
 										</p>
 
 										<p>
-											Score: {entry.score.toFixed(0)}
+										{m.score_x({ score: entry.score.toFixed(0) })}
 										</p>
 									</div>
 									<div class="flex items-end text-right">
@@ -639,7 +647,7 @@
 	<!--		</BasicMainCard>-->
 	<!--	</TitledMainSection>-->
 
-	<TitledMainSection Icon={CircleDot} title="Access this Pokestop">
+	<TitledMainSection Icon={CircleDot} title={m.access_this_pokestop()}>
 		<MainAccessMap
 			lat={data.lat}
 			lon={data.lon}
@@ -657,7 +665,7 @@
 				{@const filtersets = getMatchingFiltersets(quest, invasions)}
 
 				{#if filtersets.length === 0}
-					<p>None of your filters match this Pokestop</p>
+					<p>{m.filters_dont_match_pokestop()}</p>
 				{/if}
 				<div class="flex flex-wrap gap-3">
 					{#each filtersets as filterset (filterset.id)}
@@ -673,14 +681,14 @@
 		</TitledMainSection>
 	{/if}
 
-	<TitledMainSection Icon={Info} title="About this Pokestop">
+	<TitledMainSection Icon={Info} title={m.about_this_pokestop()}>
 		<BasicMainCard>
 			<p class="font-semibold mb-2">
 				{data.name}
 			</p>
 
 			{#if !data.description}
-				<p class="text-muted-foreground">No description</p>
+				<p class="text-muted-foreground">{m.no_description()}</p>
 			{:else}
 				<p class="text-muted-foreground">
 					{data.description}
@@ -694,21 +702,21 @@
 						onclick={() => openModal("fortDetails")}
 					>
 						<div class="bg-neutral-800/90 text-neutral-50 rounded-md px-4 py-2">
-							Show full image
+							{m.view_full_image()}
 						</div>
 					</button>
 					<img
 						class="absolute size-full object-cover"
-						alt="Cover Photo of {data.name}"
+						alt={m.cover_photo_of({ name: data.name ?? m.pogo_pokestop() })}
 						src={data.url}
 					/>
 				</div>
 			{/if}
 
-			<Button class="mt-3 mb-2 w-full" variant="link" onclick={openWayfarerMap}>
-				Go to Wayfarer Map
-				<ArrowRight class="size-3.5" />
-			</Button>
+		<Button class="mt-3 mb-2 w-full" variant="link" onclick={openWayfarerMap}>
+			{m.go_to_wayfarer_map()}
+			<ArrowRight class="size-3.5" />
+		</Button>
 		</BasicMainCard>
 
 		<StatsMainCard class="mt-4">
