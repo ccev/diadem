@@ -149,6 +149,7 @@
 	} from "$lib/features/activeSearch.svelte";
 	import { getActiveSearchQuestParams } from "$lib/services/search.svelte";
 	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte.ts";
+	import { openModal } from "$lib/ui/modal.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -528,13 +529,11 @@
 				<div class="mt-2 relative rounded-md overflow-hidden h-28 w-full">
 					<button
 						class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center"
+						onclick={() => openModal("fortDetails")}
 					>
-						<div>
-							
-						</div>
-						<Button class="bg-accent/40! backdrop-blur-sm" variant="outline" size="sm">
+						<div class="bg-neutral-800/90 text-neutral-50 rounded-md px-4 py-2">
 							Show full image
-						</Button>
+						</div>
 					</button>
 					<img
 						class="absolute size-full object-cover"

@@ -23,15 +23,15 @@
 
 <Modal modalType="fortDetails">
 	<Card
-		class="mx-auto items-center flex flex-col rounded-md! shadow-none! overflow-hidden w-xl max-w-full p-2"
+		class="relative mx-auto items-center flex flex-col rounded-md! shadow-none! overflow-hidden w-xl max-w-full"
 		style="max-height: calc(100vh - 6rem)"
 	>
-		<!--		<div class="flex justify-end p-2 w-full">-->
-		<!--			<CloseButton-->
-		<!--			class=""-->
-		<!--			onclick={() => closeModal("fortDetails")}-->
-		<!--		/>-->
-		<!--		</div>-->
+		<div class="absolute top-0 right-0 z-10 bg-neutral-800/90 m-2 rounded-full p-1">
+			<CloseButton
+			class=""
+			onclick={() => closeModal("fortDetails")}
+		/>
+		</div>
 
 		<img
 			class="w-full object-contain"
@@ -40,20 +40,20 @@
 			{alt}
 		/>
 
-		{#if fortName || fortDescription}
-			<div class="mt-2 flex flex-col justify-center text-center mx-6">
-				{#if fortName}
-					<span class="font-semibold text-lg">
-						{fortName}
-					</span>
-				{/if}
-				{#if fortDescription}
-					<span>
-						{fortDescription}
-					</span>
-				{/if}
-			</div>
-		{/if}
+		<!--{#if fortName || fortDescription}-->
+		<!--	<div class="mt-2 flex flex-col justify-center text-center mx-6">-->
+		<!--		{#if fortName}-->
+		<!--			<span class="font-semibold text-lg">-->
+		<!--				{fortName}-->
+		<!--			</span>-->
+		<!--		{/if}-->
+		<!--		{#if fortDescription}-->
+		<!--			<span>-->
+		<!--				{fortDescription}-->
+		<!--			</span>-->
+		<!--		{/if}-->
+		<!--	</div>-->
+		<!--{/if}-->
 	</Card>
 </Modal>
 
