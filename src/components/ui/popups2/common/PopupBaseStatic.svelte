@@ -51,11 +51,11 @@
 <div class="flex gap-6 px-4">
 	{#if props && data}
 		{@render props.image(data)}
-		<div>
+		<div class="min-w-0">
 			<p class="text-muted-foreground text-sm font-medium">
 				{props.type}
 			</p>
-			<h1 class="font-semibold text-xl">
+			<h1 class="line-clamp-2 break-words text-xl font-semibold">
 				{props.title}
 			</h1>
 		</div>

@@ -572,5 +572,6 @@
 	"matching_filtersets": "Matching Filters",
 	"unknown": "Unknown",
 	"normal": "Normal",
-	"filters_dont_match_pokemon": "None of your filters match this Pokémon"
+	"filters_dont_match_pokemon": "None of your filters match this Pokémon",
+	"lure_module": "Lure Module"
 }

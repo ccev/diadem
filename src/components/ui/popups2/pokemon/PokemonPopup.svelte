@@ -1,5 +1,5 @@
 <script module lang="ts">
-	import type { MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseDrawer.svelte";
+	import type { MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import * as m from "$lib/paraglide/messages";
 	import { mItem, mMove, mPokemon, mWeather } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
@@ -64,7 +64,6 @@
 	} from "@lucide/svelte";
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 
-	// @ts-expect-error Svelte snippets are declared below and exported at compile time.
 	export { image, overview, main };
 
 	export function getPopupPropsPokemon(data: MapData) {
@@ -72,11 +71,8 @@
 		return {
 			type: m.wild_pokemon(),
 			title: pokemonName(data),
-			// @ts-expect-error Svelte snippets are declared below and available at compile time.
 			image,
-			// @ts-expect-error Svelte snippets are declared below and available at compile time.
 			overview,
-			// @ts-expect-error Svelte snippets are declared below and available at compile time.
 			main
 		} as MapObjectPopupProps;
 	}
@@ -195,7 +191,7 @@
 
 		<div class="flex justify-between text-xl mt-3 items-center gap-4">
 			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full"
+				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 w-full"
 			>
 				<Clock class="size-4" />
 				<p>
@@ -208,7 +204,7 @@
 			</div>
 
 			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-neutral-800 pl-4 pr-6 py-2 w-full"
+				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 w-full"
 			>
 				<Countdown
 					expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
@@ -482,7 +478,7 @@
 					</p>
 				{/if}
 				<div class="flex flex-wrap gap-3">
-					{#each filtersets as filterset}
+					{#each filtersets as filterset (filterset.id)}
 						<div class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md">
 							<FiltersetIcon {filterset} size={4} />
 							{filterTitle(filterset)}
