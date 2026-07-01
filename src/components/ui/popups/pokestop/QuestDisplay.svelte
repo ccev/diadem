@@ -45,7 +45,7 @@
 				</span>
 				{#if expanded}
 					<IconValue Icon={Clock}>
-						{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>
+						{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, { showDate: true })}</b>
 					</IconValue>
 				{/if}
 			</div>

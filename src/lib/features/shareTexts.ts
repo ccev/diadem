@@ -156,7 +156,7 @@ function getPokestopShareText(data: PokestopData) {
 		if (!incident.id || incident.expiration < currentTimestamp()) return;
 
 		if (isIncidentInvasion(incident)) {
-			invasionText += `🥷 ${mCharacter(incident.character)} (${timestampToLocalTime(incident.expiration, true)})\n`;
+			invasionText += `🥷 ${mCharacter(incident.character)} (${timestampToLocalTime(incident.expiration, { showDate: true })})\n`;
 		} else if (isIncidentKecleon(incident)) {
 			kecleonText += `🦎 ${mPokemon({ pokemon_id: KECLEON_ID })} (${timestampToLocalTime(incident.expiration)})\n`;
 		} else if (
@@ -164,7 +164,7 @@ function getPokestopShareText(data: PokestopData) {
 			data.showcase_ranking_standard &&
 			data.contest_focus
 		) {
-			contestText += `🏅 ${getContestText(data.showcase_ranking_standard, data.contest_focus)} (${timestampToLocalTime(incident.expiration, true)})\n`;
+			contestText += `🏅 ${getContestText(data.showcase_ranking_standard, data.contest_focus)} (${timestampToLocalTime(incident.expiration, { showDate: true })})\n`;
 		}
 	});
 
@@ -202,10 +202,10 @@ function getStationShareText(data: StationData) {
 		text += `📍 ${m.pogo_station()}: ${data.name}\n`;
 	}
 	if (data.start_time) {
-		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, true)}\n`;
+		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, { showDate: true })}\n`;
 	}
 	if (data.end_time) {
-		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, true)}\n`;
+		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, { showDate: true })}\n`;
 	}
 
 	return text;
@@ -243,7 +243,7 @@ function getRouteShareText(data: RouteData) {
 function getTappableShareText(data: TappableData) {
 	let text = "";
 
-	text += `🕜 ${m.popup_despawns()}: ${timestampToLocalTime(data.expire_timestamp, true)}\n`;
+	text += `🕜 ${m.popup_despawns()}: ${timestampToLocalTime(data.expire_timestamp, { showDate: true })}\n`;
 
 	if (!hasTimer(data)) {
 		text += `⚠️ ${m.time_is_estimated()}\n`;

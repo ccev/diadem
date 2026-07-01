@@ -22,7 +22,8 @@
 		Signpost,
 		SlidersHorizontal,
 		Sword,
-		Target, UsersRound
+		Target,
+		UsersRound
 	} from "@lucide/svelte";
 	import type { Incident, PokestopData } from "$lib/types/mapObjectData/pokestop";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
@@ -89,14 +90,18 @@
 		return [invasions, kecleons, contests];
 	}
 
-	function getMatchingFiltersets(quest: PokestopData["quests"][number] | undefined, invasions: Incident[]) {
+	function getMatchingFiltersets(
+		quest: PokestopData["quests"][number] | undefined,
+		invasions: Incident[]
+	) {
 		const filtersets: AnyFilterset[] = [];
 		const questFilterset = quest ? matchQuestFilterset(quest) : undefined;
 		if (questFilterset) filtersets.push(questFilterset);
 
 		for (const invasion of invasions) {
 			const invasionFilterset = matchInvasionFilterset(invasion);
-			if (invasionFilterset && !filtersets.includes(invasionFilterset)) filtersets.push(invasionFilterset);
+			if (invasionFilterset && !filtersets.includes(invasionFilterset))
+				filtersets.push(invasionFilterset);
 		}
 
 		return filtersets;
@@ -106,17 +111,19 @@
 		const filter = getUserSettings().filters.pokestop;
 		return (
 			filter.enabled &&
-			(filter.quest.filters.find((f) => f.enabled) || filter.invasion.filters.find((f) => f.enabled))
+			(filter.quest.filters.find((f) => f.enabled) ||
+				filter.invasion.filters.find((f) => f.enabled))
 		);
 	}
 </script>
+
 <script>
 	import MainCardBigIcon from "@/components/ui/popups2/common/MainCardBigIcon.svelte";
 	import { getContestIcon } from "$lib/utils/pokestopUtils.ts";
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
 	import { hasTimer } from "$lib/utils/pokemonUtils.ts";
 	import Countdown from "@/components/utils/Countdown.svelte";
-	import { Flower } from "@lucide/svelte";
+	import { CircleAlert, Flower } from "@lucide/svelte";
 	import { getIconItem } from "$lib/services/uicons.svelte.ts";
 	import { mItem } from "$lib/services/ingameLocale.ts";
 	import { isFortOutdated } from "$lib/utils/gymUtils.ts";
@@ -136,9 +143,7 @@
 {#snippet overview(d: MapData)}
 	{@const data = d as PokestopData}
 
-	<SimpleOverviewCard title="Team Rocket">
-		grunt
-	</SimpleOverviewCard>
+	<SimpleOverviewCard title="Team Rocket">grunt</SimpleOverviewCard>
 {/snippet}
 
 {#snippet main(d: MapData)}
@@ -147,15 +152,20 @@
 	{@const [invasions, kecleons, contests] = getIncidents(data)}
 
 	{#if isFortOutdated(data?.updated)}
-		<BasicMainCard>
-			This Pokestop is outdated! It was last scanned {timestampToLocalTime(data.updated, true, false, { showTime: false })}
-		</BasicMainCard>
-	{/if}
+		<BasicMainCard class="font-medium">
+			<IconValue Icon={CircleAlert}>
+				This Pokestop is outdated! It was last seen {timestampToLocalTime(data.updated, {
+				showDate: true,
+				showSeconds: false,
+				showTime: false,
+				longMonth: true
+			})}
+			</IconValue>
 
-	<TitledMainSection
-		Icon={QuestIcon2}
-		title={m.pogo_quest()}
-	>
+		</BasicMainCard>
+	{:else}
+
+	<TitledMainSection Icon={QuestIcon2} title={m.pogo_quest()}>
 		<BasicMainCard>
 			{#if !quest}
 				No Quest was scanned here today
@@ -179,9 +189,8 @@
 					{m.task()}: <b>{mQuest(quest.title, quest.target)}</b>
 				</IconValue>
 
-
 				<IconValue Icon={Clock}>
-					{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>
+					{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, { showDate: true })}</b>
 				</IconValue>
 
 				<Button class="mt-3" variant="secondary">
@@ -192,15 +201,10 @@
 		</BasicMainCard>
 	</TitledMainSection>
 
-	<TitledMainSection
-		Icon={InvasionIcon2}
-		title={m.pogo_invasion()}
-	>
+	<TitledMainSection Icon={InvasionIcon2} title={m.pogo_invasion()}>
 		<div class="space-y-4">
 			{#if invasions.length === 0}
-				<BasicMainCard>
-					No grunts available here
-				</BasicMainCard>
+				<BasicMainCard>No grunts available here</BasicMainCard>
 			{/if}
 			{#each invasions as invasion (invasion.id)}
 				{@const hasLineup = hasInvasionLineup(invasion.character)}
@@ -240,56 +244,41 @@
 						<!--{/if}-->
 
 						{#if lineup}
-							<IconValue class="mb-1.5 mt-2 px-4" Icon={Sword}>
-								Possible Lineup:
-							</IconValue>
+							<IconValue class="mb-1.5 mt-2 px-4" Icon={Sword}>Possible Lineup:</IconValue>
 							<div class="w-full flex overflow-x-auto *:shrink-0 gap-3 px-4">
 								<div class="rounded-sm px-2 py-1 bg-indigo-950/50">
 									<div class="flex items-center">
-										<p class="text-muted-foreground font-semibold text-sm pr-1">
-											#1
-										</p>
+										<p class="text-muted-foreground font-semibold text-sm pr-1">#1</p>
 										{#each lineup.first as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 											{@const pokemon = getInvasionPokemon(slotMon)}
 											<div class="p-1 size-10">
-												<ImagePopup
-													src={getIconPokemon(pokemon)}
-													alt={mPokemon(pokemon)}
-												/>
+												<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 											</div>
 										{/each}
 									</div>
-									<p class="w-full text-center px-2 text-muted-foreground text-sm font-semibold mt-1">
+									<p
+										class="w-full text-center px-2 text-muted-foreground text-sm font-semibold mt-1"
+									>
 										Catchable
 									</p>
 								</div>
 
 								<div class="flex rounded-sm px-2 py-1 items-center bg-border/50">
-									<p class="text-muted-foreground font-semibold text-sm pr-1">
-										#2
-									</p>
+									<p class="text-muted-foreground font-semibold text-sm pr-1">#2</p>
 									{#each lineup.second as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 										{@const pokemon = getInvasionPokemon(slotMon)}
 										<div class="p-1 size-10">
-											<ImagePopup
-												src={getIconPokemon(pokemon)}
-												alt={mPokemon(pokemon)}
-											/>
+											<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 										</div>
 									{/each}
 								</div>
 
 								<div class="flex rounded-sm px-2 py-1 items-center bg-border/50">
-									<p class="text-muted-foreground font-semibold text-sm pr-1">
-										#3
-									</p>
+									<p class="text-muted-foreground font-semibold text-sm pr-1">#3</p>
 									{#each lineup.third as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 										{@const pokemon = getInvasionPokemon(slotMon)}
 										<div class="p-1 size-10">
-											<ImagePopup
-												src={getIconPokemon(pokemon)}
-												alt={mPokemon(pokemon)}
-											/>
+											<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 										</div>
 									{/each}
 								</div>
@@ -326,16 +315,16 @@
 		</div>
 	</TitledMainSection>
 
-	<TitledMainSection
-		Icon={Flower}
-		title={m.lure_module()}
-	>
+	<TitledMainSection Icon={Flower} title={m.lure_module()}>
 		<BasicMainCard>
 			{#if !data?.lure_expire_timestamp}
 				No Lure Module was ever seen here
 			{:else if data.lure_expire_timestamp < currentTimestamp()}
 				<IconValue Icon={Clock}>
-					Last Lure module ended {timestampToLocalTime(data.lure_expire_timestamp, true, false)}
+					Last Lure module ended {timestampToLocalTime(data.lure_expire_timestamp, {
+						showDate: true,
+						showSeconds: false
+					})}
 				</IconValue>
 			{:else}
 				<MainCardBigIcon
@@ -350,30 +339,21 @@
 					>
 						<Clock class="size-4" />
 						<p>
-							{timestampToLocalTime(
-								data.lure_expire_timestamp,
-								false,
-								true
-							)}
+							{timestampToLocalTime(data.lure_expire_timestamp)}
 						</p>
 					</div>
 
 					<div
 						class="justify-center font-medium flex gap-2 items-center rounded-md bg-accent-highlight- border-2 border-accent-highlight pl-4 pr-6 py-2 w-full"
 					>
-						<Countdown
-							expireTime={data.lure_expire_timestamp}
-						/>
+						<Countdown expireTime={data.lure_expire_timestamp} />
 					</div>
 				</div>
 			{/if}
 		</BasicMainCard>
 	</TitledMainSection>
 
-	<TitledMainSection
-		Icon={Rat}
-		title={m.kecleon()}
-	>
+	<TitledMainSection Icon={Rat} title={m.kecleon()}>
 		<BasicMainCard>
 			{#if kecleons.length === 0}
 				There's no Kecleon hiding here
@@ -390,20 +370,14 @@
 					>
 						<Clock class="size-4" />
 						<p>
-							{timestampToLocalTime(
-								kecleons[0]?.expiration ?? 0,
-								false,
-								true
-							)}
+							{timestampToLocalTime(kecleons[0]?.expiration ?? 0)}
 						</p>
 					</div>
 
 					<div
 						class="justify-center font-medium flex gap-2 items-center rounded-md bg-accent-highlight- border-2 border-accent-highlight pl-4 pr-6 py-2 w-full"
 					>
-						<Countdown
-							expireTime={kecleons[0]?.expiration ?? 0}
-						/>
+						<Countdown expireTime={kecleons[0]?.expiration ?? 0} />
 					</div>
 				</div>
 
@@ -415,52 +389,47 @@
 		</BasicMainCard>
 	</TitledMainSection>
 
-	<TitledMainSection
-		Icon={Medal}
-		title={m.contest()}
-	>
+	<TitledMainSection Icon={Medal} title={m.contest()}>
 		{#if contests.length === 0 || (data?.showcase_expiry ?? 0) < currentTimestamp()}
 			<BasicMainCard>
 				{#if !data.showcase_expiry}
 					This Pokestop never hosted a showcase
 				{:else}
 					<IconValue Icon={Clock}>
-						Last showcase ended {timestampToLocalTime(data.showcase_expiry, true, false)}
+						Last showcase ended {timestampToLocalTime(data.showcase_expiry, {
+							showDate: true,
+							showSeconds: false
+						})}
 					</IconValue>
 				{/if}
 			</BasicMainCard>
 		{:else}
 			<BasicMainCard>
-				{@const name = data.showcase_ranking_standard && data.contest_focus
-					? getContestText(data.showcase_ranking_standard, data.contest_focus)
-					: m.unknown_contest()}
+				{@const name =
+					data.showcase_ranking_standard && data.contest_focus
+						? getContestText(data.showcase_ranking_standard, data.contest_focus)
+						: m.unknown_contest()}
 
-				<MainCardBigIcon
-					src={getContestIcon(data.contest_focus)}
-					alt={name}
-					title={name}
-				/>
+				<MainCardBigIcon src={getContestIcon(data.contest_focus)} alt={name} title={name} />
 
 				<div class="space-y-3">
-					<StatsMainCardEntry
-						Icon={UsersRound}
-						name="Entries"
-					>
+					<StatsMainCardEntry Icon={UsersRound} name="Entries">
 						{#snippet value()}
-						<span>
-							{#if data.contest_rankings}
-								<b>{data.contest_rankings.total_entries}</b>/{CONTEST_SLOTS}
-							{:else}
-								{m.unavailable()}
-							{/if}
-						</span>
+							<span>
+								{#if data.contest_rankings}
+									<b>{data.contest_rankings.total_entries}</b>/{CONTEST_SLOTS}
+								{:else}
+									{m.unavailable()}
+								{/if}
+							</span>
 						{/snippet}
 					</StatsMainCardEntry>
 
 					<div class="w-full flex gap-2 flex-col">
 						{#each data?.contest_rankings?.contest_entries ?? [] as entry}
 							<div
-								class="w-full rounded-md bg-accent-highlight px-4 relative flex justify-between items-center">
+								class="w-full rounded-md bg-accent-highlight px-4 relative flex justify-between items-center"
+							>
 								<div class="py-3">
 									<p class=" font-semibold">
 										{mPokemon(entry)}
@@ -485,6 +454,8 @@
 			</BasicMainCard>
 		{/if}
 	</TitledMainSection>
+
+	{/if}
 
 	<!--TODO: Routes-->
 	<!--	<TitledMainSection-->
@@ -514,13 +485,13 @@
 				{@const filtersets = getMatchingFiltersets(quest, invasions)}
 
 				{#if filtersets.length === 0}
-					<p>
-						None of your filters match this Pokestop
-					</p>
+					<p>None of your filters match this Pokestop</p>
 				{/if}
 				<div class="flex flex-wrap gap-3">
 					{#each filtersets as filterset (filterset.id)}
-						<div class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md">
+						<div
+							class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md"
+						>
 							<FiltersetIcon {filterset} size={4} />
 							{filterTitle(filterset)}
 						</div>
@@ -537,9 +508,7 @@
 			</p>
 
 			{#if !data.description}
-				<p class="text-muted-foreground">
-					No description
-				</p>
+				<p class="text-muted-foreground">No description</p>
 			{:else}
 				<p class="text-muted-foreground">
 					{data.description}
@@ -549,7 +518,8 @@
 			{#if data.url}
 				<div class="mt-2 relative rounded-md overflow-hidden h-28 w-full">
 					<button
-						class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center">
+						class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center"
+					>
 						<Button class="bg-accent/40! backdrop-blur-sm" variant="outline" size="sm">
 							Show full image
 						</Button>

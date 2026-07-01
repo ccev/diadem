@@ -5,23 +5,40 @@
 	import MobileTitle from "@/components/menus/mobile/MobileTitle.svelte";
 	import type { Incident, PokestopData } from "$lib/types/mapObjectData/pokestop";
 	import { getMapObjects } from "$lib/mapObjects/mapObjectsState.svelte";
-	import { getCurrentSelectedData, getCurrentSelectedMapId } from "$lib/mapObjects/currentSelectedState.svelte";
+	import {
+		getCurrentSelectedData,
+		getCurrentSelectedMapId
+	} from "$lib/mapObjects/currentSelectedState.svelte";
 	import { useMetadata } from "$lib/ui/metadata.svelte";
 	import * as m from "$lib/paraglide/messages";
-	import { getIconInvasion, getIconPokemon, getIconPokestop, getIconReward } from "$lib/services/uicons.svelte";
+	import {
+		getIconInvasion,
+		getIconPokemon,
+		getIconPokestop,
+		getIconReward
+	} from "$lib/services/uicons.svelte";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
-	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
+	import {
+		backupShareUrl,
+		canNativeShare,
+		copyToClipboard,
+		hasClipboardWrite
+	} from "$lib/utils/device";
 	import Button from "@/components/ui/input/Button.svelte";
 	import {
 		CircleDot,
 		Clock,
 		ClockArrowUp,
-		Copy, Globe,
-		Info, MapPin, Medal,
+		Copy,
+		Globe,
+		Info,
+		MapPin,
+		Medal,
 		Rat,
 		Search,
-		Share2, Signpost,
+		Share2,
+		Signpost,
 		Sword,
 		Target,
 		Trophy,
@@ -64,7 +81,7 @@
 
 	let data: PokestopData = $derived(
 		(getMapObjects()[getCurrentSelectedMapId()] as PokestopData) ??
-		(getCurrentSelectedData() as PokestopData)
+			(getCurrentSelectedData() as PokestopData)
 	);
 	useMetadata(() => ({ title: data ? (data.name ?? m.pogo_pokestop()) : undefined }));
 
@@ -156,14 +173,15 @@
 			</div>
 
 			{#if activeSnapPoint !== 1}
-
 				<div class="mt-4 w-full">
 					<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4">
-
 						{#if quest}
 							<div
-								class="bg-accent text-accent-foreground w-60 px-4 pt-2 pb-4 border border-border rounded-lg">
-								<h2 class="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+								class="bg-accent text-accent-foreground w-60 px-4 pt-2 pb-4 border border-border rounded-lg"
+							>
+								<h2
+									class="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5"
+								>
 									<QuestIcon class="fill-muted-foreground size-3.5" />
 									Quest
 								</h2>
@@ -192,8 +210,11 @@
 							{#if incident.id && incident.expiration > currentTimestamp() && shouldDisplayIncident(incident, data)}
 								{#if isIncidentInvasion(incident)}
 									<div
-										class="bg-accent text-accent-foreground w-50 px-4 pt-2 pb-4 border border-border rounded-lg">
-										<h2 class="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+										class="bg-accent text-accent-foreground w-50 px-4 pt-2 pb-4 border border-border rounded-lg"
+									>
+										<h2
+											class="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5"
+										>
 											<InvasionIcon class="fill-muted-foreground size-3.5" />
 											Team Rocket
 										</h2>
@@ -276,9 +297,8 @@
 							{m.task()}: <b>{mQuest(quest.title, quest.target)}</b>
 						</IconValue>
 
-
 						<IconValue Icon={Clock}>
-							{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, true)}</b>
+							{m.popup_found()} <b>{timestampToLocalTime(quest.timestamp, { showDate: true })}</b>
 						</IconValue>
 
 						<Button class="mt-3" variant="secondary">
@@ -336,56 +356,41 @@
 								<!--{/if}-->
 
 								{#if lineup}
-									<IconValue class="mb-1.5 mt-2 px-4" Icon={Sword}>
-										Possible Lineup:
-									</IconValue>
+									<IconValue class="mb-1.5 mt-2 px-4" Icon={Sword}>Possible Lineup:</IconValue>
 									<div class="w-full flex overflow-x-auto *:shrink-0 gap-3 px-4">
 										<div class="rounded-sm px-2 py-1 bg-indigo-950/50">
 											<div class="flex items-center">
-												<p class="text-muted-foreground font-semibold text-sm pr-1">
-													#1
-												</p>
+												<p class="text-muted-foreground font-semibold text-sm pr-1">#1</p>
 												{#each lineup.first as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 													{@const pokemon = getInvasionPokemon(slotMon)}
 													<div class="p-1 size-10">
-														<ImagePopup
-															src={getIconPokemon(pokemon)}
-															alt={mPokemon(pokemon)}
-														/>
+														<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 													</div>
 												{/each}
 											</div>
-											<p class="w-full text-center px-2 text-muted-foreground text-sm font-semibold mt-1">
+											<p
+												class="w-full text-center px-2 text-muted-foreground text-sm font-semibold mt-1"
+											>
 												Catchable
 											</p>
 										</div>
 
 										<div class="flex rounded-sm px-2 py-1 items-center bg-border/50">
-											<p class="text-muted-foreground font-semibold text-sm pr-1">
-												#2
-											</p>
+											<p class="text-muted-foreground font-semibold text-sm pr-1">#2</p>
 											{#each lineup.second as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 												{@const pokemon = getInvasionPokemon(slotMon)}
 												<div class="p-1 size-10">
-													<ImagePopup
-														src={getIconPokemon(pokemon)}
-														alt={mPokemon(pokemon)}
-													/>
+													<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 												</div>
 											{/each}
 										</div>
 
 										<div class="flex rounded-sm px-2 py-1 items-center bg-border/50">
-											<p class="text-muted-foreground font-semibold text-sm pr-1">
-												#3
-											</p>
+											<p class="text-muted-foreground font-semibold text-sm pr-1">#3</p>
 											{#each lineup.third as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 												{@const pokemon = getInvasionPokemon(slotMon)}
 												<div class="p-1 size-10">
-													<ImagePopup
-														src={getIconPokemon(pokemon)}
-														alt={mPokemon(pokemon)}
-													/>
+													<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
 												</div>
 											{/each}
 										</div>
@@ -419,7 +424,6 @@
 							</Button>
 						</div>
 					{/each}
-
 				</div>
 
 				<h2 class="mb-2 flex items-center gap-1.5 font-semibold">
@@ -440,18 +444,13 @@
 								class="w-7"
 							/>
 						</div>
-						<h3 class="font-semibold">
-							A Kecleon is hiding here
-						</h3>
+						<h3 class="font-semibold">A Kecleon is hiding here</h3>
 					</div>
 
 					<IconValue Icon={Clock}>
 						{m.lasts_until()}
 						<b>
-							<TimeWithCountdown
-								expireTime={kecleons[0]?.expiration ?? 0}
-								showHours={false}
-							/>
+							<TimeWithCountdown expireTime={kecleons[0]?.expiration ?? 0} showHours={false} />
 						</b>
 					</IconValue>
 					<Button class="mt-3" variant="secondary">
@@ -470,7 +469,7 @@
 						This Pokestop never had a showcase
 					{:else}
 						<IconValue Icon={Clock}>
-							Last showcase ended {timestampToLocalTime(data.showcase_expiry, true)}
+							Last showcase ended {timestampToLocalTime(data.showcase_expiry, { showDate: true })}
 						</IconValue>
 					{/if}
 				</div>
@@ -499,29 +498,21 @@
 					maxZoom={getConfig().general.maxZoom}
 				>
 					<Marker lngLat={[data.lon, data.lat]} class="size-8">
-						<ImagePopup
-							src={getIconPokestop({})}
-							alt={m.pogo_pokestop()}
-						/>
+						<ImagePopup src={getIconPokestop({})} alt={m.pogo_pokestop()} />
 					</Marker>
 
-					<GeoJSON
-						id={MapSourceId.MAP_OBJECTS}
-						data={point([data.lon, data.lat])}
-					>
+					<GeoJSON id={MapSourceId.MAP_OBJECTS} data={point([data.lon, data.lat])}>
 						<CircleLayer
 							id="changelater3h298"
 							paint={{
-							"circle-radius": 60,
-							"circle-color": "rgba(200, 200, 200, 0.1)",
-							"circle-stroke-width": 1,
-							"circle-stroke-color": "rgba(200, 200, 200, 0.3)"
-						}}
+								"circle-radius": 60,
+								"circle-color": "rgba(200, 200, 200, 0.1)",
+								"circle-stroke-width": 1,
+								"circle-stroke-color": "rgba(200, 200, 200, 0.3)"
+							}}
 							eventsIfTopMost={true}
 						/>
 					</GeoJSON>
-
-
 				</MapLibre>
 
 				<h2 class="mb-2 flex items-center gap-1.5 font-semibold">
@@ -529,15 +520,15 @@
 					About this Pokestop
 				</h2>
 
-				<div class="mb-4 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg">
+				<div
+					class="mb-4 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg"
+				>
 					<p class="font-semibold mb-2">
 						{data.name}
 					</p>
 
 					{#if !data.description}
-						<p class="text-muted-foreground">
-							No description
-						</p>
+						<p class="text-muted-foreground">No description</p>
 					{:else}
 						<p class="text-muted-foreground">
 							{data.description}
@@ -545,10 +536,12 @@
 					{/if}
 
 					<div class="mt-2 relative rounded-md overflow-hidden h-28 w-full">
-						<button class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center">
-<!--							<span class="bg-accent text-accent-foreground border border-border px-4 py-1 rounded-md text-sm font-medium shadow-sm">-->
-<!--								Reveal full image-->
-<!--							</span>-->
+						<button
+							class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center"
+						>
+							<!--							<span class="bg-accent text-accent-foreground border border-border px-4 py-1 rounded-md text-sm font-medium shadow-sm">-->
+							<!--								Reveal full image-->
+							<!--							</span>-->
 							<Button class="bg-accent/40! backdrop-blur-sm" variant="outline" size="sm">
 								Show full image
 							</Button>
@@ -566,7 +559,9 @@
 					</Button>
 				</div>
 
-				<div class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg">
+				<div
+					class="space-y-3 bg-accent text-accent-foreground px-4 py-4 border border-border rounded-lg"
+				>
 					<!--					<h2 class="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">-->
 					<!--						<QuestIcon class="fill-muted-foreground size-3.5" />-->
 					<!--						Quest-->
@@ -590,33 +585,31 @@
 							<Search class="size-3.5" />
 							{m.first_seen()}
 						</div>
-						{timestampToLocalTime(data.first_seen_timestamp, true)}
+						{timestampToLocalTime(data.first_seen_timestamp, { showDate: true })}
 					</div>
 				</div>
 			</div>
-
-
 		</Drawer.Content>
 	</Drawer.Portal>
 </Drawer.Root>
 
 <style>
-    :global(.drawer-full) {
-        /* Only inset for the status bar when the drawer is expanded to the top;
+	:global(.drawer-full) {
+		/* Only inset for the status bar when the drawer is expanded to the top;
 		   at the partial snap point it sits below the status bar already. */
-        padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
+		padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
 
-        & .content {
-            overflow-y: auto;
-        }
-    }
+		& .content {
+			overflow-y: auto;
+		}
+	}
 
-    :global(.drawer-partial) {
-        border-top-left-radius: calc(var(--radius) + 4px);
-        border-top-right-radius: calc(var(--radius) + 4px);
+	:global(.drawer-partial) {
+		border-top-left-radius: calc(var(--radius) + 4px);
+		border-top-right-radius: calc(var(--radius) + 4px);
 
-        & .content {
-            overflow-y: hidden;
-        }
-    }
+		& .content {
+			overflow-y: hidden;
+		}
+	}
 </style>

@@ -4,19 +4,21 @@ import { getLocale } from "$lib/paraglide/runtime";
 
 export function timestampToLocalTime(
 	timestamp: number | null | undefined,
-	showDate: boolean = false,
-	showSeconds: boolean = true,
 	options: {
+		showDate?: boolean;
+		showSeconds?: boolean;
 		showTime?: boolean
+		longMonth?: boolean
 	} | undefined = undefined
 ) {
 	if (!timestamp) return "";
+	const { showDate = false, showSeconds = true, showTime = true } = options ?? {};
 
 	const date = new Date(timestamp * 1000);
 
 	const params: Intl.DateTimeFormatOptions = {}
 
-	if (options?.showTime ?? true) {
+	if (showTime) {
 		params.hour = "2-digit"
 		params.minute = "2-digit"
 	}
@@ -43,12 +45,19 @@ export function timestampToLocalTime(
 			return m.tomorrow_time({ time: timeString });
 		}
 
-		return date.toLocaleString(getLocale(), {
-			...params,
+		const dateParams: Intl.DateTimeFormatOptions = {
+			...options,
 			day: "numeric",
-			month: "short",
-			year: "numeric"
-		});
+			month: "short"
+		}
+		if (date.getFullYear() !== today.getFullYear()) {
+			dateParams.year = "numeric"
+		}
+		if (options?.longMonth) {
+			dateParams.month = "long"
+		}
+
+		return date.toLocaleString(getLocale(), dateParams);
 	}
 
 	return timeString;

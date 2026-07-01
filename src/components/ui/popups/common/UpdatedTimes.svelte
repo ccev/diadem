@@ -35,6 +35,6 @@
 
 {#if firstSeen}
 	<IconValue Icon={Search}>
-		{m.first_seen()}: <b>{timestampToLocalTime(firstSeen, true)}</b>
+		{m.first_seen()}: <b>{timestampToLocalTime(firstSeen, { showDate: true })}</b>
 	</IconValue>
 {/if}

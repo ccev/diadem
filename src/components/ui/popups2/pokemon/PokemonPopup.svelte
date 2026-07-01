@@ -16,12 +16,20 @@
 	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
 	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
-	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
+	import {
+		getPokemonStats as getMasterPokemonStats,
+		type PokemonStats
+	} from "$lib/features/masterStats.svelte";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
 	import { Features } from "$lib/utils/features";
-	import { formatNumber, formatNumberCompact, formatPercentage, formatRatio } from "$lib/utils/numberFormat";
+	import {
+		formatNumber,
+		formatNumberCompact,
+		formatPercentage,
+		formatRatio
+	} from "$lib/utils/numberFormat";
 	import {
 		getBestRank,
 		getPokemonSize,
@@ -102,16 +110,15 @@
 			{ league: m.ultra_league(), rank: getBestRank(data, League.ULTRA) }
 		]
 			.filter(({ rank }) => rank > 0 && rank <= 5)
-			.map(({ league }) => league)
+			.map(({ league }) => league);
 
-		if (leagues.length === 0) return undefined
-		if (leagues.length === 1) return leagues[0]
+		if (leagues.length === 0) return undefined;
+		if (leagues.length === 1) return leagues[0];
 
 		return m.listed_and({
 			part1: leagues.slice(0, leagues.length - 1).join(", "),
 			part2: leagues[leagues.length - 1]
-		})
-
+		});
 	}
 </script>
 
@@ -195,11 +202,7 @@
 			>
 				<Clock class="size-4" />
 				<p>
-					{timestampToLocalTime(
-						hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp,
-						false,
-						true
-					)}
+					{timestampToLocalTime(hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp)}
 				</p>
 			</div>
 
@@ -275,9 +278,7 @@
 		<!--IV notices-->
 		{#if data.iv != null && data.iv > 99}
 			<BasicMainCard class="flex gap-2 font-medium justify-center">
-				<span>
-					💯
-				</span>
+				<span> 💯 </span>
 				{m.notice_hundo({ name: speciesName(data) })}
 			</BasicMainCard>
 		{:else if data.iv === 0}
@@ -293,7 +294,9 @@
 				<Spotlight class="size-4 mt-1" />
 				{m.notice_extremely_rare({
 					name: speciesName(data),
-					chance: formatNumber(stats.total.count / statsEntry.spawns.count, { maximumFractionDigits: 0 })
+					chance: formatNumber(stats.total.count / statsEntry.spawns.count, {
+						maximumFractionDigits: 0
+					})
 				})}
 			</BasicMainCard>
 		{/if}
@@ -399,8 +402,8 @@
 				{/if}
 				{#if statsEntry}
 					{m.total_seen()}: {formatNumberCompact(
-					statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
-				)}
+						statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
+					)}
 				{/if}
 			</p>
 		{/snippet}
@@ -467,7 +470,7 @@
 		</TitledMainSection>
 	{/if}
 
-	{#if getUserSettings().filters.pokemon.enabled && getUserSettings().filters.pokemon.filters.find(f => f.enabled)}
+	{#if getUserSettings().filters.pokemon.enabled && getUserSettings().filters.pokemon.filters.find((f) => f.enabled)}
 		<TitledMainSection Icon={SlidersHorizontal} title={m.matching_filtersets()}>
 			<BasicMainCard>
 				{@const filtersets = matchPokemonFiltersets(data)}
@@ -479,13 +482,14 @@
 				{/if}
 				<div class="flex flex-wrap gap-3">
 					{#each filtersets as filterset (filterset.id)}
-						<div class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md">
+						<div
+							class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md"
+						>
 							<FiltersetIcon {filterset} size={4} />
 							{filterTitle(filterset)}
 						</div>
 					{/each}
 				</div>
-
 			</BasicMainCard>
 		</TitledMainSection>
 	{/if}

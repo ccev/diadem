@@ -18,7 +18,7 @@
 
 <span class:whitespace-nowrap={nowrap}>
 	<b>
-		{timestampToLocalTime(expireTime, Boolean(showDate))}
+		{timestampToLocalTime(expireTime, { showDate: Boolean(showDate) })}
 	</b>
 	(<Countdown {expireTime} {showHours} />)
 </span>

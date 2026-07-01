@@ -22,13 +22,10 @@
 </script>
 
 {#if updated}
-	<StatsMainCardEntry
-		Icon={Clock}
-		name={m.last_seen()}
-	>
+	<StatsMainCardEntry Icon={Clock} name={m.last_seen()}>
 		{#snippet value()}
 			{#if currentTimestamp() - updated > 60 * 60 * 24}
-				{timestampToLocalTime(updated, true, false)}
+				{timestampToLocalTime(updated, { showDate: true, showSeconds: false })}
 			{:else}
 				<Countdown expireTime={updated} />
 			{/if}
@@ -37,13 +34,10 @@
 {/if}
 
 {#if lastModified}
-	<StatsMainCardEntry
-		Icon={ClockArrowUp}
-		name={m.last_updated()}
-	>
+	<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_updated()}>
 		{#snippet value()}
 			{#if currentTimestamp() - lastModified > 60 * 60 * 24}
-				{timestampToLocalTime(lastModified, true, false)}
+				{timestampToLocalTime(lastModified, { showDate: true, showSeconds: false })}
 			{:else}
 				<Countdown expireTime={lastModified} />
 			{/if}
@@ -52,13 +46,10 @@
 {/if}
 
 {#if firstSeen}
-	<StatsMainCardEntry
-		Icon={Search}
-		name={m.first_seen()}
-	>
+	<StatsMainCardEntry Icon={Search} name={m.first_seen()}>
 		{#snippet value()}
 			{#if currentTimestamp() - firstSeen > 60 * 60 * 24}
-				{timestampToLocalTime(firstSeen, true, false)}
+				{timestampToLocalTime(firstSeen, { showDate: true, showSeconds: false })}
 			{:else}
 				<Countdown expireTime={firstSeen} />
 			{/if}
