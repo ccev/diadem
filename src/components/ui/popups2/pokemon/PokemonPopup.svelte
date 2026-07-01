@@ -8,7 +8,7 @@
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
-	import SimpleOverviewCard from "@/components/ui/popups2/common/SimpleOverviewCard.svelte";
+	import OverviewCard from "@/components/ui/popups2/common/OverviewCard.svelte";
 	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
 	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
@@ -132,50 +132,66 @@
 {#snippet overview(d: MapData)}
 	{@const data = d as PokemonData}
 
-	<SimpleOverviewCard title={hasTimer(data) ? m.popup_despawns() : m.popup_found()}>
-		<Countdown expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp} />
-	</SimpleOverviewCard>
+	<OverviewCard title={hasTimer(data) ? m.popup_despawns() : m.popup_found()}>
+		{#snippet value()}
+			<Countdown expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp} />
+		{/snippet}
+	</OverviewCard>
 
 	{#if data.iv != null}
-		<SimpleOverviewCard title={m.pogo_ivs()}>
-			{@render coloredIvs(data.iv, 1)}
-		</SimpleOverviewCard>
+		<OverviewCard title={m.pogo_ivs()}>
+			{#snippet value()}
+				{@render coloredIvs(data.iv, 1)}
+			{/snippet}
+		</OverviewCard>
 	{/if}
 
 	{#if showLittle(data)}
-		<SimpleOverviewCard title={m.little_league()}>
-			#{getBestRank(data, League.LITTLE)}
-		</SimpleOverviewCard>
+		<OverviewCard title={m.little_league()}>
+			{#snippet value()}
+				#{getBestRank(data, League.LITTLE)}
+			{/snippet}
+		</OverviewCard>
 	{/if}
 
 	{#if showGreat(data)}
-		<SimpleOverviewCard title={m.great_league()}>
-			#{getBestRank(data, League.GREAT)}
-		</SimpleOverviewCard>
+		<OverviewCard title={m.great_league()}>
+			{#snippet value()}
+				#{getBestRank(data, League.GREAT)}
+			{/snippet}
+		</OverviewCard>
 	{/if}
 
 	{#if showUltra(data)}
-		<SimpleOverviewCard title={m.ultra_league()}>
-			#{getBestRank(data, League.ULTRA)}
-		</SimpleOverviewCard>
+		<OverviewCard title={m.ultra_league()}>
+			{#snippet value()}
+				#{getBestRank(data, League.ULTRA)}
+			{/snippet}
+		</OverviewCard>
 	{/if}
 
 	{#if data.size && [1, 5].includes(data.size)}
-		<SimpleOverviewCard title={m.pokemon_size()}>
-			{getPokemonSize(data.size)}
-		</SimpleOverviewCard>
+		{#snippet value()}
+			<OverviewCard title={m.pokemon_size()}>
+				{getPokemonSize(data.size)}
+			</OverviewCard>
+		{/snippet}
 	{/if}
 
 	{#if data.cp != null}
-		<SimpleOverviewCard title={m.cp()}>
-			{data.cp}
-		</SimpleOverviewCard>
+		{#snippet value()}
+			<OverviewCard title={m.cp()}>
+				{data.cp}
+			</OverviewCard>
+		{/snippet}
 	{/if}
 
 	{#if data.level != null}
-		<SimpleOverviewCard title={m.level()}>
-			{data.level}
-		</SimpleOverviewCard>
+		{#snippet value()}
+			<OverviewCard title={m.level()}>
+				{data.level}
+			</OverviewCard>
+		{/snippet}
 	{/if}
 {/snippet}
 
@@ -402,8 +418,8 @@
 				{/if}
 				{#if statsEntry}
 					{m.total_seen()}: {formatNumberCompact(
-						statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
-					)}
+					statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
+				)}
 				{/if}
 			</p>
 		{/snippet}

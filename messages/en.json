@@ -582,5 +582,6 @@
 	"male_type": "Male {type}",
 	"female_type": "Female {type}",
 	"giovanni_or_decoy": "Giovanni or Decoy",
-	"decoy": "Decoy"
+	"decoy": "Decoy",
+	"hidden_here": "Hidden here"
 }

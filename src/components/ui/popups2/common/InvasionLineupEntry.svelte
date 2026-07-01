@@ -4,7 +4,7 @@
 	import { mPokemon } from "$lib/services/ingameLocale";
 	import { getInvasionPokemon } from "$lib/features/masterStats.svelte";
 	import type { InvasionPokemonStats } from "$lib/server/api/queryStats";
-	import type { PokemonData, PokemonVisual } from "$lib/types/mapObjectData/pokemon";
+	import type { PokemonVisual } from "$lib/types/mapObjectData/pokemon";
 
 	let {
 		position,
@@ -18,15 +18,14 @@
 		slotForm: number | undefined,
 	} = $props();
 
-	let catchable: boolean = $derived(lineup[0]?.encounter ?? false)
-	let pokemon: Partial<PokemonVisual>[] | undefined = $derived.by(() => {
+	let catchable: boolean = $derived(lineup[0]?.encounter ?? false);
+	let pokemon: PokemonVisual[] = $derived.by(() => {
 		if (slotPokemonId) {
-			return [getInvasionPokemon({ pokemon_id: slotPokemonId, form: slotForm })]
+			return [getInvasionPokemon({ pokemon_id: slotPokemonId, form: slotForm })];
 		}
-		if (lineup) {
-			return lineup.map(getInvasionPokemon)
-		}
-	})
+
+		return lineup.map(getInvasionPokemon);
+	});
 </script>
 
 <div>
@@ -43,10 +42,9 @@
 
 			<div class="ml-2">
 				<div class="flex items-center">
-					{#each pokemon as slotMon}
-						{@const pokemon = getInvasionPokemon(slotMon)}
+					{#each pokemon as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
 						<div class="p-1 size-12">
-							<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
+							<ImagePopup src={getIconPokemon(slotMon)} alt={mPokemon(slotMon)} />
 						</div>
 					{/each}
 				</div>
