@@ -17,13 +17,10 @@
 		CircleDot,
 		Clock,
 		Flower,
-		Globe,
 		Info,
-		MapPin,
 		Medal,
 		Rat,
 		SlidersHorizontal,
-		Sword,
 		UsersRound,
 		ArrowRight
 	} from "@lucide/svelte";
@@ -41,12 +38,7 @@
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import QuestIcon2 from "@/components/icons/QuestIcon2.svelte";
 	import InvasionIcon2 from "@/components/icons/InvasionIcon2.svelte";
-	import {
-		getInvasionCatchable,
-		getInvasionLineup,
-		getInvasionPokemon,
-		hasInvasionLineup
-	} from "$lib/features/masterStats.svelte";
+	import { getInvasionLineup, getInvasionPokemon } from "$lib/features/masterStats.svelte";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
 	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
 	import { resize } from "$lib/services/assets";
@@ -59,12 +51,13 @@
 	import type { ActiveInvasionCharacterStats } from "$lib/server/api/queryStats";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import MainCardBigIcon from "@/components/ui/popups2/common/MainCardBigIcon.svelte";
-	import { getContestIcon } from "$lib/utils/pokestopUtils.ts";
+	import { getContestIcon } from "$lib/utils/pokestopUtils";
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
-	import { getIconItem } from "$lib/services/uicons.svelte.ts";
-	import { mAlignment, mItem } from "$lib/services/ingameLocale.ts";
-	import { isFortOutdated } from "$lib/utils/gymUtils.ts";
+	import { getIconItem } from "$lib/services/uicons.svelte";
+	import { mAlignment, mItem } from "$lib/services/ingameLocale";
+	import { isFortOutdated } from "$lib/utils/gymUtils";
 	import BigExpireTime from "@/components/ui/popups2/common/BigExpireTime.svelte";
+	import InvasionLineupEntry from "@/components/ui/popups2/common/InvasionLineupEntry.svelte";
 
 	export { image, overview, main };
 
@@ -147,14 +140,15 @@
 	}
 </script>
 <script>
-	import { Shield, ShieldHalf } from "@lucide/svelte";
+	import { ShieldHalf } from "@lucide/svelte";
 	import QuickSearchButton from "@/components/ui/popups2/common/QuickSearchButton.svelte";
 	import {
 		setActiveSearchInvasion,
 		setActiveSearchKecleon,
 		setActiveSearchQuest
-	} from "$lib/features/activeSearch.svelte.ts";
-	import { getActiveSearchQuestParams } from "$lib/services/search.svelte.ts";
+	} from "$lib/features/activeSearch.svelte";
+	import { getActiveSearchQuestParams } from "$lib/services/search.svelte";
+	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -247,9 +241,7 @@
 					</BasicMainCard>
 				{/if}
 				{#each invasions as invasion (invasion.id)}
-					{@const hasLineup = hasInvasionLineup(invasion.character)}
 					{@const lineup = getInvasionLineup(invasion.character)}
-					{@const catchables = getInvasionCatchable(invasion.character) ?? []}
 					<BasicMainCard>
 						{@const reward = getInvasionReward(invasion, lineup)}
 						{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
@@ -283,7 +275,7 @@
 								{#if lineup?.second?.[0]?.encounter}
 									<div class="flex flex-col items-center mt-5 mb-1">
 										<p class="">
-											or a 16% chance to get:
+											or 16% chance to get:
 										</p>
 
 										<div class="flex gap-3 mt-2">
@@ -314,51 +306,24 @@
 									Possible Lineup
 								</IconValue>
 								<div class="w-full flex overflow-x-auto *:shrink-0 gap-3 px-4 mt-2">
-									<div class="rounded-sm px-2 py-1 bg-indigo-950/50">
-										<div class="flex items-center">
-											<p class="text-muted-foreground font-semibold text-sm pr-1">#1</p>
-											{#each lineup.first as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
-												{@const pokemon = getInvasionPokemon(slotMon)}
-												<div class="p-1 size-10">
-													<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
-												</div>
-											{/each}
-										</div>
-										<p
-											class="w-full text-center px-2 text-muted-foreground text-sm font-semibold mt-1"
-										>
-											Catchable
-										</p>
-									</div>
-
-									<div class="flex rounded-sm px-2 py-1 items-center bg-border/50">
-										<p class="text-muted-foreground font-semibold text-sm pr-1">#2</p>
-										{#each lineup.second as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
-											{@const pokemon = getInvasionPokemon(slotMon)}
-											<div class="p-1 size-10">
-												<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
-											</div>
-										{/each}
-									</div>
-
-									<div class="flex rounded-sm px-2 py-1 items-center bg-border/50">
-										<p class="text-muted-foreground font-semibold text-sm pr-1">#3</p>
-										{#each lineup.third as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}
-											{@const pokemon = getInvasionPokemon(slotMon)}
-											<div class="p-1 size-10">
-												<ImagePopup src={getIconPokemon(pokemon)} alt={mPokemon(pokemon)} />
-											</div>
-										{/each}
-									</div>
-									<!--{#each catchables as slotMon (`${slotMon.pokemon_id}-${slotMon.form}`)}-->
-									<!--	{@const pokemon = getInvasionPokemon(slotMon)}-->
-									<!--	<div class="p-1 size-14">-->
-									<!--		<ImagePopup-->
-									<!--			src={getIconPokemon(pokemon)}-->
-									<!--			alt={mPokemon(pokemon)}-->
-									<!--		/>-->
-									<!--	</div>-->
-									<!--{/each}-->
+									<InvasionLineupEntry
+										position={1}
+										lineup={lineup.first}
+										slotPokemonId={invasion.slot_1_pokemon_id}
+										slotForm={invasion.slot_1_form}
+									/>
+									<InvasionLineupEntry
+										position={2}
+										lineup={lineup.second}
+										slotPokemonId={invasion.slot_2_pokemon_id}
+										slotForm={invasion.slot_2_form}
+									/>
+									<InvasionLineupEntry
+										position={3}
+										lineup={lineup.third}
+										slotPokemonId={invasion.slot_3_pokemon_id}
+										slotForm={invasion.slot_3_form}
+									/>
 								</div>
 							</div>
 						{/if}
@@ -564,6 +529,9 @@
 					<button
 						class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center"
 					>
+						<div>
+							
+						</div>
 						<Button class="bg-accent/40! backdrop-blur-sm" variant="outline" size="sm">
 							Show full image
 						</Button>
@@ -576,7 +544,7 @@
 				</div>
 			{/if}
 
-			<Button class="mt-3 mb-2 w-full" variant="link">
+			<Button class="mt-3 mb-2 w-full" variant="link" onclick={openWayfarerMap}>
 				Go to Wayfarer Map
 				<ArrowRight class="size-3.5" />
 			</Button>

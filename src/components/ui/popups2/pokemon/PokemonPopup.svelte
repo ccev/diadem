@@ -198,7 +198,7 @@
 
 		<div class="flex justify-between text-xl mt-3 items-center gap-4">
 			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 w-full"
+				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 grow basis-1"
 			>
 				<Clock class="size-4" />
 				<p>
@@ -207,7 +207,7 @@
 			</div>
 
 			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 w-full"
+				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 grows basis-1"
 			>
 				<Countdown
 					expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
