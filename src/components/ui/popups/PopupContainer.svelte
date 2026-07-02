@@ -6,9 +6,7 @@
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
 	import { getPopupPropsPokemon } from "@/components/ui/popups2/pokemon/PokemonPopup.svelte";
-	import PopupBaseStatic, {
-		type MapObjectPopupProps
-	} from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
+	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import { getPopupPropsPokestop } from "@/components/ui/popups2/pokestop/PokestopPopup.svelte";
 	import { getPopupPropsNest } from "@/components/ui/popups2/nest/NestPopup.svelte";
 	import { getPopupPropsTappable } from "@/components/ui/popups2/tappable/TappablePopup.svelte";
@@ -33,7 +31,7 @@
 	watch(
 		() => data,
 		() => {
-			if (data) {
+			if (data && data.type !== MapObjectType.S2_CELL) {
 				snapshotData = $state.snapshot(data);
 			}
 		}
@@ -45,7 +43,7 @@
 </script>
 
 {#if alwaysExpanded}
-	{#if data}
+	{#if snapshotData}
 		<div
 			class="z-10 w-100 h-screen pointer-events-auto border border-border bg-card/60 backdrop-blur-sm"
 			transition:fly={{ duration: 90, x: 120 }}
@@ -60,7 +58,7 @@
 	{/if}
 {:else}
 	<PopupBaseDrawer
-		open={Boolean(data)}
+		open={Boolean(snapshotData)}
 		coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}
 		data={snapshotData}
 		props={popupProps}
