@@ -117,8 +117,8 @@
 			href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
 			target="_blank"
 		/>
-	{:else}
-		<PopupButtons lat={coords.lat} lon={coords.lon} />
+	{:else if data}
+		<PopupButtons lat={coords.lat} lon={coords.lon} {data} />
 	{/if}
 </div>
 

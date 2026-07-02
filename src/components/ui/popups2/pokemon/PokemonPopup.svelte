@@ -121,6 +121,9 @@
 		});
 	}
 </script>
+<script>
+	import PokemonStatsCard from "@/components/ui/popups2/common/PokemonStatsCard.svelte";
+</script>
 
 {#snippet image(d: MapData)}
 	{@const data = d as PokemonData}
@@ -141,7 +144,7 @@
 	{#if data.iv != null}
 		<OverviewCard title={m.pogo_ivs()}>
 			{#snippet value()}
-				{@render coloredIvs(data.iv, 1)}
+				{@render coloredIvs(data?.iv ?? -1, 1)}
 			{/snippet}
 		</OverviewCard>
 	{/if}
@@ -171,27 +174,15 @@
 	{/if}
 
 	{#if data.size && [1, 5].includes(data.size)}
-		{#snippet value()}
-			<OverviewCard title={m.pokemon_size()}>
-				{getPokemonSize(data.size)}
-			</OverviewCard>
-		{/snippet}
+		<OverviewCard title={m.pokemon_size()} value={getPokemonSize(data?.size ?? 3)} />
 	{/if}
 
 	{#if data.cp != null}
-		{#snippet value()}
-			<OverviewCard title={m.cp()}>
-				{data.cp}
-			</OverviewCard>
-		{/snippet}
+		<OverviewCard title={m.cp()} value={data.cp} />
 	{/if}
 
 	{#if data.level != null}
-		{#snippet value()}
-			<OverviewCard title={m.level()}>
-				{data.level}
-			</OverviewCard>
-		{/snippet}
+		<OverviewCard title={m.level()} value={data.level} />
 	{/if}
 {/snippet}
 
@@ -409,52 +400,7 @@
 		</TitledMainSection>
 	{/if}
 
-	<!--Shiny / Rarity-->
-	<TitledMainSection Icon={ChartColumn} title={m.stats()}>
-		{#snippet rightPart()}
-			<p class="text-sm text-muted-foreground">
-				{#if stats}
-					{m.last_x_days({ days: formatNumber(stats.total.days) })} ·
-				{/if}
-				{#if statsEntry}
-					{m.total_seen()}: {formatNumberCompact(
-					statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
-				)}
-				{/if}
-			</p>
-		{/snippet}
-
-		<StatsMainCard>
-			{#if !statsEntry}
-				{m.stats_unavailable({ name: speciesName(data) })}
-			{:else}
-				<StatsMainCardEntry
-					Icon={Sparkles}
-					name={statsEntry.shiny && statsEntry.shiny.shinies > 0
-						? m.shiny_rate()
-						: m.contest_shiny()}
-					value={statsEntry.shiny && statsEntry.shiny.shinies > 0
-						? formatRatio(statsEntry.shiny.shinies, statsEntry.shiny.total)
-						: m.no_shinies_seen()}
-				/>
-				<StatsMainCardEntry Icon={Crown} name={m.rarity()}>
-					{#snippet value()}
-						{#if statsEntry.spawns && statsEntry.spawns.count > 0}
-							<p class="flex gap-2">
-								<span class="text-muted-foreground">
-									{formatRatio(statsEntry.spawns.count, stats.total.count)}
-								</span>
-								<span class="text-muted-foreground">·</span>
-								<span>{getRarityLabel(statsEntry.spawns.count, stats.total.count)}</span>
-							</p>
-						{:else}
-							{m.unavailable()}
-						{/if}
-					{/snippet}
-				</StatsMainCardEntry>
-			{/if}
-		</StatsMainCard>
-	</TitledMainSection>
+	<PokemonStatsCard {data} />
 
 	{#if !data.seen_type?.includes("nearby")}
 		<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>

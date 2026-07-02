@@ -302,8 +302,8 @@
 	"spawnpoints": "Spawnpoints",
 	"nests": "Nests",
 	"pokemon_nest": "{pokemon} Nest",
-	"park_name": "Park name",
-	"nest_avg": "Spawn rate",
+	"park_name": "Park Name",
+	"nest_avg": "Spawn Rate",
 	"nest_avg_value": "~{avg}/hour",
 	"nest_ratio": "Spawn Ratio",
 	"nest_spawnpoint_count": "Total Spawnpoints",
@@ -605,5 +605,7 @@
 	"about_this_pokestop": "About this Pokéstop",
 	"no_description": "No description",
 	"cover_photo_of": "Cover Photo of {name}",
-	"go_to_wayfarer_map": "Go to Wayfarer Map"
+	"go_to_wayfarer_map": "Go to Wayfarer Map",
+	"about_this_nest": "About this Nest",
+	"access_this_nest": "View the Nest"
 }

@@ -25,18 +25,20 @@
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
+	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 
 	let {
 		lat,
-		lon
+		lon,
+		data
 	}: {
 		lat: number;
 		lon: number;
+		data: MapData;
 	} = $props();
 
-	let selectedData = $derived(getCurrentSelectedData());
-	let selectedType = $derived(selectedData?.type);
-	let selectedMapId = $derived(selectedData?.mapId);
+	let selectedType = $derived(data?.type);
+	let selectedMapId = $derived(data?.mapId);
 </script>
 
 <div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">

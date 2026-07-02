@@ -11,12 +11,12 @@
 		Icon?: LucideIcon,
 		title: string,
 		children?: Snippet,
-		value?: Snippet
-	} = $props()
+		value?: Snippet | any
+	} = $props();
 </script>
 
 <div class="border bg-accent border-border rounded-lg px-4 py-2 max-w-64">
-	<h2 class="flex items-center gap-1 text-muted-foreground text-sm font-semibold mb-2">
+	<h2 class="flex items-center gap-1 text-muted-foreground text-sm font-semibold mb-1">
 		{#if Icon}
 			<Icon class="size-3.5" />
 		{/if}
@@ -31,7 +31,11 @@
 		<p
 			class="font-semibold text-xl"
 		>
-			{@render value()}
+			{#if typeof value === "function"}
+				{@render value()}
+			{:else}
+				{value}
+			{/if}
 		</p>
 	{/if}
 </div>

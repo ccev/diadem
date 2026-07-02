@@ -8,6 +8,7 @@
 	import { getPopupPropsPokemon } from "@/components/ui/popups2/pokemon/PokemonPopup.svelte";
 	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import { getPopupPropsPokestop } from "@/components/ui/popups2/pokestop/PokestopPopup.svelte";
+	import { getPopupPropsNest } from "@/components/ui/popups2/nest/NestPopup.svelte";
 
 	let {
 		alwaysExpanded = false
@@ -17,7 +18,8 @@
 
 	const propMap: Partial<Record<MapObjectType, (data: MapData) => MapObjectPopupProps>> = {
 		[MapObjectType.POKEMON]: getPopupPropsPokemon,
-		[MapObjectType.POKESTOP]: getPopupPropsPokestop
+		[MapObjectType.POKESTOP]: getPopupPropsPokestop,
+		[MapObjectType.NEST]: getPopupPropsNest
 	};
 
 	let data = $derived(getCurrentSelectedData());

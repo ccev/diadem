@@ -6,16 +6,18 @@
 
 	let {
 		label,
-		onclick
+		onclick,
+		class: class_ = ""
 	}: {
 		label: string,
-		onclick: () => void
+		onclick: () => void,
+		class?: string
 	} = $props();
 </script>
 
 <Button
 	variant="link"
-	class="w-full mt-3 mb-2"
+	class="w-full mt-3 mb-2 {class_}"
 	onclick={() => {
 		resetPopupBaseDrawerSnapPoint()
 		onclick()
