@@ -6,22 +6,26 @@
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
 	import { getPopupPropsPokemon } from "@/components/ui/popups2/pokemon/PokemonPopup.svelte";
-	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
+	import PopupBaseStatic, {
+		type MapObjectPopupProps
+	} from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import { getPopupPropsPokestop } from "@/components/ui/popups2/pokestop/PokestopPopup.svelte";
 	import { getPopupPropsNest } from "@/components/ui/popups2/nest/NestPopup.svelte";
 	import { getPopupPropsTappable } from "@/components/ui/popups2/tappable/TappablePopup.svelte";
+	import { getPopupPropsSpawnpoint } from "@/components/ui/popups2/spawnpoint/SpawnpointPopup.svelte";
 
 	let {
 		alwaysExpanded = false
 	}: {
-		alwaysExpanded?: boolean
+		alwaysExpanded?: boolean;
 	} = $props();
 
 	const propMap: Partial<Record<MapObjectType, (data: MapData) => MapObjectPopupProps>> = {
 		[MapObjectType.POKEMON]: getPopupPropsPokemon,
 		[MapObjectType.POKESTOP]: getPopupPropsPokestop,
 		[MapObjectType.NEST]: getPopupPropsNest,
-		[MapObjectType.TAPPABLE]: getPopupPropsTappable
+		[MapObjectType.TAPPABLE]: getPopupPropsTappable,
+		[MapObjectType.SPAWNPOINT]: getPopupPropsSpawnpoint
 	};
 
 	let data = $derived(getCurrentSelectedData());

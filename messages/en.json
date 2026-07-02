@@ -608,5 +608,9 @@
 	"go_to_wayfarer_map": "Go to Wayfarer Map",
 	"about_this_nest": "About this Nest",
 	"access_this_nest": "View the Nest",
-	"access_this_tappable": "Access this Ground item"
+	"access_this_tappable": "Access this Ground item",
+	"about_this_spawnpoint": "About this Spawnpoint",
+	"access_this_spawnpoint": "Access this Spawnpoint",
+	"spawnpoint_outdated_notice": "This Spawnpoint is outdated! It was last seen {time}",
+	"s2_cell_id": "S2 Cell ID"
 }
