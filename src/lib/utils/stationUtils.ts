@@ -11,8 +11,29 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 export const STATION_SLOTS = 40;
 
+// in percent
+// from https://www.reddit.com/r/TheSilphRoad/comments/1nmx8fb/small_update_on_max_battle_parameters_and_the_cpm/
+const ATTACK_BONUSES: Record<string, number> = {
+	"0": 0.0,
+	"1": 10.0,
+	"2": 15.0,
+	"3": 17.0,
+	"4": 18.0,
+	"5": 18.7,
+	"6": 19.1,
+	"7": 19.2,
+	"8": 19.3,
+	"9": 19.4,
+	"10": 19.5,
+	"11": 19.6,
+	"12": 19.7,
+	"13": 19.8,
+	"14": 19.9,
+	"15": 20.0
+};
+
 export function getStationTitle(data: StationData) {
-	if (data.battle_pokemon_id) return mPokemon(getStationPokemon(data));
+	if (isMaxBattleActive(data) && data.battle_pokemon_id) return mPokemon(getStationPokemon(data));
 	return data.name ?? m.pogo_station();
 }
 
@@ -39,7 +60,11 @@ const MAX_BATTLE_FIELDS = [
 	"battle_pokemon_move_1",
 	"battle_pokemon_move_2",
 	"battle_pokemon_stamina",
-	"battle_pokemon_cp_multiplier"
+	"battle_pokemon_cp_multiplier",
+	"raw_stationed_pokemon",
+	"stationed_pokemon",
+	"total_stationed_gmax",
+	"total_stationed_pokemon"
 ] as const satisfies readonly (keyof StationData)[];
 
 export function stripMaxBattleFields(data: Partial<StationData>) {
@@ -97,4 +122,8 @@ export function calculateMaxBattleCp(station: StationData) {
 
 	const cp = Math.floor((attack * cpMultiplier * Math.sqrt(defense * cpMultiplier * stamina)) / 10);
 	return cp < 10 ? 10 : cp;
+}
+
+export function getStationAttackBonus(stationed: number) {
+	return (ATTACK_BONUSES[stationed.toString()] ?? ATTACK_BONUSES["15"]) / 100
 }

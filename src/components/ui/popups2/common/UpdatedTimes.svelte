@@ -25,7 +25,7 @@
 	<StatsMainCardEntry Icon={Clock} name={m.last_seen()}>
 		{#snippet value()}
 			{#if currentTimestamp() - updated > 60 * 60 * 24}
-				{timestampToLocalTime(updated, { showDate: true, showSeconds: false })}
+				{timestampToLocalTime(updated, { showDate: true, showSeconds: false, showTime: false })}
 			{:else}
 				<Countdown expireTime={updated} />
 			{/if}
@@ -37,7 +37,7 @@
 	<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_updated()}>
 		{#snippet value()}
 			{#if currentTimestamp() - lastModified > 60 * 60 * 24}
-				{timestampToLocalTime(lastModified, { showDate: true, showSeconds: false })}
+				{timestampToLocalTime(lastModified, { showDate: true, showSeconds: false, showTime: false })}
 			{:else}
 				<Countdown expireTime={lastModified} />
 			{/if}
@@ -49,7 +49,7 @@
 	<StatsMainCardEntry Icon={Search} name={m.first_seen()}>
 		{#snippet value()}
 			{#if currentTimestamp() - firstSeen > 60 * 60 * 24}
-				{timestampToLocalTime(firstSeen, { showDate: true, showSeconds: false })}
+				{timestampToLocalTime(firstSeen, { showDate: true, showSeconds: false, showTime: false })}
 			{:else}
 				<Countdown expireTime={firstSeen} />
 			{/if}

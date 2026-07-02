@@ -4,23 +4,30 @@ import { getLocale } from "$lib/paraglide/runtime";
 
 export function timestampToLocalTime(
 	timestamp: number | null | undefined,
-	options: {
-		showDate?: boolean;
-		showSeconds?: boolean;
-		showTime?: boolean
-		longMonth?: boolean
-	} | undefined = undefined
+	options:
+		| {
+				showDate?: boolean;
+				showSeconds?: boolean;
+				showTime?: boolean;
+				longMonth?: boolean;
+		  }
+		| undefined = undefined
 ) {
 	if (!timestamp) return "";
-	const { showDate = false, showSeconds = true, showTime = true } = options ?? {};
+	const {
+		showDate = false,
+		showSeconds = true,
+		showTime = true,
+		longMonth = false
+	} = options ?? {};
 
 	const date = new Date(timestamp * 1000);
 
-	const params: Intl.DateTimeFormatOptions = {}
+	const params: Intl.DateTimeFormatOptions = {};
 
 	if (showTime) {
-		params.hour = "2-digit"
-		params.minute = "2-digit"
+		params.hour = "2-digit";
+		params.minute = "2-digit";
 	}
 	if (showSeconds) {
 		params.second = "2-digit";
@@ -46,15 +53,15 @@ export function timestampToLocalTime(
 		}
 
 		const dateParams: Intl.DateTimeFormatOptions = {
-			...options,
+			...params,
 			day: "numeric",
 			month: "short"
-		}
+		};
 		if (date.getFullYear() !== today.getFullYear()) {
-			dateParams.year = "numeric"
+			dateParams.year = "numeric";
 		}
-		if (options?.longMonth) {
-			dateParams.month = "long"
+		if (longMonth) {
+			dateParams.month = "long";
 		}
 
 		return date.toLocaleString(getLocale(), dateParams);

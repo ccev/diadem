@@ -36,7 +36,7 @@ import {
 	isIncidentKecleon,
 	KECLEON_ID
 } from "@/lib/utils/pokestopUtils";
-import { getStationTitle } from "@/lib/utils/stationUtils";
+import { getStationTitle, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { getTappableName } from "@/lib/utils/tappableUtils";
 import { getMmSsFromSeconds } from "@/lib/utils/time";
 import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
@@ -74,7 +74,7 @@ export function getShareTitle(data: MapData | null | undefined) {
 		return mPokemon(data);
 	} else if (data.type === MapObjectType.STATION) {
 		let title = "";
-		if (data.battle_pokemon_id) {
+		if (data.battle_pokemon_id && isMaxBattleActive(data)) {
 			title = m.pogo_max_battle();
 		} else {
 			title = m.pogo_station();
@@ -198,13 +198,13 @@ function getGymShareText(data: GymData) {
 function getStationShareText(data: StationData) {
 	let text = "";
 
-	if (data.battle_pokemon_id) {
+	if (data.battle_pokemon_id && isMaxBattleActive(data)) {
 		text += `📍 ${m.pogo_station()}: ${data.name}\n`;
 	}
-	if (data.start_time) {
+	if (data.start_time && isMaxBattleActive(data)) {
 		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, { showDate: true })}\n`;
 	}
-	if (data.end_time) {
+	if (data.end_time && isMaxBattleActive(data)) {
 		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, { showDate: true })}\n`;
 	}
 

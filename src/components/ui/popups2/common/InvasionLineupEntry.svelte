@@ -31,7 +31,7 @@
 <div>
 
 	<div
-		class="rounded-t-md px-4 py-4 bg-indigo-950- bg-accent-highlight relative"
+		class="rounded-t-md px-4 py-4 bg-accent-highlight relative"
 		class:rounded-b-md={!catchable}
 		class:pb-1.5={catchable}
 	>

@@ -16,13 +16,13 @@
 	} = $props();
 </script>
 
-<div class="flex justify-between {class_}">
+<div class="flex justify-between *:last:text-right gap-2 {class_}">
 	{#if typeof name === "function"}
 		{@render name()}
 	{:else}
-		<div class="flex gap-1.5 text-muted-foreground items-center">
+		<div class="flex gap-1.5 text-muted-foreground">
 			{#if Icon}
-				<Icon class="size-3.5" />
+				<Icon class="size-3.5 mt-1 shrink-0" />
 			{/if}
 			{name}
 		</div>

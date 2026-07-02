@@ -7,7 +7,8 @@ import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { Features } from "@/lib/utils/features";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-import { isMaxBattleActive, stripMaxBattleFields } from "@/lib/utils/stationUtils";
+import { stripMaxBattleFields } from "@/lib/utils/stationUtils";
+import type { PokemonVisual } from "$lib/types/mapObjectData/pokemon";
 
 export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	protected readonly type = MapObjectType.STATION;
@@ -33,7 +34,7 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 		"updated",
 		"total_stationed_pokemon",
 		"total_stationed_gmax",
-		"stationed_pokemon",
+		"stationed_pokemon AS raw_stationed_pokemon",
 		"battle_pokemon_stamina",
 		"battle_pokemon_cp_multiplier"
 	];
@@ -71,15 +72,24 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 					};
 
 		if (!shouldDisplayStation(data, effectiveFilter)) return false;
-		if (!filter.maxBattle.enabled || !maxBattlePermitted) stripMaxBattleFields(data);
+		if (!maxBattlePermitted) {
+			stripMaxBattleFields(data);
+		}
 		return true;
 	}
 
 	prepare(data: MinMapObject<StationData>, context?: FeaturePermissionContext): void {
 		data.battle_pokemon_form = getNormalizedForm(data.battle_pokemon_id, data.battle_pokemon_form);
-		if (!isMaxBattleActive(data)) stripMaxBattleFields(data);
 		if (context && !context.isAllowedAt(Features.MAX_BATTLE, data.lat, data.lon)) {
 			stripMaxBattleFields(data);
 		}
+
+		if (data.raw_stationed_pokemon) {
+			data.stationed_pokemon = JSON.parse(data.raw_stationed_pokemon || "[]") as PokemonVisual[]
+			for (const pokemon of data.stationed_pokemon || []) {
+				pokemon.form = getNormalizedForm(pokemon.pokemon_id, pokemon.form)
+			}
+		}
+		delete data.raw_stationed_pokemon;
 	}
 }

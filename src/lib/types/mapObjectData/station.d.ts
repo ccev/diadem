@@ -1,4 +1,5 @@
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { PokemonVisual } from "$lib/types/mapObjectData/pokemon";
 
 export type StationData = {
 	id: string;
@@ -29,5 +30,6 @@ export type StationData = {
 	battle_end?: number;
 	total_stationed_pokemon?: number;
 	total_stationed_gmax?: number;
-	stationed_pokemon?: string;
+	stationed_pokemon?: PokemonVisual[];
+	raw_stationed_pokemon?: string;
 };

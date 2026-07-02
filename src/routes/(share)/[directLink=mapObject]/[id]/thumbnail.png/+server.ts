@@ -9,7 +9,7 @@ import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/u
 import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import { getLogger } from "@/lib/utils/logger";
-import { getStationPokemon } from "@/lib/utils/stationUtils";
+import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { error } from "@sveltejs/kit";
 import { render } from "svelte/server";
 import type { RequestHandler } from "./$types";
@@ -42,7 +42,11 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 	if ((data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) && data.url) {
 		iconUrl = data.url;
 		fullImage = true;
-	} else if (data.type === MapObjectType.STATION && data.battle_pokemon_id) {
+	} else if (
+		data.type === MapObjectType.STATION &&
+		data.battle_pokemon_id &&
+		isMaxBattleActive(data)
+	) {
 		iconset = getDefaultIconSet(MapObjectType.POKEMON).id;
 		iconUrl = getIconPokemon(getStationPokemon(data), iconset);
 	}

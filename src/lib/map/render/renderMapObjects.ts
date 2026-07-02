@@ -48,7 +48,7 @@ import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
 import { getActivePokestopFilter, isIncidentInvasion } from "@/lib/utils/pokestopUtils";
-import { getStationPokemon } from "@/lib/utils/stationUtils";
+import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
 
@@ -415,7 +415,7 @@ class StationRenderer extends MapObjectRenderer<StationData> {
 
 		const features: MapObjectFeature[] = [];
 
-		if (data.battle_pokemon_id) {
+		if (data.battle_pokemon_id && isMaxBattleActive(data)) {
 			const mapId = data.mapId + "-maxbattle-" + data.battle_pokemon_id;
 			const maxBattleModifiers = getConfigModifiers(this.iconSet, "max_battle");
 
