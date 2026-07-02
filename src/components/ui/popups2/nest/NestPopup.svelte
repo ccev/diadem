@@ -3,7 +3,6 @@
 	import * as m from "$lib/paraglide/messages";
 	import { mPokemon } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
-	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import OverviewCard from "@/components/ui/popups2/common/OverviewCard.svelte";
 	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
@@ -11,10 +10,13 @@
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
 	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
 	import { getIconPokemon } from "$lib/services/uicons.svelte";
-	import { formatNumber, formatPercentage, formatDecimal } from "$lib/utils/numberFormat";
+	import { formatDecimal, formatNumber, formatPercentage } from "$lib/utils/numberFormat";
 	import { CircleDot, CircleSlash2, Info, MapPinned, RotateCcw, Trees, VectorSquare } from "@lucide/svelte";
 	import type { NestData } from "$lib/types/mapObjectData/nest";
 	import AccessPolygonMap from "@/components/ui/popups2/common/AccessPolygonMap.svelte";
+	import QuickSearchButton from "@/components/ui/popups2/common/QuickSearchButton.svelte";
+	import { setActiveSearchPokemon } from "$lib/features/activeSearch.svelte";
+	import PokemonStatsCard from "@/components/ui/popups2/common/PokemonStatsCard.svelte";
 
 	export { image, overview, main };
 
@@ -28,11 +30,6 @@
 			main
 		} as MapObjectPopupProps;
 	}
-</script>
-<script>
-	import QuickSearchButton from "@/components/ui/popups2/common/QuickSearchButton.svelte";
-	import { setActiveSearchNest, setActiveSearchPokemon } from "$lib/features/activeSearch.svelte.ts";
-	import PokemonStatsCard from "@/components/ui/popups2/common/PokemonStatsCard.svelte";
 </script>
 
 {#snippet image(d: MapData)}

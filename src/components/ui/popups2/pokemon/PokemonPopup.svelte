@@ -16,24 +16,15 @@
 	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
 	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
-	import {
-		getPokemonStats as getMasterPokemonStats,
-		type PokemonStats
-	} from "$lib/features/masterStats.svelte";
+	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
 	import { Features } from "$lib/utils/features";
-	import {
-		formatNumber,
-		formatNumberCompact,
-		formatPercentage,
-		formatRatio
-	} from "$lib/utils/numberFormat";
+	import { formatNumber, formatPercentage } from "$lib/utils/numberFormat";
 	import {
 		getBestRank,
 		getPokemonSize,
-		getRarityLabel,
 		hasTimer,
 		League,
 		showGreat,
@@ -50,12 +41,10 @@
 	import {
 		ArrowLeftRight,
 		BicepsFlexed,
-		ChartColumn,
 		ChevronDown,
 		CircleDot,
 		CircleSmall,
 		Clock,
-		Crown,
 		Expand,
 		Info,
 		Mars,
@@ -63,7 +52,6 @@
 		RulerDimensionLine,
 		Shrink,
 		SlidersHorizontal,
-		Sparkles,
 		Spotlight,
 		SquareChartGantt,
 		Swords,
@@ -71,6 +59,8 @@
 		Venus
 	} from "@lucide/svelte";
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
+	import PokemonStatsCard from "@/components/ui/popups2/common/PokemonStatsCard.svelte";
+
 
 	export { image, overview, main };
 
@@ -122,7 +112,7 @@
 	}
 </script>
 <script>
-	import PokemonStatsCard from "@/components/ui/popups2/common/PokemonStatsCard.svelte";
+	import BigCountdown from "@/components/ui/popups2/common/BigCountdown.svelte";
 </script>
 
 {#snippet image(d: MapData)}
@@ -193,45 +183,13 @@
 	{@const WeatherIcon = getWeatherIcon(data.weather)}
 	{@const pvpNotice = getPvpNotice(data)}
 
-	<!-- Disappear Time-->
-	<BasicMainCard>
-		<p class="font-semibold ml-1">
-			{#if hasTimer(data)}
-				{m.disappear_time()}
-			{:else}
-				{m.first_seen()}
-			{/if}
-		</p>
-
-		<div class="flex justify-between text-xl mt-3 items-center gap-4">
-			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 grow basis-1"
-			>
-				<Clock class="size-4" />
-				<p>
-					{timestampToLocalTime(hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp)}
-				</p>
-			</div>
-
-			<div
-				class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 grows basis-1"
-			>
-				<Countdown
-					expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp}
-				/>
-			</div>
-		</div>
-
-		{#if !hasTimer(data)}
-			<p class="text-muted-foreground mt-4 text-sm px-1">
-				{#if data.seen_type?.includes("nearby")}
-					{m.unknown_spawnpoint_notice_nearby()}
-				{:else}
-					{m.unknown_spawnpoint_notice()}
-				{/if}
-			</p>
-		{/if}
-	</BasicMainCard>
+	<BigCountdown
+		expire={data.expire_timestamp ?? 0}
+		fallbackExpire={data.first_seen_timestamp ?? 0}
+		useFallback={!hasTimer(data)}
+		fallbackTitle={m.first_seen()}
+		fallbackExplanation={data.seen_type?.includes("nearby") ? m.unknown_spawnpoint_notice_nearby() : m.unknown_spawnpoint_notice()}
+	/>
 
 	<div class="space-y-2">
 		<!--Special seen types-->

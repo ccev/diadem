@@ -607,5 +607,6 @@
 	"cover_photo_of": "Cover Photo of {name}",
 	"go_to_wayfarer_map": "Go to Wayfarer Map",
 	"about_this_nest": "About this Nest",
-	"access_this_nest": "View the Nest"
+	"access_this_nest": "View the Nest",
+	"access_this_tappable": "Access this Ground item"
 }

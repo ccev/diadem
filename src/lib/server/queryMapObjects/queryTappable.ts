@@ -21,4 +21,5 @@ export class TappableQuery extends DbMapObjectQuery<TappableData, FilterTappable
 	];
 	protected readonly limit = requestLimits[MapObjectType.TAPPABLE];
 	protected readonly idColumn = "id";
+	protected readonly extraWhere = ["expire_timestamp > UNIX_TIMESTAMP()"];
 }

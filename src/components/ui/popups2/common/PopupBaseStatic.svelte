@@ -7,7 +7,7 @@
 		type: string,
 		title: string,
 		image: Snippet<[MapData]>,
-		overview: Snippet<[MapData]>,
+		overview?: Snippet<[MapData]>,
 		main: Snippet<[MapData]>,
 	}
 </script>
@@ -96,15 +96,15 @@
 	</div>
 </div>
 
-<!--{#if activeSnapPoint !== 1}-->
-<div class="mt-4 w-full">
-	<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4">
-		{#if props && data}
-			{@render props.overview(data)}
-		{/if}
+{#if props && data && props.overview}
+	<div class="mt-4 w-full">
+		<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4">
+			{#if props && data}
+				{@render props.overview(data)}
+			{/if}
+		</div>
 	</div>
-</div>
-<!--{/if}-->
+{/if}
 
 <div class="mt-5" data-popup-initial-snap-point-end>
 	{#if onlyShowNavigationButton}

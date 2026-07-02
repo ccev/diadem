@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { ChartColumn, Crown, Sparkles } from "@lucide/svelte";
 	import * as m from "$lib/paraglide/messages.js";
-	import { formatNumber, formatNumberCompact, formatRatio } from "$lib/utils/numberFormat.ts";
-	import { getRarityLabel } from "$lib/utils/pokemonUtils.ts";
+	import { formatNumber, formatNumberCompact, formatRatio } from "$lib/utils/numberFormat";
+	import { getRarityLabel } from "$lib/utils/pokemonUtils";
 	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
 	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
