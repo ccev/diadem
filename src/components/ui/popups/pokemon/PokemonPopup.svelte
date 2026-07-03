@@ -17,35 +17,38 @@
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
 	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
-	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
+	import type { PokemonData, PvpStats } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
 	import { Features } from "$lib/utils/features";
 	import { formatNumber, formatPercentage } from "$lib/utils/numberFormat";
 	import {
+		getActivePokemonFilter,
 		getBestRank,
 		getPokemonSize,
 		hasTimer,
 		League,
 		showGreat,
 		showLittle,
+		showPvp,
 		showUltra
 	} from "$lib/utils/pokemonUtils";
 	import { slide } from "svelte/transition";
 	import { resize } from "$lib/services/assets";
-	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import { getWeatherIcon } from "$lib/utils/weatherIcons";
 	import { getUserSettings } from "$lib/services/userSettings.svelte";
 	import { matchPokemonFiltersets } from "$lib/features/filterLogic/pokemon";
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import {
 		ArrowLeftRight,
+		Award,
 		BicepsFlexed,
+		ChartColumn,
 		ChevronDown,
 		CircleDot,
 		CircleSmall,
-		Clock,
 		Expand,
+		Goal,
 		Info,
 		Mars,
 		Ruler,
@@ -60,9 +63,24 @@
 	} from "@lucide/svelte";
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import PokemonStatsCard from "@/components/ui/popups/common/PokemonStatsCard.svelte";
-
+	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
+	import { mLeague } from "$lib/services/ingameLocale.ts";
+	import { getIconLeague } from "$lib/services/uicons.svelte.ts";
 
 	export { image, overview, main };
+
+	type PvpLeague = League.LITTLE | League.GREAT | League.ULTRA;
+	type PvpPopupEntry = PvpStats & { league: PvpLeague };
+
+	const DEFAULT_PVP_LEAGUE_ORDER: PvpLeague[] = [League.GREAT, League.ULTRA, League.LITTLE];
+	const PVP_FILTER_ATTRIBUTES: Record<
+		PvpLeague,
+		"pvpRankLittle" | "pvpRankGreat" | "pvpRankUltra"
+	> = {
+		[League.LITTLE]: "pvpRankLittle",
+		[League.GREAT]: "pvpRankGreat",
+		[League.ULTRA]: "pvpRankUltra"
+	};
 
 	export function getPopupPropsPokemon(data: MapData) {
 		data = data as PokemonData;
@@ -110,9 +128,37 @@
 			part2: leagues[leagues.length - 1]
 		});
 	}
+
+	function getPvpPopupEntries(data: PokemonData): PvpPopupEntry[] {
+		const activeFilter = getActivePokemonFilter();
+		const enabledFilters = activeFilter?.filters.filter((filter) => filter.enabled) ?? [];
+		const promotedLeagues: PvpLeague[] = [];
+		if (enabledFilters.some((filter) => filter.pvpRankUltra)) promotedLeagues.push(League.ULTRA);
+		if (enabledFilters.some((filter) => filter.pvpRankLittle)) promotedLeagues.push(League.LITTLE);
+		const leagueOrder = [
+			...promotedLeagues,
+			...DEFAULT_PVP_LEAGUE_ORDER.filter((league) => !promotedLeagues.includes(league))
+		];
+
+		return leagueOrder
+			.flatMap((league) =>
+				(data.pvp?.[league] ?? [])
+					.filter((entry) =>
+						showPvp(entry.rank, PVP_FILTER_ATTRIBUTES[league], false, activeFilter)
+					)
+					.map((entry) => ({ ...entry, league }))
+			)
+			.sort((a, b) => {
+				const leagueSort = leagueOrder.indexOf(a.league) - leagueOrder.indexOf(b.league);
+				if (leagueSort !== 0) return leagueSort;
+				const rankSort = a.rank - b.rank;
+				if (rankSort !== 0) return rankSort;
+				return a.cap - b.cap;
+			});
+	}
 </script>
 <script>
-	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 </script>
 
 {#snippet image(d: MapData)}
@@ -188,7 +234,9 @@
 		fallbackExpire={data.first_seen_timestamp ?? 0}
 		useFallback={!hasTimer(data)}
 		fallbackTitle={m.first_seen()}
-		fallbackExplanation={data.seen_type?.includes("nearby") ? m.unknown_spawnpoint_notice_nearby() : m.unknown_spawnpoint_notice()}
+		fallbackExplanation={data.seen_type?.includes("nearby")
+			? m.unknown_spawnpoint_notice_nearby()
+			: m.unknown_spawnpoint_notice()}
 	/>
 
 	<div class="space-y-2">
@@ -355,6 +403,87 @@
 					{/snippet}
 				</StatsMainCardEntry>
 			</StatsMainCard>
+		</TitledMainSection>
+	{/if}
+
+	{#if showGreat(data) || showUltra(data) || showLittle(data)}
+		<TitledMainSection Icon={Swords} title={m.pvp_performance()}>
+			<BasicMainCard>
+				<div class="-mx-4 mt-2">
+					<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">
+						{#each getPvpPopupEntries(data) as pokemon}
+							<div class="min-w-80 max-w-96 rounded-md bg-accent-highlight px-5 py-4">
+								<div class="flex items-center gap-3">
+									<div class="size-12 shrink-0 relative">
+										<ImagePopup
+											class="size-11 -mt-1 -ml-1"
+											src={getIconPokemon(pokemon)}
+											alt={mPokemon(pokemon)}
+										/>
+										<ImagePopup
+											class="absolute size-7 bottom-0 right-0"
+											src={getIconLeague(pokemon.league)}
+											alt={mLeague(pokemon.league)}
+										/>
+									</div>
+
+									<div class="min-w-0">
+										<p class="truncate font-semibold">
+											{mPokemon(pokemon)}
+										</p>
+									</div>
+								</div>
+
+								<div class="space-y-1 mt-2">
+									<StatsMainCardEntry
+										Icon={Award}
+										name={m.league()}
+										value={mLeague(pokemon.league)}
+									/>
+
+									<StatsMainCardEntry
+										Icon={ChartColumn}
+										name={m.performance()}
+									>
+										{#snippet value()}
+											<p>
+
+												<span class="text-muted-foreground">
+													{formatPercentage(pokemon.percentage, {
+														minDecimals: 0,
+														maxDecimals: 1
+													})} ·
+												</span>
+												<span>
+													{m.rank_x({ rank: pokemon.rank })}
+												</span>
+											</p>
+										{/snippet}
+									</StatsMainCardEntry>
+
+									<StatsMainCardEntry Icon={Goal} name={m.pvp_target()}>
+										{#snippet value()}
+											<p>
+												<span class="text-muted-foreground">
+													{m.pogo_level({ level: formatNumber(pokemon.level) })} ·
+												</span>
+												<span>
+													{ m.pogo_cp({ cp: pokemon.cp })}
+												</span>
+											</p>
+										{/snippet}
+									</StatsMainCardEntry>
+
+								</div>
+
+								<IconValue Icon={Info} class="text-muted-foreground mt-3">
+									{m.considered_max_level()}: {pokemon.cap}
+								</IconValue>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</BasicMainCard>
 		</TitledMainSection>
 	{/if}
 

@@ -55,10 +55,6 @@
 		} as MapObjectPopupProps;
 	}
 
-	function getDefenderId(defender: GymDefender) {
-		return `${defender.pokemon_id}-${defender.form}-${defender.deployed_time}`;
-	}
-
 	function getOccupiedSlots(data: GymData) {
 		return GYM_SLOTS - (data.availble_slots ?? 0);
 	}
@@ -300,7 +296,7 @@
 					{#if data.defenders?.length}
 						<div class="-mx-4 mt-2">
 							<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">
-								{#each data.defenders as defender (getDefenderId(defender))}
+								{#each data.defenders as defender}
 									<div class="min-w-64 max-w-80 rounded-md bg-accent-highlight p-5">
 										<div class="flex items-center gap-3">
 											<ImagePopup

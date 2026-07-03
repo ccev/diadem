@@ -643,5 +643,9 @@
 	"battle_time": "Battle Time",
 	"possible_hatch": "Possible Hatch",
 	"possible_hatches": "Possible Hatches",
-	"rsvp": "RSVP"
+	"rsvp": "RSVP",
+	"pvp_performance": "PVP Performance",
+	"pvp_target": "Target",
+	"league": "League",
+	"performance": "Performance"
 }
