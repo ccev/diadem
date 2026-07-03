@@ -59,16 +59,20 @@
 {#if alwaysExpanded}
 	{#if doesDataExist}
 		<div
-			class="z-10 h-full  min-w-80 max-w-130 basis-[32.5rem] shrink grow-0 overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
+			class="h-full min-w-80 max-w-130 basis-[32.5rem] shrink grow-0"
 			transition:fly={{ duration: 130, x: 120 }}
-			class:mt-12={isSearchViewActive()}
+			class:pt-18={isSearchViewActive()}
 		>
-			<PopupBaseStatic
-				coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}
-				data={snapshotData}
-				props={popupProps}
-				onlyShowNavigationButton={false}
-			/>
+			<div
+				class="z-10 h-full relative overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
+			>
+				<PopupBaseStatic
+					coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}
+					data={snapshotData}
+					props={popupProps}
+					onlyShowNavigationButton={false}
+				/>
+			</div>
 		</div>
 	{/if}
 {:else}
