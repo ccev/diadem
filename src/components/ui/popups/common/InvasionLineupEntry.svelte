@@ -56,7 +56,7 @@
 	</div>
 
 	{#if catchable}
-		<p class="w-full text-center px-2 py-1 my-1 text-sm font-medium text-indigo-200 bg-indigo-950 rounded-b-md outline outline-indigo-800">
+		<p class="w-full text-center px-2 py-1 my-1 text-sm font-medium rounded-b-md outline bg-indigo-200 text-indigo-900 outline-indigo-400 dark:text-indigo-200 dark:bg-indigo-950 dark:outline-indigo-800">
 			Catchable
 		</p>
 	{/if}

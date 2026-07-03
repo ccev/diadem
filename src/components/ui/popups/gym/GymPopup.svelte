@@ -347,7 +347,7 @@
 																style:height="{defender.motivation_now * 100}%"
 															>
 																<Heart
-																	class="absolute bottom-0 left-0 size-6 fill-rose-800 stroke-1" />
+																	class="absolute bottom-0 left-0 size-6 fill-rose-400 dark:fill-rose-800 stroke-1" />
 															</div>
 														</div>
 														<p>
