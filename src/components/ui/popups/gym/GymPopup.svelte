@@ -1,31 +1,19 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
 	import * as m from "$lib/paraglide/messages";
-	import { mMove, mPokemon, mRaid } from "$lib/services/ingameLocale";
+	import { mMove, mPokemon, mRaid, mTeam } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
-	import type { GymData, GymDefender, Rsvp } from "$lib/types/mapObjectData/gym";
-	import {
-		getIconGym,
-		getIconPokemon,
-		getIconRaidEgg,
-		getIconTeam
-	} from "$lib/services/uicons.svelte";
+	import type { GymData, GymDefender } from "$lib/types/mapObjectData/gym";
+	import { getIconGym, getIconPokemon, getIconRaidEgg, getIconTeam } from "$lib/services/uicons.svelte";
 	import { resize } from "$lib/services/assets";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
-	import {
-		getRaidPokemon,
-		GYM_SLOTS,
-		hasActiveRaid,
-		isFortOutdated,
-		isRaidHatched
-	} from "$lib/utils/gymUtils";
+	import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from "$lib/utils/gymUtils";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import RaidIcon from "@/components/icons/RaidIcon.svelte";
 	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
-	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
 	import BigIconOverview from "@/components/ui/popups/common/BigIconOverview.svelte";
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import MainCardBigIcon from "@/components/ui/popups/common/MainCardBigIcon.svelte";
@@ -36,6 +24,7 @@
 	import BasicPokemonDisplayMultiple from "@/components/ui/popups/common/BasicPokemonDisplayMultiple.svelte";
 	import BasicPokemonDisplayOne from "@/components/ui/popups/common/BasicPokemonDisplayOne.svelte";
 	import {
+		BadgeCheck,
 		Candy,
 		CircleAlert,
 		CircleDot,
@@ -43,12 +32,15 @@
 		Heart,
 		Shield,
 		ShieldHalf,
+		SquareEqual,
+		Star,
 		Swords,
-		Timer,
-		Trees,
 		UserRoundCheck,
 		UsersRound
 	} from "@lucide/svelte";
+	import { getActiveRaidsForLevel } from "$lib/features/masterStats.svelte";
+	import { currentTimestamp } from "$lib/utils/currentTimestamp";
+	import { formatPercentage } from "$lib/utils/numberFormat";
 
 	export { image, overview, main };
 
@@ -71,10 +63,6 @@
 		return GYM_SLOTS - (data.availble_slots ?? 0);
 	}
 
-	function getFreeSlots(data: GymData) {
-		return data.availble_slots ?? Math.max(0, GYM_SLOTS - (data.defenders?.length ?? 0));
-	}
-
 	function getRaidTitle(data: GymData) {
 		if (data.raid_pokemon_id) return mPokemon(getRaidPokemon(data));
 		return mRaid(data.raid_level);
@@ -92,20 +80,6 @@
 	function hasRaidData(data: GymData) {
 		return Boolean(data.raid_level && data.raid_end_timestamp);
 	}
-
-	function getMotivationPercent(defender: GymDefender) {
-		return 50;
-		return Math.max(0, Math.min(100, Math.round(defender.motivation_now * 100)));
-	}
-</script>
-
-<script>
-	import { mAlignment, mTeam } from "$lib/services/ingameLocale";
-	import { BadgeCheck, EqualSquare, SquareEqual, Star } from "@lucide/svelte";
-	import { getActiveRaidsForLevel } from "$lib/features/masterStats.svelte";
-	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
-	import { currentTimestamp } from "$lib/utils/currentTimestamp";
-	import { formatPercentage } from "$lib/utils/numberFormat";
 </script>
 
 {#snippet image(d: MapData)}
