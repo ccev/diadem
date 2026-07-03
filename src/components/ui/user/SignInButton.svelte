@@ -22,7 +22,7 @@
 		size=""
 		onclick={() => startLogin()}
 	>
-		<DiscordIcon class="w-4 fill-foreground shrink-0" />
+		<DiscordIcon class="w-4 shrink-0" />
 		<p class="">
 			{m.signin_prompt_part_1()}
 			<span class="font-semibold underline">

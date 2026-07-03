@@ -40,8 +40,8 @@
 		KECLEON_ID
 	} from "$lib/utils/pokestopUtils";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import QuestIcon2 from "@/components/icons/QuestIcon2.svelte";
-	import InvasionIcon2 from "@/components/icons/InvasionIcon2.svelte";
+	import QuestIcon from "@/components/icons/QuestIcon.svelte";
+	import InvasionIcon from "@/components/icons/InvasionIcon.svelte";
 	import { getInvasionLineup, getInvasionPokemon } from "$lib/features/masterStats.svelte";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
 	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
@@ -175,7 +175,7 @@
 	{@const [invasions, kecleons, contests] = getIncidents(data)}
 
 	{#if quest}
-		<OverviewCard Icon={QuestIcon2} title={m.pogo_quest()}>
+		<OverviewCard Icon={QuestIcon} title={m.pogo_quest()}>
 			<BigIconOverview>
 				{#snippet image()}
 					<ImagePopup
@@ -198,7 +198,7 @@
 	{#each invasions as invasion}
 		{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
 		{@const reward = getInvasionReward(invasion, getInvasionLineup(invasion.character))}
-		<OverviewCard Icon={InvasionIcon2} title={m.pogo_invasion()}>
+		<OverviewCard Icon={InvasionIcon} title={m.pogo_invasion()}>
 			<BigIconOverview>
 				{#snippet image()}
 					<div class="relative size-12">
@@ -331,7 +331,7 @@
 			</IconValue>
 		</BasicMainCard>
 	{:else}
-		<TitledMainSection Icon={QuestIcon2} title={m.pogo_quest()} disabled={!Boolean(quest)}>
+		<TitledMainSection Icon={QuestIcon} title={m.pogo_quest()} disabled={!Boolean(quest)}>
 			<BasicMainCard>
 				{#if !quest}
 					{m.no_quest_scanned_today()}
@@ -370,7 +370,7 @@
 		</TitledMainSection>
 
 		<TitledMainSection
-			Icon={InvasionIcon2}
+			Icon={InvasionIcon}
 			title={m.pogo_invasion()}
 			disabled={invasions.length === 0}
 		>

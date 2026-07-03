@@ -23,7 +23,7 @@
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
-	import RaidIcon2 from "@/components/icons/RaidIcon2.svelte";
+	import RaidIcon from "@/components/icons/RaidIcon.svelte";
 	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
 	import BigExpireTime from "@/components/ui/popups2/common/BigExpireTime.svelte";
 	import BigIconOverview from "@/components/ui/popups2/common/BigIconOverview.svelte";
@@ -124,7 +124,7 @@
 	{@const activeRaid = hasActiveRaid(data) && hasRaidData(data)}
 
 	{#if activeRaid}
-		<OverviewCard Icon={RaidIcon2} title={m.raid()}>
+		<OverviewCard Icon={RaidIcon} title={m.raid()}>
 			<BigIconOverview>
 				{#snippet image()}
 					<ImagePopup class="h-12" src={getRaidIcon(data)} alt={getRaidTitle(data)} />
@@ -185,7 +185,7 @@
 			</IconValue>
 		</BasicMainCard>
 	{:else}
-		<TitledMainSection Icon={RaidIcon2} title={m.raid()} disabled={!activeRaid}>
+		<TitledMainSection Icon={RaidIcon} title={m.raid()} disabled={!activeRaid}>
 			<BasicMainCard>
 				{#if !hasRaidData(data)}
 					{m.no_raid_at_gym()}

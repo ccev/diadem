@@ -67,7 +67,7 @@
 	}
 </script>
 <script>
-	import DynamaxIcon2 from "@/components/icons/DynamaxIcon2.svelte";
+	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
 	import BigExpireTime from "@/components/ui/popups2/common/BigExpireTime.svelte";
 	import { Calculator, HandFist, Heart, ShieldHalf, SquareEqual, Sword, Timer } from "@lucide/svelte";
 	import { getStationAttackBonus } from "$lib/utils/stationUtils.ts";
@@ -114,7 +114,7 @@
 	{@const pokemonName = mPokemon(pokemon)}
 
 	{#if active}
-		<TitledMainSection Icon={DynamaxIcon2} title={m.pogo_max_battle()}>
+		<TitledMainSection Icon={DynamaxIcon} title={m.pogo_max_battle()}>
 			<BasicMainCard>
 				<IconValue Icon={Clock} class="font-semibold mb-1">
 					{#if (data?.start_time ?? 0) > currentTimestamp()}
@@ -242,7 +242,7 @@
 		</TitledMainSection>
 	{:else}
 		<TitledMainSection
-			Icon={DynamaxIcon2}
+			Icon={DynamaxIcon}
 			disabled={true}
 			title={m.pogo_max_battle()}
 		>

@@ -57,7 +57,7 @@
 	<ErrorPage error={m.discord_block_title()} description={m.discord_block_desc()} href={errorHref}>
 		{#snippet extraButtons()}
 			<Button onclick={() => startLogin()}>
-				<DiscordIcon class="fill-primary-foreground w-3.5 shrink-0" />
+				<DiscordIcon class="w-3.5 shrink-0" />
 				<span>{m.discord_block_button()}</span>
 			</Button>
 		{/snippet}
