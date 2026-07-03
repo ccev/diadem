@@ -2,7 +2,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { setActiveSearchQuest } from "$lib/features/activeSearch.svelte";
 	import { Search } from "@lucide/svelte";
-	import { resetPopupBaseDrawerSnapPoint } from "@/components/ui/popups2/common/PopupBaseDrawer.svelte";
+	import { resetPopupBaseDrawerSnapPoint } from "@/components/ui/popups/common/PopupBaseDrawer.svelte";
 
 	let {
 		label,

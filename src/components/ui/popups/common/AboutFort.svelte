@@ -3,11 +3,11 @@
 	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte";
 	import { openModal } from "$lib/ui/modal.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
+	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
-	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
-	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
+	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
+	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
+	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { ArrowRight, BadgeEuro, Info } from "@lucide/svelte";
 	import { tick } from "svelte";
 

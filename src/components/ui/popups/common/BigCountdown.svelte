@@ -4,7 +4,7 @@
 	import { hasTimer } from "$lib/utils/pokemonUtils";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import Countdown from "@/components/utils/Countdown.svelte";
-	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
+	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
 	import type { Snippet } from "svelte";
 
 	let {

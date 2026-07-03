@@ -19,7 +19,7 @@
 	import { watch } from "runed";
 	import { setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 	import type { Coords } from "$lib/utils/coordinates";
-	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
+	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 
 	let {

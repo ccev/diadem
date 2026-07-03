@@ -2,21 +2,22 @@
 	import { fly } from "svelte/transition";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import PopupBaseDrawer from "@/components/ui/popups2/common/PopupBaseDrawer.svelte";
+	import PopupBaseDrawer from "@/components/ui/popups/common/PopupBaseDrawer.svelte";
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
-	import { getPopupPropsPokemon } from "@/components/ui/popups2/pokemon/PokemonPopup.svelte";
+	import { getPopupPropsPokemon } from "@/components/ui/popups/pokemon/PokemonPopup.svelte";
 	import PopupBaseStatic, {
 		type MapObjectPopupProps
-	} from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
-	import { getPopupPropsPokestop } from "@/components/ui/popups2/pokestop/PokestopPopup.svelte";
-	import { getPopupPropsNest } from "@/components/ui/popups2/nest/NestPopup.svelte";
-	import { getPopupPropsTappable } from "@/components/ui/popups2/tappable/TappablePopup.svelte";
-	import { getPopupPropsSpawnpoint } from "@/components/ui/popups2/spawnpoint/SpawnpointPopup.svelte";
-	import { getPopupPropsStation } from "@/components/ui/popups2/station/StationPopup.svelte";
-	import { getPopupPropsGym } from "@/components/ui/popups2/gym/GymPopup.svelte";
+	} from "@/components/ui/popups/common/PopupBaseStatic.svelte";
+	import { getPopupPropsPokestop } from "@/components/ui/popups/pokestop/PokestopPopup.svelte";
+	import { getPopupPropsNest } from "@/components/ui/popups/nest/NestPopup.svelte";
+	import { getPopupPropsTappable } from "@/components/ui/popups/tappable/TappablePopup.svelte";
+	import { getPopupPropsSpawnpoint } from "@/components/ui/popups/spawnpoint/SpawnpointPopup.svelte";
+	import { getPopupPropsStation } from "@/components/ui/popups/station/StationPopup.svelte";
+	import { getPopupPropsGym } from "@/components/ui/popups/gym/GymPopup.svelte";
 	import { isAllowedTwoSidebars } from "$lib/utils/device";
 	import { closeMenu } from "$lib/ui/menus.svelte";
+	import { isSearchViewActive } from "$lib/features/activeSearch.svelte";
 
 	let {
 		alwaysExpanded = false
@@ -58,8 +59,9 @@
 {#if alwaysExpanded}
 	{#if doesDataExist}
 		<div
-			class="z-10 h-full min-w-80 max-w-130 basis-[32.5rem] shrink grow-0 overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
+			class="z-10 h-full  min-w-80 max-w-130 basis-[32.5rem] shrink grow-0 overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
 			transition:fly={{ duration: 130, x: 120 }}
+			class:mt-12={isSearchViewActive()}
 		>
 			<PopupBaseStatic
 				coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}

@@ -3,9 +3,9 @@
 	import * as m from "$lib/paraglide/messages.js";
 	import { formatNumber, formatNumberCompact, formatRatio } from "$lib/utils/numberFormat";
 	import { getRarityLabel } from "$lib/utils/pokemonUtils";
-	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
-	import StatsMainCardEntry from "@/components/ui/popups2/common/StatsMainCardEntry.svelte";
-	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
+	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
+	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
+	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
 	import { mPokemon } from "$lib/services/ingameLocale";

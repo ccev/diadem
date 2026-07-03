@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
-	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
+	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
 
 	let {
 		class: class_ = "",
