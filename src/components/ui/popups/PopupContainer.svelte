@@ -43,7 +43,7 @@
 		() => {
 			if (doesDataExist && data) {
 				if (!isAllowedTwoSidebars()) {
-					closeMenu()
+					closeMenu();
 				}
 				snapshotData = $state.snapshot(data);
 			}
@@ -58,7 +58,7 @@
 {#if alwaysExpanded}
 	{#if doesDataExist}
 		<div
-			class="z-10 w-130 h-full pt-6 relative overflow-y-auto rounded-l-xl pointer-events-auto border border-border bg-card"
+			class="z-10 h-full min-w-80 max-w-130 basis-[32.5rem] shrink grow-0 overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
 			transition:fly={{ duration: 130, x: 120 }}
 		>
 			<PopupBaseStatic

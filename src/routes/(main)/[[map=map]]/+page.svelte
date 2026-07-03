@@ -87,7 +87,7 @@
 			{/if}
 		{/snippet}
 		{#snippet desktopRight()}
-			<div class="mb-auto mx-2">
+			<div class="mb-auto mx-2 mt-safe-inset-top">
 				<WeatherOverview />
 			</div>
 			<div class="flex">

@@ -20,19 +20,20 @@
 </script>
 
 {#if isMenuSidebar()}
-	<div class="fixed w-full h-full z-10 pb-safe-inset-bottom pt-safe-inset-top pointer-events-none flex items-end">
+	<div
+		class="fixed inset-0 z-10 flex items-end overflow-hidden pt-safe-inset-top pb-safe-inset-bottom pointer-events-none"
+	>
 		<div
-			class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink min-w-70 w-full max-w-104"
+			class="mr-auto flex h-full min-w-[17rem] max-w-104 flex-[1_1_26rem] flex-col items-start justify-end gap-2"
 		>
 			{@render desktopLeft?.()}
 		</div>
 
-		<div class="h-full flex flex-col justify-end items-end">
+		<div class="flex h-full shrink-0 flex-col items-end justify-end">
 			{@render desktopRight?.()}
 		</div>
 
 		{@render desktopRightSidebar?.()}
-
 	</div>
 {:else if !getIsContextMenuOpen()}
 	<MobileMenu />
