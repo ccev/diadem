@@ -39,7 +39,7 @@
 		isExpandable = false,
 		collapsibleByFiltersets = false,
 		isFilterable = true,
-		expanded = $bindable(false)
+		expanded = $bindable(false),
 	}: {
 		majorCategory: SelectedFiltersetData["majorCategory"];
 		subCategory?: FilterCategory;
@@ -63,7 +63,7 @@
 	);
 	let effectiveExpandable: boolean = $derived(
 		isExpandable ||
-			(collapsibleByFiltersets && isFilterable && hasAnyFilterset && filterModal !== undefined)
+			(collapsibleByFiltersets && isFilterable && hasAnyFilterset && filterModal !== undefined && filter.enabled)
 	);
 
 	function onAddFilter() {
