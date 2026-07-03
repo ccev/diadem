@@ -23,7 +23,7 @@
 		<p class="text-lg font-semibold">
 			{@render title()}
 		</p>
-		<p class="text-sm">
+		<p>
 			{@render extra()}
 		</p>
 	</div>

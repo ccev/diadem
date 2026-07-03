@@ -281,3 +281,16 @@ export function mLeague(league: League) {
 	if (league === League.MASTER) return m.master_league();
 	return m.unknown_league();
 }
+
+export function mTeam(teamId: number | undefined) {
+	switch (teamId) {
+		case 1:
+			return m.team_mystic();
+		case 2:
+			return m.team_valor();
+		case 3:
+			return m.team_instinct();
+		default:
+			return m.team_neutral();
+	}
+}

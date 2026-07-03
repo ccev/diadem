@@ -6,12 +6,15 @@
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
 	import { getPopupPropsPokemon } from "@/components/ui/popups2/pokemon/PokemonPopup.svelte";
-	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
+	import PopupBaseStatic, {
+		type MapObjectPopupProps
+	} from "@/components/ui/popups2/common/PopupBaseStatic.svelte";
 	import { getPopupPropsPokestop } from "@/components/ui/popups2/pokestop/PokestopPopup.svelte";
 	import { getPopupPropsNest } from "@/components/ui/popups2/nest/NestPopup.svelte";
 	import { getPopupPropsTappable } from "@/components/ui/popups2/tappable/TappablePopup.svelte";
 	import { getPopupPropsSpawnpoint } from "@/components/ui/popups2/spawnpoint/SpawnpointPopup.svelte";
 	import { getPopupPropsStation } from "@/components/ui/popups2/station/StationPopup.svelte";
+	import { getPopupPropsGym } from "@/components/ui/popups2/gym/GymPopup.svelte";
 
 	let {
 		alwaysExpanded = false
@@ -25,11 +28,12 @@
 		[MapObjectType.NEST]: getPopupPropsNest,
 		[MapObjectType.TAPPABLE]: getPopupPropsTappable,
 		[MapObjectType.SPAWNPOINT]: getPopupPropsSpawnpoint,
+		[MapObjectType.GYM]: getPopupPropsGym,
 		[MapObjectType.STATION]: getPopupPropsStation
 	};
 
 	let data = $derived(getCurrentSelectedData());
-	let doesDataExist = $derived(Boolean(data && data.type !== MapObjectType.S2_CELL))
+	let doesDataExist = $derived(Boolean(data && data.type !== MapObjectType.S2_CELL));
 	let snapshotData: MapData | undefined = $state(undefined);
 	watch(
 		() => data,

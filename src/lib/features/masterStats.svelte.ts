@@ -140,6 +140,10 @@ export function getActiveRaids(): ActiveRaidStats[] {
 	return masterStats?.activeRaids ?? [];
 }
 
+export function getActiveRaidsForLevel(level: number): ActiveRaidStats[] {
+	return getActiveRaids().filter(r => r.level === level)
+}
+
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
 	return Object.values(masterStats?.activeCharacters ?? {});
 }

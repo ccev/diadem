@@ -20,7 +20,7 @@
 		<ImagePopup
 			{src}
 			{alt}
-			class="w-7"
+			class="h-7"
 		/>
 	</div>
 	<h3 class="font-semibold">

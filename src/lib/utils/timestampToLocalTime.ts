@@ -2,23 +2,25 @@ import * as m from "@/lib/paraglide/messages";
 import { time } from "@/lib/utils/time";
 import { getLocale } from "$lib/paraglide/runtime";
 
+export type LocalTimeOptions = {
+	showDate?: boolean;
+	showSeconds?: boolean;
+	showTime?: boolean;
+	longMonth?: boolean;
+	dayLowerCase?: boolean;
+}
+
 export function timestampToLocalTime(
 	timestamp: number | null | undefined,
-	options:
-		| {
-				showDate?: boolean;
-				showSeconds?: boolean;
-				showTime?: boolean;
-				longMonth?: boolean;
-		  }
-		| undefined = undefined
+	options: LocalTimeOptions | undefined = undefined
 ) {
 	if (!timestamp) return "";
 	const {
 		showDate = false,
 		showSeconds = true,
 		showTime = true,
-		longMonth = false
+		longMonth = false,
+		dayLowerCase = true
 	} = options ?? {};
 
 	const date = new Date(timestamp * 1000);
@@ -39,17 +41,23 @@ export function timestampToLocalTime(
 		const today = new Date();
 
 		if (time(today, date)) {
-			return m.today_time({ time: timeString });
+			return dayLowerCase
+				? m.today_time_lower({ time: timeString })
+				: m.today_time({ time: timeString });
 		}
 
 		today.setDate(today.getDate() - 1);
 		if (time(today, date)) {
-			return m.yesterday_time({ time: timeString });
+			return dayLowerCase
+				? m.yesterday_time_lower({ time: timeString })
+				: m.yesterday_time({ time: timeString });
 		}
 
 		today.setDate(today.getDate() + 2);
 		if (time(today, date)) {
-			return m.tomorrow_time({ time: timeString });
+			return dayLowerCase
+				? m.tomorrow_time_lower({ time: timeString })
+				: m.tomorrow_time({ time: timeString });
 		}
 
 		const dateParams: Intl.DateTimeFormatOptions = {

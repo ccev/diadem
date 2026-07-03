@@ -40,7 +40,8 @@ export type GymData = {
 	raid_pokemon_alignment?: number;
 	defenders_raw?: string;
 	defenders?: GymDefender[];
-	rsvps?: string;
+	raw_rsvps?: string;
+	rsvps?: Rsvp[];
 };
 
 export type GymDefender = {

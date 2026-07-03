@@ -131,12 +131,22 @@
 				/>
 
 				<div class="space-y-3 mt-5">
-					{#if data.start_time && data.start_time < currentTimestamp()}
-						<StatsMainCardEntry
-							Icon={Timer}
-							name={m.started()}
-							value={timestampToLocalTime(data.start_time, {showDate: true, showSeconds: false, showTime: true})}
-						/>
+					{#if (data?.start_time ?? 0) < currentTimestamp()}
+						{#if data.start_time}
+							<StatsMainCardEntry
+								Icon={Timer}
+								name={m.started()}
+								value={timestampToLocalTime(data.start_time, {showDate: true, showSeconds: false, showTime: true, dayLowerCase: false})}
+							/>
+						{/if}
+					{:else}
+						{#if data.end_time}
+							<StatsMainCardEntry
+								Icon={Timer}
+								name={m.raid_ends()}
+								value={timestampToLocalTime(data.end_time, {showDate: true, showSeconds: false, showTime: true, dayLowerCase: false})}
+							/>
+						{/if}
 					{/if}
 					<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
 						{#snippet value()}

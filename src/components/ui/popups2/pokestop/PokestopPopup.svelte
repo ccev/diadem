@@ -3,12 +3,10 @@
 	import * as m from "$lib/paraglide/messages";
 	import { mAlignment, mCharacter, mItem, mPokemon, mQuest } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
-	import Button from "@/components/ui/input/Button.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import BasicMainCard from "@/components/ui/popups2/common/BasicMainCard.svelte";
 	import OverviewCard from "@/components/ui/popups2/common/OverviewCard.svelte";
 	import TitledMainSection from "@/components/ui/popups2/common/TitledMainSection.svelte";
-	import StatsMainCard from "@/components/ui/popups2/common/StatsMainCard.svelte";
 	import {
 		getIconInvasion,
 		getIconItem,
@@ -18,13 +16,11 @@
 	} from "$lib/services/uicons.svelte";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import {
-		ArrowRight,
 		BadgeCheck,
 		CircleAlert,
 		CircleDot,
 		Clock,
 		Flower,
-		Info,
 		Medal,
 		Rat,
 		ShieldHalf,
@@ -50,7 +46,6 @@
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
 	import MainAccessMap from "@/components/ui/popups2/common/MainAccessMap.svelte";
 	import { resize } from "$lib/services/assets";
-	import UpdatedTimes from "@/components/ui/popups2/common/UpdatedTimes.svelte";
 	import { getUserSettings } from "$lib/services/userSettings.svelte";
 	import { matchInvasionFilterset, matchQuestFilterset } from "$lib/features/filterLogic/pokestop";
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
@@ -71,9 +66,8 @@
 		setActiveSearchQuest
 	} from "$lib/features/activeSearch.svelte";
 	import { getActiveSearchQuestParams } from "$lib/services/search.svelte";
-	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte";
-	import { openModal } from "$lib/ui/modal.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
+	import AboutFort from "@/components/ui/popups2/common/AboutFort.svelte";
 
 	export { image, overview, main };
 
@@ -133,7 +127,10 @@
 		);
 	}
 
-	function getInvasionReward(invasion: Incident, lineup: ActiveInvasionCharacterStats | undefined): Partial<PokemonData> | undefined {
+	function getInvasionReward(
+		invasion: Incident,
+		lineup: ActiveInvasionCharacterStats | undefined
+	): Partial<PokemonData> | undefined {
 		const first = lineup?.first?.[0];
 		const second = lineup?.second?.[0];
 		const third = lineup?.third?.[0];
@@ -150,7 +147,12 @@
 			});
 		}
 
-		if (first?.encounter && !second?.encounter && !third?.encounter && (lineup?.first?.length ?? 0) === 1) {
+		if (
+			first?.encounter &&
+			!second?.encounter &&
+			!third?.encounter &&
+			(lineup?.first?.length ?? 0) === 1
+		) {
 			return getInvasionPokemon(first);
 		}
 	}
@@ -173,10 +175,7 @@
 	{@const [invasions, kecleons, contests] = getIncidents(data)}
 
 	{#if quest}
-		<OverviewCard
-			Icon={QuestIcon2}
-			title={m.pogo_quest()}
-		>
+		<OverviewCard Icon={QuestIcon2} title={m.pogo_quest()}>
 			<BigIconOverview>
 				{#snippet image()}
 					<ImagePopup
@@ -199,39 +198,33 @@
 	{#each invasions as invasion}
 		{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
 		{@const reward = getInvasionReward(invasion, getInvasionLineup(invasion.character))}
-		<OverviewCard
-			Icon={InvasionIcon2}
-			title={m.pogo_invasion()}
-		>
+		<OverviewCard Icon={InvasionIcon2} title={m.pogo_invasion()}>
 			<BigIconOverview>
 				{#snippet image()}
 					<div class="relative size-12">
-					{#if reward}
-						<ImagePopup
-							src={getIconPokemon(reward)}
-							alt={name}
-						/>
-						<ImagePopup
-							class="absolute right-0 bottom-0 size-6"
-							src={getIconInvasion(invasion.character, invasion.confirmed)}
-							alt={name}
-						/>
-					{:else}
-						<ImagePopup
-							src={getIconInvasion(invasion.character, invasion.confirmed)}
-							alt={name}
-						/>
-					{/if}
+						{#if reward}
+							<ImagePopup src={getIconPokemon(reward)} alt={name} />
+							<ImagePopup
+								class="absolute right-0 bottom-0 size-6"
+								src={getIconInvasion(invasion.character, invasion.confirmed)}
+								alt={name}
+							/>
+						{:else}
+							<ImagePopup
+								src={getIconInvasion(invasion.character, invasion.confirmed)}
+								alt={name}
+							/>
+						{/if}
 					</div>
 				{/snippet}
 
 				{#snippet title()}
-						{#if reward}
-							{mAlignment(reward.alignment)}
-							{mPokemon(reward)}
-						{:else}
-							{name}
-						{/if}
+					{#if reward}
+						{mAlignment(reward.alignment)}
+						{mPokemon(reward)}
+					{:else}
+						{name}
+					{/if}
 				{/snippet}
 
 				{#snippet extra()}
@@ -249,16 +242,10 @@
 
 	{#if data?.lure_expire_timestamp && data.lure_expire_timestamp >= currentTimestamp()}
 		{@const lureId = data?.lure_id ?? 501}
-		<OverviewCard
-			Icon={Flower}
-			title={m.lure_module()}
-		>
+		<OverviewCard Icon={Flower} title={m.lure_module()}>
 			<BigIconOverview>
 				{#snippet image()}
-					<ImagePopup
-						src={getIconItem(lureId)}
-						alt={mItem(lureId)}
-					/>
+					<ImagePopup src={getIconItem(lureId)} alt={mItem(lureId)} />
 				{/snippet}
 
 				{#snippet title()}
@@ -276,10 +263,7 @@
 	{/if}
 
 	{#each kecleons as kecleon (kecleon.id)}
-		<OverviewCard
-			Icon={Rat}
-			title={m.hidden_here()}
-		>
+		<OverviewCard Icon={Rat} title={m.hidden_here()}>
 			<BigIconOverview>
 				{#snippet image()}
 					<ImagePopup
@@ -307,16 +291,10 @@
 			data.showcase_ranking_standard && data.contest_focus
 				? getContestText(data.showcase_ranking_standard, data.contest_focus)
 				: m.unknown_contest()}
-		<OverviewCard
-			Icon={Medal}
-			title={m.contest()}
-		>
+		<OverviewCard Icon={Medal} title={m.contest()}>
 			<BigIconOverview>
 				{#snippet image()}
-					<ImagePopup
-						src={getContestIcon(data.contest_focus)}
-						alt={name}
-					/>
+					<ImagePopup src={getContestIcon(data.contest_focus)} alt={name} />
 				{/snippet}
 
 				{#snippet title()}
@@ -351,14 +329,9 @@
 					})
 				})}
 			</IconValue>
-
 		</BasicMainCard>
 	{:else}
-		<TitledMainSection
-			Icon={QuestIcon2}
-			title={m.pogo_quest()}
-			disabled={!Boolean(quest)}
-		>
+		<TitledMainSection Icon={QuestIcon2} title={m.pogo_quest()} disabled={!Boolean(quest)}>
 			<BasicMainCard>
 				{#if !quest}
 					{m.no_quest_scanned_today()}
@@ -388,8 +361,8 @@
 					<QuickSearchButton
 						label={m.find_more_x_quests({ x: getRewardText(quest.reward) })}
 						onclick={() => {
-							const { name, reward } = getActiveSearchQuestParams(quest.reward)
-							setActiveSearchQuest(name, reward)
+							const { name, reward } = getActiveSearchQuestParams(quest.reward);
+							setActiveSearchQuest(name, reward);
 						}}
 					/>
 				{/if}
@@ -436,7 +409,8 @@
 									</div>
 
 									<span class="font-semibold">
-									 	{mAlignment(reward.alignment)} {mPokemon(reward)}
+										{mAlignment(reward.alignment)}
+										{mPokemon(reward)}
 									</span>
 								</div>
 								{#if lineup?.second?.[0]?.encounter}
@@ -462,7 +436,6 @@
 											{/each}
 										</div>
 									</div>
-
 								{/if}
 							</div>
 						{/if}
@@ -536,11 +509,7 @@
 			</BasicMainCard>
 		</TitledMainSection>
 
-		<TitledMainSection
-			Icon={Rat}
-			title={m.kecleon()}
-			disabled={kecleons.length === 0}
-		>
+		<TitledMainSection Icon={Rat} title={m.kecleon()} disabled={kecleons.length === 0}>
 			<BasicMainCard>
 				{#if kecleons.length === 0}
 					{m.no_kecleon_hiding_here()}
@@ -594,13 +563,13 @@
 					<div class="space-y-3">
 						<StatsMainCardEntry Icon={UsersRound} name={m.entries()}>
 							{#snippet value()}
-							<span>
-								{#if data.contest_rankings}
-									<b>{data.contest_rankings.total_entries}</b>/{CONTEST_SLOTS}
-								{:else}
-									{m.unavailable()}
-								{/if}
-							</span>
+								<span>
+									{#if data.contest_rankings}
+										<b>{data.contest_rankings.total_entries}</b>/{CONTEST_SLOTS}
+									{:else}
+										{m.unavailable()}
+									{/if}
+								</span>
 							{/snippet}
 						</StatsMainCardEntry>
 
@@ -615,17 +584,20 @@
 										</p>
 
 										<p>
-										{m.score_x({ score: entry.score.toFixed(0) })}
+											{m.score_x({ score: entry.score.toFixed(0) })}
 										</p>
 									</div>
 									<div class="flex items-end text-right">
 										<div class="size-12 shrink-0 -mr-5 z-10 mb-3">
-											<ImagePopup src={getIconPokemon(entry)} alt={mPokemon(entry)}
-											            class="size-12" />
+											<ImagePopup
+												src={getIconPokemon(entry)}
+												alt={mPokemon(entry)}
+												class="size-12"
+											/>
 										</div>
 										<span class="font-black text-7xl text-muted-foreground/50">
-										{entry.rank}
-									</span>
+											{entry.rank}
+										</span>
 									</div>
 								</div>
 							{/each}
@@ -634,7 +606,6 @@
 				</BasicMainCard>
 			{/if}
 		</TitledMainSection>
-
 	{/if}
 
 	<!--TODO: Routes-->
@@ -681,50 +652,16 @@
 		</TitledMainSection>
 	{/if}
 
-	<TitledMainSection Icon={Info} title={m.about_this_pokestop()}>
-		<BasicMainCard>
-			<p class="font-semibold mb-2">
-				{data.name}
-			</p>
-
-			{#if !data.description}
-				<p class="text-muted-foreground">{m.no_description()}</p>
-			{:else}
-				<p class="text-muted-foreground">
-					{data.description}
-				</p>
-			{/if}
-
-			{#if data.url}
-				<div class="mt-2 relative rounded-md overflow-hidden h-28 w-full">
-					<button
-						class="size-full absolute z-10 bg-black/50 backdrop-blur-[1px] flex justify-center items-center"
-						onclick={() => openModal("fortDetails")}
-					>
-						<div class="bg-neutral-800/90 text-neutral-50 rounded-md px-4 py-2">
-							{m.view_full_image()}
-						</div>
-					</button>
-					<img
-						class="absolute size-full object-cover"
-						alt={m.cover_photo_of({ name: data.name ?? m.pogo_pokestop() })}
-						src={data.url}
-					/>
-				</div>
-			{/if}
-
-		<Button class="mt-3 mb-2 w-full" variant="link" onclick={openWayfarerMap}>
-			{m.go_to_wayfarer_map()}
-			<ArrowRight class="size-3.5" />
-		</Button>
-		</BasicMainCard>
-
-		<StatsMainCard class="mt-4">
-			<UpdatedTimes
-				updated={data.updated}
-				lastModified={data.last_modified_timestamp}
-				firstSeen={data.first_seen_timestamp}
-			/>
-		</StatsMainCard>
-	</TitledMainSection>
+	<AboutFort
+		title={m.about_this_pokestop()}
+		name={data.name}
+		description={data.description}
+		imageUrl={data.url}
+		sponsorId={data.sponsor_id}
+		partnerId={data.partner_id}
+		defaultName={m.pogo_pokestop()}
+		updated={data.updated}
+		lastModified={data.last_modified_timestamp}
+		firstSeen={data.first_seen_timestamp}
+	/>
 {/snippet}

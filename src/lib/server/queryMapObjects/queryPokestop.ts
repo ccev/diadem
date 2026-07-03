@@ -31,6 +31,8 @@ const FIELDS_POKESTOP = [
 	"pokestop.name",
 	"pokestop.url",
 	"pokestop.description",
+	"pokestop.sponsor_id",
+	"pokestop.partner_id",
 	"pokestop.lure_expire_timestamp",
 	"pokestop.last_modified_timestamp",
 	"pokestop.updated",

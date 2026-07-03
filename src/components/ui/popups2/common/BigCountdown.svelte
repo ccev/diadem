@@ -37,7 +37,7 @@
 		>
 			<Clock class="size-4" />
 			<p>
-				{timestampToLocalTime(useFallback ? fallbackExpire : expire)}
+				{timestampToLocalTime(useFallback ? fallbackExpire : expire, { dayLowerCase: false })}
 			</p>
 		</div>
 

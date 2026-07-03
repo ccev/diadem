@@ -24,7 +24,7 @@
 			<Clock class="size-4" />
 		{/if}
 		<p>
-			{timestampToLocalTime(expire, { showSeconds, showDate })}
+			{timestampToLocalTime(expire, { showSeconds, showDate, dayLowerCase: false })}
 		</p>
 	</div>
 
