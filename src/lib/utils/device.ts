@@ -8,6 +8,10 @@ export function isMenuSidebar() {
 	return (innerWidth.current ?? 0) > 725;
 }
 
+export function isAllowedTwoSidebars() {
+	return isMenuSidebar() && (innerWidth.current ?? 0) > 1170;
+}
+
 export function isUiLeft() {
 	return isMenuSidebar() || getUserSettings().isLeftHanded;
 }

@@ -15,6 +15,8 @@
 	import { getPopupPropsSpawnpoint } from "@/components/ui/popups2/spawnpoint/SpawnpointPopup.svelte";
 	import { getPopupPropsStation } from "@/components/ui/popups2/station/StationPopup.svelte";
 	import { getPopupPropsGym } from "@/components/ui/popups2/gym/GymPopup.svelte";
+	import { isAllowedTwoSidebars } from "$lib/utils/device";
+	import { closeMenu } from "$lib/ui/menus.svelte";
 
 	let {
 		alwaysExpanded = false
@@ -35,10 +37,14 @@
 	let data = $derived(getCurrentSelectedData());
 	let doesDataExist = $derived(Boolean(data && data.type !== MapObjectType.S2_CELL));
 	let snapshotData: MapData | undefined = $state(undefined);
+
 	watch(
 		() => data,
 		() => {
 			if (doesDataExist && data) {
+				if (!isAllowedTwoSidebars()) {
+					closeMenu()
+				}
 				snapshotData = $state.snapshot(data);
 			}
 		}
@@ -52,8 +58,8 @@
 {#if alwaysExpanded}
 	{#if doesDataExist}
 		<div
-			class="z-10 w-100 h-screen pointer-events-auto border border-border bg-card/60 backdrop-blur-sm"
-			transition:fly={{ duration: 90, x: 120 }}
+			class="z-10 w-130 h-full pt-6 relative overflow-y-auto rounded-l-xl pointer-events-auto border border-border bg-card"
+			transition:fly={{ duration: 130, x: 120 }}
 		>
 			<PopupBaseStatic
 				coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}

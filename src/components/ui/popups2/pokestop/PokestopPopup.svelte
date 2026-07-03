@@ -355,7 +355,7 @@
 						class="mt-3"
 						Icon={Clock}
 						name={m.popup_found()}
-						value={timestampToLocalTime(quest.timestamp, { showDate: true, showSeconds: false })}
+						value={timestampToLocalTime(quest.timestamp, { showDate: true, showSeconds: false, dayLowerCase: false })}
 					/>
 
 					<QuickSearchButton

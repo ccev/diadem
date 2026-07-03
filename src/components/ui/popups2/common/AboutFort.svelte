@@ -110,7 +110,7 @@
 		{#if imageUrl}
 			<div class="relative mt-2 h-28 w-full overflow-hidden rounded-md">
 				<button
-					class="absolute z-10 flex size-full items-center justify-center bg-black/50 backdrop-blur-[1px]"
+					class="absolute z-10 flex size-full items-center justify-center bg-black/50 backdrop-blur-[1px] cursor-pointer"
 					onclick={() => openModal("fortDetails")}
 				>
 					<div class="rounded-md bg-neutral-800/90 px-4 py-2 text-neutral-50">

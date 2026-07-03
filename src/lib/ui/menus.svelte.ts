@@ -1,3 +1,6 @@
+import { isAllowedTwoSidebars } from "$lib/utils/device";
+import { setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
+
 export enum Menu {
 	PROFILE = "profile",
 	FILTERS = "filters",
@@ -13,6 +16,9 @@ let justChangedMenus: boolean = $state(false);
 
 export function openMenu(type: Menu) {
 	openedMenu = type;
+	if (!isAllowedTwoSidebars()) {
+		setCurrentSelectedData(null)
+	}
 }
 
 export function closeMenu() {

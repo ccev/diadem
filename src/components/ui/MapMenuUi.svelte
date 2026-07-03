@@ -6,11 +6,13 @@
 
 	let {
 		desktopRight,
+		desktopRightSidebar,
 		desktopLeft,
 		mobileBottom,
 		mobileTop
 	}: {
 		desktopRight?: Snippet;
+		desktopRightSidebar?: Snippet;
 		desktopLeft?: Snippet;
 		mobileBottom?: Snippet;
 		mobileTop?: Snippet;
@@ -18,16 +20,19 @@
 </script>
 
 {#if isMenuSidebar()}
-	<div class="fixed z-10 bottom-safe-inset-bottom w-full flex pointer-events-none items-end h-full">
+	<div class="fixed w-full h-full z-10 pb-safe-inset-bottom pt-safe-inset-top pointer-events-none flex items-end">
 		<div
-			class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink basis-104 max-w-104 min-w-88"
+			class="mr-auto flex flex-col items-start justify-end h-full gap-2 shrink min-w-70 w-full max-w-104"
 		>
 			{@render desktopLeft?.()}
 		</div>
 
-		<div class="flex flex-col items-end gap-2 w-120 shrink basis-120">
+		<div class="h-full flex flex-col justify-end items-end">
 			{@render desktopRight?.()}
 		</div>
+
+		{@render desktopRightSidebar?.()}
+
 	</div>
 {:else if !getIsContextMenuOpen()}
 	<MobileMenu />
