@@ -227,17 +227,18 @@ url = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 default = "dark"
 theme = "dark"
 
-[[client.mapStyles]]
-id = "satellite"
-name = "Satellite"
-url = "https://tiles.example.com/satellite/{z}/{x}/{y}.png"
-theme = "satellite"
-raster = { tileSize = 256, min = 0, max = 20 }
+#[[client.mapStyles]]
+#id = "satellite"
+#name = "Satellite"
+#url = "https://tiles.example.com/satellite/{z}/{x}/{y}.png"
+#theme = "satellite"
+#raster = { tileSize = 256, min = 0, max = 20 }
 
 [[client.mapStyles]]
 id = "voyager"
 name = "Voyager"
 url = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+theme = "light"
 
 
 ### UICON Sets
