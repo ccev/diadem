@@ -1,16 +1,5 @@
 <script module lang="ts">
-	import { SvelteSet } from "svelte/reactivity";
-
 	type SnapPoint = string | number;
-	type ResetDrawerSnapPoint = () => void;
-
-	const resetPopupBaseDrawerSnapPointCallbacks = new SvelteSet<ResetDrawerSnapPoint>();
-
-	export function resetPopupBaseDrawerSnapPoint() {
-		for (const reset of resetPopupBaseDrawerSnapPointCallbacks) {
-			reset();
-		}
-	}
 </script>
 
 <script lang="ts">
@@ -18,6 +7,7 @@
 	import { Drawer } from "diadem-vaul-svelte";
 	import { watch } from "runed";
 	import { setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
+	import { bindPopupDrawerSnapPoint } from "$lib/ui/popupDrawer.svelte";
 	import type { Coords } from "$lib/utils/coordinates";
 	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
@@ -72,12 +62,21 @@
 		}
 	);
 
-	function resetActiveSnapPoint() {
-		activeSnapPoint = snapPoints[0];
+	function isActiveSnapPointExpanded() {
+		if (activeSnapPoint === 1) return true;
+		if (typeof document === "undefined") return false;
+
+		const drawerElement = document.querySelector<HTMLElement>("[data-vaul-drawer]");
+		return Boolean(drawerElement && Math.abs(drawerElement.getBoundingClientRect().top) <= 1);
 	}
 
-	resetPopupBaseDrawerSnapPointCallbacks.add(resetActiveSnapPoint);
-	onDestroy(() => resetPopupBaseDrawerSnapPointCallbacks.delete(resetActiveSnapPoint));
+	const unbindPopupDrawerSnapPoint = bindPopupDrawerSnapPoint({
+		getActiveSnapPoint: () => activeSnapPoint,
+		setActiveSnapPoint: (snapPoint) => (activeSnapPoint = snapPoint),
+		getInitialSnapPoint: () => snapPoints[0],
+		isExpanded: isActiveSnapPointExpanded
+	});
+	onDestroy(unbindPopupDrawerSnapPoint);
 </script>
 
 <Drawer.Root
