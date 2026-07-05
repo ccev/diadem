@@ -335,7 +335,7 @@
 										<div class="space-y-1 mt-4">
 											<StatsMainCardEntry
 												Icon={SquareEqual}
-												name="CP"
+												name={m.cp()}
 											>
 												{#snippet value()}
 													<p>
@@ -349,11 +349,22 @@
 
 												{/snippet}
 											</StatsMainCardEntry>
-											<StatsMainCardEntry Icon={Swords} name="Won" value={defender.battles_won} />
-											<StatsMainCardEntry Icon={Shield} name="Lost"
-											                    value={defender.battles_lost} />
-											<StatsMainCardEntry Icon={Candy} name="Fed" value={defender.times_fed} />
-											<StatsMainCardEntry Icon={Clock} name="Placed">
+											<StatsMainCardEntry
+												Icon={Swords}
+												name={m.won()}
+												value={defender.battles_won}
+											/>
+											<StatsMainCardEntry
+												Icon={Shield}
+												name={m.lost()}
+												value={defender.battles_lost}
+											/>
+											<StatsMainCardEntry
+												Icon={Candy}
+												name={m.fed()}
+												value={defender.times_fed}
+											/>
+											<StatsMainCardEntry Icon={Clock} name={m.defender_placed()}>
 												{#snippet value()}
 													{#if defender.deployed_time < currentTimestamp() - 60 * 60 * 24}
 														{timestampToLocalTime(defender.deployed_time, {

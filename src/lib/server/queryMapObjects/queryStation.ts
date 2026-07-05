@@ -43,7 +43,10 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 
 	protected getFilterWhere(filter: FilterStation | undefined): { sql: string; values: unknown[] } {
 		if (filter && !filter.stationPlain.enabled && filter.maxBattle.enabled) {
-			return { sql: "end_time > UNIX_TIMESTAMP()", values: [] };
+			return {
+				sql: "is_inactive = false AND is_battle_available = true AND end_time > UNIX_TIMESTAMP()",
+				values: []
+			};
 		}
 		return { sql: "", values: [] };
 	}

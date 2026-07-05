@@ -647,5 +647,10 @@
 	"pvp_performance": "PVP Performance",
 	"pvp_target": "Target",
 	"league": "League",
-	"performance": "Performance"
+	"performance": "Performance",
+	"won": "Won",
+	"lost": "Lost",
+	"fed": "Fed",
+	"catchable": "Catchable",
+	"find_wild_name": "Find wild {name}"
 }
