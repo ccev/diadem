@@ -98,7 +98,7 @@
 
 {#if props && data && props.overview}
 	<div class="w-full">
-		<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4 has-[*]:mt-4">
+		<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4 has-[*]:mt-4 touch-pan-x">
 			{#if props && data}
 				{@render props.overview(data)}
 			{/if}

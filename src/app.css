@@ -216,7 +216,6 @@ input[type="search"]::-webkit-search-cancel-button {
 @media (pointer: coarse) {
 	.overflow-x-auto {
 		scrollbar-width: none;
-		touch-action: pan-x;
 	}
 
 	.overflow-x-auto::-webkit-scrollbar:horizontal {
