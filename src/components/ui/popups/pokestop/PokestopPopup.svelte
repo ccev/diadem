@@ -1,7 +1,7 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
 	import * as m from "$lib/paraglide/messages";
-	import { mAlignment, mCharacter, mItem, mPokemon, mQuest } from "$lib/services/ingameLocale";
+	import { mCharacter, mItem, mPokemon, mQuest } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
@@ -220,7 +220,6 @@
 
 				{#snippet title()}
 					{#if reward}
-						{mAlignment(reward.alignment)}
 						{mPokemon(reward)}
 					{:else}
 						{name}
@@ -409,7 +408,6 @@
 									</div>
 
 									<span class="font-semibold">
-										{mAlignment(reward.alignment)}
 										{mPokemon(reward)}
 									</span>
 								</div>

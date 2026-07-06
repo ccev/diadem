@@ -125,6 +125,12 @@ export function mPokemon(data: {
 		}
 	}
 
+	// add shadow prefix
+	if (data.alignment === 1) {
+		const alignmentName = mAlignment(1);
+		if (alignmentName) name = alignmentName + " " + name;
+	}
+
 	// get dynamax/gigantamax names
 	if (data.bread_mode === 1) {
 		name = m.pogo_dynamax_pokemon({ pokemon: name });
