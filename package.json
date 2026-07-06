@@ -6,7 +6,8 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "prepare:vaul": "pnpm --dir diadem-vaul-svelte install --frozen-lockfile && pnpm --dir diadem-vaul-svelte run package",
+    "build": "pnpm run prepare:vaul && vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -20,9 +21,9 @@
     "cap:sync": "cap sync",
     "cap:sync:android": "cap sync android",
     "cap:sync:ios": "cap sync ios",
-    "build:native": "BUILD_TARGET=native vite build",
-    "build:native:android": "BUILD_TARGET=native vite build && cap sync android",
-    "build:native:ios": "BUILD_TARGET=native vite build && cap sync ios",
+    "build:native": "pnpm run prepare:vaul && BUILD_TARGET=native vite build",
+    "build:native:android": "pnpm run build:native && cap sync android",
+    "build:native:ios": "pnpm run build:native && cap sync ios",
     "native:android:nogms": "bash scripts/native/build-nogms.sh"
   },
   "devDependencies": {
