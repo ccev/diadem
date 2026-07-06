@@ -651,5 +651,6 @@
 	"lost": "Verloren",
 	"fed": "Gefüttert",
 	"catchable": "Zu fangen",
-	"find_wild_name": "Finde wilde {name}"
+	"find_wild_name": "Finde wilde {name}",
+	"filters_dont_match_gym": "Diese Arena passt zu keinem deiner Filter"
 }

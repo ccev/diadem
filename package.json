@@ -5,8 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "dev": "vite dev",
-    "prepare:vaul": "pnpm --dir diadem-vaul-svelte install --frozen-lockfile && pnpm --dir diadem-vaul-svelte run package",
+    "dev": "pnpm run prepare:vaul && vite dev",
+    "prepare:vaul": "CI=true pnpm --dir diadem-vaul-svelte install --frozen-lockfile && pnpm --dir diadem-vaul-svelte run package",
     "build": "pnpm run prepare:vaul && vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

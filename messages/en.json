@@ -652,5 +652,6 @@
 	"lost": "Lost",
 	"fed": "Fed",
 	"catchable": "Catchable",
-	"find_wild_name": "Find wild {name}"
+	"find_wild_name": "Find wild {name}",
+	"filters_dont_match_gym": "None of your filters match this Gym"
 }

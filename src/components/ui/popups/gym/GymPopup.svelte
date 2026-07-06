@@ -32,6 +32,7 @@
 		Heart,
 		Shield,
 		ShieldHalf,
+		SlidersHorizontal,
 		SquareEqual,
 		Star,
 		Swords,
@@ -41,6 +42,11 @@
 	import { getActiveRaidsForLevel } from "$lib/features/masterStats.svelte";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
 	import { formatPercentage } from "$lib/utils/numberFormat";
+	import { getUserSettings } from "$lib/services/userSettings.svelte";
+	import { matchRaidFilterset } from "$lib/features/filterLogic/gym";
+	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
+	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
+	import type { AnyFilterset } from "$lib/features/filters/filtersets";
 
 	export { image, overview, main };
 
@@ -76,6 +82,23 @@
 	function hasRaidData(data: GymData) {
 		return Boolean(data.raid_level && data.raid_end_timestamp);
 	}
+
+	function getMatchingFiltersets(data: GymData) {
+		const filtersets: AnyFilterset[] = [];
+		const raidFilterset = isActiveRaid(data) ? matchRaidFilterset(data) : undefined;
+		if (raidFilterset) filtersets.push(raidFilterset);
+
+		return filtersets;
+	}
+
+	function isActiveRaid(data: GymData) {
+		return hasActiveRaid(data) && hasRaidData(data);
+	}
+
+	function showMatchingFiltersets() {
+		const filter = getUserSettings().filters.gym;
+		return filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled));
+	}
 </script>
 
 {#snippet image(d: MapData)}
@@ -91,7 +114,7 @@
 
 {#snippet overview(d: MapData)}
 	{@const data = d as GymData}
-	{@const activeRaid = hasActiveRaid(data) && hasRaidData(data)}
+	{@const activeRaid = isActiveRaid(data)}
 
 	{#if activeRaid}
 		<OverviewCard Icon={RaidIcon} title={m.raid()}>
@@ -139,7 +162,7 @@
 
 {#snippet main(d: MapData)}
 	{@const data = d as GymData}
-	{@const activeRaid = hasActiveRaid(data) && hasRaidData(data)}
+	{@const activeRaid = isActiveRaid(data)}
 
 	{#if isFortOutdated(data.updated)}
 		<BasicMainCard class="font-medium">
@@ -400,6 +423,28 @@
 			icon={resize(getIconGym(data), { width: 64 })}
 		/>
 	</TitledMainSection>
+
+	{#if showMatchingFiltersets()}
+		<TitledMainSection Icon={SlidersHorizontal} title={m.matching_filtersets()}>
+			<BasicMainCard>
+				{@const filtersets = getMatchingFiltersets(data)}
+
+				{#if filtersets.length === 0}
+					<p>{m.filters_dont_match_gym()}</p>
+				{/if}
+				<div class="flex flex-wrap gap-3">
+					{#each filtersets as filterset (filterset.id)}
+						<div
+							class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md"
+						>
+							<FiltersetIcon {filterset} size={4} />
+							{filterTitle(filterset)}
+						</div>
+					{/each}
+				</div>
+			</BasicMainCard>
+		</TitledMainSection>
+	{/if}
 
 	<AboutFort
 		title={m.about_this_gym()}

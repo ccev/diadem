@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 
 process.title = "Diadem";
 
+const vaulSvelteRoot = fileURLToPath(new URL("./diadem-vaul-svelte", import.meta.url));
 const vaulSvelteEntry = fileURLToPath(new URL("./diadem-vaul-svelte/dist/index.js", import.meta.url));
 
 export default defineConfig({
@@ -19,7 +20,10 @@ export default defineConfig({
 		sveltekit()
 	],
 	server: {
-		allowedHosts: true
+		allowedHosts: true,
+		fs: {
+			allow: [vaulSvelteRoot]
+		}
 	},
 	resolve: {
 		alias: {
