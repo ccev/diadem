@@ -4,7 +4,7 @@ import * as m from "@/lib/paraglide/messages";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import type { LucideIcon } from "@/lib/types/lucide";
 import { mAny } from "@/lib/utils/anyMessage";
-import { Expand, Eye, SquareStack } from "lucide-svelte";
+import { Expand, Eye, SquareStack } from "@lucide/svelte";
 
 export enum PopupAction {
 	DIMMED = "dimmed",

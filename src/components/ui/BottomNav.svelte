@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CircleUserRound, PocketKnife, Settings2 } from "lucide-svelte";
+	import { CircleUserRound, PocketKnife, Settings2 } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
@@ -49,7 +49,7 @@
 </script>
 
 <div
-	class="z-10 h-16 mx-2 text-sm grid divide-x rounded-lg border bg-card text-card-foreground shadow-lg shrink-0"
+	class="z-10 h-16 mx-2 text-sm grid divide-x rounded-lg border bg-card text-card-foreground shadow-lg min-w-0 shrink-0"
 	style="pointer-events: all; grid-template-columns: repeat({buttons.length}, minmax(0, 1fr));"
 	transition:fade={{ duration: 90 }}
 >

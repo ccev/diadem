@@ -2,7 +2,7 @@
 	import { resetMap } from "@/lib/map/map.svelte";
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
 	import LocateFab from "@/components/ui/fab/LocateFab.svelte";
-	import { Navigation2 } from "lucide-svelte";
+	import { Navigation2 } from "@lucide/svelte";
 	import { getSkew, isMapSkewed } from "@/lib/map/mapSkew.svelte";
 	import { fade, slide } from "svelte/transition";
 	import maplibre from "maplibre-gl";

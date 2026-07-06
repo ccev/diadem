@@ -3,7 +3,7 @@
 	import { getClickedCoverageMapAreas } from "@/lib/features/coverageMap.svelte";
 	import { slide } from "svelte/transition";
 	import LucideIcon from "@/components/utils/LucideIcon.svelte";
-	import * as icons from "lucide-svelte";
+	import * as icons from "@lucide/svelte";
 
 	let areas = $derived(getClickedCoverageMapAreas());
 </script>

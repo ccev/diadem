@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
-	import { Cloud, Moon, Paintbrush, Sun } from "lucide-svelte";
+	import { Cloud, Moon, Paintbrush, Sun } from "@lucide/svelte";
 	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
 	import { isNative } from "@/lib/native/runtime";

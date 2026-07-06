@@ -1,0 +1,128 @@
+<script module lang="ts">
+	import type { Snippet } from "svelte";
+	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
+	import { useMetadata } from "$lib/ui/metadata.svelte";
+
+	export type MapObjectPopupProps = {
+		type: string,
+		title: string,
+		image: Snippet<[MapData]>,
+		overview?: Snippet<[MapData]>,
+		main: Snippet<[MapData]>,
+	}
+</script>
+
+<script lang="ts">
+	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
+	import * as m from "$lib/paraglide/messages";
+	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
+	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
+	import Button from "@/components/ui/input/Button.svelte";
+	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
+	import { getRootOrigin } from "$lib/native/runtime";
+	import { closePopup, getCurrentPath } from "$lib/mapObjects/interact";
+	import { getLocale } from "$lib/paraglide/runtime";
+	import { getMapsUrl } from "$lib/utils/mapUrl";
+	import { Coords } from "$lib/utils/coordinates";
+	import { getShareTitle } from "$lib/features/shareTexts";
+	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
+
+	let {
+		coords,
+		props,
+		data,
+		onlyShowNavigationButton
+	}: {
+		coords: Coords,
+		data: MapData | undefined
+		props: MapObjectPopupProps | undefined,
+		onlyShowNavigationButton: boolean
+	} = $props();
+
+	useMetadata(() => ({ title: props ? props.title : undefined }));
+
+	function getShareUrl() {
+		return getRootOrigin() + getCurrentPath({ data }) + "?lang=" + getLocale();
+	}
+
+</script>
+
+<div class="flex gap-6 px-4">
+	{#if props && data}
+		{@render props.image(data)}
+		<div class="min-w-0">
+			<p class="text-muted-foreground text-sm font-medium">
+				{props.type}
+			</p>
+			<h1 class="line-clamp-2 break-words text-xl font-semibold">
+				{props.title}
+			</h1>
+		</div>
+	{/if}
+
+	<div class="absolute right-2 top-2 flex gap-3">
+		{#if canNativeShare({ url: getShareUrl() })}
+			<Button
+				variant="ghost"
+				size=""
+				class="rounded-full p-2 size-9 bg-accent/50"
+				title={m.popup_share()}
+				onclick={() => backupShareUrl(getShareUrl())}
+			>
+				<Share2 class="size-3.5" />
+			</Button>
+		{:else if hasClipboardWrite()}
+			<Button
+				variant="ghost"
+				size=""
+				class="rounded-full p-2 size-9 bg-accent/50"
+				title={m.copy_link()}
+				onclick={() => copyToClipboard(getShareUrl())}
+			>
+				<Copy class="size-3.5" />
+			</Button>
+		{/if}
+
+		<Button
+			variant="ghost"
+			size=""
+			class="rounded-full p-2 size-9 bg-accent/50"
+			title={m.close()}
+			onclick={() => closePopup()}
+		>
+			<X class="size-4.5" />
+		</Button>
+	</div>
+</div>
+
+{#if props && data && props.overview}
+	<div class="w-full">
+		<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4 has-[*]:mt-4 touch-pan-x">
+			{#if props && data}
+				{@render props.overview(data)}
+			{/if}
+		</div>
+	</div>
+{/if}
+
+<div class="mt-5" data-popup-initial-snap-point-end>
+	{#if onlyShowNavigationButton}
+		<PopupButton
+			class="mx-4 w-full"
+			variant="default"
+			Icon={Navigation}
+			label={m.popup_navigate()}
+			tag="a"
+			href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
+			target="_blank"
+		/>
+	{:else if data}
+		<PopupButtons lat={coords.lat} lon={coords.lon} {data} />
+	{/if}
+</div>
+
+<div class="px-4 pt-2 mt-2 pb-6 space-y-7 overflow-y-auto">
+	{#if props && data}
+		{@render props.main(data)}
+	{/if}
+</div>

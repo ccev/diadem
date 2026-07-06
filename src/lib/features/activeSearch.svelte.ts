@@ -16,6 +16,8 @@ import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokest
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 import { getDefaultPokestopFilter, RewardType } from "@/lib/utils/pokestopUtils";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
+import { m } from "@/lib/paraglide/messages";
+import { mPokemon } from "$lib/services/ingameLocale";
 
 export type ActiveSearchParams = {
 	filter: AnyFilter;
@@ -73,11 +75,10 @@ export function resetActiveSearchFilter() {
 }
 
 export function setActiveSearchPokemon(
-	name: string,
 	pokemon: { pokemon_id: number; form?: number }
 ) {
 	setActiveSearch({
-		name,
+		name: mPokemon(pokemon),
 		mapObject: MapObjectType.POKEMON,
 		filter: {
 			category: "pokemon",
@@ -145,13 +146,13 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 	});
 }
 
-export function setActiveSearchKecleon(name: string) {
+export function setActiveSearchKecleon() {
 	const filter = getDefaultPokestopFilter();
 	filter.kecleon.enabled = true;
 	filter.enabled = true;
 
 	setActiveSearch({
-		name,
+		name: m.kecleon_pokestops(),
 		mapObject: MapObjectType.POKESTOP,
 		filter: filter
 	});
@@ -315,7 +316,7 @@ export function setActiveSearchMaxBattleBoss(
 	});
 }
 
-export function setActiveSearchNest(name: string, pokemon_id: number, form: number) {
+export function setActiveSearchNest(pokemon_id: number, form: number) {
 	const filter = { category: "nest", ...defaultFilter(true) } as FilterNest;
 
 	const pokemon = { pokemon_id, form };
@@ -331,7 +332,7 @@ export function setActiveSearchNest(name: string, pokemon_id: number, form: numb
 	filter.filters.push(filterset);
 
 	setActiveSearch({
-		name,
+		name: m.pokemon_nests({ pokemon: mPokemon({ pokemon_id, form }) }),
 		mapObject: MapObjectType.NEST,
 		filter: filter
 	});

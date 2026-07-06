@@ -18,38 +18,41 @@
 		Plus,
 		Timer,
 		TimerOff
-	} from "lucide-svelte";
+	} from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
+	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 
 	let {
 		lat,
-		lon
+		lon,
+		data
 	}: {
 		lat: number;
 		lon: number;
+		data: MapData;
 	} = $props();
 
-	let selectedData = $derived(getCurrentSelectedData());
-	let selectedType = $derived(selectedData?.type);
-	let selectedMapId = $derived(selectedData?.mapId);
+	let selectedType = $derived(data?.type);
+	let selectedMapId = $derived(data?.mapId);
 </script>
 
-<div class="flex px-4 gap-1.5 w-full overflow-x-auto pb-2">
+<div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">
+<!--	<PopupButton-->
+<!--		variant="default"-->
+<!--		Icon={Plus}-->
+<!--		label={m.popup_show_details()}-->
+<!--		IconActive={Minus}-->
+<!--		labelActive={m.popup_hide_details()}-->
+<!--		active={isPopupExpanded(selectedType)}-->
+<!--		onclick={() => togglePopupExpanded(selectedType)}-->
+<!--	/>-->
 	<PopupButton
 		variant="default"
-		Icon={Plus}
-		label={m.popup_show_details()}
-		IconActive={Minus}
-		labelActive={m.popup_hide_details()}
-		active={isPopupExpanded(selectedType)}
-		onclick={() => togglePopupExpanded(selectedType)}
-	/>
-	<PopupButton
 		Icon={Navigation}
 		label={m.popup_navigate()}
 		tag="a"

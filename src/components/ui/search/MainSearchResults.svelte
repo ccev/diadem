@@ -53,7 +53,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchPokemon(entry.name, { pokemon_id: entry.id, form: entry.form });
+				setActiveSearchPokemon({ pokemon_id: entry.id, form: entry.form });
 			}}
 			imageUrl={resize(getIconPokemon({ pokemon_id: entry.id, form: entry.form }), { width: 64 })}
 		/>
@@ -107,7 +107,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchKecleon(entry.name);
+				setActiveSearchKecleon();
 			}}
 			imageUrl={resize(getIconPokemon({ pokemon_id: KECLEON_ID }), { width: 64 })}
 		/>
@@ -163,7 +163,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchNest(entry.name, entry.pokemon_id, entry.form);
+				setActiveSearchNest(entry.pokemon_id, entry.form);
 			}}
 			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>

@@ -4,7 +4,7 @@ import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { formatNumber } from "@/lib/utils/numberFormat";
 import { League } from "@/lib/utils/pokemonUtils";
-import { INVASION_CHARACTER_LEADERS, INVASION_CHARACTER_NOTYPES } from "@/lib/utils/pokestopUtils";
+import { Character, INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 
 export const prefixes = {
 	pokemon: "poke_",
@@ -229,19 +229,49 @@ export function mGeneration(generationId?: number | string | null) {
 	return mBasicId("generation", generationId);
 }
 
-/**
- * Get localized grunt character
- * @param characterId
- */
-export function mCharacter(characterId?: number | string | null) {
-	const character = mBasicId("character", characterId);
+export function mCharacter(
+	characterId?: number | string | null,
+	options:
+		| {
+				plural?: boolean;
+				confirmed?: boolean | null;
+		  }
+		| undefined = undefined
+) {
+	if (!characterId) return m.unknown_character();
+
+	characterId = Number(characterId);
+	if (characterId === Character.GRUNT_MALE) {
+		return options?.plural ? m.male_grunts() : m.male_grunt();
+	} else if (characterId === Character.GRUNT_FEMALE) {
+		return options?.plural ? m.female_grunts() : m.female_grunt();
+	}
+
+	if (characterId === 44 && !options?.confirmed) {
+		return m.giovanni_or_decoy();
+	}
+
+	let character = mBasicId("character", characterId);
+
 	if (
-		INVASION_CHARACTER_LEADERS.includes(Number(characterId)) ||
-		INVASION_CHARACTER_NOTYPES.includes(Number(characterId))
+		INVASION_CHARACTER_LEADERS.includes(Number(characterId)) &&
+		characterId !== Character.DECOY_MALE &&
+		characterId !== Character.DECOY_FEMALE
 	) {
 		return character;
 	}
-	return m.character_grunt({ character });
+
+	if (character.includes(" ♀")) {
+		character = m.female_type({ type: character.replace("♀", "") });
+	} else if (character.includes(" ♂")) {
+		character = m.male_type({ type: character.replace("♂", "") });
+	}
+
+	if (characterId === Character.DECOY_FEMALE || characterId === Character.DECOY_MALE) {
+		character = m.decoy()
+	}
+
+	return options?.plural ? m.character_grunts({ character }) : m.character_grunt({ character });
 }
 
 export function mLeague(league: League) {
@@ -250,4 +280,17 @@ export function mLeague(league: League) {
 	if (league === League.ULTRA) return m.ultra_league();
 	if (league === League.MASTER) return m.master_league();
 	return m.unknown_league();
+}
+
+export function mTeam(teamId: number | undefined) {
+	switch (teamId) {
+		case 1:
+			return m.team_mystic();
+		case 2:
+			return m.team_valor();
+		case 3:
+			return m.team_instinct();
+		default:
+			return m.team_neutral();
+	}
 }

@@ -20,8 +20,15 @@ export const INCIDENT_DISPLAY_KECLEON = 8;
 export const INCIDENT_DISPLAY_CONTEST = 9;
 export const INCIDENT_DISPLAYS_INVASION = [1, 2, 3];
 export const INVASION_CHARACTER_LEADERS = [41, 42, 43, 44, 46];
-export const INVASION_CHARACTER_NOTYPES = [4, 5];
 export const KECLEON_ID = 352;
+
+export enum Character {
+	GRUNT_MALE = 4,
+	GRUNT_FEMALE = 5,
+	GIOVANNI = 44,
+	DECOY_MALE = 45,
+	DECOY_FEMALE = 46,
+}
 
 export enum RewardType {
 	XP = 1,

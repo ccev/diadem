@@ -10,7 +10,7 @@
 	import PopupContainer from "@/components/ui/popups/PopupContainer.svelte";
 	import DesktopMenu from "@/components/menus/DesktopMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
-	import { isMenuSidebar } from "@/lib/utils/device";
+	import { isMenuSidebar, isUiLeft } from "@/lib/utils/device";
 	import Home from "@/components/custom/Home.svelte";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
@@ -35,6 +35,7 @@
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type maplibre from "maplibre-gl";
 	import { onDestroy, onMount } from "svelte";
+	import { showCoverageMapTitle } from "$lib/features/coverageMap.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -56,7 +57,7 @@
 	<ErrorPage error={m.discord_block_title()} description={m.discord_block_desc()} href={errorHref}>
 		{#snippet extraButtons()}
 			<Button onclick={() => startLogin()}>
-				<DiscordIcon class="fill-primary-foreground w-3.5 shrink-0" />
+				<DiscordIcon class="w-3.5 shrink-0" />
 				<span>{m.discord_block_button()}</span>
 			</Button>
 		{/snippet}
@@ -71,12 +72,10 @@
 	<ContextMenu />
 
 	{#if isSearchViewActive()}
-		<div class="fixed z-10 top-safe-inset-top px-2 w-full pointer-events-none">
+		<div class="fixed z-50 top-safe-inset-top px-2 w-full pointer-events-none">
 			<ActiveSearchView />
 		</div>
 	{/if}
-
-	<WeatherOverview />
 
 	<MapMenuUi>
 		{#snippet desktopLeft()}
@@ -88,12 +87,28 @@
 			{/if}
 		{/snippet}
 		{#snippet desktopRight()}
-			{#if !isSearchViewActive()}
-				<Fabs {map} allowFollow={true} />
-			{/if}
-			<PopupContainer />
+			<div class="mb-auto mx-2 mt-safe-inset-top">
+				<WeatherOverview />
+			</div>
+			<div class="flex">
+				{#if !isSearchViewActive()}
+					<Fabs {map} allowFollow={true} />
+				{/if}
+			</div>
+		{/snippet}
+		{#snippet desktopRightSidebar()}
+			<PopupContainer alwaysExpanded={true} />
 		{/snippet}
 
+		{#snippet mobileTop()}
+			<div
+				class="fixed top-safe-inset-top z-10"
+				class:right-2={!isUiLeft() || isMenuSidebar()}
+				class:left-2={isUiLeft() && !isMenuSidebar()}
+			>
+				<WeatherOverview />
+			</div>
+		{/snippet}
 		{#snippet mobileBottom()}
 			{#if !getOpenedMenu()}
 				{#if !isSearchViewActive()}

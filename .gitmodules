@@ -1,0 +1,3 @@
+[submodule "diadem-vaul-svelte"]
+	path = diadem-vaul-svelte
+	url = https://github.com/roundaboutluke/diadem-vaul-svelte.git

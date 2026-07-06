@@ -71,9 +71,9 @@
 	"outdated_message": "Nie był aktualizowany od dłuższego czasu",
 	"time_format_h_m": "{h}g {m}m",
 	"time_format_h_m_ago": "{h}g {m}m temu",
-	"yesterday_time": "wczoraj, {time}",
-	"today_time": "dziś, {time}",
-	"tomorrow_time": "jutro, {time}",
+	"yesterday_time": "Wczoraj, {time}",
+	"today_time": "Dziś, {time}",
+	"tomorrow_time": "Jutro, {time}",
 	"contest_smallest": "Najmniejszy {name}",
 	"contest_biggest": "Największy {name}",
 	"contest_buddy_min_level": "Buddy (poziom {level}+)",
@@ -480,5 +480,8 @@
 	"count_xp": "{count} XP",
 	"filter_template_invasion_leaders": "Liderzy Team Rocket",
 	"join_server": "Dołącz do serwera",
-	"language_polish": "Polski"
+	"language_polish": "Polski",
+	"yesterday_time_lower": "wczoraj, {time}",
+	"today_time_lower": "dziś, {time}",
+	"tomorrow_time_lower": "jutro, {time}"
 }

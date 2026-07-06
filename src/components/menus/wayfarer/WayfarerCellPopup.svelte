@@ -5,9 +5,9 @@
 		getWayfarerCellHighlight,
 		setClickedL14Cell
 	} from "@/lib/features/wayfarerMap.svelte";
-	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
+	import WayfarerBasePopup from "@/components/ui/popups/WayfarerBasePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { Circle, Diamond, TriangleAlert } from "lucide-svelte";
+	import { Circle, Diamond, TriangleAlert } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 
 	let data = $derived(getClickedL14Cell());
@@ -30,7 +30,7 @@
 </script>
 
 {#if data}
-	<BasePopup
+	<WayfarerBasePopup
 		class="pb-2"
 		isExpanded={() => true}
 		buttons={undefined}
@@ -77,5 +77,5 @@
 				{@html m.wayfarer_gyms_count({ count: data.gymCount })}
 			</IconValue>
 		{/snippet}
-	</BasePopup>
+	</WayfarerBasePopup>
 {/if}

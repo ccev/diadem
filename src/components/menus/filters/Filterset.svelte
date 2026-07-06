@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Eye, EyeClosed } from "lucide-svelte";
+	import { Eye, EyeClosed } from "@lucide/svelte";
 
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import { type ModalType, openModal } from "@/lib/ui/modal.svelte";

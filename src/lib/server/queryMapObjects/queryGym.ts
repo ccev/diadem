@@ -19,6 +19,8 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		"name",
 		"url",
 		"description",
+		"sponsor_id",
+		"partner_id",
 		"last_modified_timestamp",
 		"updated",
 		"first_seen_timestamp",
@@ -40,7 +42,7 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		"in_battle",
 		"ex_raid_eligible",
 		"defenders AS defenders_raw",
-		"rsvps",
+		"rsvps AS raw_rsvps",
 		"deleted"
 	];
 	protected readonly limit = requestLimits[MapObjectType.GYM];
@@ -77,6 +79,12 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 			for (const defender of data?.defenders ?? []) {
 				defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
 			}
+			delete data.defenders_raw;
+		}
+
+		if (data.raw_rsvps) {
+			data.rsvps = JSON.parse(data.raw_rsvps || "[]") || [];
+			delete data.raw_rsvps;
 		}
 	}
 }

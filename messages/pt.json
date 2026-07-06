@@ -71,9 +71,9 @@
 	"outdated_message": "Não é atualizado há algum tempo.",
 	"time_format_h_m": "{h} h {m} m",
 	"time_format_h_m_ago": "{h} h {m} m atrás",
-	"yesterday_time": "ontem, {time}",
-	"today_time": "hoje, {time}",
-	"tomorrow_time": "amanhã, {time}",
+	"yesterday_time": "Ontem, {time}",
+	"today_time": "Hoje, {time}",
+	"tomorrow_time": "Amanhã, {time}",
 	"contest_smallest": "Menor {name}",
 	"contest_biggest": "Maior {name}",
 	"contest_buddy_min_level": "Amigo (Nível {level} +)",
@@ -214,5 +214,8 @@
 	"xp": "XP",
 	"xl_candy": "Doce XL",
 	"redirect_notice": "Você está sendo redirecionado automaticamente para {goal}. Clique aqui se isso não funcionar.",
-	"language_spanish": "Espanhol"
+	"language_spanish": "Espanhol",
+	"yesterday_time_lower": "ontem, {time}",
+	"today_time_lower": "hoje, {time}",
+	"tomorrow_time_lower": "amanhã, {time}"
 }

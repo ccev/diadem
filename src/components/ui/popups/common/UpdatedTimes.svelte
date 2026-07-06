@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "lucide-svelte";
+	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "@lucide/svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import * as m from "@/lib/paraglide/messages";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { isFortOutdated } from "@/lib/utils/gymUtils";
+	import { formatRatio } from "$lib/utils/numberFormat";
+	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
+	import { currentTimestamp } from "$lib/utils/currentTimestamp";
 
 	let {
 		updated,
@@ -19,22 +22,37 @@
 </script>
 
 {#if updated}
-	<IconValue Icon={isFortOutdated(updated) ? ClockAlert : Clock}>
-		{m.last_seen()}: <b><Countdown expireTime={updated} /></b>
-		{#if isFortOutdated(updated)}
-			({m.outdated()})
-		{/if}
-	</IconValue>
+	<StatsMainCardEntry Icon={Clock} name={m.last_seen()}>
+		{#snippet value()}
+			{#if currentTimestamp() - updated > 60 * 60 * 24}
+				{timestampToLocalTime(updated, { showDate: true, showSeconds: false, showTime: false })}
+			{:else}
+				<Countdown expireTime={updated} />
+			{/if}
+		{/snippet}
+	</StatsMainCardEntry>
 {/if}
 
 {#if lastModified}
-	<IconValue Icon={ClockArrowUp}>
-		{m.last_updated()}: <b><Countdown expireTime={lastModified} /></b>
-	</IconValue>
+	<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_updated()}>
+		{#snippet value()}
+			{#if currentTimestamp() - lastModified > 60 * 60 * 24}
+				{timestampToLocalTime(lastModified, { showDate: true, showSeconds: false, showTime: false })}
+			{:else}
+				<Countdown expireTime={lastModified} />
+			{/if}
+		{/snippet}
+	</StatsMainCardEntry>
 {/if}
 
 {#if firstSeen}
-	<IconValue Icon={Search}>
-		{m.first_seen()}: <b>{timestampToLocalTime(firstSeen, true)}</b>
-	</IconValue>
+	<StatsMainCardEntry Icon={Search} name={m.first_seen()}>
+		{#snippet value()}
+			{#if currentTimestamp() - firstSeen > 60 * 60 * 24}
+				{timestampToLocalTime(firstSeen, { showDate: true, showSeconds: false, showTime: false })}
+			{:else}
+				<Countdown expireTime={firstSeen} />
+			{/if}
+		{/snippet}
+	</StatsMainCardEntry>
 {/if}

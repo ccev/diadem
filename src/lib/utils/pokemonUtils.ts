@@ -135,8 +135,8 @@ export function getActivePokemonFilter() {
 }
 
 export function hasTimer(data: {
-	expire_timestamp: number | null | undefined;
-	expire_timestamp_verified: number | boolean | null | undefined;
+	expire_timestamp?: number | null;
+	expire_timestamp_verified?: boolean | number | null;
 }) {
 	return data.expire_timestamp && data.expire_timestamp_verified;
 }

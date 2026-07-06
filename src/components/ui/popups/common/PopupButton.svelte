@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button, { type ButtonProps } from "@/components/ui/input/Button.svelte";
-	import { Circle, CircleCheck, Ellipsis } from "lucide-svelte";
+	import { Circle, CircleCheck, Ellipsis } from "@lucide/svelte";
 	import type { LucideIcon } from "@/lib/types/lucide";
 	import { DropdownMenu } from "bits-ui";
 	import { fly, slide } from "svelte/transition";

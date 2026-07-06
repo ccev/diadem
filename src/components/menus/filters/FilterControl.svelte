@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronRight, Eye, EyeClosed, FunnelPlus } from "lucide-svelte";
+	import { ChevronRight, Eye, EyeClosed, FunnelPlus } from "@lucide/svelte";
 	import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import Switch from "@/components/ui/input/Switch.svelte";
@@ -39,7 +39,7 @@
 		isExpandable = false,
 		collapsibleByFiltersets = false,
 		isFilterable = true,
-		expanded = $bindable(false)
+		expanded = $bindable(false),
 	}: {
 		majorCategory: SelectedFiltersetData["majorCategory"];
 		subCategory?: FilterCategory;
@@ -63,7 +63,7 @@
 	);
 	let effectiveExpandable: boolean = $derived(
 		isExpandable ||
-			(collapsibleByFiltersets && isFilterable && hasAnyFilterset && filterModal !== undefined)
+			(collapsibleByFiltersets && isFilterable && hasAnyFilterset && filterModal !== undefined && filter.enabled)
 	);
 
 	function onAddFilter() {

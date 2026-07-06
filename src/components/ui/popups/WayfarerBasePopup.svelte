@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { isPopupExpanded } from "@/lib/ui/popupActions.js";
-	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import Card from "@/components/ui/Card.svelte";
-	import { Copy, Share2, X } from "lucide-svelte";
+	import { Copy, Share2, X } from "@lucide/svelte";
 	import type { Snippet } from "svelte";
 	import { slide } from "svelte/transition";
 	import { cubicIn, cubicOut } from "svelte/easing";
@@ -27,7 +26,6 @@
 		title,
 		description = undefined,
 		content = undefined,
-		buttons = popupButtons,
 		descriptionBelow = undefined,
 		canShare = true,
 		isExpanded = () => isPopupExpanded(getCurrentSelectedData()?.type),
@@ -42,7 +40,6 @@
 		title: Snippet;
 		description?: Snippet;
 		content?: Snippet;
-		buttons?: Snippet<[number, number]>;
 		descriptionBelow?: Snippet;
 		canShare?: boolean;
 		isExpanded?: () => boolean;
@@ -54,10 +51,6 @@
 		return getRootOrigin() + getCurrentPath() + "?lang=" + getLocale();
 	}
 </script>
-
-{#snippet popupButtons(buttonLat: number, buttonLon: number)}
-	<PopupButtons lat={buttonLat} lon={buttonLon} />
-{/snippet}
 
 <div class="w-full max-w-120 z-10" style="pointer-events: all" transition:slide={{ duration: 50 }}>
 	<Card class="h-full relative overflow-hidden pt-4 mx-2 {class_}">
@@ -135,10 +128,6 @@
 			>
 				{@render content?.()}
 			</div>
-		{/if}
-
-		{#if buttons && lat && lon}
-			{@render buttons(lat, lon)}
 		{/if}
 	</Card>
 </div>

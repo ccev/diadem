@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
-	import { Locate, LocateFixed, LocateOff } from "lucide-svelte";
+	import { Locate, LocateFixed, LocateOff } from "@lucide/svelte";
 	import {
 		updateGeolocationEnabled,
 		updateLocation,

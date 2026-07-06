@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Search, X } from "lucide-svelte";
+	import { Search, X } from "@lucide/svelte";
 	import Input from "@/components/ui/input/Input.svelte";
 
 	let {

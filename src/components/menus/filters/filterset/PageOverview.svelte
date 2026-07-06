@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Card from "@/components/ui/Card.svelte";
-	import { Pencil } from "lucide-svelte";
+	import { Pencil } from "@lucide/svelte";
 	import { fly } from "svelte/transition";
 	import type { Snippet } from "svelte";
 	import {

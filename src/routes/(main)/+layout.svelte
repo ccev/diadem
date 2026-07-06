@@ -6,6 +6,7 @@
 	import Modal from "@/components/ui/modal/Modal.svelte";
 	import { getSelectOptions } from "@/lib/ui/modal.svelte";
 	import Loading from "@/components/ui/Loading.svelte";
+	import FortDetailsModal from "@/components/ui/popups/common/FortDetailsModal.svelte";
 
 	let { data, children } = $props();
 
@@ -30,3 +31,5 @@
 {/if}
 
 {@render children?.()}
+
+<FortDetailsModal />

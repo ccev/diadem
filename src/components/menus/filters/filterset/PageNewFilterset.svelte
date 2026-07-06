@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import { fly } from "svelte/transition";
-	import { CirclePlus } from "lucide-svelte";
+	import { CirclePlus } from "@lucide/svelte";
 	import {
 		filtersetPageNew,
 		filtersetPageSelect,

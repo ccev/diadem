@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Server, Unplug, Wrench } from "lucide-svelte";
+	import { Server, Unplug, Wrench } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { setInstanceUrl } from "@/lib/native/runtime";

@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { getClickedFort, setClickedFort } from "@/lib/features/wayfarerMap.svelte";
-	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
-	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
-	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import { getIconGym, getIconPokestop } from "@/lib/services/uicons.svelte";
-	import { BadgeEuro, MapPin } from "lucide-svelte";
+	import { BadgeEuro, Clock, ClockAlert, MapPin, Search } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import BasePopup from "@/components/ui/popups/BasePopup.svelte";
+	import WayfarerBasePopup from "@/components/ui/popups/WayfarerBasePopup.svelte";
+	import { isFortOutdated } from "$lib/utils/gymUtils";
+	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
+	import Countdown from "@/components/utils/Countdown.svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
 
 	let data = $derived(getClickedFort());
 </script>
 
 {#if data}
-	<BasePopup
+	<WayfarerBasePopup
 		class="pb-2"
 		isExpanded={() => true}
 		buttons={undefined}
@@ -71,7 +73,20 @@
 				</IconValue>
 			{/if}
 
-			<UpdatedTimes updated={data.updated} firstSeen={data.first_seen_timestamp} />
+			{#if data.updated}
+				<IconValue Icon={isFortOutdated(data.updated) ? ClockAlert : Clock}>
+					{m.last_seen()}: <b><Countdown expireTime={data.updated} /></b>
+					{#if isFortOutdated(data.updated)}
+						({m.outdated()})
+					{/if}
+				</IconValue>
+			{/if}
+
+			{#if data.first_seen_timestamp}
+				<IconValue Icon={Search}>
+					{m.first_seen()}: <b>{timestampToLocalTime(data.first_seen_timestamp, { showDate: true })}</b>
+				</IconValue>
+			{/if}
 		{/snippet}
-	</BasePopup>
+	</WayfarerBasePopup>
 {/if}

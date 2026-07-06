@@ -10,7 +10,7 @@
 		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte";
 	import * as m from "@/lib/paraglide/messages";
-	import { Pencil } from "lucide-svelte";
+	import { Pencil } from "@lucide/svelte";
 	import IconPicker from "@/components/menus/filters/filterset/iconpicker/IconPicker.svelte";
 
 	let {

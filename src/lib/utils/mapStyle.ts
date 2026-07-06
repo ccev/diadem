@@ -3,6 +3,8 @@ import type { MapStyle } from "@/lib/services/config/configTypes";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import maplibre from "maplibre-gl";
 
+export type MapStyleTheme = "light" | "dark" | "satellite";
+
 export function mapStyleFromId(id: string) {
 	let styleConfig = getConfig().mapStyles.find((s) => s.id === id);
 	if (!styleConfig) {
@@ -10,6 +12,10 @@ export function mapStyleFromId(id: string) {
 		styleConfig = getDefaultMapStyle();
 	}
 	return styleConfig;
+}
+
+export function mapStyleForTheme(theme: MapStyleTheme) {
+	return getConfig().mapStyles.find((s) => (s.theme ?? s.default) === theme);
 }
 
 export function getMapStyle(mapStyle: MapStyle) {
