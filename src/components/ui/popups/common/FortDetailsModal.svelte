@@ -57,6 +57,7 @@
 	onopenchange={(open) => {
 		if (!open) restoreExpandedDrawerSnapPoint();
 	}}
+	class="z-50"
 >
 	{#if fortDetails}
 		<Card
