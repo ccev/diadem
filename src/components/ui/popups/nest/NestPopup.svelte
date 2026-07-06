@@ -89,7 +89,7 @@
 			/>
 			<QuickSearchButton
 				class="mt-0!"
-				label={m.find_wild({ name: mPokemon(data) })}
+				label={m.find_wild_name({ name: mPokemon(data) })}
 				onclick={() => setActiveSearchPokemon({pokemon_id: data.pokemon_id ?? 0, form: data.form ?? 0})}
 			/>
 		</StatsMainCard>
