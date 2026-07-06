@@ -4,7 +4,9 @@ import { getLogger } from "@/lib/utils/logger";
 const log = getLogger("dragonite");
 
 function getHeaders() {
-	const headers: HeadersInit = {};
+	const headers: HeadersInit = {
+		"Content-Type": "application/json"
+	};
 	if (getServerConfig().dragonite.secret) {
 		headers["X-Dragonite-Admin-Secret"] = getServerConfig().dragonite.secret ?? "";
 	}
