@@ -59,7 +59,7 @@
 {#if alwaysExpanded}
 	{#if doesDataExist}
 		<div
-			class="h-full min-w-80 max-w-130 basis-[32.5rem] shrink grow-0"
+			class="h-full min-w-80 max-w-110 basis-110 shrink grow-0"
 			transition:fly={{ duration: 130, x: 120 }}
 			class:pt-18={isSearchViewActive()}
 		>

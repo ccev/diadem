@@ -6,7 +6,7 @@
 	import { onDestroy, tick, untrack } from "svelte";
 	import { Drawer } from "diadem-vaul-svelte";
 	import { watch } from "runed";
-	import { setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
+	import { closePopup } from "$lib/mapObjects/interact";
 	import { bindPopupDrawerSnapPoint } from "$lib/ui/popupDrawer.svelte";
 	import type { Coords } from "$lib/utils/coordinates";
 	import PopupBaseStatic, { type MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
@@ -82,7 +82,7 @@
 <Drawer.Root
 	{open}
 	onRelease={(_, open) => {
-		if (!open) setCurrentSelectedData(null);
+		if (!open) closePopup();
 	}}
 	closeOnOutsideClick={false}
 	{snapPoints}

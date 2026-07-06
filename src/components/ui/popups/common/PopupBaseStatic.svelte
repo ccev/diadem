@@ -13,15 +13,14 @@
 </script>
 
 <script lang="ts">
-	import { Drawer } from "diadem-vaul-svelte";
-	import { getCurrentSelectedData, setCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
+	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 	import * as m from "$lib/paraglide/messages";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
 	import { getRootOrigin } from "$lib/native/runtime";
-	import { getCurrentPath } from "$lib/mapObjects/interact";
+	import { closePopup, getCurrentPath } from "$lib/mapObjects/interact";
 	import { getLocale } from "$lib/paraglide/runtime";
 	import { getMapsUrl } from "$lib/utils/mapUrl";
 	import { Coords } from "$lib/utils/coordinates";
@@ -89,7 +88,7 @@
 			size=""
 			class="rounded-full p-2 size-9 bg-accent/50"
 			title={m.close()}
-			onclick={() => setCurrentSelectedData(null)}
+			onclick={() => closePopup()}
 		>
 			<X class="size-4.5" />
 		</Button>
