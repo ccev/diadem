@@ -17,5 +17,8 @@ export default defineConfig({
 	],
 	server: {
 		allowedHosts: true
+	},
+	resolve: {
+		conditions: ["svelte", "browser", "module", "node", "development|production"]
 	}
 });
