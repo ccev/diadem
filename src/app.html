@@ -23,6 +23,14 @@
 					if (dark) document.documentElement.classList.add("dark");
 				} catch (e) {}
 			})();
+
+			(function () {
+				try {
+					if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+						document.documentElement.classList.add("native-app");
+					}
+				} catch (e) {}
+			})();
 		</script>
 		<style>
 			html {
@@ -44,9 +52,14 @@
 			}
 
 			#initial-loader img {
+				display: none;
 				width: 88px;
 				height: 88px;
 				border-radius: calc(infinity * 1px);
+			}
+
+			html.native-app #initial-loader img {
+				display: block;
 			}
 		</style>
 		%sveltekit.head%
