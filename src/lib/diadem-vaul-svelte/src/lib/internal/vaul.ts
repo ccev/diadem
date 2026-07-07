@@ -36,6 +36,8 @@ const WINDOW_TOP_OFFSET = 26;
 
 const DRAG_CLASS = "vaul-dragging";
 
+const GESTURE_LOCK_THRESHOLD = 6;
+
 const openDrawerIds = writable<string[]>([]);
 
 type WithFadeFromProps = {
@@ -154,9 +156,13 @@ export function createVaul(props: CreateVaulProps) {
 	let dragStartTime: Date | null = null;
 	let isClosing = false;
 	let pointerStart = 0;
+	let pointerStartX = 0;
+	let pointerStartY = 0;
 	let dragEndTime: Date | null = null;
 	let lastTimeDragPrevented: Date | null = null;
 	let isAllowedToDrag = false;
+	let crossAxisDragLock: "drawer" | "scroll" | null = null;
+	let startedOnCrossAxisScrollable = false;
 	let drawerHeightRef = get(drawerRef)?.getBoundingClientRect().height || 0;
 	let previousDiffFromInitial = 0;
 	let initialDrawerHeight = 0;
@@ -286,7 +292,50 @@ export function createVaul(props: CreateVaulProps) {
 		// Ensure we maintain correct pointer capture even when going outside of the drawer
 		(event.target as HTMLElement).setPointerCapture(event.pointerId);
 
-		pointerStart = isVertical(get(direction)) ? event.screenY : event.screenX;
+		const $direction = get(direction);
+		pointerStart = isVertical($direction) ? event.screenY : event.screenX;
+		pointerStartX = event.screenX;
+		pointerStartY = event.screenY;
+		crossAxisDragLock = null;
+		startedOnCrossAxisScrollable = Boolean(
+			$drawerRef &&
+				getScrollableElement(event.target as HTMLElement, $drawerRef, getCrossAxis($direction))
+		);
+	}
+
+	function shouldDeferDragToCrossAxisScroll(
+		event: SvelteEvent<PointerEvent | TouchEvent, HTMLElement>,
+		direction: DrawerDirection
+	) {
+		if (!startedOnCrossAxisScrollable) return false;
+
+		if (crossAxisDragLock === "scroll") {
+			lastTimeDragPrevented = new Date();
+			return true;
+		}
+
+		if (crossAxisDragLock === "drawer") return false;
+
+		const { x, y } = getEventPoint(event);
+		const drawerAxisMovement = isVertical(direction)
+			? Math.abs(y - pointerStartY)
+			: Math.abs(x - pointerStartX);
+		const scrollAxisMovement = isVertical(direction)
+			? Math.abs(x - pointerStartX)
+			: Math.abs(y - pointerStartY);
+
+		if (Math.max(drawerAxisMovement, scrollAxisMovement) < GESTURE_LOCK_THRESHOLD) {
+			return true;
+		}
+
+		if (scrollAxisMovement >= drawerAxisMovement) {
+			crossAxisDragLock = "scroll";
+			lastTimeDragPrevented = new Date();
+			return true;
+		}
+
+		crossAxisDragLock = "drawer";
+		return false;
 	}
 
 	function shouldDrag(el: EventTarget, isDraggingInDirection: boolean) {
@@ -382,6 +431,7 @@ export function createVaul(props: CreateVaulProps) {
 
 		// Disallow dragging down to close when first snap point is the active one and dismissible prop is set to false.
 		if ($snapPoints && $activeSnapPointIndex === 0 && !get(dismissible)) return;
+		if (shouldDeferDragToCrossAxisScroll(event, $direction)) return;
 		if (!isAllowedToDrag && !shouldDrag(event.target as HTMLElement, isDraggingInDirection)) {
 			return;
 		}
@@ -710,12 +760,16 @@ export function createVaul(props: CreateVaulProps) {
 			(event.target as HTMLInputElement).blur();
 		}
 		$drawerRef.classList.remove(DRAG_CLASS);
+		const wasLockedToScroll = crossAxisDragLock === "scroll";
 		isAllowedToDrag = false;
 		isDragging = false;
+		crossAxisDragLock = null;
+		startedOnCrossAxisScrollable = false;
 
 		dragEndTime = new Date();
 		const $direction = get(direction);
 		const swipeAmount = getTranslate($drawerRef, $direction);
+		if (wasLockedToScroll) return;
 
 		if (
 			(event.target && !shouldDrag(event.target, false)) ||
@@ -932,6 +986,56 @@ function getDistanceMoved(
 	} else {
 		return getDistanceMovedForPointer(pointerStart, direction, event as PointerEvent);
 	}
+}
+
+function getEventPoint(event: SvelteEvent<PointerEvent | TouchEvent, HTMLElement>) {
+	if (event.type.startsWith("touch")) {
+		const touchEvent = event as TouchEvent;
+		const touch = touchEvent.changedTouches[0] ?? touchEvent.touches[0];
+
+		return {
+			x: touch?.screenX ?? 0,
+			y: touch?.screenY ?? 0,
+		};
+	}
+
+	const pointerEvent = event as PointerEvent;
+
+	return {
+		x: pointerEvent.screenX,
+		y: pointerEvent.screenY,
+	};
+}
+
+function getCrossAxis(direction: DrawerDirection) {
+	return isVertical(direction) ? "x" : "y";
+}
+
+function getScrollableElement(element: HTMLElement, drawer: HTMLElement, axis: "x" | "y") {
+	let currentElement: HTMLElement | null = element;
+
+	while (currentElement && drawer.contains(currentElement)) {
+		if (currentElement !== drawer && isScrollableElement(currentElement, axis)) {
+			return currentElement;
+		}
+
+		currentElement = currentElement.parentElement;
+	}
+
+	return null;
+}
+
+function isScrollableElement(element: HTMLElement, axis: "x" | "y") {
+	const style = window.getComputedStyle(element);
+	const overflow = axis === "x" ? style.overflowX : style.overflowY;
+
+	if (overflow === "hidden" || overflow === "clip" || overflow === "visible") {
+		return false;
+	}
+
+	return axis === "x"
+		? element.scrollWidth > element.clientWidth
+		: element.scrollHeight > element.clientHeight;
 }
 
 function getDistanceMovedForPointer(
