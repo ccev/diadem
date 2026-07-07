@@ -25,7 +25,8 @@ export async function loadMasterStats() {
 	const response = await fetch("/api/stats");
 
 	if (!response.ok) {
-		console.error("Stat fetching failed!");
+		console.error("Stat fetching failed!", await response.text());
+		return;
 	}
 
 	masterStats = await response.json();

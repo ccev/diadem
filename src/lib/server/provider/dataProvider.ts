@@ -1,5 +1,7 @@
-import type { Logger } from "@/lib/utils/logger";
+import { getLogger, type Logger } from "@/lib/utils/logger";
 import { sleep } from "@/lib/utils/time";
+
+const log = getLogger("dataprovider");
 
 export abstract class BaseDataProvider<T> {
 	protected cachedData: T | undefined = undefined;
@@ -8,12 +10,15 @@ export abstract class BaseDataProvider<T> {
 
 	constructor(refreshSeconds: number) {
 		this.interval = setInterval(() => {
-			this.refresh().catch(() => {});
+			this.refresh().catch((err) => {
+				log.error("Data provider refresh failed: %s", err);
+			});
 		}, refreshSeconds * 1000);
 		this.interval?.unref?.();
 	}
 
 	protected abstract query(): Promise<T>;
+	protected setData(_data: T) {}
 
 	public async refresh(): Promise<T> {
 		if (this.fetchPromise) {
@@ -24,6 +29,7 @@ export abstract class BaseDataProvider<T> {
 		try {
 			const result = await this.fetchPromise;
 			this.cachedData = result;
+			this.setData(result);
 			return result;
 		} finally {
 			this.fetchPromise = undefined;

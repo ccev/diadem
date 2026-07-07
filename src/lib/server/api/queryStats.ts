@@ -9,6 +9,15 @@ import { getQuestKey, parseQuestReward, RewardType } from "@/lib/utils/pokestopU
 const log = getLogger("masterstats");
 const scrapedDuckUrl = "https://raw.githubusercontent.com/bigfoott/ScrapedDuck/data/";
 
+async function fetchJson<T>(url: string): Promise<T> {
+	const response = await fetch(url);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch ${url}: ${response.status} ${await response.text()}`);
+	}
+
+	return (await response.json()) as T;
+}
+
 type AllShinyStatsRow = {
 	pokemon_id: number;
 	form: number;
@@ -338,18 +347,8 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"AND updated > UNIX_TIMESTAMP() - 86400 " +
 				"GROUP BY 1, 2"
 		),
-		fetch(`${scrapedDuckUrl}eggs.min.json`)
-			.then((res) => res.json())
-			.catch((e) => {
-				log.error("Failed to fetch eggs data: %s", e);
-				return [];
-			}),
-		fetch(`${scrapedDuckUrl}rocketLineups.min.json`)
-			.then((res) => res.json())
-			.catch((e) => {
-				log.error("Failed to fetch invasion lineups data: %s", e);
-				return [];
-			})
+		fetchJson(`${scrapedDuckUrl}eggs.min.json`),
+		fetchJson(`${scrapedDuckUrl}rocketLineups.min.json`)
 	]);
 
 	await masterfileProvider.get();
