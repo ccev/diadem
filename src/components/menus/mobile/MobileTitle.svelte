@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { closeMenu, getOpenedMenu } from "@/lib/ui/menus.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
-	import { Drawer } from "diadem-vaul-svelte";
+	import { Drawer } from "$lib/diadem-vaul-svelte/src/lib";
 	import { mAny } from "@/lib/utils/anyMessage";
 </script>
 

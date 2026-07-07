@@ -4,7 +4,7 @@
 
 <script lang="ts">
 	import { onDestroy, tick, untrack } from "svelte";
-	import { Drawer } from "diadem-vaul-svelte";
+	import { Drawer } from "$lib/diadem-vaul-svelte/src/lib";
 	import { watch } from "runed";
 	import { closePopup } from "$lib/mapObjects/interact";
 	import { bindPopupDrawerSnapPoint } from "$lib/ui/popupDrawer.svelte";

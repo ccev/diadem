@@ -98,9 +98,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      diadem-vaul-svelte:
-        specifier: file:./diadem-vaul-svelte
-        version: file:diadem-vaul-svelte(@internationalized/date@3.10.1)(@sveltejs/kit@2.55.0(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.1)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)(typescript@5.8.3)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)
       drizzle-orm:
         specifier: ^0.40.0
         version: 0.40.1(@cloudflare/workers-types@4.20250517.0)(gel@2.1.0)(kysely@0.29.2)(mysql2@3.14.1)
@@ -2924,12 +2921,6 @@ packages:
 
   devalue@5.6.4:
     resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
-
-  diadem-vaul-svelte@file:diadem-vaul-svelte:
-    resolution: {directory: diadem-vaul-svelte, type: directory}
-    engines: {node: '>=18', pnpm: '>=8.7.0'}
-    peerDependencies:
-      svelte: ^4.0.0 || ^5.0.0-next.1
 
   drizzle-kit@0.30.5:
     resolution: {integrity: sha512-l6dMSE100u7sDaTbLczibrQZjA35jLsHNqIV+jmhNVO3O8jzM6kywMOmV9uOz9ZVSCMPQhAZEFjL/qDPVrqpUA==}
@@ -7292,14 +7283,6 @@ snapshots:
   detect-libc@2.1.2: {}
 
   devalue@5.6.4: {}
-
-  diadem-vaul-svelte@file:diadem-vaul-svelte(@internationalized/date@3.10.1)(@sveltejs/kit@2.55.0(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.1)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)(typescript@5.8.3)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1):
-    dependencies:
-      bits-ui: 2.18.1(@internationalized/date@3.10.1)(@sveltejs/kit@2.55.0(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.1)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)(typescript@5.8.3)(vite@8.0.0(@types/node@18.19.100)(esbuild@0.19.12)(jiti@2.6.1)))(svelte@5.55.1)
-      svelte: 5.55.1
-    transitivePeerDependencies:
-      - '@internationalized/date'
-      - '@sveltejs/kit'
 
   drizzle-kit@0.30.5:
     dependencies:

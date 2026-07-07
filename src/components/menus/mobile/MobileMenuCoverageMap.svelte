@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Drawer } from "diadem-vaul-svelte";
+	import { Drawer } from "$lib/diadem-vaul-svelte/src/lib";
 	import {
 		closeMenu,
 		getOpenedMenu,

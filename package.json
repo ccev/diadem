@@ -5,9 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "dev": "pnpm run prepare:vaul && vite dev",
-    "prepare:vaul": "CI=true pnpm --dir diadem-vaul-svelte install --frozen-lockfile && pnpm --dir diadem-vaul-svelte run package",
-    "build": "pnpm run prepare:vaul && vite build",
+    "dev": "vite dev",
+    "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -21,7 +20,7 @@
     "cap:sync": "cap sync",
     "cap:sync:android": "cap sync android",
     "cap:sync:ios": "cap sync ios",
-    "build:native": "pnpm run prepare:vaul && BUILD_TARGET=native vite build",
+    "build:native": "BUILD_TARGET=native vite build",
     "build:native:android": "pnpm run build:native && cap sync android",
     "build:native:ios": "pnpm run build:native && cap sync ios",
     "native:android:nogms": "bash scripts/native/build-nogms.sh"
@@ -78,7 +77,6 @@
     "chalk": "^5.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "diadem-vaul-svelte": "file:./diadem-vaul-svelte",
     "drizzle-orm": "^0.40.0",
     "emojilib": "^4.0.2",
     "maplibre-gl": "^5.14.0",
