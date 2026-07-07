@@ -6,7 +6,6 @@ FROM base AS deps
 
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches/
-COPY diadem-vaul-svelte ./diadem-vaul-svelte/
 RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
