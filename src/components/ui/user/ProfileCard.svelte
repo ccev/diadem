@@ -41,7 +41,7 @@
 				</span>
 			</p>
 			<div class="flex justify-end flex-1">
-				{#if !getUserDetails().isGuildMember}
+				{#if getUserDetails().isGuildMember === false}
 					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2 basis-full">
 						{m.join_server()}
 					</Button>
