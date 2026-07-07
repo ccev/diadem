@@ -14,6 +14,10 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { Features } from "@/lib/utils/features";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import {
+	INCIDENT_DISPLAY_CONTEST,
+	INCIDENT_DISPLAY_GOLD,
+	INCIDENT_DISPLAY_KECLEON,
+	INCIDENT_DISPLAYS_INVASION,
 	isIncidentContest,
 	isIncidentGold,
 	isIncidentInvasion,
@@ -80,6 +84,116 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 	protected readonly pointExpr = "Point(pokestop.lon, pokestop.lat)";
 	protected readonly joins = "LEFT JOIN incident ON incident.pokestop_id = pokestop.id";
 	protected readonly extraWhere = ["deleted = 0"];
+
+	protected getFilterWhere(filter: FilterPokestop | undefined): { sql: string; values: unknown[] } {
+		if (!filter?.enabled || filter.pokestopPlain.enabled) return { sql: "", values: [] };
+
+		const clauses: string[] = [];
+		const values: unknown[] = [];
+		const activeQuest =
+			"((pokestop.quest_target IS NOT NULL AND pokestop.quest_rewards IS NOT NULL) OR (pokestop.alternative_quest_target IS NOT NULL AND pokestop.alternative_quest_rewards IS NOT NULL))";
+
+		if (filter.lure.enabled) {
+			const lureFilters = filter.lure.filters.filter((f) => f.enabled);
+			const lureItems = lureFilters.flatMap((f) => f.items);
+			const lureClauses = ["pokestop.lure_expire_timestamp > UNIX_TIMESTAMP()"];
+
+			if (lureFilters.length > 0 && lureItems.length > 0) {
+				lureClauses.push(`pokestop.lure_id IN (${lureItems.map(() => "?").join(",")})`);
+				values.push(...lureItems);
+			}
+
+			clauses.push(`(${lureClauses.join(" AND ")})`);
+		}
+
+		if (filter.quest.enabled) {
+			const questFilters = filter.quest.filters.filter((f) => f.enabled);
+			const questClauses: string[] = [];
+
+			for (const filterset of questFilters) {
+				if (!filterset.tasks?.length) {
+					questClauses.push(activeQuest);
+					continue;
+				}
+
+				for (const task of filterset.tasks) {
+					questClauses.push(
+						"((pokestop.quest_title = ? AND pokestop.quest_target = ?) OR (pokestop.alternative_quest_title = ? AND pokestop.alternative_quest_target = ?))"
+					);
+					values.push(task.title, task.target, task.title, task.target);
+				}
+			}
+
+			clauses.push(questClauses.length ? `(${questClauses.join(" OR ")})` : activeQuest);
+		}
+
+		if (filter.invasion.enabled) {
+			const invasionFilters = filter.invasion.filters.filter((f) => f.enabled);
+			const characterIds = invasionFilters.flatMap((f) => f.characters ?? []);
+			const hasUnsafeInvasionFilter = invasionFilters.some((f) => f.rewards?.length);
+			const invasionDisplaySql = `incident.display_type IN (${INCIDENT_DISPLAYS_INVASION.map(() => "?").join(",")})`;
+			values.push(...INCIDENT_DISPLAYS_INVASION);
+
+			if (invasionFilters.length > 0 && characterIds.length > 0 && !hasUnsafeInvasionFilter) {
+				clauses.push(
+					`(incident.expiration > UNIX_TIMESTAMP() AND ${invasionDisplaySql} AND incident.character IN (${characterIds.map(() => "?").join(",")}))`
+				);
+				values.push(...characterIds);
+			} else {
+				clauses.push(`(incident.expiration > UNIX_TIMESTAMP() AND ${invasionDisplaySql})`);
+			}
+		}
+
+		if (filter.goldPokestop.enabled) {
+			clauses.push("(incident.expiration > UNIX_TIMESTAMP() AND incident.display_type = ?)");
+			values.push(INCIDENT_DISPLAY_GOLD);
+		}
+
+		if (filter.kecleon.enabled) {
+			clauses.push("(incident.expiration > UNIX_TIMESTAMP() AND incident.display_type = ?)");
+			values.push(INCIDENT_DISPLAY_KECLEON);
+		}
+
+		if (filter.contest.enabled) {
+			const contestFilters = filter.contest.filters.filter((f) => f.enabled);
+			const contestClauses: string[] = [];
+			const contestValues: unknown[] = [];
+
+			for (const filterset of contestFilters) {
+				const contestFilterClauses = ["pokestop.showcase_expiry > UNIX_TIMESTAMP()"];
+
+				if (filterset.rankingStandard) {
+					contestFilterClauses.push("pokestop.showcase_ranking_standard = ?");
+					contestValues.push(filterset.rankingStandard);
+				}
+
+				if (filterset.focus.pokemon_id) {
+					contestFilterClauses.push("pokestop.showcase_pokemon_id = ?");
+					contestValues.push(filterset.focus.pokemon_id);
+				}
+
+				if (filterset.focus.form) {
+					contestFilterClauses.push("pokestop.showcase_pokemon_form_id = ?");
+					contestValues.push(filterset.focus.form);
+				}
+
+				if (filterset.focus.type_id) {
+					contestFilterClauses.push("pokestop.showcase_pokemon_type_id = ?");
+					contestValues.push(filterset.focus.type_id);
+				}
+
+				contestClauses.push(`(${contestFilterClauses.join(" AND ")})`);
+			}
+
+			clauses.push(
+				`(incident.expiration > UNIX_TIMESTAMP() AND incident.display_type = ? AND ${contestClauses.length ? `(${contestClauses.join(" OR ")})` : "pokestop.showcase_expiry > UNIX_TIMESTAMP()"})`
+			);
+			values.push(INCIDENT_DISPLAY_CONTEST, ...contestValues);
+		}
+
+		if (!clauses.length) return { sql: "1 = 0", values: [] };
+		return { sql: `(${clauses.join(" OR ")})`, values };
+	}
 
 	protected async executeQuery<T>(sql: string, values: unknown[]): Promise<T> {
 		return await queryJoined<T>(sql, values);

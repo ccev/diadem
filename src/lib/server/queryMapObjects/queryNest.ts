@@ -34,6 +34,26 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 
 	protected readonly extraWhere = ["active = 1", "pokemon_id IS NOT NULL"];
 
+	protected getFilterWhere(filter: FilterNest | undefined): { sql: string; values: unknown[] } {
+		if (!filter?.enabled) return { sql: "", values: [] };
+
+		const filters = filter.filters.filter((f) => f.enabled);
+		if (filters.length === 0) return { sql: "", values: [] };
+
+		const clauses: string[] = [];
+		const values: unknown[] = [];
+
+		for (const filterset of filters) {
+			for (const pokemon of filterset.pokemon ?? []) {
+				clauses.push("(pokemon_id = ? AND pokemon_form = ?)");
+				values.push(pokemon.pokemon_id, pokemon.form);
+			}
+		}
+
+		if (!clauses.length) return { sql: "1 = 0", values: [] };
+		return { sql: `(${clauses.join(" OR ")})`, values };
+	}
+
 	protected buildSpatialFilter(
 		polygon: PermittedPolygon,
 		bounds: Bounds

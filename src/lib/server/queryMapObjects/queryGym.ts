@@ -52,7 +52,41 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 
 	protected getFilterWhere(filter: FilterGym | undefined): { sql: string; values: unknown[] } {
 		if (filter && !filter.gymPlain.enabled && filter.raid.enabled) {
-			return { sql: "raid_end_timestamp > UNIX_TIMESTAMP()", values: [] };
+			const filters = filter.raid.filters.filter((f) => f.enabled);
+			const clauses: string[] = [];
+			const values: unknown[] = [];
+
+			for (const filterset of filters) {
+				if (filterset.show?.includes("egg")) clauses.push("COALESCE(raid_pokemon_id, 0) = 0");
+				if (filterset.show?.includes("boss")) clauses.push("COALESCE(raid_pokemon_id, 0) != 0");
+
+				if (filterset.levels?.length) {
+					clauses.push(`raid_level IN (${filterset.levels.map(() => "?").join(",")})`);
+					values.push(...filterset.levels);
+				}
+
+				for (const boss of filterset.bosses ?? []) {
+					const bossClauses = ["raid_pokemon_id = ?"];
+					values.push(boss.pokemon_id);
+
+					if (boss.form) {
+						bossClauses.push("raid_pokemon_form = ?");
+						values.push(boss.form);
+					}
+
+					if (boss.temp_evolution_id !== undefined) {
+						bossClauses.push("raid_pokemon_evolution = ?");
+						values.push(boss.temp_evolution_id);
+					}
+
+					clauses.push(`(${bossClauses.join(" AND ")})`);
+				}
+			}
+
+			const sql = ["raid_end_timestamp > UNIX_TIMESTAMP()"];
+			if (clauses.length) sql.push(`(${clauses.join(" OR ")})`);
+
+			return { sql: sql.join(" AND "), values };
 		}
 		return { sql: "", values: [] };
 	}
