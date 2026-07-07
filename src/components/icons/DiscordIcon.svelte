@@ -13,4 +13,4 @@
 	const props: LucideProps = $props();
 </script>
 
-<Icon {...props} {iconNode} viewBox="0 0 126.644 96" fill="currentColor" stroke="0" />
+<Icon {...props} {iconNode} viewBox="0 0 126.644 96" fill="currentColor" style="stroke: none" />

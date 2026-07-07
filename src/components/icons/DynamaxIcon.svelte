@@ -37,4 +37,4 @@
 	const props: LucideProps = $props();
 </script>
 
-<Icon {...props} {iconNode} viewBox="0 0 185 185" fill="currentColor" preserveAspectRatio="xMidYMid meet" stroke="0" />
+<Icon {...props} {iconNode} viewBox="0 0 185 185" fill="currentColor" preserveAspectRatio="xMidYMid meet" style="stroke: none" />
