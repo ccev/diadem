@@ -156,6 +156,22 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 		filterset<FiltersetRaid>({
 			uicon: {
 				category: IconCategory.RAID,
+				params: { level: RaidLevel.MEGA_SUPER }
+			},
+			title: "super_mega_raids",
+			levels: [RaidLevel.MEGA_SUPER]
+		}),
+		filterset<FiltersetRaid>({
+			uicon: {
+				category: IconCategory.RAID,
+				params: { level: RaidLevel.MEGA_SUPER_LEGENDARY }
+			},
+			title: "legendary_super_mega_raids",
+			levels: [RaidLevel.MEGA_SUPER_LEGENDARY]
+		}),
+		filterset<FiltersetRaid>({
+			uicon: {
+				category: IconCategory.RAID,
 				params: { level: RaidLevel.SHADOW_STAR_3 }
 			},
 			title: "filter_template_raids_shadow",
