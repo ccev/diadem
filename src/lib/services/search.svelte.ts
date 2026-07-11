@@ -442,7 +442,7 @@ export function initSearch(searchOptions: SearchOptions) {
 				return {
 					name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
 					category: "raids",
-					key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
+					key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form + "-" + raidBoss.temp_evolution_id,
 					type: SearchableType.RAID_BOSS,
 					pokemon_id: raidBoss.pokemon_id,
 					form: raidBoss.form

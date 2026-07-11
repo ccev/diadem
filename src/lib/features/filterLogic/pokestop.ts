@@ -158,12 +158,16 @@ export function matchQuestFilterset(
 			}
 		}
 
-		if (questFilter.megaResource && quest.reward.type === RewardType.MEGA_ENERGY) {
+		if (
+			questFilter.megaResource &&
+			(quest.reward.type === RewardType.MEGA_ENERGY ||
+				quest.reward.type === RewardType.TEMP_EVO_BRANCH_RESOURCE)
+		) {
 			const info = quest.reward.info;
 			if (
 				questFilter.megaResource.find(
 					(i) =>
-						i.id === info.pokemon_id.toString() &&
+						i.id === String(info.pokemon_id) &&
 						(i.amount === undefined || i.amount === info.amount)
 				)
 			) {

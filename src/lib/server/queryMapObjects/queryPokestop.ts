@@ -162,8 +162,15 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 				}
 
 				for (const reward of filterset.megaResource ?? []) {
-					const rewardClausesForType = [`${typeColumn} = ?`, `${pokemonColumn} = ?`];
-					const rewardValuesForType: unknown[] = [RewardType.MEGA_ENERGY, reward.id];
+					const rewardClausesForType = [
+						`${typeColumn} IN (?, ?)`,
+						`${pokemonColumn} = ?`
+					];
+					const rewardValuesForType: unknown[] = [
+						RewardType.MEGA_ENERGY,
+						RewardType.TEMP_EVO_BRANCH_RESOURCE,
+						reward.id
+					];
 					if (reward.amount !== undefined) {
 						rewardClausesForType.push(`${amountColumn} = ?`);
 						rewardValuesForType.push(reward.amount);

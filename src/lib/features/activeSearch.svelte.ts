@@ -124,7 +124,8 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 			filterset.xlCandy = [{ id: reward.info.pokemon_id.toString() }];
 			break;
 		case RewardType.MEGA_ENERGY:
-			filterset.megaResource = [{ id: reward.info.pokemon_id.toString() }];
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
+			filterset.megaResource = [{ id: String(reward.info.pokemon_id) }];
 			break;
 		case RewardType.XP:
 			filterset.xp = { min: 0, max: Infinity };

@@ -60,7 +60,11 @@
 			)
 				return true;
 		}
-		if (data.megaResource && reward.type === RewardType.MEGA_ENERGY) {
+		if (
+			data.megaResource &&
+			(reward.type === RewardType.MEGA_ENERGY ||
+				reward.type === RewardType.TEMP_EVO_BRANCH_RESOURCE)
+		) {
 			if (
 				data.megaResource.some(
 					(i) =>
