@@ -123,6 +123,9 @@
 								data={thisData}
 								attribute="rewards"
 								pokemonList={getAllInvasionCatchables()}
+								selectedPokemonList={(thisData.rewards ?? []).map((pokemon) =>
+									getInvasionPokemon(pokemon)
+								)}
 							/>
 						{/snippet}
 					</Attribute>
