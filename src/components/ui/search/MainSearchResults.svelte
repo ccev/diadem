@@ -139,7 +139,7 @@
 		<SearchItem
 			{result}
 			onselect={() => {
-				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form);
+				setActiveSearchRaidBoss(entry.name, entry.pokemon_id, entry.form, entry.temp_evolution_id);
 			}}
 			imageUrl={resize(getIconPokemon(entry), { width: 64 })}
 		/>

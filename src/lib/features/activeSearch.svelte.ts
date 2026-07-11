@@ -238,7 +238,8 @@ export function setActiveSearchInvasion(name: string, characterId: number) {
 export function setActiveSearchRaidBoss(
 	name: string,
 	pokemonId: number,
-	formId: number | undefined
+	formId: number | undefined,
+	tempEvoId: number | undefined
 ) {
 	const filterset = {
 		id: "searchOverwrite",
@@ -253,6 +254,7 @@ export function setActiveSearchRaidBoss(
 	} as FiltersetRaid;
 
 	if (formId && filterset.bosses) filterset.bosses[0].form = formId;
+	if (tempEvoId && filterset.bosses) filterset.bosses[0].temp_evolution_id = tempEvoId;
 
 	const filter = getDefaultGymFilter();
 	filter.gymPlain.enabled = false;
