@@ -61,8 +61,8 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 				}
 
 				for (const boss of filterset.bosses ?? []) {
-					const bossClauses = ["battle_pokemon_id = ?", "battle_pokemon_form = ?"];
-					values.push(boss.pokemon_id, boss.form);
+					const bossClauses = ["battle_pokemon_id = ?"];
+					values.push(boss.pokemon_id);
 
 					if (boss.bread_mode !== undefined) {
 						bossClauses.push("battle_pokemon_bread_mode = ?");

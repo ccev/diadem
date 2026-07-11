@@ -69,11 +69,6 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 					const bossClauses = ["raid_pokemon_id = ?"];
 					values.push(boss.pokemon_id);
 
-					if (boss.form) {
-						bossClauses.push("raid_pokemon_form = ?");
-						values.push(boss.form);
-					}
-
 					if (boss.temp_evolution_id !== undefined) {
 						bossClauses.push("raid_pokemon_evolution = ?");
 						values.push(boss.temp_evolution_id);
