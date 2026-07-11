@@ -68,6 +68,7 @@ export type Incident = {
 	character: number;
 	updated: number;
 	confirmed: boolean;
+	confirmed_reward?: PokemonVisual;
 	slot_1_pokemon_id?: number;
 	slot_1_form?: number;
 	slot_2_pokemon_id?: number;

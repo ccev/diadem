@@ -28,6 +28,8 @@ import {
 	stripLureFields,
 	stripQuestFields
 } from "@/lib/utils/pokestopUtils";
+import { getConfirmedInvasionReward } from "$lib/server/queryMapObjects/invasionRewards";
+import { getActiveCharacters } from "$lib/features/masterStats.svelte";
 
 const FIELDS_POKESTOP = [
 	"pokestop.id",
@@ -417,6 +419,10 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			incident.slot_1_form = getNormalizedForm(incident.slot_1_pokemon_id, incident.slot_1_form);
 			incident.slot_2_form = getNormalizedForm(incident.slot_2_pokemon_id, incident.slot_2_form);
 			incident.slot_3_form = getNormalizedForm(incident.slot_3_pokemon_id, incident.slot_3_form);
+			incident.confirmed_reward = getConfirmedInvasionReward(
+				incident,
+				getActiveCharacters()
+			);
 		}
 
 		if (context) this.stripUnpermitted(data, context);

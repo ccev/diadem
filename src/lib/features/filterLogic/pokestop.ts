@@ -1,6 +1,10 @@
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import type { FiltersetInvasion, FiltersetQuest } from "@/lib/features/filters/filtersets";
-import { getInvasionCatchable, hasInvasionLineup } from "@/lib/features/masterStats.svelte";
+import {
+	getActiveCharacters,
+	getInvasionCatchable,
+	getInvasionLineup
+} from "@/lib/features/masterStats.svelte";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { Incident, PokestopData, QuestData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -13,6 +17,7 @@ import {
 	isIncidentKecleon,
 	RewardType
 } from "@/lib/utils/pokestopUtils";
+import type { MinPokemon, PokemonVisual } from "$lib/types/mapObjectData/pokemon";
 
 export function matchInvasionFilterset(
 	incident: Incident,
@@ -23,17 +28,28 @@ export function matchInvasionFilterset(
 	const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
 	if (invasionFilters.length === 0) return;
 
+	let possibleRewards: MinPokemon[] = []
+
+	if (incident.confirmed_reward) {
+		possibleRewards.push(incident.confirmed_reward)
+		const lineup = getInvasionLineup(incident.character);
+		const extraCatchables = lineup?.second?.filter((l) => l.encounter)
+		if (extraCatchables?.length) {
+			possibleRewards.push(...extraCatchables)
+		}
+	} else {
+		possibleRewards = getInvasionCatchable(incident.character) ?? []
+	}
+
 	for (const invasionFilter of invasionFilters) {
 		if (invasionFilter.characters && invasionFilter.characters?.includes(incident.character))
 			return invasionFilter;
 
-		if (!hasInvasionLineup(incident.character)) continue;
-
-		const catchableRewards = getInvasionCatchable(incident.character) ?? [];
+		if (possibleRewards.length === 0) continue;
 
 		if (
 			invasionFilter.rewards?.find((r) => {
-				return catchableRewards.find((c) => c.pokemon_id === r.pokemon_id && c.form === r.form);
+				return possibleRewards.find((c) => c.pokemon_id === r.pokemon_id && c.form === r.form);
 			})
 		) {
 			return invasionFilter;
