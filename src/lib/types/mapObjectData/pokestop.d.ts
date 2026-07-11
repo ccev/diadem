@@ -116,7 +116,11 @@ export type ContestFocus =
 	| ContestFocusGeneration
 	| ContestFocusHatched
 	| ContestFocusTempEvo
-	| ContestFocusShiny;
+	| ContestFocusShiny
+	| QuestRewardPokemonIndividualStat
+	| QuestRewardLootTable
+	| QuestRewardFriendshipPoints
+	| QuestRewardTempEvoBranch;
 
 export type ContestFocusPokemon = {
 	type: "pokemon";
@@ -264,7 +268,22 @@ export type QuestRewardEventBadge = {
 	info: {};
 };
 
-export type QuestRewardPokemonEgg = {
-	type: RewardType.POKEMON_EGG;
+export type QuestRewardPokemonIndividualStat = {
+	type: RewardType.POKEMON_INDIVIDUAL_STAT;
 	info: {};
+};
+
+export type QuestRewardLootTable = {
+	type: RewardType.LOOT_TABLE;
+	info: {};
+};
+
+export type QuestRewardFriendshipPoints = {
+	type: RewardType.FRIENDSHIP_POINTS;
+	info: {};
+};
+
+export type QuestRewardTempEvoBranch = {
+	type: RewardType.TEMP_EVO_BRANCH_RESOURCE;
+	info: { amount: number; pokemon_id?: number; temp_evolution?: number };
 };

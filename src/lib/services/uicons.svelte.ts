@@ -219,6 +219,12 @@ export function getIconReward(
 		case RewardType.PLAYER_ATTRIBUTE:
 			rewardType = "player_attribute";
 			break;
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
+			// return getIconPokemon(info);
+			// wwm-uicons doesn't have mega energy, just using normal mega instead
+			rewardType = "mega_resource";
+			id = info.pokemon_id;
+			break;
 		default:
 			rewardType = "";
 	}
