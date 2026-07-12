@@ -88,7 +88,7 @@
 					</Attribute>
 				{/if}
 
-				{#if hasReward(RewardType.MEGA_ENERGY)}
+				{#if hasReward(RewardType.MEGA_ENERGY) || hasReward(RewardType.TEMP_EVO_BRANCH_RESOURCE)}
 					<Attribute label={rewardTypeLabel(RewardType.MEGA_ENERGY)}>
 						<AttributeChip
 							label={makeAttributeMegaResourceLabel(data.megaResource ?? [])}
@@ -100,6 +100,7 @@
 								data={thisData}
 								attribute="megaResource"
 								rewardType={RewardType.MEGA_ENERGY}
+								rewardTypes={[RewardType.MEGA_ENERGY, RewardType.TEMP_EVO_BRANCH_RESOURCE]}
 								getId={(info) => String((info as { pokemon_id: number }).pokemon_id)}
 							/>
 						{/snippet}

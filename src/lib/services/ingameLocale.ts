@@ -205,6 +205,12 @@ export function mRaid(raidLevel?: number | string | null, plural: boolean = fals
 			return plural
 				? m.x_star_shadow_raids({ level: raidLevel - 10 })
 				: m.x_star_shadow_raid({ level: raidLevel - 10 });
+		} else if (raidLevel === RaidLevel.MEGA_SUPER) {
+			return plural ? m.super_mega_raids() : m.super_mega_raid();
+		} else if (raidLevel === RaidLevel.MEGA_SUPER_LEGENDARY) {
+			return plural ? m.legendary_super_mega_raids() : m.legendary_super_mega_raid();
+		} else if (raidLevel === RaidLevel.UNITY_1 || raidLevel === RaidLevel.UNITY_2) {
+			return plural ? m.unity_raids() : m.unity_raid();
 		}
 	}
 

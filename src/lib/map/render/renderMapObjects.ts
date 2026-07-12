@@ -52,6 +52,9 @@ import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
 
+const INVASION_CHARACTER_SCALE = 0.6;
+const INVASION_CHARACTER_OFFSET = 30;
+
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;
 	let offsetY: number = 0;
@@ -290,22 +293,47 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 
 			const mapId = data.mapId + "-incident-" + incident.id;
 			const invasionModifiers = getConfigModifiers(this.iconSet, "invasion");
+			const imageOffset: [number, number] = [
+				this.iconModifiers.offsetX + invasionModifiers.offsetX,
+				this.iconModifiers.offsetY + invasionModifiers.offsetY + index * invasionModifiers.spacing
+			];
+
+			const confirmedReward = incident.confirmed_reward;
+			const imageSize = invasionModifiers.scale;
+
+			if (confirmedReward) {
+				features.push(
+					this.getFeature(
+						data,
+						{
+							imageUrl: getIconInvasion(incident.character, incident.confirmed),
+							imageSize: imageSize * INVASION_CHARACTER_SCALE,
+							selectedScale,
+							imageOffset: [
+								imageOffset[0] / INVASION_CHARACTER_SCALE + INVASION_CHARACTER_OFFSET,
+								imageOffset[1] / INVASION_CHARACTER_SCALE + INVASION_CHARACTER_OFFSET
+							],
+							id: data.mapId,
+							expires: incident.expiration
+						},
+						{ id: mapId + "-character" }
+					)
+				);
+			}
 
 			features.push(
 				...this.renderVisualModifiers(data, mapId, matchInvasionFilterset(incident), {
-					imageUrl: getIconInvasion(incident.character, incident.confirmed),
-					imageSize: invasionModifiers.scale,
+					imageUrl: confirmedReward
+						? getIconPokemon(confirmedReward)
+						: getIconInvasion(incident.character, incident.confirmed),
+					imageSize,
 					selectedScale,
-					imageOffset: [
-						this.iconModifiers.offsetX + invasionModifiers.offsetX,
-						this.iconModifiers.offsetY +
-							invasionModifiers.offsetY +
-							index * invasionModifiers.spacing
-					],
+					imageOffset,
 					id: data.mapId,
 					expires: incident.expiration
 				})
 			);
+
 			index += 1;
 		}
 

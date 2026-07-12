@@ -589,7 +589,7 @@
 	"find_more_x_quests": "Find more {x} Quests",
 	"no_invasions_at_pokestop": "No Team Rocket Grunts are currently at this Pokéstop",
 	"confirmed_reward": "Confirmed Reward",
-	"or_x_chance_to_get": "or {chance}% chance to get:",
+	"or_x_chance_to_get": "or {chance}% chance to get",
 	"possible_lineup": "Possible Lineup",
 	"find_more_x": "Find more {x}",
 	"no_lure_seen_here": "No Lure Module was ever seen here",
@@ -653,5 +653,12 @@
 	"fed": "Fed",
 	"catchable": "Catchable",
 	"find_wild_name": "Find wild {name}",
-	"filters_dont_match_gym": "None of your filters match this Gym"
+	"filters_dont_match_gym": "None of your filters match this Gym",
+	"super_mega_raid": "Super Mega Raid",
+	"super_mega_raids": "Super Mega Raids",
+	"legendary_super_mega_raid": "Legendary Super Mega Raid",
+	"legendary_super_mega_raids": "Legendary Super Mega Raids",
+	"unity_raid": "Unity Raid",
+	"unity_raids": "Unity Raids",
+	"filter_template_levels_super_mega": "Super Mega {kind}"
 }

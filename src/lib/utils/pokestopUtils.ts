@@ -13,6 +13,7 @@ import type {
 } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import type { PokemonVisual } from "$lib/types/mapObjectData/pokemon";
 
 export const CONTEST_SLOTS = 200;
 export const INCIDENT_DISPLAY_GOLD = 7;
@@ -27,7 +28,7 @@ export enum Character {
 	GRUNT_FEMALE = 5,
 	GIOVANNI = 44,
 	DECOY_MALE = 45,
-	DECOY_FEMALE = 46,
+	DECOY_FEMALE = 46
 }
 
 export enum RewardType {
@@ -46,7 +47,11 @@ export enum RewardType {
 	INCIDENT = 13,
 	PLAYER_ATTRIBUTE = 14,
 	EVENT_BADGE = 15,
-	POKEMON_EGG = 16
+	POKEMON_EGG = 16,
+	POKEMON_INDIVIDUAL_STAT = 17,
+	LOOT_TABLE = 18,
+	FRIENDSHIP_POINTS = 19,
+	TEMP_EVO_BRANCH_RESOURCE = 20
 }
 
 export function parseQuestReward(reward?: string | null) {
@@ -167,6 +172,20 @@ export function getRewardText(reward: QuestReward) {
 				count: reward.info.amount,
 				pokemon: mPokemon(reward.info)
 			});
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
+			if (!reward.info.pokemon_id) return m.mega_energy()
+			const pokemon: PokemonVisual = {
+				pokemon_id: reward.info.pokemon_id,
+				form: 0,
+				temp_evolution_id: reward.info.temp_evolution
+			};
+
+			if (!reward.info.amount) return m.pokemon_mega_resource({ pokemon: mPokemon(pokemon) });
+
+			return m.quest_mega_resource({
+				count: reward.info.amount,
+				pokemon: mPokemon(pokemon)
+			});
 		default:
 			return rewardTypeLabel(reward.type);
 	}
@@ -206,6 +225,8 @@ export function rewardTypeLabel(rewardType: RewardType) {
 			return m.reward_event_badge();
 		case RewardType.POKEMON_EGG:
 			return m.reward_egg();
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
+			return m.mega_energy()
 		default:
 			return "";
 	}

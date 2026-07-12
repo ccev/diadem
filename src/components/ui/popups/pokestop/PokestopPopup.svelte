@@ -51,8 +51,6 @@
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import type { AnyFilterset } from "$lib/features/filters/filtersets";
-	import type { ActiveInvasionCharacterStats } from "$lib/server/api/queryStats";
-	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
 	import MainCardBigIcon from "@/components/ui/popups/common/MainCardBigIcon.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
 	import { isFortOutdated } from "$lib/utils/gymUtils";
@@ -126,36 +124,6 @@
 				filter.invasion.filters.find((f) => f.enabled))
 		);
 	}
-
-	function getInvasionReward(
-		invasion: Incident,
-		lineup: ActiveInvasionCharacterStats | undefined
-	): Partial<PokemonData> | undefined {
-		const first = lineup?.first?.[0];
-		const second = lineup?.second?.[0];
-		const third = lineup?.third?.[0];
-
-		// assuming giovanni logic
-		if (third && lineup.third.length === 1 && third.encounter) {
-			return getInvasionPokemon(third);
-		}
-
-		if (invasion.confirmed && invasion.slot_1_pokemon_id) {
-			return getInvasionPokemon({
-				pokemon_id: invasion.slot_1_pokemon_id,
-				form: invasion.slot_1_form
-			});
-		}
-
-		if (
-			first?.encounter &&
-			!second?.encounter &&
-			!third?.encounter &&
-			(lineup?.first?.length ?? 0) === 1
-		) {
-			return getInvasionPokemon(first);
-		}
-	}
 </script>
 
 {#snippet image(d: MapData)}
@@ -197,7 +165,7 @@
 
 	{#each invasions as invasion}
 		{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
-		{@const reward = getInvasionReward(invasion, getInvasionLineup(invasion.character))}
+		{@const reward = invasion.confirmed_reward}
 		<OverviewCard Icon={InvasionIcon} title={m.pogo_invasion()}>
 			<BigIconOverview>
 				{#snippet image()}
@@ -382,7 +350,7 @@
 				{#each invasions as invasion (invasion.id)}
 					{@const lineup = getInvasionLineup(invasion.character)}
 					<BasicMainCard>
-						{@const reward = getInvasionReward(invasion, lineup)}
+						{@const reward = invasion.confirmed_reward}
 						{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
 
 						<MainCardBigIcon
@@ -418,7 +386,7 @@
 										</p>
 
 										<div class="flex gap-3 mt-2">
-											{#each lineup.second as extraReward}
+											{#each lineup.second as extraReward (extraReward.pokemon_id + "-" + extraReward.form)}
 												{@const pokemon = getInvasionPokemon(extraReward)}
 												{#if !(pokemon.pokemon_id === reward.pokemon_id && pokemon.form === reward.form)}
 													<div>

@@ -23,10 +23,13 @@ import {
 	isIncidentInvasion,
 	isIncidentKecleon,
 	parseQuestReward,
+	RewardType,
 	stripContestFields,
 	stripLureFields,
 	stripQuestFields
 } from "@/lib/utils/pokestopUtils";
+import { getConfirmedInvasionReward } from "$lib/server/queryMapObjects/invasionRewards";
+import { getActiveCharacters } from "$lib/features/masterStats.svelte";
 
 const FIELDS_POKESTOP = [
 	"pokestop.id",
@@ -109,18 +112,126 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 		if (filter.quest.enabled) {
 			const questFilters = filter.quest.filters.filter((f) => f.enabled);
 			const questClauses: string[] = [];
+			const getQuestRewardWhere = (filterset: (typeof questFilters)[number], prefix: string) => {
+				const rewardClauses: string[] = [];
+				const rewardValues: unknown[] = [];
+				const typeColumn = `${prefix}quest_reward_type`;
+				const amountColumn = `${prefix}quest_reward_amount`;
+				const itemColumn = `${prefix}quest_item_id`;
+				const pokemonColumn = `${prefix}quest_pokemon_id`;
 
-			for (const filterset of questFilters) {
-				if (!filterset.tasks?.length) {
-					questClauses.push(activeQuest);
-					continue;
+				const addAmountReward = (type: RewardType, range: { min: number; max: number }) => {
+					const amountClauses = [`${typeColumn} = ?`];
+					const amountValues: unknown[] = [type];
+
+					if (Number.isFinite(range.min)) {
+						amountClauses.push(`${amountColumn} >= ?`);
+						amountValues.push(range.min);
+					}
+					if (Number.isFinite(range.max)) {
+						amountClauses.push(`${amountColumn} <= ?`);
+						amountValues.push(range.max);
+					}
+
+					rewardClauses.push(`(${amountClauses.join(" AND ")})`);
+					rewardValues.push(...amountValues);
+				};
+
+				if (filterset.stardust) addAmountReward(RewardType.STARDUST, filterset.stardust);
+				if (filterset.xp) addAmountReward(RewardType.XP, filterset.xp);
+
+				if (filterset.pokemon?.length) {
+					rewardClauses.push(
+						`(${typeColumn} = ? AND ${pokemonColumn} IN (${filterset.pokemon.map(() => "?").join(",")}))`
+					);
+					rewardValues.push(
+						RewardType.POKEMON,
+						...filterset.pokemon.map((pokemon) => pokemon.pokemon_id)
+					);
 				}
 
-				for (const task of filterset.tasks) {
-					questClauses.push(
-						"((pokestop.quest_title = ? AND pokestop.quest_target = ?) OR (pokestop.alternative_quest_title = ? AND pokestop.alternative_quest_target = ?))"
-					);
-					values.push(task.title, task.target, task.title, task.target);
+				for (const item of filterset.item ?? []) {
+					const itemClauses = [`${typeColumn} = ?`, `${itemColumn} = ?`];
+					const itemValues: unknown[] = [RewardType.ITEM, item.id];
+					if (item.amount !== undefined) {
+						itemClauses.push(`${amountColumn} = ?`);
+						itemValues.push(item.amount);
+					}
+					rewardClauses.push(`(${itemClauses.join(" AND ")})`);
+					rewardValues.push(...itemValues);
+				}
+
+				for (const reward of filterset.megaResource ?? []) {
+					const rewardClausesForType = [
+						`${typeColumn} IN (?, ?)`,
+						`${pokemonColumn} = ?`
+					];
+					const rewardValuesForType: unknown[] = [
+						RewardType.MEGA_ENERGY,
+						RewardType.TEMP_EVO_BRANCH_RESOURCE,
+						reward.id
+					];
+					if (reward.amount !== undefined) {
+						rewardClausesForType.push(`${amountColumn} = ?`);
+						rewardValuesForType.push(reward.amount);
+					}
+					rewardClauses.push(`(${rewardClausesForType.join(" AND ")})`);
+					rewardValues.push(...rewardValuesForType);
+				}
+
+				for (const reward of filterset.candy ?? []) {
+					const rewardClausesForType = [`${typeColumn} = ?`, `${pokemonColumn} = ?`];
+					const rewardValuesForType: unknown[] = [RewardType.CANDY, reward.id];
+					if (reward.amount !== undefined) {
+						rewardClausesForType.push(`${amountColumn} = ?`);
+						rewardValuesForType.push(reward.amount);
+					}
+					rewardClauses.push(`(${rewardClausesForType.join(" AND ")})`);
+					rewardValues.push(...rewardValuesForType);
+				}
+
+				for (const reward of filterset.xlCandy ?? []) {
+					const rewardClausesForType = [`${typeColumn} = ?`, `${pokemonColumn} = ?`];
+					const rewardValuesForType: unknown[] = [RewardType.XL_CANDY, reward.id];
+					if (reward.amount !== undefined) {
+						rewardClausesForType.push(`${amountColumn} = ?`);
+						rewardValuesForType.push(reward.amount);
+					}
+					rewardClauses.push(`(${rewardClausesForType.join(" AND ")})`);
+					rewardValues.push(...rewardValuesForType);
+				}
+
+				return { sql: rewardClauses.join(" OR "), values: rewardValues };
+			};
+
+			for (const filterset of questFilters) {
+				for (const prefix of ["pokestop.", "pokestop.alternative_"]) {
+					const filtersetClauses: string[] = [];
+					const filtersetValues: unknown[] = [];
+
+					if (filterset.tasks?.length) {
+						filtersetClauses.push(
+							`(${filterset.tasks
+								.map(() => `(${prefix}quest_title = ? AND ${prefix}quest_target = ?)`)
+								.join(" OR ")})`
+						);
+						for (const task of filterset.tasks) {
+							filtersetValues.push(task.title, task.target);
+						}
+					} else {
+						filtersetClauses.push(
+							`${prefix}quest_target IS NOT NULL AND ${prefix}quest_rewards IS NOT NULL`
+						);
+					}
+
+					const rewardWhere = getQuestRewardWhere(filterset, prefix);
+					if (rewardWhere.sql) {
+						filtersetClauses.push(`(${rewardWhere.sql})`);
+						filtersetValues.push(...rewardWhere.values);
+					}
+
+					questClauses.push(`(${filtersetClauses.join(" AND ")})`);
+					values.push(...filtersetValues);
 				}
 			}
 
@@ -170,11 +281,6 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 				if (filterset.focus.pokemon_id) {
 					contestFilterClauses.push("pokestop.showcase_pokemon_id = ?");
 					contestValues.push(filterset.focus.pokemon_id);
-				}
-
-				if (filterset.focus.form) {
-					contestFilterClauses.push("pokestop.showcase_pokemon_form_id = ?");
-					contestValues.push(filterset.focus.form);
 				}
 
 				if (filterset.focus.type_id) {
@@ -320,6 +426,10 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			incident.slot_1_form = getNormalizedForm(incident.slot_1_pokemon_id, incident.slot_1_form);
 			incident.slot_2_form = getNormalizedForm(incident.slot_2_pokemon_id, incident.slot_2_form);
 			incident.slot_3_form = getNormalizedForm(incident.slot_3_pokemon_id, incident.slot_3_form);
+			incident.confirmed_reward = getConfirmedInvasionReward(
+				incident,
+				getActiveCharacters()
+			);
 		}
 
 		if (context) this.stripUnpermitted(data, context);

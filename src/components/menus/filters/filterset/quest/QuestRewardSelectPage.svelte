@@ -16,18 +16,19 @@
 		data,
 		attribute,
 		rewardType,
+		rewardTypes = [rewardType],
 		getId
 	}: {
 		data: FiltersetQuest;
 		attribute: Attribute;
 		rewardType: RewardType;
-		getId: (info: Reward["info"]) => string;
+		rewardTypes?: RewardType[];
+		getId: (info: QuestReward["info"]) => string;
 	} = $props();
 
-	type Reward = Extract<QuestReward, { type: typeof rewardType }>;
-	type RewardInfo = Reward["info"] & { amount?: number };
+	type RewardInfo = QuestReward["info"] & { amount?: number };
 	const rewards = $derived(
-		getQuestRewards(rewardType).sort((a, b) => {
+		rewardTypes.flatMap((type) => getQuestRewards(type)).sort((a, b) => {
 			const aInfo = a.reward.info as RewardInfo;
 			const bInfo = b.reward.info as RewardInfo;
 			const aId = getId(aInfo);
@@ -43,13 +44,13 @@
 		return `${id}-${amount}`;
 	}
 
-	function isSelected(reward: Reward) {
+	function isSelected(reward: QuestReward) {
 		const info = reward.info as RewardInfo;
 		const key = getKey(getId(info), info.amount);
 		return data[attribute]?.some((r) => getKey(r.id, r.amount) === key) ?? false;
 	}
 
-	function onselect(reward: Reward, selected: boolean) {
+	function onselect(reward: QuestReward, selected: boolean) {
 		const info = reward.info as RewardInfo;
 		let filterReward: FilterReward = { id: getId(info) };
 		if (info.amount !== undefined) filterReward.amount = info.amount;
@@ -75,7 +76,7 @@
 				<img
 					class="w-8"
 					alt={getRewardText(reward.reward)}
-					src={resize(getIconReward(rewardType, reward.reward.info), { width: 64 })}
+					src={resize(getIconReward(reward.reward.type, reward.reward.info), { width: 64 })}
 					loading="lazy"
 				/>
 				<div class="grow text-center align-middle flex items-center px-1">

@@ -40,9 +40,13 @@ export enum RaidLevel {
 	SHADOW_LEGENDARY = 15,
 	MEGA = 6,
 	MEGA_LEGENDARY = 7,
+	MEGA_SUPER = 16,
+	MEGA_SUPER_LEGENDARY = 17,
 	PRIMAL = 10,
 	ULTRA_BEAST = 8,
-	ELITE = 9
+	ELITE = 9,
+	UNITY_1 = 18,
+	UNITY_2 = 19,
 }
 export const RAID_LEVELS = Object.values(RaidLevel).filter(
 	(v) => typeof v === "number"

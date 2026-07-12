@@ -124,7 +124,8 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 			filterset.xlCandy = [{ id: reward.info.pokemon_id.toString() }];
 			break;
 		case RewardType.MEGA_ENERGY:
-			filterset.megaResource = [{ id: reward.info.pokemon_id.toString() }];
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
+			filterset.megaResource = [{ id: String(reward.info.pokemon_id) }];
 			break;
 		case RewardType.XP:
 			filterset.xp = { min: 0, max: Infinity };
@@ -237,7 +238,8 @@ export function setActiveSearchInvasion(name: string, characterId: number) {
 export function setActiveSearchRaidBoss(
 	name: string,
 	pokemonId: number,
-	formId: number | undefined
+	formId: number | undefined,
+	tempEvoId: number | undefined
 ) {
 	const filterset = {
 		id: "searchOverwrite",
@@ -252,6 +254,7 @@ export function setActiveSearchRaidBoss(
 	} as FiltersetRaid;
 
 	if (formId && filterset.bosses) filterset.bosses[0].form = formId;
+	if (tempEvoId && filterset.bosses) filterset.bosses[0].temp_evolution_id = tempEvoId;
 
 	const filter = getDefaultGymFilter();
 	filter.gymPlain.enabled = false;

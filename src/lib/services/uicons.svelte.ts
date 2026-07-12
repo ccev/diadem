@@ -11,7 +11,7 @@ import { shouldDisplayIncident, shouldDisplayLure } from "@/lib/features/filterL
 import { MapObjectType, type MapData } from "@/lib/mapObjects/mapObjectTypes";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { GYM_SLOTS, isFortOutdated } from "@/lib/utils/gymUtils";
+import { GYM_SLOTS, isFortOutdated, RaidLevel } from "@/lib/utils/gymUtils";
 import { getLeagueCp, LeagueCp, type League } from "@/lib/utils/pokemonUtils";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 import { isMaxBattleActive } from "@/lib/utils/stationUtils";
@@ -219,6 +219,12 @@ export function getIconReward(
 		case RewardType.PLAYER_ATTRIBUTE:
 			rewardType = "player_attribute";
 			break;
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
+			// return getIconPokemon(info);
+			// wwm-uicons doesn't have mega energy, just using normal mega instead
+			rewardType = "mega_resource";
+			id = info.pokemon_id;
+			break;
 		default:
 			rewardType = "";
 	}
@@ -231,6 +237,10 @@ export function getIconItem(itemId: number | string, amount: number = 0) {
 }
 
 export function getIconRaidEgg(level: number, hatched: boolean = false) {
+	// temporary: show super megas as default mega eggs (no icons available)
+	if (level === RaidLevel.MEGA_SUPER || level === RaidLevel.MEGA_SUPER_LEGENDARY) {
+		level -= 10
+	}
 	return iconSets[DEFAULT_UICONS].raidEgg(level, hatched);
 }
 

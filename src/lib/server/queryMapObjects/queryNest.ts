@@ -45,8 +45,8 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 
 		for (const filterset of filters) {
 			for (const pokemon of filterset.pokemon ?? []) {
-				clauses.push("(pokemon_id = ? AND pokemon_form = ?)");
-				values.push(pokemon.pokemon_id, pokemon.form);
+				clauses.push("pokemon_id = ?");
+				values.push(pokemon.pokemon_id);
 			}
 		}
 

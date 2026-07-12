@@ -72,6 +72,10 @@ export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid 
 				case RaidLevel.ELITE:
 					title.message = "filter_template_levels_elite";
 					break;
+				case RaidLevel.MEGA_SUPER:
+				case RaidLevel.MEGA_SUPER_LEGENDARY:
+					title.message = "filter_template_levels_super_mega";
+					break;
 			}
 		}
 	} else if (filter.bosses && filter.bosses.length > 0) {

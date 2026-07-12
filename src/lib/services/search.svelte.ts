@@ -142,6 +142,7 @@ export type RaidBossSearchEntry = SearchEntry & {
 	type: SearchableType.RAID_BOSS;
 	pokemon_id: number;
 	form: number;
+	temp_evolution_id: number;
 };
 
 export type RaidLevelSearchEntry = SearchEntry & {
@@ -442,10 +443,17 @@ export function initSearch(searchOptions: SearchOptions) {
 				return {
 					name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
 					category: "raids",
-					key: "raidboss- " + raidBoss.pokemon_id + "-" + raidBoss.form,
+					key:
+						"raidboss- " +
+						raidBoss.pokemon_id +
+						"-" +
+						raidBoss.form +
+						"-" +
+						raidBoss.temp_evolution_id,
 					type: SearchableType.RAID_BOSS,
 					pokemon_id: raidBoss.pokemon_id,
-					form: raidBoss.form
+					form: raidBoss.form,
+					temp_evolution_id: raidBoss.temp_evolution_id
 				} as RaidBossSearchEntry;
 			})
 			.filter((entry) => entry !== undefined);
