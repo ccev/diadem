@@ -19,7 +19,7 @@
 	} = $props();
 </script>
 
-<div class="w-full h-screen flex items-center justify-center">
+<div class="w-full h-svh! h-screen flex items-center justify-center">
 	<div class="stars absolute w-full h-full">
 		<div class="absolute w-full h-full bg-radial from-transparent to-background to-60%"></div>
 	</div>

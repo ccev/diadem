@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Drawer } from "$lib/diadem-vaul-svelte/src/lib";
+	import { Drawer } from "$lib/drawer";
 	import {
-		closeMenu,
 		getOpenedMenu,
 		Menu,
 		onMenuDrawerOpenChangeComplete,
@@ -20,9 +19,9 @@
 	const snapPoints = [0.62, 1];
 	let initialSnapPoint = 0;
 
-	let activeSnapPoint: number | string = $state(snapPoints[initialSnapPoint]);
+	let snapPoint: number | string | null = $state(snapPoints[initialSnapPoint]);
 	let contentClass = $derived(
-		activeSnapPoint === snapPoints[snapPoints.length - 1] ? "drawer-full" : "drawer-partial"
+		snapPoint === snapPoints[snapPoints.length - 1] ? "drawer-full" : "drawer-partial"
 	);
 
 	onMount(() => resetJustChangedMenus());
@@ -31,20 +30,22 @@
 <Drawer.Root
 	open={menus.includes(getOpenedMenu())}
 	onOpenChangeComplete={onMenuDrawerOpenChangeComplete}
-	closeOnOutsideClick={false}
+	modal={false}
+	disablePointerDismissal
 	{snapPoints}
-	bind:activeSnapPoint
+	bind:snapPoint
 >
 	<Drawer.Portal>
-		<Drawer.Content
-			class="{contentClass} duration-150! fixed flex flex-col bottom-0 z-10 px-2 pt-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
-		>
-			<MobileTitle />
-
-			<div class="pb-20 content">
-				<MenuContainer />
-			</div>
-		</Drawer.Content>
+		<Drawer.Viewport class="z-20 drawer-viewport">
+			<Drawer.Popup
+				class="drawer-popup {contentClass} flex flex-col px-2 pt-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
+			>
+				<MobileTitle />
+				<Drawer.Content class="pb-20 content min-h-0 flex-1">
+					<MenuContainer />
+				</Drawer.Content>
+			</Drawer.Popup>
+		</Drawer.Viewport>
 	</Drawer.Portal>
 </Drawer.Root>
 

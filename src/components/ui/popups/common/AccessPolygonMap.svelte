@@ -128,7 +128,7 @@
 	);
 </script>
 
-<div data-vaul-no-drag class="w-full h-46 border border-border rounded-lg overflow-hidden">
+<div data-base-ui-swipe-ignore class="w-full h-46 border border-border rounded-lg overflow-hidden">
 	<MapLibre
 		bind:map={bindMap}
 		center={getPolygonCenter()}

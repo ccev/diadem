@@ -70,7 +70,7 @@
 <Card class="py-4 px-2">
 	<div class="flex flex-col gap-2">
 		<MenuTitle title={m.scout_area_size()} />
-		<div data-vaul-no-drag>
+		<div data-base-ui-swipe-ignore>
 			<SliderSteps
 				value={size}
 				onchange={(v) => updatePoints(v as 0 | 1 | 2)}

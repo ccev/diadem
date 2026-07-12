@@ -142,7 +142,10 @@
 	});
 </script>
 
-<div data-vaul-no-drag class="w-full h-46 border border-border rounded-lg overflow-hidden {class_}">
+<div
+	data-base-ui-swipe-ignore
+	class="w-full h-46 border border-border rounded-lg overflow-hidden {class_}"
+>
 	<MapLibre
 		bind:map={bindMap}
 		center={[0, 0]}
