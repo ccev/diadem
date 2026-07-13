@@ -15,7 +15,7 @@
 </script>
 
 <div class="flex gap-3">
-	<div class="size-12">
+	<div class="size-12 shrink-0">
 		{@render image()}
 	</div>
 
