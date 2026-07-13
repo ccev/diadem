@@ -54,6 +54,7 @@ export class DrawerState {
 	activeOffset = $state(0);
 	openSwipeActive = $state(false);
 	private resizeObserver?: ResizeObserver;
+	private layoutResolved = false;
 	private startingFrame?: number;
 
 	constructor(id: string, options: DrawerOptions, parent?: DrawerState) {
@@ -177,7 +178,13 @@ export class DrawerState {
 
 	resolveSnapPoints() {
 		const points = this.options.getSnapPoints();
-		if (!points?.length || !this.popupHeight || !this.viewportHeight) {
+		if (!points?.length) {
+			this.resolvedSnapPoints = [];
+			this.activeOffset = 0;
+			if (this.popupHeight) this.markLayoutResolved();
+			return;
+		}
+		if (!this.popupHeight || !this.viewportHeight) {
 			this.resolvedSnapPoints = [];
 			this.activeOffset = 0;
 			return;
@@ -221,6 +228,17 @@ export class DrawerState {
 		}
 		active ??= deduped[0];
 		this.activeOffset = active?.offset ?? 0;
+		if (active) this.markLayoutResolved();
+	}
+
+	private markLayoutResolved() {
+		const firstResolution = !this.layoutResolved;
+		this.layoutResolved = true;
+		if (firstResolution && this.starting) {
+			this.cancelStartingEnd();
+			this.starting = false;
+			return;
+		}
 		this.queueStartingEnd();
 	}
 
