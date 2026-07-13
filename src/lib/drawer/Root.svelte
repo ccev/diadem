@@ -55,6 +55,7 @@
 		},
 		parent
 	);
+	if (previousOpen) state.syncOpen(true);
 	setDrawerContext(state);
 	setOptionalDrawerContext(state);
 	actionsRef = createActions(state);
@@ -74,7 +75,7 @@
 		if (state.popup) untrack(() => state.resolveSnapPoints());
 	});
 
-	$effect(() => {
+	$effect.pre(() => {
 		const currentOpen = open ?? false;
 		if (currentOpen !== previousOpen) {
 			previousOpen = currentOpen;

@@ -54,6 +54,7 @@ export class DrawerState {
 	activeOffset = $state(0);
 	openSwipeActive = $state(false);
 	private resizeObserver?: ResizeObserver;
+	private startingFrame?: number;
 
 	constructor(id: string, options: DrawerOptions, parent?: DrawerState) {
 		this.id = id;
@@ -93,13 +94,14 @@ export class DrawerState {
 		}
 
 		if (!open) {
+			this.cancelStartingEnd();
 			const points = this.options.getSnapPoints();
 			if (points?.length) this.changeSnapPoint(this.options.getDefaultSnapPoint(), details);
 			this.ending = true;
 		} else {
 			this.mounted = true;
 			this.starting = true;
-			requestAnimationFrame(() => requestAnimationFrame(() => (this.starting = false)));
+			this.queueStartingEnd();
 		}
 		this.options.setOpen(open);
 		return true;
@@ -110,7 +112,9 @@ export class DrawerState {
 			this.ending = false;
 			this.mounted = true;
 			this.starting = true;
+			this.queueStartingEnd();
 		} else if (this.mounted) {
+			this.cancelStartingEnd();
 			this.starting = false;
 			this.ending = true;
 		}
@@ -134,9 +138,7 @@ export class DrawerState {
 				this.parent?.setNestedHeight(height);
 				this.resolveSnapPoints();
 			}
-			if (this.starting && this.popupHeight > 0) {
-				requestAnimationFrame(() => requestAnimationFrame(() => (this.starting = false)));
-			}
+			this.queueStartingEnd();
 		};
 		measure();
 		if (typeof ResizeObserver !== "undefined") {
@@ -149,6 +151,7 @@ export class DrawerState {
 		this.viewport = node;
 		this.viewportHeight = node?.offsetHeight || document.documentElement.clientHeight;
 		this.resolveSnapPoints();
+		this.queueStartingEnd();
 	}
 
 	setNestedHeight(height: number) {
@@ -218,6 +221,26 @@ export class DrawerState {
 		}
 		active ??= deduped[0];
 		this.activeOffset = active?.offset ?? 0;
+		this.queueStartingEnd();
+	}
+
+	private queueStartingEnd() {
+		if (!this.starting || !this.popupHeight || this.startingFrame !== undefined) return;
+		const points = this.options.getSnapPoints();
+		if (points?.length && (!this.viewportHeight || !this.resolvedSnapPoints.length)) return;
+
+		this.startingFrame = requestAnimationFrame(() => {
+			this.startingFrame = requestAnimationFrame(() => {
+				this.startingFrame = undefined;
+				this.starting = false;
+			});
+		});
+	}
+
+	private cancelStartingEnd() {
+		if (this.startingFrame === undefined) return;
+		cancelAnimationFrame(this.startingFrame);
+		this.startingFrame = undefined;
 	}
 
 	setMovement(x: number, y: number) {
@@ -301,6 +324,7 @@ export class DrawerState {
 	}
 
 	complete(open: boolean) {
+		this.cancelStartingEnd();
 		this.starting = false;
 		this.ending = false;
 		if (!open) {
@@ -310,6 +334,7 @@ export class DrawerState {
 	}
 
 	destroy() {
+		this.cancelStartingEnd();
 		this.resizeObserver?.disconnect();
 		if (this.open) this.parent?.setNestedOpen(false);
 	}
