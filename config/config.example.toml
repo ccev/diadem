@@ -50,6 +50,19 @@ clientSecret = ""
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
 serverId = "1359028304128245934"
 
+# Enable Evil Star integration for easy bot integration
+# Visit https://diadem.malt.ee/guides/evilstar for more details
+#[server.evilStar]
+#key = ""
+#autoBattle = true
+
+# If you're hosting your own backend for bot integration,
+# configure it here (alternative to Evil Star)
+#[server.bots]
+#enableAutoBattle = false
+#autoBattleHost = ""
+#autoBattleKey = ""
+
 # Permissions work by defining permission sets.
 # When a user fulfills every requirement in that set,
 # they will allow access to every configured feature,
@@ -197,6 +210,7 @@ showToolsMenu = true
 
 coverageMap = true
 scout = true
+autoBattle = false
 
 # Map Positions for various maps in the UI
 [client.mapPositions]

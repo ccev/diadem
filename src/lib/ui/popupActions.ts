@@ -1,10 +1,13 @@
 import { updateDimmedFeatures, updateRadiusFeatures } from "@/lib/map/featuresGen.svelte";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import type { LucideIcon } from "@/lib/types/lucide";
 import { mAny } from "@/lib/utils/anyMessage";
 import { Expand, Eye, SquareStack } from "@lucide/svelte";
+import { isSupportedFeature } from "$lib/services/supportedFeatures";
+import { hasActiveRaid } from "$lib/utils/gymUtils";
+import { isMaxBattleActive } from "$lib/utils/stationUtils";
 
 export enum PopupAction {
 	DIMMED = "dimmed",
@@ -30,6 +33,14 @@ const supportedPopupActions: Partial<Record<MapObjectType, PopupAction[]>> = {
 export function supportsPopupAction(mapObject: MapObjectType | undefined, action: PopupAction) {
 	if (!mapObject) return false;
 	return supportedPopupActions[mapObject]?.includes(action) ?? false;
+}
+
+export function showAutoBattleButton(data: MapData) {
+	return (
+		isSupportedFeature("autoBattle") &&
+		((data?.type === MapObjectType.GYM && hasActiveRaid(data)) ||
+			(data?.type === MapObjectType.STATION && isMaxBattleActive(data)))
+	);
 }
 
 export function getPopupActions(

@@ -40,7 +40,8 @@
 		Search,
 		Star,
 		Swords,
-		UsersRound
+		UsersRound,
+		Ticket
 	} from "@lucide/svelte";
 
 	export { image, overview, main };
@@ -73,6 +74,8 @@
 	import { getStationAttackBonus } from "$lib/utils/stationUtils";
 	import { formatPercentage } from "$lib/utils/numberFormat";
 	import InvasionLineupEntry from "@/components/ui/popups/common/InvasionLineupEntry.svelte";
+	import { showAutoBattleButton } from "$lib/ui/popupActions.ts";
+	import Button from "@/components/ui/input/Button.svelte";
 </script>
 
 {#snippet image(d: MapData)}
@@ -183,16 +186,23 @@
 					/>
 				</div>
 
-				<QuickSearchButton
-					label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}
-					onclick={() =>
-				setActiveSearchMaxBattleBoss(
-					m.pokemon_max_battles({ pokemon: pokemonName }),
-					data.battle_pokemon_id ?? 0,
-					data.battle_pokemon_form ?? 0,
-					data.battle_pokemon_bread_mode ?? 0
-				)}
-				/>
+				{#if showAutoBattleButton(data)}
+					<Button class="w-full mt-5 mb-4" variant="secondary">
+						<Ticket class="size-3.5" />
+						Get Remote Invite
+					</Button>
+				{/if}
+
+<!--				<QuickSearchButton-->
+<!--					label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}-->
+<!--					onclick={() =>-->
+<!--					setActiveSearchMaxBattleBoss(-->
+<!--						m.pokemon_max_battles({ pokemon: pokemonName }),-->
+<!--						data.battle_pokemon_id ?? 0,-->
+<!--						data.battle_pokemon_form ?? 0,-->
+<!--						data.battle_pokemon_bread_mode ?? 0-->
+<!--					)}-->
+<!--				/>-->
 			</BasicMainCard>
 		</TitledMainSection>
 

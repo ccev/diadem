@@ -2,30 +2,22 @@
 	import {
 		getPopupActions,
 		isPopupActionActive,
-		isPopupExpanded,
-		PopupAction,
+		PopupAction, showAutoBattleButton,
 		supportsPopupAction,
-		togglePopupAction,
-		togglePopupExpanded
+		togglePopupAction
 	} from "@/lib/ui/popupActions.js";
-	import {
-		CircleDot,
-		CircleOff,
-		Eye,
-		EyeClosed,
-		Minus,
-		Navigation,
-		Plus,
-		Timer,
-		TimerOff
-	} from "@lucide/svelte";
+	import { CircleDot, CircleOff, Eye, EyeClosed, Navigation, Ticket, Timer, TimerOff } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
-	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
+	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
+	import { currentTimestamp } from "$lib/utils/currentTimestamp";
+	import { hasActiveRaid } from "$lib/utils/gymUtils";
+	import { isMaxBattleActive } from "$lib/utils/stationUtils";
+	import { isSupportedFeature } from "$lib/services/supportedFeatures";
 
 	let {
 		lat,
@@ -42,15 +34,6 @@
 </script>
 
 <div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">
-<!--	<PopupButton-->
-<!--		variant="default"-->
-<!--		Icon={Plus}-->
-<!--		label={m.popup_show_details()}-->
-<!--		IconActive={Minus}-->
-<!--		labelActive={m.popup_hide_details()}-->
-<!--		active={isPopupExpanded(selectedType)}-->
-<!--		onclick={() => togglePopupExpanded(selectedType)}-->
-<!--	/>-->
 	<PopupButton
 		variant="default"
 		Icon={Navigation}
@@ -59,6 +42,13 @@
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
 	/>
+	{#if showAutoBattleButton(data)}
+		<PopupButton
+			Icon={Ticket}
+			label="Get Remote Invite"
+			onclick={() => {}}
+		/>
+	{/if}
 	{#if supportsPopupAction(selectedType, PopupAction.DIMMED)}
 		<PopupButton
 			Icon={EyeClosed}

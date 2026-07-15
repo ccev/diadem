@@ -37,7 +37,8 @@
 		Star,
 		Swords,
 		UserRoundCheck,
-		UsersRound
+		UsersRound,
+		Ticket
 	} from "@lucide/svelte";
 	import { getActiveRaidsForLevel } from "$lib/features/masterStats.svelte";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
@@ -99,6 +100,10 @@
 		const filter = getUserSettings().filters.gym;
 		return filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled));
 	}
+</script>
+<script>
+	import { showAutoBattleButton } from "$lib/ui/popupActions";
+	import Button from "@/components/ui/input/Button.svelte";
 </script>
 
 {#snippet image(d: MapData)}
@@ -287,6 +292,13 @@
 									{/snippet}
 								</StatsMainCardEntry>
 							</div>
+						{/if}
+
+						{#if showAutoBattleButton(data)}
+							<Button class="w-full" variant="secondary">
+								<Ticket class="size-3.5" />
+								Get Remote Invite
+							</Button>
 						{/if}
 					</div>
 				{/if}

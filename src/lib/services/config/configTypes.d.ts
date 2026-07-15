@@ -133,6 +133,7 @@ export type ClientConfig = {
 		showToolsMenu: boolean;
 		coverageMap: boolean;
 		scout: boolean;
+		autoBattle: boolean;
 	};
 };
 
@@ -169,6 +170,15 @@ export type ServerConfig = {
 		url: string;
 		basicAuth?: string;
 		hasGeometries?: boolean;
+	};
+	evilStar?: {
+		key?: string;
+		autoBattle?: boolean;
+	};
+	bots?: {
+		enableAutoBattle?: boolean
+		autoBattleHost?: string
+		autoBattleKey?: string
 	};
 	log: Log;
 	internalDb: DbCreds;

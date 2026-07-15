@@ -19,6 +19,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		showFullscreenLogin: authRequired && !locals.user,
 		geometryLookup:
 			Boolean(config.nominatim?.url) &&
-			(!Boolean(config.pelias?.url) || Boolean(config.photon?.url))
+			(!Boolean(config.pelias?.url) || Boolean(config.photon?.url)),
+		autoBattle: Boolean(config.evilStar?.autoBattle) || Boolean(config?.bots?.enableAutoBattle)
 	} as SupportedFeatures);
 };
