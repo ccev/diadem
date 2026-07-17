@@ -10,26 +10,51 @@
 		type AvailableBoss,
 		type Battle,
 		type BattleSession,
+		type BattleSessionState,
 		type ConnectedAccount
 	} from "@/lib/features/autoBattle";
+	import * as m from "$lib/paraglide/messages";
 	import { mPokemon, mMove, mRaid } from "@/lib/services/ingameLocale";
-	import { getIconPokemon } from "@/lib/services/uicons.svelte";
-	import { resize } from "@/lib/services/assets";
-	import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
-	import { formatNumber } from "@/lib/utils/numberFormat";
+	import { getIconPokemon } from "$lib/services/uicons.svelte";
+	import { resize } from "$lib/services/assets";
+	import { getNormalizedForm } from "$lib/utils/pokemonUtils";
+	import { formatNumber } from "$lib/utils/numberFormat";
 	import { isMenuSidebar } from "@/lib/utils/device";
 	import { DropdownMenu } from "bits-ui";
-	import { Ellipsis, Info, Ticket, UserPlus, Users } from "@lucide/svelte";
-	import { onMount } from "svelte";
+	import {
+		Ellipsis,
+		Info,
+		MapPin,
+		ShieldHalf,
+		Star,
+		Swords,
+		Ticket,
+		UserPlus,
+		UsersRound
+	} from "@lucide/svelte";
+	import { onMount, untrack } from "svelte";
+	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
+
+	const POLL_INTERVAL_MS = 5000;
+
+	const stateLabels: Record<BattleSessionState, () => string> = {
+		queued: m.auto_battle_state_queued,
+		awaiting_friend_accept: m.auto_battle_state_awaiting_friend_accept,
+		friend_ready: m.auto_battle_state_friend_ready,
+		scanning_battle: m.auto_battle_state_scanning_battle,
+		finding_lobby: m.auto_battle_state_finding_lobby,
+		inviting: m.auto_battle_state_inviting,
+		invites_sent: m.auto_battle_state_invites_sent,
+		completed: m.auto_battle_state_completed,
+		failed: m.auto_battle_state_failed
+	};
 
 	let {
 		selectedBattle,
-		initialAccounts,
-		compact = false
+		initialAccounts
 	}: {
 		selectedBattle?: AvailableBoss;
 		initialAccounts: ConnectedAccount[];
-		compact?: boolean;
 	} = $props();
 
 	let accounts = $state<ConnectedAccount[]>([]);
@@ -41,8 +66,8 @@
 	let isAddingAccount = $state(false);
 	let isRequesting = $state(false);
 	let requestError = $state<string | undefined>(undefined);
-	let isPolling = false;
-	let isMounted = true;
+	let isRefreshing = false;
+	let pollTimer: number | undefined = undefined;
 
 	const selectedAccounts = $derived(
 		accounts.filter((account) => selectedFriendCodes.includes(account.friendCode))
@@ -54,12 +79,21 @@
 		)
 	);
 
+	// Default-select the account when there is only a single invitable one
+	$effect(() => {
+		const active = accounts.filter((account) => account.state === "active");
+		if (active.length !== 1) return;
+		untrack(() => {
+			if (!selectedFriendCodes.includes(active[0].friendCode)) {
+				selectedFriendCodes = [active[0].friendCode];
+			}
+		});
+	});
+
 	onMount(() => {
 		accounts = initialAccounts;
 		void loadAccounts();
-		return () => {
-			isMounted = false;
-		};
+		return stopPolling;
 	});
 
 	function getPokemon(battle: AvailableBoss | Battle) {
@@ -67,9 +101,8 @@
 	}
 
 	function getStateExplanation(state: ConnectedAccount["state"]) {
-		if (state === "pending") return "Waiting for this player to accept the friend request.";
-		if (state === "inactive")
-			return "This player changed their friend code. Reconnect their new account.";
+		if (state === "pending") return m.auto_battle_account_pending();
+		if (state === "inactive") return m.auto_battle_account_inactive();
 	}
 
 	function toggleAccount(account: ConnectedAccount) {
@@ -127,148 +160,142 @@
 		}
 	}
 
-	async function requestInvite(boss: AvailableBoss | Battle | undefined) {
-		if (!boss) return;
-		if (!selectedFriendCodes.length) {
-			requestError = "Select at least one active account first.";
-			return;
-		}
+	async function startSession(friendCodes: string[], boss: AvailableBoss | Battle | undefined) {
+		if (!boss || !friendCodes.length) return;
 
 		isRequesting = true;
 		requestError = undefined;
 		try {
-			const battleStart = await startBattle(selectedFriendCodes, boss);
-			invitedFriendCodes = [...selectedFriendCodes];
+			const battleStart = await startBattle(friendCodes, boss);
+			invitedFriendCodes = [...friendCodes];
 			session = { ...battleStart, state: "queued" };
 			await refreshSession();
-			void pollSession(battleStart.session_id);
+			startPolling();
 		} catch (error) {
-			requestError =
-				error instanceof AutoBattleApiError || error instanceof Error
-					? error.message
-					: "Unable to request a remote invite.";
+			requestError = error instanceof Error ? error.message : "Unable to request a remote invite.";
 		} finally {
 			isRequesting = false;
 		}
 	}
 
+	function closeSession() {
+		stopPolling();
+		session = undefined;
+		invitedFriendCodes = [];
+		requestError = undefined;
+	}
+
+	function startPolling() {
+		stopPolling();
+		pollTimer = window.setInterval(() => void refreshSession(), POLL_INTERVAL_MS);
+	}
+
+	function stopPolling() {
+		if (pollTimer !== undefined) window.clearInterval(pollTimer);
+		pollTimer = undefined;
+	}
+
 	async function refreshSession() {
-		if (!session || isPolling) return;
-		isPolling = true;
+		if (!session || isRefreshing) return;
+		isRefreshing = true;
 		try {
 			session = await getBattleStatus(session.session_id);
-			if (session.error) requestError = session.error;
+			if (session.state === "failed") requestError = session.error ?? m.auto_battle_failed();
+			if (session.state === "completed" || session.state === "failed") stopPolling();
 		} catch (error) {
 			if (error instanceof AutoBattleApiError && error.status !== 401) requestError = error.message;
 		} finally {
-			isPolling = false;
-		}
-	}
-
-	async function pollSession(sessionId: string) {
-		while (
-			isMounted &&
-			session?.session_id === sessionId &&
-			!["completed", "failed"].includes(session.state)
-		) {
-			await new Promise((resolve) => window.setTimeout(resolve, 3000));
-			await refreshSession();
+			isRefreshing = false;
 		}
 	}
 </script>
 
-{#if compact}
-	<div class="flex items-center justify-between py-1">
-		<div>
-			<p class="text-sm font-semibold">Auto Battle</p>
-			<p class="text-xs text-muted-foreground">
-				{selectedAccounts.length} account{selectedAccounts.length === 1 ? "" : "s"} selected
-			</p>
-		</div>
-		<Users class="size-5 text-muted-foreground" />
+{#if session}
+	{@const battle = session.battle}
+	{@const battlePokemon = getPokemon(battle)}
+	<div class="space-y-5">
+		<section class="flex items-center gap-4">
+			<img
+				class="size-16 shrink-0"
+				src={resize(getIconPokemon(battlePokemon), { width: 64 })}
+				alt={mPokemon(battlePokemon)}
+			/>
+			<div class="min-w-0">
+				<p class="truncate text-lg font-semibold">{mPokemon(battlePokemon)}</p>
+				<p class="text-sm text-muted-foreground">{stateLabels[session.state]()}</p>
+			</div>
+		</section>
+
+		<section class="space-y-3 rounded-lg border border-border bg-accent px-4 py-3">
+			<StatsMainCardEntry
+				Icon={Star}
+				name={m.tier()}
+				value={battle.type === "raid" ? mRaid(battle.level) : (battle.level ?? m.unknown())}
+			/>
+			{#if battle.cp}
+				<StatsMainCardEntry Icon={ShieldHalf} name={m.cp()} value={formatNumber(battle.cp)} />
+			{/if}
+			<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
+				{#snippet value()}
+					<p class="flex gap-2">
+						{#if battle.move_1 && battle.move_2}
+							<span>{mMove(battle.move_1)}</span>
+							<span>·</span>
+							<span>{mMove(battle.move_2)}</span>
+						{:else}
+							{m.unknown()}
+						{/if}
+					</p>
+				{/snippet}
+			</StatsMainCardEntry>
+			<StatsMainCardEntry Icon={MapPin} name={m.auto_battle_location()}>
+				{#snippet value()}
+					<p>
+						{battle.name ?? battle.address ?? `${battle.latitude}, ${battle.longitude}`}
+						{#if battle.name && battle.address}
+							<span class="block text-xs text-muted-foreground">{battle.address}</span>
+						{/if}
+					</p>
+				{/snippet}
+			</StatsMainCardEntry>
+			<StatsMainCardEntry
+				Icon={UsersRound}
+				name={m.auto_battle_players_in_lobby()}
+				value={session.lobby?.player_count ?? 0}
+			/>
+		</section>
+
+		<section class="space-y-2">
+			<p class="text-sm font-semibold">{m.auto_battle_invited_players()}</p>
+			<div class="flex flex-wrap gap-2">
+				{#each invitedAccounts as account (account.friendCode)}
+					<span class="rounded-md bg-accent px-3 py-1.5 text-sm">
+						{"nickname" in account ? account.nickname : account.friendCode}
+					</span>
+				{/each}
+			</div>
+		</section>
+
+		{#if session.state === "failed"}
+			<div class="flex gap-2">
+				<Button
+					class="flex-1"
+					disabled={isRequesting}
+					onclick={() => void startSession(invitedFriendCodes, battle)}
+				>
+					{m.auto_battle_retry()}
+				</Button>
+				<Button class="flex-1" variant="secondary" onclick={closeSession}>
+					{m.auto_battle_done()}
+				</Button>
+			</div>
+		{:else if session.state === "completed"}
+			<Button class="w-full" onclick={closeSession}>{m.auto_battle_done()}</Button>
+		{/if}
 	</div>
 {:else}
-	<div class="space-y-6">
-		{#if session}
-			{@const battlePokemon = getPokemon(session.battle)}
-			<section class="space-y-3">
-				<div class="flex items-center justify-between gap-3">
-					<div>
-						<p class="text-sm font-semibold">Invite in progress</p>
-						<p class="text-xs capitalize text-muted-foreground">
-							{session.state.replaceAll("_", " ")}
-						</p>
-					</div>
-					<Button size="sm" variant="outline" onclick={() => void refreshSession()}>Refresh</Button>
-				</div>
-
-				<div class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-					<div>
-						<p class="text-xs text-muted-foreground">Boss</p>
-						<p>{mPokemon(battlePokemon)}</p>
-					</div>
-					<div>
-						<p class="text-xs text-muted-foreground">Battle</p>
-						<p>{session.battle.type === "raid" ? mRaid(session.battle.level) : "Max Battle"}</p>
-					</div>
-					<div>
-						<p class="text-xs text-muted-foreground">CP</p>
-						<p>{session.battle.cp ? formatNumber(session.battle.cp) : "Unavailable"}</p>
-					</div>
-					<div>
-						<p class="text-xs text-muted-foreground">Players in lobby</p>
-						<p>{session.lobby?.player_count ?? 0}</p>
-					</div>
-					{#if session.battle.move_1 || session.battle.move_2}
-						<div class="col-span-2">
-							<p class="text-xs text-muted-foreground">Moves</p>
-							<p>
-								{[mMove(session.battle.move_1), mMove(session.battle.move_2)]
-									.filter(Boolean)
-									.join(" / ")}
-							</p>
-						</div>
-					{/if}
-					<div class="col-span-2">
-						<p class="text-xs text-muted-foreground">Location</p>
-						<p>
-							{session.battle.name ??
-								session.battle.address ??
-								`${session.battle.latitude}, ${session.battle.longitude}`}
-						</p>
-						{#if session.battle.address && session.battle.name}
-							<p class="text-xs text-muted-foreground">{session.battle.address}</p>
-						{/if}
-					</div>
-				</div>
-			</section>
-
-			<section class="space-y-2">
-				<p class="text-sm font-semibold">Invited players</p>
-				<div class="space-y-1.5">
-					{#each invitedAccounts as account (account.friendCode)}
-						<p class="text-sm">{"nickname" in account ? account.nickname : account.friendCode}</p>
-					{/each}
-				</div>
-			</section>
-
-			{#if session.state === "failed"}
-				<p class="text-sm text-destructive">
-					{session.error ?? "The invite could not be completed."}
-				</p>
-			{/if}
-		{/if}
-
+	<div class="space-y-5">
 		<section class="space-y-3">
-			<div class="flex items-center justify-between gap-3">
-				<div>
-					<p class="text-sm font-semibold">Invite accounts</p>
-					<p class="text-xs text-muted-foreground">
-						Choose the players that should receive this invite.
-					</p>
-				</div>
-			</div>
-
 			{#if isConnecting}
 				<form
 					class="flex gap-2"
@@ -280,12 +307,12 @@
 					<input
 						class="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
 						bind:value={friendCode}
-						aria-label="Friend code"
+						aria-label={m.auto_battle_friend_code()}
 						inputmode="numeric"
-						placeholder="Friend code"
+						placeholder={m.auto_battle_friend_code()}
 					/>
 					<Button size="sm" type="submit" disabled={isAddingAccount}>
-						{isAddingAccount ? "Connecting..." : "Connect"}
+						{isAddingAccount ? m.auto_battle_connecting() : m.connect()}
 					</Button>
 				</form>
 			{/if}
@@ -309,7 +336,7 @@
 							onclick={() => toggleAccount(account)}
 						>
 							<p class="truncate font-medium">{account.nickname}</p>
-							<p class="text-xs text-muted-foreground">Level {account.level}</p>
+							<p class="text-xs text-muted-foreground">{m.level()} {account.level}</p>
 						</button>
 						{#if account.state !== "active"}
 							<Info
@@ -340,15 +367,11 @@
 									class="cursor-pointer rounded px-3 py-2 text-sm text-destructive data-highlighted:bg-accent"
 									onSelect={() => void removeAccount(account.friendCode)}
 								>
-									Remove account
+									{m.auto_battle_remove_account()}
 								</DropdownMenu.Item>
 							</DropdownMenu.Content>
 						</DropdownMenu.Root>
 					</div>
-				{:else}
-					<p class="py-2 text-sm text-muted-foreground">
-						Connect an account to request a remote invite.
-					</p>
 				{/each}
 				<Button
 					class={isMenuSidebar() ? "w-full" : "h-auto min-w-36 shrink-0"}
@@ -356,49 +379,40 @@
 					onclick={() => (isConnecting = !isConnecting)}
 				>
 					<UserPlus class="size-3.5" />
-					Connect account
+					{m.auto_battle_connect_account()}
 				</Button>
 			</div>
+
+			{#if accounts.length === 0}
+				<p class="text-sm text-muted-foreground">{m.auto_battle_hint_connect()}</p>
+			{:else if accounts.length > 1 && selectedAccounts.length === 0}
+				<p class="text-sm text-muted-foreground">{m.auto_battle_hint_select()}</p>
+			{/if}
 		</section>
 
 		{#if selectedBattle}
 			{@const selectedPokemon = getPokemon(selectedBattle)}
-			<section class="flex items-center gap-3">
+			<section class="flex items-center gap-4">
 				<img
 					class="size-16 shrink-0"
-					src={resize(getIconPokemon(selectedPokemon), { width: 96 })}
+					src={resize(getIconPokemon(selectedPokemon), { width: 64 })}
 					alt={mPokemon(selectedPokemon)}
 				/>
-				<div class="min-w-0 flex-1">
+				<div class="min-w-0 flex-1 space-y-2">
 					<p class="truncate font-semibold">{mPokemon(selectedPokemon)}</p>
-					<p class="text-xs text-muted-foreground">
-						{selectedBattle.type === "raid" ? mRaid(selectedBattle.level) : "Max Battle"}
-					</p>
+					<Button
+						disabled={isRequesting || selectedAccounts.length === 0}
+						onclick={() => void startSession(selectedFriendCodes, selectedBattle)}
+					>
+						<Ticket class="size-3.5" />
+						{m.auto_battle_request_invite()}
+					</Button>
 				</div>
-				<Button
-					class="shrink-0"
-					disabled={isRequesting}
-					onclick={() => void requestInvite(selectedBattle)}
-				>
-					<Ticket class="size-3.5" />
-					{session ? "Get invited to another" : "Request invite"}
-				</Button>
 			</section>
 		{/if}
-
-		{#if session}
-			<Button
-				class="w-full"
-				variant="secondary"
-				disabled={isRequesting}
-				onclick={() => void requestInvite(session?.battle)}
-			>
-				Retry this battle
-			</Button>
-		{/if}
-
-		{#if requestError}
-			<p class="text-sm text-destructive">{requestError}</p>
-		{/if}
 	</div>
+{/if}
+
+{#if requestError}
+	<p class="mt-4 text-sm text-destructive">{requestError}</p>
 {/if}

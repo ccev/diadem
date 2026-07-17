@@ -39,7 +39,6 @@
 	let battleType: BattleType = $state("raid");
 	let selectedBattle: Battle | undefined = $state(undefined);
 	let drawerHeight: number = $state(0);
-	let drawerSnapPoint: string | number | null = $state(1);
 
 	let availableBattles = $derived(
 		data.bosses
@@ -147,9 +146,6 @@
 				modal={false}
 				defaultOpen={true}
 				disablePointerDismissal
-				defaultSnapPoint={1}
-				snapPoints={["150px", 1]}
-				bind:snapPoint={drawerSnapPoint}
 			>
 				<Drawer.Portal>
 					<Drawer.Viewport class="drawer-viewport flex items-end">
@@ -159,11 +155,7 @@
 							<div class="mx-auto my-3 h-1 w-10 shrink-0 rounded-full bg-ring"></div>
 							<Drawer.Content class="px-6 pb-5">
 								<div bind:clientHeight={drawerHeight}>
-									<AutoBattleSteps
-										{selectedBattle}
-										initialAccounts={[]}
-										compact={drawerSnapPoint === "150px"}
-									/>
+									<AutoBattleSteps {selectedBattle} initialAccounts={[]} />
 								</div>
 							</Drawer.Content>
 						</Drawer.Popup>
