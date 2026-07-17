@@ -67,6 +67,51 @@ export async function lookupGeometry(osmId: string) {
 	return undefined;
 }
 
+export async function reverseGeocode(
+	latitude: number,
+	longitude: number
+): Promise<string | undefined> {
+	const config = getServerConfig();
+
+	try {
+		if (config.photon?.url) {
+			const response = await fetch(
+				`${config.photon.url}reverse?lat=${latitude}&lon=${longitude}&limit=1`,
+				{ signal: AbortSignal.timeout(2000) }
+			);
+			const props = (await response.json())?.features?.[0]?.properties as PhotonProps | undefined;
+			return (
+				[props?.name, props?.street, props?.city, props?.country].filter(Boolean).join(", ") ||
+				undefined
+			);
+		}
+
+		if (config.pelias?.url) {
+			const response = await fetch(
+				`${config.pelias.url}v1/reverse?point.lat=${latitude}&point.lon=${longitude}`,
+				{ signal: AbortSignal.timeout(2000) }
+			);
+			return (await response.json())?.features?.[0]?.properties?.label;
+		}
+
+		if (config.nominatim?.url) {
+			const response = await nominatimRequest(
+				`${config.nominatim.url}reverse?format=geocodejson&lat=${latitude}&lon=${longitude}`
+			);
+			const props = (await response?.json())?.features?.[0]?.properties?.geocoding as
+				| NominatimProps["geocoding"]
+				| undefined;
+			return (
+				[props?.name, props?.street, props?.housenumber, props?.city, props?.country]
+					.filter(Boolean)
+					.join(", ") || undefined
+			);
+		}
+	} catch (error) {
+		log.warning("Reverse geocoding failed: %s", error);
+	}
+}
+
 async function photonSearchAddress(
 	query: string,
 	language: string,

@@ -2,8 +2,11 @@ import {
 	boolean,
 	datetime,
 	index,
+	int,
 	json,
+	mysqlEnum,
 	mysqlTable,
+	primaryKey,
 	text,
 	uniqueIndex,
 	varchar
@@ -94,4 +97,21 @@ export const verification = mysqlTable(
 	})
 );
 
+export const connectedAccount = mysqlTable(
+	"connected_accounts",
+	{
+		userId: varchar("user_id", { length: 255 })
+			.notNull()
+			.references(() => user.id),
+		friendCode: varchar("friend_code", { length: 12 }).notNull(),
+		lastUpdated: datetime("last_updated").notNull(),
+		state: mysqlEnum("state", ["active", "pending", "inactive"]).notNull(),
+		team: int("team").notNull(),
+		level: int("level").notNull(),
+		nickname: varchar("nickname", { length: 255 }).notNull()
+	},
+	(table) => [primaryKey({ columns: [table.userId, table.friendCode] })]
+);
+
 export type User = typeof user.$inferSelect;
+export type ConnectedAccount = typeof connectedAccount.$inferSelect;
