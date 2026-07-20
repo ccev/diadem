@@ -38,6 +38,20 @@ export function addMapObjects(
 	}
 }
 
+export function replaceMapObjects(mapObjects: MapData[], type: MapObjectType, examined: number) {
+	const selectedMapId = getCurrentSelectedData()?.mapId;
+	const prefix = type + "-";
+	const nextMapObjects = { ...mapObjectsState };
+
+	for (const mapId in nextMapObjects) {
+		if (mapId !== selectedMapId && mapId.startsWith(prefix)) delete nextMapObjects[mapId];
+	}
+	for (const mapObject of mapObjects) nextMapObjects[mapObject.mapId] = mapObject;
+
+	mapObjectsState = nextMapObjects;
+	mapObjectCounts[type] = { showing: mapObjects.length, examined };
+}
+
 export function delMapObject(key: string) {
 	delete mapObjectsState[key];
 }
