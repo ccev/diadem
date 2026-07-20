@@ -52,7 +52,7 @@
 	bind:map
 	center={initialCenter.maplibre()}
 	zoom={initialZoom}
-	class="h-screen w-full overflow-hidden"
+	class="h-svh! h-screen w-full overflow-hidden"
 	style={style ?? getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
 	attributionControl={false}
 	interactive={!isAnyModalOpen()}

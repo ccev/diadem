@@ -5,7 +5,7 @@
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte.js";
 	import WeatherOverview from "@/components/map/WeatherOverview.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
-	import { closeMenu, getOpenedMenu } from "@/lib/ui/menus.svelte.js";
+	import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
 	import PopupContainer from "@/components/ui/popups/PopupContainer.svelte";
 	import DesktopMenu from "@/components/menus/DesktopMenu.svelte";
@@ -23,19 +23,13 @@
 	import PokemonFilterset from "@/components/menus/filters/filterset/pokemon/PokemonFilterset.svelte";
 	import InvasionFilterset from "@/components/menus/filters/filterset/invasion/InvasionFilterset.svelte";
 	import MaxBattleFilterset from "@/components/menus/filters/filterset/maxBattle/MaxBattleFilterset.svelte";
-	import {
-		isSearchViewActive,
-		resetActiveSearchFilter,
-		setActiveSearch
-	} from "@/lib/features/activeSearch.svelte.js";
+	import { isSearchViewActive } from "@/lib/features/activeSearch.svelte.js";
 	import ActiveSearchView from "@/components/ui/search/ActiveSearchView.svelte";
 	import { isOnMap } from "@/lib/utils/getMapPath";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import MapMain from "@/components/map/MapMain.svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type maplibre from "maplibre-gl";
-	import { onDestroy, onMount } from "svelte";
-	import { showCoverageMapTitle } from "$lib/features/coverageMap.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -110,10 +104,10 @@
 			</div>
 		{/snippet}
 		{#snippet mobileBottom()}
+			{#if !isSearchViewActive() && getOpenedMenu() !== Menu.SCOUT}
+				<Fabs {map} allowFollow={true} />
+			{/if}
 			{#if !getOpenedMenu()}
-				{#if !isSearchViewActive()}
-					<Fabs {map} allowFollow={true} />
-				{/if}
 				<PopupContainer />
 			{/if}
 			{#if !isSearchViewActive()}
