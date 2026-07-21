@@ -133,6 +133,9 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 		case RewardType.STARDUST:
 			filterset.stardust = { min: 0, max: Infinity };
 			break;
+		case RewardType.POKECOINS:
+			filterset.pokecoins = { min: 0, max: Infinity };
+			break;
 	}
 
 	const filter = getDefaultPokestopFilter();

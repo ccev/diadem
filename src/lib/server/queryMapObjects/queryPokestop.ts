@@ -138,6 +138,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 				};
 
 				if (filterset.stardust) addAmountReward(RewardType.STARDUST, filterset.stardust);
+				if (filterset.pokecoins) addAmountReward(RewardType.POKECOINS, filterset.pokecoins);
 				if (filterset.xp) addAmountReward(RewardType.XP, filterset.xp);
 
 				if (filterset.pokemon?.length) {

@@ -122,6 +122,11 @@ export function getModifierPreviewIcon(data: AnyFilterset): string | undefined {
 				amount: quest.stardust?.max ?? quest.stardust?.min
 			});
 		}
+		if (quest.rewardType === RewardType.POKECOINS) {
+			return getIconReward(RewardType.POKECOINS, {
+				amount: quest.pokecoins?.max ?? quest.pokecoins?.min
+			});
+		}
 		if (quest.rewardType === RewardType.XP) {
 			return getIconReward(RewardType.XP, { amount: quest.xp?.max ?? quest.xp?.min });
 		}

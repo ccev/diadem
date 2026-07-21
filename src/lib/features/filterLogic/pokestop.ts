@@ -107,6 +107,7 @@ export function matchQuestFilterset(
 
 		const hasRewardFilter = !!(
 			questFilter.stardust ||
+			questFilter.pokecoins ||
 			questFilter.xp ||
 			questFilter.pokemon ||
 			questFilter.item ||
@@ -124,6 +125,15 @@ export function matchQuestFilterset(
 			quest.reward.type === RewardType.STARDUST &&
 			quest.reward.info.amount >= questFilter.stardust.min &&
 			quest.reward.info.amount <= questFilter.stardust.max
+		) {
+			return questFilter;
+		}
+
+		if (
+			questFilter.pokecoins &&
+			quest.reward.type === RewardType.POKECOINS &&
+			quest.reward.info.amount >= questFilter.pokecoins.min &&
+			quest.reward.info.amount <= questFilter.pokecoins.max
 		) {
 			return questFilter;
 		}

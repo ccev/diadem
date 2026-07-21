@@ -86,6 +86,7 @@ export const FiltersetQuestSchema = BaseFiltersetSchema.extend({
 	item: z.array(QuestRewardSchema).optional(),
 	megaResource: z.array(QuestRewardSchema).optional(),
 	stardust: MinMaxSchema.optional(),
+	pokecoins: MinMaxSchema.optional(),
 	xp: MinMaxSchema.optional(),
 	candy: z.array(QuestRewardSchema).optional(),
 	xlCandy: z.array(QuestRewardSchema).optional()

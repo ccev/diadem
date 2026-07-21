@@ -155,6 +155,9 @@ export function getRewardText(reward: QuestReward) {
 		case RewardType.STARDUST:
 			if (!reward.info.amount) return m.stardust();
 			return m.quest_stardust({ count: reward.info.amount });
+		case RewardType.POKECOINS:
+			if (!reward.info.amount) return m.reward_pokecoins();
+			return m.quest_pokecoins({ count: reward.info.amount });
 		case RewardType.CANDY:
 			if (!reward.info.amount) return m.pokemon_candy({ pokemon: mPokemon(reward.info) });
 			return m.quest_candy({ count: reward.info.amount, pokemon: mPokemon(reward.info) });

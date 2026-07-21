@@ -93,6 +93,7 @@ export type FiltersetQuest = BaseFilterset & {
 	item?: QuestReward[];
 	megaResource?: QuestReward[];
 	stardust?: MinMax;
+	pokecoins?: MinMax;
 	xp?: MinMax;
 	candy?: QuestReward[];
 	xlCandy?: QuestReward[];

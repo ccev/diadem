@@ -661,5 +661,7 @@
 	"unity_raid": "Unity Raid",
 	"unity_raids": "Unity Raids",
 	"filter_template_levels_super_mega": "Super Mega {kind}",
-	"about_this_sation": "About this Power Spot"
+	"about_this_sation": "About this Power Spot",
+	"quest_pokecoins": "{count} Pokécoins",
+	"count_pokecoins": "{count} Pokécoins"
 }
