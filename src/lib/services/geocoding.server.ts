@@ -39,6 +39,8 @@ type PhotonProps = {
 type PeliasProps = {
 	gid: string;
 	label: string;
+	locality?: string;
+	country?: string;
 };
 
 export async function searchAddress(
@@ -80,10 +82,7 @@ export async function reverseGeocode(
 				{ signal: AbortSignal.timeout(2000) }
 			);
 			const props = (await response.json())?.features?.[0]?.properties as PhotonProps | undefined;
-			return (
-				[props?.name, props?.street, props?.city, props?.country].filter(Boolean).join(", ") ||
-				undefined
-			);
+			return [props?.city, props?.country].filter(Boolean).join(", ") || "Unknown";
 		}
 
 		if (config.pelias?.url) {
@@ -91,7 +90,8 @@ export async function reverseGeocode(
 				`${config.pelias.url}v1/reverse?point.lat=${latitude}&point.lon=${longitude}`,
 				{ signal: AbortSignal.timeout(2000) }
 			);
-			return (await response.json())?.features?.[0]?.properties?.label;
+			const props = (await response.json())?.features?.[0]?.properties as PeliasProps | undefined;
+			return [props?.locality, props?.country].filter(Boolean).join(", ") || "Unknown";
 		}
 
 		if (config.nominatim?.url) {
@@ -101,11 +101,7 @@ export async function reverseGeocode(
 			const props = (await response?.json())?.features?.[0]?.properties?.geocoding as
 				| NominatimProps["geocoding"]
 				| undefined;
-			return (
-				[props?.name, props?.street, props?.housenumber, props?.city, props?.country]
-					.filter(Boolean)
-					.join(", ") || undefined
-			);
+			return [props?.city, props?.country].filter(Boolean).join(", ") || "Unknown";
 		}
 	} catch (error) {
 		log.warning("Reverse geocoding failed: %s", error);

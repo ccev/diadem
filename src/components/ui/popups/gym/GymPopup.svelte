@@ -4,10 +4,21 @@
 	import { mMove, mPokemon, mRaid, mTeam } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { GymData, GymDefender } from "$lib/types/mapObjectData/gym";
-	import { getIconGym, getIconPokemon, getIconRaidEgg, getIconTeam } from "$lib/services/uicons.svelte";
+	import {
+		getIconGym,
+		getIconPokemon,
+		getIconRaidEgg,
+		getIconTeam
+	} from "$lib/services/uicons.svelte";
 	import { resize } from "$lib/services/assets";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
-	import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from "$lib/utils/gymUtils";
+	import {
+		getRaidPokemon,
+		GYM_SLOTS,
+		hasActiveRaid,
+		isFortOutdated,
+		isRaidHatched
+	} from "$lib/utils/gymUtils";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
@@ -48,6 +59,7 @@
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import type { AnyFilterset } from "$lib/features/filters/filtersets";
+	import { setActiveSearchMaxBattleBoss } from "$lib/features/activeSearch.svelte";
 
 	export { image, overview, main };
 
@@ -98,12 +110,14 @@
 
 	function showMatchingFiltersets() {
 		const filter = getUserSettings().filters.gym;
-		return filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled));
+		return (
+			filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled))
+		);
 	}
 </script>
 <script>
-	import { showAutoBattleButton } from "$lib/ui/popupActions";
-	import Button from "@/components/ui/input/Button.svelte";
+	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
+	import { setActiveSearchRaidBoss } from "$lib/features/activeSearch.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -198,6 +212,8 @@
 						})}
 					</IconValue>
 				{:else}
+					{@const possibleBosses = getActiveRaidsForLevel(data?.raid_level ?? 0)}
+
 					<MainCardBigIcon
 						src={getRaidIcon(data)}
 						alt={getRaidTitle(data)}
@@ -223,7 +239,6 @@
 
 						<!--Hatch Prediction-->
 						{#if !data.raid_pokemon_id && data.raid_level}
-							{@const possibleBosses = getActiveRaidsForLevel(data.raid_level)}
 							{#if possibleBosses}
 								<div>
 									<IconValue class="" Icon={BadgeCheck}>
@@ -255,10 +270,10 @@
 										<div class="grid items-center gap-x-2" style="grid-template-columns: auto 1fr">
 											<b>{timestampToLocalTime(rsvp.timeslot / 1000, { showSeconds: false })}</b>
 											<span class="text-right"
-											>{m.rsvp_entry({
-												going: rsvp.going_count,
-												maybe: rsvp.maybe_count
-											})}</span
+												>{m.rsvp_entry({
+													going: rsvp.going_count,
+													maybe: rsvp.maybe_count
+												})}</span
 											>
 										</div>
 									{/each}
@@ -293,14 +308,16 @@
 								</StatsMainCardEntry>
 							</div>
 						{/if}
-
-						{#if showAutoBattleButton(data)}
-							<Button class="w-full" variant="secondary">
-								<Ticket class="size-3.5" />
-								Get Remote Invite
-							</Button>
-						{/if}
 					</div>
+
+					{#if data.raid_pokemon_id || possibleBosses.length === 1}
+						{@const pokemon = data.raid_pokemon_id ? getRaidPokemon(data) : possibleBosses[0]}
+						{@const pokemonName = mPokemon(pokemon)}
+						<QuickSearchButton
+							label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}
+							onclick={() => setActiveSearchRaidBoss(pokemonName, pokemon?.pokemon_id ?? 0, pokemon.form, pokemon.temp_evolution_id) }
+						/>
+					{/if}
 				{/if}
 			</BasicMainCard>
 		</TitledMainSection>
@@ -352,7 +369,8 @@
 																style:height="{defender.motivation_now * 100}%"
 															>
 																<Heart
-																	class="absolute bottom-0 left-0 size-6 fill-rose-400 dark:fill-rose-800 stroke-1" />
+																	class="absolute bottom-0 left-0 size-6 fill-rose-400 dark:fill-rose-800 stroke-1"
+																/>
 															</div>
 														</div>
 														<p>
@@ -361,17 +379,13 @@
 																minDecimals: 0
 															})}
 														</p>
-
 													</div>
 												</div>
 											</div>
 										</div>
 
 										<div class="space-y-1 mt-4">
-											<StatsMainCardEntry
-												Icon={SquareEqual}
-												name={m.cp()}
-											>
+											<StatsMainCardEntry Icon={SquareEqual} name={m.cp()}>
 												{#snippet value()}
 													<p>
 														<span>
@@ -381,7 +395,6 @@
 															/ {defender.cp_when_deployed}
 														</span>
 													</p>
-
 												{/snippet}
 											</StatsMainCardEntry>
 											<StatsMainCardEntry
@@ -394,11 +407,7 @@
 												name={m.lost()}
 												value={defender.battles_lost}
 											/>
-											<StatsMainCardEntry
-												Icon={Candy}
-												name={m.fed()}
-												value={defender.times_fed}
-											/>
+											<StatsMainCardEntry Icon={Candy} name={m.fed()} value={defender.times_fed} />
 											<StatsMainCardEntry Icon={Clock} name={m.defender_placed()}>
 												{#snippet value()}
 													{#if defender.deployed_time < currentTimestamp() - 60 * 60 * 24}
@@ -408,8 +417,7 @@
 															showSeconds: false
 														})}
 													{:else}
-														<Countdown
-															expireTime={defender.deployed_time} />
+														<Countdown expireTime={defender.deployed_time} />
 													{/if}
 												{/snippet}
 											</StatsMainCardEntry>

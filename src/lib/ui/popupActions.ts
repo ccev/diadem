@@ -8,6 +8,9 @@ import { Expand, Eye, SquareStack } from "@lucide/svelte";
 import { isSupportedFeature } from "$lib/services/supportedFeatures";
 import { hasActiveRaid } from "$lib/utils/gymUtils";
 import { isMaxBattleActive } from "$lib/utils/stationUtils";
+import { currentTimestamp } from "$lib/utils/currentTimestamp";
+import type { GymData } from "$lib/types/mapObjectData/gym";
+import type { StationData } from "$lib/types/mapObjectData/station";
 
 export enum PopupAction {
 	DIMMED = "dimmed",
@@ -35,10 +38,12 @@ export function supportsPopupAction(mapObject: MapObjectType | undefined, action
 	return supportedPopupActions[mapObject]?.includes(action) ?? false;
 }
 
-export function showAutoBattleButton(data: MapData) {
+export function showAutoBattleButton(data: MapData): data is GymData | StationData {
 	return (
 		isSupportedFeature("autoBattle") &&
-		((data?.type === MapObjectType.GYM && hasActiveRaid(data)) ||
+		((data?.type === MapObjectType.GYM &&
+			hasActiveRaid(data) &&
+			(data?.raid_battle_timestamp ?? 0) < currentTimestamp()) ||
 			(data?.type === MapObjectType.STATION && isMaxBattleActive(data)))
 	);
 }

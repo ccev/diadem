@@ -35,13 +35,19 @@ export async function proxyAutoBattleRequest(request: Request, path: string, pai
 	const contentType = request.headers.get("Content-Type");
 	if (contentType) headers.set("Content-Type", contentType);
 	if (paid) headers.set("Idempotency-Key", crypto.randomUUID());
+	const body = request.method === "GET" ? undefined : await request.text();
+	const url = new URL(path, ensureTrailingSlash(config.url));
 
 	try {
-		const response = await fetch(new URL(path, ensureTrailingSlash(config.url)), {
+		let response = await fetch(url, {
 			method: request.method,
 			headers,
-			body: request.method === "GET" ? undefined : await request.text()
+			body
 		});
+		if (response.status === 504) {
+			log.warning("Auto Battle request returned 504, retrying once");
+			response = await fetch(url, { method: request.method, headers, body });
+		}
 
 		return new Response(await response.arrayBuffer(), {
 			status: response.status,
@@ -61,7 +67,7 @@ export async function enrichAutoBattleResponse(response: Response) {
 		const data = await response.json();
 		const battle = data.battle ?? data;
 		if (typeof battle.latitude === "number" && typeof battle.longitude === "number") {
-			battle.address ??= await reverseGeocode(battle.latitude, battle.longitude);
+			battle.address = (await reverseGeocode(battle.latitude, battle.longitude)) ?? "Unknown";
 		}
 		return Response.json(data, { status: response.status });
 	} catch (error) {

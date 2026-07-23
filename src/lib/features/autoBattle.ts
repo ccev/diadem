@@ -50,9 +50,21 @@ export type FriendProfile = {
 	already_friends: boolean;
 };
 
+export type FriendInvite = {
+	friend_code: string;
+	name: string;
+	already_friends: boolean;
+	invite_sent: boolean;
+};
+
 export type BattleLobby = {
 	player_count: number;
 	join_end_ms: number;
+};
+
+export type BattleInvitee = {
+	invited: boolean;
+	in_lobby: boolean;
 };
 
 export type BattleSession = {
@@ -60,6 +72,7 @@ export type BattleSession = {
 	state: BattleSessionState;
 	battle: Battle;
 	lobby?: BattleLobby | null;
+	invitees?: Record<string, BattleInvitee>;
 	error?: string;
 };
 
@@ -94,8 +107,19 @@ export class AutoBattleApiError extends Error {
 		public status: number,
 		public body: AutoBattleApiErrorBody
 	) {
-		super(body.error ?? body.message ?? "The Auto Battle request failed.");
+		super(getAutoBattleErrorMessage(status, body));
 	}
+}
+
+function getAutoBattleErrorMessage(status: number, body: AutoBattleApiErrorBody) {
+	if (status === 402) return "Insufficient Auto Battle credit.";
+	if (status === 409 && body.error === "idempotency key was used for a different request") {
+		return "This invite request conflicts with an earlier request.";
+	}
+	if (status === 409 && body.error === "request is still in progress") {
+		return "This invite request is still being processed.";
+	}
+	return body.error ?? body.message ?? "The Auto Battle request failed.";
 }
 
 export function getRemoteInvite(data: GymData | StationData) {
@@ -144,6 +168,14 @@ export function getFriendProfiles(codes: string[]) {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ codes })
+	});
+}
+
+export function sendFriendInvite(code: string) {
+	return request<{ friend: FriendInvite }>("friends", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ code })
 	});
 }
 

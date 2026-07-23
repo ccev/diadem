@@ -40,8 +40,7 @@
 		Search,
 		Star,
 		Swords,
-		UsersRound,
-		Ticket
+		UsersRound
 	} from "@lucide/svelte";
 
 	export { image, overview, main };
@@ -67,15 +66,22 @@
 		return Boolean(data.battle_pokemon_id && (data.end_time ?? 0) < currentTimestamp());
 	}
 </script>
+
 <script>
 	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
 	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
-	import { Calculator, HandFist, Heart, ShieldHalf, SquareEqual, Sword, Timer } from "@lucide/svelte";
+	import {
+		Calculator,
+		HandFist,
+		Heart,
+		ShieldHalf,
+		SquareEqual,
+		Sword,
+		Timer
+	} from "@lucide/svelte";
 	import { getStationAttackBonus } from "$lib/utils/stationUtils";
 	import { formatPercentage } from "$lib/utils/numberFormat";
 	import InvasionLineupEntry from "@/components/ui/popups/common/InvasionLineupEntry.svelte";
-	import { showAutoBattleButton } from "$lib/ui/popupActions.ts";
-	import Button from "@/components/ui/input/Button.svelte";
 </script>
 
 {#snippet image(d: MapData)}
@@ -105,7 +111,10 @@
 		<OverviewCard
 			Icon={UsersRound}
 			title={m.stationed()}
-			value={m.station_overview_count({ total: data.total_stationed_pokemon ?? 0, gmax: data.total_stationed_gmax ?? 0 })}
+			value={m.station_overview_count({
+				total: data.total_stationed_pokemon ?? 0,
+				gmax: data.total_stationed_gmax ?? 0
+			})}
 		/>
 	{/if}
 {/snippet}
@@ -139,17 +148,25 @@
 							<StatsMainCardEntry
 								Icon={Timer}
 								name={m.started()}
-								value={timestampToLocalTime(data.start_time, {showDate: true, showSeconds: false, showTime: true, dayLowerCase: false})}
+								value={timestampToLocalTime(data.start_time, {
+									showDate: true,
+									showSeconds: false,
+									showTime: true,
+									dayLowerCase: false
+								})}
 							/>
 						{/if}
-					{:else}
-						{#if data.end_time}
-							<StatsMainCardEntry
-								Icon={Timer}
-								name={m.raid_ends()}
-								value={timestampToLocalTime(data.end_time, {showDate: true, showSeconds: false, showTime: true, dayLowerCase: false})}
-							/>
-						{/if}
+					{:else if data.end_time}
+						<StatsMainCardEntry
+							Icon={Timer}
+							name={m.raid_ends()}
+							value={timestampToLocalTime(data.end_time, {
+								showDate: true,
+								showSeconds: false,
+								showTime: true,
+								dayLowerCase: false
+							})}
+						/>
 					{/if}
 					<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
 						{#snippet value()}
@@ -164,11 +181,7 @@
 							</p>
 						{/snippet}
 					</StatsMainCardEntry>
-					<StatsMainCardEntry
-						Icon={Star}
-						name={m.tier()}
-						value={data.battle_level ?? 0}
-					/>
+					<StatsMainCardEntry Icon={Star} name={m.tier()} value={data.battle_level ?? 0} />
 					<StatsMainCardEntry
 						Icon={SquareEqual}
 						name={m.cp()}
@@ -186,30 +199,20 @@
 					/>
 				</div>
 
-				{#if showAutoBattleButton(data)}
-					<Button class="w-full mt-5 mb-4" variant="secondary">
-						<Ticket class="size-3.5" />
-						Get Remote Invite
-					</Button>
-				{/if}
-
-<!--				<QuickSearchButton-->
-<!--					label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}-->
-<!--					onclick={() =>-->
-<!--					setActiveSearchMaxBattleBoss(-->
-<!--						m.pokemon_max_battles({ pokemon: pokemonName }),-->
-<!--						data.battle_pokemon_id ?? 0,-->
-<!--						data.battle_pokemon_form ?? 0,-->
-<!--						data.battle_pokemon_bread_mode ?? 0-->
-<!--					)}-->
-<!--				/>-->
+				<QuickSearchButton
+					label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}
+					onclick={() =>
+						setActiveSearchMaxBattleBoss(
+							m.pokemon_max_battles({ pokemon: pokemonName }),
+							data.battle_pokemon_id ?? 0,
+							data.battle_pokemon_form ?? 0,
+							data.battle_pokemon_bread_mode ?? 0
+						)}
+				/>
 			</BasicMainCard>
 		</TitledMainSection>
 
-		<TitledMainSection
-			Icon={UsersRound}
-			title={m.stationed_pokemon()}
-		>
+		<TitledMainSection Icon={UsersRound} title={m.stationed_pokemon()}>
 			<BasicMainCard>
 				<div class="space-y-3">
 					<StatsMainCardEntry
@@ -225,16 +228,17 @@
 					<StatsMainCardEntry
 						Icon={HandFist}
 						name={m.attack_bonus()}
-						value={formatPercentage(getStationAttackBonus(data.total_stationed_pokemon ?? 0), { minDecimals: 0, maxDecimals: 1 })}
+						value={formatPercentage(getStationAttackBonus(data.total_stationed_pokemon ?? 0), {
+							minDecimals: 0,
+							maxDecimals: 1
+						})}
 					/>
 				</div>
 				{#if data.stationed_pokemon?.length}
 					<div class="-mx-4 mt-3">
 						<div class="w-full flex overflow-x-auto *:shrink-0 gap-3 px-4 mt-2">
 							{#each data.stationed_pokemon as pokemon}
-								<div
-									class="rounded-md p-4 bg-accent-highlight"
-								>
+								<div class="rounded-md p-4 bg-accent-highlight">
 									<div class="size-10">
 										<ImagePopup
 											class="size-10"
@@ -242,7 +246,6 @@
 											alt={mPokemon(pokemon)}
 										/>
 									</div>
-
 								</div>
 							{/each}
 						</div>
@@ -251,11 +254,7 @@
 			</BasicMainCard>
 		</TitledMainSection>
 	{:else}
-		<TitledMainSection
-			Icon={DynamaxIcon}
-			disabled={true}
-			title={m.pogo_max_battle()}
-		>
+		<TitledMainSection Icon={DynamaxIcon} disabled={true} title={m.pogo_max_battle()}>
 			<BasicMainCard>
 				{#if hasLastMaxBattle(data)}
 					<MainCardBigIcon
@@ -267,7 +266,7 @@
 						{m.last_max_battle_notice({
 							time: timestampToLocalTime(data.end_time, {
 								showDate: true,
-								showSeconds: false,
+								showSeconds: false
 							})
 						})}
 					</IconValue>
@@ -276,13 +275,9 @@
 				{/if}
 			</BasicMainCard>
 		</TitledMainSection>
-
 	{/if}
 
-	<TitledMainSection
-		Icon={CircleDot}
-		title={m.access_this_power_spot()}
-	>
+	<TitledMainSection Icon={CircleDot} title={m.access_this_power_spot()}>
 		<MainAccessMap
 			lat={data.lat}
 			lon={data.lon}
