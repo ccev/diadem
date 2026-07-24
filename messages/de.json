@@ -652,5 +652,17 @@
 	"fed": "Gefüttert",
 	"catchable": "Zu fangen",
 	"find_wild_name": "Finde wilde {name}",
-	"filters_dont_match_gym": "Diese Arena passt zu keinem deiner Filter"
+	"filters_dont_match_gym": "Diese Arena passt zu keinem deiner Filter",
+	"super_mega_raid": "Super Mega Raid",
+	"super_mega_raids": "Super Mega Raids",
+	"legendary_super_mega_raid": "Legendärer Super Mega Raid",
+	"legendary_super_mega_raids": "Legendäre Super Mega Raids",
+	"unity_raid": "Unity Raid",
+	"unity_raids": "Unity Raids",
+	"filter_template_levels_super_mega": "Super Mega {kind}",
+	"about_this_sation": "Über diese Kraftquelle",
+	"quest_pokecoins": "{count} Pokécoins",
+	"count_pokecoins": "{count} Pokécoins",
+	"background": "Hintergrund",
+	"with_background": "Mit Hintergrund"
 }

@@ -57,6 +57,7 @@ export type GymDefender = {
 	motivation_now: number;
 	cp_now: number;
 	cp_when_deployed: number;
+	background?: number;
 };
 
 export type Rsvp = {

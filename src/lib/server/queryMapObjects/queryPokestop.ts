@@ -51,11 +51,13 @@ const FIELDS_POKESTOP = [
 	"pokestop.quest_rewards",
 	"pokestop.quest_title",
 	"pokestop.quest_expiry",
+	"pokestop.quest_template",
 	"pokestop.alternative_quest_timestamp",
 	"pokestop.alternative_quest_target",
 	"pokestop.alternative_quest_rewards",
 	"pokestop.alternative_quest_title",
 	"pokestop.alternative_quest_expiry",
+	"pokestop.alternative_quest_template",
 	"pokestop.showcase_pokemon_id",
 	"pokestop.showcase_pokemon_form_id",
 	"pokestop.showcase_focus",
@@ -369,7 +371,8 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 					title: data.alternative_quest_title ?? "",
 					target: data.alternative_quest_target ?? 0,
 					timestamp: data.alternative_quest_timestamp ?? 0,
-					expires: data.alternative_quest_expiry ?? 0
+					expires: data.alternative_quest_expiry ?? 0,
+					template: data.alternative_quest_template ?? ""
 				});
 		}
 		if (data.quest_target && data.quest_rewards) {
@@ -380,7 +383,8 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 					title: data.quest_title ?? "",
 					target: data.quest_target ?? 0,
 					timestamp: data.quest_timestamp ?? 0,
-					expires: data.quest_expiry ?? 0
+					expires: data.quest_expiry ?? 0,
+					template: data.quest_template ?? ""
 				});
 		}
 

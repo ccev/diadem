@@ -40,20 +40,63 @@ import {
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
-import type { PokestopData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type { PokestopData, QuestData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
-import { getActivePokestopFilter, isIncidentInvasion } from "@/lib/utils/pokestopUtils";
+import { getActivePokestopFilter, givesQuestBackground, isIncidentInvasion } from "@/lib/utils/pokestopUtils";
 import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
 
 const INVASION_CHARACTER_SCALE = 0.6;
 const INVASION_CHARACTER_OFFSET = 30;
+const QUEST_BACKGROUND_FLOWER_SCALE = 0.45;
+const QUEST_BACKGROUND_FLOWER_OFFSET = -32;
+const QUEST_BACKGROUND_FLOWER_SIZE = 64;
+const questBackgroundFlowerImageCache = new Map<string, string>();
+
+function getQuestBackgroundFlowerIcon() {
+	const cached = questBackgroundFlowerImageCache.get("cyan");
+	if (cached) return cached;
+
+	const canvas = document.createElement("canvas");
+	canvas.width = QUEST_BACKGROUND_FLOWER_SIZE;
+	canvas.height = QUEST_BACKGROUND_FLOWER_SIZE;
+
+	const context = canvas.getContext("2d");
+	if (!context) return "";
+
+	context.scale(QUEST_BACKGROUND_FLOWER_SIZE / 24, QUEST_BACKGROUND_FLOWER_SIZE / 24);
+	context.strokeStyle = "#22d3ee";
+	context.lineWidth = 2;
+	context.lineCap = "round";
+	context.lineJoin = "round";
+	context.beginPath();
+	context.arc(12, 12, 3, 0, Math.PI * 2);
+	context.stroke();
+
+	for (const path of [
+		"M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5",
+		"M12 7.5V9",
+		"M7.5 12H9",
+		"M16.5 12H15",
+		"M12 16.5V15",
+		"m8 8 1.88 1.88",
+		"M14.12 9.88 16 8",
+		"m8 16 1.88-1.88",
+		"M14.12 14.12 16 16"
+	]) {
+		context.stroke(new Path2D(path));
+	}
+
+	const url = canvas.toDataURL("image/png");
+	questBackgroundFlowerImageCache.set("cyan", url);
+	return url;
+}
 
 export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSetModifierType) {
 	let scale: number = 0.25;
@@ -221,14 +264,15 @@ abstract class MapObjectRenderer<MapObject extends MapData> {
 class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 	private renderQuest(
 		data: PokestopData,
-		reward: QuestReward,
+		quest: QuestData,
 		filterset: FiltersetQuest | undefined,
 		mapId: string,
 		expires: number | null,
 		modifiers: ReturnType<typeof getConfigModifiers>,
 		selectedScale: number
 	): MapObjectFeature[] {
-		return this.renderVisualModifiers(data, mapId, filterset, {
+		const reward = quest.reward;
+		const rewardProps: MinMapObjectIconProperties = {
 			imageUrl: getIconReward(reward.type, reward.info),
 			imageSize: modifiers.scale,
 			selectedScale,
@@ -238,7 +282,31 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 			],
 			id: data.mapId,
 			expires
-		});
+		};
+		const features = this.renderVisualModifiers(data, mapId, filterset, rewardProps);
+
+		if (givesQuestBackground(quest)) {
+			const imageOffset = rewardProps.imageOffset ?? [0, 0];
+			features.unshift(
+				this.getFeature(
+					data,
+					{
+						imageUrl: getQuestBackgroundFlowerIcon(),
+						imageId: "quest-background-flower",
+						imageSize: rewardProps.imageSize * QUEST_BACKGROUND_FLOWER_SCALE,
+						selectedScale,
+						imageOffset: [
+							(imageOffset[0] + QUEST_BACKGROUND_FLOWER_OFFSET),
+							(imageOffset[1] + QUEST_BACKGROUND_FLOWER_OFFSET)
+						],
+						id: data.mapId,
+						expires
+					},
+					{ id: mapId + "-background" }
+				)
+			);
+		}
+		return features;
 	}
 
 	public render(data: PokestopData, isSelected: boolean, isSelectedOverwrite: boolean) {
@@ -260,7 +328,7 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 				features.push(
 					...this.renderQuest(
 						data,
-						quest.reward,
+						quest,
 						matchQuestFilterset(quest),
 						mapId,
 						quest.expires ?? null,

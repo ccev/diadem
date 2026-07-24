@@ -28,6 +28,7 @@ export type PokemonVisual = {
 	temp_evolution_id?: number;
 	alignment?: number;
 	bread_mode?: number;
+	background?: number;
 };
 
 export type PokemonData = {

@@ -139,7 +139,7 @@
 	"unknown_weather": "Unknown Weather",
 	"unknown_type": "Unknown Type",
 	"unknown_item": "Unknown Item",
-	"unknown_raid": "Raid",
+	"unknown_raid": "Unknown Raid",
 	"unknown_move": "Unknown Move",
 	"unknown_alignment": "Unknown Alignment",
 	"unknown_generation": "Unknown Generation",
@@ -183,7 +183,7 @@
 	"filter_template_xxl_magikarp": "XXL Magikarp",
 	"filter_template_xxl": "All XXL",
 	"filter_template_unown": "Unown",
-	"filter_template_sea_trio": "Sea Trio",
+	"filter_template_sea_trio": "Lake Trio",
 	"shiny_rate": "Shiny Rate",
 	"unknown_contest": "Unknown Showcase",
 	"contest": "Showcase",
@@ -663,5 +663,7 @@
 	"filter_template_levels_super_mega": "Super Mega {kind}",
 	"about_this_sation": "About this Power Spot",
 	"quest_pokecoins": "{count} Pokécoins",
-	"count_pokecoins": "{count} Pokécoins"
+	"count_pokecoins": "{count} Pokécoins",
+	"background": "Background",
+	"with_background": "With Background"
 }

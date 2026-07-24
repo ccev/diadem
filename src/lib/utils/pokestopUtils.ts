@@ -9,6 +9,7 @@ import type {
 	ContestFocus,
 	Incident,
 	PokestopData,
+	QuestData,
 	QuestReward
 } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -316,4 +317,12 @@ export function getActivePokestopFilter() {
 		return activeSearch.filter as FilterPokestop;
 	}
 	return getUserSettings().filters.pokestop;
+}
+
+export function givesQuestBackground(quest: QuestData) {
+	return Boolean(
+		("background" in quest.reward.info && quest.reward.info.background) ||
+		quest.template?.endsWith("_sb") ||
+		quest.template?.endsWith("_specialbackground")
+	);
 }

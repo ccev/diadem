@@ -73,6 +73,7 @@
 	import { getStationAttackBonus } from "$lib/utils/stationUtils";
 	import { formatPercentage } from "$lib/utils/numberFormat";
 	import InvasionLineupEntry from "@/components/ui/popups/common/InvasionLineupEntry.svelte";
+	import { getIconBackground } from "$lib/services/uicons.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -225,12 +226,19 @@
 								<div
 									class="rounded-md p-4 bg-accent-highlight"
 								>
-									<div class="size-10">
+									<div class="size-10 relative">
 										<ImagePopup
-											class="size-10"
+											class="absolute size-full z-10"
 											src={resize(getIconPokemon(pokemon), { width: 64 })}
 											alt={mPokemon(pokemon)}
 										/>
+										{#if pokemon.background}
+											<ImagePopup
+												class="absolute size-10 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+												src={resize(getIconBackground(defender.background), {width: 64})}
+												alt={m.background()}
+											/>
+										{/if}
 									</div>
 
 								</div>

@@ -263,6 +263,12 @@ export function getIconTeam(teamId: number) {
 	return iconSets[DEFAULT_UICONS].team(teamId);
 }
 
+export function getIconBackground(backgroundId: number) {
+	const url = iconSets[DEFAULT_UICONS].background(backgroundId);
+	if (url.endsWith("/0.png")) return "/loader.svg";
+	return url
+}
+
 export function getIconPokestopDirect(
 	lureId: number,
 	displayType: number | false,
