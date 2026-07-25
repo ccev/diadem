@@ -194,11 +194,13 @@ export async function getUserSettingsFromServer() {
 	const response = await fetch("/api/user/settings");
 	const dbUserSettings: { error?: string; result: UserSettings } = await response.json();
 
-	// User has existing user settings, merge with defaults, then update
+	// User has existing user settings, merge with defaults and keep the local copy in sync.
 	if (!dbUserSettings.error && Object.keys(dbUserSettings.result).length > 0) {
 		// TODO: only overwrite map position if current position is default
 		setUserSettings(dbUserSettings.result);
-		updateUserSettings();
+		if (browser && window.localStorage) {
+			localStorage.setItem("userSettings", JSON.stringify(userSettings));
+		}
 	}
 }
 

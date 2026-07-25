@@ -16,13 +16,22 @@ to width 64. It sets caching headers, so clients will cache the icons locally.
 - `/assets/home/pokemon/25.png?w=64` returns the HOME icon for Pikachu, scaled to width 64 (cached by clients for 120 days)
 - `/assets/home/index.json` serves the UIcon index for the HOME icon set
 
-## Internal resources
+## Public resources
 
-- `/api/stats`: Index about what's currently available in-game
-- `/api/pogodata`: Index about in-game metadata (cached by clients for 1 hour)
-- `/api/supported-features`: Features supported by your Diadem instance
-- `/api/koji`: Your Koji areas (if set up)
-- `/api/config`: your client config
+Diadem sends cache headers for these public, slow-changing resources. Cloudflare can use the origin policy directly or
+apply matching Edge TTL rules.
+
+| Resource | Browser TTL | Edge TTL |
+| --- | --- | --- |
+| `/api/config` | 5 minutes | 1 hour |
+| `/api/pogodata` | 1 hour | 1 hour |
+| `/api/stats` | 5 minutes | 1 hour |
+| `/api/koji` | 1 minute | 5 minutes |
+| `/api/locale/*` | 1 hour | 3 hours |
+| `/assets/*/index.json` | 5 minutes | 12 hours |
+
+`/api/supported-features` is user-specific when authentication is required. User details, settings, permissions, map
+objects, and all non-GET/HEAD requests are private and must never be cached by a CDN.
 
 ## Set up Cloudflare Cache Rules
 
@@ -38,4 +47,12 @@ This assumes you're already proxying Diadem through Cloudflare.
 3. You can now configure how long you want the images to last on Cloudflare's server (Edge TTL) and how long in your
    user's browsers (Browser TTL)
 
-You can set up similar rules for icon set indexes and the internal resources listed above.
+You can set up similar rules for icon set indexes and the public resources listed above. Use an explicit allowlist;
+do not use a blanket Cache Everything rule for `/api/*`.
+
+## Service worker migration
+
+Diadem no longer installs an offline cache because it could delay initial map loading and retain user-specific API
+responses. The next deployment serves a one-time cleanup worker that deletes the old caches and unregisters itself.
+Make sure `/service-worker.js` and `/_app/version.json` are not edge-cached so existing installations receive that
+update immediately.

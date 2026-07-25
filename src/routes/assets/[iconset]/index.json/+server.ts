@@ -1,5 +1,6 @@
 import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
 import { getClientConfig } from "@/lib/services/config/config.server";
+import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { error } from "@sveltejs/kit";
 
 const config = getClientConfig();
@@ -20,7 +21,8 @@ export async function GET({ params }) {
 
 	return new Response(index, {
 		headers: {
-			"Content-Type": "application/json"
+			"Content-Type": "application/json",
+			...cacheHttpHeaders(300, 43200, 86400)
 		}
 	});
 }

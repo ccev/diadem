@@ -1,3 +1,3 @@
-import { makeOfflineAvailable } from "./offline";
+import { removeOfflineCache } from "./offline";
 
-makeOfflineAvailable();
+removeOfflineCache();

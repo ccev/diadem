@@ -29,7 +29,9 @@ export function respond(request: Request, data: any, options?: ResponseInit): Re
 
 	const headers: Record<string, any> = {
 		...options?.headers,
-		"Content-Type": contentType
+		"Content-Type": contentType,
+		"Cache-Control": "private, no-store",
+		Vary: "Accept, Accept-Encoding"
 	};
 
 	if (contentEncoding) {

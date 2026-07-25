@@ -2,90 +2,22 @@
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
-// Ensures that the `$service-worker` import has proper type definitions
-/// <reference types="@sveltejs/kit" />
-import { build, files, version } from "$service-worker";
 import { self } from "./self";
 
-// Create a unique cache name for this deployment
-const CACHE = `cache-${version}`;
-
-const ASSETS = [
-	...build, // the app itself
-	...files.filter((f) => !f.endsWith(".gitkeep")) // everything in `static` except .gitkeep
-];
-
-export function makeOfflineAvailable() {
+/** Removes caches created by the previous broad offline worker, then retires itself. */
+export function removeOfflineCache() {
 	self.addEventListener("install", (event) => {
-		// Create a new cache and add all files to it
-		async function addFilesToCache() {
-			const cache = await caches.open(CACHE);
-			await cache.addAll(ASSETS);
-		}
-
-		event.waitUntil(addFilesToCache());
+		self.skipWaiting();
+		event.waitUntil(Promise.resolve());
 	});
 
 	self.addEventListener("activate", (event) => {
-		// Remove previous cached data from disk
-		async function deleteOldCaches() {
-			for (const key of await caches.keys()) {
-				if (key !== CACHE) await caches.delete(key);
-			}
-		}
-
-		event.waitUntil(deleteOldCaches());
-	});
-
-	self.addEventListener("fetch", (event) => {
-		// ignore POST requests etc
-		if (event.request.method !== "GET") return;
-
-		// ignore stuff like chrome-extension://
-		if (!event.request.url.startsWith("http")) return;
-
-		async function respond() {
-			const url = new URL(event.request.url);
-			const cache = await caches.open(CACHE);
-
-			// when online, try the network first for all requests
-			try {
-				const response = await fetch(event.request);
-
-				// if we're offline, fetch can return a value that is not a Response
-				// instead of throwing - and we can't pass this non-Response to respondWith
-				if (!(response instanceof Response)) {
-					throw new Error("invalid response from fetch");
-				}
-
-				if (response.status === 200) {
-					cache.put(event.request, response.clone());
-				}
-
-				return response;
-			} catch (err) {
-				// fall back to the cache if we're offline
-				const response = await cache.match(event.request);
-
-				if (response) {
-					return response;
-				}
-
-				// for assets, also try matching by pathname
-				if (ASSETS.includes(url.pathname)) {
-					const assetResponse = await cache.match(url.pathname);
-
-					if (assetResponse) {
-						return assetResponse;
-					}
-				}
-
-				// if there's no cache, then just error out
-				// as there is nothing we can do to respond to this request
-				throw err;
-			}
-		}
-
-		event.respondWith(respond());
+		event.waitUntil(
+			(async () => {
+				await Promise.all((await caches.keys()).map((key) => caches.delete(key)));
+				await self.clients.claim();
+				await self.registration.unregister();
+			})()
+		);
 	});
 }
