@@ -59,7 +59,7 @@
 					<div class="flex gap-2 items-center">
 						<button
 							type="button"
-							class="min-w-0 flex-1 text-left flex items-center gap-2"
+							class="min-w-0 flex-1 text-left flex items-center gap-2 cursor-pointer"
 							aria-pressed={isSelected}
 							disabled={account.state !== "active" || disabled}
 							onclick={() => ontoggleaccount(account)}

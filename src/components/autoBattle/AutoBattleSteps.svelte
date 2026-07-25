@@ -16,6 +16,7 @@
 	} from "@/lib/features/autoBattle";
 	import * as m from "$lib/paraglide/messages";
 	import { onMount, untrack } from "svelte";
+	import { SvelteSet } from "svelte/reactivity";
 
 	const POLL_INTERVAL_MS = 1000;
 
@@ -37,7 +38,7 @@
 	let isConnecting = $state(false);
 	let isRequesting = $state(false);
 	let requestError = $state<string | undefined>(undefined);
-	let isRefreshing = false;
+	const refreshingSessionIds = new SvelteSet<string>();
 	let isRefreshingAccounts = false;
 	let pollTimer: number | undefined = undefined;
 	let accountPollTimer: number | undefined = undefined;
@@ -167,17 +168,27 @@
 	}
 
 	async function refreshSession() {
-		if (!session || isRefreshing) return;
-		isRefreshing = true;
+		const sessionId = session?.session_id;
+		if (!sessionId || refreshingSessionIds.has(sessionId)) return;
+		refreshingSessionIds.add(sessionId);
 		try {
-			session = await getBattleStatus(session.session_id);
+			const status = await getBattleStatus(sessionId);
+			if (session?.session_id !== sessionId) return;
+
+			session = status;
 			hasReceivedSessionStatus = true;
 			if (session.state === "failed") requestError = session.error ?? m.auto_battle_failed();
 			if (session.state === "completed" || session.state === "failed") stopPolling();
 		} catch (error) {
-			if (error instanceof AutoBattleApiError && error.status !== 401) requestError = error.message;
+			if (
+				session?.session_id === sessionId &&
+				error instanceof AutoBattleApiError &&
+				error.status !== 401
+			) {
+				requestError = error.message;
+			}
 		} finally {
-			isRefreshing = false;
+			refreshingSessionIds.delete(sessionId);
 		}
 	}
 </script>

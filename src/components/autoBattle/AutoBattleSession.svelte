@@ -133,7 +133,7 @@
 			/>
 			<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
 				{#snippet value()}
-					<p class="flex gap-2">
+					<p>
 						{#if battle.move_1 && battle.move_2}
 							<span>{mMove(battle.move_1)}</span>
 							<span>·</span>

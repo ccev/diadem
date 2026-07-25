@@ -162,11 +162,12 @@
 
 			{#if hasLoadedFeature(LoadedFeature.ICON_SETS, LoadedFeature.REMOTE_LOCALE)}
 				<div
-					class="grid grid-autofill-28 gap-2"
+					class="grid grid-autofill-28 content-start gap-2"
 					class:h-full={!isMenuSidebar()}
 					class:overflow-y-auto={!isMenuSidebar()}
 					style:padding-bottom={selectPaddingBottom}
 					class:pt-30={!isMenuSidebar()}
+					class:pb-4={isMenuSidebar()}
 				>
 					{#each availableBattles as battle (getBattleKey(battle))}
 						{@const pokemon = {
@@ -177,7 +178,7 @@
 						<button
 							type="button"
 							class={[
-								" flex flex-col items-center gap-2 rounded-lg border bg-card py-3 px-2 transition-colors hover:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+								"cursor-pointer flex flex-col items-center gap-2 rounded-lg border bg-card py-3 px-2 transition-colors hover:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 								isSelected ? "border-primary bg-primary/10" : "border-border"
 							]}
 							aria-pressed={isSelected}
