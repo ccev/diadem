@@ -1,7 +1,13 @@
 <script lang="ts">
-	import type { Snippet } from "svelte";
+	import { onMount, type Snippet } from "svelte";
 	import { Dialog, useId, type WithoutChild } from "bits-ui";
-	import { closeModal, isOpenModal, type ModalType, openModal } from "@/lib/ui/modal.svelte.js";
+	import {
+		closeModal,
+		isOpenModal,
+		type ModalType,
+		openModal,
+		registerModalOpenChangeHandler
+	} from "@/lib/ui/modal.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
 
@@ -30,9 +36,11 @@
 			closeModal(modalType);
 		}
 	}
+
+	onMount(() => registerModalOpenChangeHandler(modalType, (open) => onopenchange?.(open)));
 </script>
 
-<Dialog.Root bind:open={isOpen, setIsOpen} onOpenChange={onopenchange}>
+<Dialog.Root bind:open={isOpen, setIsOpen}>
 	<Dialog.Portal>
 		<Dialog.Overlay
 			class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 backdrop-blur-[1px] backdrop-brightness-95 transition-all"

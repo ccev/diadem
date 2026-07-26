@@ -40,10 +40,21 @@ let openModals: OpenModals = $state({
 });
 
 let selectOptions: Snippet | undefined = $state(undefined);
+const openChangeHandlers = new Map<ModalType, Set<(open: boolean) => void>>();
+
+function setModalOpen(modal: ModalType, open: boolean) {
+	if (openModals[modal] === open) return;
+
+	openModals[modal] = open;
+	for (const handler of openChangeHandlers.get(modal) ?? []) handler(open);
+}
 
 registerOverlayHandler("modal", (entries) => {
 	for (const modal of Object.keys(openModals) as ModalType[]) {
-		openModals[modal] = entries.some((entry) => entry.id === modal);
+		setModalOpen(
+			modal,
+			entries.some((entry) => entry.id === modal)
+		);
 	}
 	if (!openModals.select) selectOptions = undefined;
 	updateMapObjectsInterval();
@@ -55,7 +66,7 @@ function updateMapObjectsInterval() {
 }
 
 export function openModal(modal: ModalType) {
-	openModals[modal] = true;
+	setModalOpen(modal, true);
 	if (!isReconcilingOverlays()) openOverlay({ kind: "modal", id: modal });
 	updateMapObjectsInterval();
 }
@@ -66,10 +77,21 @@ export function openSelectModal(options: Snippet) {
 }
 
 export function closeModal(modal: ModalType) {
-	openModals[modal] = false;
+	setModalOpen(modal, false);
 	if (modal === "select") selectOptions = undefined;
 	if (!isReconcilingOverlays()) closeOverlay({ kind: "modal", id: modal });
 	updateMapObjectsInterval();
+}
+
+export function registerModalOpenChangeHandler(modal: ModalType, handler: (open: boolean) => void) {
+	const handlers = openChangeHandlers.get(modal) ?? new Set<(open: boolean) => void>();
+	handlers.add(handler);
+	openChangeHandlers.set(modal, handlers);
+
+	return () => {
+		handlers.delete(handler);
+		if (handlers.size === 0) openChangeHandlers.delete(modal);
+	};
 }
 
 export function isOpenModal(modal: ModalType) {
