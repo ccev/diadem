@@ -38,10 +38,10 @@
 	<Drawer.Portal>
 		<Drawer.Viewport class="z-20 drawer-viewport">
 			<Drawer.Popup
-				class="drawer-popup {contentClass} flex flex-col px-2 pt-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
+				class="drawer-popup {contentClass} flex flex-col w-full h-full pb-[env(safe-area-inset-bottom)]"
 			>
 				<MobileTitle />
-				<Drawer.Content class="pb-20 content min-h-0 flex-1">
+				<Drawer.Content class="pb-20 content min-h-0 flex-1 px-2 bg-card/60 backdrop-blur-sm pt-3">
 					<MenuContainer />
 				</Drawer.Content>
 			</Drawer.Popup>
