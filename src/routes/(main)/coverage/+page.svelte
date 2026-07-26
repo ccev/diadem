@@ -25,20 +25,20 @@
 	import { useMetadata } from "@/lib/ui/metadata.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
-	openMenu(Menu.COVERAGE_MAP);
+	openMenu(Menu.COVERAGE_MAP, false);
 	useMetadata(() => ({ title: m.nav_coveragemap() }));
 
 	onMount(async () => {
 		await tick();
 		setMap(undefined);
-		openMenu(Menu.COVERAGE_MAP);
+		openMenu(Menu.COVERAGE_MAP, false);
 		closePopup();
 		setIsContextMenuOpen(false);
 		clearMapPositionUrlParams();
 	});
 
 	onDestroy(() => {
-		closeMenu();
+		closeMenu({ history: false });
 	});
 </script>
 

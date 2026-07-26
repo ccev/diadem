@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { MapPin, Nut, Search, Spotlight, Squirrel, TextCursor, X } from "@lucide/svelte";
+	import { MapPin, Nut, Search, Spotlight, Squirrel, X } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
+	import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import ModalTop from "@/components/ui/modal/ModalTop.svelte";
 	import {
@@ -11,10 +12,8 @@
 		getCurrentSearchResults,
 		getIsSearchingAddress,
 		search,
-		SearchableType,
 		type SearchOptions,
-		setCurrentSearchQuery,
-		shouldSearchType
+		setCurrentSearchQuery
 	} from "@/lib/services/search.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
@@ -46,7 +45,9 @@
 <ModalTop
 	class="w-[calc(100%-1rem)]! max-w-2xl!"
 	modalType="search"
-	onopenchange={() => setCurrentSearchQuery("")}
+	onopenchange={(open) => {
+		if (!open && !getActiveSearch()) setCurrentSearchQuery("");
+	}}
 >
 	<Command.Root
 		class="rounded-lg bg-card text-card-foreground max-h-[calc(100vh-1rem)] overflow-hidden"

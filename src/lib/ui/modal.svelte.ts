@@ -5,6 +5,12 @@ import {
 } from "@/lib/map/mapObjectsInterval";
 import { setCurrentSearchQuery } from "@/lib/services/search.svelte";
 import type { Snippet } from "svelte";
+import {
+	closeOverlay,
+	isReconcilingOverlays,
+	openOverlay,
+	registerOverlayHandler
+} from "@/lib/ui/overlays.svelte";
 
 export type OpenModals = {
 	search: boolean;
@@ -35,9 +41,23 @@ let openModals: OpenModals = $state({
 
 let selectOptions: Snippet | undefined = $state(undefined);
 
+registerOverlayHandler("modal", (entries) => {
+	for (const modal of Object.keys(openModals) as ModalType[]) {
+		openModals[modal] = entries.some((entry) => entry.id === modal);
+	}
+	if (!openModals.select) selectOptions = undefined;
+	updateMapObjectsInterval();
+});
+
+function updateMapObjectsInterval() {
+	if (isAnyModalOpen()) clearUpdateMapObjectsInterval();
+	else resetUpdateMapObjectsInterval();
+}
+
 export function openModal(modal: ModalType) {
 	openModals[modal] = true;
-	clearUpdateMapObjectsInterval();
+	if (!isReconcilingOverlays()) openOverlay({ kind: "modal", id: modal });
+	updateMapObjectsInterval();
 }
 
 export function openSelectModal(options: Snippet) {
@@ -47,11 +67,9 @@ export function openSelectModal(options: Snippet) {
 
 export function closeModal(modal: ModalType) {
 	openModals[modal] = false;
-	selectOptions = undefined;
-
-	if (!isAnyModalOpen()) {
-		resetUpdateMapObjectsInterval();
-	}
+	if (modal === "select") selectOptions = undefined;
+	if (!isReconcilingOverlays()) closeOverlay({ kind: "modal", id: modal });
+	updateMapObjectsInterval();
 }
 
 export function isOpenModal(modal: ModalType) {

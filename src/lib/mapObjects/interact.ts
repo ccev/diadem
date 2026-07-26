@@ -1,4 +1,3 @@
-import { replaceState } from "$app/navigation";
 import { page } from "$app/state";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { MapObjectLayerId } from "@/lib/map/layers";
@@ -16,10 +15,23 @@ import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapMouseEvent } from "maplibre-gl";
+import {
+	closeOverlay,
+	getOverlayPayload,
+	openOverlay,
+	replacePageState,
+	registerOverlayHandler
+} from "@/lib/ui/overlays.svelte";
+
+registerOverlayHandler("map-popup", (entries) => {
+	const entry = entries.at(-1);
+	const selection = getOverlayPayload<{ data: MapData; isOverwrite: boolean }>(entry);
+	setCurrentSelectedData(selection?.data ?? null, selection?.isOverwrite ?? false);
+});
 
 export function closePopup() {
 	setCurrentSelectedData(null);
-	setCurrentPath();
+	if (!closeOverlay({ kind: "map-popup", id: "selected" }, getCurrentPath())) setCurrentPath();
 
 	// call this to remove selected data (if needed)
 	updateAllMapObjects(true, true).then();
@@ -27,7 +39,7 @@ export function closePopup() {
 
 export function openPopup(data: MapData, isOverwrite: boolean = false) {
 	setCurrentSelectedData(data, isOverwrite);
-	setCurrentPath();
+	openOverlay({ kind: "map-popup", id: "selected", data: { data, isOverwrite } }, getCurrentPath());
 }
 
 export function updateCurrentPath() {
@@ -51,7 +63,7 @@ export function getCurrentPath(options: { data?: MapData } | undefined = undefin
 }
 
 function setCurrentPath() {
-	replaceState(getCurrentPath(), {});
+	replacePageState(getCurrentPath());
 }
 
 export function clickMapHandler(event: MapMouseEvent) {

@@ -4,6 +4,7 @@ import Close from "./Close.svelte";
 import Content from "./Content.svelte";
 import Indent from "./Indent.svelte";
 import IndentBackground from "./IndentBackground.svelte";
+import Handle from "./Handle.svelte";
 import Popup from "./Popup.svelte";
 import Provider from "./Provider.svelte";
 import Root from "./Root.svelte";
@@ -28,6 +29,7 @@ export const Drawer = {
 	SwipeArea,
 	Indent,
 	IndentBackground,
+	Handle,
 	VirtualKeyboardProvider,
 	createHandle
 };

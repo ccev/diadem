@@ -4,10 +4,17 @@ import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
 import maplibre from "maplibre-gl";
 import { geojson, s2 } from "s2js";
-import { closeMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
 import { getCoveringS2Cells } from "@/lib/mapObjects/s2cells";
 import type { MapStyle } from "@/lib/services/config/configTypes";
 import { getMapStyle } from "@/lib/utils/mapStyle";
+import {
+	clearOverlays,
+	closeOverlay,
+	getOverlayPayload,
+	isReconcilingOverlays,
+	registerOverlayHandler,
+	replaceOverlay
+} from "@/lib/ui/overlays.svelte";
 
 const MAX_S2_CELLS = 5000;
 export const WAYFARER_CELLS_14_MIN_ZOOM = 10;
@@ -45,6 +52,20 @@ let clickedL14Cell:
 let invokedFromMap: boolean = $state(false);
 let style: MapStyle | undefined = $state(undefined);
 
+registerOverlayHandler("wayfarer-popup", (entries) => {
+	const entry = entries.at(-1);
+	if (entry?.id === "fort") {
+		clickedFort = getOverlayPayload<FortData>(entry);
+		clickedL14Cell = undefined;
+	} else if (entry?.id === "cell") {
+		clickedL14Cell = getOverlayPayload<typeof clickedL14Cell>(entry);
+		clickedFort = undefined;
+	} else {
+		clickedFort = undefined;
+		clickedL14Cell = undefined;
+	}
+});
+
 export function getWayfarerStyle() {
 	return style ? getMapStyle(style) : undefined;
 }
@@ -68,6 +89,9 @@ export function getClickedL14Cell() {
 export function setClickedFort(fort: FortData | undefined) {
 	clickedFort = fort;
 	clickedL14Cell = undefined;
+	if (isReconcilingOverlays()) return;
+	if (fort) replaceOverlay({ kind: "wayfarer-popup", id: "fort", data: fort });
+	else closeOverlay({ kind: "wayfarer-popup", id: "fort" });
 }
 
 export function setClickedL14Cell(
@@ -77,11 +101,15 @@ export function setClickedL14Cell(
 ) {
 	clickedL14Cell = cell;
 	clickedFort = undefined;
+	if (isReconcilingOverlays()) return;
+	if (cell) replaceOverlay({ kind: "wayfarer-popup", id: "cell", data: cell });
+	else closeOverlay({ kind: "wayfarer-popup", id: "cell" });
 }
 
 export function clearClicked() {
 	clickedFort = undefined;
 	clickedL14Cell = undefined;
+	if (!isReconcilingOverlays()) closeOverlay({ kind: "wayfarer-popup", id: "" });
 }
 
 function buildFetchKey(cellIds: string[], countsOnly: boolean): string {
@@ -444,9 +472,14 @@ export function wayfarerMapClickHandler(event: maplibre.MapMouseEvent) {
 }
 
 export function openWayfarerMap() {
-	closeMenu();
+	clearOverlays();
+	const navigation = goto("/wayfarer");
+	prepareOpenWayfarerMap();
+	return navigation;
+}
+
+export function prepareOpenWayfarerMap() {
 	invokedFromMap = true;
-	goto("/wayfarer").then();
 }
 
 export function getWayfarerInvokedFromMap() {

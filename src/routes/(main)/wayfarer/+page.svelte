@@ -14,7 +14,10 @@
 	import WayfarerFortPopup from "@/components/menus/wayfarer/WayfarerFortPopup.svelte";
 	import WayfarerCellPopup from "@/components/menus/wayfarer/WayfarerCellPopup.svelte";
 	import WayfarerTitle from "@/components/menus/wayfarer/WayfarerTitle.svelte";
-	import { getWayfarerStyleId, setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
+	import {
+		getWayfarerStyleId,
+		setWayfarerStyle
+	} from "@/lib/features/wayfarerMap.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
