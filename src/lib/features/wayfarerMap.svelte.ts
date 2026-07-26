@@ -12,7 +12,6 @@ import {
 	closeOverlay,
 	getOverlayPayload,
 	isReconcilingOverlays,
-	openOverlay,
 	registerOverlayHandler,
 	replaceOverlay
 } from "@/lib/ui/overlays.svelte";

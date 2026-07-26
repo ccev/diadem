@@ -1,8 +1,4 @@
 import { Coords } from "@/lib/utils/coordinates";
-import maplibre from "maplibre-gl";
-import { setMap } from "@/lib/map/map.svelte.js";
-import { onMapDragStart, onMapMoveEnd, onMapMoveStart, onTouchStart } from "@/lib/map/events";
-import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { replacePageState } from "@/lib/ui/overlays.svelte";
 

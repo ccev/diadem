@@ -2,7 +2,6 @@ import { goto } from "$app/navigation";
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import { CoverageMapLayerId } from "@/lib/map/layers";
 import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
-import { Menu, openMenu } from "@/lib/ui/menus.svelte";
 import { getFeatureJump } from "@/lib/utils/geo";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Polygon } from "geojson";
