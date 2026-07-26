@@ -51,10 +51,9 @@
 				<SelectGroupItem class="p-4" value={iconSet.value}>
 					<img
 						class="w-5"
-						src={getIconForMap(
-							{ type, ...getIconParams } as Parameters<typeof getIconForMap>[0],
-							iconSet.value
-						)}
+						src={getIconForMap({ type, ...getIconParams } as Parameters<typeof getIconForMap>[0], {
+							iconSet: iconSet.value
+						})}
 						alt="{title} (Style: {iconSet.label})"
 					/>
 					{iconSet.label}

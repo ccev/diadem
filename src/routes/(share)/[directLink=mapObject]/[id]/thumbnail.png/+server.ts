@@ -13,6 +13,8 @@ import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { error } from "@sveltejs/kit";
 import { render } from "svelte/server";
 import type { RequestHandler } from "./$types";
+import type { AnyFilter } from "$lib/features/filters/filters";
+import { getDefaultPokestopFilter } from "$lib/utils/pokestopUtils";
 
 const log = getLogger("thumbnail");
 
@@ -34,8 +36,18 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 		iconType = MapObjectType.POKEMON;
 	}
 
-	let iconset = getDefaultIconSet(iconType).id;
-	let iconUrl = getIconForMap(data, iconset);
+	let iconSet = getDefaultIconSet(iconType).id;
+	let filter: AnyFilter | undefined = undefined
+
+	if (data.type === MapObjectType.POKESTOP) {
+		filter = getDefaultPokestopFilter()
+	}
+
+	if (filter) {
+		filter.enabled = true
+	}
+
+	let iconUrl = getIconForMap(data, { iconSet, filter });
 	let staticMapIcon = iconUrl;
 
 	let fullImage = false;
@@ -47,8 +59,8 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 		data.battle_pokemon_id &&
 		isMaxBattleActive(data)
 	) {
-		iconset = getDefaultIconSet(MapObjectType.POKEMON).id;
-		iconUrl = getIconPokemon(getStationPokemon(data), iconset);
+		iconSet = getDefaultIconSet(MapObjectType.POKEMON).id;
+		iconUrl = getIconPokemon(getStationPokemon(data), { iconSet: iconSet });
 	}
 
 	const isSpawnpoint = data.type === MapObjectType.SPAWNPOINT;
