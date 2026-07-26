@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
+	import { isAnyModalOpen, isOpenModal } from "@/lib/ui/modal.svelte.js";
 	import Search from "@/components/ui/search/Search.svelte";
 	import BaseFab from "@/components/ui/fab/BaseFab.svelte";
 	import { Search as SearchIcon } from "@lucide/svelte";
@@ -120,7 +120,7 @@
 	<WayfarerSearchResults {results} {map} />
 {/snippet}
 
-{#if searchInitialized}
+{#if searchInitialized || isOpenModal("search")}
 	<Search {searchOptions} />
 {/if}
 

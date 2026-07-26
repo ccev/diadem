@@ -8,7 +8,8 @@ export type OverlayKind =
 	| "context-menu"
 	| "popup-actions"
 	| "coverage-popup"
-	| "wayfarer-popup";
+	| "wayfarer-popup"
+	| "active-search";
 
 export type OverlayEntry = {
 	kind: OverlayKind;
