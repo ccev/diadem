@@ -1,5 +1,6 @@
 import { locales } from "@/lib/paraglide/runtime";
 import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider";
+import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { error, json } from "@sveltejs/kit";
 
 export async function GET({ params }) {
@@ -9,5 +10,7 @@ export async function GET({ params }) {
 		error(404);
 	}
 
-	return json(await remoteLocaleProvider.getSingle(locale));
+	return json(await remoteLocaleProvider.getSingle(locale), {
+		headers: cacheHttpHeaders(3600, 10800, 86400)
+	});
 }

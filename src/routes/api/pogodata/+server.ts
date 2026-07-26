@@ -7,7 +7,7 @@ export async function GET() {
 
 	return json(masterfile, {
 		headers: {
-			...cacheHttpHeaders(3600)
+			...cacheHttpHeaders(3600, 3600, 86400)
 		}
 	});
 }

@@ -20,7 +20,7 @@ const config = {
 			serviceWorker: "src/lib/serviceWorker/index.ts"
 		},
 		serviceWorker: {
-			register: !isNative
+			register: false
 		}
 	},
 

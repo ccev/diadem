@@ -91,7 +91,8 @@
 				LoadedFeature.REMOTE_LOCALE,
 				LoadedFeature.MASTER_FILE,
 				LoadedFeature.ICON_SETS,
-				LoadedFeature.USER_DETAILS
+				LoadedFeature.USER_DETAILS,
+				LoadedFeature.SERVER_USER_SETTINGS
 			)
 		) {
 			const directLinkFeature = getDirectLinkFeature();

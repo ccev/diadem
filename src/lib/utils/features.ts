@@ -123,3 +123,8 @@ export type Perms = {
 	everywhere: FeaturesKey[];
 	areas: PermArea[];
 };
+
+export function removeRedundantPermissionAreas(perms: Perms): Perms {
+	if (!perms.everywhere.includes(Features.ALL)) return perms;
+	return { ...perms, areas: [] };
+}
