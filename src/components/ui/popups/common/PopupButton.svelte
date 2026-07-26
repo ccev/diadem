@@ -4,7 +4,14 @@
 	import type { LucideIcon } from "@/lib/types/lucide";
 	import { DropdownMenu } from "bits-ui";
 	import { fly, slide } from "svelte/transition";
+	import { onDestroy } from "svelte";
 	import type { PopupActionDropdown } from "@/lib/ui/popupActions";
+	import {
+		closeOverlay,
+		isReconcilingOverlays,
+		openOverlay,
+		registerOverlayHandler
+	} from "@/lib/ui/overlays.svelte";
 
 	let {
 		Icon,
@@ -22,6 +29,20 @@
 		labelActive?: string;
 		actions?: PopupActionDropdown[];
 	} & ButtonProps = $props();
+
+	const overlayId = $props.id();
+	let dropdownOpen = $state(false);
+	const unregisterOverlayHandler = registerOverlayHandler("popup-actions", (entries) => {
+		dropdownOpen = entries.some((entry) => entry.id === overlayId);
+	});
+	onDestroy(unregisterOverlayHandler);
+
+	function setDropdownOpen(open: boolean) {
+		dropdownOpen = open;
+		if (isReconcilingOverlays()) return;
+		if (open) openOverlay({ kind: "popup-actions", id: overlayId });
+		else closeOverlay({ kind: "popup-actions", id: overlayId });
+	}
 </script>
 
 <div class="flex gap-0.5 [&>*:first-child:not(:last-child)]:rounded-r-none" role="group">
@@ -36,7 +57,7 @@
 	</Button>
 
 	{#if actions.length}
-		<DropdownMenu.Root>
+		<DropdownMenu.Root bind:open={dropdownOpen} onOpenChange={setDropdownOpen}>
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
 					<Button class="px-3! rounded-l-none" size="default" variant="secondary" {...props}>
@@ -56,7 +77,7 @@
 					{#if open}
 						<div {...wrapperProps}>
 							<div {...props} transition:fly={{ y: 6, duration: 90 }}>
-								{#each actions as action}
+								{#each actions as action (action.label)}
 									{@const Icon = action.Icon}
 									<DropdownMenu.Item
 										class="data-highlighted:bg-muted cursor-pointer rounded-md px-3 h-9 flex font-medium text-sm items-center gap-2"

@@ -1,10 +1,10 @@
-import { replaceState } from "$app/navigation";
 import { Coords } from "@/lib/utils/coordinates";
 import maplibre from "maplibre-gl";
 import { setMap } from "@/lib/map/map.svelte.js";
 import { onMapDragStart, onMapMoveEnd, onMapMoveStart, onTouchStart } from "@/lib/map/events";
 import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { replacePageState } from "@/lib/ui/overlays.svelte";
 
 export function getMapPositionFromUrlParams(): [Coords | undefined, number | undefined] {
 	let zoom: number | undefined = undefined;
@@ -29,7 +29,7 @@ export function getMapPositionFromUrlParams(): [Coords | undefined, number | und
 
 export function clearMapPositionUrlParams() {
 	if (!window.location.search) return;
-	replaceState(window.location.origin + window.location.pathname, {});
+	replacePageState(window.location.origin + window.location.pathname);
 }
 
 export function getInitialMapPositionMain() {
