@@ -62,7 +62,7 @@ export function getCoverageMapAreas(): FeatureCollection<Polygon, CoverageMapAre
 		const fillColor = styles.getPropertyValue("--coverage-polygon-stroke");
 		const strokeColor = styles.getPropertyValue("--coverage-polygon-fill");
 		return featureCollection(
-			getKojiGeofences().map((g, i) => {
+			getKojiGeofences().map((g) => {
 				return {
 					...g,
 					id: "koji-" + g.properties.id,
