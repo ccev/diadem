@@ -20,8 +20,6 @@ const config = {
 			serviceWorker: "src/lib/serviceWorker/index.ts"
 		},
 		serviceWorker: {
-			// Keep building the cleanup worker for existing installations, but do not
-			// register it for new visits. It unregisters itself after clearing caches.
 			register: false
 		}
 	},

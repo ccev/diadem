@@ -30,9 +30,6 @@ apply matching Edge TTL rules.
 | `/api/locale/*` | 1 hour | 3 hours |
 | `/assets/*/index.json` | 5 minutes | 12 hours |
 
-`/api/supported-features` is user-specific when authentication is required. User details, settings, permissions, map
-objects, and all non-GET/HEAD requests are private and must never be cached by a CDN.
-
 ## Set up Cloudflare Cache Rules
 
 These are a lot of resources that rarely change, so setting up a CDN for them makes a lot of sense. For the UIcon
@@ -50,9 +47,3 @@ This assumes you're already proxying Diadem through Cloudflare.
 You can set up similar rules for icon set indexes and the public resources listed above. Use an explicit allowlist;
 do not use a blanket Cache Everything rule for `/api/*`.
 
-## Service worker migration
-
-Diadem no longer installs an offline cache because it could delay initial map loading and retain user-specific API
-responses. The next deployment serves a one-time cleanup worker that deletes the old caches and unregisters itself.
-Make sure `/service-worker.js` and `/_app/version.json` are not edge-cached so existing installations receive that
-update immediately.

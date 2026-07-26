@@ -124,7 +124,6 @@ export type Perms = {
 	areas: PermArea[];
 };
 
-/** Area polygons cannot further restrict an unrestricted permission grant. */
 export function removeRedundantPermissionAreas(perms: Perms): Perms {
 	if (!perms.everywhere.includes(Features.ALL)) return perms;
 	return { ...perms, areas: [] };

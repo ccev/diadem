@@ -15,7 +15,7 @@
 	} from "@/lib/services/search.svelte";
 	import type maplibre from "maplibre-gl";
 	import { onShortcutSearch } from "@/lib/utils/keyboard";
-	import { onDestroy, tick } from "svelte";
+	import { onDestroy } from "svelte";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { Features } from "@/lib/utils/features";
@@ -95,7 +95,6 @@
 		if (!searchInitialized) {
 			initSearch(searchOptions);
 			searchInitialized = true;
-			await tick();
 		}
 
 		openSearchModal(searchOptions, map);
