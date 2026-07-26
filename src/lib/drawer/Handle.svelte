@@ -5,9 +5,11 @@
 	let { class: class_ = "", ...props }: HTMLButtonAttributes = $props();
 	const state = getDrawerContext();
 
+	const snapPoints = $derived(state.options.getSnapPoints());
+	const isTogglable = $derived((snapPoints?.length ?? 0) >= 2);
+
 	function toggleSnapPoint() {
-		const snapPoints = state.options.getSnapPoints();
-		if (!snapPoints || snapPoints.length < 2) return;
+		if (!isTogglable) return;
 
 		const currentIndex = Math.max(
 			0,
@@ -19,9 +21,11 @@
 
 <button
 	type="button"
+	disabled={!isTogglable}
 	aria-label="Toggle drawer size"
-	aria-expanded={state.snapPoint === state.options.getSnapPoints()?.at(-1)}
-	class="mx-auto flex h-7 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full touch-none {class_}"
+	aria-expanded={state.snapPoint === snapPoints?.at(-1)}
+	class="mx-auto flex h-7 w-12 shrink-0 items-center justify-center rounded-full touch-none {class_}"
+	class:cursor-pointer={isTogglable}
 	{...props}
 	onclick={toggleSnapPoint}
 >
