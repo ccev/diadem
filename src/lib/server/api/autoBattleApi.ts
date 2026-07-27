@@ -1,5 +1,6 @@
+import { serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { getServerConfig } from "@/lib/services/config/config.server";
-import { reverseGeocode } from "@/lib/services/geocoding.server";
+import { reverseGeocode } from "@/lib/services/geocoding";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("autoBattle");
@@ -67,7 +68,12 @@ export async function enrichAutoBattleResponse(response: Response) {
 		const data = await response.json();
 		const battle = data.battle ?? data;
 		if (typeof battle.latitude === "number" && typeof battle.longitude === "number") {
-			battle.address = (await reverseGeocode(battle.latitude, battle.longitude)) ?? "Unknown";
+			const result = await reverseGeocode({
+				lat: battle.latitude,
+				lon: battle.longitude,
+				language: undefined,
+			});
+			battle.address = [result?.city, result?.country].filter(Boolean).join(", ") || "Unknown";
 		}
 		return Response.json(data, { status: response.status });
 	} catch (error) {

@@ -1,5 +1,5 @@
 import { getClientConfig } from "@/lib/services/config/config.server";
-import { searchAddress } from "@/lib/services/geocoding.server";
+import { searchAddress } from "@/lib/services/geocoding";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { getLogger } from "@/lib/utils/logger";
 import { json } from "@sveltejs/kit";
@@ -13,7 +13,7 @@ export async function GET({ params, url }) {
 	const lat = url.searchParams.get("lat");
 	const lon = url.searchParams.get("lon");
 
-	const result = await searchAddress(params.query, lang, lat, lon);
+	const result = await searchAddress({ query: params.query, language: lang, lat, lon });
 
 	log.info("Succcessfully serving address search results");
 
