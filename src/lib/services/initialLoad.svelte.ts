@@ -51,23 +51,25 @@ async function loadingWrapper<T>(func: Promise<T>, loadedFeature: LoadedFeature)
 }
 
 export async function load() {
+	const userDetails = loadingWrapper(updateUserDetails(), LoadedFeature.USER_DETAILS);
+	const serverUserSettings = (async () => {
+		await userDetails;
+		if (browser && getUserDetails().details) {
+			await getUserSettingsFromServer();
+		}
+		loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS);
+	})();
+
 	await Promise.all([
 		loadingWrapper(initAllIconSets(), LoadedFeature.ICON_SETS),
 		loadingWrapper(loadMasterFile(), LoadedFeature.MASTER_FILE),
 		loadingWrapper(loadKojiGeofences(), LoadedFeature.KOJI),
 		loadingWrapper(updateSupportedFeatures(), LoadedFeature.SUPPORTED_FEATURES),
 		loadingWrapper(loadMasterStats(), LoadedFeature.MASTER_STATS),
-		loadingWrapper(updateUserDetails(), LoadedFeature.USER_DETAILS),
+		userDetails,
+		serverUserSettings,
 		loadingWrapper(loadRemoteLocale(getLocale()), LoadedFeature.REMOTE_LOCALE)
 	]);
 
-	if (browser) {
-		if (getUserDetails().details) {
-			await getUserSettingsFromServer();
-		}
-
-		await loadRemoteLocale(getLocale());
-	}
-
-	loadedFeatures.push(LoadedFeature.SERVER_USER_SETTINGS);
+	if (browser) await loadRemoteLocale(getLocale());
 }

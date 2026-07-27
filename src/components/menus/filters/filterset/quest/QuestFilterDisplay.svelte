@@ -10,6 +10,7 @@
 	import * as m from "@/lib/paraglide/messages";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import {
+		getAttributeLabelPokecoins,
 		getAttributeLabelStardust,
 		getAttributeLabelXp
 	} from "@/lib/features/filters/filterUtilsQuest";
@@ -145,6 +146,13 @@
 
 	{#if data.stardust}
 		<AttributeDisplay label={m.stardust()} value={getAttributeLabelStardust(data.stardust)} />
+	{/if}
+
+	{#if data.pokecoins}
+		<AttributeDisplay
+			label={m.reward_pokecoins()}
+			value={getAttributeLabelPokecoins(data.pokecoins)}
+		/>
 	{/if}
 
 	{#if data.xp}

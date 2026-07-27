@@ -6,7 +6,8 @@ import {
 	addMapObjects,
 	clearAllMapObjects,
 	clearMapObjects,
-	getMapObjects
+	getMapObjects,
+	replaceMapObjects
 } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
@@ -132,19 +133,17 @@ export async function updateMapObject(
 		}
 	}
 
-	// TODO: we shouldn't clear stuff that's still kept after. svelte will
-	// run effects in-between clearing and adding
-	if (removeOld && !isDelta && data) {
-		clearMapObjects(type);
-	}
-
 	if (!data) {
 		if (!signal) updateFeatures(getMapObjects());
 		return;
 	}
 
 	try {
-		addMapObjects(data, type, examined, isDelta);
+		if (removeOld && !isDelta) {
+			replaceMapObjects(data, type, examined);
+		} else {
+			addMapObjects(data, type, examined, isDelta);
+		}
 	} catch (e) {
 		console.log(data);
 		console.error(e);

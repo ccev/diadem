@@ -23,6 +23,7 @@
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
 	import {
+		getAttributeLabelPokecoins,
 		getAttributeLabelStardust,
 		getAttributeLabelXp,
 		questBounds
@@ -164,6 +165,35 @@
 										"stardust",
 										questBounds.stardust.min,
 										questBounds.stardust.max,
+										min,
+										max
+									)}
+							/>
+						{/snippet}
+					</Attribute>
+				{/if}
+
+				{#if hasReward(RewardType.POKECOINS)}
+					<Attribute label={rewardTypeLabel(RewardType.POKECOINS)}>
+						<AttributeChip
+							label={getAttributeLabelPokecoins(data.pokecoins)}
+							isEmpty={!data.pokecoins}
+							onremove={() => delete data.pokecoins}
+						/>
+						{#snippet page(thisData: FiltersetQuest)}
+							<SliderRange
+								min={questBounds.pokecoins.min}
+								max={questBounds.pokecoins.max}
+								step={1}
+								title={rewardTypeLabel(RewardType.POKECOINS)}
+								valueMin={thisData.pokecoins?.min ?? questBounds.pokecoins.min}
+								valueMax={thisData.pokecoins?.max ?? questBounds.pokecoins.max}
+								onchange={([min, max]) =>
+									changeAttributeMinMax(
+										thisData,
+										"pokecoins",
+										questBounds.pokecoins.min,
+										questBounds.pokecoins.max,
 										min,
 										max
 									)}

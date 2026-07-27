@@ -16,6 +16,12 @@ import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokest
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 import { getDefaultPokestopFilter, RewardType } from "@/lib/utils/pokestopUtils";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
+import {
+	closeOverlay,
+	isReconcilingOverlays,
+	openOverlay,
+	registerOverlayHandler
+} from "@/lib/ui/overlays.svelte";
 import { m } from "@/lib/paraglide/messages";
 import { mPokemon } from "$lib/services/ingameLocale";
 
@@ -27,28 +33,9 @@ export type ActiveSearchParams = {
 
 let activeSearchSvelte: ActiveSearchParams | undefined = $state(undefined);
 
-// setActiveSearch({
-// 	name: "Vulpix (Alola)",
-// 	mapObject: MapObjectType.POKEMON,
-// 	filter: {
-// 		category: "pokemon",
-// 		enabled: true,
-// 		filters: [
-// 			{
-// 				id: "searchOverwrite",
-// 				enabled: true,
-// 				title: { message: "unknown_filter" },
-// 				icon: { isUserSelected: false },
-// 				pokemon: [
-// 					{
-// 						pokemon_id: 37,
-// 						form: 56
-// 					}
-// 				]
-// 			}
-// 		]
-// 	} as FilterPokemon
-// });
+registerOverlayHandler("active-search", (entries) => {
+	if (entries.length === 0 && activeSearchSvelte) resetActiveSearchFilter();
+});
 
 export function getActiveSearch() {
 	return activeSearchSvelte;
@@ -62,11 +49,13 @@ export function setActiveSearch(newParams: ActiveSearchParams) {
 	activeSearchSvelte = newParams;
 	deleteAllFeatures();
 	updateAllMapObjects().then();
+	if (!isReconcilingOverlays()) openOverlay({ kind: "active-search", id: "banner" });
 }
 
 export function clearActiveSearchFilter() {
 	activeSearchSvelte = undefined;
 	deleteAllFeatures();
+	if (!isReconcilingOverlays()) closeOverlay({ kind: "active-search", id: "banner" });
 }
 
 export function resetActiveSearchFilter() {
@@ -74,9 +63,7 @@ export function resetActiveSearchFilter() {
 	updateAllMapObjects().then();
 }
 
-export function setActiveSearchPokemon(
-	pokemon: { pokemon_id: number; form?: number }
-) {
+export function setActiveSearchPokemon(pokemon: { pokemon_id: number; form?: number }) {
 	setActiveSearch({
 		name: mPokemon(pokemon),
 		mapObject: MapObjectType.POKEMON,
@@ -132,6 +119,9 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 			break;
 		case RewardType.STARDUST:
 			filterset.stardust = { min: 0, max: Infinity };
+			break;
+		case RewardType.POKECOINS:
+			filterset.pokecoins = { min: 0, max: Infinity };
 			break;
 	}
 

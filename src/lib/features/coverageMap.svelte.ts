@@ -2,11 +2,18 @@ import { goto } from "$app/navigation";
 import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
 import { CoverageMapLayerId } from "@/lib/map/layers";
 import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
-import { Menu, openMenu, setJustChangedMenus } from "@/lib/ui/menus.svelte";
 import { getFeatureJump } from "@/lib/utils/geo";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Polygon } from "geojson";
 import maplibre from "maplibre-gl";
+import {
+	clearOverlays,
+	closeOverlay,
+	getOverlayPayload,
+	isReconcilingOverlays,
+	openOverlay,
+	registerOverlayHandler
+} from "@/lib/ui/overlays.svelte";
 
 type CoverageMapAreaFeature = Feature<Polygon, CoverageMapAreaProperties>;
 export type CoverageMapAreaProperties = {
@@ -21,6 +28,10 @@ let clickedAreas: KojiFeature[] | undefined = $state(undefined);
 let coverageMap: maplibre.Map | undefined = $state(undefined);
 let invokedFromMap: boolean = $state(false);
 
+registerOverlayHandler("coverage-popup", (entries) => {
+	clickedAreas = getOverlayPayload<KojiFeature[]>(entries.at(-1));
+});
+
 export function coverageMapClickHandler(event: maplibre.MapMouseEvent) {
 	if (event.originalEvent.defaultPrevented) return;
 
@@ -31,17 +42,18 @@ export function coverageMapClickHandler(event: maplibre.MapMouseEvent) {
 		layers: [CoverageMapLayerId.POLYGON_FILL]
 	}) as CoverageMapAreaFeature[];
 
-	if (areas.length === 0) {
-		clickedAreas = undefined;
-	} else {
-		clickedAreas = [...new Map(areas.map((x) => [x.properties.id, x])).values()];
-	}
+	setClickedCoverageMapAreas([...new Map(areas.map((x) => [x.properties.id, x])).values()]);
 }
 
 export function openCoverageMap() {
+	clearOverlays();
+	const navigation = goto("/coverage");
+	prepareOpenCoverageMap();
+	return navigation;
+}
+
+export function prepareOpenCoverageMap() {
 	invokedFromMap = true;
-	setJustChangedMenus();
-	goto("/coverage").then();
 }
 
 export function getCoverageMapAreas(): FeatureCollection<Polygon, CoverageMapAreaProperties> {
@@ -50,7 +62,7 @@ export function getCoverageMapAreas(): FeatureCollection<Polygon, CoverageMapAre
 		const fillColor = styles.getPropertyValue("--coverage-polygon-stroke");
 		const strokeColor = styles.getPropertyValue("--coverage-polygon-fill");
 		return featureCollection(
-			getKojiGeofences().map((g, i) => {
+			getKojiGeofences().map((g) => {
 				return {
 					...g,
 					id: "koji-" + g.properties.id,
@@ -75,8 +87,11 @@ export function getClickedCoverageMapAreas() {
 	return clickedAreas;
 }
 
-export function setClickedCoverageMapAreas(features: KojiFeature[]) {
-	clickedAreas = features;
+export function setClickedCoverageMapAreas(features: KojiFeature[] | undefined) {
+	clickedAreas = features?.length ? features : undefined;
+	if (isReconcilingOverlays()) return;
+	if (clickedAreas) openOverlay({ kind: "coverage-popup", id: "areas", data: clickedAreas });
+	else closeOverlay({ kind: "coverage-popup", id: "areas" });
 }
 
 export function selectCoverageMapArea(area: KojiFeature) {

@@ -59,6 +59,9 @@
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import type { AnyFilterset } from "$lib/features/filters/filtersets";
+	import { getIconBackground } from "$lib/services/uicons.svelte";
+	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
+	import { setActiveSearchRaidBoss } from "$lib/features/activeSearch.svelte.ts";
 	import { setActiveSearchMaxBattleBoss } from "$lib/features/activeSearch.svelte";
 
 	export { image, overview, main };
@@ -114,10 +117,6 @@
 			filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled))
 		);
 	}
-</script>
-<script>
-	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
-	import { setActiveSearchRaidBoss } from "$lib/features/activeSearch.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -351,11 +350,21 @@
 								{#each data.defenders as defender}
 									<div class="min-w-64 max-w-80 rounded-md bg-accent-highlight p-5">
 										<div class="flex items-center gap-3">
-											<ImagePopup
-												class="size-12 shrink-0"
-												src={getIconPokemon(defender)}
-												alt={mPokemon(defender)}
-											/>
+											<div class="size-12 shrink-0 relative">
+												<ImagePopup
+													class="absolute size-full z-10"
+													src={getIconPokemon(defender)}
+													alt={mPokemon(defender)}
+												/>
+												{#if defender.background}
+													<ImagePopup
+														class="absolute size-12 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+														src={resize(getIconBackground(defender.background), {width: 64})}
+														alt={m.background()}
+													/>
+												{/if}
+											</div>
+
 											<div class="min-w-0">
 												<p class="truncate font-semibold">
 													{mPokemon(defender)}

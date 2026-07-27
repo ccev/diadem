@@ -8,6 +8,7 @@
 	import OverviewCard from "@/components/ui/popups/common/OverviewCard.svelte";
 	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import {
+		getIconBackground,
 		getIconInvasion,
 		getIconItem,
 		getIconPokemon,
@@ -66,6 +67,7 @@
 	import { getActiveSearchQuestParams } from "$lib/services/search.svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import AboutFort from "@/components/ui/popups/common/AboutFort.svelte";
+	import { givesQuestBackground } from "$lib/utils/pokestopUtils";
 
 	export { image, overview, main };
 
@@ -146,10 +148,20 @@
 		<OverviewCard Icon={QuestIcon} title={m.pogo_quest()}>
 			<BigIconOverview>
 				{#snippet image()}
-					<ImagePopup
-						src={getIconReward(quest.reward.type, quest.reward.info)}
-						alt={getRewardText(quest.reward)}
-					/>
+					<div class="relative size-12">
+						<ImagePopup
+							class="absolute size-full z-10"
+							src={getIconReward(quest.reward.type, quest.reward.info)}
+							alt={getRewardText(quest.reward)}
+						/>
+						{#if givesQuestBackground(quest)}
+							<ImagePopup
+								class="absolute size-full scale-105 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+								src={resize(getIconBackground(quest.reward.info.background), { width: 64 })}
+								alt={m.background()}
+							/>
+						{/if}
+					</div>
 				{/snippet}
 
 				{#snippet title()}
@@ -303,13 +315,42 @@
 				{#if !quest}
 					{m.no_quest_scanned_today()}
 				{:else}
-					<MainCardBigIcon
-						src={getIconReward(quest.reward.type, quest.reward.info)}
-						alt={getRewardText(quest.reward)}
-						title={getRewardText(quest.reward)}
-					/>
+					<div
+						class="mb-3 flex items-center gap-2"
+						class:gap-3!={givesQuestBackground(quest)}
+					>
+						<div
+							class="relative size-7 shrink-0"
+							class:size-9!={givesQuestBackground(quest)}
+						>
+							<ImagePopup
+								class="absolute size-full z-10"
+								src={getIconReward(quest.reward.type, quest.reward.info)}
+								alt={getRewardText(quest.reward)}
+							/>
+							{#if givesQuestBackground(quest)}
+								<ImagePopup
+									class="absolute size-full scale-125 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+									src={resize(getIconBackground(quest.reward.info.background), { width: 64 })}
+									alt={m.background()}
+								/>
+							{/if}
+						</div>
+						<div>
+							<h3 class="font-semibold">
+								{getRewardText(quest.reward)}
+							</h3>
+							{#if givesQuestBackground(quest)}
+								<p class="flex gap-1.5 text-muted-foreground">
+									<Flower class="size-3.5 mt-1 shrink-0" />
+									{m.with_background()}
+								</p>
+							{/if}
+						</div>
 
-					<div class="bg-accent-highlight rounded-md py-3 px-4">
+					</div>
+
+					<div class="bg-accent-highlight rounded-md py-3 px-4 mb-3">
 						<p class="text-muted-foreground text-sm">
 							{m.task()}
 						</p>
@@ -319,7 +360,6 @@
 					</div>
 
 					<StatsMainCardEntry
-						class="mt-3"
 						Icon={Clock}
 						name={m.popup_found()}
 						value={timestampToLocalTime(quest.timestamp, { showDate: true, showSeconds: false, dayLowerCase: false })}
@@ -554,12 +594,19 @@
 										</p>
 									</div>
 									<div class="flex items-end text-right">
-										<div class="size-12 shrink-0 -mr-5 z-10 mb-3">
+										<div class="size-12 shrink-0 -mr-5 z-10 mb-3 relative">
 											<ImagePopup
 												src={getIconPokemon(entry)}
 												alt={mPokemon(entry)}
-												class="size-12"
+												class="absolute size-full z-10"
 											/>
+											{#if entry.background}
+												<ImagePopup
+													class="absolute size-12 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+													src={resize(getIconBackground(entry.background), {width: 64})}
+													alt={m.background()}
+												/>
+											{/if}
 										</div>
 										<span class="font-black text-7xl text-muted-foreground/50">
 											{entry.rank}

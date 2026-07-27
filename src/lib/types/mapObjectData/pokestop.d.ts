@@ -83,6 +83,7 @@ export type QuestData = {
 	target: number;
 	timestamp: number;
 	expires: number;
+	template: string;
 };
 
 export type ContestEntry = {
@@ -97,7 +98,7 @@ export type ContestEntry = {
 	temp_evolution_finish_ms: number;
 	alignment: number;
 	badge: number;
-	location_card: number;
+	background: number;
 };
 
 export type ContestRankings = {

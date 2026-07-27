@@ -35,6 +35,7 @@
 			data.candy ||
 			data.xlCandy ||
 			data.stardust ||
+			data.pokecoins ||
 			data.xp
 		);
 	}
@@ -96,6 +97,10 @@
 		}
 		if (data.stardust && reward.type === RewardType.STARDUST) {
 			if (reward.info.amount >= data.stardust.min && reward.info.amount <= data.stardust.max)
+				return true;
+		}
+		if (data.pokecoins && reward.type === RewardType.POKECOINS) {
+			if (reward.info.amount >= data.pokecoins.min && reward.info.amount <= data.pokecoins.max)
 				return true;
 		}
 		if (data.xp && reward.type === RewardType.XP) {

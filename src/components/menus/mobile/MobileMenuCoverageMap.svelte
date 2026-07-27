@@ -43,7 +43,7 @@
 				<Drawer.Popup
 					class="drawer-popup rounded-t-xl flex flex-col px-2 py-2 w-full h-full border border-t-border bg-card/60 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
 				>
-					<div class="w-10 mx-auto mb-2 rounded-full bg-ring h-1 shrink-0"></div>
+					<Drawer.Handle class="mb-1" />
 					<Drawer.Content
 						class="{contentClass} min-h-0 flex-1 bg-background rounded-lg border border-border"
 					>

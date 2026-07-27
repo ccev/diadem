@@ -66,7 +66,6 @@
 		return Boolean(data.battle_pokemon_id && (data.end_time ?? 0) < currentTimestamp());
 	}
 </script>
-
 <script>
 	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
 	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
@@ -82,6 +81,7 @@
 	import { getStationAttackBonus } from "$lib/utils/stationUtils";
 	import { formatPercentage } from "$lib/utils/numberFormat";
 	import InvasionLineupEntry from "@/components/ui/popups/common/InvasionLineupEntry.svelte";
+	import { getIconBackground } from "$lib/services/uicons.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -238,13 +238,22 @@
 					<div class="-mx-4 mt-3">
 						<div class="w-full flex overflow-x-auto *:shrink-0 gap-3 px-4 mt-2">
 							{#each data.stationed_pokemon as pokemon}
-								<div class="rounded-md p-4 bg-accent-highlight">
-									<div class="size-10">
+								<div
+									class="rounded-md p-4 bg-accent-highlight"
+								>
+									<div class="size-10 relative">
 										<ImagePopup
-											class="size-10"
+											class="absolute size-full z-10"
 											src={resize(getIconPokemon(pokemon), { width: 64 })}
 											alt={mPokemon(pokemon)}
 										/>
+										{#if pokemon.background}
+											<ImagePopup
+												class="absolute size-10 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+												src={resize(getIconBackground(defender.background), {width: 64})}
+												alt={m.background()}
+											/>
+										{/if}
 									</div>
 								</div>
 							{/each}
@@ -277,7 +286,10 @@
 		</TitledMainSection>
 	{/if}
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_power_spot()}>
+	<TitledMainSection
+		Icon={CircleDot}
+		title={m.access_this_power_spot()}
+	>
 		<MainAccessMap
 			lat={data.lat}
 			lon={data.lon}
