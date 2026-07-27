@@ -3,8 +3,9 @@
 	import * as m from "$lib/paraglide/messages";
 	import { mMove, mPokemon, mRaid, mTeam } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
-	import type { GymData, GymDefender } from "$lib/types/mapObjectData/gym";
+	import type { GymData } from "$lib/types/mapObjectData/gym";
 	import {
+		getIconBackground,
 		getIconGym,
 		getIconPokemon,
 		getIconRaidEgg,
@@ -12,13 +13,7 @@
 	} from "$lib/services/uicons.svelte";
 	import { resize } from "$lib/services/assets";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
-	import {
-		getRaidPokemon,
-		GYM_SLOTS,
-		hasActiveRaid,
-		isFortOutdated,
-		isRaidHatched
-	} from "$lib/utils/gymUtils";
+	import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from "$lib/utils/gymUtils";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
@@ -48,8 +43,7 @@
 		Star,
 		Swords,
 		UserRoundCheck,
-		UsersRound,
-		Ticket
+		UsersRound
 	} from "@lucide/svelte";
 	import { getActiveRaidsForLevel } from "$lib/features/masterStats.svelte";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
@@ -59,10 +53,8 @@
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import type { AnyFilterset } from "$lib/features/filters/filtersets";
-	import { getIconBackground } from "$lib/services/uicons.svelte";
 	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
 	import { setActiveSearchRaidBoss } from "$lib/features/activeSearch.svelte.ts";
-	import { setActiveSearchMaxBattleBoss } from "$lib/features/activeSearch.svelte";
 
 	export { image, overview, main };
 

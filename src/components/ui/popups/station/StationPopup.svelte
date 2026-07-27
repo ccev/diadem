@@ -5,10 +5,11 @@
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { StationData } from "$lib/types/mapObjectData/station";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
-	import { formatNumber } from "$lib/utils/numberFormat";
+	import { formatNumber, formatPercentage } from "$lib/utils/numberFormat";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import {
 		calculateMaxBattleCp,
+		getStationAttackBonus,
 		getStationPokemon,
 		isMaxBattleActive,
 		STATION_SLOTS
@@ -22,7 +23,6 @@
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import MainCardBigIcon from "@/components/ui/popups/common/MainCardBigIcon.svelte";
 	import OverviewCard from "@/components/ui/popups/common/OverviewCard.svelte";
-	import PokemonStatsCard from "@/components/ui/popups/common/PokemonStatsCard.svelte";
 	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
 	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
@@ -30,18 +30,23 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import {
-		ChartSpline,
+		Calculator,
 		CircleDot,
 		Clock,
-		ClockArrowDown,
-		ClockArrowUp,
+		HandFist,
+		Heart,
 		Info,
 		MapPinned,
-		Search,
+		SquareEqual,
 		Star,
+		Sword,
 		Swords,
+		Timer,
 		UsersRound
 	} from "@lucide/svelte";
+	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
+	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
+	import { getIconBackground } from "$lib/services/uicons.svelte.ts";
 
 	export { image, overview, main };
 
@@ -65,23 +70,6 @@
 	function hasLastMaxBattle(data: StationData) {
 		return Boolean(data.battle_pokemon_id && (data.end_time ?? 0) < currentTimestamp());
 	}
-</script>
-<script>
-	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
-	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
-	import {
-		Calculator,
-		HandFist,
-		Heart,
-		ShieldHalf,
-		SquareEqual,
-		Sword,
-		Timer
-	} from "@lucide/svelte";
-	import { getStationAttackBonus } from "$lib/utils/stationUtils";
-	import { formatPercentage } from "$lib/utils/numberFormat";
-	import InvasionLineupEntry from "@/components/ui/popups/common/InvasionLineupEntry.svelte";
-	import { getIconBackground } from "$lib/services/uicons.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
