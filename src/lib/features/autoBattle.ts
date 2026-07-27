@@ -1,5 +1,6 @@
 import type { GymData } from "$lib/types/mapObjectData/gym";
 import type { StationData } from "$lib/types/mapObjectData/station";
+import { getLocale } from "@/lib/paraglide/runtime";
 import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 
 export type BattleType = "raid" | "max_battle";
@@ -140,8 +141,9 @@ export function getRemoteInvite(data: GymData | StationData) {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+	const separator = path.includes("?") ? "&" : "?";
 	const response = await fetch(
-		`/api/${path.startsWith("user/") ? "" : "auto-battle/"}${path}`,
+		`/api/${path.startsWith("user/") ? "" : "auto-battle/"}${path}${separator}lang=${getLocale()}`,
 		init
 	);
 	const text = await response.text();

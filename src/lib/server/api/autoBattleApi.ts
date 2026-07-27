@@ -68,10 +68,11 @@ export async function enrichAutoBattleResponse(response: Response) {
 		const data = await response.json();
 		const battle = data.battle ?? data;
 		if (typeof battle.latitude === "number" && typeof battle.longitude === "number") {
+			const locale = serverAsyncLocalStorage?.getStore()?.locale;
 			const result = await reverseGeocode({
 				lat: battle.latitude,
 				lon: battle.longitude,
-				language: undefined,
+				language: locale
 			});
 			battle.address = [result?.city, result?.country].filter(Boolean).join(", ") || "Unknown";
 		}
