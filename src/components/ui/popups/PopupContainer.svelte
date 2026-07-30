@@ -18,6 +18,11 @@
 	import { isAllowedTwoSidebars } from "$lib/utils/device";
 	import { closeMenu } from "$lib/ui/menus.svelte";
 	import { isSearchViewActive } from "$lib/features/activeSearch.svelte";
+	import {
+		centerRequestedMapObjectIfPopupCovers,
+		getPopupVisibilityRequest,
+		type PopupVisibilityRequest
+	} from "$lib/mapObjects/popupVisibility.svelte";
 
 	let {
 		alwaysExpanded = false
@@ -38,6 +43,29 @@
 	let data = $derived(getCurrentSelectedData());
 	let doesDataExist = $derived(Boolean(data && data.type !== MapObjectType.S2_CELL));
 	let snapshotData: MapData | undefined = $state(undefined);
+	let popupWidth = 0;
+	let pendingVisibilityRequest: PopupVisibilityRequest | undefined;
+
+	function checkPopupVisibility() {
+		if (!pendingVisibilityRequest || !popupWidth) return;
+
+		const request = pendingVisibilityRequest;
+		pendingVisibilityRequest = undefined;
+		centerRequestedMapObjectIfPopupCovers(request, { width: popupWidth });
+	}
+
+	function updatePopupWidth(width: number | undefined) {
+		popupWidth = width ?? 0;
+		checkPopupVisibility();
+	}
+
+	watch(
+		() => getPopupVisibilityRequest(),
+		(request) => {
+			pendingVisibilityRequest = alwaysExpanded ? request : undefined;
+			checkPopupVisibility();
+		}
+	);
 
 	watch(
 		() => data,
@@ -59,6 +87,7 @@
 {#if alwaysExpanded}
 	{#if doesDataExist}
 		<div
+			bind:offsetWidth={null, updatePopupWidth}
 			class="h-full min-w-80 max-w-110 basis-110 shrink grow-0"
 			transition:fly={{ duration: 130, x: 120 }}
 			class:pt-18={isSearchViewActive()}

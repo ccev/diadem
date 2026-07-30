@@ -9,6 +9,10 @@ import {
 } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
+import {
+	clearPopupVisibilityCheck,
+	requestPopupVisibilityCheck
+} from "@/lib/mapObjects/popupVisibility.svelte";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { getConfig } from "@/lib/services/config/config";
 import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
@@ -30,6 +34,7 @@ registerOverlayHandler("map-popup", (entries) => {
 });
 
 export function closePopup() {
+	clearPopupVisibilityCheck();
 	setCurrentSelectedData(null);
 	if (!closeOverlay({ kind: "map-popup", id: "selected" }, getCurrentPath())) setCurrentPath();
 
@@ -87,7 +92,9 @@ export function clickMapHandler(event: MapMouseEvent) {
 			) ?? mapFeatures[0];
 
 		if (feature) {
-			openPopup(getMapObjects()[feature.properties.id]);
+			const data = getMapObjects()[feature.properties.id];
+			requestPopupVisibilityCheck(data);
+			openPopup(data);
 		} else {
 			closeMenu();
 			closePopup();
