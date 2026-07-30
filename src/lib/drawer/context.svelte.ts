@@ -328,7 +328,19 @@ export class DrawerState {
 		this.swipeDismissed = true;
 		this.swiping = false;
 		this.parent?.setNestedSwipe(false, 0);
-		if (!this.requestOpen(false, "swipe", event)) this.resetSwipe();
+		if (!this.requestOpen(false, "swipe", event)) {
+			const vertical = this.swipeDirection === "up" || this.swipeDirection === "down";
+			if (vertical && this.resolvedSnapPoints.length) {
+				const dragTarget = Math.min(size, Math.max(0, this.activeOffset + delta));
+				let closest = this.resolvedSnapPoints[0];
+				for (const point of this.resolvedSnapPoints) {
+					if (Math.abs(point.offset - dragTarget) < Math.abs(closest.offset - dragTarget))
+						closest = point;
+				}
+				this.changeSnapPoint(closest.value, createChangeDetails("swipe", event));
+			}
+			this.resetSwipe();
+		}
 	}
 
 	resetSwipe() {

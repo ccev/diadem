@@ -47,7 +47,7 @@ config/*
 
 # Assistant files
 .claude
-CLAUDE.md
+AGENTS.md
 
 # VSCode
 .vscode
