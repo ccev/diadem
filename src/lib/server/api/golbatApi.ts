@@ -10,6 +10,7 @@ export type PokemonResponse = {
 	examined: number;
 	skipped: number;
 	total: number;
+	limit_reached?: boolean;
 };
 
 const log = getLogger("golbat");

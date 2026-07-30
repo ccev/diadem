@@ -7,6 +7,8 @@ import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/
 export type MapObjectResponse<T> = {
 	examined: number;
 	data: T[];
+	/** True when more objects matched than the request limit allows. No data is returned in that case. */
+	limitReached?: boolean;
 };
 
 export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
@@ -53,6 +55,15 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MapObject>> {
 		const result = await this.query(bounds, filter, polygon, since, limit, context);
+
+		if (result.limitReached) {
+			return {
+				examined: result.examined,
+				data: [],
+				limitReached: true
+			};
+		}
+
 		for (const item of result.data) {
 			this.prepare(item, context);
 		}
@@ -105,8 +116,19 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 		return defaultBuildSpatialFilter(polygon, bounds, this.pointExpr);
 	}
 
-	private buildSelectFrom(): string {
+	protected buildSelectFrom(): string {
 		return `SELECT ${this.fields.join(",")} FROM ${this.table} ${this.joins}`;
+	}
+
+	protected buildLimitedQuery(
+		whereSql: string,
+		values: unknown[],
+		actualLimit: number
+	): { sql: string; values: unknown[] } {
+		return {
+			sql: this.buildSelectFrom() + whereSql + ` LIMIT ${actualLimit + 1}`,
+			values
+		};
 	}
 
 	async query(
@@ -131,12 +153,22 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 
-		const sql =
-			this.buildSelectFrom() + " WHERE " + whereClauses.join(" AND ") + ` LIMIT ${actualLimit}`;
+		const whereSql = " WHERE " + whereClauses.join(" AND ");
+		const limitedQuery = this.buildLimitedQuery(whereSql, values, actualLimit);
+		const result = await this.executeQuery<MinMapObject<MapObject>[]>(
+			limitedQuery.sql,
+			limitedQuery.values
+		);
 
-		const result = await this.executeQuery<MinMapObject<MapObject>[]>(sql, values);
+		if (result.length <= actualLimit) {
+			return { data: result, examined: result.length };
+		}
 
-		return { data: result, examined: result.length };
+		return {
+			data: [],
+			examined: actualLimit,
+			limitReached: true
+		};
 	}
 
 	async querySingle(id: string): Promise<MinMapObject<MapObject>[]> {

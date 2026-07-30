@@ -50,6 +50,10 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			const data: MinMapObject<PokemonData>[] = [];
 			let examined = result.examined;
 
+			if (result.limit_reached) {
+				return { data: [], examined, limitReached: true }
+			}
+
 			for (const p of result.pokemon) {
 				if (since && (p.updated ?? 0) < since) {
 					continue;

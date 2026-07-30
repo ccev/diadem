@@ -664,5 +664,8 @@
 	"quest_pokecoins": "{count} Pokécoins",
 	"count_pokecoins": "{count} Pokécoins",
 	"background": "Hintergrund",
-	"with_background": "Mit Hintergrund"
+	"with_background": "Mit Hintergrund",
+	"map_limit_title": "Limit erreicht",
+	"map_limit_zoom_hint": "Zoome weiter herein, um mehr {objects} zu sehen",
+	"pogo_data": "Daten"
 }
