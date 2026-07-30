@@ -1,0 +1,4 @@
+- More & prettier detail views for objects on the map
+- Support back gestures to dismiss overlays
+- Support backgrounds, new quests and raids
+- Various fixes and improvements
