@@ -214,6 +214,11 @@ Umbrella wildcards bundle several of the above:
 Route access is evaluated by path intersection. The complete route is returned when any part of
 its path intersects the visible portion of the user's permitted area.
 
+Routes are standalone objects: route endpoints are rendered and clickable with route permission
+alone, even without `pokestop*` or `gym*`. Endpoint popups only expose basic fort information
+(name, image and position). Separate fort permissions are required to see live fort data such as
+raids, quests or invasions.
+
 ## `server.limits`
 
 Rate-limiting is pretty bare-bones, but should work.

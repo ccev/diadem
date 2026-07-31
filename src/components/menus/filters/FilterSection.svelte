@@ -16,7 +16,6 @@
 	import type { AnyFilter, FilterCategory } from "@/lib/features/filters/filters";
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import { getIconPokemon } from "@/lib/services/uicons.svelte";
-	import type { Snippet } from "svelte";
 	import {
 		getUserSettings,
 		updateUserSettings,
@@ -36,9 +35,7 @@
 		mapObject,
 		filterModal = undefined,
 		isFilterable = true,
-		subCategories = [],
-		attachedControls = undefined,
-		attachedPermissions = []
+		subCategories = []
 	}: {
 		requiredPermission: FeaturesKey | FeaturesKey[];
 		title: string;
@@ -53,8 +50,6 @@
 			filterModal?: ModalType;
 			filterable?: boolean;
 		}[];
-		attachedControls?: Snippet;
-		attachedPermissions?: FeaturesKey | FeaturesKey[];
 	} = $props();
 
 	const primaryFeatures = $derived(
@@ -62,8 +57,7 @@
 	);
 	const sectionFeatures = $derived([
 		...primaryFeatures,
-		...subCategories.map((subcategory) => subcategory.requiredPermission),
-		...(Array.isArray(attachedPermissions) ? attachedPermissions : [attachedPermissions])
+		...subCategories.map((subcategory) => subcategory.requiredPermission)
 	]);
 
 	let subcategoriesExpanded: boolean = $state(
@@ -85,7 +79,8 @@
 		});
 
 		updateUserSettings();
-		if (mapObject === MapObjectType.POKESTOP) deleteAllFeaturesOfType(MapObjectType.ROUTE);
+		if (mapObject === MapObjectType.POKESTOP || mapObject === MapObjectType.ROUTE)
+			deleteAllFeaturesOfType(MapObjectType.ROUTE);
 		updateAllMapObjects().then();
 	}
 
@@ -147,7 +142,5 @@
 				</div>
 			{/if}
 		{/if}
-
-		{@render attachedControls?.()}
 	</Card>
 {/if}

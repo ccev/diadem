@@ -670,7 +670,7 @@
 	"map_limit_zoom_hint": "Zoom in to see more {objects}",
 	"pogo_data": "data",
 	"routes_starting_here": "Routes starting here",
-	"no_routes_starting_here": "No routes start at this Pokéstop",
+	"no_routes_starting_here": "No routes start here",
 	"show_route": "Show route",
 	"hide_route": "Hide route",
 	"show_all_routes": "Show all routes",

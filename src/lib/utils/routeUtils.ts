@@ -1,4 +1,5 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { Position } from "geojson";
@@ -32,27 +33,51 @@ export function getRouteColor(route: RouteData): string {
 	return /^[0-9a-f]{6}([0-9a-f]{2})?$/i.test(color) ? `#${color}` : "#6366f1";
 }
 
-export function getRouteEndpointPokestop(
+export function getRouteEndpointFort(
 	routes: RouteData[],
 	fortId: string
-): PokestopData | undefined {
+): PokestopData | GymData | undefined {
 	const route = routes.find((route) => routeStartsAt(route, fortId));
 	if (!route) return;
 
-	const isReversed = route.end_fort_id === fortId;
-	return {
+	const isEnd = route.start_fort_id !== fortId && route.end_fort_id === fortId;
+	const type =
+		(isEnd ? route.end_fort_type : route.start_fort_type) === MapObjectType.GYM
+			? MapObjectType.GYM
+			: MapObjectType.POKESTOP;
+	const updated = isEnd ? route.end_fort_updated : route.start_fort_updated;
+	const firstSeen = isEnd ? route.end_fort_first_seen : route.start_fort_first_seen;
+	if (isEnd ? route.end_fort_deleted : route.start_fort_deleted) return;
+	const base = {
 		id: fortId,
-		mapId: `${MapObjectType.POKESTOP}-${fortId}`,
-		type: MapObjectType.POKESTOP,
-		lat: isReversed ? route.end_lat : route.start_lat,
-		lon: isReversed ? route.end_lon : route.start_lon,
-		name: (isReversed ? route.end_name : route.start_name) ?? undefined,
-		url: isReversed ? route.end_image : route.start_image,
-		incident: [],
-		quests: [],
-		updated: route.updated,
+		mapId: `${type}-${fortId}`,
+		lat: isEnd ? route.end_lat : route.start_lat,
+		lon: isEnd ? route.end_lon : route.start_lon,
+		name: (isEnd ? route.end_name : route.start_name) ?? undefined,
+		url: isEnd ? route.end_image : route.start_image,
+		updated: updated ?? route.updated,
 		deleted: 0,
-		first_seen_timestamp: route.updated,
+		first_seen_timestamp: firstSeen ?? updated ?? route.updated,
 		isRouteEndpoint: true
+	};
+
+	if (type === MapObjectType.GYM) {
+		return {
+			...base,
+			type,
+			team_id: (isEnd ? route.end_team_id : route.start_team_id) ?? undefined,
+			availble_slots:
+				(isEnd ? route.end_available_slots : route.start_available_slots) ?? undefined,
+			in_battle: (isEnd ? route.end_in_battle : route.start_in_battle) ?? undefined,
+			ex_raid_eligible:
+				(isEnd ? route.end_ex_raid_eligible : route.start_ex_raid_eligible) ?? undefined
+		};
+	}
+
+	return {
+		...base,
+		type,
+		incident: [],
+		quests: []
 	};
 }

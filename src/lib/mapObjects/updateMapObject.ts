@@ -196,7 +196,7 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 	let limitsToClear: MapObjectType[] = [];
 
 	if (activeSearch) {
-		const loadRoutes = activeSearch.mapObject === MapObjectType.POKESTOP;
+		const loadRoutes = [MapObjectType.POKESTOP, MapObjectType.GYM].includes(activeSearch.mapObject);
 		for (const mapObjectType of allMapObjectTypes) {
 			if (
 				mapObjectType !== activeSearch.mapObject &&

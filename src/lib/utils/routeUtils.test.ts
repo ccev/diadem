@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import {
 	getRouteColor,
 	getRouteCoordinates,
-	getRouteEndpointPokestop,
+	getRouteEndpointFort,
 	routeStartsAt
 } from "@/lib/utils/routeUtils";
 
@@ -43,7 +44,7 @@ describe("route utilities", () => {
 	});
 
 	it("creates a plain Pokestop for a reversible end", () => {
-		const pokestop = getRouteEndpointPokestop(
+		const pokestop = getRouteEndpointFort(
 			[
 				{
 					...route,
@@ -66,5 +67,49 @@ describe("route utilities", () => {
 			quests: [],
 			isRouteEndpoint: true
 		});
+	});
+
+	it("creates a team-colored gym endpoint without raid data", () => {
+		const gym = getRouteEndpointFort(
+			[
+				{
+					...route,
+					start_fort_type: MapObjectType.GYM,
+					start_name: "Route Gym",
+					start_image: "gym.jpg",
+					start_team_id: 2,
+					start_available_slots: 3,
+					start_in_battle: 1,
+					start_ex_raid_eligible: 1,
+					start_fort_updated: 456,
+					start_fort_first_seen: 123
+				}
+			],
+			"start"
+		);
+
+		expect(gym).toMatchObject({
+			id: "start",
+			mapId: "gym-start",
+			type: MapObjectType.GYM,
+			name: "Route Gym",
+			team_id: 2,
+			availble_slots: 3,
+			in_battle: 1,
+			ex_raid_eligible: 1,
+			updated: 456,
+			first_seen_timestamp: 123,
+			isRouteEndpoint: true
+		});
+		expect(gym).not.toHaveProperty("raid_level");
+	});
+
+	it("does not create an endpoint for a deleted fort", () => {
+		expect(
+			getRouteEndpointFort(
+				[{ ...route, start_fort_type: MapObjectType.GYM, start_fort_deleted: 1 }],
+				"start"
+			)
+		).toBeUndefined();
 	});
 });

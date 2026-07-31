@@ -25,7 +25,7 @@ import {
 	setFocusedRouteMapId
 } from "@/lib/features/routes/routeDisplay.svelte";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
-import { getRouteEndpointPokestop } from "@/lib/utils/routeUtils";
+import { getRouteEndpointFort } from "@/lib/utils/routeUtils";
 import {
 	closeOverlay,
 	getOverlayPayload,
@@ -37,17 +37,14 @@ import {
 registerOverlayHandler("map-popup", (entries) => {
 	const entry = entries.at(-1);
 	const selection = getOverlayPayload<{ data: MapData; isOverwrite: boolean }>(entry);
-	if (
-		selection?.data.type === MapObjectType.POKESTOP ||
-		(selection?.data.type === MapObjectType.ROUTE &&
-			getFocusedRouteMapId() !== selection.data.mapId)
-	)
-		setFocusedRouteMapId(null);
+	const focusedRouteMapId = getFocusedRouteMapId();
+	if (focusedRouteMapId && selection?.data.mapId !== focusedRouteMapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(selection?.data ?? null, selection?.isOverwrite ?? false);
 });
 
 export function closePopup() {
 	clearPopupVisibilityCheck();
+	setFocusedRouteMapId(null);
 	setCurrentSelectedData(null);
 	if (!closeOverlay({ kind: "map-popup", id: "selected" }, getCurrentPath())) setCurrentPath();
 
@@ -56,11 +53,8 @@ export function closePopup() {
 }
 
 export function openPopup(data: MapData, isOverwrite: boolean = false) {
-	if (
-		data.type === MapObjectType.POKESTOP ||
-		(data.type === MapObjectType.ROUTE && getFocusedRouteMapId() !== data.mapId)
-	)
-		setFocusedRouteMapId(null);
+	const focusedRouteMapId = getFocusedRouteMapId();
+	if (focusedRouteMapId && focusedRouteMapId !== data.mapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(data, isOverwrite);
 	openOverlay({ kind: "map-popup", id: "selected", data: { data, isOverwrite } }, getCurrentPath());
 }
@@ -75,7 +69,10 @@ export function updateCurrentPath() {
 export function getCurrentPath(options: { data?: MapData } | undefined = undefined) {
 	const data = options?.data ?? getCurrentSelectedData();
 	if (data) {
-		if (data.type === MapObjectType.POKESTOP && data.isRouteEndpoint) {
+		if (
+			(data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) &&
+			data.isRouteEndpoint
+		) {
 			return getMapPath(getConfig());
 		}
 		return `/${data.type}/${data.id}`;
@@ -115,7 +112,7 @@ export function clickMapHandler(event: MapMouseEvent) {
 		if (feature) {
 			let data: MapData | undefined = getMapObjects()[feature.properties.id];
 			if (!data && isFeatureIcon(feature) && feature.properties.routeEndpointFortId) {
-				data = getRouteEndpointPokestop(
+				data = getRouteEndpointFort(
 					Object.values(getMapObjects()).filter(
 						(object): object is RouteData => object.type === MapObjectType.ROUTE
 					),

@@ -1,16 +1,10 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { featureFamily, Features } from "@/lib/utils/features";
-	import FilterControl from "@/components/menus/filters/FilterControl.svelte";
-	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
-	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
-	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 </script>
 
 <div
@@ -32,7 +26,6 @@
 		category="pokestop"
 		mapObject={MapObjectType.POKESTOP}
 		isFilterable={false}
-		attachedPermissions={Features.ROUTE}
 		subCategories={[
 			{
 				title: m.plain_pokestops(),
@@ -72,27 +65,7 @@
 				filterable: false
 			}
 		]}
-	>
-		{#snippet attachedControls()}
-			{#if hasFeatureAnywhere(getUserDetails().permissions, Features.ROUTE)}
-				<div class="border-t border-border">
-					<FilterControl
-						title={m.routes()}
-						majorCategory="route"
-						mapObject={MapObjectType.ROUTE}
-						filter={getUserSettings().filters.route}
-						isFilterable={false}
-						onEnabledChange={(_category, enabled) => {
-							getUserSettings().filters.route.enabled = enabled;
-							deleteAllFeaturesOfType(MapObjectType.ROUTE);
-							updateUserSettings();
-							updateAllMapObjects().then();
-						}}
-					/>
-				</div>
-			{/if}
-		{/snippet}
-	</FilterSection>
+	/>
 
 	<FilterSection
 		requiredPermission={Features.GYM}
@@ -114,6 +87,14 @@
 				filterModal: "filtersetRaid"
 			}
 		]}
+	/>
+
+	<FilterSection
+		requiredPermission={Features.ROUTE}
+		title={m.routes()}
+		category="route"
+		mapObject={MapObjectType.ROUTE}
+		isFilterable={false}
 	/>
 
 	<FilterSection

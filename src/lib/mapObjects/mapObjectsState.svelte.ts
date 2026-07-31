@@ -47,12 +47,12 @@ export function replaceMapObjects(mapObjects: MapData[], type: MapObjectType, ex
 	const nextMapObjects = { ...mapObjectsState };
 
 	for (const mapId in nextMapObjects) {
-		const preserveForPokestopPopup =
+		const preserveForFortPopup =
 			type === MapObjectType.ROUTE &&
-			selected?.type === MapObjectType.POKESTOP &&
+			(selected?.type === MapObjectType.POKESTOP || selected?.type === MapObjectType.GYM) &&
 			nextMapObjects[mapId]?.type === MapObjectType.ROUTE &&
 			routeStartsAt(nextMapObjects[mapId] as RouteData, selected.id);
-		if (mapId !== selectedMapId && !preserveForPokestopPopup && mapId.startsWith(prefix))
+		if (mapId !== selectedMapId && !preserveForFortPopup && mapId.startsWith(prefix))
 			delete nextMapObjects[mapId];
 	}
 	for (const mapObject of mapObjects) nextMapObjects[mapObject.mapId] = mapObject;

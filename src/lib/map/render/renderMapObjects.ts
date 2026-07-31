@@ -58,7 +58,7 @@ import {
 import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
-import { getRouteColor, getRouteCoordinates } from "@/lib/utils/routeUtils";
+import { getRouteColor, getRouteCoordinates, getRouteEndpointFort } from "@/lib/utils/routeUtils";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 const INVASION_CHARACTER_SCALE = 0.6;
@@ -660,30 +660,33 @@ class RouteRenderer extends MapObjectRenderer<RouteData> {
 		];
 
 		if (getUserSettings().filters.route.enabled) {
-			const endpointProps = (fortId: string): MinMapObjectIconProperties => ({
-				imageUrl: getIconPokestop({}),
-				imageSize: this.iconModifiers.scale,
-				selectedScale,
-				imageOffset: [this.iconModifiers.offsetX, this.iconModifiers.offsetY],
-				id: `${MapObjectType.POKESTOP}-${fortId}`,
-				routeEndpointFortId: fortId,
-				expires: null
-			});
-			features.push(
-				getIconFeature(
-					`route-endpoint-${data.start_fort_id}`,
-					[data.start_lon, data.start_lat],
-					endpointProps(data.start_fort_id)
-				)
-			);
-			if (data.reversible) {
-				features.push(
-					getIconFeature(
-						`route-endpoint-${data.end_fort_id}`,
-						[data.end_lon, data.end_lat],
-						endpointProps(data.end_fort_id)
-					)
+			const endpointFeature = (fortId: string) => {
+				const endpoint = getRouteEndpointFort([data], fortId);
+				if (!endpoint) return;
+
+				const iconSet = getCurrentUiconSetDetailsAllTypes()[endpoint.type];
+				const modifiers = getConfigModifiers(iconSet, endpoint.type);
+				return getIconFeature(
+					`route-endpoint-${endpoint.type}-${fortId}`,
+					[endpoint.lon, endpoint.lat],
+					{
+						imageUrl:
+							endpoint.type === MapObjectType.GYM ? getIconGym(endpoint) : getIconPokestop({}),
+						imageSize: modifiers.scale,
+						selectedScale,
+						imageOffset: [modifiers.offsetX, modifiers.offsetY],
+						id: endpoint.mapId,
+						routeEndpointFortId: fortId,
+						routeEndpointFortType: endpoint.type,
+						expires: null
+					}
 				);
+			};
+			const startFeature = endpointFeature(data.start_fort_id);
+			if (startFeature) features.push(startFeature);
+			if (data.reversible) {
+				const endFeature = endpointFeature(data.end_fort_id);
+				if (endFeature) features.push(endFeature);
 			}
 		}
 

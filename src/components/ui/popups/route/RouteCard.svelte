@@ -7,6 +7,8 @@
 	} from "@/lib/features/routes/routeDisplay.svelte";
 	import { refreshRouteFeatures } from "@/lib/map/featuresGen.svelte";
 	import { getMap } from "@/lib/map/map.svelte";
+	import { openPopup } from "@/lib/mapObjects/interact";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getPopupFitPadding } from "@/lib/mapObjects/popupVisibility.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
@@ -19,21 +21,27 @@
 
 	let {
 		route,
-		originFortId = undefined
+		originFortId = undefined,
+		navigatesToPopup = false
 	}: {
 		route: RouteData;
 		originFortId?: string;
+		navigatesToPopup?: boolean;
 	} = $props();
 
 	let isFocused = $derived(getFocusedRouteMapId() === route.mapId);
 	let showAllRoutes = $derived(getUserSettings().filters.route.enabled);
 	let reverseDirection = $derived(route.reversible && originFortId === route.end_fort_id);
+	let startType = $derived(reverseDirection ? route.end_fort_type : route.start_fort_type);
+	let endType = $derived(reverseDirection ? route.start_fort_type : route.end_fort_type);
 	let startName = $derived(
-		(reverseDirection ? route.end_name : route.start_name) ?? m.unknown_pokestop()
+		(reverseDirection ? route.end_name : route.start_name) ??
+			(startType === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
 	);
 	let startImage = $derived(reverseDirection ? route.end_image : route.start_image);
 	let endName = $derived(
-		(reverseDirection ? route.start_name : route.end_name) ?? m.unknown_pokestop()
+		(reverseDirection ? route.start_name : route.end_name) ??
+			(endType === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
 	);
 	let endImage = $derived(reverseDirection ? route.start_image : route.end_image);
 
@@ -60,21 +68,31 @@
 		return label.charAt(0).toUpperCase() + label.slice(1);
 	}
 
+	function fitRoute() {
+		const map = getMap();
+		if (!map) return;
+
+		const bounds = new maplibre.LngLatBounds();
+		for (const coordinate of getRouteCoordinates(route)) {
+			bounds.extend([coordinate[0], coordinate[1]]);
+		}
+		map.fitBounds(bounds, { padding: getPopupFitPadding(), maxZoom: 17 });
+	}
+
 	function toggleRoute() {
 		const showRoute = !isFocused;
 		setFocusedRouteMapId(showRoute ? route.mapId : null);
 		refreshRouteFeatures();
 		if (!showRoute) return;
 
-		const map = getMap();
 		resetPopupBaseDrawerSnapPoint();
-		if (map) {
-			const bounds = new maplibre.LngLatBounds();
-			for (const coordinate of getRouteCoordinates(route)) {
-				bounds.extend([coordinate[0], coordinate[1]]);
-			}
-			map.fitBounds(bounds, { padding: getPopupFitPadding(), maxZoom: 17 });
-		}
+		fitRoute();
+	}
+
+	function showRoutePopup() {
+		setFocusedRouteMapId(route.mapId);
+		openPopup(route);
+		fitRoute();
 	}
 </script>
 
@@ -162,15 +180,22 @@
 	</div>
 {/if}
 
-<Button variant={isFocused ? "secondary" : "link"} class="mt-3 mb-2 w-full" onclick={toggleRoute}>
-	<MapPinned class="size-3.5" />
-	{#if isFocused}
-		{#if showAllRoutes}
-			{m.show_all_routes()}
-		{:else}
-			{m.hide_route()}
-		{/if}
-	{:else}
+{#if navigatesToPopup}
+	<Button variant="link" class="mt-3 mb-2 w-full" onclick={showRoutePopup}>
+		<MapPinned class="size-3.5" />
 		{m.show_route()}
-	{/if}
-</Button>
+	</Button>
+{:else}
+	<Button variant={isFocused ? "secondary" : "link"} class="mt-3 mb-2 w-full" onclick={toggleRoute}>
+		<MapPinned class="size-3.5" />
+		{#if isFocused}
+			{#if showAllRoutes}
+				{m.show_all_routes()}
+			{:else}
+				{m.hide_route()}
+			{/if}
+		{:else}
+			{m.show_route()}
+		{/if}
+	</Button>
+{/if}

@@ -32,15 +32,31 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 		"route_data.distance_meters",
 		"route_data.duration_seconds",
 		"route_data.start_fort_id",
-		"route_start.name AS start_name",
+		"CASE WHEN route_start_gym.id IS NOT NULL AND route_start_gym.deleted = 0 THEN 'gym' WHEN route_start_pokestop.id IS NOT NULL AND route_start_pokestop.deleted = 0 THEN 'pokestop' WHEN route_start_gym.id IS NOT NULL THEN 'gym' ELSE 'pokestop' END AS start_fort_type",
+		"COALESCE(IF(route_start_gym.deleted = 0, route_start_gym.name, NULL), IF(route_start_pokestop.deleted = 0, route_start_pokestop.name, NULL), route_start_gym.name, route_start_pokestop.name) AS start_name",
 		"route_data.start_image",
 		"route_data.start_lat",
 		"route_data.start_lon",
+		"route_start_gym.team_id AS start_team_id",
+		"route_start_gym.availble_slots AS start_available_slots",
+		"route_start_gym.in_battle AS start_in_battle",
+		"route_start_gym.ex_raid_eligible AS start_ex_raid_eligible",
+		"CASE WHEN route_start_gym.id IS NOT NULL AND route_start_gym.deleted = 0 THEN route_start_gym.updated WHEN route_start_pokestop.id IS NOT NULL AND route_start_pokestop.deleted = 0 THEN route_start_pokestop.updated ELSE COALESCE(route_start_gym.updated, route_start_pokestop.updated, route_data.updated) END AS start_fort_updated",
+		"CASE WHEN route_start_gym.id IS NOT NULL AND route_start_gym.deleted = 0 THEN route_start_gym.first_seen_timestamp WHEN route_start_pokestop.id IS NOT NULL AND route_start_pokestop.deleted = 0 THEN route_start_pokestop.first_seen_timestamp ELSE COALESCE(route_start_gym.first_seen_timestamp, route_start_pokestop.first_seen_timestamp, route_data.updated) END AS start_fort_first_seen",
+		"CASE WHEN route_start_gym.id IS NOT NULL AND route_start_gym.deleted = 0 THEN 0 WHEN route_start_pokestop.id IS NOT NULL AND route_start_pokestop.deleted = 0 THEN 0 ELSE COALESCE(route_start_gym.deleted, route_start_pokestop.deleted, 0) END AS start_fort_deleted",
 		"route_data.end_fort_id",
-		"route_end.name AS end_name",
+		"CASE WHEN route_end_gym.id IS NOT NULL AND route_end_gym.deleted = 0 THEN 'gym' WHEN route_end_pokestop.id IS NOT NULL AND route_end_pokestop.deleted = 0 THEN 'pokestop' WHEN route_end_gym.id IS NOT NULL THEN 'gym' ELSE 'pokestop' END AS end_fort_type",
+		"COALESCE(IF(route_end_gym.deleted = 0, route_end_gym.name, NULL), IF(route_end_pokestop.deleted = 0, route_end_pokestop.name, NULL), route_end_gym.name, route_end_pokestop.name) AS end_name",
 		"route_data.end_image",
 		"route_data.end_lat",
 		"route_data.end_lon",
+		"route_end_gym.team_id AS end_team_id",
+		"route_end_gym.availble_slots AS end_available_slots",
+		"route_end_gym.in_battle AS end_in_battle",
+		"route_end_gym.ex_raid_eligible AS end_ex_raid_eligible",
+		"CASE WHEN route_end_gym.id IS NOT NULL AND route_end_gym.deleted = 0 THEN route_end_gym.updated WHEN route_end_pokestop.id IS NOT NULL AND route_end_pokestop.deleted = 0 THEN route_end_pokestop.updated ELSE COALESCE(route_end_gym.updated, route_end_pokestop.updated, route_data.updated) END AS end_fort_updated",
+		"CASE WHEN route_end_gym.id IS NOT NULL AND route_end_gym.deleted = 0 THEN route_end_gym.first_seen_timestamp WHEN route_end_pokestop.id IS NOT NULL AND route_end_pokestop.deleted = 0 THEN route_end_pokestop.first_seen_timestamp ELSE COALESCE(route_end_gym.first_seen_timestamp, route_end_pokestop.first_seen_timestamp, route_data.updated) END AS end_fort_first_seen",
+		"CASE WHEN route_end_gym.id IS NOT NULL AND route_end_gym.deleted = 0 THEN 0 WHEN route_end_pokestop.id IS NOT NULL AND route_end_pokestop.deleted = 0 THEN 0 ELSE COALESCE(route_end_gym.deleted, route_end_pokestop.deleted, 0) END AS end_fort_deleted",
 		"route_data.image",
 		"route_data.image_border_color",
 		"route_data.reversible",
@@ -55,8 +71,10 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 	protected readonly updatedColumn = "route_data.updated";
 	// Golbat's newer route table and older fort tables can use different utf8mb4 collations.
 	protected readonly joins =
-		"LEFT JOIN pokestop AS route_start ON route_start.id = route_data.start_fort_id COLLATE utf8mb4_general_ci " +
-		"LEFT JOIN pokestop AS route_end ON route_end.id = route_data.end_fort_id COLLATE utf8mb4_general_ci";
+		"LEFT JOIN pokestop AS route_start_pokestop ON route_start_pokestop.id = route_data.start_fort_id COLLATE utf8mb4_general_ci " +
+		"LEFT JOIN gym AS route_start_gym ON route_start_gym.id = route_data.start_fort_id COLLATE utf8mb4_general_ci " +
+		"LEFT JOIN pokestop AS route_end_pokestop ON route_end_pokestop.id = route_data.end_fort_id COLLATE utf8mb4_general_ci " +
+		"LEFT JOIN gym AS route_end_gym ON route_end_gym.id = route_data.end_fort_id COLLATE utf8mb4_general_ci";
 
 	async query(
 		bounds: Bounds,
@@ -106,8 +124,10 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 			metersPerLongitudeDegree
 		];
 		if (since !== undefined) {
-			baseWhere.push(`${this.updatedColumn} > ?`);
-			baseValues.push(since);
+			baseWhere.push(
+				`(${this.updatedColumn} > ? OR route_start_pokestop.updated > ? OR route_start_gym.updated > ? OR route_end_pokestop.updated > ? OR route_end_gym.updated > ?)`
+			);
+			baseValues.push(since, since, since, since, since);
 		}
 
 		let cursor: Pick<RouteData, "start_lat" | "start_lon" | "id"> | undefined;
@@ -162,6 +182,12 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 
 	prepare(data: MinMapObject<RouteData>): void {
 		data.reversible = Boolean(data.reversible);
+		data.start_fort_deleted = Number(data.start_fort_deleted);
+		data.end_fort_deleted = Number(data.end_fort_deleted);
+		data.start_fort_type =
+			data.start_fort_type === MapObjectType.GYM ? MapObjectType.GYM : MapObjectType.POKESTOP;
+		data.end_fort_type =
+			data.end_fort_type === MapObjectType.GYM ? MapObjectType.GYM : MapObjectType.POKESTOP;
 		data.tags = this.parseJsonArray<string>(data.tags);
 		data.waypoints = this.parseJsonArray<RouteWaypoint>(data.waypoints).filter(
 			(waypoint) => Number.isFinite(waypoint.lat_degrees) && Number.isFinite(waypoint.lng_degrees)
