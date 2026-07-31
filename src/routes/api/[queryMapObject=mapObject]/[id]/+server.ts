@@ -50,15 +50,19 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 
 	if (!data) error(constants.HTTP_STATUS_NOT_FOUND);
 
-	const allowedForObject =
-		type === MapObjectType.ROUTE
-			? family.some((feature) =>
-					permissionContext.isAllowedGeometry(
-						feature,
-						lineString(getRouteCoordinates(data as RouteData))
-					)
-				)
-			: family.some((feature) => permissionContext.isAllowedAt(feature, data.lat, data.lon));
+	let allowedForObject: boolean;
+	if (type === MapObjectType.ROUTE) {
+		allowedForObject = family.some((feature) =>
+			permissionContext.isAllowedGeometry(
+				feature,
+				lineString(getRouteCoordinates(data as RouteData))
+			)
+		);
+	} else {
+		allowedForObject = family.some((feature) =>
+			permissionContext.isAllowedAt(feature, data.lat, data.lon)
+		);
+	}
 	if (!allowedForObject) error(constants.HTTP_STATUS_UNAUTHORIZED);
 
 	log.info(
