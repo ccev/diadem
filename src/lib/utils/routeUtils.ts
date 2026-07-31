@@ -28,6 +28,22 @@ export function getRouteCoordinates(
 	);
 }
 
+export function getRouteBounds(
+	route: Pick<RouteData, "start_lon" | "start_lat" | "end_lon" | "end_lat" | "waypoints">
+): [number, number, number, number] {
+	let minLon = Infinity;
+	let minLat = Infinity;
+	let maxLon = -Infinity;
+	let maxLat = -Infinity;
+	for (const [lon, lat] of getRouteCoordinates(route)) {
+		minLon = Math.min(minLon, lon);
+		minLat = Math.min(minLat, lat);
+		maxLon = Math.max(maxLon, lon);
+		maxLat = Math.max(maxLat, lat);
+	}
+	return [minLon, minLat, maxLon, maxLat];
+}
+
 export function getRouteColor(route: RouteData): string {
 	const color = route.image_border_color.trim().replace(/^#/, "");
 	return /^[0-9a-f]{6}([0-9a-f]{2})?$/i.test(color) ? `#${color}` : "#6366f1";

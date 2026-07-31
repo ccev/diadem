@@ -5,13 +5,19 @@ import type { PaddingOptions } from "maplibre-gl";
 
 type PopupOcclusion = { width: number } | { height: number };
 
-export type PopupVisibilityRequest = { data: MapData };
+export type PopupVisibilityRequest = {
+	data: MapData;
+	bounds?: [number, number, number, number];
+};
 
 let visibilityRequest: PopupVisibilityRequest | undefined = $state();
 let popupOcclusion: PopupOcclusion | undefined;
 
-export function requestPopupVisibilityCheck(data: MapData) {
-	visibilityRequest = { data };
+export function requestPopupVisibilityCheck(
+	data: MapData,
+	bounds?: [number, number, number, number]
+) {
+	visibilityRequest = { data, bounds };
 }
 
 export function clearPopupVisibilityCheck() {
@@ -48,10 +54,15 @@ export function centerRequestedMapObjectIfPopupCovers(
 ) {
 	setPopupOcclusion(popup);
 	if (request !== visibilityRequest) return;
-	const { data } = request;
+	const { data, bounds } = request;
 
 	const map = getMap();
 	if (!map) return;
+
+	if (bounds) {
+		map.fitBounds(bounds, { padding: getPopupFitPadding(), maxZoom: 17 });
+		return;
+	}
 
 	const point = map.project([data.lon, data.lat]);
 	const container = map.getContainer();

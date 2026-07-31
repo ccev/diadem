@@ -15,9 +15,8 @@
 	import { resetPopupBaseDrawerSnapPoint } from "@/lib/ui/popupDrawer.svelte";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { formatNumber } from "@/lib/utils/numberFormat";
-	import { getRouteCoordinates } from "@/lib/utils/routeUtils";
+	import { getRouteBounds } from "@/lib/utils/routeUtils";
 	import { ArrowLeftRight, ArrowRight, Clock, MapPinned, Ruler, Signpost } from "@lucide/svelte";
-	import maplibre from "maplibre-gl";
 
 	let {
 		route,
@@ -71,12 +70,7 @@
 	function fitRoute() {
 		const map = getMap();
 		if (!map) return;
-
-		const bounds = new maplibre.LngLatBounds();
-		for (const coordinate of getRouteCoordinates(route)) {
-			bounds.extend([coordinate[0], coordinate[1]]);
-		}
-		map.fitBounds(bounds, { padding: getPopupFitPadding(), maxZoom: 17 });
+		map.fitBounds(getRouteBounds(route), { padding: getPopupFitPadding(), maxZoom: 17 });
 	}
 
 	function toggleRoute() {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import {
+	getRouteBounds,
 	getRouteColor,
 	getRouteCoordinates,
 	getRouteEndpointFort,
@@ -36,6 +37,10 @@ describe("route utilities", () => {
 			[6.5, 51.5],
 			[7, 52]
 		]);
+	});
+
+	it("computes bounds over the full route path", () => {
+		expect(getRouteBounds(route)).toEqual([6, 51, 7, 52]);
 	});
 
 	it("normalizes route colors and falls back for invalid values", () => {

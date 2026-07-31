@@ -25,7 +25,7 @@ import {
 	setFocusedRouteMapId
 } from "@/lib/features/routes/routeDisplay.svelte";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
-import { getRouteEndpointFort } from "@/lib/utils/routeUtils";
+import { getRouteBounds, getRouteEndpointFort } from "@/lib/utils/routeUtils";
 import {
 	closeOverlay,
 	getOverlayPayload,
@@ -120,7 +120,10 @@ export function clickMapHandler(event: MapMouseEvent) {
 				);
 			}
 			if (!data) return;
-			requestPopupVisibilityCheck(data);
+			requestPopupVisibilityCheck(
+				data,
+				data.type === MapObjectType.ROUTE ? getRouteBounds(data) : undefined
+			);
 			openPopup(data);
 		} else {
 			closeMenu();
