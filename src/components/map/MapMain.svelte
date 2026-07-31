@@ -222,13 +222,31 @@
 			filter={[
 				"all",
 				["==", ["get", "type"], FeatureTypes.LINE],
-				["==", ["get", "isVisible"], true]
+				["==", ["get", "isVisible"], true],
+				["==", ["get", "isHighlighted"], false]
 			]}
 			layout={{ "line-cap": "round", "line-join": "round" }}
 			paint={{
 				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
-				"line-opacity": ["case", ["get", "isHighlighted"], 1, 0.4],
-				"line-width": ["case", ["get", "isHighlighted"], 7, 4]
+				"line-opacity": 0.4,
+				"line-width": 4
+			}}
+			hoverCursor="pointer"
+			eventsIfTopMost={true}
+		/>
+		<LineLayer
+			id={MapObjectLayerId.ROUTE_LINES_HIGHLIGHTED}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.LINE],
+				["==", ["get", "isVisible"], true],
+				["==", ["get", "isHighlighted"], true]
+			]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{
+				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
+				"line-opacity": 1,
+				"line-width": 7
 			}}
 			hoverCursor="pointer"
 			eventsIfTopMost={true}
