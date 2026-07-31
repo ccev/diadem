@@ -1,10 +1,12 @@
 import { resize } from "@/lib/services/assets";
-import type { Feature as GeojsonFeature, MultiPolygon, Point } from "geojson";
+import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { Feature as GeojsonFeature, LineString, MultiPolygon, Point } from "geojson";
 
 export enum FeatureTypes {
 	ICON = 0,
 	POLYGON = 1,
-	CIRCLE = 2
+	CIRCLE = 2,
+	LINE = 3
 }
 
 export type MapObjectIconProperties = {
@@ -21,6 +23,8 @@ export type MapObjectIconProperties = {
 	imageRotation?: number;
 	textLabel?: string;
 	textOffset?: number;
+	routeEndpointFortId?: string;
+	routeEndpointFortType?: MapObjectType.POKESTOP | MapObjectType.GYM;
 	expires: number | null;
 };
 export type MinMapObjectIconProperties = Omit<
@@ -50,13 +54,26 @@ export type MapObjectCircleProperties = {
 	strokeColor: string;
 };
 
+export type MapObjectLineProperties = {
+	id: string;
+	type: FeatureTypes.LINE;
+	strokeColor: string;
+	startFortId: string;
+	endFortId: string;
+	reversible: boolean;
+	isVisible: boolean;
+	isHighlighted: boolean;
+};
+
 export type MapObjectIconFeature = GeojsonFeature<Point, MapObjectIconProperties>;
 export type MapObjectPolygonFeature = GeojsonFeature<MultiPolygon, MapObjectPolygonProperties>;
 export type MapObjectCircleFeature = GeojsonFeature<Point, MapObjectCircleProperties>;
+export type MapObjectLineFeature = GeojsonFeature<LineString, MapObjectLineProperties>;
 export type MapObjectFeature =
 	| MapObjectPolygonFeature
 	| MapObjectIconFeature
-	| MapObjectCircleFeature;
+	| MapObjectCircleFeature
+	| MapObjectLineFeature;
 
 export function isFeatureIcon(feature: MapObjectFeature): feature is MapObjectIconFeature {
 	return feature.properties.type === FeatureTypes.ICON;
@@ -68,6 +85,10 @@ export function isFeatureCircle(feature: MapObjectFeature): feature is MapObject
 
 export function isFeaturePolygon(feature: MapObjectFeature): feature is MapObjectPolygonFeature {
 	return feature.properties.type === FeatureTypes.POLYGON;
+}
+
+export function isFeatureLine(feature: MapObjectFeature): feature is MapObjectLineFeature {
+	return feature.properties.type === FeatureTypes.LINE;
 }
 
 export function getIconFeature(
@@ -135,6 +156,25 @@ export function getCircleFeature(
 		properties: {
 			...properties,
 			type: FeatureTypes.CIRCLE
+		},
+		id
+	};
+}
+
+export function getLineFeature(
+	id: string,
+	coordinates: LineString["coordinates"],
+	properties: Omit<MapObjectLineProperties, "type">
+): MapObjectLineFeature {
+	return {
+		type: "Feature",
+		geometry: {
+			type: "LineString",
+			coordinates
+		},
+		properties: {
+			...properties,
+			type: FeatureTypes.LINE
 		},
 		id
 	};

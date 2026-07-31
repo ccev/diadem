@@ -1,5 +1,7 @@
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import { routeStartsAt } from "@/lib/utils/routeUtils";
 
 export type MapObjectsStateType = {
 	[key: string]: MapData;
@@ -39,12 +41,19 @@ export function addMapObjects(
 }
 
 export function replaceMapObjects(mapObjects: MapData[], type: MapObjectType, examined: number) {
-	const selectedMapId = getCurrentSelectedData()?.mapId;
+	const selected = getCurrentSelectedData();
+	const selectedMapId = selected?.mapId;
 	const prefix = type + "-";
 	const nextMapObjects = { ...mapObjectsState };
 
 	for (const mapId in nextMapObjects) {
-		if (mapId !== selectedMapId && mapId.startsWith(prefix)) delete nextMapObjects[mapId];
+		const preserveForFortPopup =
+			type === MapObjectType.ROUTE &&
+			(selected?.type === MapObjectType.POKESTOP || selected?.type === MapObjectType.GYM) &&
+			nextMapObjects[mapId]?.type === MapObjectType.ROUTE &&
+			routeStartsAt(nextMapObjects[mapId] as RouteData, selected.id);
+		if (mapId !== selectedMapId && !preserveForFortPopup && mapId.startsWith(prefix))
+			delete nextMapObjects[mapId];
 	}
 	for (const mapObject of mapObjects) nextMapObjects[mapObject.mapId] = mapObject;
 

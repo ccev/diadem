@@ -199,6 +199,7 @@
 		/>
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
+			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
 			paint={{
 				"fill-color": [
 					"case",
@@ -211,9 +212,44 @@
 		/>
 		<LineLayer
 			id={MapObjectLayerId.POLYGON_STROKE}
+			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
 			layout={{ "line-cap": "round", "line-join": "round" }}
 			paint={{ "line-color": ["coalesce", ["get", "strokeColor"], "transparent"], "line-width": 1 }}
 			hoverCursor="pointer"
+		/>
+		<LineLayer
+			id={MapObjectLayerId.ROUTE_LINES}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.LINE],
+				["==", ["get", "isVisible"], true],
+				["==", ["get", "isHighlighted"], false]
+			]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{
+				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
+				"line-opacity": 0.4,
+				"line-width": 4
+			}}
+			hoverCursor="pointer"
+			eventsIfTopMost={true}
+		/>
+		<LineLayer
+			id={MapObjectLayerId.ROUTE_LINES_HIGHLIGHTED}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.LINE],
+				["==", ["get", "isVisible"], true],
+				["==", ["get", "isHighlighted"], true]
+			]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{
+				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
+				"line-opacity": 1,
+				"line-width": 7
+			}}
+			hoverCursor="pointer"
+			eventsIfTopMost={true}
 		/>
 		<CircleLayer
 			id={MapObjectLayerId.CIRCLES}

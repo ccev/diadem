@@ -4,10 +4,21 @@
 	import { mMove, mPokemon, mRaid, mTeam } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { GymData, GymDefender } from "$lib/types/mapObjectData/gym";
-	import { getIconGym, getIconPokemon, getIconRaidEgg, getIconTeam } from "$lib/services/uicons.svelte";
+	import {
+		getIconGym,
+		getIconPokemon,
+		getIconRaidEgg,
+		getIconTeam
+	} from "$lib/services/uicons.svelte";
 	import { resize } from "$lib/services/assets";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
-	import { getRaidPokemon, GYM_SLOTS, hasActiveRaid, isFortOutdated, isRaidHatched } from "$lib/utils/gymUtils";
+	import {
+		getRaidPokemon,
+		GYM_SLOTS,
+		hasActiveRaid,
+		isFortOutdated,
+		isRaidHatched
+	} from "$lib/utils/gymUtils";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import FortImage from "@/components/ui/popups/common/FortImage.svelte";
@@ -48,6 +59,7 @@
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import type { AnyFilterset } from "$lib/features/filters/filtersets";
 	import { getIconBackground } from "$lib/services/uicons.svelte";
+	import RoutesStartingHere from "@/components/ui/popups/route/RoutesStartingHere.svelte";
 
 	export { image, overview, main };
 
@@ -98,7 +110,9 @@
 
 	function showMatchingFiltersets() {
 		const filter = getUserSettings().filters.gym;
-		return filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled));
+		return (
+			filter.enabled && filter.raid.enabled && Boolean(filter.raid.filters.find((f) => f.enabled))
+		);
 	}
 </script>
 
@@ -165,263 +179,265 @@
 	{@const data = d as GymData}
 	{@const activeRaid = isActiveRaid(data)}
 
-	{#if isFortOutdated(data.updated)}
-		<BasicMainCard class="font-medium">
-			<IconValue Icon={CircleAlert}>
-				{m.gym_outdated_notice({
-					time: timestampToLocalTime(data.updated, {
-						showDate: true,
-						showSeconds: false,
-						showTime: false,
-						longMonth: true
-					})
-				})}
-			</IconValue>
-		</BasicMainCard>
-	{:else}
-		<TitledMainSection Icon={RaidIcon} title={m.raid()} disabled={!activeRaid}>
-			<BasicMainCard>
-				{#if !hasRaidData(data)}
-					{m.no_raid_at_gym()}
-				{:else if !activeRaid}
-					<IconValue Icon={Clock}>
-						{m.last_raid_ended({
-							time: timestampToLocalTime(data.raid_end_timestamp, {
-								showDate: true,
-								showSeconds: false,
-								longMonth: true
-							})
-						})}
-					</IconValue>
-				{:else}
-					<MainCardBigIcon
-						src={getRaidIcon(data)}
-						alt={getRaidTitle(data)}
-						title={getRaidTitle(data)}
-					/>
+	{#if !data.isRouteEndpoint}
+		{#if isFortOutdated(data.updated)}
+			<BasicMainCard class="font-medium">
+				<IconValue Icon={CircleAlert}>
+					{m.gym_outdated_notice({
+						time: timestampToLocalTime(data.updated, {
+							showDate: true,
+							showSeconds: false,
+							showTime: false,
+							longMonth: true
+						})
+					})}
+				</IconValue>
+			</BasicMainCard>
+		{:else}
+			<TitledMainSection Icon={RaidIcon} title={m.raid()} disabled={!activeRaid}>
+				<BasicMainCard>
+					{#if !hasRaidData(data)}
+						{m.no_raid_at_gym()}
+					{:else if !activeRaid}
+						<IconValue Icon={Clock}>
+							{m.last_raid_ended({
+								time: timestampToLocalTime(data.raid_end_timestamp, {
+									showDate: true,
+									showSeconds: false,
+									longMonth: true
+								})
+							})}
+						</IconValue>
+					{:else}
+						<MainCardBigIcon
+							src={getRaidIcon(data)}
+							alt={getRaidTitle(data)}
+							title={getRaidTitle(data)}
+						/>
 
-					<div class="space-y-5">
-						<!--Expiration-->
-						<div>
-							<IconValue class="mb-1" Icon={Clock}>
-								{m.battle_time()}
-							</IconValue>
+						<div class="space-y-5">
+							<!--Expiration-->
+							<div>
+								<IconValue class="mb-1" Icon={Clock}>
+									{m.battle_time()}
+								</IconValue>
 
-							<div
-								class="mt-2 border-2 border-accent-highlight rounded-md px-3 py-2 text-center font-semibold"
-							>
-								{m.range_to({
-									x: timestampToLocalTime(data.raid_battle_timestamp),
-									y: timestampToLocalTime(data.raid_end_timestamp)
-								})}
+								<div
+									class="mt-2 border-2 border-accent-highlight rounded-md px-3 py-2 text-center font-semibold"
+								>
+									{m.range_to({
+										x: timestampToLocalTime(data.raid_battle_timestamp),
+										y: timestampToLocalTime(data.raid_end_timestamp)
+									})}
+								</div>
 							</div>
-						</div>
 
-						<!--Hatch Prediction-->
-						{#if !data.raid_pokemon_id && data.raid_level}
-							{@const possibleBosses = getActiveRaidsForLevel(data.raid_level)}
-							{#if possibleBosses}
-								<div>
-									<IconValue class="" Icon={BadgeCheck}>
+							<!--Hatch Prediction-->
+							{#if !data.raid_pokemon_id && data.raid_level}
+								{@const possibleBosses = getActiveRaidsForLevel(data.raid_level)}
+								{#if possibleBosses}
+									<div>
+										<IconValue class="" Icon={BadgeCheck}>
+											{#if possibleBosses.length === 1}
+												{m.possible_hatch()}
+											{:else}
+												{m.possible_hatches()}
+											{/if}
+										</IconValue>
+
 										{#if possibleBosses.length === 1}
-											{m.possible_hatch()}
+											{@const boss = possibleBosses[0]}
+											<BasicPokemonDisplayOne pokemon={boss} />
 										{:else}
-											{m.possible_hatches()}
+											<BasicPokemonDisplayMultiple pokemon={possibleBosses} />
 										{/if}
-									</IconValue>
+									</div>
+								{/if}
+							{/if}
 
-									{#if possibleBosses.length === 1}
-										{@const boss = possibleBosses[0]}
-										<BasicPokemonDisplayOne pokemon={boss} />
-									{:else}
-										<BasicPokemonDisplayMultiple pokemon={possibleBosses} />
-									{/if}
+							<!--RSVPs-->
+							{#if data?.rsvps?.length}
+								<div>
+									<IconValue Icon={UserRoundCheck}>
+										{m.rsvp()}
+									</IconValue>
+									<div class="mt-1 space-y-3 rounded-md bg-accent-highlight py-3 px-5">
+										{#each data.rsvps as rsvp (rsvp.timeslot)}
+											<div
+												class="grid items-center gap-x-2"
+												style="grid-template-columns: auto 1fr"
+											>
+												<b>{timestampToLocalTime(rsvp.timeslot / 1000, { showSeconds: false })}</b>
+												<span class="text-right"
+													>{m.rsvp_entry({
+														going: rsvp.going_count,
+														maybe: rsvp.maybe_count
+													})}</span
+												>
+											</div>
+										{/each}
+									</div>
 								</div>
 							{/if}
-						{/if}
 
-						<!--RSVPs-->
-						{#if data?.rsvps?.length}
-							<div>
-								<IconValue Icon={UserRoundCheck}>
-									{m.rsvp()}
-								</IconValue>
-								<div class="mt-1 space-y-3 rounded-md bg-accent-highlight py-3 px-5">
-									{#each data.rsvps as rsvp (rsvp.timeslot)}
-										<div class="grid items-center gap-x-2" style="grid-template-columns: auto 1fr">
-											<b>{timestampToLocalTime(rsvp.timeslot / 1000, { showSeconds: false })}</b>
-											<span class="text-right"
-											>{m.rsvp_entry({
-												going: rsvp.going_count,
-												maybe: rsvp.maybe_count
-											})}</span
-											>
+							<!--Raid Attributes-->
+							{#if data.raid_pokemon_id}
+								<div class="space-y-3">
+									<StatsMainCardEntry Icon={Star} name={m.tier()} value={mRaid(data.raid_level)} />
+
+									{#if data.raid_pokemon_cp != null}
+										<StatsMainCardEntry
+											Icon={ShieldHalf}
+											name={m.cp()}
+											value={data.raid_pokemon_cp}
+										/>
+									{/if}
+									<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
+										{#snippet value()}
+											<p class="flex gap-2">
+												{#if data.raid_pokemon_move_1 && data.raid_pokemon_move_2}
+													<span>{mMove(data.raid_pokemon_move_1)}</span>
+													<span>·</span>
+													<span>{mMove(data.raid_pokemon_move_2)}</span>
+												{:else}
+													{m.unknown()}
+												{/if}
+											</p>
+										{/snippet}
+									</StatsMainCardEntry>
+								</div>
+							{/if}
+						</div>
+					{/if}
+				</BasicMainCard>
+			</TitledMainSection>
+
+			<TitledMainSection
+				Icon={Shield}
+				title={m.gym_members()}
+				disabled={!data.team_id || data.team_id === 0}
+			>
+				<BasicMainCard>
+					{#if !data.team_id || data.team_id === 0}
+						{m.no_defenders_at_gym()}
+					{:else}
+						<MainCardBigIcon
+							src={getIconTeam(data.team_id)}
+							alt={mTeam(data.team_id)}
+							title={mTeam(data.team_id)}
+						/>
+
+						<div class="mt-4 space-y-3">
+							<StatsMainCardEntry
+								Icon={UsersRound}
+								name={m.slots_occupied()}
+								value="{getOccupiedSlots(data)}/{GYM_SLOTS}"
+							/>
+						</div>
+
+						{#if data.defenders?.length}
+							<div class="-mx-4 mt-2">
+								<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">
+									{#each data.defenders as defender}
+										<div class="min-w-64 max-w-80 rounded-md bg-accent-highlight p-5">
+											<div class="flex items-center gap-3">
+												<div class="size-12 shrink-0 relative">
+													<ImagePopup
+														class="absolute size-full z-10"
+														src={getIconPokemon(defender)}
+														alt={mPokemon(defender)}
+													/>
+													{#if defender.background}
+														<ImagePopup
+															class="absolute size-12 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+															src={resize(getIconBackground(defender.background), { width: 64 })}
+															alt={m.background()}
+														/>
+													{/if}
+												</div>
+
+												<div class="min-w-0">
+													<p class="truncate font-semibold">
+														{mPokemon(defender)}
+													</p>
+													<div class="text-muted-foreground">
+														<div class="flex gap-1.5 items-center">
+															<div class="relative size-6 text-muted-foreground">
+																<Heart class="absolute inset-0 size-full stroke-1" />
+																<div
+																	class="absolute bottom-0 left-0 w-full overflow-hidden"
+																	style:height="{defender.motivation_now * 100}%"
+																>
+																	<Heart
+																		class="absolute bottom-0 left-0 size-6 fill-rose-400 dark:fill-rose-800 stroke-1"
+																	/>
+																</div>
+															</div>
+															<p>
+																{formatPercentage(defender.motivation_now, {
+																	maxDecimals: 0,
+																	minDecimals: 0
+																})}
+															</p>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="space-y-1 mt-4">
+												<StatsMainCardEntry Icon={SquareEqual} name={m.cp()}>
+													{#snippet value()}
+														<p>
+															<span>
+																{defender.cp_now}
+															</span>
+															<span class="text-muted-foreground">
+																/ {defender.cp_when_deployed}
+															</span>
+														</p>
+													{/snippet}
+												</StatsMainCardEntry>
+												<StatsMainCardEntry
+													Icon={Swords}
+													name={m.won()}
+													value={defender.battles_won}
+												/>
+												<StatsMainCardEntry
+													Icon={Shield}
+													name={m.lost()}
+													value={defender.battles_lost}
+												/>
+												<StatsMainCardEntry
+													Icon={Candy}
+													name={m.fed()}
+													value={defender.times_fed}
+												/>
+												<StatsMainCardEntry Icon={Clock} name={m.defender_placed()}>
+													{#snippet value()}
+														{#if defender.deployed_time < currentTimestamp() - 60 * 60 * 24}
+															{timestampToLocalTime(defender.deployed_time, {
+																showDate: true,
+																dayLowerCase: false,
+																showSeconds: false
+															})}
+														{:else}
+															<Countdown expireTime={defender.deployed_time} />
+														{/if}
+													{/snippet}
+												</StatsMainCardEntry>
+											</div>
 										</div>
 									{/each}
 								</div>
 							</div>
 						{/if}
-
-						<!--Raid Attributes-->
-						{#if data.raid_pokemon_id}
-							<div class="space-y-3">
-								<StatsMainCardEntry Icon={Star} name={m.tier()} value={mRaid(data.raid_level)} />
-
-								{#if data.raid_pokemon_cp != null}
-									<StatsMainCardEntry
-										Icon={ShieldHalf}
-										name={m.cp()}
-										value={data.raid_pokemon_cp}
-									/>
-								{/if}
-								<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
-									{#snippet value()}
-										<p class="flex gap-2">
-											{#if data.raid_pokemon_move_1 && data.raid_pokemon_move_2}
-												<span>{mMove(data.raid_pokemon_move_1)}</span>
-												<span>·</span>
-												<span>{mMove(data.raid_pokemon_move_2)}</span>
-											{:else}
-												{m.unknown()}
-											{/if}
-										</p>
-									{/snippet}
-								</StatsMainCardEntry>
-							</div>
-						{/if}
-					</div>
-				{/if}
-			</BasicMainCard>
-		</TitledMainSection>
-
-		<TitledMainSection
-			Icon={Shield}
-			title={m.gym_members()}
-			disabled={!data.team_id || data.team_id === 0}
-		>
-			<BasicMainCard>
-				{#if !data.team_id || data.team_id === 0}
-					{m.no_defenders_at_gym()}
-				{:else}
-					<MainCardBigIcon
-						src={getIconTeam(data.team_id)}
-						alt={mTeam(data.team_id)}
-						title={mTeam(data.team_id)}
-					/>
-
-					<div class="mt-4 space-y-3">
-						<StatsMainCardEntry
-							Icon={UsersRound}
-							name={m.slots_occupied()}
-							value="{getOccupiedSlots(data)}/{GYM_SLOTS}"
-						/>
-					</div>
-
-					{#if data.defenders?.length}
-						<div class="-mx-4 mt-2">
-							<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">
-								{#each data.defenders as defender}
-									<div class="min-w-64 max-w-80 rounded-md bg-accent-highlight p-5">
-										<div class="flex items-center gap-3">
-											<div class="size-12 shrink-0 relative">
-												<ImagePopup
-													class="absolute size-full z-10"
-													src={getIconPokemon(defender)}
-													alt={mPokemon(defender)}
-												/>
-												{#if defender.background}
-													<ImagePopup
-														class="absolute size-12 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
-														src={resize(getIconBackground(defender.background), {width: 64})}
-														alt={m.background()}
-													/>
-												{/if}
-											</div>
-
-											<div class="min-w-0">
-												<p class="truncate font-semibold">
-													{mPokemon(defender)}
-												</p>
-												<div class="text-muted-foreground">
-													<div class="flex gap-1.5 items-center">
-														<div class="relative size-6 text-muted-foreground">
-															<Heart class="absolute inset-0 size-full stroke-1" />
-															<div
-																class="absolute bottom-0 left-0 w-full overflow-hidden"
-																style:height="{defender.motivation_now * 100}%"
-															>
-																<Heart
-																	class="absolute bottom-0 left-0 size-6 fill-rose-400 dark:fill-rose-800 stroke-1" />
-															</div>
-														</div>
-														<p>
-															{formatPercentage(defender.motivation_now, {
-																maxDecimals: 0,
-																minDecimals: 0
-															})}
-														</p>
-
-													</div>
-												</div>
-											</div>
-										</div>
-
-										<div class="space-y-1 mt-4">
-											<StatsMainCardEntry
-												Icon={SquareEqual}
-												name={m.cp()}
-											>
-												{#snippet value()}
-													<p>
-														<span>
-															{defender.cp_now}
-														</span>
-														<span class="text-muted-foreground">
-															/ {defender.cp_when_deployed}
-														</span>
-													</p>
-
-												{/snippet}
-											</StatsMainCardEntry>
-											<StatsMainCardEntry
-												Icon={Swords}
-												name={m.won()}
-												value={defender.battles_won}
-											/>
-											<StatsMainCardEntry
-												Icon={Shield}
-												name={m.lost()}
-												value={defender.battles_lost}
-											/>
-											<StatsMainCardEntry
-												Icon={Candy}
-												name={m.fed()}
-												value={defender.times_fed}
-											/>
-											<StatsMainCardEntry Icon={Clock} name={m.defender_placed()}>
-												{#snippet value()}
-													{#if defender.deployed_time < currentTimestamp() - 60 * 60 * 24}
-														{timestampToLocalTime(defender.deployed_time, {
-															showDate: true,
-															dayLowerCase: false,
-															showSeconds: false
-														})}
-													{:else}
-														<Countdown
-															expireTime={defender.deployed_time} />
-													{/if}
-												{/snippet}
-											</StatsMainCardEntry>
-										</div>
-									</div>
-								{/each}
-							</div>
-						</div>
 					{/if}
-				{/if}
-			</BasicMainCard>
-		</TitledMainSection>
+				</BasicMainCard>
+			</TitledMainSection>
+		{/if}
 	{/if}
+
+	<RoutesStartingHere fortId={data.id} />
 
 	<TitledMainSection Icon={CircleDot} title={m.access_this_gym()}>
 		<MainAccessMap

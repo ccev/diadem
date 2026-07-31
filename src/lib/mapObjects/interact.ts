@@ -2,7 +2,7 @@ import { page } from "$app/state";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { MapObjectLayerId } from "@/lib/map/layers";
 import { getMap } from "@/lib/map/map.svelte";
-import type { MapObjectFeature } from "@/lib/map/render/featureTypes";
+import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureTypes";
 import {
 	getCurrentSelectedData,
 	setCurrentSelectedData
@@ -19,6 +19,13 @@ import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapMouseEvent } from "maplibre-gl";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import {
+	getFocusedRouteMapId,
+	setFocusedRouteMapId
+} from "@/lib/features/routes/routeDisplay.svelte";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
+import { getRouteBounds, getRouteEndpointFort } from "@/lib/utils/routeUtils";
 import {
 	closeOverlay,
 	getOverlayPayload,
@@ -30,11 +37,14 @@ import {
 registerOverlayHandler("map-popup", (entries) => {
 	const entry = entries.at(-1);
 	const selection = getOverlayPayload<{ data: MapData; isOverwrite: boolean }>(entry);
+	const focusedRouteMapId = getFocusedRouteMapId();
+	if (focusedRouteMapId && selection?.data.mapId !== focusedRouteMapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(selection?.data ?? null, selection?.isOverwrite ?? false);
 });
 
 export function closePopup() {
 	clearPopupVisibilityCheck();
+	setFocusedRouteMapId(null);
 	setCurrentSelectedData(null);
 	if (!closeOverlay({ kind: "map-popup", id: "selected" }, getCurrentPath())) setCurrentPath();
 
@@ -43,6 +53,8 @@ export function closePopup() {
 }
 
 export function openPopup(data: MapData, isOverwrite: boolean = false) {
+	const focusedRouteMapId = getFocusedRouteMapId();
+	if (focusedRouteMapId && focusedRouteMapId !== data.mapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(data, isOverwrite);
 	openOverlay({ kind: "map-popup", id: "selected", data: { data, isOverwrite } }, getCurrentPath());
 }
@@ -57,6 +69,12 @@ export function updateCurrentPath() {
 export function getCurrentPath(options: { data?: MapData } | undefined = undefined) {
 	const data = options?.data ?? getCurrentSelectedData();
 	if (data) {
+		if (
+			(data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) &&
+			data.isRouteEndpoint
+		) {
+			return getMapPath(getConfig());
+		}
 		return `/${data.type}/${data.id}`;
 	}
 
@@ -92,8 +110,20 @@ export function clickMapHandler(event: MapMouseEvent) {
 			) ?? mapFeatures[0];
 
 		if (feature) {
-			const data = getMapObjects()[feature.properties.id];
-			requestPopupVisibilityCheck(data);
+			let data: MapData | undefined = getMapObjects()[feature.properties.id];
+			if (!data && isFeatureIcon(feature) && feature.properties.routeEndpointFortId) {
+				data = getRouteEndpointFort(
+					Object.values(getMapObjects()).filter(
+						(object): object is RouteData => object.type === MapObjectType.ROUTE
+					),
+					feature.properties.routeEndpointFortId
+				);
+			}
+			if (!data) return;
+			requestPopupVisibilityCheck(
+				data,
+				data.type === MapObjectType.ROUTE ? getRouteBounds(data) : undefined
+			);
 			openPopup(data);
 		} else {
 			closeMenu();
