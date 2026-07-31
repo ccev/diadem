@@ -86,7 +86,6 @@ export async function updateMapObject(
 	onlyChanged: boolean = false
 ) {
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
-	if (type === MapObjectType.ROUTE) return;
 
 	let filter: AnyFilter | undefined = undefined;
 
@@ -105,8 +104,8 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.nest;
 		} else if (type === MapObjectType.SPAWNPOINT) {
 			filter = getUserSettings().filters.spawnpoint;
-			// } else if (type === MapObjectType.ROUTE) {
-			// 	filter = getUserSettings().filters.route;
+		} else if (type === MapObjectType.ROUTE) {
+			filter = getUserSettings().filters.route;
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
 		} else if (type === MapObjectType.S2_CELL) {
@@ -117,7 +116,7 @@ export async function updateMapObject(
 		}
 	}
 
-	if (!filter || !filter.enabled) {
+	if (!filter || (!filter.enabled && type !== MapObjectType.ROUTE)) {
 		clearMapObjects(type);
 		clearDataLimit(type);
 		if (!signal) updateFeatures(getMapObjects());
@@ -143,7 +142,8 @@ export async function updateMapObject(
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
 		examined = data.length;
 	} else {
-		const response = await fetchMapObjects(type, getBounds(), filter, signal, since);
+		const requestFilter = type === MapObjectType.ROUTE ? { ...filter, enabled: true } : filter;
+		const response = await fetchMapObjects(type, getBounds(), requestFilter, signal, since);
 		if (signal?.aborted) return;
 		if (response) {
 			if (response.limitReached) {
@@ -196,17 +196,28 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 	let limitsToClear: MapObjectType[] = [];
 
 	if (activeSearch) {
+		const loadRoutes = activeSearch.mapObject === MapObjectType.POKESTOP;
 		for (const mapObjectType of allMapObjectTypes) {
-			if (mapObjectType !== activeSearch.mapObject) clearMapObjects(mapObjectType);
+			if (
+				mapObjectType !== activeSearch.mapObject &&
+				(mapObjectType !== MapObjectType.ROUTE || !loadRoutes)
+			)
+				clearMapObjects(mapObjectType);
 		}
-		const limitToClear = await updateMapObject(
-			activeSearch.mapObject,
-			removeOld,
-			activeSearch.filter,
-			controller.signal,
-			onlyChanged
+		const searchTypes = [activeSearch.mapObject];
+		if (loadRoutes) searchTypes.push(MapObjectType.ROUTE);
+		const results = await Promise.all(
+			searchTypes.map((type) =>
+				updateMapObject(
+					type,
+					removeOld,
+					type === activeSearch.mapObject ? activeSearch.filter : undefined,
+					controller.signal,
+					onlyChanged
+				)
+			)
 		);
-		if (limitToClear) limitsToClear.push(limitToClear);
+		limitsToClear.push(...results.filter((type) => type !== undefined));
 	} else {
 		const [limitResults] = await Promise.all([
 			Promise.all(

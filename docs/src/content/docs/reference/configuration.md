@@ -211,6 +211,9 @@ Umbrella wildcards bundle several of the above:
 - `tool*` — `scout`, `coverage_map`, `wayfarer_map`
 - `ui*` — `search`, `weather`
 
+Route access is evaluated by path intersection. The complete route is returned when any part of
+its path intersects the visible portion of the user's permitted area.
+
 ## `server.limits`
 
 Rate-limiting is pretty bare-bones, but should work.

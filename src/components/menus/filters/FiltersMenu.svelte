@@ -6,6 +6,11 @@
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { featureFamily, Features } from "@/lib/utils/features";
+	import FilterControl from "@/components/menus/filters/FilterControl.svelte";
+	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
+	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
+	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 </script>
 
 <div
@@ -27,6 +32,7 @@
 		category="pokestop"
 		mapObject={MapObjectType.POKESTOP}
 		isFilterable={false}
+		attachedPermissions={Features.ROUTE}
 		subCategories={[
 			{
 				title: m.plain_pokestops(),
@@ -66,7 +72,27 @@
 				filterable: false
 			}
 		]}
-	/>
+	>
+		{#snippet attachedControls()}
+			{#if hasFeatureAnywhere(getUserDetails().permissions, Features.ROUTE)}
+				<div class="border-t border-border">
+					<FilterControl
+						title={m.routes()}
+						majorCategory="route"
+						mapObject={MapObjectType.ROUTE}
+						filter={getUserSettings().filters.route}
+						isFilterable={false}
+						onEnabledChange={(_category, enabled) => {
+							getUserSettings().filters.route.enabled = enabled;
+							deleteAllFeaturesOfType(MapObjectType.ROUTE);
+							updateUserSettings();
+							updateAllMapObjects().then();
+						}}
+					/>
+				</div>
+			{/if}
+		{/snippet}
+	</FilterSection>
 
 	<FilterSection
 		requiredPermission={Features.GYM}
@@ -127,14 +153,6 @@
 		category="tappable"
 		isFilterable={false}
 	/>
-
-	<!--	<FilterSection-->
-	<!--		requiredPermission={MapObjectType.ROUTE}-->
-	<!--		title={m.routes()}-->
-	<!--		mapObject={MapObjectType.ROUTE}-->
-	<!--		category="route"-->
-	<!--		isFilterable={false}-->
-	<!--	/>-->
 
 	<FilterSection
 		requiredPermission={MapObjectType.S2_CELL}

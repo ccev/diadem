@@ -36,7 +36,9 @@
 		mapObject,
 		filterModal = undefined,
 		isFilterable = true,
-		subCategories = []
+		subCategories = [],
+		attachedControls = undefined,
+		attachedPermissions = []
 	}: {
 		requiredPermission: FeaturesKey | FeaturesKey[];
 		title: string;
@@ -51,11 +53,17 @@
 			filterModal?: ModalType;
 			filterable?: boolean;
 		}[];
+		attachedControls?: Snippet;
+		attachedPermissions?: FeaturesKey | FeaturesKey[];
 	} = $props();
 
+	const primaryFeatures = $derived(
+		Array.isArray(requiredPermission) ? requiredPermission : [requiredPermission]
+	);
 	const sectionFeatures = $derived([
-		...(Array.isArray(requiredPermission) ? requiredPermission : [requiredPermission]),
-		...subCategories.map((subcategory) => subcategory.requiredPermission)
+		...primaryFeatures,
+		...subCategories.map((subcategory) => subcategory.requiredPermission),
+		...(Array.isArray(attachedPermissions) ? attachedPermissions : [attachedPermissions])
 	]);
 
 	let subcategoriesExpanded: boolean = $state(
@@ -77,6 +85,7 @@
 		});
 
 		updateUserSettings();
+		if (mapObject === MapObjectType.POKESTOP) deleteAllFeaturesOfType(MapObjectType.ROUTE);
 		updateAllMapObjects().then();
 	}
 
@@ -93,6 +102,7 @@
 		}
 
 		deleteAllFeaturesOfType(mapObject);
+		if (mapObject === MapObjectType.POKESTOP) deleteAllFeaturesOfType(MapObjectType.ROUTE);
 		updateUserSettings();
 		updateAllMapObjects().then();
 	}
@@ -100,18 +110,20 @@
 
 {#if hasAnyFeatureAnywhere(getUserDetails().permissions, sectionFeatures)}
 	<Card class="py-1 px-2">
-		<FilterControl
-			{title}
-			{isFilterable}
-			{filterModal}
-			{mapObject}
-			majorCategory={category}
-			{onEnabledChange}
-			isExpandable={subCategories.length > 0}
-			collapsibleByFiltersets={subCategories.length === 0}
-			filter={getUserSettings().filters[category]}
-			bind:expanded={subcategoriesExpanded}
-		/>
+		{#if hasAnyFeatureAnywhere(getUserDetails().permissions, primaryFeatures)}
+			<FilterControl
+				{title}
+				{isFilterable}
+				{filterModal}
+				{mapObject}
+				majorCategory={category}
+				{onEnabledChange}
+				isExpandable={subCategories.length > 0}
+				collapsibleByFiltersets={subCategories.length === 0}
+				filter={getUserSettings().filters[category]}
+				bind:expanded={subcategoriesExpanded}
+			/>
+		{/if}
 
 		{#if subCategories.length > 0}
 			{#if subcategoriesExpanded}
@@ -135,5 +147,7 @@
 				</div>
 			{/if}
 		{/if}
+
+		{@render attachedControls?.()}
 	</Card>
 {/if}

@@ -21,6 +21,7 @@ export enum MapObjectLayerId {
 	RADIUS_FILL = "mapObjectRadiusFill",
 	RADIUS_STROKE = "mapObjectRadiusStroke",
 	TIMER_LABELS = "mapObjectTimerLabels",
+	ROUTE_LINES = "mapObjectRouteLines",
 	POLYGON_FILL = "mapObjectPolygonFill",
 	POLYGON_STROKE = "mapObjectPolygonStroke"
 }

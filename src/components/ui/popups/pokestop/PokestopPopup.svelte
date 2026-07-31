@@ -25,6 +25,7 @@
 		Medal,
 		Rat,
 		ShieldHalf,
+		Signpost,
 		SlidersHorizontal,
 		UsersRound
 	} from "@lucide/svelte";
@@ -68,6 +69,13 @@
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import AboutFort from "@/components/ui/popups/common/AboutFort.svelte";
 	import { givesQuestBackground } from "$lib/utils/pokestopUtils";
+	import RouteCard from "@/components/ui/popups/route/RouteCard.svelte";
+	import { getMapObjects } from "$lib/mapObjects/mapObjectsState.svelte";
+	import type { RouteData } from "$lib/types/mapObjectData/route";
+	import { routeStartsAt } from "$lib/utils/routeUtils";
+	import { hasFeatureAnywhere } from "$lib/services/user/checkPerm";
+	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
+	import { Features } from "$lib/utils/features";
 
 	export { image, overview, main };
 
@@ -125,6 +133,13 @@
 			(filter.quest.filters.find((f) => f.enabled) ||
 				filter.invasion.filters.find((f) => f.enabled))
 		);
+	}
+
+	function getRoutesStartingAt(fortId: string): RouteData[] {
+		return Object.values(getMapObjects())
+			.filter((object): object is RouteData => object.type === MapObjectType.ROUTE)
+			.filter((route) => routeStartsAt(route, fortId))
+			.sort((a, b) => a.name.localeCompare(b.name));
 	}
 </script>
 
@@ -315,14 +330,8 @@
 				{#if !quest}
 					{m.no_quest_scanned_today()}
 				{:else}
-					<div
-						class="mb-3 flex items-center gap-2"
-						class:gap-3!={givesQuestBackground(quest)}
-					>
-						<div
-							class="relative size-7 shrink-0"
-							class:size-9!={givesQuestBackground(quest)}
-						>
+					<div class="mb-3 flex items-center gap-2" class:gap-3!={givesQuestBackground(quest)}>
+						<div class="relative size-7 shrink-0" class:size-9!={givesQuestBackground(quest)}>
 							<ImagePopup
 								class="absolute size-full z-10"
 								src={getIconReward(quest.reward.type, quest.reward.info)}
@@ -347,7 +356,6 @@
 								</p>
 							{/if}
 						</div>
-
 					</div>
 
 					<div class="bg-accent-highlight rounded-md py-3 px-4 mb-3">
@@ -362,7 +370,11 @@
 					<StatsMainCardEntry
 						Icon={Clock}
 						name={m.popup_found()}
-						value={timestampToLocalTime(quest.timestamp, { showDate: true, showSeconds: false, dayLowerCase: false })}
+						value={timestampToLocalTime(quest.timestamp, {
+							showDate: true,
+							showSeconds: false,
+							dayLowerCase: false
+						})}
 					/>
 
 					<QuickSearchButton
@@ -603,7 +615,7 @@
 											{#if entry.background}
 												<ImagePopup
 													class="absolute size-12 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
-													src={resize(getIconBackground(entry.background), {width: 64})}
+													src={resize(getIconBackground(entry.background), { width: 64 })}
 													alt={m.background()}
 												/>
 											{/if}
@@ -621,15 +633,28 @@
 		</TitledMainSection>
 	{/if}
 
-	<!--TODO: Routes-->
-	<!--	<TitledMainSection-->
-	<!--		Icon={Signpost}-->
-	<!--		title="Routes"-->
-	<!--	>-->
-	<!--		<BasicMainCard>-->
-	<!--			No routes starting or ending at this Pokestop-->
-	<!--		</BasicMainCard>-->
-	<!--	</TitledMainSection>-->
+	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.ROUTE)}
+		{@const routes = getRoutesStartingAt(data.id)}
+		<TitledMainSection
+			Icon={Signpost}
+			title={m.routes_starting_here()}
+			disabled={routes.length === 0}
+		>
+			{#if routes.length === 0}
+				<BasicMainCard>{m.no_routes_starting_here()}</BasicMainCard>
+			{:else}
+				<div class="-mx-4">
+					<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">
+						{#each routes as route (route.mapId)}
+							<BasicMainCard class="min-w-72 max-w-80">
+								<RouteCard {route} originFortId={data.id} />
+							</BasicMainCard>
+						{/each}
+					</div>
+				</div>
+			{/if}
+		</TitledMainSection>
+	{/if}
 
 	<TitledMainSection Icon={CircleDot} title={m.access_this_pokestop()}>
 		<MainAccessMap

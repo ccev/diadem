@@ -15,6 +15,7 @@ import {
 	getPolygonFeature,
 	isFeatureCircle,
 	isFeatureIcon,
+	isFeatureLine,
 	isFeaturePolygon,
 	type MapObjectFeature
 } from "@/lib/map/render/featureTypes";
@@ -23,10 +24,16 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { circle } from "@turf/turf";
+import {
+	getFocusedRouteMapId,
+	setFocusedRouteMapId
+} from "@/lib/features/routes/routeDisplay.svelte";
+import { routeStartsAt } from "@/lib/utils/routeUtils";
 
 type FeatureEntry = {
 	lat: number;
 	lon: number;
+	revision?: number;
 	features: MapObjectFeature[];
 };
 
@@ -51,10 +58,28 @@ function getEmptyFeatures(): Features {
 }
 
 function getFlattenedFeatures() {
-	return Object.values(features)
+	const flattened = Object.values(features)
 		.map((f) => Object.values(f))
 		.map((entries) => entries.map((entry) => entry.features))
 		.flat(2);
+	const actualPokestops = new Set(
+		flattened
+			.filter(
+				(feature) =>
+					isFeatureIcon(feature) &&
+					!feature.properties.routeEndpointFortId &&
+					feature.properties.id.startsWith(`${MapObjectType.POKESTOP}-`)
+			)
+			.map((feature) => feature.properties.id)
+	);
+	const routeEndpoints = new Set<string>();
+	return flattened.filter((feature) => {
+		if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
+		if (actualPokestops.has(feature.properties.id)) return false;
+		if (routeEndpoints.has(feature.properties.routeEndpointFortId)) return false;
+		routeEndpoints.add(feature.properties.routeEndpointFortId);
+		return true;
+	});
 }
 
 export function deleteAllFeaturesOfType(type: MapObjectType) {
@@ -153,6 +178,51 @@ export function updateSelected(currentSelected: MapData | null) {
 		selectedFeatures = thisFeatures;
 	}
 
+	syncRouteLineFeatures(currentSelected);
+
+	updateMapObjectsGeoJson(getFlattenedFeatures());
+}
+
+function syncRouteLineFeatures(currentSelected: MapData | null) {
+	const focusedRouteMapId = getFocusedRouteMapId();
+	const showAllRoutes = getUserSettings().filters?.route?.enabled ?? false;
+
+	for (const [mapId, entry] of Object.entries(features[MapObjectType.ROUTE])) {
+		const line = entry.features.find(isFeatureLine);
+		if (!line) continue;
+		for (const feature of entry.features) {
+			if (isFeatureIcon(feature) && feature.properties.routeEndpointFortId) {
+				feature.properties.selectedScale =
+					currentSelected?.type === MapObjectType.POKESTOP &&
+					currentSelected.id === feature.properties.routeEndpointFortId
+						? SELECTED_MAP_OBJECT_SCALE
+						: 1;
+			}
+		}
+
+		const startsAtSelectedPokestop =
+			currentSelected?.type === MapObjectType.POKESTOP &&
+			routeStartsAt(
+				{
+					start_fort_id: line.properties.startFortId,
+					end_fort_id: line.properties.endFortId,
+					reversible: line.properties.reversible
+				},
+				currentSelected.id
+			);
+		const isSelectedRoute =
+			currentSelected?.type === MapObjectType.ROUTE && currentSelected.mapId === mapId;
+		const isFocusedRoute = focusedRouteMapId === mapId;
+
+		line.properties.isHighlighted = startsAtSelectedPokestop || isSelectedRoute || isFocusedRoute;
+		line.properties.isVisible = focusedRouteMapId
+			? isFocusedRoute
+			: showAllRoutes || startsAtSelectedPokestop || isSelectedRoute;
+	}
+}
+
+export function refreshRouteFeatures() {
+	syncRouteLineFeatures(getCurrentSelectedData());
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
 
@@ -166,6 +236,8 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
 
 	const actions = getUserSettings().actions;
+	const focusedRouteMapId = getFocusedRouteMapId();
+	if (focusedRouteMapId && !mapObjects[focusedRouteMapId]) setFocusedRouteMapId(null);
 
 	for (const type of allMapObjectTypes) {
 		const thisFeatures = features[type];
@@ -181,7 +253,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				) ||
 				!obj ||
 				entry.lon !== obj.lon ||
-				entry.lat !== obj.lat
+				entry.lat !== obj.lat ||
+				(entry.revision !== undefined &&
+					entry.revision !== (obj.type === MapObjectType.ROUTE ? obj.version : undefined))
 			) {
 				selectedFeatures = selectedFeatures.filter((feature) => !entry.features.includes(feature));
 				delete features[type][existingId];
@@ -210,9 +284,11 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		features[obj.type][obj.mapId] = {
 			lat: obj.lat,
 			lon: obj.lon,
+			revision: obj.type === MapObjectType.ROUTE ? obj.version : undefined,
 			features: subFeatures
 		};
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
 	}
+	syncRouteLineFeatures(getCurrentSelectedData());
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }

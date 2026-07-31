@@ -1,12 +1,14 @@
 import { getMap } from "@/lib/map/map.svelte";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { isMenuSidebar } from "$lib/utils/device";
+import type { PaddingOptions } from "maplibre-gl";
 
 type PopupOcclusion = { width: number } | { height: number };
 
 export type PopupVisibilityRequest = { data: MapData };
 
 let visibilityRequest: PopupVisibilityRequest | undefined = $state();
+let popupOcclusion: PopupOcclusion | undefined;
 
 export function requestPopupVisibilityCheck(data: MapData) {
 	visibilityRequest = { data };
@@ -20,10 +22,31 @@ export function getPopupVisibilityRequest() {
 	return visibilityRequest;
 }
 
+export function setPopupOcclusion(occlusion: PopupOcclusion | undefined) {
+	popupOcclusion = occlusion;
+}
+
+export function getPopupFitPadding(edgePadding: number = 64): PaddingOptions {
+	const desktopMenuWidth =
+		typeof document === "undefined"
+			? 0
+			: (document.querySelector<HTMLElement>("[data-map-desktop-menu]")?.getBoundingClientRect()
+					.width ?? 0);
+
+	return {
+		top: edgePadding,
+		right: edgePadding + (popupOcclusion && "width" in popupOcclusion ? popupOcclusion.width : 0),
+		bottom:
+			edgePadding + (popupOcclusion && "height" in popupOcclusion ? popupOcclusion.height : 0),
+		left: edgePadding + desktopMenuWidth
+	};
+}
+
 export function centerRequestedMapObjectIfPopupCovers(
 	request: PopupVisibilityRequest,
 	popup: PopupOcclusion
 ) {
+	setPopupOcclusion(popup);
 	if (request !== visibilityRequest) return;
 	const { data } = request;
 
