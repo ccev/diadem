@@ -1,7 +1,14 @@
+import { isFortApiEnabled, getCachedFortAvailability } from "@/lib/server/api/golbatFortApi";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
+import type { FortAvailability } from "@/lib/server/queryMapObjects/queries";
 import { getMasterPokemon } from "@/lib/services/masterfile";
-import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
+import type {
+	ContestFocus,
+	ContestFocusPokemon,
+	ContestFocusType,
+	QuestReward
+} from "@/lib/types/mapObjectData/pokestop";
 import { getLogger } from "@/lib/utils/logger";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { getQuestKey, parseQuestReward, RewardType } from "@/lib/utils/pokestopUtils";
@@ -74,7 +81,7 @@ export type ActiveRaidStats = {
 	pokemon_id: number;
 	form: number;
 	temp_evolution_id: number;
-	count: number;
+	count?: number;
 };
 
 type InvasionStatsRow = {
@@ -123,7 +130,7 @@ export type TotalQuestStats = {
 export type ContestStatsEntry = {
 	ranking_standard: number;
 	focus: ContestFocus;
-	count: number;
+	count?: number;
 };
 
 export type MaxBattleStatsEntry = {
@@ -131,7 +138,7 @@ export type MaxBattleStatsEntry = {
 	pokemon_id: number;
 	form: number;
 	bread_mode: number;
-	count: number;
+	count?: number;
 };
 
 export type NestStatsEntry = {
@@ -298,19 +305,21 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"GROUP BY pokemon_id, form " +
 				"HAVING count > 0"
 		),
-		query<QuestStatsRow[]>(
-			"SELECT q.quest_rewards, q.quest_title, q.quest_target, COUNT(*) AS count " +
-				"FROM ( " +
-				"SELECT quest_rewards, quest_title, quest_target " +
-				"FROM pokestop " +
-				"WHERE quest_title IS NOT NULL " +
-				"UNION ALL " +
-				"SELECT alternative_quest_rewards as quest_rewards, alternative_quest_title as quest_title, alternative_quest_target as quest_target " +
-				"FROM pokestop " +
-				"WHERE alternative_quest_title IS NOT NULL " +
-				") q " +
-				"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
-		),
+		isFortApiEnabled()
+			? Promise.resolve([] as QuestStatsRow[])
+			: query<QuestStatsRow[]>(
+					"SELECT q.quest_rewards, q.quest_title, q.quest_target, COUNT(*) AS count " +
+						"FROM ( " +
+						"SELECT quest_rewards, quest_title, quest_target " +
+						"FROM pokestop " +
+						"WHERE quest_title IS NOT NULL " +
+						"UNION ALL " +
+						"SELECT alternative_quest_rewards as quest_rewards, alternative_quest_title as quest_title, alternative_quest_target as quest_target " +
+						"FROM pokestop " +
+						"WHERE alternative_quest_title IS NOT NULL " +
+						") q " +
+						"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
+				),
 		query<RaidStatsRow[]>(
 			"SELECT level, pokemon_id, form_id AS form, temp_evo_id AS temp_evolution_id, SUM(count) AS count " +
 				"FROM raid_stats " +
@@ -325,21 +334,25 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"GROUP BY 1 " +
 				"ORDER BY `character` ASC"
 		),
-		query<ContestStatsRow[]>(
-			"SELECT showcase_ranking_standard AS ranking_standard, showcase_focus AS focus, COUNT(*) as count " +
-				"FROM pokestop " +
-				"WHERE showcase_ranking_standard IS NOT NULL " +
-				"AND showcase_focus IS NOT NULL " +
-				"AND showcase_expiry > UNIX_TIMESTAMP() " +
-				"GROUP BY 1, 2"
-		),
-		query<MaxBattleStatsRow[]>(
-			"SELECT battle_level AS level, battle_pokemon_id AS pokemon_id, battle_pokemon_form AS form, battle_pokemon_bread_mode AS bread_mode, COUNT(*) as count " +
-				"FROM station " +
-				"WHERE battle_pokemon_id IS NOT NULL " +
-				"AND battle_start > UNIX_TIMESTAMP() - 86400 " +
-				"GROUP BY 1, 2, 3, 4"
-		),
+		isFortApiEnabled()
+			? Promise.resolve([] as ContestStatsRow[])
+			: query<ContestStatsRow[]>(
+					"SELECT showcase_ranking_standard AS ranking_standard, showcase_focus AS focus, COUNT(*) as count " +
+						"FROM pokestop " +
+						"WHERE showcase_ranking_standard IS NOT NULL " +
+						"AND showcase_focus IS NOT NULL " +
+						"AND showcase_expiry > UNIX_TIMESTAMP() " +
+						"GROUP BY 1, 2"
+				),
+		isFortApiEnabled()
+			? Promise.resolve([] as MaxBattleStatsRow[])
+			: query<MaxBattleStatsRow[]>(
+					"SELECT battle_level AS level, battle_pokemon_id AS pokemon_id, battle_pokemon_form AS form, battle_pokemon_bread_mode AS bread_mode, COUNT(*) as count " +
+						"FROM station " +
+						"WHERE battle_pokemon_id IS NOT NULL " +
+						"AND battle_start > UNIX_TIMESTAMP() - 86400 " +
+						"GROUP BY 1, 2, 3, 4"
+				),
 		query<NestStatsRow[]>(
 			"SELECT pokemon_id, pokemon_form AS form, COUNT(*) AS count " +
 				"FROM nests " +
@@ -447,7 +460,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		);
 
 		if (existingRaid) {
-			existingRaid.count += count;
+			existingRaid.count = (existingRaid.count ?? 0) + count;
 		} else {
 			activeRaids.push({
 				level: row.level,
@@ -475,7 +488,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		);
 
 		if (existingContest) {
-			existingContest.count += count;
+			existingContest.count = (existingContest.count ?? 0) + count;
 		} else {
 			activeContests.push({
 				ranking_standard: row.ranking_standard,
@@ -498,7 +511,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		);
 
 		if (existingMaxBattle) {
-			existingMaxBattle.count += count;
+			existingMaxBattle.count = (existingMaxBattle.count ?? 0) + count;
 		} else {
 			activeMaxBattles.push({
 				level: row.level,
@@ -615,4 +628,128 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		activeEggs: activeEggs,
 		generatedAt: Date.now()
 	};
+}
+
+// gmax battles are the level-6 tier; verified against ingameLocale.ts:135
+// (1 = dynamax, 2 = gigantamax). Live spot check against `station` (SELECT DISTINCT
+// battle_level, battle_pokemon_bread_mode FROM station WHERE battle_pokemon_bread_mode
+// IS NOT NULL) was not possible in this environment (no DB access) — pending.
+const BREAD_MODE_DYNAMAX = 1;
+const BREAD_MODE_GIGANTAMAX = 2;
+
+/**
+ * Merges the ≤60s-fresh Golbat fort availability cache into the hourly SQL-built
+ * MasterStats, replacing the pick-list-relevant fields (active raids, max battles,
+ * contests, quests) when the fort API is on. No-op otherwise.
+ */
+export function mergeFortAvailability(stats: MasterStats): MasterStats {
+	const availability = getCachedFortAvailability();
+	if (!isFortApiEnabled() || !availability) return stats;
+
+	const activeRaids: ActiveRaidStats[] = availability.gyms.raids
+		.filter((r) => r.pokemon_id)
+		.map((r) => ({
+			level: r.raid_level,
+			pokemon_id: r.pokemon_id!,
+			form: getNormalizedForm(r.pokemon_id!, r.form ?? 0),
+			// not in availability yet (Golbat enrichment PR pending) — 0 until it lands
+			temp_evolution_id: 0
+		}));
+
+	const activeMaxBattles: MaxBattleStatsEntry[] = availability.stations.battles
+		.filter((b) => b.pokemon_id)
+		.map((b) => ({
+			level: b.battle_level,
+			pokemon_id: b.pokemon_id!,
+			form: getNormalizedForm(b.pokemon_id!, b.form ?? 0),
+			bread_mode: b.battle_level >= 6 ? BREAD_MODE_GIGANTAMAX : BREAD_MODE_DYNAMAX
+		}));
+
+	const activeContests: ContestStatsEntry[] = availability.pokestops.showcases.map((s) => ({
+		// ranking_standard not in availability yet (Golbat enrichment PR pending)
+		ranking_standard: 0,
+		focus: s.pokemon_id
+			? ({
+					type: "pokemon",
+					pokemon_id: s.pokemon_id,
+					pokemon_form: getNormalizedForm(s.pokemon_id, s.form ?? 0)
+				} satisfies ContestFocusPokemon)
+			: ({ type: "type", pokemon_type_1: s.type_id ?? 0 } satisfies ContestFocusType)
+	}));
+
+	const quests: QuestStats = {};
+	let questsTotal = 0;
+	for (const q of availability.pokestops.quests) {
+		const reward = questRewardFromAvailability(q);
+		if (!reward) continue;
+
+		// with_ar intentionally excluded — AR and no-AR variants of the same quest merge
+		const key = `${q.reward_type}|${q.item_id}|${q.pokemon_id}|${q.form_id}|${q.amount}|${q.title}|${q.target}`;
+		const existing = quests[key];
+		if (existing) {
+			existing.count += q.count;
+		} else {
+			quests[key] = { reward, title: q.title, target: q.target, count: q.count };
+			questsTotal += q.count;
+		}
+	}
+
+	return {
+		...stats,
+		activeRaids,
+		activeMaxBattles,
+		activeContests,
+		quests,
+		totalQuests: { count: questsTotal }
+	};
+}
+
+function questRewardFromAvailability(
+	q: FortAvailability["pokestops"]["quests"][number]
+): QuestReward | undefined {
+	switch (q.reward_type) {
+		case RewardType.ITEM:
+			return { type: RewardType.ITEM, info: { item_id: q.item_id, amount: q.amount } };
+		case RewardType.POKEMON:
+			return {
+				type: RewardType.POKEMON,
+				info: { pokemon_id: q.pokemon_id, form: getNormalizedForm(q.pokemon_id, q.form_id) }
+			};
+		case RewardType.CANDY:
+			return { type: RewardType.CANDY, info: { pokemon_id: q.pokemon_id, amount: q.amount } };
+		case RewardType.XL_CANDY:
+			return { type: RewardType.XL_CANDY, info: { pokemon_id: q.pokemon_id, amount: q.amount } };
+		case RewardType.MEGA_ENERGY:
+			return {
+				type: RewardType.MEGA_ENERGY,
+				info: { pokemon_id: q.pokemon_id, amount: q.amount }
+			};
+		case RewardType.STARDUST:
+			return { type: RewardType.STARDUST, info: { amount: q.amount } };
+		case RewardType.XP:
+			return { type: RewardType.XP, info: { amount: q.amount } };
+		case RewardType.POKECOINS:
+			return { type: RewardType.POKECOINS, info: { amount: q.amount } };
+		case RewardType.AVATAR_CLOTHING:
+			return { type: RewardType.AVATAR_CLOTHING, info: {} };
+		case RewardType.QUEST:
+			return { type: RewardType.QUEST, info: {} };
+		case RewardType.LEVEL_CAP:
+			return { type: RewardType.LEVEL_CAP, info: {} };
+		case RewardType.STICKER:
+			return { type: RewardType.STICKER, info: {} };
+		case RewardType.INCIDENT:
+			return { type: RewardType.INCIDENT, info: {} };
+		case RewardType.PLAYER_ATTRIBUTE:
+			return { type: RewardType.PLAYER_ATTRIBUTE, info: {} };
+		case RewardType.EVENT_BADGE:
+			return { type: RewardType.EVENT_BADGE, info: {} };
+		default:
+			// POKEMON_EGG, POKEMON_INDIVIDUAL_STAT, LOOT_TABLE, FRIENDSHIP_POINTS,
+			// TEMP_EVO_BRANCH_RESOURCE: Golbat's fort availability quest rewards don't
+			// surface these today, and pokestop.d.ts doesn't cleanly define members for
+			// them in the QuestReward union (pre-existing; out of scope here) — skip
+			// rather than fabricate a shape.
+			return undefined;
+	}
 }
