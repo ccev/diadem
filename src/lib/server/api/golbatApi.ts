@@ -73,7 +73,8 @@ async function callGolbat<T>(
 	method: "GET" | "POST",
 	body: BodyInit | undefined = undefined,
 	thisFetch: typeof fetch = fetch,
-	quiet = false
+	quiet = false,
+	signal?: AbortSignal
 ): Promise<T | undefined> {
 	const start = performance.now();
 	const url = new URL(path, config.url);
@@ -89,7 +90,7 @@ async function callGolbat<T>(
 		headers["X-Golbat-Secret"] = config.secret;
 	}
 
-	const response = await thisFetch(url, { method, body, headers });
+	const response = await thisFetch(url, { method, body, headers, signal });
 
 	if (!response.ok) {
 		if (!quiet) {
@@ -166,5 +167,13 @@ export async function getGolbatStation(id: string, thisFetch: typeof fetch = fet
 }
 
 export async function fetchFortAvailability() {
-	return await callGolbat<FortAvailability>("api/fort/available", "GET", undefined, fetch, true);
+	// Bounded so a hung Golbat connection during detection can't block initDiadem().
+	return await callGolbat<FortAvailability>(
+		"api/fort/available",
+		"GET",
+		undefined,
+		fetch,
+		true,
+		AbortSignal.timeout(10_000)
+	);
 }

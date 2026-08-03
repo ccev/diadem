@@ -139,7 +139,7 @@ describe("buildPokestopDnfFilters", () => {
 			contest: disabled
 		} as any);
 		expect(result).toEqual([
-			{ quest_reward_type: [3], quest_reward_amount: { min: 500, max: 10000 } }
+			{ quest_reward_type: [3], quest_reward_amount: { min: 500, max: 2 ** 31 - 1 } }
 		]);
 	});
 });

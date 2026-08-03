@@ -666,17 +666,22 @@ export function mergeFortAvailability(stats: MasterStats): MasterStats {
 			bread_mode: b.battle_level >= 6 ? BREAD_MODE_GIGANTAMAX : BREAD_MODE_DYNAMAX
 		}));
 
-	const activeContests: ContestStatsEntry[] = availability.pokestops.showcases.map((s) => ({
-		// ranking_standard not in availability yet (Golbat enrichment PR pending)
-		ranking_standard: 0,
-		focus: s.pokemon_id
-			? ({
-					type: "pokemon",
-					pokemon_id: s.pokemon_id,
-					pokemon_form: getNormalizedForm(s.pokemon_id, s.form ?? 0)
-				} satisfies ContestFocusPokemon)
-			: ({ type: "type", pokemon_type_1: s.type_id ?? 0 } satisfies ContestFocusType)
-	}));
+	const activeContests: ContestStatsEntry[] = availability.pokestops.showcases
+		// A row with no pokemon_id and no type_id is a junk/incomplete showcase entry
+		// (Golbat has no confirmed focus for it yet) — skip rather than fabricate a
+		// bogus "type" focus with pokemon_type_1: 0.
+		.filter((s) => s.pokemon_id !== null || s.type_id !== null)
+		.map((s) => ({
+			// ranking_standard not in availability yet (Golbat enrichment PR pending)
+			ranking_standard: 0,
+			focus: s.pokemon_id
+				? ({
+						type: "pokemon",
+						pokemon_id: s.pokemon_id,
+						pokemon_form: getNormalizedForm(s.pokemon_id, s.form ?? 0)
+					} satisfies ContestFocusPokemon)
+				: ({ type: "type", pokemon_type_1: s.type_id ?? 0 } satisfies ContestFocusType)
+		}));
 
 	const quests: QuestStats = {};
 	let questsTotal = 0;
@@ -691,8 +696,10 @@ export function mergeFortAvailability(stats: MasterStats): MasterStats {
 			existing.count += q.count;
 		} else {
 			quests[key] = { reward, title: q.title, target: q.target, count: q.count };
-			questsTotal += q.count;
 		}
+		// Counted once per availability row regardless of key merge, matching the SQL
+		// path which sums every row (merged AR/no-AR variants must still be counted).
+		questsTotal += q.count;
 	}
 
 	return {

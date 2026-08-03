@@ -9,13 +9,19 @@ import {
 } from "@/lib/utils/pokestopUtils";
 
 // Superset guards: broad enough that a matching object can never be missed;
-// the local filter()/shouldDisplay* pass trims the excess.
+// the local filter()/shouldDisplay* pass trims the excess. These are hardcoded
+// enumerations, not derived from the DNF schema — if Niantic ships new lure IDs
+// or quest reward types, extend the lists here. SQL expressed the equivalent
+// checks as EXISTS()-style predicates; upstream DNF has no exists-style field
+// yet, so these lists stand in for that.
 const ALL_RAID_LEVELS = Array.from({ length: 20 }, (_, i) => i + 1);
 const ALL_LURE_IDS = [501, 502, 503, 504, 505, 506];
 const ALL_QUEST_REWARD_TYPES = Object.values(RewardType).filter(
 	(v): v is number => typeof v === "number" && v > 0
 );
-const AMOUNT_MAX = 10000;
+// DNF ranges require a finite max — this must never be low enough to exclude a
+// real quest reward amount, so it's effectively "no upper bound" (int32 max).
+const AMOUNT_MAX = 2 ** 31 - 1;
 
 function minMax(range: { min: number; max: number }) {
 	return {

@@ -4,24 +4,25 @@ import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import {
 	getGolbatPokestop,
 	scanPokestops,
-	type GolbatPokestopResult
+	type GolbatPokestopResult,
+	type PokestopScanResponse
 } from "@/lib/server/api/golbatApi";
 import { buildPokestopDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
-import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop";
-import { error } from "@sveltejs/kit";
+import { getLogger } from "@/lib/utils/logger";
 import { booleanPointInPolygon, point } from "@turf/turf";
+
+const log = getLogger("query:pokestop-api");
 
 function mapPokestop(p: GolbatPokestopResult): MinMapObject<PokestopData> {
 	const { deleted, invasions, ...rest } = p;
 	const pokestop = {
 		...rest,
 		deleted: deleted ? 1 : 0,
-		incident: (invasions ?? []).map(
-			(i) => ({ ...i, confirmed: i.confirmed }) as unknown as Incident
-		)
+		incident: (invasions ?? []).map((i): Incident => ({ ...i }))
 	} as MinMapObject<PokestopData>;
 	return pokestop;
 }
@@ -32,20 +33,26 @@ export class ApiPokestopQuery extends PokestopQuery {
 		filter: FilterPokestop | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number
+		limit?: number,
+		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MinMapObject<PokestopData>>> {
 		const dnf = buildPokestopDnfFilters(filter);
 		if (dnf === null) return { data: [], examined: 0 };
 
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
-		const result = await scanPokestops({
-			min: { latitude: bounds.minLat, longitude: bounds.minLon },
-			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-			limit: actualLimit + 1,
-			filters: dnf.length ? dnf : undefined,
-			with_incidents: true
-		});
-		if (!result) error(500);
+		let result: PokestopScanResponse | undefined;
+		try {
+			result = await scanPokestops({
+				min: { latitude: bounds.minLat, longitude: bounds.minLon },
+				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+				limit: actualLimit + 1,
+				filters: dnf.length ? dnf : undefined,
+				with_incidents: true
+			});
+		} catch (err) {
+			log.debug("Fort pokestop scan failed, falling back to SQL: %s", err);
+		}
+		if (!result) return super.query(bounds, filter, polygon, since, limit);
 
 		if (result.limit_reached || result.pokestops.length > actualLimit) {
 			return { data: [], examined: actualLimit, limitReached: true };
@@ -66,7 +73,13 @@ export class ApiPokestopQuery extends PokestopQuery {
 	}
 
 	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokestopData>[]> {
-		const stop = await getGolbatPokestop(id, thisFetch);
-		return stop && !stop.deleted ? [mapPokestop(stop)] : [];
+		let stop: GolbatPokestopResult | undefined;
+		try {
+			stop = await getGolbatPokestop(id, thisFetch);
+		} catch (err) {
+			log.debug("Fort pokestop fetch failed, falling back to SQL: %s", err);
+		}
+		if (!stop) return super.querySingle(id);
+		return stop.deleted ? [] : [mapPokestop(stop)];
 	}
 }
