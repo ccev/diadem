@@ -19,7 +19,14 @@ export function getCachedFortAvailability() {
 // Golbat gates every fort endpoint on fort_in_memory (503 when off, 404 on
 // older versions), so a successful availability fetch doubles as detection.
 export async function refreshFortAvailability() {
-	const result = await fetchFortAvailability();
+	let result: FortAvailability | undefined;
+	try {
+		result = await fetchFortAvailability();
+	} catch (err) {
+		log.debug("Fort availability fetch failed: %s", err);
+		result = undefined;
+	}
+
 	const nowEnabled = result !== undefined;
 
 	if (nowEnabled !== fortApiEnabled) {
