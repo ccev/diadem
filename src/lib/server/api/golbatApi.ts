@@ -19,7 +19,7 @@ export type PokemonResponse = {
 // Raw API records: like diadem's rows except the fields the mappers rename/reshape.
 export type GolbatGymResult = Omit<
 	MinMapObject<GymData>,
-	"availble_slots" | "defenders_raw" | "defenders" | "raw_rsvps" | "rsvps"
+	"availble_slots" | "defenders_raw" | "defenders" | "raw_rsvps" | "rsvps" | "deleted"
 > & {
 	available_slots?: number | null;
 	deleted: boolean;
@@ -100,11 +100,7 @@ async function callGolbat<T>(
 				await response.text()
 			);
 		} else {
-			log.debug(
-				"[%s] Golbat returned a bad status | %d",
-				url.toString(),
-				response.status
-			);
+			log.debug("[%s] Golbat returned a bad status | %d", url.toString(), response.status);
 		}
 		return undefined;
 	}
@@ -157,7 +153,12 @@ export async function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) 
 }
 
 export async function getGolbatPokestop(id: string, thisFetch: typeof fetch = fetch) {
-	return await callGolbat<GolbatPokestopResult>("api/pokestop/id/" + id, "GET", undefined, thisFetch);
+	return await callGolbat<GolbatPokestopResult>(
+		"api/pokestop/id/" + id,
+		"GET",
+		undefined,
+		thisFetch
+	);
 }
 
 export async function getGolbatStation(id: string, thisFetch: typeof fetch = fetch) {
