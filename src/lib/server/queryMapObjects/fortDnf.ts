@@ -30,11 +30,15 @@ export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnf
 
 	const clauses: GolbatFortDnfFilter[] = [];
 	for (const filterset of filter.raid.filters.filter((f) => f.enabled)) {
-		// Mirrors queryGym.getFilterWhere: each SQL OR-branch is one clause.
+		// Mirrors queryGym.getFilterWhere: each SQL OR-branch is one clause, pushed
+		// unconditionally — the SQL "boss" branch doesn't fold in `levels` either.
 		// A clause with any raid_* field only matches gyms with an active raid.
 		if (filterset.show?.includes("egg")) clauses.push({ raid_pokemon_id: [{ pokemon_id: 0 }] });
-		if (filterset.show?.includes("boss"))
-			clauses.push({ raid_level: filterset.levels?.length ? filterset.levels : ALL_RAID_LEVELS });
+		if (filterset.show?.includes("boss")) {
+			// DNF can't express "raid_pokemon_id != 0" (hatched); any-active-raid is a
+			// proper superset of any-hatched-raid — local re-filter trims eggs back out.
+			clauses.push({ raid_level: ALL_RAID_LEVELS });
+		}
 		if (filterset.levels?.length) clauses.push({ raid_level: filterset.levels });
 		for (const boss of filterset.bosses ?? []) {
 			// temp_evolution_id is not a DNF field: match by id only, re-filter locally

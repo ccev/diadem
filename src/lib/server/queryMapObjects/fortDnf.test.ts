@@ -30,7 +30,6 @@ vi.mock("@/lib/utils/pokemonUtils", () => ({
 }));
 
 const disabled = { enabled: false };
-const enabledEmpty = { enabled: true, filters: [] };
 
 describe("buildGymDnfFilters", () => {
 	it("matches all when plain gyms are shown", () => {
@@ -63,6 +62,22 @@ describe("buildGymDnfFilters", () => {
 		expect(result).toContainEqual({ raid_pokemon_id: [{ pokemon_id: 150 }] });
 	});
 
+	it("keeps the boss clause a superset of the SQL branch even when levels are set", () => {
+		// SQL's "boss" OR-branch is unconditional (COALESCE(raid_pokemon_id, 0) != 0) —
+		// it does NOT fold in `levels`. A hatched level-3 boss must still match even
+		// when this filterset also restricts `levels` to [5].
+		const result = buildGymDnfFilters({
+			gymPlain: { enabled: false },
+			raid: {
+				enabled: true,
+				filters: [{ enabled: true, show: ["boss"], levels: [5] }]
+			}
+		} as any);
+		expect(result).toContainEqual({ raid_level: [5] });
+		const anyLevelClause = result!.find((c) => c.raid_level && c.raid_level.length >= 9);
+		expect(anyLevelClause).toBeDefined();
+	});
+
 	it("falls back to an any-active-raid clause when raid filter has no conditions", () => {
 		const result = buildGymDnfFilters({
 			gymPlain: { enabled: false },
@@ -85,7 +100,7 @@ describe("buildPokestopDnfFilters", () => {
 			buildPokestopDnfFilters({
 				enabled: true,
 				pokestopPlain: disabled,
-				lure: enabledEmpty && disabled,
+				lure: disabled,
 				quest: disabled,
 				invasion: disabled,
 				goldPokestop: disabled,
