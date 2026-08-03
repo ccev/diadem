@@ -7,7 +7,8 @@ import type {
 	ContestFocus,
 	ContestFocusPokemon,
 	ContestFocusType,
-	QuestReward
+	QuestReward,
+	QuestRewardTempEvoBranch
 } from "@/lib/types/mapObjectData/pokestop";
 import { getLogger } from "@/lib/utils/logger";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
@@ -744,12 +745,26 @@ function questRewardFromAvailability(
 			return { type: RewardType.PLAYER_ATTRIBUTE, info: {} };
 		case RewardType.EVENT_BADGE:
 			return { type: RewardType.EVENT_BADGE, info: {} };
+		case RewardType.TEMP_EVO_BRANCH_RESOURCE: {
+			// QuestRewardTempEvoBranch is defined in pokestop.d.ts (~line 287) but is
+			// misplaced in the ContestFocus union rather than QuestReward (pre-existing
+			// bug found in Task 8; not fixed here — pokestop.d.ts is out of this task's
+			// file scope). It's live: QuestFilterset.svelte and pokestopUtils.ts both
+			// handle RewardType.TEMP_EVO_BRANCH_RESOURCE, so it must not be dropped like
+			// the genuinely-unreachable types below. The cast only compensates for the
+			// union placement bug — the object shape itself is exactly
+			// QuestRewardTempEvoBranch's `info: { amount, pokemon_id }`, not a mismatch.
+			const reward: QuestRewardTempEvoBranch = {
+				type: RewardType.TEMP_EVO_BRANCH_RESOURCE,
+				info: { amount: q.amount, pokemon_id: q.pokemon_id }
+			};
+			return reward as unknown as QuestReward;
+		}
 		default:
-			// POKEMON_EGG, POKEMON_INDIVIDUAL_STAT, LOOT_TABLE, FRIENDSHIP_POINTS,
-			// TEMP_EVO_BRANCH_RESOURCE: Golbat's fort availability quest rewards don't
-			// surface these today, and pokestop.d.ts doesn't cleanly define members for
-			// them in the QuestReward union (pre-existing; out of scope here) — skip
-			// rather than fabricate a shape.
+			// POKEMON_EGG, POKEMON_INDIVIDUAL_STAT, LOOT_TABLE, FRIENDSHIP_POINTS: Golbat's
+			// fort availability quest rewards don't surface these today, and pokestop.d.ts
+			// doesn't define usable QuestReward members for them (pre-existing; out of
+			// scope here) — skip rather than fabricate a shape.
 			return undefined;
 	}
 }
