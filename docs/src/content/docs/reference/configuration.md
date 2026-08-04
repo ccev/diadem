@@ -36,6 +36,10 @@ defaultNestName = "Unknown Nest"
 - `secret`: Must match your configured Golbat secret
 - `defaultNestName`: The default nest name, as configured in Fletchling
 
+### Golbat fort API (optional, recommended)
+
+When your Golbat exposes the fort map-data API (Golbat with [#385](https://github.com/UnownHash/Golbat/pull/385), `fort_in_memory = true` in Golbat's config — `preload = true` recommended), Diadem detects it automatically at startup and serves gyms, pokéstops and stations from it instead of SQL, and sources filter pick lists from Golbat's availability index. No Diadem configuration is needed — detection re-checks every minute, so Golbat can be upgraded or toggled without restarting Diadem. Without it, Diadem falls back to direct database queries as before.
+
 ## `server.dragonite`
 
 ```toml
