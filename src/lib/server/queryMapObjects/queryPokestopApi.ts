@@ -9,23 +9,14 @@ import {
 } from "@/lib/server/api/golbatApi";
 import { buildPokestopDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { mapPokestop } from "@/lib/server/queryMapObjects/pokestopApiMapper";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { getLogger } from "@/lib/utils/logger";
 import { booleanPointInPolygon, point } from "@turf/turf";
 
 const log = getLogger("query:pokestop-api");
-
-function mapPokestop(p: GolbatPokestopResult): MinMapObject<PokestopData> {
-	const { deleted, invasions, ...rest } = p;
-	const pokestop = {
-		...rest,
-		deleted: deleted ? 1 : 0,
-		incident: (invasions ?? []).map((i): Incident => ({ ...i }))
-	} as MinMapObject<PokestopData>;
-	return pokestop;
-}
 
 export class ApiPokestopQuery extends PokestopQuery {
 	async query(

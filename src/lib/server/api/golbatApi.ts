@@ -29,9 +29,15 @@ export type GolbatGymResult = Omit<
 
 export type GolbatIncidentResult = Omit<Incident, "confirmed"> & { confirmed: boolean };
 
-export type GolbatPokestopResult = Omit<MinMapObject<PokestopData>, "incident" | "deleted"> & {
+export type GolbatPokestopResult = Omit<
+	MinMapObject<PokestopData>,
+	"incident" | "deleted" | "quest_rewards" | "alternative_quest_rewards"
+> & {
 	deleted: boolean;
 	invasions?: GolbatIncidentResult[];
+	// native JSON on the wire (arrays of {type, info}), unlike the SQL rows' serialized strings
+	quest_rewards?: object[] | null;
+	alternative_quest_rewards?: object[] | null;
 };
 
 export type GolbatStationResult = Omit<
