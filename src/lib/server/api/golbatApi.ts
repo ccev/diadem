@@ -31,13 +31,21 @@ export type GolbatIncidentResult = Omit<Incident, "confirmed"> & { confirmed: bo
 
 export type GolbatPokestopResult = Omit<
 	MinMapObject<PokestopData>,
-	"incident" | "deleted" | "quest_rewards" | "alternative_quest_rewards"
+	| "incident"
+	| "deleted"
+	| "quest_rewards"
+	| "alternative_quest_rewards"
+	| "showcase_focus"
+	| "showcase_rankings"
 > & {
 	deleted: boolean;
 	invasions?: GolbatIncidentResult[];
 	// native JSON on the wire (arrays of {type, info}), unlike the SQL rows' serialized strings
 	quest_rewards?: object[] | null;
 	alternative_quest_rewards?: object[] | null;
+	// native JSON since Golbat's fort blob conversion; strings from older Golbat
+	showcase_focus?: object | string | null;
+	showcase_rankings?: object | string | null;
 };
 
 export type GolbatStationResult = Omit<
@@ -46,7 +54,8 @@ export type GolbatStationResult = Omit<
 > & {
 	is_inactive: boolean;
 	is_battle_available: boolean;
-	stationed_pokemon?: string | null; // still a serialized string on the wire
+	// native JSON since Golbat's fort blob conversion; string from older Golbat
+	stationed_pokemon?: object[] | string | null;
 };
 
 export type GymScanResponse = {

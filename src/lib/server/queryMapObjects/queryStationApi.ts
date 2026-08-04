@@ -9,6 +9,7 @@ import {
 } from "@/lib/server/api/golbatApi";
 import { buildStationDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { blobToString } from "@/lib/server/queryMapObjects/pokestopApiMapper";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { StationData } from "@/lib/types/mapObjectData/station";
@@ -23,7 +24,7 @@ function mapStation(s: GolbatStationResult): MinMapObject<StationData> {
 		...rest,
 		is_inactive: is_inactive ? 1 : 0,
 		is_battle_available: is_battle_available ? 1 : 0,
-		raw_stationed_pokemon: stationed_pokemon ?? undefined
+		raw_stationed_pokemon: blobToString(stationed_pokemon)
 	} as MinMapObject<StationData>;
 }
 

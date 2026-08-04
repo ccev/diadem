@@ -24,6 +24,32 @@ describe("mapPokestop", () => {
 		});
 	});
 
+	it("handles both wire generations for showcase blobs", () => {
+		// newer Golbat sends native JSON, older Golbat a serialized string
+		const native = mapPokestop({
+			id: "s",
+			lat: 0,
+			lon: 0,
+			deleted: false,
+			showcase_focus: { type: "pokemon", pokemon_id: 25 },
+			showcase_rankings: { total_entries: 3, contest_entries: [] }
+		} as never);
+		expect(JSON.parse(native.showcase_focus!)).toEqual({ type: "pokemon", pokemon_id: 25 });
+		expect(JSON.parse(native.showcase_rankings!)).toEqual({
+			total_entries: 3,
+			contest_entries: []
+		});
+
+		const legacy = mapPokestop({
+			id: "s",
+			lat: 0,
+			lon: 0,
+			deleted: false,
+			showcase_focus: '{"type":"pokemon","pokemon_id":25}'
+		} as never);
+		expect(legacy.showcase_focus).toBe('{"type":"pokemon","pokemon_id":25}');
+	});
+
 	it("leaves absent quest rewards undefined", () => {
 		const mapped = mapPokestop({
 			id: "stop-2",
