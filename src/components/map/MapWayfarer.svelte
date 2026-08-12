@@ -22,6 +22,7 @@
 		getWayfarerStyle
 	} from "@/lib/features/wayfarerMap.svelte";
 	import MapCommon from "@/components/map/MapCommon.svelte";
+	import MarkerCurrentLocation from "@/components/map/MarkerCurrentLocation.svelte";
 	import {
 		getInitialMapPositionMain,
 		getMapPositionFromUrlParams
@@ -262,4 +263,6 @@
 			hoverCursor="pointer"
 		/>
 	</GeoJSON>
+
+	<MarkerCurrentLocation />
 </MapCommon>
