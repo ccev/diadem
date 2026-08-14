@@ -20,9 +20,9 @@
 	{#if typeof name === "function"}
 		{@render name()}
 	{:else}
-		<div class="flex gap-1.5 text-muted-foreground">
+		<div class="flex gap-1.5 items-center text-muted-foreground">
 			{#if Icon}
-				<Icon class="size-3.5 mt-1 shrink-0" />
+				<Icon class="size-3.5 shrink-0" />
 			{/if}
 			{name}
 		</div>

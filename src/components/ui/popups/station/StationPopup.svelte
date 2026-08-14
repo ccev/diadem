@@ -5,10 +5,11 @@
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { StationData } from "$lib/types/mapObjectData/station";
 	import { currentTimestamp } from "$lib/utils/currentTimestamp";
-	import { formatNumber } from "$lib/utils/numberFormat";
+	import { formatNumber, formatPercentage } from "$lib/utils/numberFormat";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import {
 		calculateMaxBattleCp,
+		getStationAttackBonus,
 		getStationPokemon,
 		isMaxBattleActive,
 		STATION_SLOTS
@@ -22,7 +23,6 @@
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import MainCardBigIcon from "@/components/ui/popups/common/MainCardBigIcon.svelte";
 	import OverviewCard from "@/components/ui/popups/common/OverviewCard.svelte";
-	import PokemonStatsCard from "@/components/ui/popups/common/PokemonStatsCard.svelte";
 	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
 	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
@@ -30,18 +30,23 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import {
-		ChartSpline,
+		Calculator,
 		CircleDot,
 		Clock,
-		ClockArrowDown,
-		ClockArrowUp,
+		HandFist,
+		Heart,
 		Info,
 		MapPinned,
-		Search,
+		SquareEqual,
 		Star,
+		Sword,
 		Swords,
+		Timer,
 		UsersRound
 	} from "@lucide/svelte";
+	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
+	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
+	import { getIconBackground } from "$lib/services/uicons.svelte.ts";
 
 	export { image, overview, main };
 
@@ -65,15 +70,6 @@
 	function hasLastMaxBattle(data: StationData) {
 		return Boolean(data.battle_pokemon_id && (data.end_time ?? 0) < currentTimestamp());
 	}
-</script>
-<script>
-	import DynamaxIcon from "@/components/icons/DynamaxIcon.svelte";
-	import BigExpireTime from "@/components/ui/popups/common/BigExpireTime.svelte";
-	import { Calculator, HandFist, Heart, ShieldHalf, SquareEqual, Sword, Timer } from "@lucide/svelte";
-	import { getStationAttackBonus } from "$lib/utils/stationUtils";
-	import { formatPercentage } from "$lib/utils/numberFormat";
-	import InvasionLineupEntry from "@/components/ui/popups/common/InvasionLineupEntry.svelte";
-	import { getIconBackground } from "$lib/services/uicons.svelte.ts";
 </script>
 
 {#snippet image(d: MapData)}
@@ -103,7 +99,10 @@
 		<OverviewCard
 			Icon={UsersRound}
 			title={m.stationed()}
-			value={m.station_overview_count({ total: data.total_stationed_pokemon ?? 0, gmax: data.total_stationed_gmax ?? 0 })}
+			value={m.station_overview_count({
+				total: data.total_stationed_pokemon ?? 0,
+				gmax: data.total_stationed_gmax ?? 0
+			})}
 		/>
 	{/if}
 {/snippet}
@@ -137,17 +136,25 @@
 							<StatsMainCardEntry
 								Icon={Timer}
 								name={m.started()}
-								value={timestampToLocalTime(data.start_time, {showDate: true, showSeconds: false, showTime: true, dayLowerCase: false})}
+								value={timestampToLocalTime(data.start_time, {
+									showDate: true,
+									showSeconds: false,
+									showTime: true,
+									dayLowerCase: false
+								})}
 							/>
 						{/if}
-					{:else}
-						{#if data.end_time}
-							<StatsMainCardEntry
-								Icon={Timer}
-								name={m.raid_ends()}
-								value={timestampToLocalTime(data.end_time, {showDate: true, showSeconds: false, showTime: true, dayLowerCase: false})}
-							/>
-						{/if}
+					{:else if data.end_time}
+						<StatsMainCardEntry
+							Icon={Timer}
+							name={m.raid_ends()}
+							value={timestampToLocalTime(data.end_time, {
+								showDate: true,
+								showSeconds: false,
+								showTime: true,
+								dayLowerCase: false
+							})}
+						/>
 					{/if}
 					<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
 						{#snippet value()}
@@ -162,11 +169,7 @@
 							</p>
 						{/snippet}
 					</StatsMainCardEntry>
-					<StatsMainCardEntry
-						Icon={Star}
-						name={m.tier()}
-						value={data.battle_level ?? 0}
-					/>
+					<StatsMainCardEntry Icon={Star} name={m.tier()} value={data.battle_level ?? 0} />
 					<StatsMainCardEntry
 						Icon={SquareEqual}
 						name={m.cp()}
@@ -187,20 +190,17 @@
 				<QuickSearchButton
 					label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}
 					onclick={() =>
-				setActiveSearchMaxBattleBoss(
-					m.pokemon_max_battles({ pokemon: pokemonName }),
-					data.battle_pokemon_id ?? 0,
-					data.battle_pokemon_form ?? 0,
-					data.battle_pokemon_bread_mode ?? 0
-				)}
+						setActiveSearchMaxBattleBoss(
+							m.pokemon_max_battles({ pokemon: pokemonName }),
+							data.battle_pokemon_id ?? 0,
+							data.battle_pokemon_form ?? 0,
+							data.battle_pokemon_bread_mode ?? 0
+						)}
 				/>
 			</BasicMainCard>
 		</TitledMainSection>
 
-		<TitledMainSection
-			Icon={UsersRound}
-			title={m.stationed_pokemon()}
-		>
+		<TitledMainSection Icon={UsersRound} title={m.stationed_pokemon()}>
 			<BasicMainCard>
 				<div class="space-y-3">
 					<StatsMainCardEntry
@@ -216,7 +216,10 @@
 					<StatsMainCardEntry
 						Icon={HandFist}
 						name={m.attack_bonus()}
-						value={formatPercentage(getStationAttackBonus(data.total_stationed_pokemon ?? 0), { minDecimals: 0, maxDecimals: 1 })}
+						value={formatPercentage(getStationAttackBonus(data.total_stationed_pokemon ?? 0), {
+							minDecimals: 0,
+							maxDecimals: 1
+						})}
 					/>
 				</div>
 				{#if data.stationed_pokemon?.length}
@@ -240,7 +243,6 @@
 											/>
 										{/if}
 									</div>
-
 								</div>
 							{/each}
 						</div>
@@ -249,11 +251,7 @@
 			</BasicMainCard>
 		</TitledMainSection>
 	{:else}
-		<TitledMainSection
-			Icon={DynamaxIcon}
-			disabled={true}
-			title={m.pogo_max_battle()}
-		>
+		<TitledMainSection Icon={DynamaxIcon} disabled={true} title={m.pogo_max_battle()}>
 			<BasicMainCard>
 				{#if hasLastMaxBattle(data)}
 					<MainCardBigIcon
@@ -265,7 +263,7 @@
 						{m.last_max_battle_notice({
 							time: timestampToLocalTime(data.end_time, {
 								showDate: true,
-								showSeconds: false,
+								showSeconds: false
 							})
 						})}
 					</IconValue>
@@ -274,7 +272,6 @@
 				{/if}
 			</BasicMainCard>
 		</TitledMainSection>
-
 	{/if}
 
 	<TitledMainSection

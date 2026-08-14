@@ -4,21 +4,26 @@
 	import { useMetadata } from "$lib/ui/metadata.svelte";
 
 	export type MapObjectPopupProps = {
-		type: string,
-		title: string,
-		image: Snippet<[MapData]>,
-		overview?: Snippet<[MapData]>,
-		main: Snippet<[MapData]>,
-	}
+		type: string;
+		title: string;
+		image: Snippet<[MapData]>;
+		overview?: Snippet<[MapData]>;
+		main: Snippet<[MapData]>;
+	};
 </script>
 
 <script lang="ts">
 	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 	import * as m from "$lib/paraglide/messages";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
-	import { backupShareUrl, canNativeShare, copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
+	import {
+		backupShareUrl,
+		canNativeShare,
+		copyToClipboard,
+		hasClipboardWrite
+	} from "$lib/utils/device";
 	import Button from "@/components/ui/input/Button.svelte";
-	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
+	import { Copy, Navigation, Share2, X, Ticket } from "@lucide/svelte";
 	import { getRootOrigin } from "$lib/native/runtime";
 	import { closePopup, getCurrentPath } from "$lib/mapObjects/interact";
 	import { getLocale } from "$lib/paraglide/runtime";
@@ -26,6 +31,8 @@
 	import { Coords } from "$lib/utils/coordinates";
 	import { getShareTitle } from "$lib/features/shareTexts";
 	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
+	import { showAutoBattleButton } from "$lib/ui/popupActions";
+	import { getRemoteInvite } from "$lib/features/autoBattle";
 
 	let {
 		coords,
@@ -33,10 +40,10 @@
 		data,
 		onlyShowNavigationButton
 	}: {
-		coords: Coords,
-		data: MapData | undefined
-		props: MapObjectPopupProps | undefined,
-		onlyShowNavigationButton: boolean
+		coords: Coords;
+		data: MapData | undefined;
+		props: MapObjectPopupProps | undefined;
+		onlyShowNavigationButton: boolean;
 	} = $props();
 
 	useMetadata(() => ({ title: props ? props.title : undefined }));
@@ -44,7 +51,6 @@
 	function getShareUrl() {
 		return getRootOrigin() + getCurrentPath({ data }) + "?lang=" + getLocale();
 	}
-
 </script>
 
 <div class="flex gap-6 px-4">
@@ -107,15 +113,23 @@
 
 <div class="mt-5" data-popup-initial-snap-point-end>
 	{#if onlyShowNavigationButton}
-		<PopupButton
-			class="mx-4 w-full"
-			variant="default"
-			Icon={Navigation}
-			label={m.popup_navigate()}
-			tag="a"
-			href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
-			target="_blank"
-		/>
+		<div class="flex flex-wrap gap-2 mx-4 *:min-w-0 *:flex-1">
+			<PopupButton
+				class=""
+				variant="default"
+				Icon={Navigation}
+				label={m.popup_navigate()}
+				tag="a"
+				href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
+				target="_blank"
+			/>
+			{#if data && showAutoBattleButton(data)}
+				<Button class="" variant="secondary" onclick={() => getRemoteInvite(data)}>
+					<Ticket class="size-3.5" />
+					Get Remote Invite
+				</Button>
+			{/if}
+		</div>
 	{:else if data}
 		<PopupButtons lat={coords.lat} lon={coords.lon} {data} />
 	{/if}
