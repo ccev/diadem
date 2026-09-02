@@ -27,6 +27,7 @@ import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 import { SvelteMap } from "svelte/reactivity";
+import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined; since?: number };
 
@@ -116,7 +117,13 @@ export async function updateMapObject(
 		}
 	}
 
-	if (!filter || (!filter.enabled && type !== MapObjectType.ROUTE)) {
+	if (!filter || !filter.enabled) {
+		const selected = getCurrentSelectedData();
+		const preserveRoutesForFortPopup =
+			type === MapObjectType.ROUTE &&
+			(selected?.type === MapObjectType.POKESTOP || selected?.type === MapObjectType.GYM);
+		if (preserveRoutesForFortPopup) return;
+
 		clearMapObjects(type);
 		clearDataLimit(type);
 		if (!signal) updateFeatures(getMapObjects());
@@ -142,8 +149,7 @@ export async function updateMapObject(
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
 		examined = data.length;
 	} else {
-		const requestFilter = type === MapObjectType.ROUTE ? { ...filter, enabled: true } : filter;
-		const response = await fetchMapObjects(type, getBounds(), requestFilter, signal, since);
+		const response = await fetchMapObjects(type, getBounds(), filter, signal, since);
 		if (signal?.aborted) return;
 		if (response) {
 			if (response.limitReached) {

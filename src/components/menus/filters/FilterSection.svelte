@@ -59,6 +59,9 @@
 		...primaryFeatures,
 		...subCategories.map((subcategory) => subcategory.requiredPermission)
 	]);
+	const hasPrimaryPermission = $derived(
+		hasAnyFeatureAnywhere(getUserDetails().permissions, primaryFeatures)
+	);
 
 	let subcategoriesExpanded: boolean = $state(
 		untrack(() => sessionExpandedState[category as string] ?? false)
@@ -110,7 +113,7 @@
 
 {#if hasAnyFeatureAnywhere(getUserDetails().permissions, sectionFeatures)}
 	<Card class="py-1 px-2">
-		{#if hasAnyFeatureAnywhere(getUserDetails().permissions, primaryFeatures)}
+		{#if hasPrimaryPermission}
 			<FilterControl
 				{title}
 				{isFilterable}
@@ -126,7 +129,7 @@
 		{/if}
 
 		{#if subCategories.length > 0}
-			{#if subcategoriesExpanded}
+			{#if subcategoriesExpanded || !hasPrimaryPermission}
 				<div class="mb-2" transition:slide={{ duration: 80 }}>
 					{#each subCategories as subcategory (subcategory.category)}
 						{#if hasFeatureAnywhere(getUserDetails().permissions, subcategory.requiredPermission)}

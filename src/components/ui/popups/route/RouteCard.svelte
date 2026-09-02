@@ -11,6 +11,7 @@
 	import { formatRouteDistance, formatRouteDuration } from "@/lib/utils/routeFormat";
 	import { getRouteBounds } from "@/lib/utils/routeUtils";
 	import { mRouteTag } from "@/lib/services/ingameLocale";
+	import type { LucideIcon } from "@/lib/types/lucide";
 	import { Clock, MapPinned, Ruler } from "@lucide/svelte";
 	import OverviewCard from "@/components/ui/popups/common/OverviewCard.svelte";
 
@@ -29,6 +30,18 @@
 			(endType === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
 	);
 	let endImage = $derived(reverseDirection ? route.start_image : route.end_image);
+	let routeMetrics: { Icon: LucideIcon; title: string; value: string }[] = $derived([
+		{
+			Icon: Ruler,
+			title: m.route_distance(),
+			value: formatRouteDistance(route.distance_meters)
+		},
+		{
+			Icon: Clock,
+			title: m.route_duration(),
+			value: formatRouteDuration(route.duration_seconds)
+		}
+	]);
 
 	function fitRoute() {
 		const map = getMap();
@@ -50,7 +63,7 @@
 {/if}
 
 <div class="mt-3 grid grid-cols-2 gap-3">
-	{#each [[Ruler, m.route_distance(), formatRouteDistance(route.distance_meters)], [Clock, m.route_duration(), formatRouteDuration(route.duration_seconds)]] as [Icon, title, value]}
+	{#each routeMetrics as { Icon, title, value } (title)}
 		<div class="border bg-accent-highlight border-border rounded-lg px-3 py-2">
 			<h2 class="flex items-center gap-1 text-muted-foreground text-sm font-semibold mb0.5">
 				<Icon class="size-3.5" />
