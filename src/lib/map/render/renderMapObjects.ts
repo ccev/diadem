@@ -655,7 +655,8 @@ class RouteRenderer extends MapObjectRenderer<RouteData> {
 				endFortId: data.end_fort_id,
 				reversible: data.reversible,
 				isVisible: false,
-				isHighlighted: isSelected || isSelectedOverwrite
+				isHighlighted: isSelected || isSelectedOverwrite,
+				isDimmed: false
 			})
 		];
 

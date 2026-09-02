@@ -188,6 +188,8 @@ export function updateSelected(currentSelected: MapData | null) {
 function syncRouteLineFeatures(currentSelected: MapData | null) {
 	const focusedRouteMapId = getFocusedRouteMapId();
 	const showAllRoutes = getUserSettings().filters?.route?.enabled ?? false;
+	const selectedRouteMapId =
+		currentSelected?.type === MapObjectType.ROUTE ? currentSelected.mapId : undefined;
 	const selectedFort =
 		currentSelected?.type === MapObjectType.POKESTOP || currentSelected?.type === MapObjectType.GYM
 			? currentSelected
@@ -213,14 +215,15 @@ function syncRouteLineFeatures(currentSelected: MapData | null) {
 				},
 				selectedFort.id
 			);
-		const isSelectedRoute =
-			currentSelected?.type === MapObjectType.ROUTE && currentSelected.mapId === mapId;
+		const isSelectedRoute = selectedRouteMapId === mapId;
 		const isFocusedRoute = focusedRouteMapId === mapId;
 
-		line.properties.isHighlighted = startsAtSelectedFort || isSelectedRoute || isFocusedRoute;
+		line.properties.isHighlighted =
+			(showAllRoutes && startsAtSelectedFort) || isSelectedRoute || isFocusedRoute;
+		line.properties.isDimmed = selectedRouteMapId !== undefined && !isSelectedRoute;
 		line.properties.isVisible = focusedRouteMapId
 			? isFocusedRoute
-			: showAllRoutes || startsAtSelectedFort || isSelectedRoute;
+			: showAllRoutes || isSelectedRoute;
 	}
 }
 

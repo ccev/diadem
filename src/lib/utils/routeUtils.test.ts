@@ -74,6 +74,27 @@ describe("route utilities", () => {
 		});
 	});
 
+	it("creates an end fort for a one-way route", () => {
+		const pokestop = getRouteEndpointFort(
+			[
+				{
+					...route,
+					reversible: false,
+					end_name: "One-way end",
+					end_image: "end.jpg",
+					updated: 123
+				}
+			],
+			"end"
+		);
+
+		expect(pokestop).toMatchObject({
+			id: "end",
+			name: "One-way end",
+			url: "end.jpg"
+		});
+	});
+
 	it("creates a team-colored gym endpoint without raid data", () => {
 		const gym = getRouteEndpointFort(
 			[

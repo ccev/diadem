@@ -3,7 +3,6 @@ import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 export type RouteWaypoint = {
 	lat_degrees: number;
 	lng_degrees: number;
-	elevation_in_meters?: number;
 };
 
 export type RouteFortType = MapObjectType.POKESTOP | MapObjectType.GYM;
@@ -19,6 +18,8 @@ export type RouteData = {
 	description: string;
 	distance_meters: number;
 	duration_seconds: number;
+	elevation_uphill_meters: number;
+	elevation_downhill_meters: number;
 	start_fort_id: string;
 	start_fort_type: RouteFortType;
 	start_name: string | null;

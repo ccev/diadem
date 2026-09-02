@@ -13,6 +13,7 @@
 		CircleOff,
 		Eye,
 		EyeClosed,
+		Focus,
 		Minus,
 		Navigation,
 		Plus,
@@ -26,6 +27,12 @@
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
+	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
+	import {
+		getFocusedRouteMapId,
+		setFocusedRouteMapId
+	} from "$lib/features/routes/routeDisplay.svelte";
+	import { refreshRouteFeatures } from "$lib/map/featuresGen.svelte";
 
 	let {
 		lat,
@@ -39,18 +46,21 @@
 
 	let selectedType = $derived(data?.type);
 	let selectedMapId = $derived(data?.mapId);
+	let routeFocused = $derived(
+		selectedType === MapObjectType.ROUTE && getFocusedRouteMapId() === selectedMapId
+	);
 </script>
 
 <div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">
-<!--	<PopupButton-->
-<!--		variant="default"-->
-<!--		Icon={Plus}-->
-<!--		label={m.popup_show_details()}-->
-<!--		IconActive={Minus}-->
-<!--		labelActive={m.popup_hide_details()}-->
-<!--		active={isPopupExpanded(selectedType)}-->
-<!--		onclick={() => togglePopupExpanded(selectedType)}-->
-<!--	/>-->
+	<!--	<PopupButton-->
+	<!--		variant="default"-->
+	<!--		Icon={Plus}-->
+	<!--		label={m.popup_show_details()}-->
+	<!--		IconActive={Minus}-->
+	<!--		labelActive={m.popup_hide_details()}-->
+	<!--		active={isPopupExpanded(selectedType)}-->
+	<!--		onclick={() => togglePopupExpanded(selectedType)}-->
+	<!--	/>-->
 	<PopupButton
 		variant="default"
 		Icon={Navigation}
@@ -59,6 +69,19 @@
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
 	/>
+	{#if selectedType === MapObjectType.ROUTE}
+		<PopupButton
+			Icon={Focus}
+			label={m.focus_route()}
+			IconActive={Focus}
+			labelActive={m.unfocus_route()}
+			active={routeFocused}
+			onclick={() => {
+				setFocusedRouteMapId(routeFocused ? null : selectedMapId);
+				refreshRouteFeatures();
+			}}
+		/>
+	{/if}
 	{#if supportsPopupAction(selectedType, PopupAction.DIMMED)}
 		<PopupButton
 			Icon={EyeClosed}

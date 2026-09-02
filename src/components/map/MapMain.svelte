@@ -228,7 +228,7 @@
 			layout={{ "line-cap": "round", "line-join": "round" }}
 			paint={{
 				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
-				"line-opacity": 0.4,
+				"line-opacity": ["case", ["coalesce", ["get", "isDimmed"], false], 0.2, 0.4],
 				"line-width": 4
 			}}
 			hoverCursor="pointer"

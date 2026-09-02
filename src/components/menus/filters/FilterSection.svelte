@@ -78,9 +78,11 @@
 			].enabled = value;
 		});
 
-		updateUserSettings();
-		if (mapObject === MapObjectType.POKESTOP || mapObject === MapObjectType.ROUTE)
+		if (mapObject === MapObjectType.POKESTOP || mapObject === MapObjectType.ROUTE) {
 			deleteAllFeaturesOfType(MapObjectType.ROUTE);
+		}
+
+		updateUserSettings();
 		updateAllMapObjects().then();
 	}
 
@@ -97,7 +99,10 @@
 		}
 
 		deleteAllFeaturesOfType(mapObject);
-		if (mapObject === MapObjectType.POKESTOP) deleteAllFeaturesOfType(MapObjectType.ROUTE);
+		if (mapObject === MapObjectType.POKESTOP || mapObject === MapObjectType.ROUTE) {
+			deleteAllFeaturesOfType(MapObjectType.ROUTE);
+		}
+
 		updateUserSettings();
 		updateAllMapObjects().then();
 	}

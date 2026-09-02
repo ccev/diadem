@@ -19,6 +19,10 @@ const METERS_PER_LATITUDE_DEGREE = 110_574;
 const METERS_PER_LONGITUDE_DEGREE = 111_320;
 const CANDIDATE_PAGE_SIZE = 2_000;
 
+type RawRouteWaypoint = RouteWaypoint & {
+	elevation_in_meters?: number;
+};
+
 export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 	protected readonly type = MapObjectType.ROUTE;
 	protected readonly table = "route AS route_data";
@@ -189,9 +193,34 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 		data.end_fort_type =
 			data.end_fort_type === MapObjectType.GYM ? MapObjectType.GYM : MapObjectType.POKESTOP;
 		data.tags = this.parseJsonArray<string>(data.tags);
-		data.waypoints = this.parseJsonArray<RouteWaypoint>(data.waypoints).filter(
+		const waypoints = this.parseJsonArray<RawRouteWaypoint>(data.waypoints).filter(
 			(waypoint) => Number.isFinite(waypoint.lat_degrees) && Number.isFinite(waypoint.lng_degrees)
 		);
+		if (
+			!Number.isFinite(data.elevation_uphill_meters) ||
+			!Number.isFinite(data.elevation_downhill_meters)
+		) {
+			let previousElevation: number | undefined;
+			let uphill = 0;
+			let downhill = 0;
+			for (const waypoint of waypoints) {
+				const elevation = waypoint.elevation_in_meters;
+				if (elevation === undefined || !Number.isFinite(elevation)) continue;
+
+				if (previousElevation !== undefined) {
+					const difference = elevation - previousElevation;
+					if (difference > 0) uphill += difference;
+					else downhill -= difference;
+				}
+				previousElevation = elevation;
+			}
+			data.elevation_uphill_meters = uphill;
+			data.elevation_downhill_meters = downhill;
+		}
+		data.waypoints = waypoints.map(({ lat_degrees, lng_degrees }) => ({
+			lat_degrees,
+			lng_degrees
+		}));
 	}
 
 	private parseJsonArray<T>(value: unknown): T[] {

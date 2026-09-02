@@ -63,6 +63,7 @@ export type MapObjectLineProperties = {
 	reversible: boolean;
 	isVisible: boolean;
 	isHighlighted: boolean;
+	isDimmed: boolean;
 };
 
 export type MapObjectIconFeature = GeojsonFeature<Point, MapObjectIconProperties>;

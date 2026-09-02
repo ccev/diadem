@@ -10,7 +10,7 @@
 	} = $props();
 </script>
 
-<div class="basic-main-card bg-accent text-accent-foreground px-4 pt-4 pb-4 border border-border rounded-lg {class_}">
+<div class="basic-main-card bg-accent text-accent-foreground p-4 border border-border rounded-lg {class_}">
 	{@render children?.()}
 </div>
 

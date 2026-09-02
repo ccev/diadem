@@ -53,7 +53,9 @@ export function getRouteEndpointFort(
 	routes: RouteData[],
 	fortId: string
 ): PokestopData | GymData | undefined {
-	const route = routes.find((route) => routeStartsAt(route, fortId));
+	const route = routes.find(
+		(route) => route.start_fort_id === fortId || route.end_fort_id === fortId
+	);
 	if (!route) return;
 
 	const isEnd = route.start_fort_id !== fortId && route.end_fort_id === fortId;

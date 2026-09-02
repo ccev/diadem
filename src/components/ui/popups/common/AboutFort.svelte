@@ -4,12 +4,12 @@
 	import { openFortDetailsModal } from "@/components/ui/popups/common/FortDetailsModal.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
+	import ExpandableDescription from "@/components/ui/popups/common/ExpandableDescription.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
 	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { ArrowRight, BadgeEuro, Info } from "@lucide/svelte";
-	import { tick } from "svelte";
 
 	let {
 		title,
@@ -34,35 +34,6 @@
 		lastModified?: number;
 		firstSeen?: number;
 	} = $props();
-
-	let expandedDescription: string | null = $state(null);
-	let showFullDescription = $derived(Boolean(description && expandedDescription === description));
-	let descriptionIsClamped = $state(false);
-
-	function measureDescriptionClamp(
-		_description: string | null | undefined,
-		_showFullDescription: boolean
-	) {
-		return (node: HTMLParagraphElement) => {
-			const measure = () => {
-				if (showFullDescription) {
-					descriptionIsClamped = false;
-					return;
-				}
-
-				descriptionIsClamped = node.scrollHeight > node.clientHeight + 1;
-			};
-
-			tick().then(measure);
-
-			const resizeObserver = new ResizeObserver(measure);
-			resizeObserver.observe(node);
-
-			return () => {
-				resizeObserver.disconnect();
-			};
-		};
-	}
 </script>
 
 <TitledMainSection Icon={Info} {title}>
@@ -76,28 +47,7 @@
 				{name}
 			</p>
 
-			{#if !description}
-				<p class="text-muted-foreground">{m.no_description()}</p>
-			{:else}
-				<p
-					{@attach measureDescriptionClamp(description, showFullDescription)}
-					class="text-muted-foreground"
-					class:line-clamp-3={!showFullDescription}
-				>
-					{description}
-				</p>
-
-				{#if descriptionIsClamped}
-					<Button
-						class="mt-1 h-auto p-0 text-base! text-muted-foreground!"
-						variant="link"
-						size=""
-						onclick={() => (expandedDescription = description)}
-					>
-						{m.read_more()}
-					</Button>
-				{/if}
-			{/if}
+			<ExpandableDescription {description} />
 		{/if}
 
 		{#if sponsorId || partnerId}
