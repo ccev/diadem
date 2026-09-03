@@ -109,7 +109,7 @@ export async function fetchMapObjects<T extends MapData>(
 		const body: MapObjectRequestData = {
 			...currentBounds,
 			filter: withFilter ? filter : undefined,
-			filterHash: withFilter ? getFilterHash(filter) : filterHash,
+			filterHash: withFilter && filterHash !== undefined ? getFilterHash(filter) : filterHash,
 			since
 		};
 		const encoded = encodeRequestBody(body);

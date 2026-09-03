@@ -373,7 +373,7 @@ function post(
 		typeof encoded.body === "string"
 			? new TextEncoder().encode(encoded.body).byteLength
 			: encoded.body.byteLength;
-	const keepalive = reason !== "timer" && size < KEEPALIVE_MAX_BYTES;
+	const keepalive = size < KEEPALIVE_MAX_BYTES;
 
 	fetch(url, {
 		method: "POST",
@@ -382,7 +382,7 @@ function post(
 		keepalive,
 		// An unsettled request would leave the one-at-a-time guard set forever;
 		// keepalive sends are exempt as the page is going away.
-		signal: keepalive ? undefined : AbortSignal.timeout(SYNC_TIMEOUT_MS)
+		signal: reason === "closing" ? undefined : AbortSignal.timeout(SYNC_TIMEOUT_MS)
 	})
 		.then(async (response) => {
 			// A 200 with an error body (e.g. expired session) is still a failure.
