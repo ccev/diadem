@@ -1,4 +1,4 @@
-import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { rateLimitConsume } from "@/lib/server/api/rateLimit";
 import { respond } from "@/lib/server/api/respond";
 import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
@@ -6,8 +6,11 @@ import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjec
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { featureFamily } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
+import { getRouteCoordinates } from "@/lib/utils/routeUtils";
 import { error, json } from "@sveltejs/kit";
+import { lineString } from "@turf/turf";
 import { constants } from "http2";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
 import type { RequestHandler } from "./$types";
 
 const log = getLogger("mapobject id");
@@ -47,8 +50,20 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 
 	if (!data) error(constants.HTTP_STATUS_NOT_FOUND);
 
-	if (!family.some((feature) => permissionContext.isAllowedAt(feature, data.lat, data.lon)))
-		error(constants.HTTP_STATUS_UNAUTHORIZED);
+	let allowedForObject: boolean;
+	if (type === MapObjectType.ROUTE) {
+		allowedForObject = family.some((feature) =>
+			permissionContext.isAllowedGeometry(
+				feature,
+				lineString(getRouteCoordinates(data as RouteData))
+			)
+		);
+	} else {
+		allowedForObject = family.some((feature) =>
+			permissionContext.isAllowedAt(feature, data.lat, data.lon)
+		);
+	}
+	if (!allowedForObject) error(constants.HTTP_STATUS_UNAUTHORIZED);
 
 	log.info(
 		"[%s] Serving single map object / time: %dms",

@@ -1,5 +1,35 @@
 import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
+export type RouteWaypoint = {
+	lat_degrees: number;
+	lng_degrees: number;
+};
+
+type RouteEndpointBase = {
+	id: string;
+	name: string | null;
+	image: string;
+	lat: number;
+	lon: number;
+	updated: number;
+	firstSeen: number;
+	deleted: boolean;
+};
+
+export type RoutePokestopEndpoint = RouteEndpointBase & {
+	type: MapObjectType.POKESTOP;
+};
+
+export type RouteGymEndpoint = RouteEndpointBase & {
+	type: MapObjectType.GYM;
+	teamId: number | null;
+	availableSlots: number | null;
+	inBattle: boolean | null;
+	exRaidEligible: boolean | null;
+};
+
+export type RouteEndpoint = RoutePokestopEndpoint | RouteGymEndpoint;
+
 export type RouteData = {
 	id: string;
 	mapId: string;
@@ -11,20 +41,16 @@ export type RouteData = {
 	description: string;
 	distance_meters: number;
 	duration_seconds: number;
-	start_fort_id: string;
-	start_image: string;
-	start_lat: number;
-	start_lon: number;
-	end_fort_id: string;
-	end_image: string;
-	end_lat: number;
-	end_lon: number;
+	elevation_uphill_meters: number;
+	elevation_downhill_meters: number;
+	start: RouteEndpoint;
+	end: RouteEndpoint;
 	image: string;
 	image_border_color: string;
-	reversible: number;
-	tags: string | null;
+	reversible: boolean;
+	tags: string[];
 	route_type: number; // Renamed from 'type' in SQL to avoid conflict with discriminant
 	updated: number;
 	version: number;
-	waypoints: string;
+	waypoints: RouteWaypoint[];
 };
