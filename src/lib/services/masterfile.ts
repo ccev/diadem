@@ -1,12 +1,13 @@
 import { getPokemonStats } from "@/lib/features/masterStats.svelte";
 import type { MasterFile, MasterPokemon, MasterWeather } from "@/lib/types/masterfile";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 const url = "/api/pogodata";
 let masterFile: MasterFile;
 
 export async function loadMasterFile() {
-	const result = await fetch(url);
-	masterFile = await result.json();
+	const result = await fetch(url, { headers: getHeaders() });
+	masterFile = await parseResponse<MasterFile>(result);
 }
 
 export function overwriteMasterfile(newMaster: MasterFile) {

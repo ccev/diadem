@@ -10,6 +10,7 @@
 	import Loading from "@/components/ui/Loading.svelte";
 	import FortDetailsModal from "@/components/ui/popups/common/FortDetailsModal.svelte";
 	import { closeTopOverlay, reconcileOverlays } from "@/lib/ui/overlays.svelte";
+	import { syncUserSettings } from "@/lib/services/userSettings.svelte";
 
 	let { data, children } = $props();
 
@@ -18,7 +19,12 @@
 	watch(() => page.state, reconcileOverlays);
 </script>
 
+<svelte:window onpagehide={syncUserSettings} />
+
 <svelte:document
+	onvisibilitychange={() => {
+		if (document.visibilityState === "hidden") syncUserSettings();
+	}}
 	onkeydown={(event) => {
 		if (event.key !== "Escape" || !closeTopOverlay()) return;
 		event.preventDefault();

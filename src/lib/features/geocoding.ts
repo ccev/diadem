@@ -1,6 +1,7 @@
 import { getMap } from "@/lib/map/map.svelte";
 import { getLocale } from "@/lib/paraglide/runtime";
 import { addAddressSearchResults, setIsSearchingAddress } from "@/lib/services/search.svelte";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 import type { BBox, Geometry } from "geojson";
 
 const searchDebounceMs = 100;
@@ -46,14 +47,17 @@ export async function searchAddress(query: string, ignoreMinCharacters: boolean)
 		}
 
 		try {
-			const result = await fetch(url, { signal: abortController.signal });
+			const result = await fetch(url, {
+				headers: getHeaders(),
+				signal: abortController.signal
+			});
 
 			if (!result.ok) {
 				console.error("Address request failed!");
 				return;
 			}
 
-			data = await result.json();
+			data = await parseResponse<AddressData[]>(result);
 			addAddressSearchResults(data, query);
 		} catch (error: any) {
 			if (error.name !== "AbortError") {

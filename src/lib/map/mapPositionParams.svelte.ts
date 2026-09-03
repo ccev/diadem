@@ -1,5 +1,5 @@
 import { Coords } from "@/lib/utils/coordinates";
-import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte.js";
 import { replacePageState } from "@/lib/ui/overlays.svelte";
 
 export function getMapPositionFromUrlParams(): [Coords | undefined, number | undefined] {
@@ -39,7 +39,7 @@ export function getInitialMapPositionMain() {
 		userSettings.mapPosition.zoom = zoom;
 	}
 	if (center || zoom) {
-		updateUserSettings();
+		updateMapPosition();
 	}
 
 	return $state.snapshot(getUserSettings().mapPosition);

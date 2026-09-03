@@ -28,7 +28,7 @@
 		getMapPositionFromUrlParams
 	} from "$lib/map/mapPositionParams.svelte";
 	import { getConfig } from "@/lib/services/config/config";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
+	import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import type { FeatureCollection, Point, Polygon } from "geojson";
 	import { getMapStyle } from "@/lib/utils/mapStyle";
@@ -150,7 +150,7 @@
 			const us = getUserSettings();
 			us.mapPosition.zoom = loadedMap.getZoom();
 			us.mapPosition.center = loadedMap.getCenter();
-			updateUserSettings();
+			updateMapPosition();
 		});
 
 		updateWayfarerData(loadedMap);

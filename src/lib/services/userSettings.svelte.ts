@@ -15,6 +15,7 @@ import { getConfig } from "@/lib/services/config/config";
 import type { AnySearchEntry } from "@/lib/services/search.svelte";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
+import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
 import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
@@ -191,8 +192,9 @@ export function getDefaultIconSet(type: MapObjectType) {
 let userSettings: UserSettings = $state({});
 
 export async function getUserSettingsFromServer() {
-	const response = await fetch("/api/user/settings");
-	const dbUserSettings: { error?: string; result: UserSettings } = await response.json();
+	const response = await fetch("/api/user/settings", { headers: getHeaders() });
+	if (!response.ok) return;
+	const dbUserSettings = await parseResponse<{ error?: string; result: UserSettings }>(response);
 
 	// User has existing user settings, merge with defaults and keep the local copy in sync.
 	if (!dbUserSettings.error && Object.keys(dbUserSettings.result).length > 0) {
@@ -213,15 +215,97 @@ export function getUserSettings() {
 	return userSettings;
 }
 
-export function updateUserSettings() {
-	const serializedUserSettings = JSON.stringify(userSettings);
+const SETTINGS_SYNC_DELAY_MS = 2000;
+const SETTINGS_ENDPOINT = "/api/user/settings";
+const POSITION_ENDPOINT = "/api/user/settings/position";
+const KEEPALIVE_MAX_BYTES = 64 * 1024;
+const SYNC_TIMEOUT_MS = 15_000;
 
-	if (browser && window.localStorage) {
-		localStorage.setItem("userSettings", serializedUserSettings);
+let syncTimer: ReturnType<typeof setTimeout> | undefined;
+let pendingSync: "full" | "position" | undefined;
+let lastSyncedUserSettings: string | undefined;
+let syncing = false;
+let retrying = false;
+
+function persistUserSettingsLocally(): string {
+	const serialized = JSON.stringify(userSettings);
+	if (browser && window.localStorage) localStorage.setItem("userSettings", serialized);
+	return serialized;
+}
+
+function scheduleSync(type?: "full" | "position") {
+	if (type) retrying = false;
+	if (type === "full" || !pendingSync) pendingSync = type ?? pendingSync;
+	if (syncTimer || syncing) return;
+	syncTimer = setTimeout(syncUserSettings, SETTINGS_SYNC_DELAY_MS);
+}
+
+export function updateUserSettings() {
+	const serialized = persistUserSettingsLocally();
+
+	if (!getUserDetails().details) return;
+	if (serialized === lastSyncedUserSettings && !syncing) return;
+
+	scheduleSync("full");
+}
+
+export function updateMapPosition() {
+	persistUserSettingsLocally();
+
+	if (!getUserDetails().details) return;
+	scheduleSync("position");
+}
+
+export async function syncUserSettings() {
+	if (syncTimer) {
+		clearTimeout(syncTimer);
+		syncTimer = undefined;
+	}
+	if (syncing || !pendingSync) return;
+
+	const type = pendingSync;
+	pendingSync = undefined;
+	let serialized: string | undefined;
+	let body: unknown;
+	let url: string;
+
+	if (type === "full") {
+		serialized = JSON.stringify(userSettings);
+		if (serialized === lastSyncedUserSettings) return;
+		body = userSettings;
+		url = SETTINGS_ENDPOINT;
+	} else {
+		const { center, zoom } = userSettings.mapPosition;
+		body = { lat: center.lat, lng: center.lng, zoom };
+		url = POSITION_ENDPOINT;
 	}
 
-	if (getUserDetails().details) {
-		fetch("/api/user/settings", { method: "POST", body: serializedUserSettings }).then();
+	const encoded = encodeRequestBody(body);
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), SYNC_TIMEOUT_MS);
+	syncing = true;
+	let succeeded = false;
+	try {
+		const response = await fetch(url, {
+			method: "POST",
+			body: encoded.body,
+			headers: getHeaders(encoded.contentType),
+			keepalive: encoded.byteLength < KEEPALIVE_MAX_BYTES,
+			signal: controller.signal
+		});
+		succeeded = response.ok;
+		if (response.ok && serialized) lastSyncedUserSettings = serialized;
+	} catch {
+	} finally {
+		clearTimeout(timeout);
+		syncing = false;
+		if (!succeeded && !retrying) {
+			retrying = true;
+			if (type === "full" || !pendingSync) pendingSync = type;
+		} else {
+			retrying = false;
+		}
+		if (pendingSync) scheduleSync();
 	}
 }
 

@@ -7,7 +7,7 @@ import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { featureFamily } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import { getRouteCoordinates } from "@/lib/utils/routeUtils";
-import { error, json } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import { lineString } from "@turf/turf";
 import { constants } from "http2";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
@@ -71,5 +71,5 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 		(performance.now() - start).toFixed(1)
 	);
 
-	return json(data);
+	return respond(request, data);
 };

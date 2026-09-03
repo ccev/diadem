@@ -1,13 +1,14 @@
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
+import { respond } from "@/lib/server/api/respond";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
-import { json } from "@sveltejs/kit";
 
-export async function GET() {
+export async function GET({ request }) {
 	try {
 		const stats = await masterstatsProvider.get();
-		return json(stats, { headers: cacheHttpHeaders(300, 3600, 3600) });
+		return respond(request, stats, { headers: cacheHttpHeaders(300, 3600, 3600) });
 	} catch (e) {
-		return json(
+		return respond(
+			request,
 			{
 				pokemon: {},
 				generatedAt: 0
