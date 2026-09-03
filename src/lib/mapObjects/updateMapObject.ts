@@ -31,30 +31,14 @@ import { SvelteMap } from "svelte/reactivity";
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 export type MapObjectRequestData = Bounds & {
-	filter?: AnyFilter | undefined;
+	filter?: AnyFilter;
 	filterHash?: string;
 	since?: number;
 };
 
 const STATUS_FILTER_UNKNOWN = 409;
-
-/** Hashes that keep missing (another process may hold the cache) — always send in full. */
-const alwaysSendFilterHashes = new Set<string>();
-
-/** Hashes the server refused to cache (filter too large) — omit the hash entirely. */
 const uncacheableFilterHashes = new Set<string>();
-
-/** Hashes the server is known to hold — poll by hash alone. */
 const knownFilterHashes = new Set<string>();
-
-/** Consecutive misses per hash; past this we fall back to always sending it. */
-const filterHashMisses = new Map<string, number>();
-const MAX_FILTER_HASH_MISSES = 3;
-
-/** Keyed like the server cache (client, type, hash). */
-function hashKey(type: MapObjectType, hash: string): string {
-	return type + " " + hash;
-}
 
 let currentController: AbortController | undefined;
 const lastQueryTimestamps = new SvelteMap<MapObjectType, number>();
@@ -67,27 +51,13 @@ export function getLastQueryTimestamps() {
 	return lastQueryTimestamps;
 }
 
-/** A hash the server keeps failing to resolve isn't worth asking about again. */
-function recordFilterHashMiss(hash: string) {
-	const misses = (filterHashMisses.get(hash) ?? 0) + 1;
-	if (misses >= MAX_FILTER_HASH_MISSES) {
-		alwaysSendFilterHashes.add(hash);
-		knownFilterHashes.delete(hash);
-		filterHashMisses.delete(hash);
-		return;
-	}
-	filterHashMisses.set(hash, misses);
-}
-
 export function clearMap() {
 	// TODO: Also do this on login
 	clearAllMapObjects();
 	resetLastQueryTimestamps();
 	clearAllDataLimits();
 	knownFilterHashes.clear();
-	alwaysSendFilterHashes.clear();
 	uncacheableFilterHashes.clear();
-	filterHashMisses.clear();
 	updateFeatures(getMapObjects());
 }
 
@@ -98,56 +68,49 @@ export async function fetchMapObjects<T extends MapData>(
 	signal?: AbortSignal,
 	since?: number
 ): Promise<MapObjectResponse<T> | undefined> {
-	const currentBounds = getBounds();
 	const hash = getFilterHash(filter);
-	const key = hash === undefined ? undefined : hashKey(type, hash);
-	// Server won't cache it; sending the hash would only make it re-hash.
-	const filterHash = key !== undefined && uncacheableFilterHashes.has(key) ? undefined : hash;
+	const filterHash = hash !== undefined && uncacheableFilterHashes.has(hash) ? undefined : hash;
 
-	async function post(withFilter: boolean): Promise<Response> {
-		// Re-hash at send time: `filter` is a live object that could change mid-409.
+	function post(withFilter: boolean): Promise<Response> {
 		const body: MapObjectRequestData = {
-			...currentBounds,
+			...bounds,
 			filter: withFilter ? filter : undefined,
-			filterHash: withFilter && filterHash !== undefined ? getFilterHash(filter) : filterHash,
+			filterHash,
 			since
 		};
 		const encoded = encodeRequestBody(body);
-		return await fetch("/api/" + type, {
+		return fetch("/api/" + type, {
 			method: "POST",
 			body: encoded.body,
-			headers: getHeaders({ msgpack: true, contentType: encoded.contentType, clientId: true }),
+			headers: getHeaders(encoded.contentType),
 			signal
 		});
 	}
 
 	try {
-		// First use and known misses send in full; otherwise poll by hash alone.
-		const sendFilter =
-			filterHash === undefined ||
-			key === undefined ||
-			!knownFilterHashes.has(key) ||
-			alwaysSendFilterHashes.has(key);
+		const sendFilter = hash === undefined || !knownFilterHashes.has(hash);
 
 		let response = await post(sendFilter);
-		if (response.status === STATUS_FILTER_UNKNOWN) {
-			if (key !== undefined) recordFilterHashMiss(key);
-			await response.body?.cancel(); // never read; leaving it open holds the connection
+		if (response.status === STATUS_FILTER_UNKNOWN && hash !== undefined && !sendFilter) {
+			knownFilterHashes.delete(hash);
+			await response.body?.cancel();
 			response = await post(true);
-		} else if (key !== undefined && !sendFilter && response.ok) {
-			// Only a successful hash-only poll proves the misses are over.
-			filterHashMisses.delete(key);
 		}
 
-		if (key !== undefined) {
-			if (response.headers.get("X-Filter-Cached") === "0") {
-				uncacheableFilterHashes.add(key);
-				knownFilterHashes.delete(key);
-			} else if (response.ok && filterHash !== undefined) {
-				knownFilterHashes.add(key);
+		if (hash !== undefined) {
+			const cached = response.headers.get("X-Filter-Cached");
+			if (cached === "1") {
+				knownFilterHashes.add(hash);
+			} else if (cached === "0") {
+				uncacheableFilterHashes.add(hash);
+				knownFilterHashes.delete(hash);
 			}
 		}
 
+		if (!response.ok) {
+			console.error(`Error while fetching ${type}: ${response.status}`);
+			return;
+		}
 		return await parseResponse<MapObjectResponse<T>>(response);
 	} catch (e) {
 		if (e instanceof DOMException && e.name === "AbortError") {

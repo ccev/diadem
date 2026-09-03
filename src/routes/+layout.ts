@@ -9,6 +9,8 @@ import {
 	updateUserSettings
 } from "@/lib/services/userSettings.svelte";
 import type { LayoutLoad } from "./$types";
+import type { ClientConfig } from "@/lib/services/config/configTypes";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export const ssr = false;
 
@@ -21,11 +23,11 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 	}
 
 	// show an error if instance isn't reachable
-	let config;
+	let config: ClientConfig;
 	try {
-		const configResponse = await fetch("/api/config");
+		const configResponse = await fetch("/api/config", { headers: getHeaders() });
 		if (!configResponse.ok) throw new Error(`config ${configResponse.status}`);
-		config = await configResponse.json();
+		config = await parseResponse<ClientConfig>(configResponse);
 	} catch {
 		return { configError: true, offline: browser && !navigator.onLine };
 	}

@@ -1,12 +1,13 @@
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { respond } from "@/lib/server/api/respond";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
-import { error, json } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 
 const log = getLogger("mapobjects");
 
-export async function GET({ params, locals }) {
+export async function GET({ params, locals, request }) {
 	const start = performance.now();
 	if (!hasFeatureAnywhereServer(locals.perms, Features.WEATHER, locals.user)) error(401);
 	const permCheckTime = performance.now();
@@ -20,7 +21,7 @@ export async function GET({ params, locals }) {
 			(performance.now() - permCheckTime).toFixed(1)
 		);
 
-		return json(result);
+		return respond(request, result);
 	} catch (e) {
 		log.error("[weather] query failed", e);
 		error(500);

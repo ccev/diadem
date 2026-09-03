@@ -1,9 +1,9 @@
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
-const writesPerMinute = 240;
+const WRITES_PER_MINUTE = 240;
 
 const limiter = new RateLimiterMemory({
-	points: writesPerMinute,
+	points: WRITES_PER_MINUTE,
 	duration: 60,
 	keyPrefix: "settings_"
 });

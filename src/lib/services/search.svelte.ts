@@ -25,6 +25,7 @@ import { openModal } from "@/lib/ui/modal.svelte";
 import { mAny } from "@/lib/utils/anyMessage";
 import type { Coords } from "@/lib/utils/coordinates";
 import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
+import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import microfuzz, {
 	fuzzyMatch,
 	type FuzzyResult,
@@ -631,8 +632,10 @@ async function getFortSearchEntries(searchOptions: SearchOptions, map?: maplibre
 	}
 
 	const bounds = getFixedBounds(8, usedMap);
+	const encoded = encodeRequestBody(bounds);
 	const response = await fetch("/api/search/forts", {
-		body: JSON.stringify(bounds),
+		body: encoded.body,
+		headers: getHeaders(encoded.contentType),
 		method: "POST"
 	});
 
@@ -641,7 +644,7 @@ async function getFortSearchEntries(searchOptions: SearchOptions, map?: maplibre
 		return;
 	}
 
-	const entries: RawFortSearchEntry[] = await response.json();
+	const entries = await parseResponse<RawFortSearchEntry[]>(response);
 	fortData.lat = latKey;
 	fortData.lon = lonKey;
 	fortData.data = entries;
@@ -669,12 +672,12 @@ export function highlightSearchMatches(match: HighlightRanges | null | undefined
 
 export async function backgroundGeometryLookup(osmId: string, coords: Coords) {
 	try {
-		const result = await fetch("/api/search/geometry/" + osmId);
+		const result = await fetch("/api/search/geometry/" + osmId, { headers: getHeaders() });
 		if (!result.ok) {
 			setSearchedLocation(coords);
 			return;
 		}
-		const geometry = (await result.json()) as Geometry;
+		const geometry = await parseResponse<Geometry>(result);
 		if (geometry.type) {
 			if (geometry.type === "Point") {
 				setSearchedLocation(coords);

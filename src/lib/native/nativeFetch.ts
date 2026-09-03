@@ -8,6 +8,7 @@ import { getBearerToken } from "@/lib/native/auth";
 
 /** Paths that live on the Diadem instance and must be redirected there on native. */
 const INSTANCE_PREFIXES = ["/api/", "/assets/"];
+const NATIVE_FETCH_TIMEOUT_MS = 15_000;
 
 /**
  * Decide whether a request URL should be redirected to the remote instance.
@@ -97,10 +98,7 @@ function buildRequestHeaders(init?: RequestInit, req?: Request): Record<string, 
 	if (h) {
 		new Headers(h).forEach((value, key) => (out[key] = value));
 	}
-	// Force uncompressed responses: the server (respond.ts) brotli/gzips when
-	// Accept-Encoding asks for it, but a Response we reconstruct from
-	// CapacitorHttp's bytes is NOT auto-decompressed — so .json()/msgpack would
-	// receive compressed bytes and fail silently. "identity" => plain bytes.
+	// Reconstructed responses are not transparently decompressed.
 	out["Accept-Encoding"] = "identity";
 
 	// Native has no cookies — authenticate instance requests with the bearer token.
@@ -168,6 +166,8 @@ export function installNativeFetch(): void {
 			method,
 			headers,
 			data,
+			connectTimeout: NATIVE_FETCH_TIMEOUT_MS,
+			readTimeout: NATIVE_FETCH_TIMEOUT_MS,
 			responseType: "blob" // base64 payload in response.data; works for JSON + binary
 		});
 

@@ -15,18 +15,13 @@ describe("stableStringify", () => {
 		expect(stableStringify({ a: 1, b: undefined })).toBe(stableStringify({ a: 1 }));
 	});
 
-	// The server strips nulls when reading a msgpack body, since msgpack encodes
-	// an unset field as nil. Hashing one would name a filter it never stores.
-	it("drops null properties, matching what the server keeps", () => {
-		expect(stableStringify({ a: 1, b: null })).toBe(stableStringify({ a: 1 }));
+	it("preserves null properties", () => {
+		expect(stableStringify({ a: 1, b: null })).not.toBe(stableStringify({ a: 1 }));
 	});
 
-	// An open-ended range reaches the server as null over JSON and as a real
-	// infinity over msgpack; both sides have to ignore it to agree.
-	it("treats a non-finite number the same as an absent one", () => {
-		expect(stableStringify({ min: 0, max: Infinity })).toBe(stableStringify({ min: 0 }));
+	it("uses JSON semantics for non-finite numbers", () => {
 		expect(stableStringify({ min: 0, max: Infinity })).toBe(stableStringify({ min: 0, max: null }));
-		expect(stableStringify({ n: NaN })).toBe(stableStringify({}));
+		expect(stableStringify({ n: NaN })).toBe(stableStringify({ n: null }));
 	});
 
 	it("sorts nested keys", () => {
@@ -53,6 +48,10 @@ describe("getFilterHash", () => {
 
 	it("differs when a value changes", () => {
 		expect(getFilterHash({ enabled: true })).not.toBe(getFilterHash({ enabled: false }));
+	});
+
+	it("returns a sha-256 digest", () => {
+		expect(getFilterHash({ enabled: true })).toMatch(/^[0-9a-f]{64}$/);
 	});
 
 	it("returns undefined without a filter", () => {

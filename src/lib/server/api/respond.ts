@@ -1,42 +1,27 @@
 import { encode } from "@msgpack/msgpack";
-import { brotliCompressSync, constants, gzipSync } from "node:zlib";
 
-export function respond(request: Request, data: any, options?: ResponseInit): Response {
+const MSGPACK_CONTENT_TYPE = "application/msgpack";
+
+function quality(accept: string, contentType: string): number {
+	for (const value of accept.split(",")) {
+		const [type, ...parameters] = value.trim().split(";");
+		if (type !== contentType) continue;
+		const parameter = parameters.find((entry) => entry.trim().startsWith("q="));
+		return parameter ? Number(parameter.trim().slice(2)) : 1;
+	}
+	return 0;
+}
+
+export function respond(request: Request, data: unknown, options?: ResponseInit): Response {
 	const accept = request.headers.get("Accept") ?? "";
-	const acceptEncoding = request.headers.get("Accept-Encoding") ?? "";
+	const useMsgpack = quality(accept, MSGPACK_CONTENT_TYPE) > quality(accept, "application/json");
+	const headers = new Headers(options?.headers);
+	headers.append("Vary", "Accept");
+	headers.set("Content-Type", useMsgpack ? MSGPACK_CONTENT_TYPE : "application/json");
+	if (!headers.has("Cache-Control")) headers.set("Cache-Control", "private, no-store");
 
-	const useMsgpack = accept.includes("application/msgpack");
-	const body = useMsgpack ? encode(data) : JSON.stringify(data);
-	const contentType = useMsgpack ? "application/msgpack" : "application/json";
-
-	const useBrotli = acceptEncoding.includes("br");
-	const useGzip = !useBrotli && acceptEncoding.includes("gzip");
-
-	let compressed: Uint8Array | string;
-	let contentEncoding: string | undefined;
-
-	if (useBrotli) {
-		compressed = brotliCompressSync(body, {
-			params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
-		});
-		contentEncoding = "br";
-	} else if (useGzip) {
-		compressed = gzipSync(body);
-		contentEncoding = "gzip";
-	} else {
-		compressed = body;
-	}
-
-	const headers: Record<string, any> = {
-		...options?.headers,
-		"Content-Type": contentType,
-		"Cache-Control": "private, no-store",
-		Vary: "Accept, Accept-Encoding"
-	};
-
-	if (contentEncoding) {
-		headers["Content-Encoding"] = contentEncoding;
-	}
-
-	return new Response(compressed, { ...options, headers });
+	return new Response(useMsgpack ? encode(data, { ignoreUndefined: true }) : JSON.stringify(data), {
+		...options,
+		headers
+	});
 }

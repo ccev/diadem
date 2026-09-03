@@ -1,7 +1,5 @@
-import type { AnyFilter } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
-import { getClientIdentity } from "@/lib/server/api/clientIdentity";
 import { getFilterHash } from "@/lib/utils/filterHash";
 import { recallFilter, rememberFilter } from "@/lib/server/api/filterCache";
 import { readRequestBody } from "@/lib/server/api/requestBody";
@@ -24,26 +22,11 @@ import type { RequestHandler } from "./$types";
 
 const log = getLogger("mapobjects");
 
-/** Shape of getFilterHash's output; anything else never matches a cache entry. */
-const FILTER_HASH_PATTERN = /^[0-9a-z]{1,16}$/;
-
-/** Charge for a request answered without a query — bad body, denied bounds, unknown hash. */
+const FILTER_HASH_PATTERN = /^[0-9a-f]{64}$/;
 const DENIED_CHARGE = 100;
 
-function hasFiniteBounds(data: MapObjectRequestData): boolean {
-	return (
-		Number.isFinite(data.minLat) &&
-		Number.isFinite(data.maxLat) &&
-		Number.isFinite(data.minLon) &&
-		Number.isFinite(data.maxLon)
-	);
-}
-
-export const POST: RequestHandler = async (event) => {
-	const { request, locals, params, getClientAddress } = event;
+export const POST: RequestHandler = async ({ request, locals, params, getClientAddress }) => {
 	const rateLimitKey = locals.user?.id ?? getClientAddress();
-	// Keyed per browser: behind a proxy all logged-out visitors share one address.
-	const filterKey = getClientIdentity(event);
 	const type = params.queryMapObject as MapObjectType;
 	const family = featureFamily[type];
 
@@ -51,7 +34,6 @@ export const POST: RequestHandler = async (event) => {
 	if (!hasAnyFeatureAnywhereServer(locals.perms, family, locals.user)) error(401);
 	const permCheckTime = performance.now();
 
-	// Claimed before the body is read, so decoding is behind the limiter too.
 	const requestLimit = requestLimits[type];
 	const [allowed, _, totalLimit, headers] = await rateLimitConsume(
 		rateLimitKey,
@@ -73,63 +55,59 @@ export const POST: RequestHandler = async (event) => {
 		);
 	}
 
-	/** Give back all but `charge` of what was claimed above. */
-	const refund = async (charge: number) => {
-		if (requestLimit > charge) await rateLimitReward(rateLimitKey, requestLimit - charge, type);
+	const refundDeniedRequest = async () => {
+		if (requestLimit > DENIED_CHARGE) {
+			await rateLimitReward(rateLimitKey, requestLimit - DENIED_CHARGE, type);
+		}
 	};
 
 	let data: MapObjectRequestData;
 	try {
 		data = await readRequestBody(request);
 	} catch {
-		// A malformed body is a 400, not a 500.
-		await refund(DENIED_CHARGE);
+		await refundDeniedRequest();
 		error(400);
 	}
-	if (!data || typeof data !== "object" || Array.isArray(data) || !hasFiniteBounds(data)) {
-		await refund(DENIED_CHARGE);
+	if (
+		!data ||
+		typeof data !== "object" ||
+		Array.isArray(data) ||
+		!Number.isFinite(data.minLat) ||
+		!Number.isFinite(data.maxLat) ||
+		!Number.isFinite(data.minLon) ||
+		!Number.isFinite(data.maxLon)
+	) {
+		await refundDeniedRequest();
 		error(400);
 	}
 
-	// Checked before anything writes to the cache, so an unauthorized request
-	// can't fill it or evict from it.
 	const permitted = checkFeaturesInBounds(locals.perms, family, data);
 
 	if (!permitted) {
-		await refund(DENIED_CHARGE);
+		await refundDeniedRequest();
 		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
 	}
 
-	// typeof, not just the pattern: a msgpack body can carry a number here.
 	const filterHash =
 		typeof data.filterHash === "string" && FILTER_HASH_PATTERN.test(data.filterHash)
 			? data.filterHash
 			: undefined;
-	let filter: AnyFilter | undefined = data.filter;
-	// Set only when the cache refused a sent filter; rides on the success response.
+	let filter = data.filter;
 	let extraHeaders: Record<string, string> | undefined;
 
-	// A malformed hash still gets a resend, or the query would run filterless
-	// and return the whole viewport.
-	if (data.filterHash != null && !filterHash && !filter) {
-		await refund(DENIED_CHARGE);
-		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_CONFLICT });
+	if (data.filterHash !== undefined && !filterHash) {
+		await refundDeniedRequest();
+		error(400);
 	}
 
 	if (filterHash) {
 		if (filter) {
-			// The hash must match the sent filter, or a client could store an
-			// arbitrary filter under someone else's hash.
-			const cached =
-				getFilterHash(filter) === filterHash && rememberFilter(filterKey, type, filterHash, filter);
-			if (!cached) extraHeaders = { "X-Filter-Cached": "0" };
-			// Query with the stored copy so every hash-only poll runs the same object.
-			else filter = recallFilter(filterKey, type, filterHash) ?? filter;
+			const cached = getFilterHash(filter) === filterHash && rememberFilter(filterHash, filter);
+			extraHeaders = { "X-Filter-Cached": cached ? "1" : "0" };
 		} else {
-			filter = recallFilter(filterKey, type, filterHash);
+			filter = recallFilter(filterHash);
 			if (!filter) {
-				// Charged, not free, so a random hash can't be looped cheaply.
-				await refund(DENIED_CHARGE);
+				await refundDeniedRequest();
 				return respond(request, { data: [] }, { status: constants.HTTP_STATUS_CONFLICT });
 			}
 		}
@@ -165,7 +143,7 @@ export const POST: RequestHandler = async (event) => {
 	}
 
 	const queryTime = performance.now();
-	const response = respond(request, result, extraHeaders ? { headers: extraHeaders } : undefined);
+	const response = respond(request, result, { headers: extraHeaders });
 	const serializeTime = performance.now();
 
 	log.info(

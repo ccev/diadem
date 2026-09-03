@@ -4,9 +4,9 @@ import {
 	queryLiveFortStats,
 	queryLivePokemonStats
 } from "@/lib/server/api/queryLiveStats";
+import { respond } from "@/lib/server/api/respond";
 import { getLogger } from "@/lib/utils/logger";
 import TTLCache from "@isaacs/ttlcache";
-import { json } from "@sveltejs/kit";
 
 const log = getLogger("livestats");
 
@@ -19,7 +19,7 @@ const pokemonCache: TTLCache<"pokemon", number> = new TTLCache({
 	ttl: 60 * 1000
 });
 
-export async function GET() {
+export async function GET({ request }) {
 	try {
 		const start = performance.now();
 
@@ -36,14 +36,14 @@ export async function GET() {
 		}
 
 		log.info("Serving live stats / time: %dms", (performance.now() - start).toFixed(1));
-		return json({
+		return respond(request, {
 			pokemon: pokemonCount,
 			pokestops: fortStats.pokestops,
 			gyms: fortStats.gyms
 		} as LiveStats);
 	} catch (e) {
 		log.error("Error fetching live stats: %s", e);
-		return json({
+		return respond(request, {
 			pokemon: {},
 			generatedAt: 0
 		});
