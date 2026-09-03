@@ -10,7 +10,7 @@ type PositionBody = {
 	zoom?: number;
 };
 
-function isValid(body: PositionBody): boolean {
+function validateBody(body: PositionBody): boolean {
 	const { lat, lng, zoom } = body;
 	return (
 		typeof lat === "number" &&
@@ -26,26 +26,9 @@ function isValid(body: PositionBody): boolean {
 	);
 }
 
-/**
- * Fold a longitude back into [-180, 180]. MapLibre keeps counting past the
- * antimeridian — a user panning east reports 185 rather than -175 — so a range
- * check on the raw value would reject a perfectly ordinary position.
- */
-function wrapLongitude(lng: number): number {
-	const wrapped = ((((lng + 180) % 360) + 360) % 360) - 180;
-	return wrapped === -180 ? 180 : wrapped;
-}
-
-/**
- * Store just where the user is looking. The map writes this on every move, so it
- * is split off from the settings endpoint, which replaces the entire stored
- * object — filters and all — for what is three numbers.
- */
 export async function POST({ locals, request }) {
-	// 401 rather than a 200 with an error body, matching the settings route: a
-	// caller keying off response.ok would otherwise record a rejected write.
 	if (!locals.user) {
-		return json({ error: "Not logged in" }, { status: 401, headers: noStoreHttpHeaders });
+		return json({ error: "Not logged in", result: {} }, { headers: noStoreHttpHeaders });
 	}
 
 	if (!(await allowSettingsWrite(locals.user.id))) {
@@ -59,12 +42,12 @@ export async function POST({ locals, request }) {
 		return json({ error: "Invalid body" }, { status: 400, headers: noStoreHttpHeaders });
 	}
 
-	if (!body || !isValid(body)) {
+	if (!body || !validateBody(body)) {
 		return json({ error: "Invalid position" }, { status: 400, headers: noStoreHttpHeaders });
 	}
 
 	await setUserMapPosition(locals.user.id, {
-		center: { lat: body.lat!, lng: wrapLongitude(body.lng!) },
+		center: { lat: body.lat!, lng: body.lng! },
 		zoom: body.zoom!
 	});
 

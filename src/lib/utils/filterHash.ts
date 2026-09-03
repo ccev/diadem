@@ -1,24 +1,3 @@
-/**
- * Stable hashing of filter objects, used to avoid re-uploading the full filter
- * JSON on every map object poll. The client sends only the hash; the server
- * looks up the filter it last saw for that user + map object type and asks for
- * a full resend (HTTP 409) when the hash doesn't match.
- */
-
-/**
- * JSON.stringify with deterministic key order, so two structurally equal
- * filters always produce the same string regardless of insertion order.
- *
- * Null, undefined and non-finite properties are all dropped. Undefined matches
- * JSON.stringify; null is dropped because msgpack has no undefined, so a field
- * the client left unset arrives as null and the server strips it — hashing it
- * here would describe a filter the server never stores.
- *
- * Infinity gets the same treatment for the same reason: JSON has no way to
- * write it, so a filter carrying one (an open-ended quest range, say) reaches
- * the server as null over JSON and as a real infinity over msgpack. Ignoring it
- * on both sides is what keeps the two hashes equal.
- */
 function isHashable(value: unknown): boolean {
 	if (value === undefined || value === null) return false;
 	return typeof value !== "number" || Number.isFinite(value);
@@ -44,9 +23,8 @@ export function stableStringify(value: unknown): string {
 }
 
 /**
- * cyrb53 — a fast, non-cryptographic 53-bit hash. Collisions only matter within
- * a single user's cache entry for one map object type, where a mismatch merely
- * costs one extra round trip, so 53 bits is far more than enough.
+ * cyrb53 — a fast, non-cryptographic 53-bit hash. A collision only costs one
+ * extra round trip.
  */
 function cyrb53(str: string): number {
 	let h1 = 0xdeadbeef;

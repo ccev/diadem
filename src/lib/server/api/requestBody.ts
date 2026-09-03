@@ -1,14 +1,9 @@
 import { decode } from "@msgpack/msgpack";
 
 /**
- * Bounds on what a single body may decode to. msgpack states a collection's
- * length up front and the decoder allocates for it before reading any element,
- * so without these a five-byte body declaring a 33M-element array allocates
- * hundreds of megabytes before failing. JSON has no equivalent amplification.
- *
- * These are far above any real request: a poll body is a bounding box, a
- * timestamp and a hash, and the largest filter the server will even cache is
- * 16 KB.
+ * Bounds on what a single body may decode to. msgpack allocates a collection
+ * from its declared length before reading it, so a tiny body claiming a huge
+ * array would otherwise allocate hundreds of MB.
  */
 const DECODE_LIMITS = {
 	maxArrayLength: 100_000,
@@ -22,30 +17,21 @@ const DECODE_LIMITS = {
 const MAX_DEPTH = 64;
 
 /**
- * Raw bytes buffered before decoding. The decode ceilings above can't apply
- * until the whole body is in memory, so this is what actually bounds that.
- *
- * Matches adapter-node's BODY_SIZE_LIMIT, which defaults to 512K and rejects a
- * larger body with a 413 before any handler runs — so a cap above it would
- * never be the thing that fires. Raise both together, or neither.
+ * Raw bytes buffered before decoding (the decode ceilings apply mid-decode).
+ * Matches adapter-node's BODY_SIZE_LIMIT, which 413s before this handler runs.
  */
 const MAX_BODY_BYTES = 512 * 1024;
 
 export type ReadBodyOptions = {
-	/**
-	 * Keep null properties instead of dropping them. Set this for bodies that are
-	 * stored rather than interpreted — a null there is the client's data, and
-	 * dropping it silently loses a field on its way to the database.
-	 */
+	/** Keep null properties (for bodies that are stored verbatim, not interpreted). */
 	keepNulls?: boolean;
 	/** Override the byte cap, for endpoints that legitimately carry more. */
 	maxBytes?: number;
 };
 
 /**
- * Read a request body as msgpack or JSON, depending on its Content-Type.
- * Clients send msgpack where they can — it is roughly half the size of the
- * equivalent JSON and request bodies are never compressed by the browser.
+ * Read a request body as msgpack or JSON, depending on its Content-Type. msgpack
+ * is roughly half the size of JSON, so clients use it where they can.
  */
 export async function readRequestBody<T>(
 	request: Request,
@@ -57,26 +43,16 @@ export async function readRequestBody<T>(
 
 	const body = isMsgpack ? decode(raw, DECODE_LIMITS) : JSON.parse(new TextDecoder().decode(raw));
 
-	// msgpack has no undefined, so an absent optional field arrives as null and
-	// would defeat `!== undefined` guards such as the `since` delta cursor. Only
-	// the msgpack path needs that: in JSON an absent field is genuinely absent,
-	// so a null there was written deliberately.
-	//
-	// Both paths are depth-checked. JSON.parse is iterative and swallows nesting
-	// that later blows the stack in stableStringify or JSON.stringify — a body
-	// well under the byte cap can carry tens of thousands of levels.
+	// msgpack has no undefined: absent optionals arrive as null and would defeat
+	// `!== undefined` guards. In JSON a null was written deliberately, so only
+	// the msgpack path drops them. Both paths are depth-checked.
 	if (isMsgpack && !options.keepNulls) dropNulls(body, 0);
 	else checkDepth(body, 0);
 
 	return body as T;
 }
 
-/**
- * Read the body, refusing to buffer more than the cap. Checking a length after
- * arrayBuffer() would be too late — the allocation has already happened — and
- * Content-Length is absent on a chunked body, so neither bounds anything on its
- * own. Reading the stream does, whatever the client claims.
- */
+/** Buffer the body, refusing to exceed the cap. The stream itself is bounded. */
 async function readCapped(request: Request, maxBytes: number): Promise<Uint8Array> {
 	const declared = Number(request.headers.get("Content-Length"));
 	if (Number.isFinite(declared) && declared > maxBytes) {
@@ -108,7 +84,7 @@ async function readCapped(request: Request, maxBytes: number): Promise<Uint8Arra
 	return body;
 }
 
-/** The depth bound still applies when nulls are kept; nothing else walks the body. */
+/** Same depth bound for the keepNulls path. */
 function checkDepth(value: unknown, depth: number): void {
 	if (!value || typeof value !== "object") return;
 	if (depth >= MAX_DEPTH) throw new Error("Request body nested too deeply");
