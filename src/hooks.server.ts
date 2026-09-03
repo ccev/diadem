@@ -8,7 +8,7 @@ import {
 	getDiscordAccessToken,
 	isAuthEnabled
 } from "@/lib/server/auth/betterAuth";
-import TTLCache from "@isaacs/ttlcache";
+import { TTLCache } from "@isaacs/ttlcache";
 import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
 import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";

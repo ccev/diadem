@@ -31,8 +31,7 @@
 	type Pokemon = { pokemon_id: number; form: number; alignment?: number };
 
 	let data: FiltersetInvasion | undefined = $derived(getCurrentSelectedFilterset()?.data) as
-		| FiltersetInvasion
-		| undefined;
+		FiltersetInvasion | undefined;
 	let filterType: InvasionFilterType = $derived(
 		Object.hasOwn(data ?? {}, "rewards")
 			? InvasionFilterType.REWARDS

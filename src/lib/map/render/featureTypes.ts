@@ -69,10 +69,7 @@ export type MapObjectPolygonFeature = GeojsonFeature<MultiPolygon, MapObjectPoly
 export type MapObjectCircleFeature = GeojsonFeature<Point, MapObjectCircleProperties>;
 export type MapObjectLineFeature = GeojsonFeature<LineString, MapObjectLineProperties>;
 export type MapObjectFeature =
-	| MapObjectPolygonFeature
-	| MapObjectIconFeature
-	| MapObjectCircleFeature
-	| MapObjectLineFeature;
+	MapObjectPolygonFeature | MapObjectIconFeature | MapObjectCircleFeature | MapObjectLineFeature;
 
 export function isFeatureIcon(feature: MapObjectFeature): feature is MapObjectIconFeature {
 	return feature.properties.type === FeatureTypes.ICON;

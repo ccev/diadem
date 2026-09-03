@@ -35,4 +35,10 @@
 	});
 </script>
 
-<img bind:this={img} {alt} class="text-sm object-contain {class_}" {...rest} class:hidden={isLoading} />
+<img
+	bind:this={img}
+	{alt}
+	class="text-sm object-contain {class_}"
+	{...rest}
+	class:hidden={isLoading}
+/>

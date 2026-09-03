@@ -11,12 +11,12 @@
 		position,
 		lineup,
 		slotPokemonId,
-		slotForm,
+		slotForm
 	}: {
-		position: number,
-		lineup: InvasionPokemonStats[],
-		slotPokemonId: number | undefined,
-		slotForm: number | undefined,
+		position: number;
+		lineup: InvasionPokemonStats[];
+		slotPokemonId: number | undefined;
+		slotForm: number | undefined;
 	} = $props();
 
 	let catchable: boolean = $derived(lineup[0]?.encounter ?? false);
@@ -30,7 +30,6 @@
 </script>
 
 <div>
-
 	<div
 		class="rounded-t-md px-4 py-4 bg-accent-highlight relative"
 		class:rounded-b-md={!catchable}
@@ -49,15 +48,14 @@
 						</div>
 					{/each}
 				</div>
-
 			</div>
-
 		</div>
-
 	</div>
 
 	{#if catchable}
-		<p class="w-full text-center px-2 py-1 my-1 text-sm font-medium rounded-b-md outline bg-indigo-200 text-indigo-900 outline-indigo-400 dark:text-indigo-200 dark:bg-indigo-950 dark:outline-indigo-800">
+		<p
+			class="w-full text-center px-2 py-1 my-1 text-sm font-medium rounded-b-md outline bg-indigo-200 text-indigo-900 outline-indigo-400 dark:text-indigo-200 dark:bg-indigo-950 dark:outline-indigo-800"
+		>
 			{m.catchable()}
 		</p>
 	{/if}

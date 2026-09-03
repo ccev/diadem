@@ -1,5 +1,4 @@
 <script lang="ts">
-
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import type { Snippet } from "svelte";
 
@@ -8,10 +7,10 @@
 		title,
 		extra
 	}: {
-		image: Snippet
-		title: Snippet
-		extra: Snippet
-	} = $props()
+		image: Snippet;
+		title: Snippet;
+		extra: Snippet;
+	} = $props();
 </script>
 
 <div class="flex gap-3">

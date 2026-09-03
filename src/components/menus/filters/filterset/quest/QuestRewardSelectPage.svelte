@@ -28,16 +28,18 @@
 
 	type RewardInfo = QuestReward["info"] & { amount?: number };
 	const rewards = $derived(
-		rewardTypes.flatMap((type) => getQuestRewards(type)).sort((a, b) => {
-			const aInfo = a.reward.info as RewardInfo;
-			const bInfo = b.reward.info as RewardInfo;
-			const aId = getId(aInfo);
-			const bId = getId(bInfo);
-			return (
-				aId.localeCompare(bId, undefined, { numeric: true }) ||
-				(aInfo.amount ?? 0) - (bInfo.amount ?? 0)
-			);
-		})
+		rewardTypes
+			.flatMap((type) => getQuestRewards(type))
+			.sort((a, b) => {
+				const aInfo = a.reward.info as RewardInfo;
+				const bInfo = b.reward.info as RewardInfo;
+				const aId = getId(aInfo);
+				const bId = getId(bInfo);
+				return (
+					aId.localeCompare(bId, undefined, { numeric: true }) ||
+					(aInfo.amount ?? 0) - (bInfo.amount ?? 0)
+				);
+			})
 	);
 
 	function getKey(id: string | number, amount: number | undefined) {

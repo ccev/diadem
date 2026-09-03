@@ -305,7 +305,7 @@ export function getActiveSearchQuestParams(reward: QuestReward) {
 	return {
 		reward: reward2,
 		name: rewardName
-	}
+	};
 }
 
 export function initSearch(searchOptions: SearchOptions) {
@@ -339,7 +339,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	) {
 		questEntries =
 			getActiveQuestRewards()?.map((r) => {
-				const { name, reward } = getActiveSearchQuestParams(r)
+				const { name, reward } = getActiveSearchQuestParams(r);
 
 				return {
 					category: "pogo_quests",

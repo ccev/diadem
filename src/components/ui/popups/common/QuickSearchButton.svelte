@@ -9,9 +9,9 @@
 		onclick,
 		class: class_ = ""
 	}: {
-		label: string,
-		onclick: () => void,
-		class?: string
+		label: string;
+		onclick: () => void;
+		class?: string;
 	} = $props();
 </script>
 
@@ -19,8 +19,8 @@
 	variant="link"
 	class="w-full mt-3 mb-2 {class_}"
 	onclick={() => {
-		resetPopupBaseDrawerSnapPoint()
-		onclick()
+		resetPopupBaseDrawerSnapPoint();
+		onclick();
 	}}
 >
 	<Search class="size-3.5" />

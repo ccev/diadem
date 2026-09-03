@@ -214,9 +214,9 @@
 							<span>{name}</span>
 						{/if}
 						<span class="flex gap-1 items-center">
-						<Clock class="size-3" />
-						<Countdown expireTime={invasion.expiration} />
-					</span>
+							<Clock class="size-3" />
+							<Countdown expireTime={invasion.expiration} />
+						</span>
 					{/snippet}
 				</BigIconOverview>
 			</OverviewCard>
@@ -235,10 +235,10 @@
 					{/snippet}
 
 					{#snippet extra()}
-					<span class="flex gap-1 items-center">
-						<Clock class="size-3" />
-						<Countdown expireTime={data.lure_expire_timestamp} />
-					</span>
+						<span class="flex gap-1 items-center">
+							<Clock class="size-3" />
+							<Countdown expireTime={data.lure_expire_timestamp} />
+						</span>
 					{/snippet}
 				</BigIconOverview>
 			</OverviewCard>
@@ -259,10 +259,10 @@
 					{/snippet}
 
 					{#snippet extra()}
-					<span class="flex gap-1 items-center">
-						<Clock class="size-3" />
-						<Countdown expireTime={kecleon.expiration} />
-					</span>
+						<span class="flex gap-1 items-center">
+							<Clock class="size-3" />
+							<Countdown expireTime={kecleon.expiration} />
+						</span>
 					{/snippet}
 				</BigIconOverview>
 			</OverviewCard>
@@ -284,10 +284,10 @@
 					{/snippet}
 
 					{#snippet extra()}
-					<span class="flex gap-1.5 items-center">
-						<Clock class="size-3" />
-						<Countdown expireTime={data.showcase_expiry ?? 0} />
-					</span>
+						<span class="flex gap-1.5 items-center">
+							<Clock class="size-3" />
+							<Countdown expireTime={data.showcase_expiry ?? 0} />
+						</span>
 					{/snippet}
 				</BigIconOverview>
 			</OverviewCard>

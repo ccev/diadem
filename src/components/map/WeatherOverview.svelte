@@ -77,10 +77,7 @@
 </script>
 
 {#if getCurrentWeather() && isWeatherUpdated(getCurrentWeather()) && hasLoadedFeature(LoadedFeature.REMOTE_LOCALE, LoadedFeature.ICON_SETS) && !isSearchViewActive()}
-	<div
-		class="pointer-events-none"
-		transition:fade={{ duration: 90 }}
-	>
+	<div class="pointer-events-none" transition:fade={{ duration: 90 }}>
 		<Button
 			variant="ghost"
 			size=""

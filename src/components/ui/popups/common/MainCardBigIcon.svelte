@@ -9,19 +9,15 @@
 		alt,
 		title
 	}: {
-		src: string,
-		alt: string,
-		title: string
-	} = $props()
+		src: string;
+		alt: string;
+		title: string;
+	} = $props();
 </script>
 
 <div class="flex items-center gap-2 mb-3">
 	<div class="w-7 h-7 shrink-0">
-		<ImagePopup
-			{src}
-			{alt}
-			class="h-7"
-		/>
+		<ImagePopup {src} {alt} class="h-7" />
 	</div>
 	<h3 class="font-semibold">
 		{title}

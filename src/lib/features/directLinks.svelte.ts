@@ -11,8 +11,7 @@ import { type KojiFeature } from "@/lib/features/koji";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export type DirectLinkData =
-	| MapData
-	| { type: MapObjectType; noPermission?: boolean; id?: undefined };
+	MapData | { type: MapObjectType; noPermission?: boolean; id?: undefined };
 
 let directLinkObject: DirectLinkData | undefined = $state(undefined);
 let directLinkFeature: KojiFeature | undefined = $state(undefined);

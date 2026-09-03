@@ -186,10 +186,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 				}
 
 				for (const reward of filterset.megaResource ?? []) {
-					const rewardClausesForType = [
-						`${typeColumn} IN (?, ?)`,
-						`${pokemonColumn} = ?`
-					];
+					const rewardClausesForType = [`${typeColumn} IN (?, ?)`, `${pokemonColumn} = ?`];
 					const rewardValuesForType: unknown[] = [
 						RewardType.MEGA_ENERGY,
 						RewardType.TEMP_EVO_BRANCH_RESOURCE,
@@ -452,10 +449,7 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			incident.slot_1_form = getNormalizedForm(incident.slot_1_pokemon_id, incident.slot_1_form);
 			incident.slot_2_form = getNormalizedForm(incident.slot_2_pokemon_id, incident.slot_2_form);
 			incident.slot_3_form = getNormalizedForm(incident.slot_3_pokemon_id, incident.slot_3_form);
-			incident.confirmed_reward = getConfirmedInvasionReward(
-				incident,
-				getActiveCharacters()
-			);
+			incident.confirmed_reward = getConfirmedInvasionReward(incident, getActiveCharacters());
 		}
 
 		if (context) this.stripUnpermitted(data, context);

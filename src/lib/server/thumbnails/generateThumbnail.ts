@@ -50,7 +50,7 @@ export async function generateThumbnail(rendered: ReturnType<typeof render>) {
 		.render()
 		.asPng();
 
-	return new Response(png, {
+	return new Response(new Uint8Array(png), {
 		headers: {
 			"Content-Type": "image/png",
 			...cacheHttpHeaders(3600)

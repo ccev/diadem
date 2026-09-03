@@ -6,9 +6,9 @@
 		class: class_ = "",
 		children
 	}: {
-		class?: string,
-		children: Snippet
-	} = $props()
+		class?: string;
+		children: Snippet;
+	} = $props();
 </script>
 
 <BasicMainCard class="space-y-3 {class_}">

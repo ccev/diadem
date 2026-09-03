@@ -143,7 +143,7 @@ export function getActiveRaids(): ActiveRaidStats[] {
 }
 
 export function getActiveRaidsForLevel(level: number): ActiveRaidStats[] {
-	return getActiveRaids().filter(r => r.level === level)
+	return getActiveRaids().filter((r) => r.level === level);
 }
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
@@ -180,7 +180,10 @@ export function getInvasionCatchable(character: number): InvasionPokemonStats[] 
 	return Array.from(unique.values());
 }
 
-export function getInvasionPokemon(characterSlot: { pokemon_id?: number, form?: number }): PokemonVisual {
+export function getInvasionPokemon(characterSlot: {
+	pokemon_id?: number;
+	form?: number;
+}): PokemonVisual {
 	return {
 		pokemon_id: characterSlot.pokemon_id ?? 0,
 		form: characterSlot.form ?? 0,

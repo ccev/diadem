@@ -5,9 +5,9 @@
 		name,
 		value
 	}: {
-		name: string,
-		value: number
-	} = $props()
+		name: string;
+		value: number;
+	} = $props();
 </script>
 
 <div class="flex justify-between">
@@ -18,7 +18,7 @@
 		<Meter.Root
 			min={0}
 			max={15}
-			value={value}
+			{value}
 			class="h-1 overflow-hidden w-full max-w-32 rounded-full bg-accent-highlight"
 		>
 			<div

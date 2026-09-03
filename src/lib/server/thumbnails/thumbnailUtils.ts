@@ -139,7 +139,7 @@ export async function fetchStaticMapBase64(
 			}
 		];
 	}
-	
+
 	return await fetchWrapper(
 		thisFetch(staticMap.url + "/staticmap", {
 			method: "POST",

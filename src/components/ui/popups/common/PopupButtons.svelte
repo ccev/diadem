@@ -19,7 +19,7 @@
 		Plus,
 		Timer,
 		TimerOff,
-		Scan,
+		Scan
 	} from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
@@ -29,10 +29,7 @@
 	import PopupButton from "@/components/ui/popups/common/PopupButton.svelte";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
-	import {
-		getFocusedRouteMapId,
-		setFocusedRouteMapId
-	} from "$lib/features/focusedRoute.svelte.js";
+	import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 	import { refreshRouteFeatures } from "$lib/map/featuresGen.svelte";
 
 	let {

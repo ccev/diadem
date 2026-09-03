@@ -8,7 +8,7 @@ export type LocalTimeOptions = {
 	showTime?: boolean;
 	longMonth?: boolean;
 	dayLowerCase?: boolean;
-}
+};
 
 export function timestampToLocalTime(
 	timestamp: number | null | undefined,

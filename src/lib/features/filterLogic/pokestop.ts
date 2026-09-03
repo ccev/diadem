@@ -28,17 +28,17 @@ export function matchInvasionFilterset(
 	const invasionFilters = pokestopFilters.invasion.filters.filter((f) => f.enabled);
 	if (invasionFilters.length === 0) return;
 
-	let possibleRewards: MinPokemon[] = []
+	let possibleRewards: MinPokemon[] = [];
 
 	if (incident.confirmed_reward) {
-		possibleRewards.push(incident.confirmed_reward)
+		possibleRewards.push(incident.confirmed_reward);
 		const lineup = getInvasionLineup(incident.character);
-		const extraCatchables = lineup?.second?.filter((l) => l.encounter)
+		const extraCatchables = lineup?.second?.filter((l) => l.encounter);
 		if (extraCatchables?.length) {
-			possibleRewards.push(...extraCatchables)
+			possibleRewards.push(...extraCatchables);
 		}
 	} else {
-		possibleRewards = getInvasionCatchable(incident.character) ?? []
+		possibleRewards = getInvasionCatchable(incident.character) ?? [];
 	}
 
 	for (const invasionFilter of invasionFilters) {
@@ -177,8 +177,7 @@ export function matchQuestFilterset(
 			if (
 				questFilter.megaResource.find(
 					(i) =>
-						i.id === String(info.pokemon_id) &&
-						(i.amount === undefined || i.amount === info.amount)
+						i.id === String(info.pokemon_id) && (i.amount === undefined || i.amount === info.amount)
 				)
 			) {
 				return questFilter;

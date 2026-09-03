@@ -5,12 +5,14 @@
 		class: class_ = "",
 		children
 	}: {
-		class?: string,
-		children?: Snippet
+		class?: string;
+		children?: Snippet;
 	} = $props();
 </script>
 
-<div class="basic-main-card bg-accent text-accent-foreground p-4 border border-border rounded-lg {class_}">
+<div
+	class="basic-main-card bg-accent text-accent-foreground p-4 border border-border rounded-lg {class_}"
+>
 	{@render children?.()}
 </div>
 

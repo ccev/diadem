@@ -1,0 +1,16 @@
+allowBuilds:
+  esbuild: true
+  sharp: true
+
+minimumReleaseAgeExclude:
+  - "@lucide/svelte@1.40.0"
+  - "@vitest/mocker@5.0.0"
+  - "@vitest/spy@5.0.0"
+  - vitest@5.0.0
+
+peerDependencyRules:
+  allowAny:
+    - vitest
+
+patchedDependencies:
+  drizzle-kit@0.31.10: patches/drizzle-kit@0.31.10.patch

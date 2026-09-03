@@ -1,10 +1,5 @@
 export type optionalFeatures =
-	| "koji"
-	| "geocoding"
-	| "auth"
-	| "authRequired"
-	| "showFullscreenLogin"
-	| "geometryLookup";
+	"koji" | "geocoding" | "auth" | "authRequired" | "showFullscreenLogin" | "geometryLookup";
 
 export type SupportedFeatures = {
 	[key in optionalFeatures]: boolean;

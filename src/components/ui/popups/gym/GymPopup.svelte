@@ -145,10 +145,10 @@
 					{/snippet}
 
 					{#snippet extra()}
-					<span class="flex items-center gap-1">
-						<Clock class="size-3" />
-						<Countdown expireTime={getRaidExpire(data)} />
-					</span>
+						<span class="flex items-center gap-1">
+							<Clock class="size-3" />
+							<Countdown expireTime={getRaidExpire(data)} />
+						</span>
 					{/snippet}
 				</BigIconOverview>
 			</OverviewCard>
@@ -272,10 +272,10 @@
 											>
 												<b>{timestampToLocalTime(rsvp.timeslot / 1000, { showSeconds: false })}</b>
 												<span class="text-right"
-												>{m.rsvp_entry({
-													going: rsvp.going_count,
-													maybe: rsvp.maybe_count
-												})}</span
+													>{m.rsvp_entry({
+														going: rsvp.going_count,
+														maybe: rsvp.maybe_count
+													})}</span
 												>
 											</div>
 										{/each}

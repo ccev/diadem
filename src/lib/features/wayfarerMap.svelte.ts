@@ -48,8 +48,8 @@ let activeFetchController: AbortController | undefined;
 let activeFetchId = 0;
 let clickedFort: FortData | undefined = $state(undefined);
 let clickedL14Cell:
-	| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
-	| undefined = $state(undefined);
+	{ cellId: string; center: [number, number]; fortCount: number; gymCount: number } | undefined =
+	$state(undefined);
 let invokedFromMap: boolean = $state(false);
 let style: MapStyle | undefined = $state(undefined);
 
@@ -97,8 +97,7 @@ export function setClickedFort(fort: FortData | undefined) {
 
 export function setClickedL14Cell(
 	cell:
-		| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
-		| undefined
+		{ cellId: string; center: [number, number]; fortCount: number; gymCount: number } | undefined
 ) {
 	clickedL14Cell = cell;
 	clickedFort = undefined;

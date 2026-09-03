@@ -9,10 +9,10 @@
 		name,
 		value
 	}: {
-		class?: string,
-		Icon?: LucideIcon
-		name: any | Snippet,
-		value: any | Snippet,
+		class?: string;
+		Icon?: LucideIcon;
+		name: any | Snippet;
+		value: any | Snippet;
 	} = $props();
 </script>
 

@@ -144,9 +144,7 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 			return { data: [], examined: actualLimit, limitReached: true };
 		}
 
-		const routes = candidates
-			.map(normalizeRouteRow)
-			.filter((route) => {
+		const routes = candidates.map(normalizeRouteRow).filter((route) => {
 			const coordinates = getRouteCoordinates(route);
 			return coordinates.length >= 2 && booleanIntersects(lineString(coordinates), target);
 		});

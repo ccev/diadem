@@ -9,10 +9,10 @@
 		showDate = false,
 		showIcon = true
 	}: {
-		expire?: number,
-		showSeconds?: boolean,
-		showDate?: boolean
-		showIcon?: boolean
+		expire?: number;
+		showSeconds?: boolean;
+		showDate?: boolean;
+		showIcon?: boolean;
 	} = $props();
 </script>
 

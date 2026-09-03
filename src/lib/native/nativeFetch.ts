@@ -58,7 +58,7 @@ export function rewriteInstanceUrl(
 	return `${instanceUrl}${parsed.pathname}${parsed.search}`;
 }
 
-function base64ToBytes(base64: string): Uint8Array {
+function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
 	const binary = atob(base64);
 	const bytes = new Uint8Array(binary.length);
 	for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -78,7 +78,7 @@ function base64ToBytes(base64: string): Uint8Array {
  * (Note: CapacitorHttp's JSON parse can lose precision on >2^53 integers; 64-bit
  * ids in our payloads are sent as strings, so this is acceptable.)
  */
-export function capacitorResponseBytes(data: unknown, contentType = ""): Uint8Array {
+export function capacitorResponseBytes(data: unknown, contentType = ""): Uint8Array<ArrayBuffer> {
 	if (data == null) return new Uint8Array();
 	if (typeof data !== "string") return new TextEncoder().encode(JSON.stringify(data));
 

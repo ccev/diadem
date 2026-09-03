@@ -13,8 +13,7 @@
 	import AttributeToggle from "@/components/menus/filters/filterset/AttributeToggle.svelte";
 
 	let data: FiltersetMaxBattle | undefined = $derived(getCurrentSelectedFilterset()?.data) as
-		| FiltersetMaxBattle
-		| undefined;
+		FiltersetMaxBattle | undefined;
 </script>
 
 <FiltersetModal

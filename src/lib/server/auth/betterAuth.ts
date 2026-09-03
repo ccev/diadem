@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { parseSetCookieHeader } from "better-auth/cookies";
+import { and, eq } from "drizzle-orm";
 import type { RequestEvent } from "@sveltejs/kit";
 
 import { db } from "@/lib/server/db/internal";
@@ -200,9 +201,20 @@ export function getNativeAuthToken(event: RequestEvent): string | null {
 export async function getDiscordAccessToken(event: RequestEvent): Promise<string | null> {
 	if (!auth) return null;
 	try {
+		// better-auth >=1.7 selects accounts explicitly by id, so resolve the
+		// session user's discord account row ourselves.
+		const session = await auth.api.getSession({ headers: event.request.headers });
+		if (!session) return null;
+		const accounts = await db
+			.select({ id: account.id })
+			.from(account)
+			.where(and(eq(account.userId, session.user.id), eq(account.providerId, "discord")))
+			.limit(1);
+		const accountId = accounts[0]?.id;
+		if (!accountId) return null;
 		const result = await auth.api.getAccessToken({
 			headers: event.request.headers,
-			body: { providerId: "discord" },
+			body: { accountId },
 			returnHeaders: true
 		});
 		applyAuthCookies(event, result.headers);

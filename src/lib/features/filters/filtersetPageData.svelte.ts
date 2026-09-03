@@ -36,8 +36,7 @@ export function setCurrentSelectedFilterset(
 	filtersetPageData = {
 		majorCategory: majorCategory as keyof UserSettings["filters"],
 		subCategory: subCategory as
-			| keyof UserSettings["filters"][keyof UserSettings["filters"]]
-			| undefined,
+			keyof UserSettings["filters"][keyof UserSettings["filters"]] | undefined,
 		data,
 		inEdit,
 		isShared,

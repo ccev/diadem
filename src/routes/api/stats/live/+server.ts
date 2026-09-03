@@ -6,7 +6,7 @@ import {
 } from "@/lib/server/api/queryLiveStats";
 import { respond } from "@/lib/server/api/respond";
 import { getLogger } from "@/lib/utils/logger";
-import TTLCache from "@isaacs/ttlcache";
+import { TTLCache } from "@isaacs/ttlcache";
 
 const log = getLogger("livestats");
 

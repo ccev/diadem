@@ -1,5 +1,5 @@
 import type { AnyFilter } from "@/lib/features/filters/filters";
-import TTLCache from "@isaacs/ttlcache";
+import { TTLCache } from "@isaacs/ttlcache";
 
 const FILTER_CACHE_TTL = 30 * 60 * 1000;
 const FILTER_CACHE_MAX = 1000;

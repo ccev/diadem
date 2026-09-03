@@ -81,7 +81,11 @@
 			].enabled = value;
 		});
 
-		if (mapObject === MapObjectType.POKESTOP || mapObject === MapObjectType.GYM || mapObject === MapObjectType.ROUTE) {
+		if (
+			mapObject === MapObjectType.POKESTOP ||
+			mapObject === MapObjectType.GYM ||
+			mapObject === MapObjectType.ROUTE
+		) {
 			deleteAllFeaturesOfType(MapObjectType.ROUTE);
 		}
 
@@ -102,7 +106,11 @@
 		}
 
 		deleteAllFeaturesOfType(mapObject);
-		if (mapObject === MapObjectType.POKESTOP || mapObject === MapObjectType.GYM || mapObject === MapObjectType.ROUTE) {
+		if (
+			mapObject === MapObjectType.POKESTOP ||
+			mapObject === MapObjectType.GYM ||
+			mapObject === MapObjectType.ROUTE
+		) {
 			deleteAllFeaturesOfType(MapObjectType.ROUTE);
 		}
 

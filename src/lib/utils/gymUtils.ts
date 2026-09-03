@@ -46,7 +46,7 @@ export enum RaidLevel {
 	ULTRA_BEAST = 8,
 	ELITE = 9,
 	UNITY_1 = 18,
-	UNITY_2 = 19,
+	UNITY_2 = 19
 }
 export const RAID_LEVELS = Object.values(RaidLevel).filter(
 	(v) => typeof v === "number"

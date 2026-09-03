@@ -356,15 +356,13 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 				continue;
 			}
 
-			if (
-				!(
-					(getActivePokestopFilter().invasion.enabled &&
-						incident.id &&
-						isIncidentInvasion(incident) &&
-						incident.expiration > currentTimestamp()) ||
-					isSelectedOverwrite
-				)
-			) {
+			if (!(
+				(getActivePokestopFilter().invasion.enabled &&
+					incident.id &&
+					isIncidentInvasion(incident) &&
+					incident.expiration > currentTimestamp()) ||
+				isSelectedOverwrite
+			)) {
 				continue;
 			}
 
@@ -424,14 +422,12 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 	public render(data: GymData, isSelected: boolean, isSelectedOverwrite: boolean) {
 		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
 
-		if (
-			!(
-				getActiveGymFilter().gymPlain.enabled ||
-				shouldDisplayRaid(data) ||
-				isSelected ||
-				isSelectedOverwrite
-			)
-		) {
+		if (!(
+			getActiveGymFilter().gymPlain.enabled ||
+			shouldDisplayRaid(data) ||
+			isSelected ||
+			isSelectedOverwrite
+		)) {
 			return [];
 		}
 

@@ -11,7 +11,7 @@ import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import type { WeatherData } from "@/lib/types/mapObjectData/weather";
 import { Features } from "@/lib/utils/features";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
-import TTLCache from "@isaacs/ttlcache";
+import { TTLCache } from "@isaacs/ttlcache";
 import type { FeatureCollection, Polygon } from "geojson";
 import { s2 } from "s2js";
 import type { CellID } from "s2js/dist/s2/cellid";
