@@ -256,7 +256,7 @@ export function updateMapPosition() {
 	scheduleSync("position");
 }
 
-async function syncUserSettings() {
+export async function syncUserSettings() {
 	if (syncTimer) {
 		clearTimeout(syncTimer);
 		syncTimer = undefined;
@@ -307,13 +307,6 @@ async function syncUserSettings() {
 		}
 		if (pendingSync) scheduleSync();
 	}
-}
-
-if (browser) {
-	window.addEventListener("pagehide", syncUserSettings);
-	document.addEventListener("visibilitychange", () => {
-		if (document.visibilityState === "hidden") syncUserSettings();
-	});
 }
 
 function deepMerge(defaultObj: { [key: string]: any }, newObj: { [key: string]: any }) {
