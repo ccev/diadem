@@ -6,6 +6,10 @@ import {
 	type MapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { isFortApiEnabled } from "@/lib/server/api/golbatFortApi";
+import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
+import { ApiPokestopQuery } from "@/lib/server/queryMapObjects/queryPokestopApi";
+import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { NestQuery } from "@/lib/server/queryMapObjects/queryNest";
 import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
@@ -28,7 +32,18 @@ const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.TAPPABLE]: new TappableQuery()
 };
 
+// Used instead of the SQL classes while the Golbat fort API is detected (golbatFortApi.ts)
+const fortApiRegistry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
+	[MapObjectType.GYM]: new ApiGymQuery(),
+	[MapObjectType.POKESTOP]: new ApiPokestopQuery(),
+	[MapObjectType.STATION]: new ApiStationQuery()
+};
+
 export function getQuery(type: MapObjectType): MapObjectQuery<any, any> {
+	if (isFortApiEnabled()) {
+		const apiQuery = fortApiRegistry[type];
+		if (apiQuery) return apiQuery;
+	}
 	const query = registry[type];
 	if (!query) error(404);
 	return query;
