@@ -1,5 +1,5 @@
 <script lang="ts">
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import { CoverageMapLayerId, MapSourceId } from "@/lib/map/layers";
 	import {

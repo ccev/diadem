@@ -5,7 +5,7 @@ import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svel
 import { getFeatureJump } from "@/lib/utils/geo";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Polygon } from "geojson";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 import {
 	clearOverlays,
 	closeOverlay,

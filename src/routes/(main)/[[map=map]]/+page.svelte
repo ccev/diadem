@@ -30,7 +30,7 @@
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import MapMain from "@/components/map/MapMain.svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 

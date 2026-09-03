@@ -4,7 +4,7 @@
 	import { onDestroy, type Snippet } from "svelte";
 	import { handleRotatePitchDisable } from "@/lib/map/map.svelte";
 	import { onMapMove, onMapStyleDataLoading } from "@/lib/map/events";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { getConfig } from "@/lib/services/config/config";

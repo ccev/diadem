@@ -2,7 +2,7 @@ import { goto } from "$app/navigation";
 import { L14_HIGHLIGHT, WayfarerLayerId } from "@/lib/map/layers";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 import { geojson, s2 } from "s2js";
 import { getCoveringS2Cells } from "@/lib/mapObjects/s2cells";
 import type { MapStyle } from "@/lib/services/config/configTypes";

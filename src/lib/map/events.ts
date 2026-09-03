@@ -17,7 +17,7 @@ import {
 	onContextMenu,
 	pressTimer
 } from "@/lib/ui/contextmenu.svelte.js";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 import type { MapMoveEvent } from "svelte-maplibre";
 
 export async function onMapMoveEnd() {

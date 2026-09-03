@@ -29,7 +29,7 @@
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { GeoJSON, MapLibre } from "svelte-maplibre";
 	import { watch } from "runed";
 	import { center } from "@turf/turf";

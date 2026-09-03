@@ -24,7 +24,7 @@
 		onTouchStart,
 		onWindowFocus
 	} from "@/lib/map/events";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";

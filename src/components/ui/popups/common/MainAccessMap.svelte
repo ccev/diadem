@@ -18,7 +18,7 @@
 	import { getMapStyle, mapStyleForTheme, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { circle } from "@turf/turf";
 	import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { untrack } from "svelte";
 	import { CircleLayer, FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 

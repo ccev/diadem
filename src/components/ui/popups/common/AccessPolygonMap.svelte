@@ -4,7 +4,7 @@
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleForTheme, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { Feature, FeatureCollection, MultiPolygon } from "geojson";
-	import maplibre from "maplibre-gl";
+	import * as maplibre from "maplibre-gl";
 	import { watch } from "runed";
 	import { FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 

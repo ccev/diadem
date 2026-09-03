@@ -1,4 +1,4 @@
-import maplibre from "maplibre-gl";
+import * as maplibre from "maplibre-gl";
 
 export type LatLon = {
 	lat: number;

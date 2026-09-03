@@ -1,7 +1,7 @@
 import { getConfig } from "@/lib/services/config/config";
 import type { MapStyle } from "@/lib/services/config/configTypes";
 import { getDefaultMapStyle } from "@/lib/services/themeMode";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 
 export type MapStyleTheme = "light" | "dark" | "satellite";
 

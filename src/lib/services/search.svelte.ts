@@ -33,7 +33,7 @@ import microfuzz, {
 	type HighlightRanges
 } from "@nozbe/microfuzz";
 import type { BBox, Geometry } from "geojson";
-import type maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 import type { Snippet } from "svelte";
 import type { Attachment } from "svelte/attachments";
 

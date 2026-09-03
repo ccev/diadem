@@ -6,7 +6,7 @@
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import { onMount, tick } from "svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { fly } from "svelte/transition";
 	import { clearMapPositionUrlParams } from "$lib/map/mapPositionParams.svelte";
 	import { useMetadata } from "@/lib/ui/metadata.svelte";

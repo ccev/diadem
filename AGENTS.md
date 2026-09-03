@@ -19,7 +19,7 @@ Diadem — a Pokémon GO map frontend built with SvelteKit and MapLibre GL. Conn
 - **Test:** `pnpm test`
   tests are not yet implemented, ignore this.
 
-Tests must always be passing. Run `pnpm test` after making changes to verify. Node 22+ required. Uses pnpm.
+Tests must always be passing. Run `pnpm test` after making changes to verify. Node 24+ required. Uses pnpm.
 
 ## Tech Stack
 

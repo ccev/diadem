@@ -5,7 +5,7 @@
 	import { Navigation2 } from "@lucide/svelte";
 	import { getSkew, isMapSkewed } from "@/lib/map/mapSkew.svelte";
 	import { fade, slide } from "svelte/transition";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import SearchFab from "@/components/ui/fab/SearchFab.svelte";
 	import MapStyleFab from "@/components/ui/fab/MapStyleFab.svelte";
 	import type { MapStyle } from "@/lib/services/config/configTypes";

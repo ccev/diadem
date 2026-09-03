@@ -14,7 +14,7 @@
 	import { onDestroy, onMount, tick } from "svelte";
 	import { closePopup } from "@/lib/mapObjects/interact";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { fly } from "svelte/transition";
 	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
 	import { isMenuSidebar, isUiLeft } from "@/lib/utils/device";

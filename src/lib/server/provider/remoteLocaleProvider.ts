@@ -3,7 +3,6 @@ import { locales } from "@/lib/paraglide/runtime";
 import { BulkDataProvider } from "@/lib/server/provider/dataProvider";
 import { prefixes as localePrefixesObject } from "@/lib/services/ingameLocale";
 import { getLogger } from "@/lib/utils/logger";
-import type { UiconsIndex } from "uicons.js";
 
 type Locales = (typeof locales)[number];
 type RemoteLocale = { [key: string]: string };
@@ -30,7 +29,7 @@ export class RemoteLocaleProvider extends BulkDataProvider<Locales, RemoteLocale
 			log,
 			`remote locale ${locale}`
 		);
-		const data = JSON.parse(rawData) as UiconsIndex;
+		const data = JSON.parse(rawData) as RemoteLocale;
 
 		const remoteLocale: RemoteLocale = {};
 

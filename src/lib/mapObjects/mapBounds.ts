@@ -1,7 +1,7 @@
 import { getMap } from "@/lib/map/map.svelte";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { buffer, bbox as makeBbox, point } from "@turf/turf";
-import maplibre, { type LngLat, type LngLatLike, type Map } from "maplibre-gl";
+import type { LngLat, LngLatLike, Map } from "maplibre-gl";
 
 export type Bounds = {
 	minLat: number;
@@ -66,7 +66,7 @@ export function getBounds(
 	};
 }
 
-export function getFixedBounds(km: number, map: maplibre.Map): Bounds {
+export function getFixedBounds(km: number, map: Map): Bounds {
 	const mapCenter = map.getCenter();
 	const center = point([mapCenter.lng, mapCenter.lat]);
 	const square = buffer(center, km / 2, {

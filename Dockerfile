@@ -1,4 +1,4 @@
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 RUN corepack enable && corepack prepare pnpm@11.25.0 --activate
 WORKDIR /app
 
@@ -31,7 +31,7 @@ ENV PORT=3900
 EXPOSE 3900
 ENTRYPOINT ["./docker-entrypoint.sh"]
 
-FROM node:22-slim AS runtime
+FROM node:24-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*

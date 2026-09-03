@@ -1,5 +1,5 @@
 <script lang="ts">
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { GeoJSON, FillLayer, LineLayer, CircleLayer, SymbolLayer } from "svelte-maplibre";
 	import type { ExpressionSpecification } from "maplibre-gl";
 	import {

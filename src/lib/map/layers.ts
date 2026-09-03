@@ -1,5 +1,5 @@
 import type { GeoJSON as GeoJsonType } from "geojson";
-import type maplibregl from "maplibre-gl";
+import type * as maplibregl from "maplibre-gl";
 
 export enum MapSourceId {
 	MAP_OBJECTS = "mapObjects",

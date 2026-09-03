@@ -1,4 +1,4 @@
-import type maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 
 interface FrameRateOptions {
 	background: string;

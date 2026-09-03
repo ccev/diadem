@@ -6,7 +6,7 @@
 	import { getMapStyle, mapStyleForTheme, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { getRouteColor, getRouteCoordinates } from "@/lib/utils/routeUtils";
 	import type { Feature, FeatureCollection, LineString, Point } from "geojson";
-	import maplibre from "maplibre-gl";
+	import * as maplibre from "maplibre-gl";
 	import { watch } from "runed";
 	import { CircleLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 
