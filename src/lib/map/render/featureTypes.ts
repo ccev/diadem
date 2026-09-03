@@ -1,5 +1,4 @@
 import { resize } from "@/lib/services/assets";
-import type { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { Feature as GeojsonFeature, LineString, MultiPolygon, Point } from "geojson";
 
 export enum FeatureTypes {
@@ -24,7 +23,6 @@ export type MapObjectIconProperties = {
 	textLabel?: string;
 	textOffset?: number;
 	routeEndpointFortId?: string;
-	routeEndpointFortType?: MapObjectType.POKESTOP | MapObjectType.GYM;
 	expires: number | null;
 };
 export type MinMapObjectIconProperties = Omit<

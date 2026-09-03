@@ -24,15 +24,12 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { circle } from "@turf/turf";
-import { SvelteSet } from "svelte/reactivity";
 import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 import { routeStartsAt } from "@/lib/utils/routeUtils";
-import type { RouteData, RouteEndpoint } from "@/lib/types/mapObjectData/route";
 
 type FeatureEntry = {
 	lat: number;
 	lon: number;
-	revision?: string;
 	features: MapObjectFeature[];
 };
 
@@ -72,7 +69,7 @@ function getFlattenedFeatures() {
 			)
 			.map((feature) => feature.properties.id)
 	);
-	const routeEndpoints = new SvelteSet<string>();
+	const routeEndpoints = new Set<string>();
 	return flattened.filter((feature) => {
 		if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
 		if (actualForts.has(feature.properties.id)) return false;
@@ -225,20 +222,6 @@ function syncRouteLineFeatures(currentSelected: MapData | null) {
 	}
 }
 
-function getRouteRevision(route: RouteData): string {
-	const endpointRevision = (endpoint: RouteEndpoint) => [
-		endpoint.type,
-		endpoint.updated,
-		endpoint.deleted,
-		...(endpoint.type === MapObjectType.GYM
-			? [endpoint.teamId, endpoint.availableSlots, endpoint.inBattle, endpoint.exRaidEligible]
-			: [])
-	];
-	return [route.version, ...endpointRevision(route.start), ...endpointRevision(route.end)].join(
-		":"
-	);
-}
-
 export function refreshRouteFeatures() {
 	syncRouteLineFeatures(getCurrentSelectedData());
 	updateMapObjectsGeoJson(getFlattenedFeatures());
@@ -271,9 +254,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 				) ||
 				!obj ||
 				entry.lon !== obj.lon ||
-				entry.lat !== obj.lat ||
-				(entry.revision !== undefined &&
-					entry.revision !== (obj.type === MapObjectType.ROUTE ? getRouteRevision(obj) : undefined))
+				entry.lat !== obj.lat
 			) {
 				selectedFeatures = selectedFeatures.filter((feature) => !entry.features.includes(feature));
 				delete features[type][existingId];
@@ -302,7 +283,6 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		features[obj.type][obj.mapId] = {
 			lat: obj.lat,
 			lon: obj.lon,
-			revision: obj.type === MapObjectType.ROUTE ? getRouteRevision(obj) : undefined,
 			features: subFeatures
 		};
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];

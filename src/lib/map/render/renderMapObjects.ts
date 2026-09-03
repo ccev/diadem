@@ -678,7 +678,6 @@ class RouteRenderer extends MapObjectRenderer<RouteData> {
 						imageOffset: [modifiers.offsetX, modifiers.offsetY],
 						id: endpoint.mapId,
 						routeEndpointFortId: fortId,
-						routeEndpointFortType: endpoint.type,
 						expires: null
 					}
 				);
