@@ -680,10 +680,6 @@
 	"route_direction": "Direction",
 	"route_reversible": "Reversible",
 	"route_one_way": "One way",
-	"route_distance_meters": "{distance} m",
-	"route_distance_kilometers": "{distance} km",
-	"route_duration_minutes": "{minutes} min",
-	"route_duration_hours_minutes": "{hours} hr {minutes} min",
 	"unknown_route": "Unknown Route",
 	"focus_route": "Focus Route",
 	"unfocus_route": "Unfocus Route",
@@ -695,10 +691,14 @@
 	"route_endpoints": "Route start and end",
 	"route_uphill": "Uphill",
 	"route_downhill": "Downhill",
-	"route_elevation_meters": "{elevation} m",
 	"follow_this_route": "Follow this Route",
 	"route_reversible_notice": "This route can be started from either end",
 	"route_reverse_direction": "Reverse direction",
 	"routes_from_here": "Routes from here",
-	"route_leads_to": "Leads to"
+	"route_leads_to": "Leads to",
+	"format_distance_meters": "{distance} m",
+	"format_distance_kilometers": "{distance} km",
+	"format_duration_minutes": "{minutes} min",
+	"format_duration_hours_minutes": "{hours} hr {minutes} min",
+	"format_elevation_meters": "{elevation} m"
 }

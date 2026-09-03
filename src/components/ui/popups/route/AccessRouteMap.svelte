@@ -33,12 +33,12 @@
 					} satisfies Feature<LineString>,
 					{
 						type: "Feature",
-						geometry: { type: "Point", coordinates: [route.start_lon, route.start_lat] },
+						geometry: { type: "Point", coordinates: [route.start.lon, route.start.lat] },
 						properties: { endpoint: true, fillColor: getRouteColor(route) }
 					} satisfies Feature<Point>,
 					{
 						type: "Feature",
-						geometry: { type: "Point", coordinates: [route.end_lon, route.end_lat] },
+						geometry: { type: "Point", coordinates: [route.end.lon, route.end.lat] },
 						properties: { endpoint: true, fillColor: getRouteColor(route) }
 					} satisfies Feature<Point>
 				]

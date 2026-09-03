@@ -142,153 +142,156 @@
 
 {#snippet overview(d: MapData)}
 	{@const data = d as PokestopData}
-	{@const quest = data.quests[0]}
-	{@const [invasions, kecleons, contests] = getIncidents(data)}
 
-	{#if quest}
-		<OverviewCard Icon={QuestIcon} title={m.pogo_quest()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<div class="relative size-12">
-						<ImagePopup
-							class="absolute size-full z-10"
-							src={getIconReward(quest.reward.type, quest.reward.info)}
-							alt={getRewardText(quest.reward)}
-						/>
-						{#if givesQuestBackground(quest)}
+	{#if !data.isRouteEndpoint}
+		{@const quest = data.quests[0]}
+		{@const [invasions, kecleons, contests] = getIncidents(data)}
+
+		{#if quest}
+			<OverviewCard Icon={QuestIcon} title={m.pogo_quest()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<div class="relative size-12">
 							<ImagePopup
-								class="absolute size-full scale-105 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
-								src={resize(getIconBackground(quest.reward.info.background), { width: 64 })}
-								alt={m.background()}
+								class="absolute size-full z-10"
+								src={getIconReward(quest.reward.type, quest.reward.info)}
+								alt={getRewardText(quest.reward)}
 							/>
-						{/if}
-					</div>
-				{/snippet}
+							{#if givesQuestBackground(quest)}
+								<ImagePopup
+									class="absolute size-full scale-105 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
+									src={resize(getIconBackground(quest.reward.info.background), { width: 64 })}
+									alt={m.background()}
+								/>
+							{/if}
+						</div>
+					{/snippet}
 
-				{#snippet title()}
-					{getRewardText(quest.reward)}
-				{/snippet}
+					{#snippet title()}
+						{getRewardText(quest.reward)}
+					{/snippet}
 
-				{#snippet extra()}
-					{mQuest(quest.title, quest.target)}
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
-	{/if}
+					{#snippet extra()}
+						{mQuest(quest.title, quest.target)}
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/if}
 
-	{#each invasions as invasion}
-		{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
-		{@const reward = invasion.confirmed_reward}
-		<OverviewCard Icon={InvasionIcon} title={m.pogo_invasion()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<div class="relative size-12">
+		{#each invasions as invasion}
+			{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
+			{@const reward = invasion.confirmed_reward}
+			<OverviewCard Icon={InvasionIcon} title={m.pogo_invasion()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<div class="relative size-12">
+							{#if reward}
+								<ImagePopup src={getIconPokemon(reward)} alt={name} />
+								<ImagePopup
+									class="absolute right-0 bottom-0 size-6"
+									src={getIconInvasion(invasion.character, invasion.confirmed)}
+									alt={name}
+								/>
+							{:else}
+								<ImagePopup
+									src={getIconInvasion(invasion.character, invasion.confirmed)}
+									alt={name}
+								/>
+							{/if}
+						</div>
+					{/snippet}
+
+					{#snippet title()}
 						{#if reward}
-							<ImagePopup src={getIconPokemon(reward)} alt={name} />
-							<ImagePopup
-								class="absolute right-0 bottom-0 size-6"
-								src={getIconInvasion(invasion.character, invasion.confirmed)}
-								alt={name}
-							/>
+							{mPokemon(reward)}
 						{:else}
-							<ImagePopup
-								src={getIconInvasion(invasion.character, invasion.confirmed)}
-								alt={name}
-							/>
+							{name}
 						{/if}
-					</div>
-				{/snippet}
+					{/snippet}
 
-				{#snippet title()}
-					{#if reward}
-						{mPokemon(reward)}
-					{:else}
-						{name}
-					{/if}
-				{/snippet}
-
-				{#snippet extra()}
-					{#if reward}
-						<span>{name}</span>
-					{/if}
-					<span class="flex gap-1 items-center">
+					{#snippet extra()}
+						{#if reward}
+							<span>{name}</span>
+						{/if}
+						<span class="flex gap-1 items-center">
 						<Clock class="size-3" />
 						<Countdown expireTime={invasion.expiration} />
 					</span>
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
-	{/each}
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/each}
 
-	{#if data?.lure_expire_timestamp && data.lure_expire_timestamp >= currentTimestamp()}
-		{@const lureId = data?.lure_id ?? 501}
-		<OverviewCard Icon={Flower} title={m.lure_module()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<ImagePopup src={getIconItem(lureId)} alt={mItem(lureId)} />
-				{/snippet}
+		{#if data?.lure_expire_timestamp && data.lure_expire_timestamp >= currentTimestamp()}
+			{@const lureId = data?.lure_id ?? 501}
+			<OverviewCard Icon={Flower} title={m.lure_module()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<ImagePopup src={getIconItem(lureId)} alt={mItem(lureId)} />
+					{/snippet}
 
-				{#snippet title()}
-					{mItem(lureId)}
-				{/snippet}
+					{#snippet title()}
+						{mItem(lureId)}
+					{/snippet}
 
-				{#snippet extra()}
+					{#snippet extra()}
 					<span class="flex gap-1 items-center">
 						<Clock class="size-3" />
 						<Countdown expireTime={data.lure_expire_timestamp} />
 					</span>
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
-	{/if}
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/if}
 
-	{#each kecleons as kecleon (kecleon.id)}
-		<OverviewCard Icon={Rat} title={m.hidden_here()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<ImagePopup
-						src={getIconPokemon({ pokemon_id: KECLEON_ID })}
-						alt={mPokemon({ pokemon_id: KECLEON_ID })}
-					/>
-				{/snippet}
+		{#each kecleons as kecleon (kecleon.id)}
+			<OverviewCard Icon={Rat} title={m.hidden_here()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<ImagePopup
+							src={getIconPokemon({ pokemon_id: KECLEON_ID })}
+							alt={mPokemon({ pokemon_id: KECLEON_ID })}
+						/>
+					{/snippet}
 
-				{#snippet title()}
-					{m.kecleon()}
-				{/snippet}
+					{#snippet title()}
+						{m.kecleon()}
+					{/snippet}
 
-				{#snippet extra()}
+					{#snippet extra()}
 					<span class="flex gap-1 items-center">
 						<Clock class="size-3" />
 						<Countdown expireTime={kecleon.expiration} />
 					</span>
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
-	{/each}
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/each}
 
-	{#if contests.length > 0 && (data?.showcase_expiry ?? 0) >= currentTimestamp()}
-		{@const name =
-			data.showcase_ranking_standard && data.contest_focus
-				? getContestText(data.showcase_ranking_standard, data.contest_focus)
-				: m.unknown_contest()}
-		<OverviewCard Icon={Medal} title={m.contest()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<ImagePopup src={getContestIcon(data.contest_focus)} alt={name} />
-				{/snippet}
+		{#if contests.length > 0 && (data?.showcase_expiry ?? 0) >= currentTimestamp()}
+			{@const name =
+				data.showcase_ranking_standard && data.contest_focus
+					? getContestText(data.showcase_ranking_standard, data.contest_focus)
+					: m.unknown_contest()}
+			<OverviewCard Icon={Medal} title={m.contest()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<ImagePopup src={getContestIcon(data.contest_focus)} alt={name} />
+					{/snippet}
 
-				{#snippet title()}
-					{name}
-				{/snippet}
+					{#snippet title()}
+						{name}
+					{/snippet}
 
-				{#snippet extra()}
+					{#snippet extra()}
 					<span class="flex gap-1.5 items-center">
 						<Clock class="size-3" />
 						<Countdown expireTime={data.showcase_expiry ?? 0} />
 					</span>
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/if}
 	{/if}
 {/snippet}
 
@@ -668,5 +671,6 @@
 		updated={data.updated}
 		lastModified={data.last_modified_timestamp}
 		firstSeen={data.first_seen_timestamp}
+		isRouteEndpoint={data.isRouteEndpoint}
 	/>
 {/snippet}

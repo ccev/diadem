@@ -9,7 +9,8 @@ import { Expand, Eye, SquareStack } from "@lucide/svelte";
 export enum PopupAction {
 	DIMMED = "dimmed",
 	RADIUS = "radius",
-	TIMER = "timer"
+	TIMER = "timer",
+	FOCUS_ROUTE = "focusRoute"
 }
 
 export type PopupActionDropdown = {
@@ -24,11 +25,13 @@ const supportedPopupActions: Partial<Record<MapObjectType, PopupAction[]>> = {
 	[MapObjectType.POKESTOP]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
 	[MapObjectType.GYM]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
 	[MapObjectType.STATION]: [PopupAction.DIMMED, PopupAction.RADIUS, PopupAction.TIMER],
-	[MapObjectType.TAPPABLE]: [PopupAction.DIMMED, PopupAction.TIMER]
+	[MapObjectType.TAPPABLE]: [PopupAction.DIMMED, PopupAction.TIMER],
+	[MapObjectType.ROUTE]: [PopupAction.FOCUS_ROUTE]
 };
 
 export function supportsPopupAction(mapObject: MapObjectType | undefined, action: PopupAction) {
 	if (!mapObject) return false;
+	if (!getUserSettings().filters.route.enabled) return false;
 	return supportedPopupActions[mapObject]?.includes(action) ?? false;
 }
 

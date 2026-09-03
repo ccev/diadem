@@ -651,8 +651,8 @@ class RouteRenderer extends MapObjectRenderer<RouteData> {
 			getLineFeature(data.mapId + "-line", getRouteCoordinates(data), {
 				id: data.mapId,
 				strokeColor: getRouteColor(data),
-				startFortId: data.start_fort_id,
-				endFortId: data.end_fort_id,
+				startFortId: data.start.id,
+				endFortId: data.end.id,
 				reversible: data.reversible,
 				isVisible: false,
 				isHighlighted: isSelected || isSelectedOverwrite,
@@ -683,10 +683,10 @@ class RouteRenderer extends MapObjectRenderer<RouteData> {
 					}
 				);
 			};
-			const startFeature = endpointFeature(data.start_fort_id);
+			const startFeature = endpointFeature(data.start.id);
 			if (startFeature) features.push(startFeature);
 			if (data.reversible) {
-				const endFeature = endpointFeature(data.end_fort_id);
+				const endFeature = endpointFeature(data.end.id);
 				if (endFeature) features.push(endFeature);
 			}
 		}

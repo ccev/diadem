@@ -7,11 +7,7 @@
 	import RouteEndpointCard from "@/components/ui/popups/route/RouteEndpointCard.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
-	import {
-		formatRouteDistance,
-		formatRouteDuration,
-		formatRouteElevation
-	} from "@/lib/utils/routeFormat";
+	import { formatDistance, formatDuration, formatElevation } from "@/lib/utils/numberFormat";
 	import { ArrowLeftRight, Clock, Ruler, Signpost, TrendingDown, TrendingUp } from "@lucide/svelte";
 
 	let { route }: { route: RouteData } = $props();
@@ -28,24 +24,24 @@
 		<OverviewCard
 			Icon={Ruler}
 			title={m.route_distance()}
-			value={formatRouteDistance(route.distance_meters)}
+			value={formatDistance(route.distance_meters)}
 		/>
 		<OverviewCard
 			Icon={Clock}
 			title={m.route_duration()}
-			value={formatRouteDuration(route.duration_seconds)}
+			value={formatDuration(route.duration_seconds)}
 		/>
 		<OverviewCard
 			Icon={TrendingUp}
 			title={m.route_uphill()}
-			value={formatRouteElevation(
+			value={formatElevation(
 				reversed ? route.elevation_downhill_meters : route.elevation_uphill_meters
 			)}
 		/>
 		<OverviewCard
 			Icon={TrendingDown}
 			title={m.route_downhill()}
-			value={formatRouteElevation(
+			value={formatElevation(
 				reversed ? route.elevation_uphill_meters : route.elevation_downhill_meters
 			)}
 		/>

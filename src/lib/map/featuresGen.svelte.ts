@@ -24,12 +24,10 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { circle } from "@turf/turf";
-import {
-	getFocusedRouteMapId,
-	setFocusedRouteMapId
-} from "@/lib/features/routes/routeDisplay.svelte";
+import { SvelteSet } from "svelte/reactivity";
+import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 import { routeStartsAt } from "@/lib/utils/routeUtils";
-import type { RouteData } from "@/lib/types/mapObjectData/route";
+import type { RouteData, RouteEndpoint } from "@/lib/types/mapObjectData/route";
 
 type FeatureEntry = {
 	lat: number;
@@ -74,7 +72,7 @@ function getFlattenedFeatures() {
 			)
 			.map((feature) => feature.properties.id)
 	);
-	const routeEndpoints = new Set<string>();
+	const routeEndpoints = new SvelteSet<string>();
 	return flattened.filter((feature) => {
 		if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
 		if (actualForts.has(feature.properties.id)) return false;
@@ -209,8 +207,8 @@ function syncRouteLineFeatures(currentSelected: MapData | null) {
 			selectedFort !== undefined &&
 			routeStartsAt(
 				{
-					start_fort_id: line.properties.startFortId,
-					end_fort_id: line.properties.endFortId,
+					start: { id: line.properties.startFortId },
+					end: { id: line.properties.endFortId },
 					reversible: line.properties.reversible
 				},
 				selectedFort.id
@@ -228,23 +226,17 @@ function syncRouteLineFeatures(currentSelected: MapData | null) {
 }
 
 function getRouteRevision(route: RouteData): string {
-	return [
-		route.version,
-		route.start_fort_type,
-		route.start_fort_updated,
-		route.start_fort_deleted,
-		route.start_team_id,
-		route.start_available_slots,
-		route.start_in_battle,
-		route.start_ex_raid_eligible,
-		route.end_fort_type,
-		route.end_fort_updated,
-		route.end_fort_deleted,
-		route.end_team_id,
-		route.end_available_slots,
-		route.end_in_battle,
-		route.end_ex_raid_eligible
-	].join(":");
+	const endpointRevision = (endpoint: RouteEndpoint) => [
+		endpoint.type,
+		endpoint.updated,
+		endpoint.deleted,
+		...(endpoint.type === MapObjectType.GYM
+			? [endpoint.teamId, endpoint.availableSlots, endpoint.inBattle, endpoint.exRaidEligible]
+			: [])
+	];
+	return [route.version, ...endpointRevision(route.start), ...endpointRevision(route.end)].join(
+		":"
+	);
 }
 
 export function refreshRouteFeatures() {

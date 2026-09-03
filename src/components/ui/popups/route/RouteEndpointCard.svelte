@@ -20,15 +20,14 @@
 	} = $props();
 
 	let isEnd = $derived(endpoint === "end");
-	let fortId = $derived(isEnd ? route.end_fort_id : route.start_fort_id);
-	let fortType = $derived(isEnd ? route.end_fort_type : route.start_fort_type);
+	let routeEndpoint = $derived(isEnd ? route.end : route.start);
 	let fortName = $derived(
-		(isEnd ? route.end_name : route.start_name) ??
-			(fortType === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
+		routeEndpoint.name ??
+			(routeEndpoint.type === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
 	);
-	let fortImage = $derived(isEnd ? route.end_image : route.start_image);
 	let fort = $derived(
-		getMapObjects()[`${fortType}-${fortId}`] ?? getRouteEndpointFort([route], fortId)
+		getMapObjects()[`${routeEndpoint.type}-${routeEndpoint.id}`] ??
+			getRouteEndpointFort([route], routeEndpoint.id)
 	);
 </script>
 
@@ -38,8 +37,12 @@
 	class="flex items-center justify-start! text-left! gap-3 py-4! px-3! w-full whitespace-normal!"
 	onclick={() => fort && openPopup(fort)}
 >
-	{#if fortImage}
-		<ImagePopup src={fortImage} alt={fortName} class="size-14 shrink-0 rounded-full object-cover" />
+	{#if routeEndpoint.image}
+		<ImagePopup
+			src={routeEndpoint.image}
+			alt={fortName}
+			class="size-14 shrink-0 rounded-full object-cover"
+		/>
 	{:else}
 		<div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-highlight">
 			<MapPinned class="size-6 text-muted-foreground" />

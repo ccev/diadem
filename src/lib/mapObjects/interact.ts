@@ -25,10 +25,7 @@ import { Coords } from "@/lib/utils/coordinates";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapMouseEvent } from "maplibre-gl";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import {
-	getFocusedRouteMapId,
-	setFocusedRouteMapId
-} from "@/lib/features/routes/routeDisplay.svelte";
+import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import { getRouteBounds, getRouteEndpointFort } from "@/lib/utils/routeUtils";
 import {

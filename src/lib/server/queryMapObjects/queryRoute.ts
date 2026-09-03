@@ -8,7 +8,7 @@ import {
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { RouteData, RouteWaypoint } from "@/lib/types/mapObjectData/route";
+import type { RouteData, RouteEndpoint, RouteWaypoint } from "@/lib/types/mapObjectData/route";
 import { getRouteCoordinates } from "@/lib/utils/routeUtils";
 import { bboxPolygon, booleanIntersects, lineString } from "@turf/turf";
 
@@ -21,6 +21,49 @@ const CANDIDATE_PAGE_SIZE = 2_000;
 
 type RawRouteWaypoint = RouteWaypoint & {
 	elevation_in_meters?: number;
+};
+
+type RawRouteData = Omit<
+	MinMapObject<RouteData>,
+	| "start"
+	| "end"
+	| "reversible"
+	| "tags"
+	| "waypoints"
+	| "elevation_uphill_meters"
+	| "elevation_downhill_meters"
+> & {
+	elevation_uphill_meters?: number | null;
+	elevation_downhill_meters?: number | null;
+	start_fort_id: string;
+	start_fort_type: string;
+	start_name: string | null;
+	start_image: string;
+	start_lat: number;
+	start_lon: number;
+	start_team_id: number | null;
+	start_available_slots: number | null;
+	start_in_battle: number | null;
+	start_ex_raid_eligible: number | null;
+	start_fort_updated: number;
+	start_fort_first_seen: number;
+	start_fort_deleted: number | string;
+	end_fort_id: string;
+	end_fort_type: string;
+	end_name: string | null;
+	end_image: string;
+	end_lat: number;
+	end_lon: number;
+	end_team_id: number | null;
+	end_available_slots: number | null;
+	end_in_battle: number | null;
+	end_ex_raid_eligible: number | null;
+	end_fort_updated: number;
+	end_fort_first_seen: number;
+	end_fort_deleted: number | string;
+	reversible: boolean | number;
+	tags: unknown;
+	waypoints: unknown;
 };
 
 export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
@@ -134,7 +177,7 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 			baseValues.push(since, since, since, since, since);
 		}
 
-		let cursor: Pick<RouteData, "start_lat" | "start_lon" | "id"> | undefined;
+		let cursor: Pick<RawRouteData, "start_lat" | "start_lon" | "id"> | undefined;
 		let examined = 0;
 		const matches: MinMapObject<RouteData>[] = [];
 
@@ -158,14 +201,23 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 			const sql =
 				this.buildSelectFrom() +
 				` WHERE ${where.join(" AND ")} ORDER BY route_data.start_lat, route_data.start_lon, route_data.id LIMIT ${pageSize}`;
-			const candidates = await this.executeQuery<MinMapObject<RouteData>[]>(sql, values);
+			const candidates = await this.executeQuery<RawRouteData[]>(sql, values);
 			examined += candidates.length;
+			const lastCandidate = candidates.at(-1);
+			const nextCursor = lastCandidate
+				? {
+						start_lat: lastCandidate.start_lat,
+						start_lon: lastCandidate.start_lon,
+						id: lastCandidate.id
+					}
+				: undefined;
 
 			for (const candidate of candidates) {
-				this.prepare(candidate);
-				const coordinates = getRouteCoordinates(candidate);
+				this.prepare(candidate as unknown as MinMapObject<RouteData>);
+				const route = candidate as unknown as MinMapObject<RouteData>;
+				const coordinates = getRouteCoordinates(route);
 				if (coordinates.length >= 2 && booleanIntersects(lineString(coordinates), target)) {
-					matches.push(candidate);
+					matches.push(route);
 					if (matches.length > actualLimit) {
 						return { data: [], examined: actualLimit, limitReached: true };
 					}
@@ -176,51 +228,98 @@ export class RouteQuery extends DbMapObjectQuery<RouteData, FilterRoute> {
 			}
 
 			if (candidates.length < pageSize) break;
-			const last = candidates.at(-1);
-			if (!last) break;
-			cursor = last;
+			if (!nextCursor) break;
+			cursor = nextCursor;
 		}
 
 		return { data: matches, examined };
 	}
 
 	prepare(data: MinMapObject<RouteData>): void {
-		data.reversible = Boolean(data.reversible);
-		data.start_fort_deleted = Number(data.start_fort_deleted);
-		data.end_fort_deleted = Number(data.end_fort_deleted);
-		data.start_fort_type =
-			data.start_fort_type === MapObjectType.GYM ? MapObjectType.GYM : MapObjectType.POKESTOP;
-		data.end_fort_type =
-			data.end_fort_type === MapObjectType.GYM ? MapObjectType.GYM : MapObjectType.POKESTOP;
-		data.tags = this.parseJsonArray<string>(data.tags);
-		const waypoints = this.parseJsonArray<RawRouteWaypoint>(data.waypoints).filter(
+		if (data.start && data.end) return;
+
+		const raw = data as unknown as RawRouteData;
+		const waypoints = this.parseJsonArray<RawRouteWaypoint>(raw.waypoints).filter(
 			(waypoint) => Number.isFinite(waypoint.lat_degrees) && Number.isFinite(waypoint.lng_degrees)
 		);
-		if (
-			!Number.isFinite(data.elevation_uphill_meters) ||
-			!Number.isFinite(data.elevation_downhill_meters)
-		) {
+		const hasElevation =
+			Number.isFinite(raw.elevation_uphill_meters) &&
+			Number.isFinite(raw.elevation_downhill_meters);
+		let elevationUphill = hasElevation ? Number(raw.elevation_uphill_meters) : 0;
+		let elevationDownhill = hasElevation ? Number(raw.elevation_downhill_meters) : 0;
+		if (!hasElevation) {
 			let previousElevation: number | undefined;
-			let uphill = 0;
-			let downhill = 0;
 			for (const waypoint of waypoints) {
 				const elevation = waypoint.elevation_in_meters;
 				if (elevation === undefined || !Number.isFinite(elevation)) continue;
 
 				if (previousElevation !== undefined) {
 					const difference = elevation - previousElevation;
-					if (difference > 0) uphill += difference;
-					else downhill -= difference;
+					if (difference > 0) elevationUphill += difference;
+					else elevationDownhill -= difference;
 				}
 				previousElevation = elevation;
 			}
-			data.elevation_uphill_meters = uphill;
-			data.elevation_downhill_meters = downhill;
 		}
-		data.waypoints = waypoints.map(({ lat_degrees, lng_degrees }) => ({
-			lat_degrees,
-			lng_degrees
-		}));
+
+		const normalized: MinMapObject<RouteData> = {
+			id: raw.id,
+			lat: raw.lat,
+			lon: raw.lon,
+			name: raw.name,
+			shortcode: raw.shortcode,
+			description: raw.description,
+			distance_meters: raw.distance_meters,
+			duration_seconds: raw.duration_seconds,
+			elevation_uphill_meters: elevationUphill,
+			elevation_downhill_meters: elevationDownhill,
+			start: this.normalizeEndpoint(raw, "start"),
+			end: this.normalizeEndpoint(raw, "end"),
+			image: raw.image,
+			image_border_color: raw.image_border_color,
+			reversible: Boolean(Number(raw.reversible)),
+			tags: this.parseJsonArray<string>(raw.tags),
+			route_type: raw.route_type,
+			updated: raw.updated,
+			version: raw.version,
+			waypoints: waypoints.map(({ lat_degrees, lng_degrees }) => ({
+				lat_degrees,
+				lng_degrees
+			}))
+		};
+
+		const target = data as unknown as Record<string, unknown>;
+		for (const key of Object.keys(target)) delete target[key];
+		Object.assign(target, normalized);
+	}
+
+	private normalizeEndpoint(data: RawRouteData, position: "start" | "end"): RouteEndpoint {
+		const isEnd = position === "end";
+		const type = (isEnd ? data.end_fort_type : data.start_fort_type) as MapObjectType;
+		const base = {
+			id: isEnd ? data.end_fort_id : data.start_fort_id,
+			name: isEnd ? data.end_name : data.start_name,
+			image: isEnd ? data.end_image : data.start_image,
+			lat: isEnd ? data.end_lat : data.start_lat,
+			lon: isEnd ? data.end_lon : data.start_lon,
+			updated: isEnd ? data.end_fort_updated : data.start_fort_updated,
+			firstSeen: isEnd ? data.end_fort_first_seen : data.start_fort_first_seen,
+			deleted: Boolean(Number(isEnd ? data.end_fort_deleted : data.start_fort_deleted))
+		};
+		if (type === MapObjectType.GYM) {
+			const inBattle = isEnd ? data.end_in_battle : data.start_in_battle;
+			const exRaidEligible = isEnd ? data.end_ex_raid_eligible : data.start_ex_raid_eligible;
+			return {
+				...base,
+				type,
+				teamId: isEnd ? data.end_team_id : data.start_team_id,
+				availableSlots: isEnd ? data.end_available_slots : data.start_available_slots,
+				inBattle: inBattle === null ? null : Boolean(Number(inBattle)),
+				exRaidEligible: exRaidEligible === null ? null : Boolean(Number(exRaidEligible))
+			};
+		}
+
+		return { ...base, type: MapObjectType.POKESTOP };
 	}
 
 	private parseJsonArray<T>(value: unknown): T[] {

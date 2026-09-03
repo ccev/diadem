@@ -9,20 +9,53 @@ import {
 	routeStartsAt
 } from "@/lib/utils/routeUtils";
 
-const route = {
-	start_fort_id: "start",
-	end_fort_id: "end",
-	start_lat: 51,
-	start_lon: 6,
-	end_lat: 52,
-	end_lon: 7,
+const route: RouteData = {
+	id: "route",
+	mapId: "route-route",
+	type: MapObjectType.ROUTE,
+	lat: 51,
+	lon: 6,
+	name: "Test route",
+	shortcode: "TEST",
+	description: "Test description",
+	distance_meters: 1000,
+	duration_seconds: 600,
+	elevation_uphill_meters: 0,
+	elevation_downhill_meters: 0,
+	start: {
+		id: "start",
+		type: MapObjectType.POKESTOP,
+		name: null,
+		image: "start.jpg",
+		lat: 51,
+		lon: 6,
+		updated: 123,
+		firstSeen: 123,
+		deleted: false
+	},
+	end: {
+		id: "end",
+		type: MapObjectType.POKESTOP,
+		name: null,
+		image: "end.jpg",
+		lat: 52,
+		lon: 7,
+		updated: 123,
+		firstSeen: 123,
+		deleted: false
+	},
 	reversible: true,
 	image_border_color: "4742A1FF",
+	image: "route.jpg",
+	tags: [],
+	route_type: 0,
+	updated: 123,
+	version: 1,
 	waypoints: [
 		{ lat_degrees: 51, lng_degrees: 6 },
 		{ lat_degrees: 51.5, lng_degrees: 6.5 }
 	]
-} as RouteData;
+};
 
 describe("route utilities", () => {
 	it("treats both endpoints of a reversible route as starts", () => {
@@ -53,9 +86,7 @@ describe("route utilities", () => {
 			[
 				{
 					...route,
-					end_name: "Reverse start",
-					end_image: "end.jpg",
-					updated: 123
+					end: { ...route.end, name: "Reverse start", image: "end.jpg" }
 				}
 			],
 			"end"
@@ -80,9 +111,7 @@ describe("route utilities", () => {
 				{
 					...route,
 					reversible: false,
-					end_name: "One-way end",
-					end_image: "end.jpg",
-					updated: 123
+					end: { ...route.end, name: "One-way end", image: "end.jpg" }
 				}
 			],
 			"end"
@@ -100,15 +129,18 @@ describe("route utilities", () => {
 			[
 				{
 					...route,
-					start_fort_type: MapObjectType.GYM,
-					start_name: "Route Gym",
-					start_image: "gym.jpg",
-					start_team_id: 2,
-					start_available_slots: 3,
-					start_in_battle: 1,
-					start_ex_raid_eligible: 1,
-					start_fort_updated: 456,
-					start_fort_first_seen: 123
+					start: {
+						...route.start,
+						type: MapObjectType.GYM,
+						name: "Route Gym",
+						image: "gym.jpg",
+						teamId: 2,
+						availableSlots: 3,
+						inBattle: true,
+						exRaidEligible: true,
+						updated: 456,
+						firstSeen: 123
+					}
 				}
 			],
 			"start"
@@ -132,10 +164,7 @@ describe("route utilities", () => {
 
 	it("does not create an endpoint for a deleted fort", () => {
 		expect(
-			getRouteEndpointFort(
-				[{ ...route, start_fort_type: MapObjectType.GYM, start_fort_deleted: 1 }],
-				"start"
-			)
+			getRouteEndpointFort([{ ...route, start: { ...route.start, deleted: true } }], "start")
 		).toBeUndefined();
 	});
 });

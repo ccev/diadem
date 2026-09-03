@@ -11,6 +11,8 @@
 	import * as m from "@/lib/paraglide/messages";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { Hash, Info, Signpost } from "@lucide/svelte";
+	import { mRouteTag } from "$lib/services/ingameLocale";
+	import { getRouteColor } from "$lib/utils/routeUtils";
 
 	export { image, main };
 
@@ -25,17 +27,14 @@
 	}
 </script>
 
-<script>
-	import { mRouteTag } from "$lib/services/ingameLocale";
-</script>
-
 {#snippet image(d: MapData)}
 	{@const data = d as RouteData}
 	{#if data.image}
 		<ImagePopup
 			src={data.image}
 			alt={data.name || m.pogo_route()}
-			class="size-14 rounded-full object-cover"
+			class="size-12 rounded-full object-cover outline-offset-2 outline-3"
+			style="outline-color: {getRouteColor(data)}"
 		/>
 	{:else}
 		<div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent">

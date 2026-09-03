@@ -5,7 +5,30 @@ export type RouteWaypoint = {
 	lng_degrees: number;
 };
 
-export type RouteFortType = MapObjectType.POKESTOP | MapObjectType.GYM;
+type RouteEndpointBase = {
+	id: string;
+	name: string | null;
+	image: string;
+	lat: number;
+	lon: number;
+	updated: number;
+	firstSeen: number;
+	deleted: boolean;
+};
+
+export type RoutePokestopEndpoint = RouteEndpointBase & {
+	type: MapObjectType.POKESTOP;
+};
+
+export type RouteGymEndpoint = RouteEndpointBase & {
+	type: MapObjectType.GYM;
+	teamId: number | null;
+	availableSlots: number | null;
+	inBattle: boolean | null;
+	exRaidEligible: boolean | null;
+};
+
+export type RouteEndpoint = RoutePokestopEndpoint | RouteGymEndpoint;
 
 export type RouteData = {
 	id: string;
@@ -20,32 +43,8 @@ export type RouteData = {
 	duration_seconds: number;
 	elevation_uphill_meters: number;
 	elevation_downhill_meters: number;
-	start_fort_id: string;
-	start_fort_type: RouteFortType;
-	start_name: string | null;
-	start_image: string;
-	start_lat: number;
-	start_lon: number;
-	start_team_id: number | null;
-	start_available_slots: number | null;
-	start_in_battle: number | null;
-	start_ex_raid_eligible: number | null;
-	start_fort_updated: number;
-	start_fort_first_seen: number;
-	start_fort_deleted: number;
-	end_fort_id: string;
-	end_fort_type: RouteFortType;
-	end_name: string | null;
-	end_image: string;
-	end_lat: number;
-	end_lon: number;
-	end_team_id: number | null;
-	end_available_slots: number | null;
-	end_in_battle: number | null;
-	end_ex_raid_eligible: number | null;
-	end_fort_updated: number;
-	end_fort_first_seen: number;
-	end_fort_deleted: number;
+	start: RouteEndpoint;
+	end: RouteEndpoint;
 	image: string;
 	image_border_color: string;
 	reversible: boolean;

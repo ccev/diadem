@@ -18,7 +18,8 @@
 		Navigation,
 		Plus,
 		Timer,
-		TimerOff
+		TimerOff,
+		Scan,
 	} from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
@@ -31,7 +32,7 @@
 	import {
 		getFocusedRouteMapId,
 		setFocusedRouteMapId
-	} from "$lib/features/routes/routeDisplay.svelte";
+	} from "$lib/features/focusedRoute.svelte.js";
 	import { refreshRouteFeatures } from "$lib/map/featuresGen.svelte";
 
 	let {
@@ -52,15 +53,6 @@
 </script>
 
 <div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">
-	<!--	<PopupButton-->
-	<!--		variant="default"-->
-	<!--		Icon={Plus}-->
-	<!--		label={m.popup_show_details()}-->
-	<!--		IconActive={Minus}-->
-	<!--		labelActive={m.popup_hide_details()}-->
-	<!--		active={isPopupExpanded(selectedType)}-->
-	<!--		onclick={() => togglePopupExpanded(selectedType)}-->
-	<!--	/>-->
 	<PopupButton
 		variant="default"
 		Icon={Navigation}
@@ -69,11 +61,11 @@
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
 	/>
-	{#if selectedType === MapObjectType.ROUTE}
+	{#if supportsPopupAction(selectedType, PopupAction.FOCUS_ROUTE)}
 		<PopupButton
 			Icon={Focus}
 			label={m.focus_route()}
-			IconActive={Focus}
+			IconActive={Scan}
 			labelActive={m.unfocus_route()}
 			active={routeFocused}
 			onclick={() => {

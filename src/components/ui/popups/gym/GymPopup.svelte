@@ -129,49 +129,52 @@
 
 {#snippet overview(d: MapData)}
 	{@const data = d as GymData}
-	{@const activeRaid = isActiveRaid(data)}
 
-	{#if activeRaid}
-		<OverviewCard Icon={RaidIcon} title={m.raid()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<ImagePopup class="h-12" src={getRaidIcon(data)} alt={getRaidTitle(data)} />
-				{/snippet}
+	{#if !data.isRouteEndpoint}
+		{@const activeRaid = isActiveRaid(data)}
 
-				{#snippet title()}
-					{getRaidTitle(data)}
-				{/snippet}
+		{#if activeRaid}
+			<OverviewCard Icon={RaidIcon} title={m.raid()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<ImagePopup class="h-12" src={getRaidIcon(data)} alt={getRaidTitle(data)} />
+					{/snippet}
 
-				{#snippet extra()}
+					{#snippet title()}
+						{getRaidTitle(data)}
+					{/snippet}
+
+					{#snippet extra()}
 					<span class="flex items-center gap-1">
 						<Clock class="size-3" />
 						<Countdown expireTime={getRaidExpire(data)} />
 					</span>
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
-	{/if}
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/if}
 
-	{#if data.team_id && data.team_id !== 0 && !isFortOutdated(data.updated)}
-		<OverviewCard Icon={Shield} title={m.defending()}>
-			<BigIconOverview>
-				{#snippet image()}
-					<ImagePopup
-						class="size-12"
-						src={getIconTeam(data.team_id ?? 0)}
-						alt={mTeam(data.team_id)}
-					/>
-				{/snippet}
+		{#if data.team_id && data.team_id !== 0 && !isFortOutdated(data.updated)}
+			<OverviewCard Icon={Shield} title={m.defending()}>
+				<BigIconOverview>
+					{#snippet image()}
+						<ImagePopup
+							class="size-12"
+							src={getIconTeam(data.team_id ?? 0)}
+							alt={mTeam(data.team_id)}
+						/>
+					{/snippet}
 
-				{#snippet title()}
-					{m.gym_team({ team: mTeam(data.team_id) })}
-				{/snippet}
+					{#snippet title()}
+						{m.gym_team({ team: mTeam(data.team_id) })}
+					{/snippet}
 
-				{#snippet extra()}
-					{m.gym_slots({ occupied: getOccupiedSlots(data), total: GYM_SLOTS })}
-				{/snippet}
-			</BigIconOverview>
-		</OverviewCard>
+					{#snippet extra()}
+						{m.gym_slots({ occupied: getOccupiedSlots(data), total: GYM_SLOTS })}
+					{/snippet}
+				</BigIconOverview>
+			</OverviewCard>
+		{/if}
 	{/if}
 {/snippet}
 
@@ -269,10 +272,10 @@
 											>
 												<b>{timestampToLocalTime(rsvp.timeslot / 1000, { showSeconds: false })}</b>
 												<span class="text-right"
-													>{m.rsvp_entry({
-														going: rsvp.going_count,
-														maybe: rsvp.maybe_count
-													})}</span
+												>{m.rsvp_entry({
+													going: rsvp.going_count,
+													maybe: rsvp.maybe_count
+												})}</span
 												>
 											</div>
 										{/each}
@@ -484,5 +487,6 @@
 		updated={data.updated}
 		lastModified={data.last_modified_timestamp}
 		firstSeen={data.first_seen_timestamp}
+		isRouteEndpoint={data.isRouteEndpoint}
 	/>
 {/snippet}
