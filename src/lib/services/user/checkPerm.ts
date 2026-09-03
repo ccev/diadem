@@ -9,6 +9,7 @@ import {
 import { getLogger } from "@/lib/utils/logger";
 import {
 	bbox,
+	booleanIntersects,
 	booleanPointInPolygon,
 	featureCollection,
 	intersect,
@@ -17,7 +18,7 @@ import {
 	polygon,
 	union
 } from "@turf/turf";
-import type { Feature, MultiPolygon, Polygon } from "geojson";
+import type { Feature, Geometry, MultiPolygon, Polygon } from "geojson";
 
 const log = getLogger("permissions");
 
@@ -212,5 +213,12 @@ export class FeaturePermissionContext {
 
 		const turfPoint = point([lon, lat]);
 		return polygons.some((poly) => booleanPointInPolygon(turfPoint, poly));
+	}
+
+	isAllowedGeometry(feature: FeaturesKey, geometry: Feature<Geometry>): boolean {
+		if (this.everywhere.has(feature)) return true;
+
+		const polygons = this.areaPolygons.get(feature);
+		return polygons?.some((poly) => booleanIntersects(geometry, poly)) ?? false;
 	}
 }

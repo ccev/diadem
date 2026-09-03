@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as m from "@/lib/paraglide/messages";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
@@ -91,6 +90,14 @@
 	/>
 
 	<FilterSection
+		requiredPermission={Features.ROUTE}
+		title={m.routes()}
+		category="route"
+		mapObject={MapObjectType.ROUTE}
+		isFilterable={false}
+	/>
+
+	<FilterSection
 		requiredPermission={Features.STATION}
 		title={mapObjectLabels[MapObjectType.STATION]()}
 		category={MapObjectType.STATION}
@@ -127,14 +134,6 @@
 		category="tappable"
 		isFilterable={false}
 	/>
-
-	<!--	<FilterSection-->
-	<!--		requiredPermission={MapObjectType.ROUTE}-->
-	<!--		title={m.routes()}-->
-	<!--		mapObject={MapObjectType.ROUTE}-->
-	<!--		category="route"-->
-	<!--		isFilterable={false}-->
-	<!--	/>-->
 
 	<FilterSection
 		requiredPermission={MapObjectType.S2_CELL}

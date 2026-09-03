@@ -19,6 +19,7 @@ import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 import {
 	getCircleFeature,
 	getIconFeature,
+	getLineFeature,
 	getPolygonFeature,
 	type MapObjectFeature,
 	type MapObjectIconProperties,
@@ -33,6 +34,7 @@ import {
 	getIconForMap,
 	getIconGym,
 	getIconInvasion,
+	getIconPokestop,
 	getIconPokemon,
 	getIconRaidEgg,
 	getIconReward
@@ -45,12 +47,19 @@ import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import type { RouteData } from "@/lib/types/mapObjectData/route";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveGymFilter, getRaidPokemon } from "@/lib/utils/gymUtils";
-import { getActivePokestopFilter, givesQuestBackground, isIncidentInvasion } from "@/lib/utils/pokestopUtils";
+import {
+	getActivePokestopFilter,
+	givesQuestBackground,
+	isIncidentInvasion
+} from "@/lib/utils/pokestopUtils";
 import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
+import { getRouteColor, getRouteCoordinates, getRouteEndpointFort } from "@/lib/utils/routeUtils";
+import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 const INVASION_CHARACTER_SCALE = 0.6;
 const INVASION_CHARACTER_OFFSET = 30;
@@ -296,8 +305,8 @@ class PokestopRenderer extends MapObjectRenderer<PokestopData> {
 						imageSize: rewardProps.imageSize * QUEST_BACKGROUND_FLOWER_SCALE,
 						selectedScale,
 						imageOffset: [
-							(imageOffset[0] + QUEST_BACKGROUND_FLOWER_OFFSET),
-							(imageOffset[1] + QUEST_BACKGROUND_FLOWER_OFFSET)
+							imageOffset[0] + QUEST_BACKGROUND_FLOWER_OFFSET,
+							imageOffset[1] + QUEST_BACKGROUND_FLOWER_OFFSET
 						],
 						id: data.mapId,
 						expires
@@ -630,6 +639,61 @@ class S2CellRenderer extends MapObjectRenderer<S2CellData> {
 	}
 }
 
+class RouteRenderer extends MapObjectRenderer<RouteData> {
+	constructor() {
+		// Route endpoints use the user's default Pokestop icon set.
+		super(MapObjectType.POKESTOP);
+	}
+
+	public render(data: RouteData, isSelected: boolean, isSelectedOverwrite: boolean) {
+		const selectedScale = isSelected ? SELECTED_MAP_OBJECT_SCALE : 1;
+		const features: MapObjectFeature[] = [
+			getLineFeature(data.mapId + "-line", getRouteCoordinates(data), {
+				id: data.mapId,
+				strokeColor: getRouteColor(data),
+				startFortId: data.start.id,
+				endFortId: data.end.id,
+				reversible: data.reversible,
+				isVisible: false,
+				isHighlighted: isSelected || isSelectedOverwrite,
+				isDimmed: false
+			})
+		];
+
+		if (getUserSettings().filters.route.enabled) {
+			const endpointFeature = (fortId: string) => {
+				const endpoint = getRouteEndpointFort([data], fortId);
+				if (!endpoint) return;
+
+				const iconSet = getCurrentUiconSetDetailsAllTypes()[endpoint.type];
+				const modifiers = getConfigModifiers(iconSet, endpoint.type);
+				return getIconFeature(
+					`route-endpoint-${endpoint.type}-${fortId}`,
+					[endpoint.lon, endpoint.lat],
+					{
+						imageUrl:
+							endpoint.type === MapObjectType.GYM ? getIconGym(endpoint) : getIconPokestop({}),
+						imageSize: modifiers.scale,
+						selectedScale,
+						imageOffset: [modifiers.offsetX, modifiers.offsetY],
+						id: endpoint.mapId,
+						routeEndpointFortId: fortId,
+						expires: null
+					}
+				);
+			};
+			const startFeature = endpointFeature(data.start.id);
+			if (startFeature) features.push(startFeature);
+			if (data.reversible) {
+				const endFeature = endpointFeature(data.end.id);
+				if (endFeature) features.push(endFeature);
+			}
+		}
+
+		return features;
+	}
+}
+
 const rendererClasses: Record<
 	MapObjectType,
 	new (...args: ConstructorParameters<typeof MapObjectRenderer>) => MapObjectRenderer<any>
@@ -642,7 +706,7 @@ const rendererClasses: Record<
 	[MapObjectType.SPAWNPOINT]: SpawnpointRenderer,
 	[MapObjectType.TAPPABLE]: TappableRenderer,
 	[MapObjectType.S2_CELL]: S2CellRenderer,
-	[MapObjectType.ROUTE]: PokemonRenderer // no-op, uses default render
+	[MapObjectType.ROUTE]: RouteRenderer
 };
 
 let renderers: Partial<Record<MapObjectType, MapObjectRenderer<any>>> = {};

@@ -17,7 +17,8 @@ export const prefixes = {
 	alignment: "alignment_",
 	generation: "generation_",
 	quest: "quest_title_",
-	character: "grunt_a_"
+	character: "grunt_a_",
+	routetag: "route_tag_"
 };
 
 let remoteLocales: { [key: string]: { [key: string]: string } } = {};
@@ -32,19 +33,7 @@ export async function loadRemoteLocale(languageTag: string, thisFetch: typeof fe
 
 function getIngameLocale() {
 	const languageTag = getLocale();
-	let locale = remoteLocales[languageTag];
-
-	if (!locale) {
-		const allRemoteLocales = Object.values(remoteLocales);
-
-		if (allRemoteLocales) {
-			locale = allRemoteLocales[0];
-		} else {
-			return {};
-		}
-	}
-
-	return locale;
+	return remoteLocales[languageTag] ?? Object.values(remoteLocales)[0] ?? {};
 }
 
 function mIngame(key: string): string {
@@ -67,7 +56,7 @@ function mBasicId(
 	plural: boolean = false
 ): string {
 	// @ts-ignore dynamic message
-	if (!id) return m["unknown_" + name]();
+	if (!id) return defaultName ?? m["unknown_" + name]();
 
 	const suffix = plural ? "_plural" : "";
 
@@ -280,7 +269,7 @@ export function mCharacter(
 	}
 
 	if (characterId === Character.DECOY_FEMALE || characterId === Character.DECOY_MALE) {
-		character = m.decoy()
+		character = m.decoy();
 	}
 
 	return options?.plural ? m.character_grunts({ character }) : m.character_grunt({ character });
@@ -305,4 +294,13 @@ export function mTeam(teamId: number | undefined) {
 		default:
 			return m.team_neutral();
 	}
+}
+
+export function mRouteTag(value: string) {
+	value = value.replace(/^route_tag_/, "");
+	const label = mBasicId("routetag", value, "");
+	if (label) return label;
+
+	const fallback = value.replaceAll("_", " ");
+	return fallback.charAt(0).toUpperCase() + fallback.slice(1);
 }

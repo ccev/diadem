@@ -28,6 +28,7 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getFilterHash } from "@/lib/utils/filterHash";
 import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import { SvelteMap } from "svelte/reactivity";
+import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 export type MapObjectRequestData = Bounds & {
 	filter?: AnyFilter | undefined;
@@ -204,7 +205,6 @@ export async function updateMapObject(
 	onlyChanged: boolean = false
 ) {
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
-	if (type === MapObjectType.ROUTE) return;
 
 	let filter: AnyFilter | undefined = undefined;
 
@@ -223,8 +223,8 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.nest;
 		} else if (type === MapObjectType.SPAWNPOINT) {
 			filter = getUserSettings().filters.spawnpoint;
-			// } else if (type === MapObjectType.ROUTE) {
-			// 	filter = getUserSettings().filters.route;
+		} else if (type === MapObjectType.ROUTE) {
+			filter = getUserSettings().filters.route;
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
 		} else if (type === MapObjectType.S2_CELL) {
@@ -236,6 +236,12 @@ export async function updateMapObject(
 	}
 
 	if (!filter || !filter.enabled) {
+		const selected = getCurrentSelectedData();
+		const preserveRoutesForFortPopup =
+			type === MapObjectType.ROUTE &&
+			(selected?.type === MapObjectType.POKESTOP || selected?.type === MapObjectType.GYM);
+		if (preserveRoutesForFortPopup) return;
+
 		clearMapObjects(type);
 		clearDataLimit(type);
 		if (!signal) updateFeatures(getMapObjects());
@@ -314,17 +320,28 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 	let limitsToClear: MapObjectType[] = [];
 
 	if (activeSearch) {
+		const loadRoutes = [MapObjectType.POKESTOP, MapObjectType.GYM].includes(activeSearch.mapObject);
 		for (const mapObjectType of allMapObjectTypes) {
-			if (mapObjectType !== activeSearch.mapObject) clearMapObjects(mapObjectType);
+			if (
+				mapObjectType !== activeSearch.mapObject &&
+				(mapObjectType !== MapObjectType.ROUTE || !loadRoutes)
+			)
+				clearMapObjects(mapObjectType);
 		}
-		const limitToClear = await updateMapObject(
-			activeSearch.mapObject,
-			removeOld,
-			activeSearch.filter,
-			controller.signal,
-			onlyChanged
+		const searchTypes = [activeSearch.mapObject];
+		if (loadRoutes) searchTypes.push(MapObjectType.ROUTE);
+		const results = await Promise.all(
+			searchTypes.map((type) =>
+				updateMapObject(
+					type,
+					removeOld,
+					type === activeSearch.mapObject ? activeSearch.filter : undefined,
+					controller.signal,
+					onlyChanged
+				)
+			)
 		);
-		if (limitToClear) limitsToClear.push(limitToClear);
+		limitsToClear.push(...results.filter((type) => type !== undefined));
 	} else {
 		const [limitResults] = await Promise.all([
 			Promise.all(

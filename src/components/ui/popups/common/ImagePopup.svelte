@@ -1,13 +1,16 @@
 <script lang="ts">
+	import type { HTMLImgAttributes } from "svelte/elements";
+
 	let {
 		src,
 		alt,
-		class: class_ = ""
+		class: class_ = "",
+		...rest
 	}: {
 		src: string;
 		alt: string;
 		class?: string;
-	} = $props();
+	} & HTMLImgAttributes = $props();
 
 	let img: HTMLImageElement | undefined = $state(undefined);
 	let isLoading: boolean = $state(true);
@@ -32,4 +35,4 @@
 	});
 </script>
 
-<img bind:this={img} {alt} class="text-sm object-contain {class_}" class:hidden={isLoading} />
+<img bind:this={img} {alt} class="text-sm object-contain {class_}" {...rest} class:hidden={isLoading} />
