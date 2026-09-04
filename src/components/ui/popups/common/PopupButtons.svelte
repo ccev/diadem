@@ -31,6 +31,7 @@
 	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 	import { refreshRouteFeatures } from "$lib/map/featuresGen.svelte";
+	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 
 	let {
 		lat,
@@ -58,7 +59,7 @@
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
 	/>
-	{#if supportsPopupAction(selectedType, PopupAction.FOCUS_ROUTE)}
+	{#if supportsPopupAction(selectedType, PopupAction.FOCUS_ROUTE) && getUserSettings().filters.route.enabled}
 		<PopupButton
 			Icon={Focus}
 			label={m.focus_route()}

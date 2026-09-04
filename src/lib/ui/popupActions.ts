@@ -31,7 +31,6 @@ const supportedPopupActions: Partial<Record<MapObjectType, PopupAction[]>> = {
 
 export function supportsPopupAction(mapObject: MapObjectType | undefined, action: PopupAction) {
 	if (!mapObject) return false;
-	if (!getUserSettings().filters.route.enabled) return false;
 	return supportedPopupActions[mapObject]?.includes(action) ?? false;
 }
 
