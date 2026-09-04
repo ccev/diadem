@@ -19,6 +19,7 @@
 	import { circle } from "@turf/turf";
 	import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
 	import type * as maplibre from "maplibre-gl";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
 	import { untrack } from "svelte";
 	import { CircleLayer, FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 
@@ -153,7 +154,7 @@
 		style={getMapStyle(
 			mapStyleForTheme("satellite") ?? mapStyleFromId(getUserSettings().mapStyle.id)
 		)}
-		class="size-full"
+		class="size-full rounded-lg overflow-hidden"
 		attributionControl={false}
 		interactive={true}
 		zoomOnDoubleClick={true}
@@ -190,5 +191,6 @@
 		</GeoJSON>
 
 		<MarkerCurrentLocation />
+		<MapAttribution map={bindMap} />
 	</MapLibre>
 </div>

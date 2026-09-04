@@ -356,6 +356,7 @@ name = "Positron"
 url = "https://.../style.json"
 # default = "light"
 # theme = "light"
+# attribution = '<a href="https://...">Map data attribution</a>'
 ```
 
 Supported keys:
@@ -365,6 +366,12 @@ Supported keys:
 - `url`: style URL
 - `default`: optional `light` or `dark`
 - `theme`: optional `light`, `dark`, or `satellite`
+- `attribution`: optional attribution HTML. MapLibre automatically reads attribution from vector
+  style sources and TileJSON metadata. Set this for direct raster tile templates when the provider
+  does not supply attribution metadata.
+
+Provider attribution and branding requirements vary. Ensure each configured style meets its
+provider's current terms; hiding attribution only in an application menu may not be sufficient.
 
 ## `client.uiconSets`
 

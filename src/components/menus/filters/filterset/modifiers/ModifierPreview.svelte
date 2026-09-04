@@ -30,6 +30,7 @@
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { FeatureCollection, Point } from "geojson";
 	import type * as maplibre from "maplibre-gl";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
 	import { GeoJSON, MapLibre } from "svelte-maplibre";
 	import { watch } from "runed";
 	import { center } from "@turf/turf";
@@ -290,7 +291,7 @@
 		center={[0, 0]}
 		zoom={16}
 		style={getMapStyle(mapStyleFromId(getUserSettings().mapStyle.id))}
-		class="size-full"
+		class="size-full rounded-md overflow-hidden"
 		attributionControl={false}
 		interactive={false}
 		zoomOnDoubleClick={false}
@@ -302,5 +303,6 @@
 				filter={["==", ["get", "type"], FeatureTypes.ICON]}
 			/>
 		</GeoJSON>
+		<MapAttribution map={bindMap} />
 	</MapLibre>
 </div>

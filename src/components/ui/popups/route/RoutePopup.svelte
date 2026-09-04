@@ -33,7 +33,7 @@
 		<ImagePopup
 			src={data.image}
 			alt={data.name || m.pogo_route()}
-			class="size-12 rounded-full object-cover outline-offset-2 outline-3"
+			class="size-12 rounded-full object-cover outline-offset-2 outline-3 ml-2"
 			style="outline-color: {getRouteColor(data)}"
 		/>
 	{:else}

@@ -55,6 +55,8 @@
 	import { getFeatureJump } from "$lib/utils/geo";
 	import { jumpTo } from "$lib/map/utils";
 	import { setSearchedGeometry } from "$lib/services/search.svelte";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
+	import { isUiLeft } from "$lib/utils/device";
 
 	let {
 		map = $bindable()
@@ -162,7 +164,13 @@
 	onload={onMapLoad}
 	initialCenter={Coords.infer(mapPosition.center)}
 	initialZoom={mapPosition.zoom}
+	showAttribution={false}
 >
+	<MapAttribution
+		{map}
+		class="{isUiLeft() ? 'left-2 right-auto' : 'right-2'}"
+	/>
+
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer
 		show={() => getOpenedMenu() === Menu.SCOUT}

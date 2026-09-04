@@ -50,7 +50,9 @@
 			<!--			<DesktopMenu />-->
 		{/snippet}
 		{#snippet desktopRight()}
-			<Fabs {map} searchMode="coverage" />
+			<div class="mb-2">
+				<Fabs {map} searchMode="coverage" />
+			</div>
 			<div class="px-2 -mt-2">
 				<CoverageMapPopup />
 			</div>

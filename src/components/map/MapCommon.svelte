@@ -13,6 +13,7 @@
 	import { clearActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
 	import { setCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import { resetLocate } from "@/lib/map/geolocate.svelte";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
 
 	let {
 		onload = undefined,
@@ -20,7 +21,8 @@
 		map = $bindable(),
 		initialCenter,
 		initialZoom,
-		style
+		style,
+		showAttribution = true
 	}: {
 		onload?: (map: maplibre.Map) => void;
 		children?: Snippet;
@@ -28,6 +30,7 @@
 		initialCenter: Coords;
 		initialZoom: number;
 		style?: string | maplibre.StyleSpecification;
+		showAttribution?: boolean
 	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
@@ -61,4 +64,7 @@
 	maxZoom={getConfig().general.maxZoom}
 >
 	{@render children?.()}
+	{#if showAttribution}
+		<MapAttribution {map} />
+	{/if}
 </MapLibre>
