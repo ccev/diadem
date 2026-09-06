@@ -7,17 +7,22 @@
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
 	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import type { PokemonData } from "$lib/types/mapObjectData/pokemon";
-	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
+	import {
+		getPokemonStats as getMasterPokemonStats,
+		type PokemonStats
+	} from "$lib/features/masterStats.svelte";
 	import { mPokemon } from "$lib/services/ingameLocale";
 
 	let {
 		data
 	}: {
-		data: Pick<PokemonData, "pokemon_id" | "form">
-	} = $props()
+		data: Pick<PokemonData, "pokemon_id" | "form">;
+	} = $props();
 
-	let stats: PokemonStats | undefined = $derived(getMasterPokemonStats(data.pokemon_id, data.form ?? 0))
-	let statsEntry = $derived(stats?.entry)
+	let stats: PokemonStats | undefined = $derived(
+		getMasterPokemonStats(data.pokemon_id, data.form ?? 0)
+	);
+	let statsEntry = $derived(stats?.entry);
 </script>
 
 <TitledMainSection Icon={ChartColumn} title={m.stats()}>
@@ -28,8 +33,8 @@
 			{/if}
 			{#if statsEntry}
 				{m.total_seen()}: {formatNumberCompact(
-				statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
-			)}
+					statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
+				)}
 			{/if}
 		</p>
 	{/snippet}
@@ -40,20 +45,18 @@
 		{:else}
 			<StatsMainCardEntry
 				Icon={Sparkles}
-				name={statsEntry.shiny && statsEntry.shiny.shinies > 0
-						? m.shiny_rate()
-						: m.contest_shiny()}
+				name={statsEntry.shiny && statsEntry.shiny.shinies > 0 ? m.shiny_rate() : m.contest_shiny()}
 				value={statsEntry.shiny && statsEntry.shiny.shinies > 0
-						? formatRatio(statsEntry.shiny.shinies, statsEntry.shiny.total)
-						: m.no_shinies_seen()}
+					? formatRatio(statsEntry.shiny.shinies, statsEntry.shiny.total)
+					: m.no_shinies_seen()}
 			/>
 			<StatsMainCardEntry Icon={Crown} name={m.rarity()}>
 				{#snippet value()}
 					{#if statsEntry.spawns && statsEntry.spawns.count > 0}
 						<p class="flex gap-2">
-								<span class="text-muted-foreground">
-									{formatRatio(statsEntry.spawns.count, stats.total.count)}
-								</span>
+							<span class="text-muted-foreground">
+								{formatRatio(statsEntry.spawns.count, stats.total.count)}
+							</span>
 							<span class="text-muted-foreground">·</span>
 							<span>{getRarityLabel(statsEntry.spawns.count, stats.total.count)}</span>
 						</p>

@@ -28,8 +28,7 @@
 	import { Features } from "@/lib/utils/features";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
-		| FiltersetPokemon
-		| undefined;
+		FiltersetPokemon | undefined;
 
 	let canIv = $derived(hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_IV));
 	let canPvp = $derived(hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_PVP));

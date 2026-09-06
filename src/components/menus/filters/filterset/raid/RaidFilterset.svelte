@@ -23,8 +23,7 @@
 	import AttributeToggle from "@/components/menus/filters/filterset/AttributeToggle.svelte";
 
 	let data: FiltersetRaid | undefined = $derived(getCurrentSelectedFilterset()?.data) as
-		| FiltersetRaid
-		| undefined;
+		FiltersetRaid | undefined;
 
 	let filterType: RaidFilterType = $derived(Object.hasOwn(data ?? {}, "bosses") ? "boss" : "level");
 </script>

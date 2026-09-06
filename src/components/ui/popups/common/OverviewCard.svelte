@@ -8,10 +8,10 @@
 		children,
 		value
 	}: {
-		Icon?: LucideIcon,
-		title: string,
-		children?: Snippet,
-		value?: Snippet | any
+		Icon?: LucideIcon;
+		title: string;
+		children?: Snippet;
+		value?: Snippet | any;
 	} = $props();
 </script>
 
@@ -28,9 +28,7 @@
 	{/if}
 
 	{#if value}
-		<p
-			class="font-semibold text-xl"
-		>
+		<p class="font-semibold text-xl">
 			{#if typeof value === "function"}
 				{@render value()}
 			{:else}

@@ -3,10 +3,10 @@ import { closePopup } from "@/lib/mapObjects/interact";
 import type { Coords } from "@/lib/utils/coordinates";
 
 export function isWebglSupported() {
-	if (window.WebGLRenderingContext) {
+	if (window.WebGL2RenderingContext) {
 		const canvas = document.createElement("canvas");
 		try {
-			const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
+			const context = canvas.getContext("webgl2");
 			if (context && typeof context.getParameter == "function") {
 				return true;
 			}

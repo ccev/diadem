@@ -37,14 +37,14 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 	}
 
 	let iconSet = getDefaultIconSet(iconType).id;
-	let filter: AnyFilter | undefined = undefined
+	let filter: AnyFilter | undefined = undefined;
 
 	if (data.type === MapObjectType.POKESTOP) {
-		filter = getDefaultPokestopFilter()
+		filter = getDefaultPokestopFilter();
 	}
 
 	if (filter) {
-		filter.enabled = true
+		filter.enabled = true;
 	}
 
 	let iconUrl = getIconForMap(data, { iconSet, filter });

@@ -51,7 +51,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			let examined = result.examined;
 
 			if (result.limit_reached) {
-				return { data: [], examined, limitReached: true }
+				return { data: [], examined, limitReached: true };
 			}
 
 			for (const p of result.pokemon) {

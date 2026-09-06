@@ -90,7 +90,7 @@ export function getShareTitle(data: MapData | null | undefined) {
 	} else if (data.type === MapObjectType.SPAWNPOINT) {
 		return m.pogo_spawnpoint();
 	} else if (data.type === MapObjectType.ROUTE) {
-		// TODO: route share title
+		return data.name || m.pogo_route();
 	} else if (data.type === MapObjectType.TAPPABLE) {
 		return getTappableName(data) + ` (${m.pogo_tappable()})`;
 	}
@@ -235,9 +235,7 @@ function getSpawnpointShareText(data: SpawnpointData) {
 }
 
 function getRouteShareText(data: RouteData) {
-	let text = "";
-
-	return text;
+	return data.description;
 }
 
 function getTappableShareText(data: TappableData) {

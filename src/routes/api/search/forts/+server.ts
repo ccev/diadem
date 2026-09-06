@@ -1,4 +1,6 @@
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import { readRequestBody } from "@/lib/server/api/requestBody";
+import { respond } from "@/lib/server/api/respond";
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
 import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { query } from "@/lib/server/db/external/internalQuery";
@@ -6,7 +8,7 @@ import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
-import { error, json } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 
 const log = getLogger("fortsearch");
 
@@ -15,7 +17,7 @@ export async function POST({ request, locals }) {
 	let hasGyms = hasAnyFeatureAnywhereServer(locals.perms, [Features.GYM], locals.user);
 	if (!hasPokestops && !hasGyms) error(401);
 
-	const bounds = (await request.json()) as Bounds;
+	const bounds = await readRequestBody<Bounds>(request);
 
 	const pokestopPermitted = checkFeatureInBounds(locals.perms, Features.POKESTOP, bounds);
 	const gymPermitted = checkFeatureInBounds(locals.perms, Features.GYM, bounds);
@@ -53,7 +55,7 @@ export async function POST({ request, locals }) {
 
 		log.info("Succcessfully serving %d fort results", result.length);
 
-		return json(result);
+		return respond(request, result);
 	} catch (e) {
 		log.error("Error while querying fort search", e);
 		error(500);

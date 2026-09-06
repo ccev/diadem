@@ -4,7 +4,7 @@
 	import { CoverageMapLayerId, type MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { tick } from "svelte";
 
 	let {

@@ -190,14 +190,7 @@ export const COMMON_EMOJIS = [
 ];
 
 export type IconPickerTab =
-	| "emoji"
-	| "pokemon"
-	| "type"
-	| "raid"
-	| "invasion"
-	| "item"
-	| "misc"
-	| "poi";
+	"emoji" | "pokemon" | "type" | "raid" | "invasion" | "item" | "misc" | "poi";
 
 export type IconPickerItem = {
 	key: string;

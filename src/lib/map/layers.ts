@@ -1,5 +1,5 @@
 import type { GeoJSON as GeoJsonType } from "geojson";
-import type maplibregl from "maplibre-gl";
+import type * as maplibregl from "maplibre-gl";
 
 export enum MapSourceId {
 	MAP_OBJECTS = "mapObjects",
@@ -21,6 +21,8 @@ export enum MapObjectLayerId {
 	RADIUS_FILL = "mapObjectRadiusFill",
 	RADIUS_STROKE = "mapObjectRadiusStroke",
 	TIMER_LABELS = "mapObjectTimerLabels",
+	ROUTE_LINES = "mapObjectRouteLines",
+	ROUTE_LINES_HIGHLIGHTED = "mapObjectRouteLinesHighlighted",
 	POLYGON_FILL = "mapObjectPolygonFill",
 	POLYGON_STROKE = "mapObjectPolygonStroke"
 }

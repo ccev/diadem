@@ -6,7 +6,12 @@
 	import { fly } from "svelte/transition";
 	import { onDestroy } from "svelte";
 	import type { PopupActionDropdown } from "@/lib/ui/popupActions";
-	import { closeOverlay, isReconcilingOverlays, openOverlay, registerOverlayHandler } from "@/lib/ui/overlays.svelte";
+	import {
+		closeOverlay,
+		isReconcilingOverlays,
+		openOverlay,
+		registerOverlayHandler
+	} from "@/lib/ui/overlays.svelte";
 
 	let {
 		Icon,

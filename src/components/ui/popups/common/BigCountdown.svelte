@@ -12,14 +12,14 @@
 		fallbackExpire,
 		useFallback,
 		fallbackTitle,
-		fallbackExplanation,
+		fallbackExplanation
 	}: {
-		expire: number,
-		fallbackExpire: number,
-		useFallback: boolean,
-		fallbackTitle: string,
-		fallbackExplanation: string
-	} = $props()
+		expire: number;
+		fallbackExpire: number;
+		useFallback: boolean;
+		fallbackTitle: string;
+		fallbackExplanation: string;
+	} = $props();
 </script>
 
 <BasicMainCard>
@@ -44,9 +44,7 @@
 		<div
 			class="justify-center font-semibold flex gap-2 items-center rounded-md bg-accent-highlight pl-4 pr-6 py-2 grow basis-1 shrink"
 		>
-			<Countdown
-				expireTime={useFallback ? fallbackExpire : expire}
-			/>
+			<Countdown expireTime={useFallback ? fallbackExpire : expire} />
 		</div>
 	</div>
 

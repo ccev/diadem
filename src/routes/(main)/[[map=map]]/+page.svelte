@@ -30,7 +30,7 @@
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import MapMain from "@/components/map/MapMain.svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -82,7 +82,7 @@
 			{/if}
 		{/snippet}
 		{#snippet desktopRight()}
-			<div class="mb-auto mx-2 mt-safe-inset-top flex flex-col items-end gap-2">
+			<div class="mb-auto mx-2 flex flex-col items-end gap-2">
 				<WeatherOverview />
 				<DataLimitNotice />
 			</div>

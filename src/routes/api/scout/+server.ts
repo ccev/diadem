@@ -1,6 +1,8 @@
 import type { ScoutRequest } from "@/lib/features/scout.svelte.js";
 import { addScoutEntries, getScoutQueue } from "@/lib/server/api/dragoniteApi";
-import { error, json } from "@sveltejs/kit";
+import { readRequestBody } from "@/lib/server/api/requestBody";
+import { respond } from "@/lib/server/api/respond";
+import { error } from "@sveltejs/kit";
 
 import { result } from "@/lib/server/api/results";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
@@ -13,9 +15,9 @@ export async function POST({ request, locals }) {
 	// TODO: rate limit
 	if (!hasFeatureAnywhereServer(locals.perms, Features.SCOUT, locals.user)) error(401);
 
-	const scoutData: ScoutRequest = await request.json();
+	const scoutData = await readRequestBody<ScoutRequest>(request);
 
-	if (!scoutData.coords) return json(result(undefined, "No Coords"));
+	if (!scoutData.coords) return respond(request, result(undefined, "No Coords"));
 
 	const username = "Diadem: " + (locals.user?.name || "<unknown user>");
 	const locations = scoutData.coords.map((c) => [c.lat, c.lon]);
@@ -29,13 +31,13 @@ export async function POST({ request, locals }) {
 	);
 
 	if (success) {
-		return json(result());
+		return respond(request, result());
 	} else {
-		return json(result(undefined, "Internal Error"));
+		return respond(request, result(undefined, "Internal Error"));
 	}
 }
 
-export async function GET({ locals }) {
+export async function GET({ locals, request }) {
 	if (!hasFeatureAnywhereServer(locals.perms, Features.SCOUT, locals.user)) error(401);
 
 	const response = await getScoutQueue();
@@ -43,8 +45,8 @@ export async function GET({ locals }) {
 	log.info("Fetched scout queue size");
 
 	if (response === undefined) {
-		return json(result(undefined, "Internal Error"));
+		return respond(request, result(undefined, "Internal Error"));
 	} else {
-		return json(result(response));
+		return respond(request, result(response));
 	}
 }

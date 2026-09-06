@@ -9,7 +9,7 @@
 		getIsLocateFollowing
 	} from "@/lib/map/geolocate.svelte";
 	import { onMount } from "svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 
 	let {
 		map,

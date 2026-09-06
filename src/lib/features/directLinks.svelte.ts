@@ -3,15 +3,15 @@ import { openPopup } from "@/lib/mapObjects/interact";
 import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
-import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
+import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
 import { mAny } from "@/lib/utils/anyMessage";
 import { Coords } from "@/lib/utils/coordinates";
 import { type KojiFeature } from "@/lib/features/koji";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export type DirectLinkData =
-	| MapData
-	| { type: MapObjectType; noPermission?: boolean; id?: undefined };
+	MapData | { type: MapObjectType; noPermission?: boolean; id?: undefined };
 
 let directLinkObject: DirectLinkData | undefined = $state(undefined);
 let directLinkFeature: KojiFeature | undefined = $state(undefined);
@@ -43,7 +43,7 @@ export function openMapObject(data: MapData, alwaysFly: boolean = false) {
 		getUserSettings().mapPosition.center.lat = data.lat;
 		getUserSettings().mapPosition.center.lng = data.lon;
 		getUserSettings().mapPosition.zoom = 18;
-		updateUserSettings();
+		updateMapPosition();
 
 		map.setCenter({ lat: data.lat, lng: data.lon });
 		map.setZoom(17);
@@ -51,7 +51,7 @@ export function openMapObject(data: MapData, alwaysFly: boolean = false) {
 }
 
 export async function openMapObjectFromId(type: MapObjectType, id: string) {
-	const response = await fetch("/api/" + type + "/" + id);
+	const response = await fetch("/api/" + type + "/" + id, { headers: getHeaders() });
 	if (!response.ok) {
 		openToast(
 			m.direct_link_not_found({
@@ -61,6 +61,6 @@ export async function openMapObjectFromId(type: MapObjectType, id: string) {
 		);
 		return;
 	}
-	const data: MapData = await response.json();
+	const data = await parseResponse<MapData>(response);
 	openMapObject(data, true);
 }

@@ -3,11 +3,7 @@ import { getIcon } from "@/lib/features/filters/icons";
 import { type MapObjectIconProperties } from "@/lib/map/render/featureTypes";
 
 export type BadgeProperties =
-	| "imageUrl"
-	| "imageId"
-	| "imageOffset"
-	| "imageSize"
-	| "isModifierBadge";
+	"imageUrl" | "imageId" | "imageOffset" | "imageSize" | "isModifierBadge";
 
 const BADGE_SCALE_RATIO = 0.75;
 const BADGE_OFFSET = 80;

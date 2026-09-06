@@ -287,22 +287,49 @@ export class DrawerState {
 
 		if (vertical && this.resolvedSnapPoints.length) {
 			const dragTarget = Math.min(size, Math.max(0, this.activeOffset + delta));
-			if (velocity >= 0.5 && !this.options.getSequential()) {
-				this.dismissBySwipe(event, size, delta, velocity);
-				return;
-			}
 			const projected = this.options.getSequential()
 				? dragTarget
 				: Math.min(
 						size,
 						Math.max(0, dragTarget + (Math.abs(velocity) >= 0.5 ? velocity * 300 : 0))
 					);
+			const minimumOffset = Math.min(...this.resolvedSnapPoints.map((point) => point.offset));
+			const expanded = this.activeOffset <= minimumOffset + 1;
+
+			if (expanded) {
+				const collapsePoint = this.resolvedSnapPoints
+					.filter((point) => point.offset > this.activeOffset)
+					.sort((a, b) => a.offset - b.offset)[0];
+				if (collapsePoint) {
+					// Fully expanded: prefer collapsing to the nearest snap point.
+					// Only 1/3 of the way down commits to collapsing, so the outcome
+					// is predictable. Dismissal needs a long drag or a hard fling.
+					const pivot = this.activeOffset + (collapsePoint.offset - this.activeOffset) * 0.35;
+					const longDrag = projected >= collapsePoint.offset + (size - collapsePoint.offset) * 0.6;
+					const hardFling =
+						projected > collapsePoint.offset &&
+						velocity >= 0.5 &&
+						size - projected < (projected - collapsePoint.offset) * 0.4;
+					if (longDrag || hardFling) {
+						this.dismissBySwipe(event, size, delta, velocity);
+						return;
+					}
+					if (projected >= pivot) {
+						this.changeSnapPoint(collapsePoint.value, createChangeDetails("swipe", event));
+					}
+					this.resetSwipe();
+					return;
+				}
+			}
+
 			let closest = this.resolvedSnapPoints[0];
 			for (const point of this.resolvedSnapPoints) {
 				if (Math.abs(point.offset - projected) < Math.abs(closest.offset - projected))
 					closest = point;
 			}
-			if (Math.abs(size - projected) < Math.abs(closest.offset - projected)) {
+			const dismissDistance = size - projected;
+			const snapDistance = Math.abs(closest.offset - projected);
+			if (dismissDistance < snapDistance) {
 				this.dismissBySwipe(event, size, delta, velocity);
 			} else {
 				this.changeSnapPoint(closest.value, createChangeDetails("swipe", event));

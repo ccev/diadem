@@ -10,7 +10,6 @@
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import { setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
-	import maplibre from "maplibre-gl";
 	import type { MapStyle } from "@/lib/services/config/configTypes";
 	import * as m from "@/lib/paraglide/messages";
 

@@ -6,7 +6,7 @@
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import { onMount, tick } from "svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { fly } from "svelte/transition";
 	import { clearMapPositionUrlParams } from "$lib/map/mapPositionParams.svelte";
 	import { useMetadata } from "@/lib/ui/metadata.svelte";
@@ -14,10 +14,7 @@
 	import WayfarerFortPopup from "@/components/menus/wayfarer/WayfarerFortPopup.svelte";
 	import WayfarerCellPopup from "@/components/menus/wayfarer/WayfarerCellPopup.svelte";
 	import WayfarerTitle from "@/components/menus/wayfarer/WayfarerTitle.svelte";
-	import {
-		getWayfarerStyleId,
-		setWayfarerStyle
-	} from "@/lib/features/wayfarerMap.svelte";
+	import { getWayfarerStyleId, setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 

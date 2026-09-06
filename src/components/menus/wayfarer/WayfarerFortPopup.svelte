@@ -84,7 +84,8 @@
 
 			{#if data.first_seen_timestamp}
 				<IconValue Icon={Search}>
-					{m.first_seen()}: <b>{timestampToLocalTime(data.first_seen_timestamp, { showDate: true })}</b>
+					{m.first_seen()}:
+					<b>{timestampToLocalTime(data.first_seen_timestamp, { showDate: true })}</b>
 				</IconValue>
 			{/if}
 		{/snippet}

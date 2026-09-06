@@ -4,7 +4,8 @@
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleForTheme, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import type { Feature, FeatureCollection, MultiPolygon } from "geojson";
-	import maplibre from "maplibre-gl";
+	import * as maplibre from "maplibre-gl";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
 	import { watch } from "runed";
 	import { FillLayer, GeoJSON, LineLayer, MapLibre } from "svelte-maplibre";
 
@@ -136,7 +137,7 @@
 		style={getMapStyle(
 			mapStyleForTheme("satellite") ?? mapStyleFromId(getUserSettings().mapStyle.id)
 		)}
-		class="size-full"
+		class="size-full rounded-lg overflow-hidden"
 		attributionControl={false}
 		interactive={true}
 		zoomOnDoubleClick={true}
@@ -163,5 +164,6 @@
 		</GeoJSON>
 
 		<MarkerCurrentLocation />
+		<MapAttribution map={bindMap} />
 	</MapLibre>
 </div>

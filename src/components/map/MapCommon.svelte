@@ -4,7 +4,7 @@
 	import { onDestroy, type Snippet } from "svelte";
 	import { handleRotatePitchDisable } from "@/lib/map/map.svelte";
 	import { onMapMove, onMapStyleDataLoading } from "@/lib/map/events";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
 	import { getConfig } from "@/lib/services/config/config";
@@ -13,6 +13,7 @@
 	import { clearActiveSearchFilter } from "@/lib/features/activeSearch.svelte.js";
 	import { setCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 	import { resetLocate } from "@/lib/map/geolocate.svelte";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
 
 	let {
 		onload = undefined,
@@ -20,7 +21,8 @@
 		map = $bindable(),
 		initialCenter,
 		initialZoom,
-		style
+		style,
+		showAttribution = true
 	}: {
 		onload?: (map: maplibre.Map) => void;
 		children?: Snippet;
@@ -28,6 +30,7 @@
 		initialCenter: Coords;
 		initialZoom: number;
 		style?: string | maplibre.StyleSpecification;
+		showAttribution?: boolean
 	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
@@ -61,4 +64,7 @@
 	maxZoom={getConfig().general.maxZoom}
 >
 	{@render children?.()}
+	{#if showAttribution}
+		<MapAttribution {map} />
+	{/if}
 </MapLibre>

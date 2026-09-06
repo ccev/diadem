@@ -40,9 +40,9 @@ export function getStationTitle(data: StationData) {
 export function isMaxBattleActive(data: Partial<StationData>) {
 	return Boolean(
 		!data.is_inactive &&
-			data.is_battle_available &&
-			(data.start_time ?? 0) < currentTimestamp() &&
-			(data.end_time ?? 0) > currentTimestamp()
+		data.is_battle_available &&
+		(data.start_time ?? 0) < currentTimestamp() &&
+		(data.end_time ?? 0) > currentTimestamp()
 	);
 }
 
@@ -125,5 +125,5 @@ export function calculateMaxBattleCp(station: StationData) {
 }
 
 export function getStationAttackBonus(stationed: number) {
-	return (ATTACK_BONUSES[stationed.toString()] ?? ATTACK_BONUSES["15"]) / 100
+	return (ATTACK_BONUSES[stationed.toString()] ?? ATTACK_BONUSES["15"]) / 100;
 }

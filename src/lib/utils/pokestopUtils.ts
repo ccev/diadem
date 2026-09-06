@@ -177,7 +177,7 @@ export function getRewardText(reward: QuestReward) {
 				pokemon: mPokemon(reward.info)
 			});
 		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
-			if (!reward.info.pokemon_id) return m.mega_energy()
+			if (!reward.info.pokemon_id) return m.mega_energy();
 			const pokemon: PokemonVisual = {
 				pokemon_id: reward.info.pokemon_id,
 				form: 0,
@@ -230,7 +230,7 @@ export function rewardTypeLabel(rewardType: RewardType) {
 		case RewardType.POKEMON_EGG:
 			return m.reward_egg();
 		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
-			return m.mega_energy()
+			return m.mega_energy();
 		default:
 			return "";
 	}

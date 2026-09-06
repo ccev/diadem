@@ -1,5 +1,5 @@
 import type { MapObjectIconProperties } from "@/lib/map/render/featureTypes";
-import type maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 
 const loadedImages: { [key: string]: HTMLImageElement | ImageBitmap | ImageData } = {};
 

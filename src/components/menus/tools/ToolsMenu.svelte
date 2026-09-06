@@ -37,8 +37,7 @@
 				setCurrentScoutCenter(Coords.infer(map.getCenter()));
 				openMenu(Menu.SCOUT);
 			}}
-		>
-		</ToolLink>
+		></ToolLink>
 	{/if}
 
 	{#if isSupportedFeature("koji") && getConfig().tools.coverageMap && hasFeatureAnywhere(getUserDetails().permissions, Features.COVERAGE_MAP)}
@@ -47,8 +46,7 @@
 			title={m.tool_coverage_map_title()}
 			description={m.tool_coverage_map_description()}
 			onclick={() => openCoverageMap()}
-		>
-		</ToolLink>
+		></ToolLink>
 	{/if}
 
 	{#if hasFeatureAnywhere(getUserDetails().permissions, Features.WAYFARER_MAP)}

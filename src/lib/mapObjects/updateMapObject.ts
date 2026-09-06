@@ -25,10 +25,20 @@ import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { featureFamily } from "@/lib/utils/features";
 import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { getHeaders, parseResponse } from "@/lib/utils/requests";
+import { getFilterHash } from "@/lib/utils/filterHash";
+import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import { SvelteMap } from "svelte/reactivity";
+import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
-export type MapObjectRequestData = Bounds & { filter: AnyFilter | undefined; since?: number };
+export type MapObjectRequestData = Bounds & {
+	filter?: AnyFilter;
+	filterHash?: string;
+	since?: number;
+};
+
+const STATUS_FILTER_UNKNOWN = 409;
+const uncacheableFilterHashes = new Set<string>();
+const knownFilterHashes = new Set<string>();
 
 let currentController: AbortController | undefined;
 const lastQueryTimestamps = new SvelteMap<MapObjectType, number>();
@@ -46,6 +56,8 @@ export function clearMap() {
 	clearAllMapObjects();
 	resetLastQueryTimestamps();
 	clearAllDataLimits();
+	knownFilterHashes.clear();
+	uncacheableFilterHashes.clear();
 	updateFeatures(getMapObjects());
 }
 
@@ -56,19 +68,49 @@ export async function fetchMapObjects<T extends MapData>(
 	signal?: AbortSignal,
 	since?: number
 ): Promise<MapObjectResponse<T> | undefined> {
-	const body: MapObjectRequestData = {
-		...getBounds(),
-		filter,
-		since
-	};
-	try {
-		const response = await fetch("/api/" + type, {
+	const hash = getFilterHash(filter);
+	const filterHash = hash !== undefined && uncacheableFilterHashes.has(hash) ? undefined : hash;
+
+	function post(withFilter: boolean): Promise<Response> {
+		const body: MapObjectRequestData = {
+			...bounds,
+			filter: withFilter ? filter : undefined,
+			filterHash,
+			since
+		};
+		const encoded = encodeRequestBody(body);
+		return fetch("/api/" + type, {
 			method: "POST",
-			body: JSON.stringify(body),
-			headers: getHeaders({ msgpack: true }),
+			body: encoded.body,
+			headers: getHeaders(encoded.contentType),
 			signal
 		});
+	}
 
+	try {
+		const sendFilter = hash === undefined || !knownFilterHashes.has(hash);
+
+		let response = await post(sendFilter);
+		if (response.status === STATUS_FILTER_UNKNOWN && hash !== undefined && !sendFilter) {
+			knownFilterHashes.delete(hash);
+			await response.body?.cancel();
+			response = await post(true);
+		}
+
+		if (hash !== undefined) {
+			const cached = response.headers.get("X-Filter-Cached");
+			if (cached === "1") {
+				knownFilterHashes.add(hash);
+			} else if (cached === "0") {
+				uncacheableFilterHashes.add(hash);
+				knownFilterHashes.delete(hash);
+			}
+		}
+
+		if (!response.ok) {
+			console.error(`Error while fetching ${type}: ${response.status}`);
+			return;
+		}
 		return await parseResponse<MapObjectResponse<T>>(response);
 	} catch (e) {
 		if (e instanceof DOMException && e.name === "AbortError") {
@@ -86,7 +128,6 @@ export async function updateMapObject(
 	onlyChanged: boolean = false
 ) {
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
-	if (type === MapObjectType.ROUTE) return;
 
 	let filter: AnyFilter | undefined = undefined;
 
@@ -105,8 +146,8 @@ export async function updateMapObject(
 			filter = getUserSettings().filters.nest;
 		} else if (type === MapObjectType.SPAWNPOINT) {
 			filter = getUserSettings().filters.spawnpoint;
-			// } else if (type === MapObjectType.ROUTE) {
-			// 	filter = getUserSettings().filters.route;
+		} else if (type === MapObjectType.ROUTE) {
+			filter = getUserSettings().filters.route;
 		} else if (type === MapObjectType.TAPPABLE) {
 			filter = getUserSettings().filters.tappable;
 		} else if (type === MapObjectType.S2_CELL) {
@@ -118,6 +159,12 @@ export async function updateMapObject(
 	}
 
 	if (!filter || !filter.enabled) {
+		const selected = getCurrentSelectedData();
+		const preserveRoutesForFortPopup =
+			type === MapObjectType.ROUTE &&
+			(selected?.type === MapObjectType.POKESTOP || selected?.type === MapObjectType.GYM);
+		if (preserveRoutesForFortPopup) return;
+
 		clearMapObjects(type);
 		clearDataLimit(type);
 		if (!signal) updateFeatures(getMapObjects());
@@ -196,17 +243,28 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 	let limitsToClear: MapObjectType[] = [];
 
 	if (activeSearch) {
+		const loadRoutes = [MapObjectType.POKESTOP, MapObjectType.GYM].includes(activeSearch.mapObject);
 		for (const mapObjectType of allMapObjectTypes) {
-			if (mapObjectType !== activeSearch.mapObject) clearMapObjects(mapObjectType);
+			if (
+				mapObjectType !== activeSearch.mapObject &&
+				(mapObjectType !== MapObjectType.ROUTE || !loadRoutes)
+			)
+				clearMapObjects(mapObjectType);
 		}
-		const limitToClear = await updateMapObject(
-			activeSearch.mapObject,
-			removeOld,
-			activeSearch.filter,
-			controller.signal,
-			onlyChanged
+		const searchTypes = [activeSearch.mapObject];
+		if (loadRoutes) searchTypes.push(MapObjectType.ROUTE);
+		const results = await Promise.all(
+			searchTypes.map((type) =>
+				updateMapObject(
+					type,
+					removeOld,
+					type === activeSearch.mapObject ? activeSearch.filter : undefined,
+					controller.signal,
+					onlyChanged
+				)
+			)
 		);
-		if (limitToClear) limitsToClear.push(limitToClear);
+		limitsToClear.push(...results.filter((type) => type !== undefined));
 	} else {
 		const [limitResults] = await Promise.all([
 			Promise.all(

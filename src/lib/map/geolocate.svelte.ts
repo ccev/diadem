@@ -4,7 +4,7 @@ import * as m from "@/lib/paraglide/messages";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { round } from "@/lib/utils/numberFormat";
 import { distance } from "@turf/turf";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 
 type Location = {
 	lat: number;
@@ -120,8 +120,8 @@ function flyToLocation(map: maplibre.Map, location: Location) {
 		zoom = maxZoom;
 	}
 
-	map.once("moveend", (e: { data?: string }) => {
-		if (e.data === "locate") {
+	map.once("moveend", (event) => {
+		if ((event as typeof event & { data?: string }).data === "locate") {
 			shouldUpdateCamera = true;
 		}
 	});

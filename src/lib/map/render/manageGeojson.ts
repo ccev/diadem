@@ -3,7 +3,7 @@ import { getMap } from "@/lib/map/map.svelte.js";
 import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureTypes";
 import { ensureMapImage, getMapImageId } from "@/lib/map/render/images";
 import type { FeatureCollection } from "geojson";
-import type maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 
 let mapObjectsGeoJson: FeatureCollection = {
 	type: "FeatureCollection",

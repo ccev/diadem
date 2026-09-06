@@ -5,7 +5,7 @@ import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
-import { UICONS } from "uicons.js";
+import { UICONS, type RewardTypeKeys } from "uicons.js";
 
 import { shouldDisplayIncident, shouldDisplayLure } from "@/lib/features/filterLogic/pokestop";
 import { MapObjectType, type MapData } from "@/lib/mapObjects/mapObjectTypes";
@@ -104,16 +104,16 @@ export function getIconPokemon(
 	options?: IconOptions
 ) {
 	const iconSet = options?.iconSet ?? getUserSettings().uiconSet.pokemon.id;
-	return iconSets[iconSet].pokemon(
-		data.pokemon_id,
-		data.temp_evolution_id,
-		data.form,
-		data.costume,
-		data.gender,
-		data.alignment,
-		data.bread_mode,
-		Boolean(data.shiny)
-	);
+	return iconSets[iconSet].pokemon({
+		pokemonId: data.pokemon_id ?? 0,
+		evolution: data.temp_evolution_id ?? 0,
+		form: data.form ?? 0,
+		costume: data.costume ?? 0,
+		gender: data.gender ?? 0,
+		alignment: data.alignment ?? 0,
+		bread: data.bread_mode ?? 0,
+		shiny: Boolean(data.shiny)
+	});
 }
 
 export function getIconPokestop(data: Partial<PokestopData>, options?: IconOptions) {
@@ -137,7 +137,7 @@ export function getIconPokestop(data: Partial<PokestopData>, options?: IconOptio
 		}
 	}
 
-	return iconSets[iconSet].pokestop(lureId, displayType, false);
+	return iconSets[iconSet].pokestop({ lureId, displayTypeId: displayType, questActive: false });
 }
 
 export function getIconGym(data: Partial<GymData>, options?: IconOptions) {
@@ -148,24 +148,27 @@ export function getIconGym(data: Partial<GymData>, options?: IconOptions) {
 	let teamId = data.team_id;
 	if (isFortOutdated(data.updated)) teamId = 0;
 
-	return iconSets[iconSet].gym(
+	return iconSets[iconSet].gym({
 		teamId,
-		availableSlots,
-		Boolean(data.in_battle),
-		Boolean(data.ex_raid_eligible)
-	);
+		trainerCount: availableSlots,
+		inBattle: Boolean(data.in_battle),
+		ex: Boolean(data.ex_raid_eligible)
+	});
 }
 
 export function getIconStation(data: Partial<StationData> | boolean, options?: IconOptions) {
 	const iconSet = options?.iconSet ?? getUserSettings().uiconSet.station.id;
 	if (typeof data === "boolean") {
-		return iconSets[iconSet].station(data ?? false);
+		return iconSets[iconSet].station({ active: data ?? false });
 	}
-	return iconSets[iconSet].station(isMaxBattleActive(data));
+	return iconSets[iconSet].station({ active: isMaxBattleActive(data) });
 }
 
 export function getIconInvasion(character: number | null, confirmed: number | boolean | null) {
-	return iconSets[DEFAULT_UICONS].invasion(character, Boolean(confirmed));
+	return iconSets[DEFAULT_UICONS].invasion({
+		gruntId: character ?? 0,
+		confirmed: Boolean(confirmed)
+	});
 }
 
 export function getIconReward(
@@ -232,11 +235,19 @@ export function getIconReward(
 			rewardType = "";
 	}
 
-	return iconSets[DEFAULT_UICONS].reward(rewardType as Lowercase<string>, id, info.amount ?? 0);
+	return iconSets[DEFAULT_UICONS].reward({
+		questRewardType: rewardType as RewardTypeKeys,
+		rewardId: id,
+		amount: info.amount ?? 0
+	});
 }
 
 export function getIconItem(itemId: number | string, amount: number = 0) {
-	return iconSets[DEFAULT_UICONS].reward("item", itemId, amount);
+	return iconSets[DEFAULT_UICONS].reward({
+		questRewardType: "item",
+		rewardId: itemId,
+		amount
+	});
 }
 
 export function getIconRaidEgg(level: number, hatched: boolean = false) {
@@ -244,30 +255,30 @@ export function getIconRaidEgg(level: number, hatched: boolean = false) {
 	if (level === RaidLevel.MEGA_SUPER || level === RaidLevel.MEGA_SUPER_LEGENDARY) {
 		level -= 10;
 	}
-	return iconSets[DEFAULT_UICONS].raidEgg(level, hatched);
+	return iconSets[DEFAULT_UICONS].raidEgg({ level, hatched });
 }
 
 export function getIconType(type: number) {
-	return iconSets[DEFAULT_UICONS].type(type);
+	return iconSets[DEFAULT_UICONS].type({ typeId: type });
 }
 
 export function getIconContest() {
-	return iconSets[DEFAULT_UICONS].misc("showcase");
+	return iconSets[DEFAULT_UICONS].misc({ fileName: "showcase" });
 }
 
 export function getIconLeague(league: League) {
 	return (
-		iconSets[DEFAULT_UICONS].misc(getLeagueCp(league)) ??
-		iconSets[DEFAULT_UICONS].misc(LeagueCp.GREAT)
+		iconSets[DEFAULT_UICONS].misc({ fileName: getLeagueCp(league) }) ??
+		iconSets[DEFAULT_UICONS].misc({ fileName: LeagueCp.GREAT })
 	);
 }
 
 export function getIconTeam(teamId: number) {
-	return iconSets[DEFAULT_UICONS].team(teamId);
+	return iconSets[DEFAULT_UICONS].team({ teamId });
 }
 
 export function getIconBackground(backgroundId: number) {
-	const url = iconSets[DEFAULT_UICONS].background(backgroundId);
+	const url = iconSets[DEFAULT_UICONS].background({ id: backgroundId });
 	if (url.endsWith("/0.png")) return "/loader.svg";
 	return url;
 }
@@ -279,12 +290,12 @@ export function getIconPokestopDirect(
 	options?: IconOptions
 ) {
 	const iconSet = options?.iconSet ?? getUserSettings().uiconSet.pokestop.id;
-	return iconSets[iconSet].pokestop(lureId, displayType, questActive);
+	return iconSets[iconSet].pokestop({ lureId, displayTypeId: displayType, questActive });
 }
 
 export function getIconGymDirect(teamId: number, options?: IconOptions) {
 	const iconSet = options?.iconSet ?? getUserSettings().uiconSet.gym.id;
-	return iconSets[iconSet].gym(teamId);
+	return iconSets[iconSet].gym({ teamId });
 }
 
 export function getIconTappable(data: Partial<TappableData>, options?: IconOptions) {
@@ -294,5 +305,5 @@ export function getIconTappable(data: Partial<TappableData>, options?: IconOptio
 	} else if (data.pokemon_id) {
 		return getIconPokemon(data, options);
 	}
-	return iconSets[iconSet].tappable(data.tappable_type);
+	return iconSets[iconSet].tappable({ tappableType: data.tappable_type });
 }

@@ -6,11 +6,7 @@ import {
 import type { MapObjectIconProperties } from "@/lib/map/render/featureTypes";
 
 export type UnderlayProperties =
-	| "imageUrl"
-	| "imageId"
-	| "imageOffset"
-	| "imageSize"
-	| "isModifierUnderlay";
+	"imageUrl" | "imageId" | "imageOffset" | "imageSize" | "isModifierUnderlay";
 
 const UNDERLAY_ICON_SIZE = 64;
 const underlayImageCache = new Map<string, string>();

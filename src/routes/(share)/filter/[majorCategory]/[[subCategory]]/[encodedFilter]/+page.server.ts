@@ -7,8 +7,10 @@ import {
 } from "@/lib/features/filters/filtersetSchemas";
 import * as m from "@/lib/paraglide/messages";
 import { getConfig, setConfig } from "@/lib/services/config/config";
+import type { ClientConfig } from "@/lib/services/config/configTypes";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { getLogger } from "@/lib/utils/logger";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 import { getId } from "@/lib/utils/uuid";
 import type { ZodSafeParseResult } from "zod";
 import type { PageServerLoad } from "./$types";
@@ -52,8 +54,8 @@ function decodeFilterset(
 }
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
-	const configResponse = await fetch("/api/config");
-	setConfig(await configResponse.json());
+	const configResponse = await fetch("/api/config", { headers: getHeaders() });
+	setConfig(await parseResponse<ClientConfig>(configResponse));
 	await loadRemoteLocale(getConfig().general.defaultLocale, fetch);
 
 	const filterset = decodeFilterset(params.majorCategory, params.subCategory, params.encodedFilter);

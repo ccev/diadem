@@ -1,4 +1,5 @@
 import type { Feature, Polygon } from "geojson";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export type KojiReference = {
 	id: number;
@@ -19,7 +20,7 @@ export type KojiFeatures = KojiFeature[];
 let geofences: KojiFeatures = [];
 
 export async function loadKojiGeofences() {
-	const result = await fetch("/api/koji");
+	const result = await fetch("/api/koji", { headers: getHeaders() });
 
 	if (!result.ok) {
 		// this also errors when koji is disabled by admin, but checking isSupportedFeature would race on initial loading
@@ -27,7 +28,7 @@ export async function loadKojiGeofences() {
 		return;
 	}
 
-	const data: KojiFeatures = await result.json();
+	const data = await parseResponse<KojiFeatures>(result);
 
 	const areaMap = new Map<string, KojiFeature>();
 	data.forEach((a) => {

@@ -30,8 +30,7 @@
 	} from "@/lib/features/filters/filterUtilsQuest";
 
 	let data: FiltersetQuest | undefined = $derived(getCurrentSelectedFilterset()?.data) as
-		| FiltersetQuest
-		| undefined;
+		FiltersetQuest | undefined;
 
 	const hasReward = (type: RewardType) => getQuestRewards(type).length > 0;
 </script>

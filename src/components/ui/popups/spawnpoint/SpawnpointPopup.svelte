@@ -16,8 +16,15 @@
 	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import { CircleAlert, CircleDot, Expand, FingerprintPattern, Info, Shrink, Timer } from "@lucide/svelte";
-
+	import {
+		CircleAlert,
+		CircleDot,
+		Expand,
+		FingerprintPattern,
+		Info,
+		Shrink,
+		Timer
+	} from "@lucide/svelte";
 
 	export { image, overview, main };
 
@@ -94,15 +101,9 @@
 			<StatsMainCardEntry
 				Icon={Timer}
 				name={m.disappear_time()}
-				value={data.despawn_sec != null
-					? getMmSsFromSeconds(data.despawn_sec)
-					: m.unknown()}
+				value={data.despawn_sec != null ? getMmSsFromSeconds(data.despawn_sec) : m.unknown()}
 			/>
-			<StatsMainCardEntry
-				Icon={FingerprintPattern}
-				name={m.s2_cell_id()}
-				value={data.id}
-			/>
+			<StatsMainCardEntry Icon={FingerprintPattern} name={m.s2_cell_id()} value={data.id} />
 			<UpdatedTimes updated={data.last_seen} firstSeen={data.first_seen} />
 		</StatsMainCard>
 	</TitledMainSection>

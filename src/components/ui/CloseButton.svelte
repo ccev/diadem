@@ -13,6 +13,13 @@
 	} & ButtonProps = $props();
 </script>
 
-<Button variant="ghost" size="" class="rounded-sm p-2 {class_}" title={m.close()} {onclick} {...props}>
+<Button
+	variant="ghost"
+	size=""
+	class="rounded-sm p-2 {class_}"
+	title={m.close()}
+	{onclick}
+	{...props}
+>
 	<X size="20" />
 </Button>

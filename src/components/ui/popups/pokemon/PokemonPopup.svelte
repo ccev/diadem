@@ -16,7 +16,10 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
-	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
+	import {
+		getPokemonStats as getMasterPokemonStats,
+		type PokemonStats
+	} from "$lib/features/masterStats.svelte";
 	import type { PokemonData, PvpStats } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
@@ -157,6 +160,7 @@
 			});
 	}
 </script>
+
 <script>
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 </script>
@@ -441,13 +445,9 @@
 										value={mLeague(pokemon.league)}
 									/>
 
-									<StatsMainCardEntry
-										Icon={ChartColumn}
-										name={m.performance()}
-									>
+									<StatsMainCardEntry Icon={ChartColumn} name={m.performance()}>
 										{#snippet value()}
 											<p>
-
 												<span class="text-muted-foreground">
 													{formatPercentage(pokemon.percentage, {
 														minDecimals: 0,
@@ -468,12 +468,11 @@
 													{m.pogo_level({ level: formatNumber(pokemon.level) })} ·
 												</span>
 												<span>
-													{ m.pogo_cp({ cp: pokemon.cp })}
+													{m.pogo_cp({ cp: pokemon.cp })}
 												</span>
 											</p>
 										{/snippet}
 									</StatsMainCardEntry>
-
 								</div>
 
 								<IconValue Icon={Info} class="text-muted-foreground mt-3">

@@ -24,7 +24,7 @@
 		onTouchStart,
 		onWindowFocus
 	} from "@/lib/map/events";
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import DebugMenu from "@/components/map/DebugMenu.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
@@ -55,6 +55,8 @@
 	import { getFeatureJump } from "$lib/utils/geo";
 	import { jumpTo } from "$lib/map/utils";
 	import { setSearchedGeometry } from "$lib/services/search.svelte";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
+	import { isUiLeft } from "$lib/utils/device";
 
 	let {
 		map = $bindable()
@@ -162,7 +164,13 @@
 	onload={onMapLoad}
 	initialCenter={Coords.infer(mapPosition.center)}
 	initialZoom={mapPosition.zoom}
+	showAttribution={false}
 >
+	<MapAttribution
+		{map}
+		class="{isUiLeft() ? 'left-2 right-auto' : 'right-2'}"
+	/>
+
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer
 		show={() => getOpenedMenu() === Menu.SCOUT}
@@ -199,6 +207,7 @@
 		/>
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
+			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
 			paint={{
 				"fill-color": [
 					"case",
@@ -211,9 +220,44 @@
 		/>
 		<LineLayer
 			id={MapObjectLayerId.POLYGON_STROKE}
+			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
 			layout={{ "line-cap": "round", "line-join": "round" }}
 			paint={{ "line-color": ["coalesce", ["get", "strokeColor"], "transparent"], "line-width": 1 }}
 			hoverCursor="pointer"
+		/>
+		<LineLayer
+			id={MapObjectLayerId.ROUTE_LINES}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.LINE],
+				["==", ["get", "isVisible"], true],
+				["==", ["get", "isHighlighted"], false]
+			]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{
+				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
+				"line-opacity": ["case", ["coalesce", ["get", "isDimmed"], false], 0.2, 0.4],
+				"line-width": 4
+			}}
+			hoverCursor="pointer"
+			eventsIfTopMost={true}
+		/>
+		<LineLayer
+			id={MapObjectLayerId.ROUTE_LINES_HIGHLIGHTED}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.LINE],
+				["==", ["get", "isVisible"], true],
+				["==", ["get", "isHighlighted"], true]
+			]}
+			layout={{ "line-cap": "round", "line-join": "round" }}
+			paint={{
+				"line-color": ["coalesce", ["get", "strokeColor"], "#6366f1"],
+				"line-opacity": 1,
+				"line-width": 7
+			}}
+			hoverCursor="pointer"
+			eventsIfTopMost={true}
 		/>
 		<CircleLayer
 			id={MapObjectLayerId.CIRCLES}

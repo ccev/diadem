@@ -2,7 +2,7 @@ import { goto } from "$app/navigation";
 import { L14_HIGHLIGHT, WayfarerLayerId } from "@/lib/map/layers";
 import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 import { geojson, s2 } from "s2js";
 import { getCoveringS2Cells } from "@/lib/mapObjects/s2cells";
 import type { MapStyle } from "@/lib/services/config/configTypes";
@@ -15,6 +15,7 @@ import {
 	registerOverlayHandler,
 	replaceOverlay
 } from "@/lib/ui/overlays.svelte";
+import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 
 const MAX_S2_CELLS = 5000;
 export const WAYFARER_CELLS_14_MIN_ZOOM = 10;
@@ -47,8 +48,8 @@ let activeFetchController: AbortController | undefined;
 let activeFetchId = 0;
 let clickedFort: FortData | undefined = $state(undefined);
 let clickedL14Cell:
-	| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
-	| undefined = $state(undefined);
+	{ cellId: string; center: [number, number]; fortCount: number; gymCount: number } | undefined =
+	$state(undefined);
 let invokedFromMap: boolean = $state(false);
 let style: MapStyle | undefined = $state(undefined);
 
@@ -96,8 +97,7 @@ export function setClickedFort(fort: FortData | undefined) {
 
 export function setClickedL14Cell(
 	cell:
-		| { cellId: string; center: [number, number]; fortCount: number; gymCount: number }
-		| undefined
+		{ cellId: string; center: [number, number]; fortCount: number; gymCount: number } | undefined
 ) {
 	clickedL14Cell = cell;
 	clickedFort = undefined;
@@ -146,18 +146,20 @@ export async function fetchWayfarerForts(
 	const fetchId = ++activeFetchId;
 
 	try {
+		const encoded = encodeRequestBody({ cellIds, countsOnly });
 		const response = await fetch("/api/wayfarer/forts", {
-			body: JSON.stringify({ cellIds, countsOnly }),
+			body: encoded.body,
+			headers: getHeaders(encoded.contentType),
 			method: "POST",
 			signal: controller.signal
 		});
 		if (fetchId !== activeFetchId) return;
 		if (!response.ok) return;
-		const data = (await response.json()) as {
+		const data = await parseResponse<{
 			pokestopCounts: Record<string, number>;
 			gymCounts: Record<string, number>;
 			forts: FortData[];
-		};
+		}>(response);
 		if (fetchId !== activeFetchId) return;
 		pokestopCounts = data.pokestopCounts ?? {};
 		gymCounts = data.gymCounts ?? {};

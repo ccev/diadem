@@ -1,13 +1,11 @@
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
+import { respond } from "@/lib/server/api/respond";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
-import { json } from "@sveltejs/kit";
 
-export async function GET() {
+export async function GET({ request }) {
 	const masterfile = await masterfileProvider.get();
 
-	return json(masterfile, {
-		headers: {
-			...cacheHttpHeaders(3600, 3600, 86400)
-		}
+	return respond(request, masterfile, {
+		headers: cacheHttpHeaders(3600, 3600, 86400)
 	});
 }

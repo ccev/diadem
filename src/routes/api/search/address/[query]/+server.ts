@@ -1,12 +1,12 @@
 import { getClientConfig } from "@/lib/services/config/config.server";
+import { respond } from "@/lib/server/api/respond";
 import { searchAddress } from "@/lib/services/geocoding";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 import { getLogger } from "@/lib/utils/logger";
-import { json } from "@sveltejs/kit";
 
 const log = getLogger("addrsearch");
 
-export async function GET({ params, url }) {
+export async function GET({ params, url, request }) {
 	// this accepts raw input and puts it into the url to the external service.
 	// it's up to them to validate it.
 	const lang = url.searchParams.get("lang") ?? getClientConfig().general.defaultLocale;
@@ -17,7 +17,7 @@ export async function GET({ params, url }) {
 
 	log.info("Succcessfully serving address search results");
 
-	return json(result, {
+	return respond(request, result, {
 		headers: cacheHttpHeaders()
 	});
 }

@@ -9,11 +9,11 @@
 		rightPart,
 		disabled = false
 	}: {
-		Icon?: LucideIcon
-		title: string,
-		children: Snippet,
-		rightPart?: Snippet,
-		disabled?: boolean
+		Icon?: LucideIcon;
+		title: string;
+		children: Snippet;
+		rightPart?: Snippet;
+		disabled?: boolean;
 	} = $props();
 </script>
 

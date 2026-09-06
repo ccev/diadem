@@ -8,6 +8,7 @@
 </script>
 
 <div
+	data-map-desktop-menu
 	class="mb-auto z-10 w-full overflow-y-auto h-fit rounded-r-xl pointer-events-auto pb-2 border border-border bg-card/60 backdrop-blur-sm"
 	transition:fly={{ duration: 90, x: -120 }}
 >

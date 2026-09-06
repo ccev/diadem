@@ -133,8 +133,7 @@ export class NominatimProvider extends BaseGeocodingProvider {
 		if (!response) return;
 
 		const props = (await response.json())?.features?.[0]?.properties?.geocoding as
-			| NominatimProps["geocoding"]
-			| undefined;
+			NominatimProps["geocoding"] | undefined;
 		if (!props) return;
 
 		return {

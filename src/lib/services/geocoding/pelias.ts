@@ -44,7 +44,7 @@ export class PeliasProvider extends BaseGeocodingProvider {
 		params: Record<string, string | number | boolean | null | undefined>
 	) {
 		if (this.config.apiKey) {
-			params.api_key = this.config.apiKey
+			params.api_key = this.config.apiKey;
 		}
 
 		const url = new URL(path, this.config.url);
@@ -99,7 +99,7 @@ export class PeliasProvider extends BaseGeocodingProvider {
 			"point.lat": options.lat,
 			"point.lon": options.lon,
 			lang: options.language,
-			"size": 1
+			size: 1
 		});
 		if (!response) return;
 

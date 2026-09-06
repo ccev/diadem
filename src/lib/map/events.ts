@@ -10,14 +10,14 @@ import { setSkew } from "@/lib/map/mapSkew.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 import { resetSearchedLocation } from "@/lib/services/search.svelte";
-import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
+import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte.js";
 import {
 	clearPressTimer,
 	longPressDuration,
 	onContextMenu,
 	pressTimer
 } from "@/lib/ui/contextmenu.svelte.js";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 import type { MapMoveEvent } from "svelte-maplibre";
 
 export async function onMapMoveEnd() {
@@ -30,7 +30,7 @@ export async function onMapMoveEnd() {
 
 		getUserSettings().mapPosition.zoom = map.getZoom();
 		getUserSettings().mapPosition.center = map.getCenter();
-		updateUserSettings();
+		updateMapPosition();
 	}
 }
 

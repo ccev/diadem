@@ -10,9 +10,7 @@
 </script>
 
 <div class="sticky top-2 z-20">
-	<div
-		class="w-full bg-card rounded-t-xl rounded-b-sm border border-border relative"
-	>
+	<div class="w-full bg-card rounded-t-xl rounded-b-sm border border-border relative">
 		<Drawer.Handle />
 
 		<Button
@@ -31,7 +29,6 @@
 					{mAny("nav_" + getOpenedMenu())}
 				{/if}
 			</Drawer.Title>
-
 		</div>
 	</div>
 </div>

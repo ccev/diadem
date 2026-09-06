@@ -13,6 +13,7 @@ import type {
 import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getQuestKey, RewardType } from "@/lib/utils/pokestopUtils";
+import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 let masterStats: MasterStats | undefined = $state(undefined);
 
@@ -22,14 +23,14 @@ export type PokemonStats = {
 };
 
 export async function loadMasterStats() {
-	const response = await fetch("/api/stats");
+	const response = await fetch("/api/stats", { headers: getHeaders() });
 
 	if (!response.ok) {
 		console.error("Stat fetching failed!", await response.text());
 		return;
 	}
 
-	masterStats = await response.json();
+	masterStats = await parseResponse<MasterStats>(response);
 }
 
 export function setMasterStats(stats: MasterStats) {
@@ -142,7 +143,7 @@ export function getActiveRaids(): ActiveRaidStats[] {
 }
 
 export function getActiveRaidsForLevel(level: number): ActiveRaidStats[] {
-	return getActiveRaids().filter(r => r.level === level)
+	return getActiveRaids().filter((r) => r.level === level);
 }
 
 export function getActiveCharacters(): ActiveInvasionCharacterStats[] {
@@ -179,7 +180,10 @@ export function getInvasionCatchable(character: number): InvasionPokemonStats[] 
 	return Array.from(unique.values());
 }
 
-export function getInvasionPokemon(characterSlot: { pokemon_id?: number, form?: number }): PokemonVisual {
+export function getInvasionPokemon(characterSlot: {
+	pokemon_id?: number;
+	form?: number;
+}): PokemonVisual {
 	return {
 		pokemon_id: characterSlot.pokemon_id ?? 0,
 		form: characterSlot.form ?? 0,

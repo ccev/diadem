@@ -11,7 +11,15 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { getIconPokemon } from "$lib/services/uicons.svelte";
 	import { formatDecimal, formatNumber, formatPercentage } from "$lib/utils/numberFormat";
-	import { CircleDot, CircleSlash2, Info, MapPinned, RotateCcw, Trees, VectorSquare } from "@lucide/svelte";
+	import {
+		CircleDot,
+		CircleSlash2,
+		Info,
+		MapPinned,
+		RotateCcw,
+		Trees,
+		VectorSquare
+	} from "@lucide/svelte";
 	import type { NestData } from "$lib/types/mapObjectData/nest";
 	import AccessPolygonMap from "@/components/ui/popups/common/AccessPolygonMap.svelte";
 	import QuickSearchButton from "@/components/ui/popups/common/QuickSearchButton.svelte";
@@ -46,18 +54,18 @@
 		<OverviewCard Icon={Trees} title={m.park_name()} value={data.name} />
 	{/if}
 
-	<OverviewCard Icon={RotateCcw} title={m.nest_avg()}
-	              value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })} />
+	<OverviewCard
+		Icon={RotateCcw}
+		title={m.nest_avg()}
+		value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
+	/>
 	<OverviewCard Icon={MapPinned} title={m.spawnpoints()} value={formatNumber(data.spawnpoints)} />
 {/snippet}
 
 {#snippet main(d: MapData)}
 	{@const data = d as NestData}
 
-	<TitledMainSection
-		Icon={Info}
-		title={m.about_this_nest()}
-	>
+	<TitledMainSection Icon={Info} title={m.about_this_nest()}>
 		<StatsMainCard>
 			<StatsMainCardEntry
 				Icon={Trees}
@@ -84,13 +92,12 @@
 				name={m.nest_size()}
 				value={m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}
 			/>
-			<UpdatedTimes
-				updated={data.updated ?? undefined}
-			/>
+			<UpdatedTimes updated={data.updated ?? undefined} />
 			<QuickSearchButton
 				class="mt-0!"
 				label={m.find_wild_name({ name: mPokemon(data) })}
-				onclick={() => setActiveSearchPokemon({pokemon_id: data.pokemon_id ?? 0, form: data.form ?? 0})}
+				onclick={() =>
+					setActiveSearchPokemon({ pokemon_id: data.pokemon_id ?? 0, form: data.form ?? 0 })}
 			/>
 		</StatsMainCard>
 	</TitledMainSection>

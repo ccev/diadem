@@ -9,6 +9,7 @@ yarn.lock
 
 # Generated
 src/lib/paraglide
+project.inlang/cache
 
 # Build output
 build

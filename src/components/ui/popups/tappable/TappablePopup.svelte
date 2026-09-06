@@ -12,7 +12,16 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { getIconPokemon, getIconPokestop, getIconTappable } from "$lib/services/uicons.svelte";
 	import { formatNumber, formatPercentage, formatDecimal } from "$lib/utils/numberFormat";
-	import { CircleDot, CircleSlash2, Clock, Info, MapPinned, RotateCcw, Trees, VectorSquare } from "@lucide/svelte";
+	import {
+		CircleDot,
+		CircleSlash2,
+		Clock,
+		Info,
+		MapPinned,
+		RotateCcw,
+		Trees,
+		VectorSquare
+	} from "@lucide/svelte";
 	import type { NestData } from "$lib/types/mapObjectData/nest";
 	import AccessPolygonMap from "@/components/ui/popups/common/AccessPolygonMap.svelte";
 	import type { TappableData } from "$lib/types/mapObjectData/tappable.d.ts";
@@ -38,6 +47,7 @@
 		} as MapObjectPopupProps;
 	}
 </script>
+
 <script>
 	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
 </script>

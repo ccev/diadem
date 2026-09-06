@@ -1,5 +1,5 @@
 <script lang="ts">
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { GeoJSON, FillLayer, LineLayer, CircleLayer, SymbolLayer } from "svelte-maplibre";
 	import type { ExpressionSpecification } from "maplibre-gl";
 	import {
@@ -22,12 +22,13 @@
 		getWayfarerStyle
 	} from "@/lib/features/wayfarerMap.svelte";
 	import MapCommon from "@/components/map/MapCommon.svelte";
+	import MarkerCurrentLocation from "@/components/map/MarkerCurrentLocation.svelte";
 	import {
 		getInitialMapPositionMain,
 		getMapPositionFromUrlParams
 	} from "$lib/map/mapPositionParams.svelte";
 	import { getConfig } from "@/lib/services/config/config";
-	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
+	import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import type { FeatureCollection, Point, Polygon } from "geojson";
 	import { getMapStyle } from "@/lib/utils/mapStyle";
@@ -149,7 +150,7 @@
 			const us = getUserSettings();
 			us.mapPosition.zoom = loadedMap.getZoom();
 			us.mapPosition.center = loadedMap.getCenter();
-			updateUserSettings();
+			updateMapPosition();
 		});
 
 		updateWayfarerData(loadedMap);
@@ -262,4 +263,6 @@
 			hoverCursor="pointer"
 		/>
 	</GeoJSON>
+
+	<MarkerCurrentLocation />
 </MapCommon>

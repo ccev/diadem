@@ -1,5 +1,5 @@
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
-import maplibre from "maplibre-gl";
+import type * as maplibre from "maplibre-gl";
 
 let map: maplibre.Map | undefined = $state(undefined);
 let mapStyleVersion = $state(0);

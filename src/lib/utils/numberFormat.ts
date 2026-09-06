@@ -1,3 +1,4 @@
+import * as m from "@/lib/paraglide/messages";
 import { getLocale } from "@/lib/paraglide/runtime";
 
 export function round(num: number, places: number) {
@@ -112,4 +113,45 @@ export function formatDecimal(value: number | null | undefined, decimals: number
 		minimumFractionDigits: decimals,
 		maximumFractionDigits: decimals
 	}).format(value);
+}
+
+/**
+ * Format a distance in meters as a human-readable string
+ * @param distance Distance in meters
+ * @returns Formatted distance string (e.g., "500 m", "1.25 km")
+ */
+export function formatDistance(distance: number): string {
+	if (distance < 1000) {
+		return m.format_distance_meters({ distance: formatNumber(distance) });
+	}
+
+	return m.format_distance_kilometers({
+		distance: formatNumber(distance / 1000, { maximumFractionDigits: 2 })
+	});
+}
+
+/**
+ * Format a duration in seconds as a human-readable string
+ * @param duration Duration in seconds
+ * @returns Formatted duration string (e.g., "5 min", "1 hr 30 min")
+ */
+export function formatDuration(duration: number): string {
+	const minutes = Math.max(1, Math.ceil(duration / 60));
+	if (minutes < 60) return m.format_duration_minutes({ minutes });
+
+	return m.format_duration_hours_minutes({
+		hours: Math.floor(minutes / 60),
+		minutes: minutes % 60
+	});
+}
+
+/**
+ * Format an elevation in meters as a human-readable string
+ * @param elevation Elevation in meters
+ * @returns Formatted elevation string (e.g., "12.5 m")
+ */
+export function formatElevation(elevation: number): string {
+	return m.format_elevation_meters({
+		elevation: formatNumber(elevation, { maximumFractionDigits: 1 })
+	});
 }

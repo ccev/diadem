@@ -37,7 +37,11 @@
 	<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_updated()}>
 		{#snippet value()}
 			{#if currentTimestamp() - lastModified > 60 * 60 * 24}
-				{timestampToLocalTime(lastModified, { showDate: true, showSeconds: false, showTime: false })}
+				{timestampToLocalTime(lastModified, {
+					showDate: true,
+					showSeconds: false,
+					showTime: false
+				})}
 			{:else}
 				<Countdown expireTime={lastModified} />
 			{/if}

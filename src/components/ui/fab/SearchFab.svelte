@@ -13,7 +13,7 @@
 		SearchableType,
 		type SearchOptions
 	} from "@/lib/services/search.svelte";
-	import type maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import { onShortcutSearch } from "@/lib/utils/keyboard";
 	import { onDestroy } from "svelte";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";

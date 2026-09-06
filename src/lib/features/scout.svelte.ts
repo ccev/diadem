@@ -1,5 +1,6 @@
 import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from "@/lib/constants";
 import { Coords, type LatLon } from "@/lib/utils/coordinates";
+import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import { destination, circle as makeCrircle, point } from "@turf/turf";
 import type { Feature, FeatureCollection, Polygon } from "geojson";
 
@@ -59,17 +60,19 @@ export function resetCurrentScoutData() {
 }
 
 export async function startScout() {
+	const encoded = encodeRequestBody({ coords: currentScoutData.coords.map((c) => c.internal()) });
 	const response = await fetch("/api/scout", {
 		method: "POST",
-		body: JSON.stringify({ coords: currentScoutData.coords.map((c) => c.internal()) })
+		body: encoded.body,
+		headers: getHeaders(encoded.contentType)
 	});
-	const data = await response.json();
+	const data = await parseResponse<{ error?: string }>(response);
 	return !data.error;
 }
 
 export async function getScoutQueue() {
-	const response = await fetch("/api/scout");
-	const data = await response.json();
+	const response = await fetch("/api/scout", { headers: getHeaders() });
+	const data = await parseResponse<{ result?: number }>(response);
 	return data.result;
 }
 

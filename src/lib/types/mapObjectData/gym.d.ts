@@ -42,6 +42,7 @@ export type GymData = {
 	defenders?: GymDefender[];
 	raw_rsvps?: string;
 	rsvps?: Rsvp[];
+	isRouteEndpoint?: true;
 };
 
 export type GymDefender = {

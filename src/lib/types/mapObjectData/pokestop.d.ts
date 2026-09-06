@@ -56,6 +56,7 @@ export type PokestopData = {
 	showcase_ranking_standard?: number;
 	showcase_expiry?: number;
 	showcase_rankings?: string;
+	isRouteEndpoint?: true;
 };
 
 export type Incident = {

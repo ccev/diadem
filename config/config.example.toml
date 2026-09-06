@@ -233,6 +233,7 @@ theme = "dark"
 #url = "https://tiles.example.com/satellite/{z}/{x}/{y}.png"
 #theme = "satellite"
 #raster = { tileSize = 256, min = 0, max = 20 }
+#attribution = '<a href="https://provider.example.com/attribution" target="_blank">Map data attribution</a>'
 
 [[client.mapStyles]]
 id = "voyager"
@@ -258,7 +259,7 @@ raid_egg_6 = { scale = 0.3, offsetY = -135 }
 [[client.uiconSets]]
 id = "pogoOutline"
 name = "GO"
-url = "https://raw.githubusercontent.com/whitewillem/PogoAssets/refs/heads/main/uicons-outline/"
+url = "https://raw.githubusercontent.com/TiMXL73/PogoAssets/main/uicons-outline/"
 
 base = { scale = 0.5 }
 pokemon = { default = true, scale = 0.4 }

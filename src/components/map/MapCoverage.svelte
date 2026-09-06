@@ -1,5 +1,5 @@
 <script lang="ts">
-	import maplibre from "maplibre-gl";
+	import type * as maplibre from "maplibre-gl";
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
 	import { CoverageMapLayerId, MapSourceId } from "@/lib/map/layers";
 	import {
@@ -15,6 +15,8 @@
 	import { onMount } from "svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { Coords } from "@/lib/utils/coordinates";
+	import { isMenuSidebar, isUiLeft } from "$lib/utils/device";
+	import MapAttribution from "@/components/map/MapAttribution.svelte";
 
 	let {
 		map = $bindable()
@@ -38,7 +40,13 @@
 		setCoverageMap(map);
 		map.on("click", coverageMapClickHandler);
 	}}
+	showAttribution={false}
 >
+	<MapAttribution
+		{map}
+		class={isMenuSidebar() ? '' : isUiLeft() ? 'right-0 bottom-30' : 'left-0 bottom-30'}
+	/>
+
 	<GeometryLayer
 		id={MapSourceId.COVERAGE_MAP_AREAS}
 		data={getCoverageMapAreas()}

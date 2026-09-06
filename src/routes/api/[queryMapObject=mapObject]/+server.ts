@@ -1,5 +1,8 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectRequestData } from "@/lib/mapObjects/updateMapObject";
+import { getFilterHash } from "@/lib/utils/filterHash";
+import { recallFilter, rememberFilter } from "@/lib/server/api/filterCache";
+import { readRequestBody } from "@/lib/server/api/requestBody";
 import {
 	calculateRequestCharge,
 	rateLimit,
@@ -19,6 +22,9 @@ import type { RequestHandler } from "./$types";
 
 const log = getLogger("mapobjects");
 
+const FILTER_HASH_PATTERN = /^[0-9a-f]{64}$/;
+const DENIED_CHARGE = 100;
+
 export const POST: RequestHandler = async ({ request, locals, params, getClientAddress }) => {
 	const rateLimitKey = locals.user?.id ?? getClientAddress();
 	const type = params.queryMapObject as MapObjectType;
@@ -27,15 +33,6 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 	const start = performance.now();
 	if (!hasAnyFeatureAnywhereServer(locals.perms, family, locals.user)) error(401);
 	const permCheckTime = performance.now();
-
-	const data: MapObjectRequestData = await request.json();
-	const permitted = checkFeaturesInBounds(locals.perms, family, data);
-
-	if (!permitted) {
-		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
-	}
-
-	const permissionContext = new FeaturePermissionContext(locals.perms, family);
 
 	const requestLimit = requestLimits[type];
 	const [allowed, _, totalLimit, headers] = await rateLimitConsume(
@@ -58,10 +55,70 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		);
 	}
 
+	const refundDeniedRequest = async () => {
+		if (requestLimit > DENIED_CHARGE) {
+			await rateLimitReward(rateLimitKey, requestLimit - DENIED_CHARGE, type);
+		}
+	};
+
+	let data: MapObjectRequestData;
+	try {
+		data = await readRequestBody(request);
+	} catch {
+		await refundDeniedRequest();
+		error(400);
+	}
+	if (
+		!data ||
+		typeof data !== "object" ||
+		Array.isArray(data) ||
+		!Number.isFinite(data.minLat) ||
+		!Number.isFinite(data.maxLat) ||
+		!Number.isFinite(data.minLon) ||
+		!Number.isFinite(data.maxLon)
+	) {
+		await refundDeniedRequest();
+		error(400);
+	}
+
+	const permitted = checkFeaturesInBounds(locals.perms, family, data);
+
+	if (!permitted) {
+		await refundDeniedRequest();
+		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
+	}
+
+	const filterHash =
+		typeof data.filterHash === "string" && FILTER_HASH_PATTERN.test(data.filterHash)
+			? data.filterHash
+			: undefined;
+	let filter = data.filter;
+	let extraHeaders: Record<string, string> | undefined;
+
+	if (data.filterHash !== undefined && !filterHash) {
+		await refundDeniedRequest();
+		error(400);
+	}
+
+	if (filterHash) {
+		if (filter) {
+			const cached = getFilterHash(filter) === filterHash && rememberFilter(filterHash, filter);
+			extraHeaders = { "X-Filter-Cached": cached ? "1" : "0" };
+		} else {
+			filter = recallFilter(filterHash);
+			if (!filter) {
+				await refundDeniedRequest();
+				return respond(request, { data: [] }, { status: constants.HTTP_STATUS_CONFLICT });
+			}
+		}
+	}
+
+	const permissionContext = new FeaturePermissionContext(locals.perms, family);
+
 	const result = await queryMapObjects(
 		type,
 		permitted.bounds,
-		data.filter,
+		filter,
 		permitted.polygon,
 		data.since,
 		requestLimit,
@@ -86,7 +143,7 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 	}
 
 	const queryTime = performance.now();
-	const response = respond(request, result);
+	const response = respond(request, result, { headers: extraHeaders });
 	const serializeTime = performance.now();
 
 	log.info(

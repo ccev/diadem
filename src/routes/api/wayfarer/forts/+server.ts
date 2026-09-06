@@ -1,10 +1,12 @@
 import { buildSpatialFilter } from "@/lib/server/api/spatialFilter";
+import { readRequestBody } from "@/lib/server/api/requestBody";
+import { respond } from "@/lib/server/api/respond";
 import { hasFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
-import { error, json } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import { geojson, s2 } from "s2js";
 import type { Polygon } from "geojson";
 import type { FortData } from "@/lib/features/wayfarerMap.svelte";
@@ -29,9 +31,9 @@ export async function POST({ request, locals }) {
 
 	let body: WayfarerFortsRequest;
 	try {
-		body = (await request.json()) as WayfarerFortsRequest;
+		body = await readRequestBody(request);
 	} catch {
-		error(400, "Invalid JSON");
+		error(400, "Invalid request body");
 	}
 
 	if (!body || !Array.isArray(body.cellIds)) {
@@ -43,7 +45,11 @@ export async function POST({ request, locals }) {
 	const rawCellIds = body.cellIds.slice(0, maxCells);
 
 	if (rawCellIds.length === 0) {
-		return json({ pokestopCounts: {}, gymCounts: {}, forts: [] } satisfies WayfarerFortsResponse);
+		return respond(request, {
+			pokestopCounts: {},
+			gymCounts: {},
+			forts: []
+		} satisfies WayfarerFortsResponse);
 	}
 
 	let minLat = 90;
@@ -125,7 +131,7 @@ export async function POST({ request, locals }) {
 			countsOnly
 		);
 
-		return json({ pokestopCounts, gymCounts, forts } satisfies WayfarerFortsResponse);
+		return respond(request, { pokestopCounts, gymCounts, forts } satisfies WayfarerFortsResponse);
 	} catch (e) {
 		log.error("Error while querying wayfarer forts", e);
 		error(500);
