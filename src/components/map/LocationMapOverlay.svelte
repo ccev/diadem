@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GeometryLayer from "@/components/map/GeometryLayer.svelte";
+	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 	import { ClientMapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import { MapSourceId } from "$lib/map/layers";
@@ -12,16 +13,25 @@
 		return selected?.type === ClientMapObjectType.LOCATION ? selected : null;
 	});
 
+	let center = $derived.by(() => {
+		if (!location) return undefined;
+		if (location.isCurrentLocation) {
+			const current = getCurrentLocation();
+			if (current) return { lat: current.lat, lon: current.lng };
+		}
+		return { lat: location.lat, lon: location.lon };
+	});
+
 	let radiusData = $derived.by(() => {
-		if (!location) return featureCollection([]);
-		const center: [number, number] = [location.lon, location.lat];
+		if (!center) return featureCollection([]);
+		const centerPoint: [number, number] = [center.lon, center.lat];
 		return featureCollection([
-			circle(center, 0.08, {
+			circle(centerPoint, 0.08, {
 				units: "kilometers",
 				steps: 64,
 				properties: { fillColor: "#3b82f6", strokeColor: "transparent" }
 			}),
-			circle(center, 0.04, {
+			circle(centerPoint, 0.04, {
 				units: "kilometers",
 				steps: 64,
 				properties: { fillColor: "#a855f7", strokeColor: "transparent" }
@@ -32,7 +42,7 @@
 
 <GeometryLayer id={MapSourceId.LOCATION_RADIUS} data={radiusData} fillOpacity={0.2} />
 
-{#if location}
+{#if location && !location.isCurrentLocation}
 	<Marker lngLat={location}>
 		<div
 			style:--color-marker="var(--color-rose-600)"
