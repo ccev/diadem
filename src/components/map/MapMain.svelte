@@ -287,7 +287,7 @@
 		/>
 	</GeoJSON>
 
-	<MarkerCurrentLocation />
+	<MarkerCurrentLocation showLocationPopup />
 	<MarkerSearchedLocation />
 	<TimerLayer />
 </MapCommon>

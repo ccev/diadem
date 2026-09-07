@@ -702,9 +702,8 @@
 	"format_duration_hours_minutes": "{hours} hr {minutes} min",
 	"format_elevation_meters": "{elevation} m",
 	"location": "Location",
-	"selected_location": "Selected location",
 	"scout_location": "Scout location",
-	"within_x_meters": "Within {meters} m",
-	"x_spawnpoints": "Spawnpoints: {count}",
-	"address_unavailable": "Address unavailable"
+	"address_unavailable": "Address unavailable",
+	"my_location": "My Location",
+	"in_range": "In Range"
 }

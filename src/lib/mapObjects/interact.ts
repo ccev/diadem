@@ -54,6 +54,12 @@ registerOverlayHandler("map-popup", (entries) => {
 	const focusedRouteMapId = getFocusedRouteMapId();
 	if (focusedRouteMapId && selection?.data.mapId !== focusedRouteMapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(selection?.data ?? null, selection?.isOverwrite ?? false);
+	if (
+		selection?.data.type === ClientMapObjectType.LOCATION &&
+		(selection.data.isAddressLoading || selection.data.isNearbyLoading)
+	) {
+		void loadLocationDetails(selection.data);
+	}
 });
 
 export function closePopup() {
@@ -113,12 +119,11 @@ export function openPopup(
 
 export function openLocationPopup(
 	coords: Coords,
-	options: { replace?: boolean; zoom?: number } = {}
+	options: { replace?: boolean; zoom?: number; isCurrentLocation?: boolean } = {}
 ) {
-	const data = createLocationData(coords, options.zoom);
+	const data = createLocationData(coords, options.zoom, options.isCurrentLocation);
 	requestPopupVisibilityCheck(data);
 	openPopup(data, false, { initialize: options.replace });
-	void loadLocationDetails(data);
 }
 
 export function updateCurrentPath() {

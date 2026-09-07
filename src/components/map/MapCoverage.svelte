@@ -44,7 +44,7 @@
 >
 	<MapAttribution
 		{map}
-		class={isMenuSidebar() ? '' : isUiLeft() ? 'right-0 bottom-30' : 'left-0 bottom-30'}
+		class={isMenuSidebar() ? '' : isUiLeft() ? 'right-0 bottom-30' : 'left-0 bottom-30 right-auto'}
 	/>
 
 	<GeometryLayer

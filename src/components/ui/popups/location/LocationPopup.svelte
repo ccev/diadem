@@ -6,7 +6,7 @@
 	import * as m from "$lib/paraglide/messages";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import { getIconGym, getIconPokestop, getIconStation } from "$lib/services/uicons.svelte";
-	import { copyToClipboard } from "$lib/utils/device";
+	import { copyToClipboard, hasClipboardWrite } from "$lib/utils/device";
 	import { formatDistance } from "$lib/utils/numberFormat";
 	import { CircleDot, Clipboard, House, MapPin } from "@lucide/svelte";
 	import BasicMainCard from "@/components/ui/popups/common/BasicMainCard.svelte";
@@ -20,7 +20,7 @@
 	export function getPopupPropsLocation(d: MapData): MapObjectPopupProps {
 		const data = d as LocationData;
 		return {
-			type: m.location(),
+			type: data.isCurrentLocation ? m.my_location() : m.location(),
 			title: data.address ?? formattedCoordinates(data),
 			image,
 			overview,
@@ -37,25 +37,43 @@
 	</div>
 {/snippet}
 
+{#snippet countCard(single: string, plural: string, value: number, loading: boolean)}
+	<BasicMainCard>
+		<p class="font-semibold text-2xl">
+			{#if loading}
+				<span class="block h-8 w-8 animate-pulse rounded bg-accent-highlight"></span>
+			{:else}
+				{value}
+			{/if}
+		</p>
+		<p class="text-lg text-muted-foreground">
+			{#if value === 1}
+				{single}
+			{:else}
+				{plural}
+			{/if}
+		</p>
+	</BasicMainCard>
+{/snippet}
+
 {#snippet overview(d: MapData)}
 	{@const data = d as LocationData}
-		{#each data.nearby as nearby (nearby.mapId)}
+	{#each data.nearby as nearby (nearby.mapId)}
 		<div class="flex min-w-48 max-w-64 items-center gap-5 rounded-lg border bg-accent px-4 py-3">
 			{#if nearby.type === MapObjectType.GYM || nearby.type === MapObjectType.POKESTOP}
 				<FortImage
 					class="size-14! py-0!"
-					alt={nearby.name ?? (nearby.type === MapObjectType.GYM ? m.pogo_gym() : m.pogo_pokestop())}
+					alt={nearby.name ??
+						(nearby.type === MapObjectType.GYM ? m.pogo_gym() : m.pogo_pokestop())}
 					fortUrl={nearby.url}
-					fortIcon={nearby.type === MapObjectType.GYM ? getIconGym(nearby) : getIconPokestop(nearby)}
+					fortIcon={nearby.type === MapObjectType.GYM
+						? getIconGym(nearby)
+						: getIconPokestop(nearby)}
 					fortName={nearby.name}
 					fortDescription={nearby.description}
 				/>
 			{:else}
-				<ImagePopup
-					class="size-10 shrink-0"
-					src={getIconStation(nearby)}
-					alt={m.pogo_station()}
-				/>
+				<ImagePopup class="size-10 shrink-0" src={getIconStation(nearby)} alt={m.pogo_station()} />
 			{/if}
 			<div class="min-w-0">
 				<p class="text-muted-foreground">
@@ -81,7 +99,6 @@
 						{/if}
 					{/if}
 				</p>
-
 			</div>
 		</div>
 	{/each}
@@ -95,7 +112,7 @@
 			<BasicMainCard class="p-0!">
 				<button
 					class="flex items-center gap-4 text-left size-full p-4!"
-					disabled={data.isAddressLoading || !data.address}
+					disabled={data.isAddressLoading || !data.address || !hasClipboardWrite()}
 					onclick={() => data.address && copyToClipboard(data.address)}
 				>
 					<House class="size-4 shrink-0 text-muted-foreground" />
@@ -106,10 +123,9 @@
 							<p class="font-medium">{data.address ?? m.address_unavailable()}</p>
 						{/if}
 					</div>
-					{#if data.address}
+					{#if data.address && hasClipboardWrite()}
 						<Clipboard class="size-4 shrink-0 text-muted-foreground ml-auto" />
 					{/if}
-
 				</button>
 			</BasicMainCard>
 		{/if}
@@ -117,36 +133,54 @@
 		<BasicMainCard class="p-0!">
 			<button
 				class="flex items-center gap-4 text-left size-full p-4!"
+				disabled={!hasClipboardWrite()}
 				onclick={() => copyToClipboard(formattedCoordinates(data))}
 			>
 				<MapPin class="size-4 shrink-0 text-muted-foreground" />
 				<div class="font-medium">{formattedCoordinates(data)}</div>
-				<Clipboard class="size-4 shrink-0 text-muted-foreground ml-auto" />
+				{#if hasClipboardWrite()}
+					<Clipboard class="size-4 shrink-0 text-muted-foreground ml-auto" />
+				{/if}
 			</button>
 		</BasicMainCard>
 	</div>
 
-	<TitledMainSection Icon={CircleDot} title="In Range">
-		<div class="grid! grid-cols-2 gap-3">
-			{#each [
-				[m.pogo_spawnpoint(), m.spawnpoints(), data.spawnpoints],
-				[m.pogo_gym(), m.pogo_gyms(), data.nearby.filter(n => n.type === MapObjectType.GYM).length],
-				[m.pogo_pokestop(), m.pogo_pokestops(), data.nearby.filter(n => n.type === MapObjectType.POKESTOP).length],
-				[m.pogo_station(), m.pogo_stations(), data.nearby.filter(n => n.type === MapObjectType.STATION).length],
-			] as [single, plural, value]}
-				<BasicMainCard>
-					<p class="font-semibold text-2xl">
-						{value}
-					</p>
-					<p class=" text-lg text-muted-foreground">
-						{#if value === 1}
-							{single}
-						{:else}
-							{plural}
-						{/if}
-					</p>
-				</BasicMainCard>
-			{/each}
-		</div>
-	</TitledMainSection>
+	{#if data.nearbyPermissions.length > 0}
+		<TitledMainSection Icon={CircleDot} title={m.in_range()}>
+			<div class="grid! grid-cols-2 gap-3">
+				{#if data.nearbyPermissions.includes(MapObjectType.SPAWNPOINT)}
+					{@render countCard(
+						m.pogo_spawnpoint(),
+						m.spawnpoints(),
+						data.spawnpoints,
+						data.isNearbyLoading
+					)}
+				{/if}
+				{#if data.nearbyPermissions.includes(MapObjectType.GYM)}
+					{@render countCard(
+						m.pogo_gym(),
+						m.pogo_gyms(),
+						data.nearby.filter((nearby) => nearby.type === MapObjectType.GYM).length,
+						data.isNearbyLoading
+					)}
+				{/if}
+				{#if data.nearbyPermissions.includes(MapObjectType.POKESTOP)}
+					{@render countCard(
+						m.pogo_pokestop(),
+						m.pogo_pokestops(),
+						data.nearby.filter((nearby) => nearby.type === MapObjectType.POKESTOP).length,
+						data.isNearbyLoading
+					)}
+				{/if}
+				{#if data.nearbyPermissions.includes(MapObjectType.STATION)}
+					{@render countCard(
+						m.pogo_station(),
+						m.pogo_stations(),
+						data.nearby.filter((nearby) => nearby.type === MapObjectType.STATION).length,
+						data.isNearbyLoading
+					)}
+				{/if}
+			</div>
+		</TitledMainSection>
+	{/if}
 {/snippet}
