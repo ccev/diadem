@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { fly } from "svelte/transition";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
-	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import {
+		ClientMapObjectType,
+		type MapData,
+		MapObjectType
+	} from "@/lib/mapObjects/mapObjectTypes";
 	import PopupBaseDrawer from "@/components/ui/popups/common/PopupBaseDrawer.svelte";
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
@@ -25,6 +29,7 @@
 		setPopupOcclusion,
 		type PopupVisibilityRequest
 	} from "$lib/mapObjects/popupVisibility.svelte";
+	import { getPopupPropsLocation } from "@/components/ui/popups/location/LocationPopup.svelte";
 
 	let {
 		alwaysExpanded = false
@@ -32,7 +37,7 @@
 		alwaysExpanded?: boolean;
 	} = $props();
 
-	const propMap: Partial<Record<MapObjectType, (data: MapData) => MapObjectPopupProps>> = {
+	const propMap: Partial<Record<MapData["type"], (data: MapData) => MapObjectPopupProps>> = {
 		[MapObjectType.POKEMON]: getPopupPropsPokemon,
 		[MapObjectType.POKESTOP]: getPopupPropsPokestop,
 		[MapObjectType.NEST]: getPopupPropsNest,
@@ -40,7 +45,8 @@
 		[MapObjectType.SPAWNPOINT]: getPopupPropsSpawnpoint,
 		[MapObjectType.GYM]: getPopupPropsGym,
 		[MapObjectType.STATION]: getPopupPropsStation,
-		[MapObjectType.ROUTE]: getPopupPropsRoute
+		[MapObjectType.ROUTE]: getPopupPropsRoute,
+		[ClientMapObjectType.LOCATION]: getPopupPropsLocation
 	};
 
 	let data = $derived(getCurrentSelectedData());
@@ -85,9 +91,9 @@
 		}
 	);
 
-	let popupProps = $derived(
-		snapshotData ? propMap[(snapshotData as MapData).type]?.(snapshotData as MapData) : undefined
-	);
+	let popupData = $derived(data ?? snapshotData);
+	let popupProps = $derived(popupData ? propMap[popupData.type]?.(popupData) : undefined);
+	let popupCoords = $derived(new Coords(popupData?.lat ?? 0, popupData?.lon ?? 0));
 </script>
 
 {#if alwaysExpanded}
@@ -102,8 +108,8 @@
 				class="z-10 h-full relative overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
 			>
 				<PopupBaseStatic
-					coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}
-					data={snapshotData}
+					coords={popupCoords}
+					data={popupData}
 					props={popupProps}
 					onlyShowNavigationButton={false}
 				/>
@@ -111,10 +117,5 @@
 		</div>
 	{/if}
 {:else}
-	<PopupBaseDrawer
-		open={doesDataExist}
-		coords={new Coords(snapshotData?.lat ?? 0, snapshotData?.lon ?? 0)}
-		data={snapshotData}
-		props={popupProps}
-	/>
+	<PopupBaseDrawer open={doesDataExist} coords={popupCoords} data={popupData} props={popupProps} />
 {/if}

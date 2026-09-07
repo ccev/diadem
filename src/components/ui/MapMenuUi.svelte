@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 	import { isMenuSidebar, isUiLeft } from "@/lib/utils/device";
 	import MobileMenu from "@/components/menus/mobile/MobileMenu.svelte";
 	import type { Snippet } from "svelte";
@@ -35,7 +34,7 @@
 
 		{@render desktopRightSidebar?.()}
 	</div>
-{:else if !getIsContextMenuOpen()}
+{:else}
 	<MobileMenu />
 
 	<div

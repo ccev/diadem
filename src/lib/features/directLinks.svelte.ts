@@ -1,7 +1,7 @@
 import { getMap } from "@/lib/map/map.svelte";
 import { openPopup } from "@/lib/mapObjects/interact";
 import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type QueryableMapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
 import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
@@ -11,7 +11,7 @@ import { type KojiFeature } from "@/lib/features/koji";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export type DirectLinkData =
-	MapData | { type: MapObjectType; noPermission?: boolean; id?: undefined };
+	QueryableMapData | { type: MapObjectType; noPermission?: boolean; id?: undefined };
 
 let directLinkObject: DirectLinkData | undefined = $state(undefined);
 let directLinkFeature: KojiFeature | undefined = $state(undefined);
@@ -32,7 +32,7 @@ export function getDirectLinkFeature() {
 	return directLinkFeature;
 }
 
-export function openMapObject(data: MapData, alwaysFly: boolean = false) {
+export function openMapObject(data: QueryableMapData, alwaysFly: boolean = false) {
 	openPopup(data, true);
 	addMapObjects([data], data.type, 1);
 
@@ -61,6 +61,6 @@ export async function openMapObjectFromId(type: MapObjectType, id: string) {
 		);
 		return;
 	}
-	const data = await parseResponse<MapData>(response);
+	const data = await parseResponse<QueryableMapData>(response);
 	openMapObject(data, true);
 }
