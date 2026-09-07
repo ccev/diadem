@@ -7,6 +7,7 @@ import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
 import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
+import type { LocationData } from "$lib/types/mapObjectData/location";
 
 export enum MapObjectType {
 	POKEMON = "pokemon",
@@ -20,6 +21,10 @@ export enum MapObjectType {
 	TAPPABLE = "tappable"
 }
 
+export enum ClientMapObjectType {
+	LOCATION = "location"
+}
+
 export type MapData =
 	| PokemonData
 	| PokestopData
@@ -29,7 +34,10 @@ export type MapData =
 	| SpawnpointData
 	| RouteData
 	| TappableData
-	| S2CellData;
+	| S2CellData
+	| LocationData;
+
+export type QueryableMapData = Exclude<MapData, LocationData>;
 
 export type MinMapObject<T extends MapData> = Omit<T, "type" | "mapId">;
 

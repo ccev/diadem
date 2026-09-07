@@ -16,7 +16,11 @@ import {
 	getMapObjects,
 	replaceMapObjects
 } from "@/lib/mapObjects/mapObjectsState.svelte.js";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import {
+	allMapObjectTypes,
+	type QueryableMapData,
+	MapObjectType
+} from "@/lib/mapObjects/mapObjectTypes";
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
@@ -61,7 +65,7 @@ export function clearMap() {
 	updateFeatures(getMapObjects());
 }
 
-export async function fetchMapObjects<T extends MapData>(
+export async function fetchMapObjects<T extends QueryableMapData>(
 	type: MapObjectType,
 	bounds: Bounds,
 	filter: AnyFilter | undefined = undefined,
@@ -184,7 +188,7 @@ export async function updateMapObject(
 	lastQueryTimestamps.set(type, currentTimestamp());
 
 	let examined: number = 0;
-	let data: MapData[] | undefined = undefined;
+	let data: QueryableMapData[] | undefined = undefined;
 	let clearLimitAfterRender = false;
 	if (type === MapObjectType.S2_CELL) {
 		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);

@@ -15,7 +15,8 @@
 		fillId = undefined,
 		strokeId = undefined,
 		map = undefined,
-		hoverCursor = undefined
+		hoverCursor = undefined,
+		fillOpacity = 0.5
 	}: {
 		id: MapSourceId;
 		data?: FeatureCollection;
@@ -25,6 +26,7 @@
 		strokeId?: any;
 		map?: maplibre.Map;
 		hoverCursor?: string;
+		fillOpacity?: number;
 	} = $props();
 
 	let lastWasEmpty = true;
@@ -60,7 +62,7 @@
 			filter={["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]}
 			paint={{
 				"fill-color": ["get", "fillColor"],
-				"fill-opacity": 0.5
+				"fill-opacity": fillOpacity
 			}}
 		/>
 		<LineLayer

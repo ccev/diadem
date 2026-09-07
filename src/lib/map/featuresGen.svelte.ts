@@ -20,7 +20,12 @@ import {
 	type MapObjectFeature
 } from "@/lib/map/render/featureTypes";
 import { getRenderer } from "@/lib/map/render/renderMapObjects";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import {
+	allMapObjectTypes,
+	ClientMapObjectType,
+	type MapData,
+	MapObjectType
+} from "@/lib/mapObjects/mapObjectTypes";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { circle } from "@turf/turf";
@@ -161,7 +166,7 @@ export function updateSelected(currentSelected: MapData | null) {
 		selectedFeatures = [];
 	}
 
-	if (currentSelected) {
+	if (currentSelected && currentSelected.type !== ClientMapObjectType.LOCATION) {
 		const thisFeatures = features[currentSelected.type][currentSelected.mapId]?.features ?? [];
 
 		for (const feature of thisFeatures) {

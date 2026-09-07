@@ -1,10 +1,14 @@
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
-import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import {
+	allMapObjectTypes,
+	type QueryableMapData,
+	MapObjectType
+} from "@/lib/mapObjects/mapObjectTypes";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import { routeStartsAt } from "@/lib/utils/routeUtils";
 
 export type MapObjectsStateType = {
-	[key: string]: MapData;
+	[key: string]: QueryableMapData;
 };
 
 let mapObjectsState: MapObjectsStateType = $state({});
@@ -16,7 +20,7 @@ export function getMapObjects() {
 }
 
 export function addMapObjects(
-	mapObjects: MapData[],
+	mapObjects: QueryableMapData[],
 	type: MapObjectType,
 	examined: number,
 	isDelta: boolean = false
@@ -41,7 +45,11 @@ export function addMapObjects(
 	}
 }
 
-export function replaceMapObjects(mapObjects: MapData[], type: MapObjectType, examined: number) {
+export function replaceMapObjects(
+	mapObjects: QueryableMapData[],
+	type: MapObjectType,
+	examined: number
+) {
 	const selected = getCurrentSelectedData();
 	const selectedMapId = selected?.mapId;
 	const prefix = type + "-";

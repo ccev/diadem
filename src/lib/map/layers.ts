@@ -9,6 +9,7 @@ export enum MapSourceId {
 	COVERAGE_MAP_AREAS = "coverageMapAreas",
 	POPUP_ACTION_TIMERS = "popupActionTimers",
 	SEARCHED_GEOMETRY = "searchedGeometry",
+	LOCATION_RADIUS = "locationRadius",
 	WAYFARER_FORTS = "wayfarerForts",
 	WAYFARER_CELLS_14 = "wayfarerCells14",
 	WAYFARER_CELLS_17 = "wayfarerCells17",

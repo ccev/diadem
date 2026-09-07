@@ -700,5 +700,10 @@
 	"format_distance_kilometers": "{distance} km",
 	"format_duration_minutes": "{minutes} min",
 	"format_duration_hours_minutes": "{hours} hr {minutes} min",
-	"format_elevation_meters": "{elevation} m"
+	"format_elevation_meters": "{elevation} m",
+	"location": "Location",
+	"scout_location": "Scout location",
+	"address_unavailable": "Address unavailable",
+	"my_location": "My Location",
+	"in_range": "In Range"
 }

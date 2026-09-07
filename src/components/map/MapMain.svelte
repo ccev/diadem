@@ -7,7 +7,7 @@
 		getDirectLinkObject,
 		openMapObject
 	} from "@/lib/features/directLinks.svelte.js";
-	import { clickMapHandler, updateCurrentPath } from "@/lib/mapObjects/interact";
+	import { clickMapHandler, openLocationPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
 	import {
@@ -15,7 +15,7 @@
 		resetUpdateMapObjectsInterval
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
-	import { clearPressTimer, onContextMenu } from "@/lib/ui/contextmenu.svelte.js";
+	import { clearPressTimer, onLocationContext } from "$lib/map/locationEvents";
 	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
 	import {
 		onMapDragStart,
@@ -30,7 +30,7 @@
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
 	import MarkerCurrentLocation from "@/components/map/MarkerCurrentLocation.svelte";
-	import MarkerContextMenu from "@/components/map/MarkerContextMenu.svelte";
+	import LocationMapOverlay from "@/components/map/LocationMapOverlay.svelte";
 	import { getCurrentScoutData } from "@/lib/features/scout.svelte.js";
 	import {
 		getCurrentSelectedFiltersetIsShared,
@@ -65,12 +65,13 @@
 	} = $props();
 
 	const mapPosition = getInitialMapPositionMain();
+	const [initialLocation, initialLocationZoom] = getMapPositionFromUrlParams();
 
 	async function onMapLoad(map: maplibre.Map) {
 		setMap(map);
 
 		map.on("moveend", onMapMoveEnd);
-		map.on("contextmenu", onContextMenu);
+		map.on("contextmenu", onLocationContext);
 		map.on("touchstart", onTouchStart);
 		map.on("touchend", clearPressTimer);
 		map.on("touchmove", clearPressTimer);
@@ -125,6 +126,10 @@
 				}
 			}
 
+			if (initialLocation && !directLinkFeature && !directLinkData) {
+				openLocationPopup(initialLocation, { replace: true, zoom: initialLocationZoom });
+			}
+
 			if (getCurrentSelectedFiltersetIsShared()) {
 				openMenu(Menu.FILTERS);
 				filtersetPageReset();
@@ -145,7 +150,7 @@
 		isInitUpdatedMapObjects = false;
 		setMap(undefined);
 		updateCurrentPath();
-		clearMapPositionUrlParams();
+		if (!initialLocation) clearMapPositionUrlParams();
 	});
 
 	onDestroy(() => {
@@ -166,10 +171,7 @@
 	initialZoom={mapPosition.zoom}
 	showAttribution={false}
 >
-	<MapAttribution
-		{map}
-		class="{isUiLeft() ? 'left-2 right-auto' : 'right-2'}"
-	/>
+	<MapAttribution {map} class={isUiLeft() ? "left-2 right-auto" : "right-2"} />
 
 	<GeometryLayer id={MapSourceId.SELECTED_WEATHER} reactive={false} />
 	<GeometryLayer
@@ -183,6 +185,7 @@
 		data={getCurrentScoutData().smallPoints}
 	/>
 
+	<LocationMapOverlay />
 	<LayerSearchedGeometry />
 
 	<GeoJSON
@@ -284,8 +287,7 @@
 		/>
 	</GeoJSON>
 
-	<MarkerCurrentLocation />
-	<MarkerContextMenu />
+	<MarkerCurrentLocation showLocationPopup />
 	<MarkerSearchedLocation />
 	<TimerLayer />
 </MapCommon>

@@ -1,17 +1,31 @@
 <script lang="ts">
 	import { Marker } from "svelte-maplibre";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
+	import { openLocationPopup } from "@/lib/mapObjects/interact";
+	import * as m from "@/lib/paraglide/messages";
+	import { Coords } from "@/lib/utils/coordinates";
 	import { scale, fly } from "svelte/transition";
 
+	let { showLocationPopup = false }: { showLocationPopup?: boolean } = $props();
 	let location = $derived(getCurrentLocation());
 </script>
 
 {#if location}
 	<Marker lngLat={location}>
-		<div
+		<button
+			type="button"
+			title={showLocationPopup ? m.my_location() : undefined}
+			disabled={!showLocationPopup}
 			style:--color-marker="var(--color-blue-600)"
 			class="relative size-3 rounded-full bg-(--color-marker) outline-blue-300/60 outline-6"
+			class:cursor-pointer={showLocationPopup}
 			transition:scale|global={{ duration: 100 }}
+			onclick={(event) => {
+				if (!showLocationPopup) return;
+				event.preventDefault();
+				event.stopPropagation();
+				openLocationPopup(Coords.infer(location), { isCurrentLocation: true });
+			}}
 		>
 			{#if location.heading !== undefined}
 				<div
@@ -28,7 +42,7 @@
 			<div
 				class="absolute left-1/2 top-1/2 -translate-1/2 bg-(--color-marker)/50 size-4.5 rounded-full locate"
 			></div>
-		</div>
+		</button>
 	</Marker>
 {/if}
 

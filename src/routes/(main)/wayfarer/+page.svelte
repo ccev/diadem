@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { m } from "@/lib/paraglide/messages";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
-	import { setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
 	import { onMount, tick } from "svelte";
@@ -15,6 +14,7 @@
 	import WayfarerCellPopup from "@/components/menus/wayfarer/WayfarerCellPopup.svelte";
 	import WayfarerTitle from "@/components/menus/wayfarer/WayfarerTitle.svelte";
 	import { getWayfarerStyleId, setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
+	import { closePopup } from "$lib/mapObjects/interact";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
@@ -22,7 +22,7 @@
 
 	onMount(async () => {
 		await tick();
-		setIsContextMenuOpen(false);
+		closePopup();
 		clearMapPositionUrlParams();
 	});
 </script>

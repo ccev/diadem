@@ -2,7 +2,7 @@
 	import { GeoJSON, SymbolLayer } from "svelte-maplibre";
 	import type { Feature, FeatureCollection, Point } from "geojson";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
-	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+	import { type QueryableMapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getMap, getMapStyleVersion } from "@/lib/map/map.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
 	import { matchPokemonFilterset } from "@/lib/features/filterLogic/pokemon";
@@ -82,7 +82,7 @@
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	}
 
-	function hasFilterLabel(obj: MapData): boolean {
+	function hasFilterLabel(obj: QueryableMapData): boolean {
 		switch (obj.type) {
 			case MapObjectType.POKEMON:
 				return Boolean(matchPokemonFilterset(obj)?.modifiers?.showLabel);
@@ -98,7 +98,7 @@
 		return Boolean(matchInvasionFilterset(incident)?.modifiers?.showLabel);
 	}
 
-	function getTimerOffset(obj: MapData, hasModifierLabel: boolean): [number, number] {
+	function getTimerOffset(obj: QueryableMapData, hasModifierLabel: boolean): [number, number] {
 		const iconSets = getCurrentUiconSetDetailsAllTypes();
 		const baseModifiers = getConfigModifiers(iconSets[obj.type], obj.type);
 		const offsetX = baseModifiers.offsetX;
@@ -112,7 +112,7 @@
 	}
 
 	function createTimerFeatureEntry(
-		obj: MapData,
+		obj: QueryableMapData,
 		expires: number,
 		hasModifierLabel: boolean,
 		id: string
@@ -135,7 +135,7 @@
 		};
 	}
 
-	function getTimerFeatureEntries(obj: MapData): TimerFeatureEntry[] {
+	function getTimerFeatureEntries(obj: QueryableMapData): TimerFeatureEntry[] {
 		if (!isPopupActionActive(obj.type, obj.mapId, PopupAction.TIMER)) return [];
 
 		if (obj.type === MapObjectType.POKESTOP) {

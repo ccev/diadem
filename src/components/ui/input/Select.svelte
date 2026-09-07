@@ -1,10 +1,7 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
-	import { closeModal, openModal, openSelectModal } from "@/lib/ui/modal.svelte.js";
-	import Card from "@/components/ui/Card.svelte";
-	import ContextMenuItem from "@/components/ui/contextmenu/ContextMenuItem.svelte";
-	import Modal from "@/components/ui/modal/Modal.svelte";
+	import { closeModal, openSelectModal } from "@/lib/ui/modal.svelte.js";
 	import type { Snippet } from "svelte";
 
 	let {
