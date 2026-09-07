@@ -36,6 +36,10 @@ async function getFeatures(thisFetch: typeof fetch): Promise<KojiFeatures | unde
 	let filteredData: KojiFeatures = data?.data?.features ?? [];
 	// koji seems to have a bug where sometimes, names aren't included. this filters out faulty areas
 	filteredData = filteredData.filter((f) => f.properties.name);
+	// koji may return the same geofence multiple times, so filter out duplicate ids
+	filteredData = filteredData.filter(
+		(f, i, arr) => arr.findIndex((g) => g.properties.id === f.properties.id) === i
+	);
 	return filteredData;
 }
 
