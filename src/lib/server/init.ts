@@ -9,12 +9,12 @@ export async function initDiadem() {
 	const log = getLogger("init");
 	log.info("Initializing Diadem");
 
-	await Promise.all([
+	const resources = Promise.all([
 		masterfileProvider.refresh(),
 		uiconsIndexProvider.refresh(),
-		remoteLocaleProvider.refresh(),
-		masterstatsProvider.refresh(),
-		startFortApiDetection()
+		remoteLocaleProvider.refresh()
 	]);
+	await startFortApiDetection();
+	await Promise.all([resources, masterstatsProvider.refresh()]);
 	log.info("Finished initializing");
 }

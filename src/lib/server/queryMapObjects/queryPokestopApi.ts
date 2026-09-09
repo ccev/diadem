@@ -7,11 +7,12 @@ import {
 	type GolbatPokestopResult,
 	type PokestopScanResponse
 } from "@/lib/server/api/golbatApi";
+import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
 import { buildPokestopDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { mapPokestop } from "@/lib/server/queryMapObjects/pokestopApiMapper";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
-import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { getLogger } from "@/lib/utils/logger";
 import { booleanPointInPolygon, point } from "@turf/turf";
@@ -24,8 +25,7 @@ export class ApiPokestopQuery extends PokestopQuery {
 		filter: FilterPokestop | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number,
-		context?: FeaturePermissionContext
+		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<PokestopData>>> {
 		const dnf = buildPokestopDnfFilters(filter);
 		if (dnf === null) return { data: [], examined: 0 };
@@ -36,18 +36,14 @@ export class ApiPokestopQuery extends PokestopQuery {
 			result = await scanPokestops({
 				min: { latitude: bounds.minLat, longitude: bounds.minLon },
 				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-				limit: actualLimit + 1,
+				limit: getFortApiScanLimit(actualLimit + 1),
 				filters: dnf.length ? dnf : undefined,
 				with_incidents: true
 			});
 		} catch (err) {
 			log.debug("Fort pokestop scan failed, falling back to SQL: %s", err);
 		}
-		if (!result) return super.query(bounds, filter, polygon, since, limit);
-
-		if (result.limit_reached || result.pokestops.length > actualLimit) {
-			return { data: [], examined: actualLimit, limitReached: true };
-		}
+		if (!result || result.limit_reached) return super.query(bounds, filter, polygon, since, limit);
 
 		let examined = result.examined;
 		const data: MinMapObject<PokestopData>[] = [];

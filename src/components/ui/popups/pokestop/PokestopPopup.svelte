@@ -157,7 +157,7 @@
 								src={getIconReward(quest.reward.type, quest.reward.info)}
 								alt={getRewardText(quest.reward)}
 							/>
-							{#if givesQuestBackground(quest)}
+							{#if givesQuestBackground(quest) && "background" in quest.reward.info && quest.reward.info.background}
 								<ImagePopup
 									class="absolute size-full scale-105 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
 									src={resize(getIconBackground(quest.reward.info.background), { width: 64 })}
@@ -178,7 +178,7 @@
 			</OverviewCard>
 		{/if}
 
-		{#each invasions as invasion}
+		{#each invasions as invasion (invasion.id)}
 			{@const name = mCharacter(invasion.character, { confirmed: invasion.confirmed })}
 			{@const reward = invasion.confirmed_reward}
 			<OverviewCard Icon={InvasionIcon} title={m.pogo_invasion()}>
@@ -327,7 +327,7 @@
 									src={getIconReward(quest.reward.type, quest.reward.info)}
 									alt={getRewardText(quest.reward)}
 								/>
-								{#if givesQuestBackground(quest)}
+								{#if givesQuestBackground(quest) && "background" in quest.reward.info && quest.reward.info.background}
 									<ImagePopup
 										class="absolute size-full scale-125 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
 										src={resize(getIconBackground(quest.reward.info.background), { width: 64 })}
@@ -582,7 +582,7 @@
 							</StatsMainCardEntry>
 
 							<div class="w-full flex gap-2 flex-col">
-								{#each data?.contest_rankings?.contest_entries ?? [] as entry}
+								{#each data?.contest_rankings?.contest_entries ?? [] as entry (entry.rank)}
 									<div
 										class="w-full rounded-md bg-accent-highlight px-4 relative flex justify-between items-center"
 									>

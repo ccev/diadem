@@ -155,21 +155,9 @@ export function setActiveSearchContest(name: string, rankingStandard: number, fo
 		enabled: true,
 		title: { message: "unknown_filter" },
 		icon: { isUserSelected: false },
-		rankingStandard
+		rankingStandard,
+		focus
 	} as FiltersetContest;
-
-	if (focus.type === "pokemon") {
-		filterset.focus = {
-			pokemon_id: focus.pokemon_id
-		};
-		if (focus.pokemon_form) {
-			filterset.focus.form = focus.pokemon_form;
-		}
-	} else if (focus.type === "type") {
-		filterset.focus = {
-			type_id: focus.pokemon_type_1
-		};
-	}
 
 	const filter = getDefaultPokestopFilter();
 	filter.contest.enabled = true;

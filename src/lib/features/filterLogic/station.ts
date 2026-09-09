@@ -14,11 +14,11 @@ export function matchMaxBattleFilterset(
 	if (maxBattleFilters.length === 0) return;
 
 	for (const filterset of maxBattleFilters) {
+		if (!isMaxBattleActive(station)) continue;
+
 		if (filterset.bosses === undefined && !filterset.isActive && !filterset.hasGmax) {
 			return filterset;
 		}
-
-		if (filterset.isActive && !isMaxBattleActive(station)) continue;
 
 		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
 
@@ -48,7 +48,7 @@ export function shouldDisplayStation(
 	if (stationFilter.stationPlain.enabled) return true;
 
 	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
-	if (maxBattleFilters.length === 0) return true;
+	if (maxBattleFilters.length === 0) return isMaxBattleActive(station);
 
 	return Boolean(matchMaxBattleFilterset(station, stationFilter));
 }

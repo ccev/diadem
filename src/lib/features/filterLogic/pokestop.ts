@@ -251,31 +251,10 @@ export function shouldDisplayContest(
 	if (contestFilters.length === 0) return true;
 
 	for (const contestFilter of contestFilters) {
-		if (
-			contestFilter.rankingStandard &&
-			contestFilter.rankingStandard !== data.showcase_ranking_standard
-		) {
-			return false;
-		}
-
-		if (
-			contestFilter.focus.pokemon_id &&
-			contestFilter.focus.pokemon_id !== data.showcase_pokemon_id
-		) {
-			return false;
-		}
-
-		if (contestFilter.focus.form && contestFilter.focus.form !== data.showcase_pokemon_form_id) {
-			return false;
-		}
-
-		if (
-			contestFilter.focus.type_id &&
-			contestFilter.focus.type_id !== data.showcase_pokemon_type_id
-		) {
-			return false;
-		}
+		if (contestFilter.rankingStandard !== data.showcase_ranking_standard) continue;
+		if (JSON.stringify(contestFilter.focus) !== JSON.stringify(data.contest_focus)) continue;
+		return true;
 	}
 
-	return true;
+	return false;
 }

@@ -292,22 +292,12 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			const contestValues: unknown[] = [];
 
 			for (const filterset of contestFilters) {
-				const contestFilterClauses = ["pokestop.showcase_expiry > UNIX_TIMESTAMP()"];
-
-				if (filterset.rankingStandard) {
-					contestFilterClauses.push("pokestop.showcase_ranking_standard = ?");
-					contestValues.push(filterset.rankingStandard);
-				}
-
-				if (filterset.focus.pokemon_id) {
-					contestFilterClauses.push("pokestop.showcase_pokemon_id = ?");
-					contestValues.push(filterset.focus.pokemon_id);
-				}
-
-				if (filterset.focus.type_id) {
-					contestFilterClauses.push("pokestop.showcase_pokemon_type_id = ?");
-					contestValues.push(filterset.focus.type_id);
-				}
+				const contestFilterClauses = [
+					"pokestop.showcase_expiry > UNIX_TIMESTAMP()",
+					"pokestop.showcase_ranking_standard = ?",
+					"pokestop.showcase_focus = ?"
+				];
+				contestValues.push(filterset.rankingStandard, JSON.stringify(filterset.focus));
 
 				contestClauses.push(`(${contestFilterClauses.join(" AND ")})`);
 			}

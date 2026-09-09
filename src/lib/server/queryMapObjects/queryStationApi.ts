@@ -7,11 +7,12 @@ import {
 	type GolbatStationResult,
 	type StationScanResponse
 } from "@/lib/server/api/golbatApi";
+import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
 import { buildStationDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { blobToString } from "@/lib/server/queryMapObjects/pokestopApiMapper";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
-import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { getLogger } from "@/lib/utils/logger";
 import { booleanPointInPolygon, point } from "@turf/turf";
@@ -34,11 +35,9 @@ export class ApiStationQuery extends StationQuery {
 		filter: FilterStation | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number,
-		context?: FeaturePermissionContext
+		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<StationData>>> {
 		const dnf = buildStationDnfFilters(filter);
-		if (dnf === null) return { data: [], examined: 0 };
 
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: StationScanResponse | undefined;
@@ -46,17 +45,13 @@ export class ApiStationQuery extends StationQuery {
 			result = await scanStations({
 				min: { latitude: bounds.minLat, longitude: bounds.minLon },
 				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-				limit: actualLimit + 1,
+				limit: getFortApiScanLimit(actualLimit + 1),
 				filters: dnf.length ? dnf : undefined
 			});
 		} catch (err) {
 			log.debug("Fort station scan failed, falling back to SQL: %s", err);
 		}
-		if (!result) return super.query(bounds, filter, polygon, since, limit);
-
-		if (result.limit_reached || result.stations.length > actualLimit) {
-			return { data: [], examined: actualLimit, limitReached: true };
-		}
+		if (!result || result.limit_reached) return super.query(bounds, filter, polygon, since, limit);
 
 		let examined = result.examined;
 		const data: MinMapObject<StationData>[] = [];
@@ -78,6 +73,6 @@ export class ApiStationQuery extends StationQuery {
 		} catch (err) {
 			log.debug("Fort station fetch failed, falling back to SQL: %s", err);
 		}
-		return station ? [mapStation(station)] : await super.querySingle(id);
+		return station ? [mapStation(station)] : super.querySingle(id);
 	}
 }

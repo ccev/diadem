@@ -8,51 +8,45 @@ import {
 	RewardType
 } from "@/lib/utils/pokestopUtils";
 
-// Superset guards: broad enough that a matching object can never be missed;
-// the local filter()/shouldDisplay* pass trims the excess. These are hardcoded
-// enumerations, not derived from the DNF schema — if Niantic ships new lure IDs
-// or quest reward types, extend the lists here. SQL expressed the equivalent
-// checks as EXISTS()-style predicates; upstream DNF has no exists-style field
-// yet, so these lists stand in for that.
 const ALL_RAID_LEVELS = Array.from({ length: 20 }, (_, i) => i + 1);
 const ALL_LURE_IDS = [501, 502, 503, 504, 505, 506];
 const ALL_QUEST_REWARD_TYPES = Object.values(RewardType).filter(
 	(v): v is number => typeof v === "number" && v > 0
 );
-// DNF ranges require a finite max — this must never be low enough to exclude a
-// real quest reward amount, so it's effectively "no upper bound" (int32 max).
-const AMOUNT_MAX = 2 ** 31 - 1;
+const INT16_MIN = -(2 ** 15);
+const INT16_MAX = 2 ** 15 - 1;
 
 function minMax(range: { min: number; max: number }) {
 	return {
-		min: Number.isFinite(range.min) ? range.min : 0,
-		max: Number.isFinite(range.max) ? range.max : AMOUNT_MAX
+		min: Math.max(INT16_MIN, Math.min(INT16_MAX, Number.isFinite(range.min) ? range.min : 0)),
+		max: Math.max(
+			INT16_MIN,
+			Math.min(INT16_MAX, Number.isFinite(range.max) ? range.max : INT16_MAX)
+		)
 	};
 }
 
-/** Returns [] = match all, clauses = send as filters, null = match nothing. */
-export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnfFilter[] | null {
+export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnfFilter[] {
 	if (!filter || filter.gymPlain.enabled || !filter.raid.enabled) return [];
 
 	const clauses: GolbatFortDnfFilter[] = [];
 	for (const filterset of filter.raid.filters.filter((f) => f.enabled)) {
-		// Mirrors queryGym.getFilterWhere: each SQL OR-branch is one clause, pushed
-		// unconditionally — the SQL "boss" branch doesn't fold in `levels` either.
-		// A clause with any raid_* field only matches gyms with an active raid.
 		if (filterset.show?.includes("egg")) clauses.push({ raid_pokemon_id: [{ pokemon_id: 0 }] });
 		if (filterset.show?.includes("boss")) {
-			// DNF can't express "raid_pokemon_id != 0" (hatched); any-active-raid is a
-			// proper superset of any-hatched-raid — local re-filter trims eggs back out.
 			clauses.push({ raid_level: ALL_RAID_LEVELS });
 		}
 		if (filterset.levels?.length) clauses.push({ raid_level: filterset.levels });
 		for (const boss of filterset.bosses ?? []) {
-			// temp_evolution_id is not a DNF field: match by id only, re-filter locally
-			clauses.push({ raid_pokemon_id: [{ pokemon_id: boss.pokemon_id }] });
+			const clause: GolbatFortDnfFilter = {
+				raid_pokemon_id: [{ pokemon_id: boss.pokemon_id, form: boss.form || undefined }]
+			};
+			if (boss.temp_evolution_id !== undefined) {
+				clause.raid_temp_evolution_id = [boss.temp_evolution_id];
+			}
+			clauses.push(clause);
 		}
 	}
 
-	// SQL equivalent had a bare "raid_end_timestamp > now" when no clauses exist
 	return clauses.length ? clauses : [{ raid_level: ALL_RAID_LEVELS }];
 }
 
@@ -71,7 +65,6 @@ export function buildPokestopDnfFilters(
 	if (filter.quest.enabled) {
 		const questFilters = filter.quest.filters.filter((f) => f.enabled);
 		if (!questFilters.length) {
-			// SQL fell back to "has any active quest"
 			clauses.push({ quest_reward_type: ALL_QUEST_REWARD_TYPES });
 		}
 		for (const filterset of questFilters) {
@@ -101,7 +94,6 @@ export function buildPokestopDnfFilters(
 				rewardClauses.push({
 					quest_reward_type: [RewardType.ITEM],
 					quest_reward_item_id: [Number(item.id)]
-					// exact amount match is not expressible as a range safely — local re-filter
 				});
 			for (const reward of filterset.megaResource ?? [])
 				rewardClauses.push({
@@ -117,7 +109,6 @@ export function buildPokestopDnfFilters(
 			if (rewardClauses.length) {
 				clauses.push(...rewardClauses);
 			} else {
-				// tasks-only filterset (title/target isn't a DNF field): any-quest superset
 				clauses.push({ quest_reward_type: ALL_QUEST_REWARD_TYPES });
 			}
 		}
@@ -144,21 +135,27 @@ export function buildPokestopDnfFilters(
 		}
 		for (const filterset of contestFilters) {
 			const clause: GolbatFortDnfFilter = { incident_display_type: [INCIDENT_DISPLAY_CONTEST] };
-			// ranking_standard is not a DNF field — local re-filter
-			if (filterset.focus.pokemon_id)
-				clause.contest_pokemon = [{ pokemon_id: filterset.focus.pokemon_id }];
-			if (filterset.focus.type_id) clause.contest_pokemon_type = [filterset.focus.type_id];
+			clause.contest_ranking_standard = [filterset.rankingStandard];
+			if (filterset.focus.type === "pokemon") {
+				clause.contest_pokemon = [
+					{
+						pokemon_id: filterset.focus.pokemon_id,
+						form: filterset.focus.pokemon_form || undefined
+					}
+				];
+			} else if (filterset.focus.type === "type") {
+				clause.contest_pokemon_type = [filterset.focus.pokemon_type_1];
+			} else if (filterset.focus.type === "buddy") {
+				clause.contest_focus = [filterset.focus];
+			}
 			clauses.push(clause);
 		}
 	}
 
-	// SQL equivalent: "1 = 0"
 	return clauses.length ? clauses : null;
 }
 
-export function buildStationDnfFilters(
-	filter: FilterStation | undefined
-): GolbatFortDnfFilter[] | null {
+export function buildStationDnfFilters(filter: FilterStation | undefined): GolbatFortDnfFilter[] {
 	if (!filter || filter.stationPlain.enabled || !filter.maxBattle.enabled) return [];
 
 	const clauses: GolbatFortDnfFilter[] = [];
@@ -168,16 +165,16 @@ export function buildStationDnfFilters(
 			continue;
 		}
 		if (filterset.hasGmax) {
-			clauses.push({ stationed_gmax: true });
+			clauses.push({ station_active: true, stationed_gmax: true });
 			continue;
 		}
 		for (const boss of filterset.bosses ?? []) {
-			// bread_mode is covered by battle_level in practice (gmax = level 6),
-			// and re-checked locally either way — push id only
-			clauses.push({ station_active: true, battle_pokemon: [{ pokemon_id: boss.pokemon_id }] });
+			clauses.push({
+				station_active: true,
+				battle_pokemon: [{ pokemon_id: boss.pokemon_id, form: boss.form || undefined }]
+			});
 		}
 	}
 
-	// SQL fallback: active battle with no boss constraint
 	return clauses.length ? clauses : [{ station_active: true }];
 }

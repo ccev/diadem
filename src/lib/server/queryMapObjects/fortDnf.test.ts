@@ -1,11 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { buildGymDnfFilters, buildPokestopDnfFilters, buildStationDnfFilters } from "./fortDnf";
 
-// pokestopUtils.ts (a pure-constants module we need RewardType/INCIDENT_DISPLAY_* from) also
-// imports several client-only Svelte state modules (for its display/label helper functions,
-// which fortDnf.ts never calls) that pull in SvelteKit's `$app/*` virtual modules and Svelte 5
-// runes — neither resolvable outside the full SvelteKit vite plugin, which isn't configured for
-// plain vitest. Stub pokestopUtils.ts's own non-pure direct imports so its module graph loads.
 vi.mock("@/lib/features/activeSearch.svelte", () => ({
 	getActiveSearch: () => undefined
 }));
@@ -58,14 +53,13 @@ describe("buildGymDnfFilters", () => {
 		} as any);
 		expect(result).toContainEqual({ raid_pokemon_id: [{ pokemon_id: 0 }] });
 		expect(result).toContainEqual({ raid_level: [5] });
-		// temp_evolution_id is not expressible — pokemon id alone (superset)
-		expect(result).toContainEqual({ raid_pokemon_id: [{ pokemon_id: 150 }] });
+		expect(result).toContainEqual({
+			raid_pokemon_id: [{ pokemon_id: 150 }],
+			raid_temp_evolution_id: [2]
+		});
 	});
 
 	it("keeps the boss clause a superset of the SQL branch even when levels are set", () => {
-		// SQL's "boss" OR-branch is unconditional (COALESCE(raid_pokemon_id, 0) != 0) —
-		// it does NOT fold in `levels`. A hatched level-3 boss must still match even
-		// when this filterset also restricts `levels` to [5].
 		const result = buildGymDnfFilters({
 			gymPlain: { enabled: false },
 			raid: {
@@ -139,7 +133,55 @@ describe("buildPokestopDnfFilters", () => {
 			contest: disabled
 		} as any);
 		expect(result).toEqual([
-			{ quest_reward_type: [3], quest_reward_amount: { min: 500, max: 2 ** 31 - 1 } }
+			{ quest_reward_type: [3], quest_reward_amount: { min: 500, max: 32767 } }
+		]);
+	});
+
+	it("clamps finite reward ranges to Golbat's int16 wire type", () => {
+		const result = buildPokestopDnfFilters({
+			enabled: true,
+			pokestopPlain: disabled,
+			lure: disabled,
+			quest: {
+				enabled: true,
+				filters: [{ enabled: true, xp: { min: -50000, max: 50000 } }]
+			},
+			invasion: disabled,
+			goldPokestop: disabled,
+			kecleon: disabled,
+			contest: disabled
+		} as any);
+		expect(result).toEqual([
+			{ quest_reward_type: [1], quest_reward_amount: { min: -32768, max: 32767 } }
+		]);
+	});
+
+	it("pushes showcase ranking and structured buddy focus", () => {
+		const result = buildPokestopDnfFilters({
+			enabled: true,
+			pokestopPlain: disabled,
+			lure: disabled,
+			quest: disabled,
+			invasion: disabled,
+			goldPokestop: disabled,
+			kecleon: disabled,
+			contest: {
+				enabled: true,
+				filters: [
+					{
+						enabled: true,
+						rankingStandard: 4,
+						focus: { type: "buddy", min_level: 2 }
+					}
+				]
+			}
+		} as any);
+		expect(result).toEqual([
+			{
+				incident_display_type: [9],
+				contest_ranking_standard: [4],
+				contest_focus: [{ type: "buddy", min_level: 2 }]
+			}
 		]);
 	});
 });
@@ -163,6 +205,6 @@ describe("buildStationDnfFilters", () => {
 			stationPlain: { enabled: false },
 			maxBattle: { enabled: true, filters: [{ enabled: true, hasGmax: true }] }
 		} as any);
-		expect(result).toEqual([{ stationed_gmax: true }]);
+		expect(result).toEqual([{ station_active: true, stationed_gmax: true }]);
 	});
 });

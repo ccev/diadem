@@ -1,4 +1,5 @@
 import type { MinMax } from "@/lib/features/filters/filtersets";
+import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
 
 export type GolbatPokemonSpecies = { id: number; form?: number };
 
@@ -19,15 +20,13 @@ export type GolbatPokemonQuery = {
 
 export type GolbatDnfId = { pokemon_id: number; form?: number };
 
-/** One DNF clause: conditions AND within, clauses OR across. Omitted field = no constraint. */
 export type GolbatFortDnfFilter = {
 	is_ar_scan_eligible?: boolean;
-	// gym
 	available_slots?: { min: number; max: number };
 	team_id?: number[];
 	raid_level?: number[];
 	raid_pokemon_id?: GolbatDnfId[];
-	// pokestop
+	raid_temp_evolution_id?: number[];
 	lure_id?: number[];
 	quest_reward_type?: number[];
 	quest_reward_amount?: { min: number; max: number };
@@ -37,7 +36,8 @@ export type GolbatFortDnfFilter = {
 	incident_character?: number[];
 	contest_pokemon?: GolbatDnfId[];
 	contest_pokemon_type?: number[];
-	// station
+	contest_focus?: { type: "buddy"; min_level: number }[];
+	contest_ranking_standard?: number[];
 	battle_level?: number[];
 	battle_pokemon?: GolbatDnfId[];
 	stationed_gmax?: boolean;
@@ -52,8 +52,20 @@ export type FortScanBody = {
 	with_incidents?: boolean;
 };
 
+export type GolbatStatus = {
+	features: { fort_in_memory: boolean };
+	limits: { max_fort_results: number };
+};
+
 export type FortAvailability = {
-	gyms: { raids: { raid_level: number; pokemon_id: number | null; form: number | null }[] };
+	gyms: {
+		raids: {
+			raid_level: number;
+			pokemon_id: number | null;
+			form: number | null;
+			temp_evolution_id: number;
+		}[];
+	};
 	pokestops: {
 		quests: {
 			with_ar: boolean;
@@ -68,7 +80,13 @@ export type FortAvailability = {
 		}[];
 		invasions: { character: number; display_type: number; confirmed: boolean }[];
 		lures: { lure_id: number }[];
-		showcases: { pokemon_id: number | null; form: number | null; type_id: number | null }[];
+		showcases: {
+			pokemon_id: number | null;
+			form: number | null;
+			type_id: number | null;
+			ranking_standard: number;
+			showcase_focus: ContestFocus | null;
+		}[];
 	};
 	stations: {
 		battles: { battle_level: number; pokemon_id: number | null; form: number | null }[];

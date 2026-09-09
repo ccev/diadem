@@ -7,10 +7,11 @@ import {
 	type GolbatGymResult,
 	type GymScanResponse
 } from "@/lib/server/api/golbatApi";
+import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
 import { buildGymDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
-import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import { getLogger } from "@/lib/utils/logger";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
@@ -26,8 +27,6 @@ function mapGym(g: GolbatGymResult): MinMapObject<GymData> {
 		deleted: deleted ? 1 : 0
 	} as MinMapObject<GymData>;
 
-	// Native JSON on the wire — inherited prepare() only parses the *_raw string
-	// variants, so normalize forms here and assign directly.
 	if (defenders) {
 		gym.defenders = defenders;
 		for (const defender of gym.defenders) {
@@ -45,11 +44,9 @@ export class ApiGymQuery extends GymQuery {
 		filter: FilterGym | undefined,
 		polygon: PermittedPolygon,
 		since?: number,
-		limit?: number,
-		context?: FeaturePermissionContext
+		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<GymData>>> {
 		const dnf = buildGymDnfFilters(filter);
-		if (dnf === null) return { data: [], examined: 0 };
 
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: GymScanResponse | undefined;
@@ -57,17 +54,13 @@ export class ApiGymQuery extends GymQuery {
 			result = await scanGyms({
 				min: { latitude: bounds.minLat, longitude: bounds.minLon },
 				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-				limit: actualLimit + 1,
+				limit: getFortApiScanLimit(actualLimit + 1),
 				filters: dnf.length ? dnf : undefined
 			});
 		} catch (err) {
 			log.debug("Fort gym scan failed, falling back to SQL: %s", err);
 		}
-		if (!result) return super.query(bounds, filter, polygon, since, limit);
-
-		if (result.limit_reached || result.gyms.length > actualLimit) {
-			return { data: [], examined: actualLimit, limitReached: true };
-		}
+		if (!result || result.limit_reached) return super.query(bounds, filter, polygon, since, limit);
 
 		let examined = result.examined;
 		const data: MinMapObject<GymData>[] = [];

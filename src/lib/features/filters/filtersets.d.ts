@@ -1,5 +1,6 @@
 import type { IconCategory } from "@/lib/features/filters/icons";
 import { m } from "@/lib/paraglide/messages";
+import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
 
 export type AnyFilterset =
@@ -108,14 +109,9 @@ export type FiltersetLure = BaseFilterset & {
 	items: number[];
 };
 
-// this is only used for search and therefore very simplified
 export type FiltersetContest = BaseFilterset & {
 	rankingStandard: number;
-	focus: {
-		pokemon_id?: number;
-		form?: number;
-		type_id?: number;
-	};
+	focus: ContestFocus;
 };
 
 export type FiltersetRoute = BaseFilterset & {};

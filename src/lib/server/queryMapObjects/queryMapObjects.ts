@@ -32,7 +32,6 @@ const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.TAPPABLE]: new TappableQuery()
 };
 
-// Used instead of the SQL classes while the Golbat fort API is detected (golbatFortApi.ts)
 const fortApiRegistry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.GYM]: new ApiGymQuery(),
 	[MapObjectType.POKESTOP]: new ApiPokestopQuery(),

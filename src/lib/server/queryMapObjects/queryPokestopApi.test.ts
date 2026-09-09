@@ -3,9 +3,6 @@ import { describe, expect, it } from "vitest";
 
 describe("mapPokestop", () => {
 	it("re-serializes native-JSON quest rewards to the SQL string shape", () => {
-		// Golbat's fort API sends quest_rewards as a real JSON array (#385 design),
-		// while the SQL rows carry a serialized string that parseQuestReward
-		// (JSON.parse + [0]) expects.
 		const mapped = mapPokestop({
 			id: "stop-1",
 			lat: 1,
@@ -25,7 +22,6 @@ describe("mapPokestop", () => {
 	});
 
 	it("handles both wire generations for showcase blobs", () => {
-		// newer Golbat sends native JSON, older Golbat a serialized string
 		const native = mapPokestop({
 			id: "s",
 			lat: 0,

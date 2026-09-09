@@ -118,11 +118,7 @@ export type ContestFocus =
 	| ContestFocusGeneration
 	| ContestFocusHatched
 	| ContestFocusTempEvo
-	| ContestFocusShiny
-	| QuestRewardPokemonIndividualStat
-	| QuestRewardLootTable
-	| QuestRewardFriendshipPoints
-	| QuestRewardTempEvoBranch;
+	| ContestFocusShiny;
 
 export type ContestFocusPokemon = {
 	type: "pokemon";
@@ -193,7 +189,10 @@ export type QuestReward =
 	| QuestRewardIncident
 	| QuestRewardPlayerAttribute
 	| QuestRewardEventBadge
-	| QuestRewardPokemonEgg;
+	| QuestRewardPokemonIndividualStat
+	| QuestRewardLootTable
+	| QuestRewardFriendshipPoints
+	| QuestRewardTempEvoBranch;
 
 export type QuestRewardExperience = {
 	type: RewardType.XP;
