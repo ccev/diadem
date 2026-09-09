@@ -1,0 +1,154 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { Server, ServerCredentials, status, type Metadata } from "@grpc/grpc-js";
+import { GolbatApiService, type FortScanRequest, type GolbatApiServer } from "./grpc/golbat_api";
+
+// golbatGrpc.ts reads the config object once at import and its fields per call, so mutating
+// this hoisted object after the server binds is enough to point the client at it.
+const golbatConfig = vi.hoisted(() => ({
+	url: "http://127.0.0.1:1",
+	secret: "topsecret",
+	grpc: "" as string | undefined
+}));
+vi.mock("@/lib/services/config/config.server", () => ({
+	getServerConfig: () => ({ golbat: golbatConfig })
+}));
+
+import { grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./golbatGrpc";
+
+let server: Server;
+let received: { metadata: Metadata; request: FortScanRequest } | undefined;
+let respondWith: "ok" | "unauthenticated" = "ok";
+
+const unimplemented = (_call: unknown, callback: (err: { code: status }) => void) =>
+	callback({ code: status.UNIMPLEMENTED });
+
+const fortBody = {
+	min: { latitude: 51.5, longitude: -0.2 },
+	max: { latitude: 51.6, longitude: -0.1 },
+	limit: 11,
+	filters: [{ raid_level: [5] }]
+};
+
+beforeAll(async () => {
+	server = new Server();
+	const impl: GolbatApiServer = {
+		scanGyms(call, callback) {
+			received = { metadata: call.metadata, request: call.request };
+			if (respondWith === "unauthenticated") {
+				callback({ code: status.UNAUTHENTICATED, details: "invalid or missing api secret" });
+				return;
+			}
+			callback(null, {
+				gyms: [
+					{
+						id: "g1",
+						lat: 1.5,
+						lon: 2.5,
+						updated: 100,
+						deleted: false,
+						first_seen_timestamp: 1,
+						team_id: 2,
+						available_slots: 4,
+						defenders_json: '[{"pokemon_id":25,"form":0}]',
+						rsvps_json: "[]",
+						guarding_pokemon_display_json: "{}",
+						cell_id: "5221390000000000000"
+					}
+				],
+				examined: 1,
+				skipped: 0,
+				total: 1,
+				limit_reached: false
+			});
+		},
+		scanPokestops: unimplemented,
+		scanStations: unimplemented,
+		scanForts: unimplemented,
+		scanPokemon: unimplemented,
+		getPokemon: unimplemented
+	};
+	server.addService(GolbatApiService, impl);
+	const port = await new Promise<number>((resolve, reject) =>
+		server.bindAsync("127.0.0.1:0", ServerCredentials.createInsecure(), (err, p) =>
+			err ? reject(err) : resolve(p)
+		)
+	);
+	golbatConfig.grpc = `127.0.0.1:${port}`;
+});
+
+afterAll(() => {
+	server.forceShutdown();
+});
+
+beforeEach(() => {
+	received = undefined;
+	respondWith = "ok";
+});
+
+describe("golbatGrpc", () => {
+	it("is enabled when the grpc target is configured", () => {
+		expect(isGrpcEnabled()).toBe(true);
+	});
+
+	it("sends the secret as x-golbat-secret metadata and maps the response", async () => {
+		const res = await grpcScanGyms(fortBody);
+
+		expect(received?.metadata.get("x-golbat-secret")).toEqual(["topsecret"]);
+		expect(received?.request.min).toEqual({ lat: 51.5, lon: -0.2 });
+		expect(received?.request.max).toEqual({ lat: 51.6, lon: -0.1 });
+		expect(received?.request.limit).toBe(11);
+		expect(received?.request.with_incidents).toBe(false);
+		expect(received?.request.filters).toHaveLength(1);
+		expect(received?.request.filters?.[0].raid_level).toEqual([5]);
+		expect(received?.request.filters?.[0].team_id).toEqual([]);
+
+		expect(res.examined).toBe(1);
+		expect(res.limit_reached).toBe(false);
+		expect(res.gyms).toHaveLength(1);
+		expect(res.gyms[0].id).toBe("g1");
+		expect(res.gyms[0].available_slots).toBe(4);
+		expect(res.gyms[0].defenders).toEqual([{ pokemon_id: 25, form: 0 }]);
+		expect(res.gyms[0].rsvps).toEqual([]);
+		expect(res.gyms[0]).not.toHaveProperty("cell_id");
+	});
+
+	it("rejects with the grpc status code on error", async () => {
+		respondWith = "unauthenticated";
+		await expect(grpcScanGyms(fortBody)).rejects.toMatchObject({ code: status.UNAUTHENTICATED });
+	});
+});
+
+describe("scanViaGrpcOrHttp", () => {
+	it("returns the grpc result without touching http when grpc succeeds", async () => {
+		const http = vi.fn();
+		const res = await scanViaGrpcOrHttp("gym", fortBody, grpcScanGyms, http);
+		expect(res?.gyms[0].id).toBe("g1");
+		expect(http).not.toHaveBeenCalled();
+	});
+
+	it("falls back to http with the same body when grpc fails", async () => {
+		respondWith = "unauthenticated";
+		const http = vi
+			.fn()
+			.mockResolvedValue({ gyms: [], examined: 0, skipped: 0, total: 0, limit_reached: false });
+		const res = await scanViaGrpcOrHttp("gym", fortBody, grpcScanGyms, http);
+		expect(http).toHaveBeenCalledWith(fortBody);
+		expect(res).toEqual({ gyms: [], examined: 0, skipped: 0, total: 0, limit_reached: false });
+	});
+
+	it("goes straight to http when grpc is not configured", async () => {
+		const saved = golbatConfig.grpc;
+		golbatConfig.grpc = undefined;
+		try {
+			const grpc = vi.fn();
+			const http = vi.fn().mockResolvedValue(undefined);
+			expect(isGrpcEnabled()).toBe(false);
+			const res = await scanViaGrpcOrHttp("gym", fortBody, grpc, http);
+			expect(grpc).not.toHaveBeenCalled();
+			expect(http).toHaveBeenCalledWith(fortBody);
+			expect(res).toBeUndefined();
+		} finally {
+			golbatConfig.grpc = saved;
+		}
+	});
+});
