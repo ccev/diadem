@@ -4,24 +4,25 @@
 
 **Goal:** Serve gym, pokestop, station and pokemon map scans from Golbat's `GolbatApi` gRPC service when `server.golbat.grpc` is configured, falling back to the existing HTTP path (and SQL for forts) on any error.
 
-**Architecture:** A ts-proto generated grpc-js client (`src/lib/server/api/grpc/golbat_api.ts`) is wrapped by `golbatGrpc.ts`, which exposes four promise-returning scan functions that accept and return exactly the types the HTTP functions in `golbatApi.ts` use. Pure request/response mapping lives in `golbatGrpcMapping.ts`. Each query class gains one "try gRPC first" step in front of its existing HTTP call.
+**Architecture:** A ts-proto generated grpc-js client (`src/lib/server/api/grpc/golbat_api.ts`) is wrapped by `golbatGrpc.ts`, which exposes four promise-returning scan functions that accept and return exactly the types the HTTP functions in `golbatApi.ts` use, plus one `scanViaGrpcOrHttp` helper that owns the gRPC-then-HTTP choice. Pure request/response mapping lives in `golbatGrpcMapping.ts`. Each query class swaps its direct HTTP call for the helper.
 
-**Tech Stack:** SvelteKit server code (TypeScript strict), `@grpc/grpc-js`, `@bufbuild/protobuf` (wire reader used by generated code), `ts-proto` + `@bufbuild/buf` for codegen, vitest.
+**Tech Stack:** SvelteKit server code (TypeScript 6 strict), `@grpc/grpc-js`, `@bufbuild/protobuf` (wire reader used by generated code), `ts-proto` + `@bufbuild/buf` for codegen, vitest 5, pnpm 11, Node 24.
 
 **Spec:** `docs/superpowers/specs/2026-09-09-golbat-grpc-api-design.md`. Read it before starting.
 
 ## Global Constraints
 
-- Package manager is pnpm 9.15.9. If `pnpm` is not on PATH use `corepack pnpm`.
-- Node 22+. Tests run with `pnpm test` (vitest, node environment, `@` alias to `src`).
-- `pnpm test`, `pnpm run check` (svelte-check) and `pnpm run lint` (prettier) must pass at the end of every task.
-- Formatting: tabs, double quotes, prettier config in repo. Run `pnpm run format` before committing if unsure.
+- Package manager is pnpm 11.25.0 via `packageManager`. If `pnpm` is not on PATH, run it as `corepack pnpm` (a shim script named `pnpm` containing `exec corepack pnpm "$@"` on PATH also works and stops pnpm's own deps check from failing with ENOENT).
+- Node 24. Tests: `pnpm test` (vitest 5, node environment, `@` alias to `src`). Run a single file with `pnpm test <path>`.
+- **Gates for every task:** `pnpm test` fully green. `pnpm run check` and `pnpm run lint` each have pre-existing failures on this branch (15 type errors and 4 unformatted files, all in UI components under `src/components` and `src/lib/drawer`, `src/lib/ui`, plus `src/lib/utils/numberFormat.ts`; none in files this work touches). The gate is therefore: `pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'` prints nothing, and `pnpm exec prettier --check <every file you created or modified>` passes. Do not fix the pre-existing failures.
+- If `pnpm run check` complains about missing paraglide messages (`Property '...' does not exist on type 'typeof import(".../paraglide/messages")'`), regenerate them first: `pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide` (generated, git-ignored).
+- Formatting: tabs, double quotes, prettier config in repo. Run `pnpm exec prettier --write <files>` on files you touch before committing.
 - ts-proto options are fixed by the spec: `forceLong=number`, `useOptionals=all`, `snakeToCamel=false`, `useJsTypeOverride=true`, `outputServices=grpc-js`, `esModuleInterop=true`.
 - The generated file `src/lib/server/api/grpc/golbat_api.ts` is never hand-edited.
 - Logger API is `getLogger(name)` returning `{ debug, info, warning, error }`. There is no `warn`.
 - `golbatGrpcMapping.ts` must not import `@/lib/utils/pokemonUtils` at runtime (it drags in Svelte-only state and breaks vitest). Use `import type` only.
 - Commit messages: conventional prefix (`feat:`, `fix:`, `docs:`, `test:`, `chore:`), end with the attribution trailer given in the session.
-- Do not touch files unrelated to the task.
+- Do not touch files unrelated to the task. In particular do not modify `fortDnf.ts`, `pokestopApiMapper.ts`, `golbatFortApi.ts` or any existing test.
 
 ---
 
@@ -31,22 +32,19 @@
 |---|---|
 | `proto/golbat_api.proto` | Verbatim copy of Golbat `grpc/api.proto` at commit `8f10ee9`, plus a two-line provenance header |
 | `buf.gen.yaml` | ts-proto generation config |
-| `package.json` | new deps and the `grpc:generate` script |
+| `package.json`, `pnpm-lock.yaml` | new deps and the `grpc:generate` script |
 | `.prettierignore` | excludes the generated directory |
 | `src/lib/server/api/grpc/golbat_api.ts` | generated client, service definition, message codecs |
 | `src/lib/server/api/grpc/generated.test.ts` | smoke test that the generated codecs behave as the spec assumes |
 | `src/lib/services/config/configTypes.d.ts` | `golbat.grpc?: string` |
 | `src/lib/server/queryMapObjects/queries.d.ts` | `PokemonScanBody` type |
-| `src/lib/server/api/golbatApi.ts` | result types gain raw-string fields; `getMultiplePokemon` typed |
+| `src/lib/server/api/golbatApi.ts` | `getMultiplePokemon` typed; pokestop quest reward fields accept strings |
 | `src/lib/server/api/golbatGrpcMapping.ts` | pure request/response mapping + `describeGrpcError` |
 | `src/lib/server/api/golbatGrpcMapping.test.ts` | mapping unit tests |
-| `src/lib/server/api/golbatGrpc.ts` | channel, metadata, deadline, timing log, four scan functions |
+| `src/lib/server/api/golbatGrpc.ts` | channel, metadata, deadline, timing log, four scan functions, `scanViaGrpcOrHttp` |
 | `src/lib/server/api/golbatGrpc.test.ts` | in-process grpc-js server wire test |
-| `src/lib/server/queryMapObjects/queryPokestopApi.ts` | HTTP JSON fix + gRPC-first step |
-| `src/lib/server/queryMapObjects/queryPokestopApi.test.ts` | HTTP JSON fix test |
-| `src/lib/server/queryMapObjects/queryGymApi.ts` | gRPC-first step |
-| `src/lib/server/queryMapObjects/queryStationApi.ts` | gRPC-first step |
-| `src/lib/server/queryMapObjects/queryPokemon.ts` | gRPC-first step |
+| `src/lib/server/queryMapObjects/queryGymApi.ts`, `queryPokestopApi.ts`, `queryStationApi.ts` | call through `scanViaGrpcOrHttp` |
+| `src/lib/server/queryMapObjects/queryPokemon.ts` | call through `scanViaGrpcOrHttp` |
 | `config/config.example.toml`, `docs/src/content/docs/reference/configuration.md`, `CLAUDE.md` | documentation |
 
 ---
@@ -56,33 +54,31 @@
 **Files:**
 - Create: `proto/golbat_api.proto`
 - Create: `buf.gen.yaml`
-- Modify: `package.json` (dependencies, devDependencies, scripts)
+- Modify: `package.json` (dependencies, devDependencies, scripts), `pnpm-lock.yaml`
 - Modify: `.prettierignore`
 - Create (generated): `src/lib/server/api/grpc/golbat_api.ts`
 - Create: `src/lib/server/api/grpc/generated.test.ts`
 - Modify: `src/lib/services/config/configTypes.d.ts:140-145`
 
 **Interfaces:**
-- Produces: module `@/lib/server/api/grpc/golbat_api` exporting, among others, `GolbatApiClient` (class: `new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>)`), `GolbatApiService` (service definition for `server.addService`), `GolbatApiServer` (server implementation interface), and message interfaces + codecs `LatLon`, `IntRange`, `DnfId`, `FortDnfFilter`, `FortScanRequest`, `PokemonDnfFilter`, `PokemonScanRequest`, `PokemonScanResponse`, `Pokemon`, `PvpRankings`, `PvpEntry`, `Gym`, `GymScanResponse`, `Pokestop`, `PokestopScanResponse`, `Incident`, `Station`, `StationScanResponse`. Every message field is optional (`?: T | undefined`), snake_case, int64 as `number`, and the eight `jstype` fields as `string`.
+- Produces: module `@/lib/server/api/grpc/golbat_api` exporting `GolbatApiClient` (class: `new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>)`, unary methods `scanGyms(request, metadata, options, callback)` etc.), `GolbatApiService` (service definition for `server.addService`), `GolbatApiServer` (server implementation interface), and message interfaces + codecs `LatLon`, `IntRange`, `DnfId`, `FortDnfFilter`, `FortScanRequest`, `PokemonDnfFilter`, `PokemonScanRequest`, `PokemonScanResponse`, `Pokemon`, `PvpRankings`, `PvpEntry`, `Gym`, `GymScanResponse`, `Pokestop`, `PokestopScanResponse`, `Incident`, `Station`, `StationScanResponse`. Every message field is `?: T | undefined`, snake_case, int64 as `number`, and the eight `jstype` fields as `string`.
 - Produces: `ServerConfig.golbat.grpc?: string`.
 
 - [ ] **Step 1: Copy the proto from Golbat 8f10ee9 with a provenance header**
-
-Fetch the file (no local Golbat checkout is required):
 
 ```bash
 mkdir -p proto
 curl -fsSL https://raw.githubusercontent.com/UnownHash/Golbat/8f10ee9/grpc/api.proto -o proto/golbat_api.proto
 ```
 
-Then prepend these two lines (they go above `syntax = "proto3";`):
+Prepend these two lines above `syntax = "proto3";`:
 
 ```proto
 // Copied verbatim from UnownHash/Golbat grpc/api.proto at commit 8f10ee9 (branch feat/grpc-api).
 // Do not edit. Re-copy when Golbat changes it, then run `pnpm run grpc:generate` and commit both.
 ```
 
-Verify the copy is the annotated version:
+Verify:
 
 ```bash
 grep -c "jstype = JS_STRING" proto/golbat_api.proto
@@ -97,9 +93,9 @@ pnpm add @grpc/grpc-js@^1.14.4 @bufbuild/protobuf@^2.14.1
 pnpm add -D ts-proto@^2.12.3 @bufbuild/buf@^1.72.0
 ```
 
-If pnpm reports `Ignored build scripts: @bufbuild/buf`, add `"@bufbuild/buf"` to the `pnpm.onlyBuiltDependencies` array in `package.json` and run `pnpm install` again.
+If pnpm reports ignored build scripts for `@bufbuild/buf`, add `"@bufbuild/buf": true` under `allowBuilds` in `pnpm-workspace.yaml` and run `pnpm install` again.
 
-Add to `"scripts"` in `package.json`, after `"db:studio"`:
+Add to `"scripts"` in `package.json`, after the `"db:studio"` line:
 
 ```json
 "grpc:generate": "buf generate",
@@ -132,7 +128,7 @@ ls src/lib/server/api/grpc/
 
 Expected: `golbat_api.ts`.
 
-Append to `.prettierignore` under the `# Generated` heading (next to `src/lib/paraglide`):
+Append to `.prettierignore` under `# Generated`, after `project.inlang/cache`:
 
 ```
 src/lib/server/api/grpc
@@ -141,12 +137,12 @@ src/lib/server/api/grpc
 Sanity-check the generated file:
 
 ```bash
-grep -n "^import" src/lib/server/api/grpc/golbat_api.ts
-grep -n "  spawn_id?: string" src/lib/server/api/grpc/golbat_api.ts
+grep -n "^import\|^} from" src/lib/server/api/grpc/golbat_api.ts | head
+grep -c "  spawn_id?: string" src/lib/server/api/grpc/golbat_api.ts
 grep -n "export const GolbatApiClient" src/lib/server/api/grpc/golbat_api.ts
 ```
 
-Expected: imports from `@bufbuild/protobuf/wire` and `@grpc/grpc-js`; `spawn_id?: string | undefined;` present; `GolbatApiClient` exported.
+Expected: imports from `@bufbuild/protobuf/wire` and `@grpc/grpc-js`; count `1`; `GolbatApiClient` exported.
 
 - [ ] **Step 5: Write the smoke test**
 
@@ -210,17 +206,19 @@ In `src/lib/services/config/configTypes.d.ts`, change the `golbat` block of `Ser
 	};
 ```
 
-- [ ] **Step 8: Type-check and lint**
+- [ ] **Step 8: Gates**
 
-Run: `pnpm run check && pnpm run lint`
-Expected: both pass. If `check` reports errors inside `golbat_api.ts` about `Buffer`, confirm `@types/node` is installed (it is, `^18`) and that `tsconfig.json` extends `.svelte-kit/tsconfig.json`; re-run `pnpm run check` (it runs `svelte-kit sync` first).
+Run: `pnpm test && pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'; pnpm exec prettier --check buf.gen.yaml package.json .prettierignore src/lib/services/config/configTypes.d.ts src/lib/server/api/grpc/generated.test.ts`
+Expected: tests green, the grep prints nothing, prettier passes. If `check` reports errors inside `golbat_api.ts`, report them as a concern with the exact message (do not edit the generated file).
 
 - [ ] **Step 9: Commit**
 
 ```bash
-git add proto/golbat_api.proto buf.gen.yaml package.json pnpm-lock.yaml .prettierignore src/lib/server/api/grpc/ src/lib/services/config/configTypes.d.ts
+git add proto/golbat_api.proto buf.gen.yaml package.json pnpm-lock.yaml pnpm-workspace.yaml .prettierignore src/lib/server/api/grpc/ src/lib/services/config/configTypes.d.ts
 git commit -m "chore: generate golbat grpc client with ts-proto"
 ```
+
+(`pnpm-workspace.yaml` only if Step 2 changed it.)
 
 ---
 
@@ -228,7 +226,7 @@ git commit -m "chore: generate golbat grpc client with ts-proto"
 
 **Files:**
 - Modify: `src/lib/server/queryMapObjects/queries.d.ts` (append)
-- Modify: `src/lib/server/api/golbatApi.ts:20-44` (result types) and `:120-122` (`getMultiplePokemon`)
+- Modify: `src/lib/server/api/golbatApi.ts` (`GolbatPokestopResult` quest reward fields; `getMultiplePokemon` signature; import)
 - Create: `src/lib/server/api/golbatGrpcMapping.ts`
 - Create: `src/lib/server/api/golbatGrpcMapping.test.ts`
 
@@ -243,11 +241,11 @@ git commit -m "chore: generate golbat grpc client with ts-proto"
   	filters: GolbatPokemonQuery[];
   };
   ```
-- Produces in `golbatApi.ts`: `GolbatGymResult` gains `defenders_raw?: string; raw_rsvps?: string`; `GolbatPokestopResult` declares `quest_rewards`, `alternative_quest_rewards`, `showcase_focus`, `showcase_rankings` as `string | object | null | undefined`; `getMultiplePokemon(body: PokemonScanBody)`.
+- Produces in `golbatApi.ts`: `GolbatPokestopResult.quest_rewards?: object[] | string | null` and `alternative_quest_rewards?: object[] | string | null`; `getMultiplePokemon(body: PokemonScanBody)`.
 - Produces in `golbatGrpcMapping.ts`:
   ```ts
-  export function toFortScanRequest(body: FortScanBody): FortScanRequest
-  export function toPokemonScanRequest(body: PokemonScanBody): PokemonScanRequest
+  export function toFortScanRequest(body: FortScanBody): pb.FortScanRequest
+  export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanRequest
   export function fromGymScanResponse(res: pb.GymScanResponse): GymScanResponse
   export function fromPokestopScanResponse(res: pb.PokestopScanResponse): PokestopScanResponse
   export function fromStationScanResponse(res: pb.StationScanResponse): StationScanResponse
@@ -268,58 +266,29 @@ export type PokemonScanBody = {
 };
 ```
 
-- [ ] **Step 2: Widen the HTTP result types in `golbatApi.ts`**
+- [ ] **Step 2: Widen the pokestop quest reward fields and type `getMultiplePokemon`**
 
-Replace the `GolbatGymResult` and `GolbatPokestopResult` definitions with:
-
-```ts
-// Raw API records: like diadem's rows except the fields the mappers rename/reshape.
-export type GolbatGymResult = Omit<
-	MinMapObject<GymData>,
-	"availble_slots" | "defenders_raw" | "defenders" | "raw_rsvps" | "rsvps" | "deleted"
-> & {
-	available_slots?: number | null;
-	deleted: boolean;
-	defenders?: GymDefender[] | null; // HTTP: native JSON
-	rsvps?: Rsvp[] | null; // HTTP: native JSON
-	defenders_raw?: string; // gRPC: JSON text, parsed by GymQuery.prepare()
-	raw_rsvps?: string; // gRPC: JSON text, parsed by GymQuery.prepare()
-};
-
-export type GolbatIncidentResult = Omit<Incident, "confirmed"> & { confirmed: boolean };
-
-// HTTP emits the four JSON columns as native JSON, gRPC and SQL as JSON text.
-// mapPokestop normalises to text before PokestopQuery.prepare() parses them.
-export type GolbatPokestopResult = Omit<
-	MinMapObject<PokestopData>,
-	| "incident"
-	| "deleted"
-	| "quest_rewards"
-	| "alternative_quest_rewards"
-	| "showcase_focus"
-	| "showcase_rankings"
-> & {
-	deleted: boolean;
-	invasions?: GolbatIncidentResult[];
-	quest_rewards?: string | object | null;
-	alternative_quest_rewards?: string | object | null;
-	showcase_focus?: string | object | null;
-	showcase_rankings?: string | object | null;
-};
-```
-
-Change the import line at the top of `golbatApi.ts` from
+In `golbatApi.ts`, change the two lines in `GolbatPokestopResult`
 
 ```ts
-import type { FortAvailability, FortScanBody } from "@/lib/server/queryMapObjects/queries";
+	quest_rewards?: object[] | null;
+	alternative_quest_rewards?: object[] | null;
 ```
 
 to
 
 ```ts
+	quest_rewards?: object[] | string | null;
+	alternative_quest_rewards?: object[] | string | null;
+```
+
+Change the `queries` type import to include `PokemonScanBody`:
+
+```ts
 import type {
 	FortAvailability,
 	FortScanBody,
+	GolbatStatus,
 	PokemonScanBody
 } from "@/lib/server/queryMapObjects/queries";
 ```
@@ -327,15 +296,15 @@ import type {
 and change `getMultiplePokemon` to:
 
 ```ts
-export async function getMultiplePokemon(body: PokemonScanBody) {
-	return await callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
+export function getMultiplePokemon(body: PokemonScanBody) {
+	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
 }
 ```
 
-- [ ] **Step 3: Type-check**
+- [ ] **Step 3: Type-check the change**
 
-Run: `pnpm run check`
-Expected: passes. `queryPokemon.ts` builds a body literal that already matches `PokemonScanBody`.
+Run: `pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'`
+Expected: nothing. (`queryPokemon.ts` already builds a body literal matching `PokemonScanBody`; `pokestopApiMapper.ts` already accepts strings via `blobToString`.)
 
 - [ ] **Step 4: Write the failing mapping tests**
 
@@ -364,14 +333,28 @@ describe("toFortScanRequest", () => {
 		const req = toFortScanRequest({
 			...bounds,
 			limit: 501,
-			filters: [{ raid_level: [5], quest_reward_amount: { min: 1, max: 2147483647 } }],
+			filters: [
+				{
+					raid_level: [5],
+					quest_reward_amount: { min: 1, max: 500 },
+					contest_focus: [{ type: "buddy", min_level: 3 }],
+					contest_ranking_standard: [1]
+				}
+			],
 			with_incidents: true
 		});
 		expect(req).toEqual({
 			min: { lat: 51.5, lon: -0.2 },
 			max: { lat: 51.6, lon: -0.1 },
 			limit: 501,
-			filters: [{ raid_level: [5], quest_reward_amount: { min: 1, max: 2147483647 } }],
+			filters: [
+				{
+					raid_level: [5],
+					quest_reward_amount: { min: 1, max: 500 },
+					contest_focus: [{ type: "buddy", min_level: 3 }],
+					contest_ranking_standard: [1]
+				}
+			],
 			with_incidents: true
 		});
 	});
@@ -415,7 +398,7 @@ describe("toPokemonScanRequest", () => {
 });
 
 describe("fromGymScanResponse", () => {
-	it("renames json blobs to the SQL raw fields and drops unused ones", () => {
+	it("parses json blobs to the native fields the http api sends and drops unused ones", () => {
 		const res = fromGymScanResponse({
 			gyms: [
 				{
@@ -446,19 +429,20 @@ describe("fromGymScanResponse", () => {
 		expect(gym.id).toBe("g1");
 		expect(gym.available_slots).toBe(4);
 		expect(gym.deleted).toBe(false);
-		expect(gym.defenders_raw).toBe('[{"pokemon_id":25,"form":0}]');
-		expect(gym.raw_rsvps).toBe("[]");
+		expect(gym.defenders).toEqual([{ pokemon_id: 25, form: 0 }]);
+		expect(gym.rsvps).toEqual([]);
 		expect(gym).not.toHaveProperty("defenders_json");
 		expect(gym).not.toHaveProperty("rsvps_json");
 		expect(gym).not.toHaveProperty("guarding_pokemon_display_json");
 		expect(gym).not.toHaveProperty("cell_id");
 	});
 
-	it("leaves unset optionals undefined", () => {
+	it("leaves unset optionals undefined and defaults the envelope", () => {
 		const res = fromGymScanResponse({ gyms: [{ id: "g", lat: 0, lon: 0 }] });
-		expect(res.gyms[0].defenders_raw).toBeUndefined();
+		expect(res.gyms[0].defenders).toBeUndefined();
 		expect(res.gyms[0].raid_pokemon_id).toBeUndefined();
 		expect(res.examined).toBe(0);
+		expect(res.limit_reached).toBe(false);
 	});
 });
 
@@ -474,6 +458,7 @@ describe("fromPokestopScanResponse", () => {
 					deleted: false,
 					enabled: true,
 					lure_id: 501,
+					quest_pokemon_form_id: 61,
 					quest_rewards_json: '[{"type":7}]',
 					alternative_quest_rewards_json: '[{"type":3}]',
 					quest_conditions_json: "[]",
@@ -507,6 +492,7 @@ describe("fromPokestopScanResponse", () => {
 		expect(stop.showcase_rankings).toBe('{"total_entries":1}');
 		expect(stop.enabled).toBe(1);
 		expect(stop.lure_id).toBe(501);
+		expect(stop.quest_pokemon_form_id).toBe(61);
 		expect(stop.invasions?.[0].character).toBe(4);
 		expect(stop).not.toHaveProperty("quest_rewards_json");
 		expect(stop).not.toHaveProperty("quest_conditions_json");
@@ -514,9 +500,12 @@ describe("fromPokestopScanResponse", () => {
 		expect(stop).not.toHaveProperty("cell_id");
 	});
 
-	it("leaves enabled undefined when unset", () => {
-		const res = fromPokestopScanResponse({ pokestops: [{ id: "p", lat: 0, lon: 0 }] });
+	it("leaves enabled and invasions undefined when unset or empty", () => {
+		const res = fromPokestopScanResponse({
+			pokestops: [{ id: "p", lat: 0, lon: 0, invasions: [] }]
+		});
 		expect(res.pokestops[0].enabled).toBeUndefined();
+		expect(res.pokestops[0].invasions).toBeUndefined();
 	});
 });
 
@@ -533,6 +522,8 @@ describe("fromStationScanResponse", () => {
 					is_battle_available: true,
 					updated: 9,
 					battle_level: 6,
+					battle_start: 100,
+					battle_end: 200,
 					stationed_pokemon_json: '[{"pokemon_id":1,"form":0}]',
 					cell_id: "2",
 					battles: [{ bread_battle_seed: "1", battle_level: 6 }]
@@ -546,6 +537,7 @@ describe("fromStationScanResponse", () => {
 		expect(station.stationed_pokemon).toBe('[{"pokemon_id":1,"form":0}]');
 		expect(station.is_battle_available).toBe(true);
 		expect(station.battle_level).toBe(6);
+		expect(station.battle_start).toBe(100);
 		expect(station).not.toHaveProperty("stationed_pokemon_json");
 		expect(station).not.toHaveProperty("battles");
 		expect(station).not.toHaveProperty("cell_id");
@@ -554,6 +546,8 @@ describe("fromStationScanResponse", () => {
 
 describe("fromPokemonScanResponse", () => {
 	it("keys pvp by league, omits empty leagues, drops spawn_id and cell_id", () => {
+		const great = { pokemon: 26, form: 0, cap: 50, value: 1, level: 20, cp: 1490, percentage: 0.9, rank: 3 };
+		const ultra = { pokemon: 26, form: 0, cap: 51, value: 2, level: 40, cp: 2490, percentage: 0.8, rank: 7 };
 		const res = fromPokemonScanResponse({
 			pokemon: [
 				{
@@ -565,11 +559,7 @@ describe("fromPokemonScanResponse", () => {
 					pokemon_id: 25,
 					updated: 7,
 					iv: 82.2,
-					pvp: {
-						little: [],
-						great: [{ pokemon: 26, form: 0, cap: 50, value: 1, level: 20, cp: 1490, percentage: 0.9, rank: 3 }],
-						ultra: [{ pokemon: 26, form: 0, cap: 51, value: 2, level: 40, cp: 2490, percentage: 0.8, rank: 7 }]
-					}
+					pvp: { little: [], great: [great], ultra: [ultra] }
 				}
 			],
 			examined: 1,
@@ -582,10 +572,7 @@ describe("fromPokemonScanResponse", () => {
 		expect(mon.id).toBe("18446744073709551557");
 		expect(mon.pokemon_id).toBe(25);
 		expect(mon.iv).toBe(82.2);
-		expect(mon.pvp).toEqual({
-			great: [{ pokemon: 26, form: 0, cap: 50, value: 1, level: 20, cp: 1490, percentage: 0.9, rank: 3 }],
-			ultra: [{ pokemon: 26, form: 0, cap: 51, value: 2, level: 40, cp: 2490, percentage: 0.8, rank: 7 }]
-		});
+		expect(mon.pvp).toEqual({ great: [great], ultra: [ultra] });
 		expect(mon).not.toHaveProperty("spawn_id");
 		expect(mon).not.toHaveProperty("cell_id");
 	});
@@ -609,7 +596,10 @@ describe("describeGrpcError", () => {
 	});
 
 	it("adds the secret hint for UNAUTHENTICATED", () => {
-		const err = Object.assign(new Error("x"), { code: status.UNAUTHENTICATED, details: "invalid or missing api secret" });
+		const err = Object.assign(new Error("x"), {
+			code: status.UNAUTHENTICATED,
+			details: "invalid or missing api secret"
+		});
 		expect(describeGrpcError(err)).toBe(
 			"UNAUTHENTICATED: invalid or missing api secret (server.golbat.secret must match Golbat's api_secret)"
 		);
@@ -633,7 +623,6 @@ import { status, type ServiceError } from "@grpc/grpc-js";
 import type * as pb from "@/lib/server/api/grpc/golbat_api";
 import type {
 	GolbatGymResult,
-	GolbatIncidentResult,
 	GolbatPokestopResult,
 	GolbatStationResult,
 	GymScanResponse,
@@ -643,6 +632,7 @@ import type {
 } from "@/lib/server/api/golbatApi";
 import type { FortScanBody, PokemonScanBody } from "@/lib/server/queryMapObjects/queries";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import type { Incident } from "@/lib/types/mapObjectData/pokestop";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 
 // Pure conversions between the HTTP request/response shapes used throughout diadem and the
@@ -680,8 +670,9 @@ export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanReque
 function fromGym(g: pb.Gym): GolbatGymResult {
 	const { defenders_json, rsvps_json, guarding_pokemon_display_json, cell_id, ...rest } = g;
 	const gym = rest as GolbatGymResult;
-	if (defenders_json !== undefined) gym.defenders_raw = defenders_json;
-	if (rsvps_json !== undefined) gym.raw_rsvps = rsvps_json;
+	// Same native shape the HTTP API sends; mapGym/prepare() take it from there.
+	if (defenders_json !== undefined) gym.defenders = JSON.parse(defenders_json);
+	if (rsvps_json !== undefined) gym.rsvps = JSON.parse(rsvps_json);
 	return gym;
 }
 
@@ -691,7 +682,7 @@ export function fromGymScanResponse(res: pb.GymScanResponse): GymScanResponse {
 		examined: res.examined ?? 0,
 		skipped: res.skipped ?? 0,
 		total: res.total ?? 0,
-		limit_reached: res.limit_reached
+		limit_reached: res.limit_reached ?? false
 	};
 }
 
@@ -710,12 +701,13 @@ function fromPokestop(p: pb.Pokestop): GolbatPokestopResult {
 	} = p;
 	const stop = rest as GolbatPokestopResult;
 	if (enabled !== undefined) stop.enabled = enabled ? 1 : 0;
+	// JSON text, exactly what SQL delivers; mapPokestop's blobToString passes strings through.
 	if (quest_rewards_json !== undefined) stop.quest_rewards = quest_rewards_json;
 	if (alternative_quest_rewards_json !== undefined)
 		stop.alternative_quest_rewards = alternative_quest_rewards_json;
 	if (showcase_focus_json !== undefined) stop.showcase_focus = showcase_focus_json;
 	if (showcase_rankings_json !== undefined) stop.showcase_rankings = showcase_rankings_json;
-	if (invasions?.length) stop.invasions = invasions as GolbatIncidentResult[];
+	if (invasions?.length) stop.invasions = invasions as Incident[];
 	return stop;
 }
 
@@ -725,7 +717,7 @@ export function fromPokestopScanResponse(res: pb.PokestopScanResponse): Pokestop
 		examined: res.examined ?? 0,
 		skipped: res.skipped ?? 0,
 		total: res.total ?? 0,
-		limit_reached: res.limit_reached
+		limit_reached: res.limit_reached ?? false
 	};
 }
 
@@ -742,7 +734,7 @@ export function fromStationScanResponse(res: pb.StationScanResponse): StationSca
 		examined: res.examined ?? 0,
 		skipped: res.skipped ?? 0,
 		total: res.total ?? 0,
-		limit_reached: res.limit_reached
+		limit_reached: res.limit_reached ?? false
 	};
 }
 
@@ -763,7 +755,7 @@ export function fromPokemonScanResponse(res: pb.PokemonScanResponse): PokemonRes
 		examined: res.examined ?? 0,
 		skipped: res.skipped ?? 0,
 		total: res.total ?? 0,
-		limit_reached: res.limit_reached
+		limit_reached: res.limit_reached ?? false
 	};
 }
 
@@ -781,18 +773,18 @@ export function describeGrpcError(err: unknown): string {
 ```
 
 Notes for the implementer:
-- `rest as GolbatGymResult` is a plain assertion. If `pnpm run check` reports TS2352 ("neither type sufficiently overlaps") on one of the three fort casts, the error names the offending property; destructure it out like `enabled` is for pokestops and convert explicitly. Do not switch to `as unknown as`.
+- `rest as GolbatGymResult` (and the pokestop/station/pokemon casts) are plain assertions. If the type-check reports TS2352 ("neither type sufficiently overlaps") on one of them, the error names the offending property; destructure it out like `enabled` is for pokestops and convert explicitly. Do not switch to `as unknown as`.
 - `rankings.little` relies on `PokemonData["pvp"]` having keys `"little" | "great" | "ultra"` (the `League` enum's string values). If TS rejects the property name, write `rankings["little" as League.LITTLE]` with `import type { League } from "@/lib/utils/pokemonUtils"` (type-only import is fine).
 
 - [ ] **Step 7: Run the tests**
 
 Run: `pnpm test src/lib/server/api/golbatGrpcMapping.test.ts`
-Expected: all pass (14 tests).
+Expected: 14 passed.
 
-- [ ] **Step 8: Type-check, lint, full test run**
+- [ ] **Step 8: Gates**
 
-Run: `pnpm run check && pnpm run lint && pnpm test`
-Expected: all pass.
+Run: `pnpm test && pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'; pnpm exec prettier --check src/lib/server/queryMapObjects/queries.d.ts src/lib/server/api/golbatApi.ts src/lib/server/api/golbatGrpcMapping.ts src/lib/server/api/golbatGrpcMapping.test.ts`
+Expected: tests green, grep prints nothing, prettier passes.
 
 - [ ] **Step 9: Commit**
 
@@ -803,14 +795,14 @@ git commit -m "feat: map golbat grpc messages to the http scan types"
 
 ---
 
-### Task 3: gRPC client module with wire test
+### Task 3: gRPC client module, fallback helper, wire test
 
 **Files:**
 - Create: `src/lib/server/api/golbatGrpc.ts`
 - Create: `src/lib/server/api/golbatGrpc.test.ts`
 
 **Interfaces:**
-- Consumes: Task 1 generated client; Task 2 mapping functions; `getServerConfig().golbat.grpc` / `.secret`.
+- Consumes: Task 1 generated client; Task 2 mapping functions and `PokemonScanBody`; `getServerConfig().golbat.grpc` / `.secret`.
 - Produces:
   ```ts
   export function isGrpcEnabled(): boolean
@@ -818,8 +810,14 @@ git commit -m "feat: map golbat grpc messages to the http scan types"
   export function grpcScanPokestops(body: FortScanBody): Promise<PokestopScanResponse>
   export function grpcScanStations(body: FortScanBody): Promise<StationScanResponse>
   export function grpcScanPokemon(body: PokemonScanBody): Promise<PokemonResponse>
+  export function scanViaGrpcOrHttp<Body, Res>(
+  	name: string,
+  	body: Body,
+  	grpcScan: (body: Body) => Promise<Res>,
+  	httpScan: (body: Body) => Promise<Res | undefined>
+  ): Promise<Res | undefined>
   ```
-  All four reject with the grpc-js `ServiceError` (has `.code`) on failure.
+  The four scan functions reject with the grpc-js `ServiceError` (has `.code`) on failure. `scanViaGrpcOrHttp` never throws for gRPC errors (it logs and falls through); it does not catch `httpScan` errors.
 
 - [ ] **Step 1: Write the failing wire test**
 
@@ -834,8 +832,8 @@ import {
 	type GolbatApiServer
 } from "./grpc/golbat_api";
 
-// golbatGrpc.ts reads the config object once at import and its fields lazily per call, so
-// mutating this hoisted object after the server binds is enough to point the client at it.
+// golbatGrpc.ts reads the config object once at import and its fields per call, so mutating
+// this hoisted object after the server binds is enough to point the client at it.
 const golbatConfig = vi.hoisted(() => ({
 	url: "http://127.0.0.1:1",
 	secret: "topsecret",
@@ -845,7 +843,7 @@ vi.mock("@/lib/services/config/config.server", () => ({
 	getServerConfig: () => ({ golbat: golbatConfig })
 }));
 
-import { grpcScanGyms, isGrpcEnabled } from "./golbatGrpc";
+import { grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./golbatGrpc";
 
 let server: Server;
 let received: { metadata: Metadata; request: FortScanRequest } | undefined;
@@ -853,6 +851,13 @@ let respondWith: "ok" | "unauthenticated" = "ok";
 
 const unimplemented = (_call: unknown, callback: (err: { code: status }) => void) =>
 	callback({ code: status.UNIMPLEMENTED });
+
+const fortBody = {
+	min: { latitude: 51.5, longitude: -0.2 },
+	max: { latitude: 51.6, longitude: -0.1 },
+	limit: 11,
+	filters: [{ raid_level: [5] }]
+};
 
 beforeAll(async () => {
 	server = new Server();
@@ -916,68 +921,68 @@ describe("golbatGrpc", () => {
 	});
 
 	it("sends the secret as x-golbat-secret metadata and maps the response", async () => {
-		const res = await grpcScanGyms({
-			min: { latitude: 51.5, longitude: -0.2 },
-			max: { latitude: 51.6, longitude: -0.1 },
-			limit: 11,
-			filters: [{ raid_level: [5] }]
-		});
+		const res = await grpcScanGyms(fortBody);
 
 		expect(received?.metadata.get("x-golbat-secret")).toEqual(["topsecret"]);
-		expect(received?.request).toEqual({
-			min: { lat: 51.5, lon: -0.2 },
-			max: { lat: 51.6, lon: -0.1 },
-			limit: 11,
-			filters: [
-				{
-					raid_level: [5],
-					team_id: [],
-					raid_pokemon_id: [],
-					raid_temp_evolution_id: [],
-					lure_id: [],
-					quest_reward_type: [],
-					quest_reward_item_id: [],
-					quest_reward_pokemon: [],
-					incident_display_type: [],
-					incident_character: [],
-					contest_pokemon: [],
-					contest_pokemon_type: [],
-					contest_focus: [],
-					contest_ranking_standard: [],
-					battle_level: [],
-					battle_pokemon: []
-				}
-			],
-			with_incidents: false
-		});
+		expect(received?.request.min).toEqual({ lat: 51.5, lon: -0.2 });
+		expect(received?.request.max).toEqual({ lat: 51.6, lon: -0.1 });
+		expect(received?.request.limit).toBe(11);
+		expect(received?.request.with_incidents).toBe(false);
+		expect(received?.request.filters).toHaveLength(1);
+		expect(received?.request.filters?.[0].raid_level).toEqual([5]);
+		expect(received?.request.filters?.[0].team_id).toEqual([]);
 
 		expect(res.examined).toBe(1);
+		expect(res.limit_reached).toBe(false);
 		expect(res.gyms).toHaveLength(1);
 		expect(res.gyms[0].id).toBe("g1");
 		expect(res.gyms[0].available_slots).toBe(4);
-		expect(res.gyms[0].defenders_raw).toBe('[{"pokemon_id":25,"form":0}]');
-		expect(res.gyms[0].raw_rsvps).toBe("[]");
+		expect(res.gyms[0].defenders).toEqual([{ pokemon_id: 25, form: 0 }]);
+		expect(res.gyms[0].rsvps).toEqual([]);
 		expect(res.gyms[0]).not.toHaveProperty("cell_id");
 	});
 
 	it("rejects with the grpc status code on error", async () => {
 		respondWith = "unauthenticated";
-		await expect(
-			grpcScanGyms({
-				min: { latitude: 0, longitude: 0 },
-				max: { latitude: 1, longitude: 1 },
-				limit: 1
-			})
-		).rejects.toMatchObject({ code: status.UNAUTHENTICATED });
+		await expect(grpcScanGyms(fortBody)).rejects.toMatchObject({ code: status.UNAUTHENTICATED });
+	});
+});
+
+describe("scanViaGrpcOrHttp", () => {
+	it("returns the grpc result without touching http when grpc succeeds", async () => {
+		const http = vi.fn();
+		const res = await scanViaGrpcOrHttp("gym", fortBody, grpcScanGyms, http);
+		expect(res?.gyms[0].id).toBe("g1");
+		expect(http).not.toHaveBeenCalled();
+	});
+
+	it("falls back to http with the same body when grpc fails", async () => {
+		respondWith = "unauthenticated";
+		const http = vi.fn().mockResolvedValue({ gyms: [], examined: 0, skipped: 0, total: 0, limit_reached: false });
+		const res = await scanViaGrpcOrHttp("gym", fortBody, grpcScanGyms, http);
+		expect(http).toHaveBeenCalledWith(fortBody);
+		expect(res).toEqual({ gyms: [], examined: 0, skipped: 0, total: 0, limit_reached: false });
+	});
+
+	it("goes straight to http when grpc is not configured", async () => {
+		const saved = golbatConfig.grpc;
+		golbatConfig.grpc = undefined;
+		try {
+			const grpc = vi.fn();
+			const http = vi.fn().mockResolvedValue(undefined);
+			expect(isGrpcEnabled()).toBe(false);
+			const res = await scanViaGrpcOrHttp("gym", fortBody, grpc, http);
+			expect(grpc).not.toHaveBeenCalled();
+			expect(http).toHaveBeenCalledWith(fortBody);
+			expect(res).toBeUndefined();
+		} finally {
+			golbatConfig.grpc = saved;
+		}
 	});
 });
 ```
 
-Note on the `received.request` expectation: the server decodes the wire bytes with the generated
-`FortDnfFilter.decode`, whose base object initialises every `repeated` field to `[]`. That is why
-the empty lists appear. If the generated base object differs (check `createBaseFortDnfFilter` in
-`golbat_api.ts`), adjust the expected object to match; the point of the assertion is
-`raid_level: [5]`, the bounds and the limit.
+Note on `received.request.filters[0].team_id` being `[]`: the server decodes the wire bytes with the generated `FortDnfFilter.decode`, whose base object initialises every `repeated` field to `[]`. If that assertion alone fails, check `createBaseFortDnfFilter` in `golbat_api.ts` and adjust; `raid_level`, the bounds and the limit are the substantive assertions.
 
 - [ ] **Step 2: Run the test to confirm it fails**
 
@@ -996,6 +1001,7 @@ import type {
 	StationScanResponse
 } from "@/lib/server/api/golbatApi";
 import {
+	describeGrpcError,
 	fromGymScanResponse,
 	fromPokemonScanResponse,
 	fromPokestopScanResponse,
@@ -1078,17 +1084,37 @@ export async function grpcScanPokemon(body: PokemonScanBody): Promise<PokemonRes
 		await call("ScanPokemon", (c, md, opts, cb) => c.scanPokemon(request, md, opts, cb))
 	);
 }
+
+/**
+ * The one place that chooses the transport: gRPC when configured, falling through to HTTP on
+ * any gRPC error. HTTP errors are the caller's (they already fall back to SQL or 500).
+ */
+export async function scanViaGrpcOrHttp<Body, Res>(
+	name: string,
+	body: Body,
+	grpcScan: (body: Body) => Promise<Res>,
+	httpScan: (body: Body) => Promise<Res | undefined>
+): Promise<Res | undefined> {
+	if (isGrpcEnabled()) {
+		try {
+			return await grpcScan(body);
+		} catch (err) {
+			log.warning("[%s] gRPC scan failed (%s), falling back to HTTP", name, describeGrpcError(err));
+		}
+	}
+	return httpScan(body);
+}
 ```
 
 - [ ] **Step 4: Run the wire test**
 
 Run: `pnpm test src/lib/server/api/golbatGrpc.test.ts`
-Expected: 3 passed. If the `received.request` assertion fails only on the empty-list fields, fix the expectation as described in Step 1's note; if it fails on `raid_level`, the bounds or the limit, the mapping or the call is wrong.
+Expected: 6 passed, no stray warnings in the output (grpc-js logs nothing at default verbosity).
 
-- [ ] **Step 5: Type-check, lint, full tests**
+- [ ] **Step 5: Gates**
 
-Run: `pnpm run check && pnpm run lint && pnpm test`
-Expected: all pass.
+Run: `pnpm test && pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'; pnpm exec prettier --check src/lib/server/api/golbatGrpc.ts src/lib/server/api/golbatGrpc.test.ts`
+Expected: tests green, grep prints nothing, prettier passes.
 
 - [ ] **Step 6: Commit**
 
@@ -1099,278 +1125,144 @@ git commit -m "feat: golbat grpc client for fort and pokemon scans"
 
 ---
 
-### Task 4: Fix the HTTP pokestop mapper's native-JSON fields
+### Task 4: Route the three fort query classes through the helper
 
 **Files:**
-- Modify: `src/lib/server/queryMapObjects/queryPokestopApi.ts:20-28`
-- Create: `src/lib/server/queryMapObjects/queryPokestopApi.test.ts`
+- Modify: `src/lib/server/queryMapObjects/queryGymApi.ts` (imports; `query()` lines 41-50)
+- Modify: `src/lib/server/queryMapObjects/queryPokestopApi.ts` (imports; `query()` lines 34-45)
+- Modify: `src/lib/server/queryMapObjects/queryStationApi.ts` (imports; `query()` lines 51-60)
 
 **Interfaces:**
-- Consumes: `GolbatPokestopResult` from Task 2 (four JSON fields typed `string | object | null | undefined`).
-- Produces: `export function mapPokestop(p: GolbatPokestopResult): MinMapObject<PokestopData>` (was module-private; exported for the test).
+- Consumes: `scanViaGrpcOrHttp`, `grpcScanGyms`, `grpcScanPokestops`, `grpcScanStations` from Task 3.
+- Produces: no new exports. Behaviour with `grpc` unset is unchanged; the existing `fortAdapters.test.ts` (which spies on the `golbatApi` scan functions) must keep passing untouched.
 
-- [ ] **Step 1: Write the failing test**
-
-`src/lib/server/queryMapObjects/queryPokestopApi.test.ts`:
-
-```ts
-import { describe, expect, it, vi } from "vitest";
-
-// queryPokestopApi.ts extends PokestopQuery, which reaches the MySQL pool, Svelte state and
-// SvelteKit virtual modules at import. Stub every runtime import except the module under test.
-vi.mock("@/lib/server/queryMapObjects/queryPokestop", () => ({
-	PokestopQuery: class {}
-}));
-vi.mock("@/lib/server/api/golbatApi", () => ({}));
-vi.mock("@/lib/server/api/golbatGrpc", () => ({ isGrpcEnabled: () => false }));
-vi.mock("@/lib/server/api/golbatGrpcMapping", () => ({ describeGrpcError: String }));
-vi.mock("@/lib/server/queryMapObjects/fortDnf", () => ({
-	buildPokestopDnfFilters: () => []
-}));
-vi.mock("@/lib/utils/logger", () => ({
-	getLogger: () => ({ debug() {}, info() {}, warning() {}, error() {} })
-}));
-
-import { mapPokestop } from "./queryPokestopApi";
-
-const base = { id: "p1", lat: 1, lon: 2, updated: 1, deleted: false } as const;
-
-describe("mapPokestop", () => {
-	it("stringifies native-JSON quest and showcase fields from the HTTP API", () => {
-		const stop = mapPokestop({
-			...base,
-			quest_rewards: [{ type: 7, info: { pokemon_id: 25 } }],
-			alternative_quest_rewards: [{ type: 3, info: { amount: 500 } }],
-			showcase_focus: { type: "pokemon", pokemon_id: 1 },
-			showcase_rankings: { total_entries: 2 }
-		} as any);
-		expect(stop.quest_rewards).toBe('[{"type":7,"info":{"pokemon_id":25}}]');
-		expect(stop.alternative_quest_rewards).toBe('[{"type":3,"info":{"amount":500}}]');
-		expect(stop.showcase_focus).toBe('{"type":"pokemon","pokemon_id":1}');
-		expect(stop.showcase_rankings).toBe('{"total_entries":2}');
-		expect(JSON.parse(stop.quest_rewards!)[0].type).toBe(7);
-	});
-
-	it("passes string fields through unchanged and leaves null/undefined absent", () => {
-		const stop = mapPokestop({
-			...base,
-			quest_rewards: '[{"type":7}]',
-			alternative_quest_rewards: null,
-			showcase_focus: undefined
-		} as any);
-		expect(stop.quest_rewards).toBe('[{"type":7}]');
-		expect(stop.alternative_quest_rewards).toBeUndefined();
-		expect(stop.showcase_focus).toBeUndefined();
-		expect(stop.showcase_rankings).toBeUndefined();
-	});
-
-	it("converts deleted to a number and invasions to incident", () => {
-		const stop = mapPokestop({
-			...base,
-			deleted: true,
-			invasions: [{ id: "i", pokestop_id: "p1", display_type: 1, style: 0, character: 4, start: 1, expiration: 2, confirmed: true, updated: 1 }]
-		} as any);
-		expect(stop.deleted).toBe(1);
-		expect(stop.incident).toHaveLength(1);
-		expect(stop.incident[0].character).toBe(4);
-		expect(stop).not.toHaveProperty("invasions");
-	});
-});
-```
-
-The `golbatGrpc` and `golbatGrpcMapping` mocks are inert until Task 5 adds those imports; vitest ignores mocks of modules that are never imported, so this test keeps passing after Task 5.
-
-- [ ] **Step 2: Run the test to confirm it fails**
-
-Run: `pnpm test src/lib/server/queryMapObjects/queryPokestopApi.test.ts`
-Expected: FAIL, `mapPokestop` is not exported (SyntaxError or "does not provide an export named").
-
-- [ ] **Step 3: Export and fix `mapPokestop`**
-
-Replace the `mapPokestop` function in `queryPokestopApi.ts` with:
-
-```ts
-// HTTP emits these four as native JSON, SQL and gRPC as JSON text. prepare() and
-// parseQuestReward JSON.parse them, so hand them text either way.
-const asJsonText = (value: unknown) =>
-	value == null ? undefined : typeof value === "string" ? value : JSON.stringify(value);
-
-export function mapPokestop(p: GolbatPokestopResult): MinMapObject<PokestopData> {
-	const {
-		deleted,
-		invasions,
-		quest_rewards,
-		alternative_quest_rewards,
-		showcase_focus,
-		showcase_rankings,
-		...rest
-	} = p;
-	return {
-		...rest,
-		deleted: deleted ? 1 : 0,
-		incident: (invasions ?? []).map((i): Incident => ({ ...i })),
-		quest_rewards: asJsonText(quest_rewards),
-		alternative_quest_rewards: asJsonText(alternative_quest_rewards),
-		showcase_focus: asJsonText(showcase_focus),
-		showcase_rankings: asJsonText(showcase_rankings)
-	} as MinMapObject<PokestopData>;
-}
-```
-
-- [ ] **Step 4: Run the test**
-
-Run: `pnpm test src/lib/server/queryMapObjects/queryPokestopApi.test.ts`
-Expected: 3 passed.
-
-- [ ] **Step 5: Type-check, lint, full tests**
-
-Run: `pnpm run check && pnpm run lint && pnpm test`
-Expected: all pass.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add src/lib/server/queryMapObjects/queryPokestopApi.ts src/lib/server/queryMapObjects/queryPokestopApi.test.ts
-git commit -m "fix: hand prepare() json text for http fort api pokestop quest and showcase fields"
-```
-
----
-
-### Task 5: gRPC-first step in the three fort query classes
-
-**Files:**
-- Modify: `src/lib/server/queryMapObjects/queryGymApi.ts:42-84`
-- Modify: `src/lib/server/queryMapObjects/queryPokestopApi.ts` (the `query` method)
-- Modify: `src/lib/server/queryMapObjects/queryStationApi.ts` (the `query` method)
-
-**Interfaces:**
-- Consumes: `isGrpcEnabled`, `grpcScanGyms`, `grpcScanPokestops`, `grpcScanStations` from Task 3; `describeGrpcError` from Task 2; `FortScanBody` type.
-- Produces: no new exports. Behaviour: gRPC → HTTP → SQL.
-
-No new unit test: the classes wrap MySQL-backed base classes and the transport functions are each tested in isolation. Verification is the type-check plus the existing test suite, then the manual run in Task 7.
+No new test: the transport choice is tested in Task 3 and the classes' HTTP behaviour in the existing `fortAdapters.test.ts`. The diff is one call replaced per class.
 
 - [ ] **Step 1: Gym**
 
-In `queryGymApi.ts`, add imports:
+In `queryGymApi.ts`, add the import:
 
 ```ts
-import { grpcScanGyms, isGrpcEnabled } from "@/lib/server/api/golbatGrpc";
-import { describeGrpcError } from "@/lib/server/api/golbatGrpcMapping";
-import type { FortScanBody } from "@/lib/server/queryMapObjects/queries";
+import { grpcScanGyms, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 ```
 
-Replace the block from `const actualLimit = ...` through `if (!result) return super.query(...)` in `query()` with:
+Replace, inside `query()`,
 
 ```ts
-		const actualLimit = Math.min(limit ?? this.limit, this.limit);
-		const body: FortScanBody = {
-			min: { latitude: bounds.minLat, longitude: bounds.minLon },
-			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-			limit: actualLimit + 1,
-			filters: dnf.length ? dnf : undefined
-		};
-
-		let result: GymScanResponse | undefined;
-		if (isGrpcEnabled()) {
-			try {
-				result = await grpcScanGyms(body);
-			} catch (err) {
-				log.warning("gRPC gym scan failed (%s), falling back to HTTP", describeGrpcError(err));
-			}
-		}
-		if (!result) {
-			try {
-				result = await scanGyms(body);
-			} catch (err) {
-				log.debug("Fort gym scan failed, falling back to SQL: %s", err);
-			}
-		}
-		if (!result) return super.query(bounds, filter, polygon, since, limit);
+		try {
+			result = await scanGyms({
+				min: { latitude: bounds.minLat, longitude: bounds.minLon },
+				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+				limit: getFortApiScanLimit(actualLimit + 1),
+				filters: buildGymDnfFilters(filter)
+			});
+		} catch (err) {
 ```
+
+with
+
+```ts
+		try {
+			result = await scanViaGrpcOrHttp(
+				"gym",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: buildGymDnfFilters(filter)
+				},
+				grpcScanGyms,
+				scanGyms
+			);
+		} catch (err) {
+```
+
+Everything else in the file stays as it is (`scanGyms` remains imported and used).
 
 - [ ] **Step 2: Pokestop**
 
-In `queryPokestopApi.ts`, add imports:
+In `queryPokestopApi.ts`, add the import:
 
 ```ts
-import { grpcScanPokestops, isGrpcEnabled } from "@/lib/server/api/golbatGrpc";
-import { describeGrpcError } from "@/lib/server/api/golbatGrpcMapping";
-import type { FortScanBody } from "@/lib/server/queryMapObjects/queries";
+import { grpcScanPokestops, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 ```
 
-Replace the equivalent block in `query()` with:
+Replace, inside `query()`,
 
 ```ts
-		const actualLimit = Math.min(limit ?? this.limit, this.limit);
-		const body: FortScanBody = {
-			min: { latitude: bounds.minLat, longitude: bounds.minLon },
-			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-			limit: actualLimit + 1,
-			filters: dnf.length ? dnf : undefined,
-			with_incidents: true
-		};
+		try {
+			result = await scanPokestops({
+				min: { latitude: bounds.minLat, longitude: bounds.minLon },
+				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+				limit: getFortApiScanLimit(actualLimit + 1),
+				filters: dnf,
+				with_incidents: true
+			});
+		} catch (err) {
+```
 
-		let result: PokestopScanResponse | undefined;
-		if (isGrpcEnabled()) {
-			try {
-				result = await grpcScanPokestops(body);
-			} catch (err) {
-				log.warning("gRPC pokestop scan failed (%s), falling back to HTTP", describeGrpcError(err));
-			}
-		}
-		if (!result) {
-			try {
-				result = await scanPokestops(body);
-			} catch (err) {
-				log.debug("Fort pokestop scan failed, falling back to SQL: %s", err);
-			}
-		}
-		if (!result) return super.query(bounds, filter, polygon, since, limit);
+with
+
+```ts
+		try {
+			result = await scanViaGrpcOrHttp(
+				"pokestop",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: dnf,
+					with_incidents: true
+				},
+				grpcScanPokestops,
+				scanPokestops
+			);
+		} catch (err) {
 ```
 
 - [ ] **Step 3: Station**
 
-In `queryStationApi.ts`, add imports:
+In `queryStationApi.ts`, add the import:
 
 ```ts
-import { grpcScanStations, isGrpcEnabled } from "@/lib/server/api/golbatGrpc";
-import { describeGrpcError } from "@/lib/server/api/golbatGrpcMapping";
-import type { FortScanBody } from "@/lib/server/queryMapObjects/queries";
+import { grpcScanStations, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 ```
 
-Replace the equivalent block in `query()` with:
+Replace, inside `query()`,
 
 ```ts
-		const actualLimit = Math.min(limit ?? this.limit, this.limit);
-		const body: FortScanBody = {
-			min: { latitude: bounds.minLat, longitude: bounds.minLon },
-			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-			limit: actualLimit + 1,
-			filters: dnf.length ? dnf : undefined
-		};
-
-		let result: StationScanResponse | undefined;
-		if (isGrpcEnabled()) {
-			try {
-				result = await grpcScanStations(body);
-			} catch (err) {
-				log.warning("gRPC station scan failed (%s), falling back to HTTP", describeGrpcError(err));
-			}
-		}
-		if (!result) {
-			try {
-				result = await scanStations(body);
-			} catch (err) {
-				log.debug("Fort station scan failed, falling back to SQL: %s", err);
-			}
-		}
-		if (!result) return super.query(bounds, filter, polygon, since, limit);
+		try {
+			result = await scanStations({
+				min: { latitude: bounds.minLat, longitude: bounds.minLon },
+				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+				limit: getFortApiScanLimit(actualLimit + 1),
+				filters: buildStationDnfFilters(filter)
+			});
+		} catch (err) {
 ```
 
-- [ ] **Step 4: Type-check, lint, full tests**
+with
 
-Run: `pnpm run check && pnpm run lint && pnpm test`
-Expected: all pass. The `queryPokestopApi.test.ts` mocks from Task 4 cover the new imports.
+```ts
+		try {
+			result = await scanViaGrpcOrHttp(
+				"station",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: buildStationDnfFilters(filter)
+				},
+				grpcScanStations,
+				scanStations
+			);
+		} catch (err) {
+```
+
+- [ ] **Step 4: Gates**
+
+Run: `pnpm test && pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'; pnpm exec prettier --check src/lib/server/queryMapObjects/queryGymApi.ts src/lib/server/queryMapObjects/queryPokestopApi.ts src/lib/server/queryMapObjects/queryStationApi.ts`
+Expected: tests green including `fortAdapters.test.ts`, grep prints nothing, prettier passes. If a type error names the body literal, the literal no longer matches `FortScanBody`; compare against `queries.d.ts` rather than loosening types.
 
 - [ ] **Step 5: Commit**
 
@@ -1381,26 +1273,24 @@ git commit -m "feat: fort map scans via golbat grpc with http and sql fallback"
 
 ---
 
-### Task 6: gRPC-first step in the pokemon query
+### Task 5: Route the pokemon query through the helper
 
 **Files:**
-- Modify: `src/lib/server/queryMapObjects/queryPokemon.ts:27-46` (imports and the top of `query()`)
+- Modify: `src/lib/server/queryMapObjects/queryPokemon.ts` (imports; `query()` lines 40-47)
 
 **Interfaces:**
-- Consumes: `isGrpcEnabled`, `grpcScanPokemon` from Task 3; `describeGrpcError` from Task 2; `PokemonScanBody` from Task 2.
+- Consumes: `scanViaGrpcOrHttp`, `grpcScanPokemon` from Task 3; `PokemonScanBody` from Task 2.
 - Produces: no new exports. Behaviour: gRPC → HTTP → `error(500)`.
 
 - [ ] **Step 1: Edit `queryPokemon.ts`**
 
-Add imports:
+Add the import:
 
 ```ts
-import { grpcScanPokemon, isGrpcEnabled } from "@/lib/server/api/golbatGrpc";
-import { describeGrpcError } from "@/lib/server/api/golbatGrpcMapping";
-import { getLogger } from "@/lib/utils/logger";
+import { grpcScanPokemon, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 ```
 
-Extend the existing `queries` type import to include `PokemonScanBody`:
+Extend the `queries` type import:
 
 ```ts
 import type {
@@ -1408,12 +1298,6 @@ import type {
 	GolbatPokemonSpecies,
 	PokemonScanBody
 } from "@/lib/server/queryMapObjects/queries";
-```
-
-Add after the imports:
-
-```ts
-const log = getLogger("query:pokemon");
 ```
 
 In `query()`, replace
@@ -1439,33 +1323,15 @@ with
 			filters: golbatQueries
 		};
 
-		let result: PokemonResponse | undefined;
-		if (isGrpcEnabled()) {
-			try {
-				result = await grpcScanPokemon(body);
-			} catch (err) {
-				log.warning("gRPC pokemon scan failed (%s), falling back to HTTP", describeGrpcError(err));
-			}
-		}
-		if (!result) result = await getMultiplePokemon(body);
-```
-
-and extend the `golbatApi` import to bring in the type:
-
-```ts
-import {
-	getMultiplePokemon,
-	getSinglePokemon,
-	type PokemonResponse
-} from "@/lib/server/api/golbatApi";
+		const result = await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
 ```
 
 The rest of `query()` (`if (result) { ... } error(500);`) is unchanged.
 
-- [ ] **Step 2: Type-check, lint, full tests**
+- [ ] **Step 2: Gates**
 
-Run: `pnpm run check && pnpm run lint && pnpm test`
-Expected: all pass.
+Run: `pnpm test && pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|proto)/'; pnpm exec prettier --check src/lib/server/queryMapObjects/queryPokemon.ts`
+Expected: tests green, grep prints nothing, prettier passes.
 
 - [ ] **Step 3: Commit**
 
@@ -1476,12 +1342,12 @@ git commit -m "feat: pokemon map scans via golbat grpc with http fallback"
 
 ---
 
-### Task 7: Documentation, config example, manual verification
+### Task 6: Documentation, config example, manual verification
 
 **Files:**
-- Modify: `config/config.example.toml:5-8`
-- Modify: `docs/src/content/docs/reference/configuration.md` (the `server.golbat` section, lines ~26-41)
-- Modify: `CLAUDE.md` (Commands list; Source Organization)
+- Modify: `config/config.example.toml:5-10`
+- Modify: `docs/src/content/docs/reference/configuration.md:26-43`
+- Modify: `CLAUDE.md` (Commands list after line 17; Source Organization after line 52)
 
 - [ ] **Step 1: Config example**
 
@@ -1493,13 +1359,14 @@ url = "http://127.0.0.1:9001"
 secret = ""
 # Optional. Golbat's grpc_port target. When set, map scans use gRPC (same secret), falling back to HTTP.
 # grpc = "127.0.0.1:50001"
-```
 
-Keep the `defaultNestName` line and comment that follow it unchanged.
+# This can be configured in Fletchling. Match the string to its config
+defaultNestName = "Unknown Nest"
+```
 
 - [ ] **Step 2: Configuration reference**
 
-In `docs/src/content/docs/reference/configuration.md`, change the `server.golbat` code block and key list to:
+In `docs/src/content/docs/reference/configuration.md`, replace the `server.golbat` section (from `## \`server.golbat\`` up to, not including, `## \`server.dragonite\``) with:
 
 ````markdown
 ## `server.golbat`
@@ -1514,27 +1381,30 @@ defaultNestName = "Unknown Nest"
 
 - `url`: Golbat base URL, must be accessible to Diadem's server
 - `secret`: Must match your configured Golbat secret
-- `grpc`: Optional. Golbat's gRPC target (`host:port`, see below)
+- `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
 - `defaultNestName`: The default nest name, as configured in Fletchling
-````
 
-Then, after the existing "Golbat fort API (optional, recommended)" subsection, add:
+### Golbat Fort API
 
-````markdown
-### Golbat gRPC API (optional)
+It's recommended to enable in-memory forts in Golbat
+(Golbat Config -> `fort_in_memory = true` + optional `preload = true`).
+Diadem will then serve pokestops, gyms and stations from Golbat direclty, instead of having to go through the database.
+
+### Golbat gRPC API
 
 When your Golbat serves the `GolbatApi` gRPC service (Golbat `feat/grpc-api` or later, with `grpc_port` set in Golbat's config), set `grpc` to that `host:port`. Diadem then runs gym, pokéstop, station and pokémon map scans over gRPC with protobuf encoding, which is markedly cheaper than the JSON HTTP API on large responses. The same `secret` is sent as the `x-golbat-secret` metadata, so no extra Golbat configuration is needed beyond `grpc_port`.
 
-Gym, pokéstop and station scans still require the fort API detection above (`fort_in_memory = true`); gRPC only changes the transport. By-id lookups, search and availability stay on HTTP.
+Gym, pokéstop and station scans still require in-memory forts as above; gRPC only changes the transport. By-id lookups, search and availability stay on HTTP.
 
 If a gRPC call fails for any reason (Golbat down, wrong secret, `fort_in_memory` off, timeout), Diadem logs a warning and falls back to the HTTP API for that request, and for forts to SQL after that, so the map keeps working. Unset `grpc` to compare against the HTTP path; per-request timings are logged at debug level on both transports.
 
 The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
+
 ````
 
 - [ ] **Step 3: CLAUDE.md**
 
-In the Commands list, after the `db:studio` line, add:
+In the Commands list, after the `- **DB studio:** \`pnpm run db:studio\`` line, add:
 
 ```markdown
 - **Regenerate gRPC client:** `pnpm run grpc:generate` — after updating `proto/golbat_api.proto` from Golbat's `grpc/api.proto`; commit the regenerated `src/lib/server/api/grpc/golbat_api.ts`
@@ -1546,10 +1416,10 @@ In Source Organization, after the `src/lib/server/` line, add:
 - `src/lib/server/api/grpc/` — ts-proto generated Golbat gRPC client (never hand-edit); `golbatGrpc.ts` wraps it, `golbatGrpcMapping.ts` converts to/from the HTTP scan types
 ```
 
-- [ ] **Step 4: Lint and commit**
+- [ ] **Step 4: Gates and commit**
 
-Run: `pnpm run lint`
-Expected: passes (markdown is prettier-ignored; the toml example is not linted).
+Run: `pnpm test && pnpm exec prettier --check config/config.example.toml`
+Expected: green (markdown is prettier-ignored).
 
 ```bash
 git add config/config.example.toml docs/src/content/docs/reference/configuration.md CLAUDE.md
@@ -1571,6 +1441,6 @@ Requires a Golbat built from `feat/grpc-api` (8f10ee9 or later) with `grpc_port`
 
 ## Self-review
 
-**Spec coverage:** §2 config → Task 1 step 7 and Task 7. §3 codegen, options, deps, jstype → Task 1. §4 client, deadline, metadata, timing log → Task 3. §5.1/§5.2 mapping incl. dropped fields and pvp keys → Task 2. §6 query classes and fallback chain → Tasks 5, 6. §7 HTTP pokestop fix → Task 4. §8 error rendering incl. auth hint → Task 2 (`describeGrpcError`), used in Tasks 5, 6. §9 tests: generated smoke (Task 1), mapping unit (Task 2), wire incl. metadata and error code (Task 3), HTTP fix (Task 4), manual (Task 7). §10 docs → Task 7.
+**Spec coverage:** §2 config → Task 1 step 7, Task 6. §3 codegen, options, deps, jstype → Task 1. §4 client, deadline, metadata, timing log, `scanViaGrpcOrHttp` → Task 3. §5.1/§5.2 mapping incl. gym JSON.parse, pokestop strings, dropped fields, pvp keys, envelope defaults → Task 2. §6 query classes → Tasks 4, 5. §7 error rendering incl. auth hint → Task 2 (`describeGrpcError`), used by Task 3's helper. §8 tests: generated smoke (Task 1), mapping unit (Task 2), wire incl. metadata, error code and helper fallback (Task 3), manual (Task 6). §9 docs → Task 6.
 
-**Type consistency:** `PokemonScanBody` defined in Task 2 step 1, used in Tasks 2, 3, 6. `FortScanBody` pre-exists in `queries.d.ts`. `GymScanResponse`/`PokestopScanResponse`/`StationScanResponse`/`PokemonResponse` pre-exist in `golbatApi.ts` and are the return types in Tasks 2 and 3. `describeGrpcError` lives in `golbatGrpcMapping.ts` (Task 2) and is imported from there in Tasks 4 (mock), 5, 6. Logger method is `warning` everywhere.
+**Type consistency:** `PokemonScanBody` defined in Task 2 step 1, used in Tasks 2, 3, 5. `FortScanBody` pre-exists. `GymScanResponse` etc. pre-exist in `golbatApi.ts` with required `limit_reached: boolean`, which the Task 2 mappers default to `false`. `scanViaGrpcOrHttp` signature identical in Task 3 code, Task 3 interfaces, Tasks 4 and 5 call sites. Logger method is `warning`. `describeGrpcError` lives in `golbatGrpcMapping.ts` and is only imported by `golbatGrpc.ts`.
