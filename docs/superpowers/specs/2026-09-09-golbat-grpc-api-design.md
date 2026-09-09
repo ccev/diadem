@@ -58,7 +58,7 @@ grpc = "127.0.0.1:50001"   # optional; Golbat's grpc_port
 | Generator config | `buf.gen.yaml` at repo root |
 | Script | `pnpm run grpc:generate` → `buf generate` |
 | Generated output | `src/lib/server/api/grpc/golbat_api.ts`, committed, listed in `.prettierignore` |
-| Runtime deps | `@grpc/grpc-js`, `protobufjs` (minimal reader used by the generated code), `long` |
+| Runtime deps | `@grpc/grpc-js`, `@bufbuild/protobuf` (ts-proto 2.x generates against its `wire` reader/writer) |
 | Dev deps | `ts-proto`, `@bufbuild/buf` (ships the `buf` binary; no system `protoc`) |
 
 ts-proto options, all required:
@@ -112,9 +112,10 @@ New `src/lib/server/api/golbatGrpc.ts`, sibling of `golbatApi.ts`.
 
 ## 5. Mapping
 
-Mapping lives in `golbatGrpc.ts` (or a `golbatGrpcMapping.ts` sibling if it grows past a screen)
-as pure functions so they can be unit tested without a channel. The query classes see one record
-shape regardless of transport.
+Mapping lives in `golbatGrpcMapping.ts`, a sibling of `golbatGrpc.ts`, as pure functions with
+no config or channel dependency so they unit test in isolation. It must not import
+`pokemonUtils` at runtime (that module pulls in Svelte-only state); League keys are written as
+their literal strings. The query classes see one record shape regardless of transport.
 
 ### 5.1 Requests
 
@@ -300,11 +301,15 @@ modules pulled in by `pokestopUtils`. Config is mocked per test via `vi.mock` of
 | `.prettierignore` | generated file |
 | `src/lib/server/api/grpc/golbat_api.ts` | generated |
 | `src/lib/services/config/configTypes.d.ts` | `golbat.grpc?` |
-| `src/lib/server/api/golbatGrpc.ts` | new: client, four calls, mapping, `describeGrpcError` |
+| `src/lib/server/api/golbatGrpc.ts` | new: client, four calls |
+| `src/lib/server/api/golbatGrpcMapping.ts` | new: request/response mapping, `describeGrpcError` |
 | `src/lib/server/api/golbatApi.ts` | result types gain raw-string fields (§5.2, §7) |
 | `src/lib/server/queryMapObjects/queryGymApi.ts` | gRPC-first step |
 | `src/lib/server/queryMapObjects/queryPokestopApi.ts` | gRPC-first step, §7 fix |
 | `src/lib/server/queryMapObjects/queryStationApi.ts` | gRPC-first step |
 | `src/lib/server/queryMapObjects/queryPokemon.ts` | gRPC-first step |
-| `src/lib/server/api/golbatGrpc.test.ts` | unit + wire tests |
+| `src/lib/server/api/grpc/generated.test.ts` | smoke test of the generated encoder/decoder |
+| `src/lib/server/api/golbatGrpcMapping.test.ts` | mapping unit tests |
+| `src/lib/server/api/golbatGrpc.test.ts` | wire test |
+| `src/lib/server/queryMapObjects/queryPokestopApi.test.ts` | §7 fix |
 | `config/config.example.toml`, docs, `CLAUDE.md` | §10 |
