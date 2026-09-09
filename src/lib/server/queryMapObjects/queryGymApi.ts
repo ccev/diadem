@@ -14,28 +14,19 @@ import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import { getLogger } from "@/lib/utils/logger";
-import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import { booleanPointInPolygon, point } from "@turf/turf";
 
 const log = getLogger("query:gym-api");
 
 function mapGym(g: GolbatGymResult): MinMapObject<GymData> {
 	const { available_slots, deleted, defenders, rsvps, ...rest } = g;
-	const gym = {
+	return {
 		...rest,
 		availble_slots: available_slots ?? undefined,
-		deleted: deleted ? 1 : 0
-	} as MinMapObject<GymData>;
-
-	if (defenders) {
-		gym.defenders = defenders;
-		for (const defender of gym.defenders) {
-			defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
-		}
-	}
-	if (rsvps) gym.rsvps = rsvps;
-
-	return gym;
+		deleted: deleted ? 1 : 0,
+		defenders: defenders ?? undefined,
+		rsvps: rsvps ?? undefined
+	};
 }
 
 export class ApiGymQuery extends GymQuery {
@@ -46,8 +37,6 @@ export class ApiGymQuery extends GymQuery {
 		since?: number,
 		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<GymData>>> {
-		const dnf = buildGymDnfFilters(filter);
-
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: GymScanResponse | undefined;
 		try {
@@ -55,7 +44,7 @@ export class ApiGymQuery extends GymQuery {
 				min: { latitude: bounds.minLat, longitude: bounds.minLon },
 				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 				limit: getFortApiScanLimit(actualLimit + 1),
-				filters: dnf.length ? dnf : undefined
+				filters: buildGymDnfFilters(filter)
 			});
 		} catch (err) {
 			log.debug("Fort gym scan failed, falling back to SQL: %s", err);

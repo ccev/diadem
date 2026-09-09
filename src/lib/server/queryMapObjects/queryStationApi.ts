@@ -20,13 +20,22 @@ import { booleanPointInPolygon, point } from "@turf/turf";
 const log = getLogger("query:station-api");
 
 function mapStation(s: GolbatStationResult): MinMapObject<StationData> {
-	const { is_inactive, is_battle_available, stationed_pokemon, ...rest } = s;
+	const {
+		is_inactive,
+		is_battle_available,
+		stationed_pokemon,
+		// API-only fields are not covered by inherited permission stripping.
+		battles,
+		battle_start,
+		battle_end,
+		...rest
+	} = s;
 	return {
 		...rest,
 		is_inactive: is_inactive ? 1 : 0,
 		is_battle_available: is_battle_available ? 1 : 0,
 		raw_stationed_pokemon: blobToString(stationed_pokemon)
-	} as MinMapObject<StationData>;
+	};
 }
 
 export class ApiStationQuery extends StationQuery {
@@ -37,8 +46,6 @@ export class ApiStationQuery extends StationQuery {
 		since?: number,
 		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<StationData>>> {
-		const dnf = buildStationDnfFilters(filter);
-
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: StationScanResponse | undefined;
 		try {
@@ -46,7 +53,7 @@ export class ApiStationQuery extends StationQuery {
 				min: { latitude: bounds.minLat, longitude: bounds.minLon },
 				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 				limit: getFortApiScanLimit(actualLimit + 1),
-				filters: dnf.length ? dnf : undefined
+				filters: buildStationDnfFilters(filter)
 			});
 		} catch (err) {
 			log.debug("Fort station scan failed, falling back to SQL: %s", err);

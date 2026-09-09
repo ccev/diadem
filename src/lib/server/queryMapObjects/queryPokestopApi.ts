@@ -37,7 +37,7 @@ export class ApiPokestopQuery extends PokestopQuery {
 				min: { latitude: bounds.minLat, longitude: bounds.minLon },
 				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 				limit: getFortApiScanLimit(actualLimit + 1),
-				filters: dnf.length ? dnf : undefined,
+				filters: dnf,
 				with_incidents: true
 			});
 		} catch (err) {

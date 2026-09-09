@@ -8,6 +8,7 @@ import {
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { Incident, PokestopData, QuestData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
+import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
 import {
 	getActivePokestopFilter,
 	hasFortActiveLure,
@@ -250,10 +251,17 @@ export function shouldDisplayContest(
 	const contestFilters = pokestopFilters.contest.filters.filter((f) => f.enabled);
 	if (contestFilters.length === 0) return true;
 
+	const focus: Record<string, unknown> = data.contest_focus ?? {};
 	for (const contestFilter of contestFilters) {
 		if (contestFilter.rankingStandard !== data.showcase_ranking_standard) continue;
-		if (JSON.stringify(contestFilter.focus) !== JSON.stringify(data.contest_focus)) continue;
-		return true;
+		let filterFocus = contestFilter.focus;
+		if (filterFocus.type === "pokemon") {
+			filterFocus = {
+				...filterFocus,
+				pokemon_form: getNormalizedForm(filterFocus.pokemon_id, filterFocus.pokemon_form ?? 0)
+			};
+		}
+		if (Object.entries(filterFocus).every(([key, value]) => focus[key] === value)) return true;
 	}
 
 	return false;

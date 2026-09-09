@@ -1,16 +1,24 @@
+import type { GolbatPokestopResult } from "@/lib/server/api/golbatApi";
 import { mapPokestop } from "@/lib/server/queryMapObjects/pokestopApiMapper";
 import { describe, expect, it } from "vitest";
+
+const pokestop = {
+	id: "stop-1",
+	lat: 1,
+	lon: 2,
+	deleted: false,
+	updated: 100,
+	first_seen_timestamp: 50,
+	quests: []
+} satisfies GolbatPokestopResult;
 
 describe("mapPokestop", () => {
 	it("re-serializes native-JSON quest rewards to the SQL string shape", () => {
 		const mapped = mapPokestop({
-			id: "stop-1",
-			lat: 1,
-			lon: 2,
-			deleted: false,
+			...pokestop,
 			quest_rewards: [{ type: 3, info: { amount: 500 } }],
 			alternative_quest_rewards: [{ type: 2, info: { item_id: 1, amount: 3 } }]
-		} as never);
+		});
 
 		expect(typeof mapped.quest_rewards).toBe("string");
 		expect(JSON.parse(mapped.quest_rewards!)[0]).toEqual({ type: 3, info: { amount: 500 } });
@@ -23,13 +31,10 @@ describe("mapPokestop", () => {
 
 	it("handles both wire generations for showcase blobs", () => {
 		const native = mapPokestop({
-			id: "s",
-			lat: 0,
-			lon: 0,
-			deleted: false,
+			...pokestop,
 			showcase_focus: { type: "pokemon", pokemon_id: 25 },
 			showcase_rankings: { total_entries: 3, contest_entries: [] }
-		} as never);
+		});
 		expect(JSON.parse(native.showcase_focus!)).toEqual({ type: "pokemon", pokemon_id: 25 });
 		expect(JSON.parse(native.showcase_rankings!)).toEqual({
 			total_entries: 3,
@@ -37,25 +42,30 @@ describe("mapPokestop", () => {
 		});
 
 		const legacy = mapPokestop({
-			id: "s",
-			lat: 0,
-			lon: 0,
-			deleted: false,
+			...pokestop,
 			showcase_focus: '{"type":"pokemon","pokemon_id":25}'
-		} as never);
+		});
 		expect(legacy.showcase_focus).toBe('{"type":"pokemon","pokemon_id":25}');
 	});
 
 	it("leaves absent quest rewards undefined", () => {
 		const mapped = mapPokestop({
-			id: "stop-2",
-			lat: 0,
-			lon: 0,
-			deleted: false,
+			...pokestop,
 			quest_rewards: null
-		} as never);
+		});
 
 		expect(mapped.quest_rewards).toBeUndefined();
 		expect(mapped.alternative_quest_rewards).toBeUndefined();
+	});
+
+	it("omits API-only quest form fields", () => {
+		const mapped = mapPokestop({
+			...pokestop,
+			quest_pokemon_form_id: 61,
+			alternative_quest_pokemon_form_id: 62
+		});
+
+		expect(mapped).not.toHaveProperty("quest_pokemon_form_id");
+		expect(mapped).not.toHaveProperty("alternative_quest_pokemon_form_id");
 	});
 });

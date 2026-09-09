@@ -38,9 +38,9 @@ defaultNestName = "Unknown Nest"
 
 ### Golbat Fort API
 
-Diadem automatically uses Golbat's fort API when `/api/status` reports `fort_in_memory = true`.
-Enable `fort_in_memory` in Golbat and optionally enable `preload` to warm the cache at startup.
-Versions without the status endpoint continue using SQL.
+It's recommended to enable in-memory forts in Golbat
+(Golbat Config -> `fort_in_memory = true` + optional `preload = true`).
+Diadem will then serve pokestops, gyms and stations from Golbat direclty, instead of having to go through the database.
 
 ## `server.dragonite`
 

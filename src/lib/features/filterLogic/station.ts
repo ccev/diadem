@@ -2,6 +2,7 @@ import type { FilterStation } from "@/lib/features/filters/filters";
 import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { StationData } from "@/lib/types/mapObjectData/station";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveStationFilter, isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 export function matchMaxBattleFilterset(
@@ -14,11 +15,11 @@ export function matchMaxBattleFilterset(
 	if (maxBattleFilters.length === 0) return;
 
 	for (const filterset of maxBattleFilters) {
-		if (!isMaxBattleActive(station)) continue;
-
 		if (filterset.bosses === undefined && !filterset.isActive && !filterset.hasGmax) {
 			return filterset;
 		}
+
+		if (filterset.isActive && !isMaxBattleActive(station)) continue;
 
 		if (filterset.hasGmax && (station.total_stationed_gmax ?? 0) === 0) continue;
 
@@ -46,9 +47,16 @@ export function shouldDisplayStation(
 
 	if (!stationFilter.enabled) return false;
 	if (stationFilter.stationPlain.enabled) return true;
+	if (
+		!stationFilter.maxBattle.enabled ||
+		station.is_inactive ||
+		!station.is_battle_available ||
+		(station.end_time ?? 0) <= currentTimestamp()
+	)
+		return false;
 
 	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
-	if (maxBattleFilters.length === 0) return isMaxBattleActive(station);
+	if (maxBattleFilters.length === 0) return true;
 
 	return Boolean(matchMaxBattleFilterset(station, stationFilter));
 }

@@ -43,17 +43,27 @@ export type GolbatPokestopResult = Omit<
 	invasions?: Incident[];
 	quest_rewards?: object[] | null;
 	alternative_quest_rewards?: object[] | null;
+	quest_pokemon_form_id?: number | null;
+	alternative_quest_pokemon_form_id?: number | null;
 	showcase_focus?: object | string | null;
 	showcase_rankings?: object | string | null;
 };
 
 export type GolbatStationResult = Omit<
 	MinMapObject<StationData>,
-	"is_inactive" | "is_battle_available" | "stationed_pokemon" | "raw_stationed_pokemon"
+	| "is_inactive"
+	| "is_battle_available"
+	| "stationed_pokemon"
+	| "raw_stationed_pokemon"
+	| "battle_start"
+	| "battle_end"
 > & {
 	is_inactive: boolean;
 	is_battle_available: boolean;
 	stationed_pokemon?: object[] | string | null;
+	battles?: object[];
+	battle_start?: number | null;
+	battle_end?: number | null;
 };
 
 export type GymScanResponse = {
@@ -86,8 +96,7 @@ async function callGolbat<T>(
 	method: "GET" | "POST",
 	body: BodyInit | undefined = undefined,
 	thisFetch: typeof fetch = fetch,
-	quiet = false,
-	signal: AbortSignal = AbortSignal.timeout(10_000)
+	quiet = false
 ): Promise<T | undefined> {
 	const start = performance.now();
 	const url = new URL(path, config.url);
@@ -103,7 +112,12 @@ async function callGolbat<T>(
 		headers["X-Golbat-Secret"] = config.secret;
 	}
 
-	const response = await thisFetch(url, { method, body, headers, signal });
+	const response = await thisFetch(url, {
+		method,
+		body,
+		headers,
+		signal: AbortSignal.timeout(10_000)
+	});
 
 	if (!response.ok) {
 		if (!quiet) {

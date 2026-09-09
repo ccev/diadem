@@ -4,7 +4,7 @@ import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectType
 import { requestLimits } from "@/lib/server/api/rateLimit";
 import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
 import { Features } from "@/lib/utils/features";
 import { stripRaidFields } from "@/lib/utils/gymUtils";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
@@ -104,11 +104,11 @@ export class GymQuery extends DbMapObjectQuery<GymData, FilterGym> {
 		data.raid_pokemon_form = getNormalizedForm(data.raid_pokemon_id, data.raid_pokemon_form);
 
 		if (data.defenders_raw) {
-			data.defenders = JSON.parse(data.defenders_raw) as GymDefender[];
-			for (const defender of data?.defenders ?? []) {
-				defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
-			}
+			data.defenders = JSON.parse(data.defenders_raw);
 			delete data.defenders_raw;
+		}
+		for (const defender of data.defenders ?? []) {
+			defender.form = getNormalizedForm(defender.pokemon_id, defender.form);
 		}
 
 		if (data.raw_rsvps) {

@@ -13,19 +13,9 @@ const ALL_LURE_IDS = [501, 502, 503, 504, 505, 506];
 const ALL_QUEST_REWARD_TYPES = Object.values(RewardType).filter(
 	(v): v is number => typeof v === "number" && v > 0
 );
-const INT16_MIN = -(2 ** 15);
 const INT16_MAX = 2 ** 15 - 1;
 
-function minMax(range: { min: number; max: number }) {
-	return {
-		min: Math.max(INT16_MIN, Math.min(INT16_MAX, Number.isFinite(range.min) ? range.min : 0)),
-		max: Math.max(
-			INT16_MIN,
-			Math.min(INT16_MAX, Number.isFinite(range.max) ? range.max : INT16_MAX)
-		)
-	};
-}
-
+// Keep DNF clauses a superset of SQL; preparation normalizes forms before local filtering.
 export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnfFilter[] {
 	if (!filter || filter.gymPlain.enabled || !filter.raid.enabled) return [];
 
@@ -38,7 +28,7 @@ export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnf
 		if (filterset.levels?.length) clauses.push({ raid_level: filterset.levels });
 		for (const boss of filterset.bosses ?? []) {
 			const clause: GolbatFortDnfFilter = {
-				raid_pokemon_id: [{ pokemon_id: boss.pokemon_id, form: boss.form || undefined }]
+				raid_pokemon_id: [{ pokemon_id: boss.pokemon_id }]
 			};
 			if (boss.temp_evolution_id !== undefined) {
 				clause.raid_temp_evolution_id = [boss.temp_evolution_id];
@@ -70,40 +60,47 @@ export function buildPokestopDnfFilters(
 		for (const filterset of questFilters) {
 			const rewardClauses: GolbatFortDnfFilter[] = [];
 
-			if (filterset.stardust)
+			for (const [type, range] of [
+				[RewardType.STARDUST, filterset.stardust],
+				[RewardType.POKECOINS, filterset.pokecoins],
+				[RewardType.XP, filterset.xp]
+			] as const) {
+				if (!range) continue;
 				rewardClauses.push({
-					quest_reward_type: [RewardType.STARDUST],
-					quest_reward_amount: minMax(filterset.stardust)
+					quest_reward_type: [type],
+					// Golbat stores amounts as int16; check wider ranges locally instead of clamping.
+					quest_reward_amount:
+						Number.isInteger(range.min) &&
+						Number.isInteger(range.max) &&
+						range.min >= 0 &&
+						range.min <= range.max &&
+						range.max <= INT16_MAX
+							? range
+							: undefined
 				});
-			if (filterset.pokecoins)
-				rewardClauses.push({
-					quest_reward_type: [RewardType.POKECOINS],
-					quest_reward_amount: minMax(filterset.pokecoins)
-				});
-			if (filterset.xp)
-				rewardClauses.push({
-					quest_reward_type: [RewardType.XP],
-					quest_reward_amount: minMax(filterset.xp)
-				});
+			}
 			if (filterset.pokemon?.length)
 				rewardClauses.push({
 					quest_reward_type: [RewardType.POKEMON],
 					quest_reward_pokemon: filterset.pokemon.map((p) => ({ pokemon_id: p.pokemon_id }))
 				});
-			for (const item of filterset.item ?? [])
+			if (filterset.item?.length)
 				rewardClauses.push({
 					quest_reward_type: [RewardType.ITEM],
-					quest_reward_item_id: [Number(item.id)]
+					quest_reward_item_id: filterset.item.map((item) => Number(item.id))
 				});
-			for (const reward of filterset.megaResource ?? [])
+			if (filterset.megaResource?.length)
 				rewardClauses.push({
 					quest_reward_type: [RewardType.MEGA_ENERGY, RewardType.TEMP_EVO_BRANCH_RESOURCE],
-					quest_reward_pokemon: [{ pokemon_id: Number(reward.id) }]
+					quest_reward_pokemon: filterset.megaResource.map((reward) => ({
+						pokemon_id: Number(reward.id)
+					}))
 				});
-			for (const reward of [...(filterset.candy ?? []), ...(filterset.xlCandy ?? [])])
+			const candy = [...(filterset.candy ?? []), ...(filterset.xlCandy ?? [])];
+			if (candy.length)
 				rewardClauses.push({
 					quest_reward_type: [RewardType.CANDY, RewardType.XL_CANDY],
-					quest_reward_pokemon: [{ pokemon_id: Number(reward.id) }]
+					quest_reward_pokemon: candy.map((reward) => ({ pokemon_id: Number(reward.id) }))
 				});
 
 			if (rewardClauses.length) {
@@ -119,7 +116,7 @@ export function buildPokestopDnfFilters(
 		const characterIds = invasionFilters.flatMap((f) => f.characters ?? []);
 		const hasUnsafeInvasionFilter = invasionFilters.some((f) => f.rewards?.length);
 		const clause: GolbatFortDnfFilter = { incident_display_type: [...INCIDENT_DISPLAYS_INVASION] };
-		if (invasionFilters.length > 0 && characterIds.length > 0 && !hasUnsafeInvasionFilter) {
+		if (characterIds.length && !hasUnsafeInvasionFilter) {
 			clause.incident_character = characterIds;
 		}
 		clauses.push(clause);
@@ -134,15 +131,12 @@ export function buildPokestopDnfFilters(
 			clauses.push({ incident_display_type: [INCIDENT_DISPLAY_CONTEST] });
 		}
 		for (const filterset of contestFilters) {
-			const clause: GolbatFortDnfFilter = { incident_display_type: [INCIDENT_DISPLAY_CONTEST] };
-			clause.contest_ranking_standard = [filterset.rankingStandard];
+			const clause: GolbatFortDnfFilter = {
+				incident_display_type: [INCIDENT_DISPLAY_CONTEST],
+				contest_ranking_standard: [filterset.rankingStandard]
+			};
 			if (filterset.focus.type === "pokemon") {
-				clause.contest_pokemon = [
-					{
-						pokemon_id: filterset.focus.pokemon_id,
-						form: filterset.focus.pokemon_form || undefined
-					}
-				];
+				clause.contest_pokemon = [{ pokemon_id: filterset.focus.pokemon_id }];
 			} else if (filterset.focus.type === "type") {
 				clause.contest_pokemon_type = [filterset.focus.pokemon_type_1];
 			} else if (filterset.focus.type === "buddy") {
@@ -168,10 +162,10 @@ export function buildStationDnfFilters(filter: FilterStation | undefined): Golba
 			clauses.push({ station_active: true, stationed_gmax: true });
 			continue;
 		}
-		for (const boss of filterset.bosses ?? []) {
+		if (filterset.bosses?.length) {
 			clauses.push({
 				station_active: true,
-				battle_pokemon: [{ pokemon_id: boss.pokemon_id, form: boss.form || undefined }]
+				battle_pokemon: filterset.bosses.map((boss) => ({ pokemon_id: boss.pokemon_id }))
 			});
 		}
 	}

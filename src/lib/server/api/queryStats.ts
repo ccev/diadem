@@ -1,4 +1,4 @@
-import { getCachedFortAvailability, isFortApiEnabled } from "@/lib/server/api/golbatFortApi";
+import { getCachedFortAvailability } from "@/lib/server/api/golbatFortApi";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { getMasterPokemon } from "@/lib/services/masterfile";
@@ -132,7 +132,7 @@ export type MaxBattleStatsEntry = {
 	pokemon_id: number;
 	form: number;
 	bread_mode: number;
-	count?: number;
+	count: number;
 };
 
 export type NestStatsEntry = {
@@ -162,7 +162,7 @@ export type InvasionPokemonStats = {
 export type MasterStats = {
 	totalPokemon: TotalPokemonStats;
 	pokemon: {
-		[key: string]: PokemonStatEntry;
+		[key: string]: PokemonStatEntry; // key format: "pokemonId-formId"
 	};
 	totalQuests: TotalQuestStats;
 	quests: QuestStats;
@@ -270,6 +270,8 @@ function getInvasionCharacterId(name: string, type: string): number | null {
 }
 
 export async function queryMasterStats(): Promise<MasterStats> {
+	// TODO: timeframe
+
 	const [
 		allShinyStats,
 		allSpawnStats,
@@ -497,7 +499,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		);
 
 		if (existingMaxBattle) {
-			existingMaxBattle.count = (existingMaxBattle.count ?? 0) + count;
+			existingMaxBattle.count += count;
 		} else {
 			activeMaxBattles.push({
 				level: row.level,
@@ -618,19 +620,22 @@ export async function queryMasterStats(): Promise<MasterStats> {
 
 export function mergeFortAvailability(stats: MasterStats): MasterStats {
 	const availability = getCachedFortAvailability();
-	if (!isFortApiEnabled() || !availability) return stats;
+	if (!availability) return stats;
 
-	const activeRaids: ActiveRaidStats[] = availability.gyms.raids
-		.filter((r) => r.pokemon_id)
-		.map((r) => ({
-			level: r.raid_level,
-			pokemon_id: r.pokemon_id!,
-			form: getNormalizedForm(r.pokemon_id!, r.form ?? 0),
-			temp_evolution_id: r.temp_evolution_id
-		}));
+	const activeRaids = availability.gyms.raids.flatMap((raid) => {
+		if (!raid.pokemon_id) return [];
+		return [
+			{
+				level: raid.raid_level,
+				pokemon_id: raid.pokemon_id,
+				form: getNormalizedForm(raid.pokemon_id, raid.form ?? 0),
+				temp_evolution_id: raid.temp_evolution_id
+			}
+		];
+	});
 
 	const activeContests = availability.pokestops.showcases.flatMap((showcase) => {
-		let focus: ContestFocus | null = showcase.showcase_focus;
+		let focus = showcase.showcase_focus;
 		if (!focus && showcase.pokemon_id !== null) {
 			focus = {
 				type: "pokemon",

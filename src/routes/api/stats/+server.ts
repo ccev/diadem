@@ -8,7 +8,7 @@ export async function GET({ request }) {
 	try {
 		const stats = await masterstatsProvider.get();
 		return respond(request, mergeFortAvailability(stats), {
-			headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS, FORT_API_REFRESH_SECONDS)
+			headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS)
 		});
 	} catch (e) {
 		return respond(
@@ -17,7 +17,7 @@ export async function GET({ request }) {
 				pokemon: {},
 				generatedAt: 0
 			},
-			{ headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS, FORT_API_REFRESH_SECONDS) }
+			{ headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS) }
 		);
 	}
 }

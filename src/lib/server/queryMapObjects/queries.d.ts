@@ -22,14 +22,14 @@ export type GolbatDnfId = { pokemon_id: number; form?: number };
 
 export type GolbatFortDnfFilter = {
 	is_ar_scan_eligible?: boolean;
-	available_slots?: { min: number; max: number };
+	available_slots?: MinMax;
 	team_id?: number[];
 	raid_level?: number[];
 	raid_pokemon_id?: GolbatDnfId[];
 	raid_temp_evolution_id?: number[];
 	lure_id?: number[];
 	quest_reward_type?: number[];
-	quest_reward_amount?: { min: number; max: number };
+	quest_reward_amount?: MinMax;
 	quest_reward_item_id?: number[];
 	quest_reward_pokemon?: GolbatDnfId[];
 	incident_display_type?: number[];

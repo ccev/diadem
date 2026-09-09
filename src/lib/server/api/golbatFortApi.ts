@@ -5,12 +5,11 @@ import { getLogger } from "@/lib/utils/logger";
 const log = getLogger("golbat:fort");
 export const FORT_API_REFRESH_SECONDS = 60;
 
-let fortApiEnabled = false;
 let cachedAvailability: FortAvailability | undefined;
 let maxFortResults = 0;
 
 export function isFortApiEnabled() {
-	return fortApiEnabled;
+	return cachedAvailability !== undefined;
 }
 
 export function getCachedFortAvailability() {
@@ -39,9 +38,8 @@ export async function refreshFortAvailability() {
 	}
 
 	const nowEnabled = availability !== undefined;
-	const wasEnabled = fortApiEnabled;
 
-	if (nowEnabled !== wasEnabled) {
+	if (nowEnabled !== isFortApiEnabled()) {
 		log.info(
 			nowEnabled
 				? "Golbat fort API detected, serving gyms/pokestops/stations from it"
@@ -49,11 +47,8 @@ export async function refreshFortAvailability() {
 		);
 	}
 
-	if (availability) {
-		cachedAvailability = availability;
-		maxFortResults = limit;
-	}
-	fortApiEnabled = nowEnabled;
+	cachedAvailability = availability;
+	if (nowEnabled) maxFortResults = limit;
 }
 
 export async function startFortApiDetection() {
