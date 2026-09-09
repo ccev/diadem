@@ -92,6 +92,9 @@ export type StationScanResponse = {
 const log = getLogger("golbat");
 const config = getServerConfig().golbat;
 
+/** Golbat calls (HTTP or gRPC) awaiting a response; logged so contended timings are recognisable. */
+export const golbatInFlight = { count: 0 };
+
 async function callGolbat<T>(
 	path: string,
 	method: "GET" | "POST",
@@ -113,32 +116,45 @@ async function callGolbat<T>(
 		headers["X-Golbat-Secret"] = config.secret;
 	}
 
-	const response = await thisFetch(url, {
-		method,
-		body,
-		headers,
-		signal: AbortSignal.timeout(10_000)
-	});
+	golbatInFlight.count += 1;
+	try {
+		const response = await thisFetch(url, {
+			method,
+			body,
+			headers,
+			signal: AbortSignal.timeout(10_000)
+		});
 
-	if (!response.ok) {
-		if (!quiet) {
-			log.error(
-				"[%s] Golbat returned a bad status | %d (%s)",
-				url.toString(),
-				response.status,
-				await response.text()
-			);
-		} else {
-			log.debug("[%s] Golbat returned a bad status | %d", url.toString(), response.status);
+		if (!response.ok) {
+			if (!quiet) {
+				log.error(
+					"[%s] Golbat returned a bad status | %d (%s)",
+					url.toString(),
+					response.status,
+					await response.text()
+				);
+			} else {
+				log.debug("[%s] Golbat returned a bad status | %d", url.toString(), response.status);
+			}
+			return undefined;
 		}
-		return undefined;
+
+		const fetched = performance.now();
+		const result = await response.json();
+		const done = performance.now();
+
+		log.debug(
+			"[%s] Request took %fms (parse %fms, in flight %d)",
+			url.pathname,
+			(done - start).toFixed(1),
+			(done - fetched).toFixed(1),
+			golbatInFlight.count - 1
+		);
+
+		return result;
+	} finally {
+		golbatInFlight.count -= 1;
 	}
-
-	const result = await response.json();
-
-	log.debug("[%s] Request took %fms", url.pathname, (performance.now() - start).toFixed(1));
-
-	return result;
 }
 
 export function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {

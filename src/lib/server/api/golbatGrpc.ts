@@ -1,10 +1,11 @@
 import { ChannelCredentials, Metadata, type CallOptions, type ServiceError } from "@grpc/grpc-js";
 import { GolbatApiClient } from "@/lib/server/api/grpc/golbat_api";
-import type {
-	GymScanResponse,
-	PokemonResponse,
-	PokestopScanResponse,
-	StationScanResponse
+import {
+	golbatInFlight,
+	type GymScanResponse,
+	type PokemonResponse,
+	type PokestopScanResponse,
+	type StationScanResponse
 } from "@/lib/server/api/golbatApi";
 import {
 	describeGrpcError,
@@ -63,10 +64,17 @@ function call<Res>(
 	const metadata = new Metadata();
 	if (config.secret) metadata.set("x-golbat-secret", config.secret);
 
+	golbatInFlight.count += 1;
 	return new Promise<Res>((resolve, reject) => {
 		invoke(getClient(), metadata, { deadline: Date.now() + DEADLINE_MS }, (err, res) => {
+			golbatInFlight.count -= 1;
 			if (err) return reject(err);
-			log.debug("[%s] Request took %fms", name, (performance.now() - start).toFixed(1));
+			log.debug(
+				"[%s] Request took %fms (in flight %d)",
+				name,
+				(performance.now() - start).toFixed(1),
+				golbatInFlight.count
+			);
 			resolve(res);
 		});
 	});
