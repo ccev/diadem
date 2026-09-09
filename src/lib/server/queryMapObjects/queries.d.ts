@@ -92,3 +92,10 @@ export type FortAvailability = {
 		battles: { battle_level: number; pokemon_id: number | null; form: number | null }[];
 	};
 };
+
+export type PokemonScanBody = {
+	min: { latitude: number; longitude: number };
+	max: { latitude: number; longitude: number };
+	limit: number;
+	filters: GolbatPokemonQuery[];
+};

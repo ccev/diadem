@@ -9,7 +9,8 @@ import { getLogger } from "@/lib/utils/logger";
 import type {
 	FortAvailability,
 	FortScanBody,
-	GolbatStatus
+	GolbatStatus,
+	PokemonScanBody
 } from "@/lib/server/queryMapObjects/queries";
 
 export type PokemonResponse = {
@@ -41,8 +42,8 @@ export type GolbatPokestopResult = Omit<
 > & {
 	deleted: boolean;
 	invasions?: Incident[];
-	quest_rewards?: object[] | null;
-	alternative_quest_rewards?: object[] | null;
+	quest_rewards?: object[] | string | null;
+	alternative_quest_rewards?: object[] | string | null;
 	quest_pokemon_form_id?: number | null;
 	alternative_quest_pokemon_form_id?: number | null;
 	showcase_focus?: object | string | null;
@@ -144,7 +145,7 @@ export function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
 	return callGolbat<PokemonData>("api/pokemon/id/" + id, "GET", undefined, thisFetch);
 }
 
-export function getMultiplePokemon(body: any) {
+export function getMultiplePokemon(body: PokemonScanBody) {
 	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
 }
 
