@@ -15,6 +15,7 @@ Diadem — a Pokémon GO map frontend built with SvelteKit and MapLibre GL. Conn
 - **Format:** `pnpm run format`
 - **DB push schema:** `pnpm run db:push`
 - **DB studio:** `pnpm run db:studio`
+- **Regenerate gRPC client:** `pnpm run grpc:generate` — after updating `proto/golbat_api.proto` from Golbat's `grpc/api.proto`; commit the regenerated `src/lib/server/api/grpc/golbat_api.ts`
 
 - **Test:** `pnpm test`
   tests are not yet implemented, ignore this.
@@ -50,6 +51,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 ### Source Organization
 
 - `src/lib/server/` — Server-only: DB, auth, API query logic, config parsing, providers
+- `src/lib/server/api/grpc/` — ts-proto generated Golbat gRPC client (never hand-edit); `golbatGrpc.ts` wraps it, `golbatGrpcMapping.ts` converts to/from the HTTP scan types
 - `src/lib/services/` — Client/isomorphic services (search, user settings, uicons, masterfile)
 - `src/lib/features/` — Feature state (filters, search, scout, coverage)
 - `src/lib/mapObjects/` — Map object state management and types

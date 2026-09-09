@@ -29,11 +29,13 @@ level = "info"
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""
+grpc = "127.0.0.1:50001"
 defaultNestName = "Unknown Nest"
 ```
 
 - `url`: Golbat base URL, must be accessible to Diadem's server
 - `secret`: Must match your configured Golbat secret
+- `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
 - `defaultNestName`: The default nest name, as configured in Fletchling
 
 ### Golbat Fort API
@@ -41,6 +43,16 @@ defaultNestName = "Unknown Nest"
 It's recommended to enable in-memory forts in Golbat
 (Golbat Config -> `fort_in_memory = true` + optional `preload = true`).
 Diadem will then serve pokestops, gyms and stations from Golbat direclty, instead of having to go through the database.
+
+### Golbat gRPC API
+
+When your Golbat serves the `GolbatApi` gRPC service (Golbat `feat/grpc-api` or later, with `grpc_port` set in Golbat's config), set `grpc` to that `host:port`. Diadem then runs gym, pokéstop, station and pokémon map scans over gRPC with protobuf encoding, which is markedly cheaper than the JSON HTTP API on large responses. The same `secret` is sent as the `x-golbat-secret` metadata, so no extra Golbat configuration is needed beyond `grpc_port`.
+
+Gym, pokéstop and station scans still require in-memory forts as above; gRPC only changes the transport. By-id lookups, search and availability stay on HTTP.
+
+If a gRPC call fails for any reason (Golbat down, wrong secret, `fort_in_memory` off, timeout), Diadem logs a warning and falls back to the HTTP API for that request, and for forts to SQL after that, so the map keeps working. Unset `grpc` to compare against the HTTP path; per-request timings are logged at debug level on both transports.
+
+The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
 
 ## `server.dragonite`
 
