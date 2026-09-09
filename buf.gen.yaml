@@ -1,0 +1,13 @@
+version: v2
+inputs:
+  - directory: proto
+plugins:
+  - local: node_modules/.bin/protoc-gen-ts_proto
+    out: src/lib/server/api/grpc
+    opt:
+      - forceLong=number
+      - useOptionals=all
+      - snakeToCamel=false
+      - useJsTypeOverride=true
+      - outputServices=grpc-js
+      - esModuleInterop=true

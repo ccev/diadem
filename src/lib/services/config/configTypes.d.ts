@@ -142,6 +142,8 @@ export type ServerConfig = {
 		auth?: string;
 		secret?: string;
 		defaultNestName?: string;
+		/** Golbat gRPC target ("host:port"). When set, map scans use gRPC with HTTP fallback. */
+		grpc?: string;
 	};
 	dragonite: {
 		// TODO: this should be optional and scout disabled

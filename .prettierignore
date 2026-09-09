@@ -10,6 +10,7 @@ yarn.lock
 # Generated
 src/lib/paraglide
 project.inlang/cache
+src/lib/server/api/grpc
 
 # Build output
 build
