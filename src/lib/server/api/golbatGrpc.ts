@@ -39,7 +39,11 @@ function getClient() {
 			"grpc.keepalive_permit_without_calls": 1,
 			// grpc-js defaults to a 4MiB receive cap; a full 10,000-object scan with JSON blobs or
 			// PVP easily exceeds that and would RESOURCE_EXHAUST into a silent HTTP fallback.
-			"grpc.max_receive_message_length": -1
+			"grpc.max_receive_message_length": -1,
+			// grpc-js keeps HTTP/2's 64KiB initial flow-control window and never grows it, so a
+			// 1MB scan response costs ~16 window-update round trips; grpc-go auto-tunes this,
+			// grpc-js needs it set explicitly. 16MiB covers the largest scan in one window.
+			"grpc-node.flow_control_window": 16 * 1024 * 1024
 		});
 	}
 	return client;
