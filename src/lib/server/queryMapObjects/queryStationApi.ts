@@ -7,6 +7,7 @@ import {
 	type GolbatStationResult,
 	type StationScanResponse
 } from "@/lib/server/api/golbatApi";
+import { grpcScanStations, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
 import { buildStationDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
@@ -49,12 +50,17 @@ export class ApiStationQuery extends StationQuery {
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: StationScanResponse | undefined;
 		try {
-			result = await scanStations({
-				min: { latitude: bounds.minLat, longitude: bounds.minLon },
-				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-				limit: getFortApiScanLimit(actualLimit + 1),
-				filters: buildStationDnfFilters(filter)
-			});
+			result = await scanViaGrpcOrHttp(
+				"station",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: buildStationDnfFilters(filter)
+				},
+				grpcScanStations,
+				scanStations
+			);
 		} catch (err) {
 			log.debug("Fort station scan failed, falling back to SQL: %s", err);
 		}

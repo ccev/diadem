@@ -7,6 +7,7 @@ import {
 	type GolbatGymResult,
 	type GymScanResponse
 } from "@/lib/server/api/golbatApi";
+import { grpcScanGyms, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
 import { buildGymDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
@@ -40,12 +41,17 @@ export class ApiGymQuery extends GymQuery {
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: GymScanResponse | undefined;
 		try {
-			result = await scanGyms({
-				min: { latitude: bounds.minLat, longitude: bounds.minLon },
-				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-				limit: getFortApiScanLimit(actualLimit + 1),
-				filters: buildGymDnfFilters(filter)
-			});
+			result = await scanViaGrpcOrHttp(
+				"gym",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: buildGymDnfFilters(filter)
+				},
+				grpcScanGyms,
+				scanGyms
+			);
 		} catch (err) {
 			log.debug("Fort gym scan failed, falling back to SQL: %s", err);
 		}

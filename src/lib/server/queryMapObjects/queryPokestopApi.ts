@@ -7,6 +7,7 @@ import {
 	type GolbatPokestopResult,
 	type PokestopScanResponse
 } from "@/lib/server/api/golbatApi";
+import { grpcScanPokestops, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
 import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
 import { buildPokestopDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
@@ -33,13 +34,18 @@ export class ApiPokestopQuery extends PokestopQuery {
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 		let result: PokestopScanResponse | undefined;
 		try {
-			result = await scanPokestops({
-				min: { latitude: bounds.minLat, longitude: bounds.minLon },
-				max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-				limit: getFortApiScanLimit(actualLimit + 1),
-				filters: dnf,
-				with_incidents: true
-			});
+			result = await scanViaGrpcOrHttp(
+				"pokestop",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: dnf,
+					with_incidents: true
+				},
+				grpcScanPokestops,
+				scanPokestops
+			);
 		} catch (err) {
 			log.debug("Fort pokestop scan failed, falling back to SQL: %s", err);
 		}
