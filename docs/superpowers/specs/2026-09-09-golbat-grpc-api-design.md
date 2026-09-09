@@ -3,7 +3,7 @@
 **Date:** 2026-09-09
 **Status:** Approved in discussion; spec pending review
 **Branch:** `feat/golbat-fort-api` (builds on the HTTP fort API work already on the branch)
-**Golbat counterpart:** UnownHash/Golbat `feat/grpc-api`, commit `77451430b6d6bab788c67df24b03c5ae79e77ef1`
+**Golbat counterpart:** UnownHash/Golbat `feat/grpc-api`, commit `8f10ee9`
 (`grpc/api.proto`, service `golbat_api.GolbatApi`)
 
 ## 1. Context and goals
@@ -54,7 +54,7 @@ grpc = "127.0.0.1:50001"   # optional; Golbat's grpc_port
 
 | Item | Location / value |
 |---|---|
-| Proto source | `proto/golbat_api.proto`, copied from Golbat with the `jstype` annotation below, header comment recording the Golbat commit and that one deliberate difference |
+| Proto source | `proto/golbat_api.proto`, copied verbatim from Golbat, header comment recording the Golbat commit |
 | Generator config | `buf.gen.yaml` at repo root |
 | Script | `pnpm run grpc:generate` → `buf generate` |
 | Generated output | `src/lib/server/api/grpc/golbat_api.ts`, committed, listed in `.prettierignore` |
@@ -72,18 +72,18 @@ ts-proto options, all required:
 | `outputServices=grpc-js` | Emits the `GolbatApiClient` class and `GolbatApiService` definition used by the client and the wire test. |
 | `esModuleInterop=true` | Matches `tsconfig.json`. |
 
-**Pokemon encounter id.** The proto declares `Pokemon.id` as `uint64`. Encounter ids use the
-full 64 bits, so decoding them as `Number` corrupts them. Diadem's copy of the proto carries
-`uint64 id = 1 [jstype = JS_STRING];`. `jstype` is a code generation hint only; the wire
-encoding stays a uint64 varint, so the generated decoder reads what the current Golbat server
-sends and returns the exact decimal string Diadem already uses. Verified during design against a
-value near 2^64. Golbat will be asked to add the same annotation upstream so the two copies stay
-identical, but nothing depends on that. The fort messages have no such field (`cell_id` is int64
-but Diadem never reads it).
+**64-bit ids.** Encounter ids, spawn ids, S2 cell ids and battle seeds use the full 64 bits, so
+decoding them as `Number` corrupts them. Golbat commit `8f10ee9` marks those fields
+`[jstype = JS_STRING]`: `Pokemon.id`, `Pokemon.spawn_id`, `Pokemon.cell_id`,
+`GetPokemonRequest.encounter_ids`, `Gym.cell_id`, `Pokestop.cell_id`, `Station.cell_id`,
+`StationBattle.bread_battle_seed`. `jstype` is a code generation hint only; the wire encoding is
+unchanged, and with `useJsTypeOverride=true` the generated decoder returns exact decimal strings.
+Verified during design against a value near 2^64. `Pokemon.id` is the string Diadem already
+uses. Diadem reads none of the others from scan results, so the mappers drop them (§5.2) rather
+than widen the existing numeric types.
 
-Regeneration is manual: when the Golbat proto changes, copy it in, re-apply the `jstype`
-annotation if upstream still lacks it, run `pnpm run grpc:generate`, commit both. Ordinary
-builds never run the generator.
+Regeneration is manual: when the Golbat proto changes, copy it in, run `pnpm run grpc:generate`,
+commit both. Ordinary builds never run the generator.
 
 ## 4. gRPC client module
 
@@ -149,6 +149,7 @@ Unset optionals arrive as `undefined`, matching the JSON API's omitted fields.
 | `defenders_json` | `defenders_raw` | The inherited SQL `prepare()` parses and form-normalises it |
 | `rsvps_json` | `raw_rsvps` | Same |
 | `guarding_pokemon_display_json` | dropped | SQL path never selects it |
+| `cell_id` (string) | dropped | Never read; `GymData.cell_id` is typed bigint |
 | `deleted` (bool) | passed through | `mapGym` already converts to 0/1 |
 
 `GolbatGymResult` gains optional `defenders_raw?: string` and `raw_rsvps?: string`. The existing
@@ -163,7 +164,7 @@ Unset optionals arrive as `undefined`, matching the JSON API's omitted fields.
 | `alternative_quest_rewards_json` | `alternative_quest_rewards` |
 | `showcase_focus_json` | `showcase_focus` |
 | `showcase_rankings_json` | `showcase_rankings` |
-| `quest_conditions_json`, `alternative_quest_conditions_json` | dropped |
+| `quest_conditions_json`, `alternative_quest_conditions_json`, `cell_id` | dropped |
 | `invasions` | passed through; `mapPokestop` already renames to `incident` |
 
 These are exactly the SQL column names and the string form `PokestopQuery.prepare()` expects.
@@ -173,7 +174,7 @@ These are exactly the SQL column names and the string form `PokestopQuery.prepar
 | Proto field | Mapped to |
 |---|---|
 | `stationed_pokemon_json` | `stationed_pokemon` (string, as the HTTP API already sends it; `mapStation` renames to `raw_stationed_pokemon`) |
-| `battles` | dropped |
+| `battles`, `cell_id` | dropped |
 | `is_inactive`, `is_battle_available` (bool) | passed through; `mapStation` converts to 0/1 |
 
 **Pokemon** (`Pokemon` → `MinMapObject<PokemonData>` as `getMultiplePokemon` returns it):
@@ -181,6 +182,7 @@ These are exactly the SQL column names and the string form `PokestopQuery.prepar
 | Proto field | Mapped to |
 |---|---|
 | `id` (string per §3) | unchanged |
+| `spawn_id`, `cell_id` (strings per §3) | dropped; `makePokemon` never copies them |
 | `pvp { little, great, ultra }` | `pvp` keyed by `League.LITTLE` / `GREAT` / `ULTRA`, whose values are the strings `"little"`, `"great"`, `"ultra"`; a league with no entries is omitted |
 | `capture_1..3`, `is_event`, `username` | passed through; `makePokemon` ignores them as today |
 
