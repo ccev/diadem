@@ -7,6 +7,8 @@ url = "http://127.0.0.1:9001"
 secret = ""
 # Optional. Golbat's grpc_port target. When set, map scans use gRPC (same secret), falling back to HTTP.
 # grpc = "127.0.0.1:50001"
+# Optional. Set to false to always serve gyms/pokestops/stations from SQL, ignoring Golbat's fort API (and gRPC for them).
+# fortApi = false
 
 # This can be configured in Fletchling. Match the string to its config
 defaultNestName = "Unknown Nest"

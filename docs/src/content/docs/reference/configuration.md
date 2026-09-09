@@ -36,6 +36,7 @@ defaultNestName = "Unknown Nest"
 - `url`: Golbat base URL, must be accessible to Diadem's server
 - `secret`: Must match your configured Golbat secret
 - `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
+- `fortApi`: Optional, default `true`. Set to `false` to keep gyms, pokéstops and stations on SQL even when Golbat offers the fort API (this also bypasses gRPC for them). Useful for benchmarking the three paths.
 - `defaultNestName`: The default nest name, as configured in Fletchling
 
 ### Golbat Fort API
@@ -43,6 +44,7 @@ defaultNestName = "Unknown Nest"
 It's recommended to enable in-memory forts in Golbat
 (Golbat Config -> `fort_in_memory = true` + optional `preload = true`).
 Diadem will then serve pokestops, gyms and stations from Golbat direclty, instead of having to go through the database.
+Detection is automatic; set `fortApi = false` under `[server.golbat]` to opt out and stay on SQL regardless.
 
 ### Golbat gRPC API
 

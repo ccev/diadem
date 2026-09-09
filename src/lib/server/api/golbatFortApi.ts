@@ -1,9 +1,13 @@
 import { fetchFortAvailability, fetchGolbatStatus } from "@/lib/server/api/golbatApi";
 import type { FortAvailability } from "@/lib/server/queryMapObjects/queries";
+import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("golbat:fort");
 export const FORT_API_REFRESH_SECONDS = 60;
+// server.golbat.fortApi = false pins forts to SQL regardless of what Golbat offers
+// (useful for benchmarking the three paths: SQL, HTTP, gRPC).
+const fortApiOptedOut = getServerConfig().golbat.fortApi === false;
 
 let cachedAvailability: FortAvailability | undefined;
 let maxFortResults = 0;
@@ -21,6 +25,8 @@ export function getFortApiScanLimit(limit: number) {
 }
 
 export async function refreshFortAvailability() {
+	if (fortApiOptedOut) return;
+
 	let availability: FortAvailability | undefined;
 	let limit = 0;
 	try {
@@ -52,6 +58,13 @@ export async function refreshFortAvailability() {
 }
 
 export async function startFortApiDetection() {
+	if (fortApiOptedOut) {
+		log.info(
+			"Golbat fort API disabled by config (server.golbat.fortApi = false), serving gyms/pokestops/stations from SQL"
+		);
+		return;
+	}
+
 	setInterval(() => {
 		refreshFortAvailability().catch((err) =>
 			log.error("Fort availability refresh failed: %s", err)

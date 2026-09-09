@@ -8,6 +8,14 @@ const golbat = vi.hoisted(() => ({
 
 vi.mock("@/lib/server/api/golbatApi", () => golbat);
 
+const golbatConfig = vi.hoisted(() => ({
+	url: "http://127.0.0.1:1",
+	fortApi: undefined as boolean | undefined
+}));
+vi.mock("@/lib/services/config/config.server", () => ({
+	getServerConfig: () => ({ golbat: golbatConfig })
+}));
+
 const availability: FortAvailability = {
 	gyms: { raids: [] },
 	pokestops: { quests: [], invasions: [], lures: [], showcases: [] },
@@ -19,6 +27,25 @@ describe("Golbat fort API detection", () => {
 		vi.resetModules();
 		golbat.fetchFortAvailability.mockReset();
 		golbat.fetchGolbatStatus.mockReset();
+		golbatConfig.fortApi = undefined;
+	});
+
+	it("stays on SQL when server.golbat.fortApi is false, even if Golbat offers the API", async () => {
+		golbatConfig.fortApi = false;
+		golbat.fetchGolbatStatus.mockResolvedValue({
+			features: { fort_in_memory: true },
+			limits: { max_fort_results: 9000 }
+		});
+		golbat.fetchFortAvailability.mockResolvedValue(availability);
+
+		const api = await import("./golbatFortApi");
+		await api.startFortApiDetection();
+		await api.refreshFortAvailability();
+
+		expect(api.isFortApiEnabled()).toBe(false);
+		expect(api.getCachedFortAvailability()).toBeUndefined();
+		expect(golbat.fetchGolbatStatus).not.toHaveBeenCalled();
+		expect(golbat.fetchFortAvailability).not.toHaveBeenCalled();
 	});
 
 	it("enables the API and applies the reported scan limit", async () => {

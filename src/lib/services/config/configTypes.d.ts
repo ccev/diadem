@@ -144,6 +144,8 @@ export type ServerConfig = {
 		defaultNestName?: string;
 		/** Golbat gRPC target ("host:port"). When set, map scans use gRPC with HTTP fallback. */
 		grpc?: string;
+		/** Set to false to skip fort API detection and always serve gyms/pokestops/stations from SQL. */
+		fortApi?: boolean;
 	};
 	dragonite: {
 		// TODO: this should be optional and scout disabled
