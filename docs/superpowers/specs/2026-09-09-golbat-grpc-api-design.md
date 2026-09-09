@@ -106,7 +106,9 @@ New `src/lib/server/api/golbatGrpc.ts`, sibling of `golbatApi.ts`.
   | `grpcScanStations` | `ScanStations` | `FortScanBody` | `StationScanResponse` |
   | `grpcScanPokemon` | `ScanPokemon` | `PokemonScanBody` | `PokemonResponse` |
 
-- Each call: convert request (§5.1), invoke with a 30 second deadline, convert response (§5.2),
+- Each call: convert request (§5.1), invoke with a 10 second deadline (matching `callGolbat`'s
+  HTTP timeout, so the gRPC→HTTP→SQL chain never waits more than twice that), convert response
+  (§5.2),
   log `"[ScanGyms] Request took %fms"` at debug in the same format as `callGolbat` so HTTP and
   gRPC timings compare in the same log stream. Errors are thrown as the grpc-js `ServiceError`
   (its `code` is the gRPC status code).

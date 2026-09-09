@@ -17,7 +17,10 @@ import { grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./golbatGrpc";
 
 let server: Server;
 let received: { metadata: Metadata; request: FortScanRequest } | undefined;
-let respondWith: "ok" | "unauthenticated" = "ok";
+let respondWith: "ok" | "unauthenticated" | "large" = "ok";
+
+// ~1000 chars, used to pad a large response past the grpc-js default 4MiB receive cap.
+const bigDefendersJson = `[{"pokemon_id":25,"form":0,"note":"${"x".repeat(950)}"}]`;
 
 const unimplemented = (_call: unknown, callback: (err: { code: status }) => void) =>
 	callback({ code: status.UNIMPLEMENTED });
@@ -36,6 +39,27 @@ beforeAll(async () => {
 			received = { metadata: call.metadata, request: call.request };
 			if (respondWith === "unauthenticated") {
 				callback({ code: status.UNAUTHENTICATED, details: "invalid or missing api secret" });
+				return;
+			}
+			if (respondWith === "large") {
+				const gyms = Array.from({ length: 6000 }, (_, i) => ({
+					id: `g${i}`,
+					lat: 1.5,
+					lon: 2.5,
+					updated: 100,
+					deleted: false,
+					first_seen_timestamp: 1,
+					team_id: 2,
+					available_slots: 4,
+					defenders_json: bigDefendersJson
+				}));
+				callback(null, {
+					gyms,
+					examined: gyms.length,
+					skipped: 0,
+					total: gyms.length,
+					limit_reached: false
+				});
 				return;
 			}
 			callback(null, {
@@ -115,6 +139,12 @@ describe("golbatGrpc", () => {
 	it("rejects with the grpc status code on error", async () => {
 		respondWith = "unauthenticated";
 		await expect(grpcScanGyms(fortBody)).rejects.toMatchObject({ code: status.UNAUTHENTICATED });
+	});
+
+	it("receives a response over the 4MiB grpc-js default without RESOURCE_EXHAUSTED", async () => {
+		respondWith = "large";
+		const res = await grpcScanGyms(fortBody);
+		expect(res.gyms).toHaveLength(6000);
 	});
 });
 

@@ -1,5 +1,5 @@
 allowBuilds:
-  '@bufbuild/buf': true
+  "@bufbuild/buf": true
   esbuild: true
   protobufjs: true
   sharp: true

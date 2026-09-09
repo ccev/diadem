@@ -21,7 +21,9 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("golbat:grpc");
 const config = getServerConfig().golbat;
-const DEADLINE_MS = 30_000;
+// Matches callGolbat's HTTP timeout (golbatApi.ts) so the gRPC -> HTTP -> SQL fallback chain
+// doesn't triple the wait when Golbat is wedged.
+const DEADLINE_MS = 10_000;
 
 let client: GolbatApiClient | undefined;
 
@@ -34,7 +36,10 @@ function getClient() {
 	if (!client) {
 		client = new GolbatApiClient(config.grpc!, ChannelCredentials.createInsecure(), {
 			"grpc.keepalive_time_ms": 30_000,
-			"grpc.keepalive_permit_without_calls": 1
+			"grpc.keepalive_permit_without_calls": 1,
+			// grpc-js defaults to a 4MiB receive cap; a full 10,000-object scan with JSON blobs or
+			// PVP easily exceeds that and would RESOURCE_EXHAUST into a silent HTTP fallback.
+			"grpc.max_receive_message_length": -1
 		});
 	}
 	return client;

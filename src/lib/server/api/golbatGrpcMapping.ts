@@ -29,6 +29,9 @@ export function toFortScanRequest(body: FortScanBody): pb.FortScanRequest {
 		max: toLatLon(body.max),
 		limit: body.limit,
 		// GolbatFortDnfFilter is structurally a FortDnfFilter; [] means "every fort" like omission
+		// Safe to pass ranges through unconverted: MinMax (filtersets.d.ts) always requires both
+		// min and max, and fortDnf.ts always sets a whole range or undefined, so we never emit a
+		// range with an implicit/unset max, which the proto's IntRange treats as 32767 vs 0 for JSON.
 		filters: body.filters ?? [],
 		with_incidents: body.with_incidents ?? false
 	};

@@ -10,7 +10,7 @@ yarn.lock
 # Generated
 src/lib/paraglide
 project.inlang/cache
-src/lib/server/api/grpc
+src/lib/server/api/grpc/golbat_api.ts
 
 # Build output
 build
