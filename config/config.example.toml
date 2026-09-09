@@ -176,6 +176,9 @@ defaultZoom = 15
 #minZoom = 0
 #maxZoom = 20
 
+# Exchange MessagePack (default) or JSON with the API. JSON costs more bytes but far less CPU on both ends.
+#msgpack = false
+
 # Values to be used in search engine entries and social media previews
 url = ""  # i.e. "https://malt.ee"
 image = ""  # Full url to a thumbnail to be used in social media links

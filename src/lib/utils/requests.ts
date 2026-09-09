@@ -1,11 +1,21 @@
 import { decode, encode } from "@msgpack/msgpack";
 import { isNative } from "@/lib/native/runtime";
+import { getConfig } from "@/lib/services/config/config";
 
 const MSGPACK_CONTENT_TYPE = "application/msgpack";
 
+// client.general.msgpack = false trades ~20% more bytes for ~3x less encode/decode CPU on both
+// ends. Config may not be loaded yet for the very first request, which then defaults to msgpack.
+function useMsgpack() {
+	return getConfig()?.general.msgpack !== false;
+}
+
 export function getHeaders(contentType?: string): Headers {
 	const headers = new Headers();
-	headers.set("Accept", `${MSGPACK_CONTENT_TYPE}, application/json;q=0.9`);
+	headers.set(
+		"Accept",
+		useMsgpack() ? `${MSGPACK_CONTENT_TYPE}, application/json;q=0.9` : "application/json"
+	);
 	if (contentType) headers.set("Content-Type", contentType);
 	return headers;
 }
@@ -18,7 +28,7 @@ export function encodeRequestBody(body: unknown): {
 	const json = JSON.stringify(body);
 	if (json === undefined) throw new TypeError("Request body is not serializable");
 
-	if (isNative()) {
+	if (isNative() || !useMsgpack()) {
 		return {
 			body: json,
 			contentType: "application/json",

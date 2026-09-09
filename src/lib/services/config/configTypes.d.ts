@@ -44,6 +44,8 @@ type General = {
 	description?: string;
 	allowCrawlers?: boolean;
 	disallowedPaths?: string[];
+	/** Default true. Set to false to exchange JSON instead of MessagePack with the API (less CPU, more bytes). */
+	msgpack?: boolean;
 };
 
 export type DbCreds = {

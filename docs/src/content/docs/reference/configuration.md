@@ -301,6 +301,7 @@ image = ""
 description = ""
 allowCrawlers = false
 disallowedPaths = []
+msgpack = true
 ```
 
 - branding and defaults for map and metadata
@@ -309,6 +310,7 @@ disallowedPaths = []
 - `minZoom`, `maxZoom`: Locking users into a map zoom range
 - `url`, `image`, `description`: SEO/OpenGraph metadata
 - `allowCrawlers`, `disallowedPaths`: robots.txt config
+- `msgpack`: Default `true`. The map client and API exchange MessagePack, which is about a fifth smaller than JSON but costs roughly three times the CPU to encode and decode on both ends. Set to `false` to use JSON instead, which is the better trade on a CPU-bound server or for clients on fast connections.
 
 ## `server.staticMap`
 
