@@ -52,6 +52,8 @@ When your Golbat serves the `GolbatApi` gRPC service (Golbat `feat/grpc-api` or 
 
 Gym, pokéstop and station scans still require in-memory forts as above; gRPC only changes the transport. By-id lookups, search and availability stay on HTTP.
 
+The combined fort scan, which fetches gyms, pokéstops and stations for a map pan in a single request, needs Golbat at commit `b24956a` or later; on an older Golbat Diadem falls back to one fort API call per type automatically.
+
 If a gRPC call fails for any reason (Golbat down, wrong secret, `fort_in_memory` off, timeout), Diadem logs a warning and falls back to the HTTP API for that request, and for forts to SQL after that, so the map keeps working. Unset `grpc` to compare against the HTTP path; per-request timings are logged at debug level on both transports.
 
 The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.

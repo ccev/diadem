@@ -141,6 +141,13 @@ non-200 per type as "no data".
 - If the fort API is not enabled: `Promise.all` of `queryMapObjects` per type. Same result
   shape, three SQL round trips in parallel.
 
+**Known caveat, accepted.** `examined` for each type is counted by Golbat over the union bbox,
+not over that type's own permitted bounds. A user whose permission for one fort type covers a
+small area inside a viewport where another type is permitted everywhere is therefore charged
+roughly full-viewport `examined` for the restricted type instead of small-area `examined`. The
+overcharge is bounded by `requestLimits[type]` and there is no effect at all for users with
+uniform permissions across the fort types, so this is accepted for now.
+
 **Query class split.** Each `Api*Query.query()` becomes `scan request → scanViaGrpcOrHttp →
 processScan(result, bounds, filter, polygon, since)`, with `processScan` public so the
 combined path can call it with a slice and a synthetic `{ examined, limit_reached }` from the

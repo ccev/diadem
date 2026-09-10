@@ -1,6 +1,8 @@
 import type { AnyFilter } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as golbat from "@/lib/server/api/golbatApi";
+import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
+import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
@@ -74,7 +76,8 @@ describe("queryFortsCombined", () => {
 		expect(body.gyms).toEqual({ filters: [], limit: 9000 });
 		expect(body.pokestops).toEqual({ filters: [], limit: 501 });
 		expect(body.stations).toEqual({ filters: [], limit: 9000 });
-		expect(body.limit).toBe(9000 + 501 + 9000);
+		// the top-level limit is clamped to Golbat's max_fort_results, not the sum of the groups
+		expect(body.limit).toBe(9000);
 
 		expect(results[MapObjectType.GYM]).toMatchObject({ examined: 12 });
 		expect(results[MapObjectType.GYM]?.data[0]).toMatchObject({
@@ -180,7 +183,7 @@ describe("queryFortsCombined", () => {
 		expect(results[MapObjectType.GYM]?.data).toHaveLength(1);
 	});
 
-	it("runs the SQL classes in parallel when the fort API is off or the scan fails", async () => {
+	it("runs the SQL classes in parallel when the fort API is off", async () => {
 		const gymSql = vi
 			.spyOn(GymQuery.prototype, "getMultiple")
 			.mockResolvedValue({ examined: 1, data: [] });
@@ -190,19 +193,118 @@ describe("queryFortsCombined", () => {
 		const scan = vi.spyOn(golbat, "scanForts");
 
 		fortApi.enabled = false;
-		let results = await queryFortsCombined({
+		const results = await queryFortsCombined({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.STATION]: entry()
 		});
 		expect(scan).not.toHaveBeenCalled();
+		expect(gymSql).toHaveBeenCalledTimes(1);
+		expect(stationSql).toHaveBeenCalledTimes(1);
 		expect(results[MapObjectType.GYM]).toEqual({ examined: 1, data: [] });
 		expect(results[MapObjectType.STATION]).toEqual({ examined: 2, data: [] });
+	});
 
-		fortApi.enabled = true;
-		scan.mockRejectedValue(new Error("boom"));
-		results = await queryFortsCombined({ [MapObjectType.GYM]: entry() });
-		expect(gymSql).toHaveBeenCalledTimes(2);
+	it("answers a disabled filter without querying it, with the fort API off", async () => {
+		const gymSql = vi.spyOn(GymQuery.prototype, "getMultiple");
+		const stationSql = vi
+			.spyOn(StationQuery.prototype, "getMultiple")
+			.mockResolvedValue({ examined: 2, data: [] });
+		const disabled = { enabled: false } as unknown as AnyFilter;
+
+		fortApi.enabled = false;
+		const results = await queryFortsCombined({
+			[MapObjectType.GYM]: { ...entry(), filter: disabled },
+			[MapObjectType.STATION]: entry()
+		});
+
+		expect(gymSql).not.toHaveBeenCalled();
+		expect(results[MapObjectType.GYM]).toEqual({ examined: 0, data: [] });
+		expect(stationSql).toHaveBeenCalledTimes(1);
+		expect(results[MapObjectType.STATION]).toEqual({ examined: 2, data: [] });
+	});
+
+	it("falls back to SQL for every scanned type when only the overall limit was reached", async () => {
+		const scan = vi.spyOn(golbat, "scanForts").mockResolvedValue({
+			gyms: [gym],
+			pokestops: [],
+			stations: [station],
+			examined: 9000,
+			skipped: 0,
+			total: 9000,
+			limit_reached: true,
+			gyms_stats: { examined: 4000, limit_reached: false },
+			pokestops_stats: { examined: 4000, limit_reached: false },
+			stations_stats: { examined: 1000, limit_reached: false }
+		});
+		const gymSql = vi
+			.spyOn(GymQuery.prototype, "getMultiple")
+			.mockResolvedValue({ examined: 1, data: [] });
+		const pokestopSql = vi
+			.spyOn(PokestopQuery.prototype, "getMultiple")
+			.mockResolvedValue({ examined: 2, data: [] });
+		const stationSql = vi
+			.spyOn(StationQuery.prototype, "getMultiple")
+			.mockResolvedValue({ examined: 3, data: [] });
+
+		const results = await queryFortsCombined({
+			[MapObjectType.GYM]: entry(),
+			[MapObjectType.POKESTOP]: entry(),
+			[MapObjectType.STATION]: entry()
+		});
+
+		expect(scan).toHaveBeenCalledTimes(1);
+		expect(gymSql).toHaveBeenCalledTimes(1);
+		expect(pokestopSql).toHaveBeenCalledTimes(1);
+		expect(stationSql).toHaveBeenCalledTimes(1);
 		expect(results[MapObjectType.GYM]).toEqual({ examined: 1, data: [] });
+		expect(results[MapObjectType.POKESTOP]).toEqual({ examined: 2, data: [] });
+		expect(results[MapObjectType.STATION]).toEqual({ examined: 3, data: [] });
+	});
+
+	it("falls back to the per-type fort API classes, not SQL, when the combined scan fails", async () => {
+		vi.spyOn(golbat, "scanForts").mockRejectedValue(new Error("boom"));
+		const gymApi = vi
+			.spyOn(ApiGymQuery.prototype, "getMultiple")
+			.mockResolvedValue({ examined: 1, data: [] });
+		const stationApi = vi
+			.spyOn(ApiStationQuery.prototype, "getMultiple")
+			.mockResolvedValue({ examined: 2, data: [] });
+		const gymSql = vi.spyOn(GymQuery.prototype, "getMultiple");
+
+		const results = await queryFortsCombined({
+			[MapObjectType.GYM]: entry(),
+			[MapObjectType.STATION]: entry()
+		});
+
+		expect(gymApi).toHaveBeenCalledTimes(1);
+		expect(stationApi).toHaveBeenCalledTimes(1);
+		expect(gymSql).not.toHaveBeenCalled();
+		expect(results[MapObjectType.GYM]).toEqual({ examined: 1, data: [] });
+		expect(results[MapObjectType.STATION]).toEqual({ examined: 2, data: [] });
+	});
+
+	it("leaves out a type whose query failed and keeps the others", async () => {
+		vi.spyOn(golbat, "scanForts").mockResolvedValue({
+			gyms: [gym],
+			pokestops: [],
+			stations: [],
+			examined: 5,
+			skipped: 0,
+			total: 5,
+			limit_reached: false,
+			gyms_stats: { examined: 5, limit_reached: false },
+			pokestops_stats: { examined: 9000, limit_reached: true },
+			stations_stats: emptyStats
+		});
+		vi.spyOn(PokestopQuery.prototype, "getMultiple").mockRejectedValue(new Error("db down"));
+
+		const results = await queryFortsCombined({
+			[MapObjectType.GYM]: entry(),
+			[MapObjectType.POKESTOP]: entry()
+		});
+
+		expect(results[MapObjectType.GYM]?.data).toHaveLength(1);
+		expect(MapObjectType.POKESTOP in results).toBe(false);
 	});
 
 	it("exposes the fort types in scan order", () => {

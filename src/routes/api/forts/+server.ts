@@ -22,7 +22,9 @@ import type { RequestHandler } from "./$types";
 const log = getLogger("mapobjects");
 
 // Gyms, pokéstops and stations in one request: each type is admitted, resolved, charged and
-// answered exactly as /api/<type> would, around a single combined Golbat scan.
+// answered exactly as /api/<type> would, around a single combined Golbat scan. A type's status
+// is the status the single-type route would have answered with (400, 401, 409 or 429); a type
+// whose query failed is refunded in full and left out of the response entirely.
 export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
 	const rateLimitKey = locals.user?.id ?? getClientAddress();
 	const start = performance.now();
@@ -41,8 +43,8 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 		maxLon: data.maxLon
 	};
 
-	const response: FortsResponse = {};
 	const entries: Partial<Record<FortType, FortQueryEntry>> = {};
+	const statuses: Partial<Record<FortType, 400 | 401 | 409 | 429>> = {};
 	const admitted: Partial<
 		Record<
 			FortType,
@@ -50,43 +52,49 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 		>
 	> = {};
 
-	for (const type of fortTypes) {
+	const requested = fortTypes.filter((type) => {
 		const typeData = data.types[type];
-		if (!typeData || typeof typeData !== "object") continue;
-
-		const admit = await admitType(type, locals, rateLimitKey);
-		if (admit.status !== 200) {
-			response[type] = { status: admit.status };
-			continue;
-		}
-		const resolved = await resolveTypeRequest(
-			type,
-			locals,
-			rateLimitKey,
-			admit.requestLimit,
-			bounds,
-			typeData
-		);
-		if (resolved.status !== 200) {
-			response[type] = { status: resolved.status === 400 ? 409 : resolved.status };
-			continue;
-		}
-		const since = requestSince(typeData);
-		entries[type] = {
-			filter: resolved.filter,
-			bounds: resolved.permitted.bounds,
-			polygon: resolved.permitted.polygon,
-			since,
-			limit: admit.requestLimit,
-			context: resolved.context
-		};
-		admitted[type] = {
-			requestLimit: admit.requestLimit,
-			totalLimit: admit.totalLimit,
-			since,
-			filterCached: resolved.filterCached
-		};
-	}
+		return Boolean(typeData) && typeof typeData === "object";
+	});
+	// Each type's rate limiter is independent, so admit + resolve run concurrently across types
+	// (sequentially within a type, since resolving needs the admitted request limit).
+	await Promise.all(
+		requested.map(async (type) => {
+			const typeData = data.types[type]!;
+			const admit = await admitType(type, locals, rateLimitKey);
+			if (admit.status !== 200) {
+				statuses[type] = admit.status;
+				return;
+			}
+			const resolved = await resolveTypeRequest(
+				type,
+				locals,
+				rateLimitKey,
+				admit.requestLimit,
+				bounds,
+				typeData
+			);
+			if (resolved.status !== 200) {
+				statuses[type] = resolved.status;
+				return;
+			}
+			const since = requestSince(typeData);
+			entries[type] = {
+				filter: resolved.filter,
+				bounds: resolved.permitted.bounds,
+				polygon: resolved.permitted.polygon,
+				since,
+				limit: admit.requestLimit,
+				context: resolved.context
+			};
+			admitted[type] = {
+				requestLimit: admit.requestLimit,
+				totalLimit: admit.totalLimit,
+				since,
+				filterCached: resolved.filterCached
+			};
+		})
+	);
 	const permCheckTime = performance.now();
 
 	const queried = fortTypes.filter((type) => entries[type]);
@@ -97,21 +105,38 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 		throw e;
 	});
 
-	const summary: string[] = [];
-	for (const type of queried) {
-		const result = results[type] ?? { examined: 0, data: [] };
-		const a = admitted[type]!;
-		const { charge, remainingPoints } = await settleTypeRequest(
-			type,
-			rateLimitKey,
-			a.requestLimit,
-			a.since,
-			result
-		);
-		response[type] = { status: 200, filterCached: a.filterCached, result };
-		summary.push(
-			`${type}: ${result.data.length} (charged ${charge}, ${remainingPoints}/${a.totalLimit})`
-		);
+	const summary = await Promise.all(
+		queried.map(async (type) => {
+			const a = admitted[type]!;
+			const result = results[type];
+			// queryFortsCombined leaves a type out when its query failed: refund it in full and
+			// omit it from the response, so the client sees it as missing rather than as empty.
+			if (!result) {
+				await rateLimitReward(rateLimitKey, a.requestLimit, type);
+				return `${type}: query failed (refunded ${a.requestLimit})`;
+			}
+			const { charge, remainingPoints } = await settleTypeRequest(
+				type,
+				rateLimitKey,
+				a.requestLimit,
+				a.since,
+				result
+			);
+			return `${type}: ${result.data.length} (charged ${charge}, ${remainingPoints}/${a.totalLimit})`;
+		})
+	);
+
+	const response: FortsResponse = {};
+	for (const type of fortTypes) {
+		const status = statuses[type];
+		if (status !== undefined) {
+			response[type] = { status };
+			continue;
+		}
+		const result = results[type];
+		if (result) {
+			response[type] = { status: 200, filterCached: admitted[type]!.filterCached, result };
+		}
 	}
 
 	const queryTime = performance.now();

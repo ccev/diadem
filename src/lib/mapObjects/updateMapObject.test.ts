@@ -1,5 +1,4 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { encode } from "@msgpack/msgpack";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/features/activeSearch.svelte.js", () => ({ getActiveSearch: () => undefined }));
@@ -44,6 +43,7 @@ vi.mock("@/lib/native/runtime", () => ({ isNative: () => false }));
 
 import {
 	applyMapObjectResponse,
+	clearMap,
 	fetchForts,
 	planMapObjectRequest
 } from "@/lib/mapObjects/updateMapObject";
@@ -58,6 +58,8 @@ beforeEach(() => {
 	vi.stubGlobal("fetch", fetchMock);
 	state.replace.mockReset();
 	state.add.mockReset();
+	// drop the filter-hash bookkeeping so each case seeds its own
+	clearMap();
 });
 afterEach(() => vi.unstubAllGlobals());
 

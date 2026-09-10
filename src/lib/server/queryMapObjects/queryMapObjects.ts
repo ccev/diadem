@@ -113,38 +113,54 @@ export type FortQueryEntry = {
 
 /**
  * One Golbat scan for every requested fort type, then the same per-type post-processing the
- * single-type routes run. Per-type limit_reached falls back to SQL for that type only; a failed
- * scan or a disabled fort API runs the SQL classes in parallel.
+ * single-type routes run. A type Golbat could not serve in full (its own limit_reached, or the
+ * overall cap with no per-type flag) falls back to SQL for that type; a failed scan or a
+ * missing combined endpoint falls back to the per-type fort API classes, which retry over the
+ * per-type endpoint and drop to SQL themselves. A failing type is left out of the result
+ * instead of failing the whole request.
  */
 export async function queryFortsCombined(
 	entries: Partial<Record<FortType, FortQueryEntry>>
 ): Promise<Partial<Record<FortType, MapObjectResponse<MapData>>>> {
 	const results: Partial<Record<FortType, MapObjectResponse<MapData>>> = {};
-	const viaSql = async (type: FortType) => {
+	const settle = async (type: FortType, run: () => Promise<MapObjectResponse<MapData>>) => {
+		try {
+			results[type] = await run();
+		} catch (err) {
+			log.error("Fort query for %s failed, serving no data for it: %s", type, err);
+		}
+	};
+	// Golbat already said it cannot serve this type in full
+	const viaSql = (type: FortType) => {
 		const e = entries[type]!;
-		results[type] = await registry[type]!.getMultiple(
-			e.bounds,
-			e.filter,
-			e.polygon,
-			e.since,
-			e.limit,
-			e.context
-		);
+		return registry[type]!.getMultiple(e.bounds, e.filter, e.polygon, e.since, e.limit, e.context);
+	};
+	// The combined scan itself failed (an older Golbat has no api/fort/scan): the per-type fort
+	// API classes retry over their own endpoint and fall back to SQL on their own.
+	const viaApi = (type: FortType) => {
+		const e = entries[type]!;
+		return getQuery(type).getMultiple(e.bounds, e.filter, e.polygon, e.since, e.limit, e.context);
 	};
 
-	const requested = fortTypes.filter((type) => entries[type]);
+	const requested: FortType[] = [];
+	for (const type of fortTypes) {
+		const e = entries[type];
+		if (!e) continue;
+		if (e.filter !== undefined && !e.filter.enabled) {
+			results[type] = { examined: 0, data: [] };
+			continue;
+		}
+		requested.push(type);
+	}
+
 	if (!isFortApiEnabled()) {
-		await Promise.all(requested.map(viaSql));
+		await Promise.all(requested.map((type) => settle(type, () => viaSql(type))));
 		return results;
 	}
 
 	const groups: Partial<Record<FortType, FortTypeScanGroup>> = {};
 	for (const type of requested) {
 		const e = entries[type]!;
-		if (e.filter !== undefined && !e.filter.enabled) {
-			results[type] = { examined: 0, data: [] };
-			continue;
-		}
 		const dnf =
 			type === MapObjectType.GYM
 				? buildGymDnfFilters(e.filter as FilterGym | undefined)
@@ -182,7 +198,9 @@ export async function queryFortsCombined(
 	const body: FortCombinedScanBody = {
 		min: { latitude: union.minLat, longitude: union.minLon },
 		max: { latitude: union.maxLat, longitude: union.maxLon },
-		limit: scanTypes.reduce((sum, type) => sum + groups[type]!.limit, 0),
+		// Golbat clamps this to max_fort_results anyway; the sum of the group limits can be a
+		// multiple of it, so clamp here too and let limit_reached below mean the overall cap.
+		limit: getFortApiScanLimit(scanTypes.reduce((sum, type) => sum + groups[type]!.limit, 0)),
 		with_incidents: Boolean(groups[MapObjectType.POKESTOP]),
 		gyms: groups[MapObjectType.GYM],
 		pokestops: groups[MapObjectType.POKESTOP],
@@ -193,52 +211,54 @@ export async function queryFortsCombined(
 	try {
 		scan = await scanViaGrpcOrHttp("forts", body, grpcScanForts, scanForts);
 	} catch (err) {
-		log.debug("Combined fort scan failed, falling back to SQL: %s", err);
+		log.debug("Combined fort scan failed, falling back to the per-type fort API: %s", err);
 	}
 	if (!scan) {
-		await Promise.all(scanTypes.map(viaSql));
+		await Promise.all(scanTypes.map((type) => settle(type, () => viaApi(type))));
 		return results;
 	}
 	const done = scan;
 
+	const statsFor = (type: FortType) =>
+		type === MapObjectType.GYM
+			? done.gyms_stats
+			: type === MapObjectType.POKESTOP
+				? done.pokestops_stats
+				: done.stations_stats;
+	// The overall cap can be hit with no type over its own limit (e.g. two types at 0.6x each);
+	// the slices are then silently truncated, so every scanned type has to come from SQL.
+	const overallCapped =
+		done.limit_reached && !scanTypes.some((type) => statsFor(type).limit_reached);
+
 	await Promise.all(
-		scanTypes.map(async (type) => {
+		scanTypes.map((type) => {
 			const e = entries[type]!;
-			if (type === MapObjectType.GYM) {
-				if (done.gyms_stats.limit_reached) return viaSql(type);
-				results[type] = apiGymQuery.finish(
-					apiGymQuery.processScan(done.gyms, done.gyms_stats.examined, e.polygon, e.since),
-					e.filter as FilterGym | undefined,
-					e.polygon,
-					e.context
-				);
-			} else if (type === MapObjectType.POKESTOP) {
-				if (done.pokestops_stats.limit_reached) return viaSql(type);
-				results[type] = apiPokestopQuery.finish(
-					apiPokestopQuery.processScan(
-						done.pokestops,
-						done.pokestops_stats.examined,
+			const stats = statsFor(type);
+			if (overallCapped || stats.limit_reached) return settle(type, () => viaSql(type));
+			return settle(type, async () => {
+				if (type === MapObjectType.GYM) {
+					return apiGymQuery.finish(
+						apiGymQuery.processScan(done.gyms, stats.examined, e.polygon, e.since),
+						e.filter as FilterGym | undefined,
 						e.polygon,
-						e.since
-					),
-					e.filter as FilterPokestop | undefined,
-					e.polygon,
-					e.context
-				);
-			} else {
-				if (done.stations_stats.limit_reached) return viaSql(type);
-				results[type] = apiStationQuery.finish(
-					apiStationQuery.processScan(
-						done.stations,
-						done.stations_stats.examined,
+						e.context
+					);
+				}
+				if (type === MapObjectType.POKESTOP) {
+					return apiPokestopQuery.finish(
+						apiPokestopQuery.processScan(done.pokestops, stats.examined, e.polygon, e.since),
+						e.filter as FilterPokestop | undefined,
 						e.polygon,
-						e.since
-					),
+						e.context
+					);
+				}
+				return apiStationQuery.finish(
+					apiStationQuery.processScan(done.stations, stats.examined, e.polygon, e.since),
 					e.filter as FilterStation | undefined,
 					e.polygon,
 					e.context
 				);
-			}
+			});
 		})
 	);
 	return results;

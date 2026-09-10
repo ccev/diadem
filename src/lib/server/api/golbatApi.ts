@@ -208,7 +208,14 @@ export function scanStations(body: FortScanBody) {
 }
 
 export function scanForts(body: FortCombinedScanBody) {
-	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", JSON.stringify(body));
+	// quiet: a Golbat without the combined endpoint answers 404, and the caller falls back
+	return callGolbat<FortCombinedScanResponse>(
+		"api/fort/scan",
+		"POST",
+		JSON.stringify(body),
+		fetch,
+		true
+	);
 }
 
 export function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) {
