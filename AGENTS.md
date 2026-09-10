@@ -73,7 +73,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 
 1. Server hooks (`hooks.server.ts`) chain: paraglide i18n → auth/session/permissions → server init
 2. Layout load fetches config + user settings
-3. Map queries: client POSTs bounds + filters to `/api/[mapObject]` → server queries Golbat DB with permission checks → returns filtered data
+3. Map queries: client POSTs bounds + filters to `/api/[mapObject]` (or, for gyms/pokéstops/stations together, `/api/forts`) → server queries Golbat (fort API over gRPC/HTTP, or SQL) with permission checks → returns filtered data. The per-type admit/resolve/settle pipeline lives in `src/lib/server/api/mapObjectRequest.ts`.
 4. Map objects stored in reactive `mapObjectsState`, rendered via MapLibre layers
 
 ### i18n
