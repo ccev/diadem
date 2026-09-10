@@ -175,4 +175,60 @@ describe("fort API adapters", () => {
 		expect(data.defenders).toEqual([{ ...defender, form: 0 }]);
 		expect(data).not.toHaveProperty("defenders_raw");
 	});
+
+	it("finish() applies prepare, filter and makeMapObject like getMultiple()", async () => {
+		vi.spyOn(golbat, "scanGyms").mockResolvedValue({
+			gyms: [gym],
+			examined: 3,
+			skipped: 0,
+			total: 3,
+			limit_reached: false
+		});
+		const query = new ApiGymQuery();
+		const viaGetMultiple = await query.getMultiple(bounds, undefined, null);
+		const viaFinish = query.finish(
+			query.processScan([gym], 3, null, undefined),
+			undefined,
+			null,
+			undefined
+		);
+		expect(viaFinish).toEqual(viaGetMultiple);
+		expect(viaFinish.data[0]).toMatchObject({ type: "gym", mapId: "gym-gym", deleted: 0 });
+		expect(viaFinish.examined).toBe(3);
+	});
+
+	it("finish() passes limitReached through without processing", () => {
+		const out = new ApiGymQuery().finish(
+			{ data: [], examined: 7, limitReached: true },
+			undefined,
+			null
+		);
+		expect(out).toEqual({ data: [], examined: 7, limitReached: true });
+	});
+
+	it("processScan() drops deleted, stale and out-of-polygon records and adjusts examined", () => {
+		const inside = { ...gym, id: "in" };
+		const deleted = { ...gym, id: "del", deleted: true };
+		const stale = { ...gym, id: "old", updated: 10 };
+		const outside = { ...gym, id: "out", lat: 50, lon: 50 };
+		const polygon = {
+			type: "Feature" as const,
+			properties: {},
+			geometry: {
+				type: "Polygon" as const,
+				coordinates: [
+					[
+						[0, 0],
+						[5, 0],
+						[5, 5],
+						[0, 5],
+						[0, 0]
+					]
+				]
+			}
+		};
+		const out = new ApiGymQuery().processScan([inside, deleted, stale, outside], 4, polygon, 50);
+		expect(out.data.map((g) => g.id)).toEqual(["in"]);
+		expect(out.examined).toBe(3);
+	});
 });

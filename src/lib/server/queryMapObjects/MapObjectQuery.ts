@@ -54,8 +54,22 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		limit?: number,
 		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MapObject>> {
-		const result = await this.query(bounds, filter, polygon, since, limit, context);
+		return this.finish(
+			await this.query(bounds, filter, polygon, since, limit, context),
+			filter,
+			polygon,
+			context
+		);
+	}
 
+	// Everything after the scan: permission stripping, local filtering, map object shaping.
+	// Shared by getMultiple() and the combined fort scan.
+	public finish(
+		result: MapObjectResponse<MinMapObject<MapObject>>,
+		filter: Filter | undefined,
+		polygon: PermittedPolygon,
+		context?: FeaturePermissionContext
+	): MapObjectResponse<MapObject> {
 		if (result.limitReached) {
 			return {
 				examined: result.examined,
@@ -68,7 +82,6 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 			this.prepare(item, context);
 		}
 
-		let examined = result.examined;
 		const data: MapObject[] = [];
 		for (const item of result.data) {
 			if (!filter || this.filter(item, filter, polygon, context)) {
@@ -76,7 +89,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 			}
 		}
 
-		return { examined, data };
+		return { examined: result.examined, data };
 	}
 
 	public async getSingle(id: string, thisFetch?: typeof fetch, context?: FeaturePermissionContext) {

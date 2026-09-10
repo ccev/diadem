@@ -65,10 +65,19 @@ export class ApiStationQuery extends StationQuery {
 			log.debug("Fort station scan failed, falling back to SQL: %s", err);
 		}
 		if (!result || result.limit_reached) return super.query(bounds, filter, polygon, since, limit);
+		return this.processScan(result.stations, result.examined, polygon, since);
+	}
 
-		let examined = result.examined;
+	// Per-record trimming after any scan (single or combined). examined drops for records the
+	// permission polygon excludes, so rate-limit charges match what the user could see.
+	processScan(
+		stations: GolbatStationResult[],
+		examined: number,
+		polygon: PermittedPolygon,
+		since?: number
+	): MapObjectResponse<MinMapObject<StationData>> {
 		const data: MinMapObject<StationData>[] = [];
-		for (const s of result.stations) {
+		for (const s of stations) {
 			if (since !== undefined && (s.updated ?? 0) <= since) continue;
 			if (polygon && !booleanPointInPolygon(point([s.lon, s.lat]), polygon)) {
 				examined -= 1;
