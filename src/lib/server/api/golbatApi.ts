@@ -8,7 +8,9 @@ import type { Coords } from "@/lib/utils/coordinates";
 import { getLogger } from "@/lib/utils/logger";
 import type {
 	FortAvailability,
+	FortCombinedScanBody,
 	FortScanBody,
+	FortTypeScanStats,
 	GolbatStatus,
 	PokemonScanBody
 } from "@/lib/server/queryMapObjects/queries";
@@ -87,6 +89,18 @@ export type StationScanResponse = {
 	skipped: number;
 	total: number;
 	limit_reached: boolean;
+};
+export type FortCombinedScanResponse = {
+	gyms: GolbatGymResult[];
+	pokestops: GolbatPokestopResult[];
+	stations: GolbatStationResult[];
+	examined: number;
+	skipped: number;
+	total: number;
+	limit_reached: boolean;
+	gyms_stats: FortTypeScanStats;
+	pokestops_stats: FortTypeScanStats;
+	stations_stats: FortTypeScanStats;
 };
 
 const log = getLogger("golbat");
@@ -191,6 +205,10 @@ export function scanPokestops(body: FortScanBody) {
 
 export function scanStations(body: FortScanBody) {
 	return callGolbat<StationScanResponse>("api/station/scan", "POST", JSON.stringify(body));
+}
+
+export function scanForts(body: FortCombinedScanBody) {
+	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", JSON.stringify(body));
 }
 
 export function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) {

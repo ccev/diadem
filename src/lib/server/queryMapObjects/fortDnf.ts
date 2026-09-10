@@ -152,23 +152,27 @@ export function buildPokestopDnfFilters(
 export function buildStationDnfFilters(filter: FilterStation | undefined): GolbatFortDnfFilter[] {
 	if (!filter || filter.stationPlain.enabled || !filter.maxBattle.enabled) return [];
 
+	// Diadem's max-battle display rule (shouldDisplayStation / isMaxBattleActive): not inactive,
+	// battle available, inside the station window. Golbat's station_active + battle_available is
+	// exactly that, so every clause starts from it.
+	const active: GolbatFortDnfFilter = { station_active: true, battle_available: true };
 	const clauses: GolbatFortDnfFilter[] = [];
 	for (const filterset of filter.maxBattle.filters.filter((f) => f.enabled)) {
 		if (filterset.isActive) {
-			clauses.push({ station_active: true });
+			clauses.push({ ...active });
 			continue;
 		}
 		if (filterset.hasGmax) {
-			clauses.push({ station_active: true, stationed_gmax: true });
+			clauses.push({ ...active, stationed_gmax: true });
 			continue;
 		}
 		if (filterset.bosses?.length) {
 			clauses.push({
-				station_active: true,
+				...active,
 				battle_pokemon: filterset.bosses.map((boss) => ({ pokemon_id: boss.pokemon_id }))
 			});
 		}
 	}
 
-	return clauses.length ? clauses : [{ station_active: true }];
+	return clauses.length ? clauses : [{ ...active }];
 }

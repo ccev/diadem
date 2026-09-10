@@ -22,7 +22,7 @@ import {
 export const protobufPackage = "golbat_api";
 
 /**
- * Copied verbatim from UnownHash/Golbat grpc/api.proto at commit 8f10ee9 (branch feat/grpc-api).
+ * Copied verbatim from UnownHash/Golbat grpc/api.proto at commit b24956a (branch feat/grpc-api).
  * Do not edit. Re-copy when Golbat changes it, then run `pnpm run grpc:generate` and commit both.
  */
 
@@ -202,7 +202,14 @@ export interface FortDnfFilter {
   battle_level?: number[] | undefined;
   battle_pokemon?: DnfId[] | undefined;
   stationed_gmax?: boolean | undefined;
-  station_active?: boolean | undefined;
+  station_active?:
+    | boolean
+    | undefined;
+  /**
+   * The station's is_battle_available flag as last decoded; implies nothing
+   * about the station window (station_active) or a scheduled battle.
+   */
+  battle_available?: boolean | undefined;
 }
 
 export interface FortScanRequest {
@@ -223,7 +230,21 @@ export interface FortScanRequest {
 }
 
 export interface FortTypeScanGroup {
-  filters?: FortDnfFilter[] | undefined;
+  filters?:
+    | FortDnfFilter[]
+    | undefined;
+  /** per-type cap; 0 = server default (tuning.max_fort_results) */
+  limit?: number | undefined;
+}
+
+/** One fort type's share of a combined scan's counters. */
+export interface FortTypeScanStats {
+  /** forts of this type examined (lookup loaded); 0 for an excluded type */
+  examined?:
+    | number
+    | undefined;
+  /** this type's accepted results reached its per-type limit */
+  limit_reached?: boolean | undefined;
 }
 
 export interface FortCombinedScanRequest {
@@ -445,8 +466,14 @@ export interface FortScanResponse {
   stations?: Station[] | undefined;
   examined?: number | undefined;
   skipped?: number | undefined;
-  total?: number | undefined;
+  total?:
+    | number
+    | undefined;
+  /** any type reached its limit, or the overall cap */
   limit_reached?: boolean | undefined;
+  gyms_stats?: FortTypeScanStats | undefined;
+  pokestops_stats?: FortTypeScanStats | undefined;
+  stations_stats?: FortTypeScanStats | undefined;
 }
 
 function createBaseLatLon(): LatLon {
@@ -2680,6 +2707,7 @@ function createBaseFortDnfFilter(): FortDnfFilter {
     battle_pokemon: [],
     stationed_gmax: undefined,
     station_active: undefined,
+    battle_available: undefined,
   };
 }
 
@@ -2801,6 +2829,9 @@ export const FortDnfFilter: MessageFns<FortDnfFilter> = {
     }
     if (message.station_active !== undefined) {
       writer.uint32(168).bool(message.station_active);
+    }
+    if (message.battle_available !== undefined) {
+      writer.uint32(176).bool(message.battle_available);
     }
     return writer;
   },
@@ -3111,6 +3142,14 @@ export const FortDnfFilter: MessageFns<FortDnfFilter> = {
             message.station_active = reader.bool();
             continue;
           }
+          case 22: {
+            if (tag !== 176) {
+              break;
+            }
+
+            message.battle_available = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -3230,6 +3269,11 @@ export const FortDnfFilter: MessageFns<FortDnfFilter> = {
         : isSet(object.station_active)
         ? globalThis.Boolean(object.station_active)
         : undefined,
+      battle_available: isSet(object.battleAvailable)
+        ? globalThis.Boolean(object.battleAvailable)
+        : isSet(object.battle_available)
+        ? globalThis.Boolean(object.battle_available)
+        : undefined,
     };
   },
 
@@ -3298,6 +3342,9 @@ export const FortDnfFilter: MessageFns<FortDnfFilter> = {
     if (message.station_active !== undefined) {
       obj.stationActive = message.station_active;
     }
+    if (message.battle_available !== undefined) {
+      obj.battleAvailable = message.battle_available;
+    }
     return obj;
   },
 
@@ -3331,6 +3378,7 @@ export const FortDnfFilter: MessageFns<FortDnfFilter> = {
     message.battle_pokemon = object.battle_pokemon?.map((e) => DnfId.fromPartial(e)) || [];
     message.stationed_gmax = object.stationed_gmax ?? undefined;
     message.station_active = object.station_active ?? undefined;
+    message.battle_available = object.battle_available ?? undefined;
     return message;
   },
 };
@@ -3480,7 +3528,7 @@ export const FortScanRequest: MessageFns<FortScanRequest> = {
 };
 
 function createBaseFortTypeScanGroup(): FortTypeScanGroup {
-  return { filters: [] };
+  return { filters: [], limit: 0 };
 }
 
 export const FortTypeScanGroup: MessageFns<FortTypeScanGroup> = {
@@ -3489,6 +3537,9 @@ export const FortTypeScanGroup: MessageFns<FortTypeScanGroup> = {
       for (const v of message.filters) {
         FortDnfFilter.encode(v!, writer.uint32(10).fork()).join();
       }
+    }
+    if (message.limit !== undefined && message.limit !== 0) {
+      writer.uint32(16).int32(message.limit);
     }
     return writer;
   },
@@ -3517,6 +3568,14 @@ export const FortTypeScanGroup: MessageFns<FortTypeScanGroup> = {
             }
             continue;
           }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.limit = reader.int32();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -3534,6 +3593,7 @@ export const FortTypeScanGroup: MessageFns<FortTypeScanGroup> = {
       filters: globalThis.Array.isArray(object?.filters)
         ? object.filters.map((e: any) => FortDnfFilter.fromJSON(e))
         : [],
+      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
     };
   },
 
@@ -3541,6 +3601,9 @@ export const FortTypeScanGroup: MessageFns<FortTypeScanGroup> = {
     const obj: any = {};
     if (message.filters?.length) {
       obj.filters = message.filters.map((e) => FortDnfFilter.toJSON(e));
+    }
+    if (message.limit !== undefined && message.limit !== 0) {
+      obj.limit = Math.round(message.limit);
     }
     return obj;
   },
@@ -3551,6 +3614,96 @@ export const FortTypeScanGroup: MessageFns<FortTypeScanGroup> = {
   fromPartial<I extends Exact<DeepPartial<FortTypeScanGroup>, I>>(object: I): FortTypeScanGroup {
     const message = createBaseFortTypeScanGroup();
     message.filters = object.filters?.map((e) => FortDnfFilter.fromPartial(e)) || [];
+    message.limit = object.limit ?? 0;
+    return message;
+  },
+};
+
+function createBaseFortTypeScanStats(): FortTypeScanStats {
+  return { examined: 0, limit_reached: false };
+}
+
+export const FortTypeScanStats: MessageFns<FortTypeScanStats> = {
+  encode(message: FortTypeScanStats, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.examined !== undefined && message.examined !== 0) {
+      writer.uint32(8).int32(message.examined);
+    }
+    if (message.limit_reached !== undefined && message.limit_reached !== false) {
+      writer.uint32(16).bool(message.limit_reached);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): FortTypeScanStats {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseFortTypeScanStats();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.examined = reader.int32();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.limit_reached = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): FortTypeScanStats {
+    return {
+      examined: isSet(object.examined) ? globalThis.Number(object.examined) : 0,
+      limit_reached: isSet(object.limitReached)
+        ? globalThis.Boolean(object.limitReached)
+        : isSet(object.limit_reached)
+        ? globalThis.Boolean(object.limit_reached)
+        : false,
+    };
+  },
+
+  toJSON(message: FortTypeScanStats): unknown {
+    const obj: any = {};
+    if (message.examined !== undefined && message.examined !== 0) {
+      obj.examined = Math.round(message.examined);
+    }
+    if (message.limit_reached !== undefined && message.limit_reached !== false) {
+      obj.limitReached = message.limit_reached;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<FortTypeScanStats>, I>>(base?: I): FortTypeScanStats {
+    return FortTypeScanStats.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FortTypeScanStats>, I>>(object: I): FortTypeScanStats {
+    const message = createBaseFortTypeScanStats();
+    message.examined = object.examined ?? 0;
+    message.limit_reached = object.limit_reached ?? false;
     return message;
   },
 };
@@ -7532,7 +7685,18 @@ export const StationScanResponse: MessageFns<StationScanResponse> = {
 };
 
 function createBaseFortScanResponse(): FortScanResponse {
-  return { gyms: [], pokestops: [], stations: [], examined: 0, skipped: 0, total: 0, limit_reached: false };
+  return {
+    gyms: [],
+    pokestops: [],
+    stations: [],
+    examined: 0,
+    skipped: 0,
+    total: 0,
+    limit_reached: false,
+    gyms_stats: undefined,
+    pokestops_stats: undefined,
+    stations_stats: undefined,
+  };
 }
 
 export const FortScanResponse: MessageFns<FortScanResponse> = {
@@ -7563,6 +7727,15 @@ export const FortScanResponse: MessageFns<FortScanResponse> = {
     }
     if (message.limit_reached !== undefined && message.limit_reached !== false) {
       writer.uint32(56).bool(message.limit_reached);
+    }
+    if (message.gyms_stats !== undefined) {
+      FortTypeScanStats.encode(message.gyms_stats, writer.uint32(66).fork()).join();
+    }
+    if (message.pokestops_stats !== undefined) {
+      FortTypeScanStats.encode(message.pokestops_stats, writer.uint32(74).fork()).join();
+    }
+    if (message.stations_stats !== undefined) {
+      FortTypeScanStats.encode(message.stations_stats, writer.uint32(82).fork()).join();
     }
     return writer;
   },
@@ -7645,6 +7818,30 @@ export const FortScanResponse: MessageFns<FortScanResponse> = {
             message.limit_reached = reader.bool();
             continue;
           }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.gyms_stats = FortTypeScanStats.decode(reader, reader.uint32());
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.pokestops_stats = FortTypeScanStats.decode(reader, reader.uint32());
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.stations_stats = FortTypeScanStats.decode(reader, reader.uint32());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -7672,6 +7869,21 @@ export const FortScanResponse: MessageFns<FortScanResponse> = {
         : isSet(object.limit_reached)
         ? globalThis.Boolean(object.limit_reached)
         : false,
+      gyms_stats: isSet(object.gymsStats)
+        ? FortTypeScanStats.fromJSON(object.gymsStats)
+        : isSet(object.gyms_stats)
+        ? FortTypeScanStats.fromJSON(object.gyms_stats)
+        : undefined,
+      pokestops_stats: isSet(object.pokestopsStats)
+        ? FortTypeScanStats.fromJSON(object.pokestopsStats)
+        : isSet(object.pokestops_stats)
+        ? FortTypeScanStats.fromJSON(object.pokestops_stats)
+        : undefined,
+      stations_stats: isSet(object.stationsStats)
+        ? FortTypeScanStats.fromJSON(object.stationsStats)
+        : isSet(object.stations_stats)
+        ? FortTypeScanStats.fromJSON(object.stations_stats)
+        : undefined,
     };
   },
 
@@ -7698,6 +7910,15 @@ export const FortScanResponse: MessageFns<FortScanResponse> = {
     if (message.limit_reached !== undefined && message.limit_reached !== false) {
       obj.limitReached = message.limit_reached;
     }
+    if (message.gyms_stats !== undefined) {
+      obj.gymsStats = FortTypeScanStats.toJSON(message.gyms_stats);
+    }
+    if (message.pokestops_stats !== undefined) {
+      obj.pokestopsStats = FortTypeScanStats.toJSON(message.pokestops_stats);
+    }
+    if (message.stations_stats !== undefined) {
+      obj.stationsStats = FortTypeScanStats.toJSON(message.stations_stats);
+    }
     return obj;
   },
 
@@ -7713,6 +7934,15 @@ export const FortScanResponse: MessageFns<FortScanResponse> = {
     message.skipped = object.skipped ?? 0;
     message.total = object.total ?? 0;
     message.limit_reached = object.limit_reached ?? false;
+    message.gyms_stats = (object.gyms_stats !== undefined && object.gyms_stats !== null)
+      ? FortTypeScanStats.fromPartial(object.gyms_stats)
+      : undefined;
+    message.pokestops_stats = (object.pokestops_stats !== undefined && object.pokestops_stats !== null)
+      ? FortTypeScanStats.fromPartial(object.pokestops_stats)
+      : undefined;
+    message.stations_stats = (object.stations_stats !== undefined && object.stations_stats !== null)
+      ? FortTypeScanStats.fromPartial(object.stations_stats)
+      : undefined;
     return message;
   },
 };
@@ -7734,7 +7964,7 @@ export const GolbatApiService = {
     responseSerialize: (value: PokemonScanResponse): Buffer => Buffer.from(PokemonScanResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): PokemonScanResponse => PokemonScanResponse.decode(value),
   },
-  /** GET /api/pokemon/id/{id}, batched. Misses are omitted; match by id. */
+  /** GET /api/pokemon/id/{pokemon_id}, batched. Misses are omitted; match by id. */
   getPokemon: {
     path: "/golbat_api.GolbatApi/GetPokemon" as const,
     requestStream: false as const,
@@ -7791,7 +8021,7 @@ export const GolbatApiService = {
 export interface GolbatApiServer extends UntypedServiceImplementation {
   /** POST /api/pokemon/v3/scan */
   scanPokemon: handleUnaryCall<PokemonScanRequest, PokemonScanResponse>;
-  /** GET /api/pokemon/id/{id}, batched. Misses are omitted; match by id. */
+  /** GET /api/pokemon/id/{pokemon_id}, batched. Misses are omitted; match by id. */
   getPokemon: handleUnaryCall<GetPokemonRequest, GetPokemonResponse>;
   /** POST /api/gym/scan */
   scanGyms: handleUnaryCall<FortScanRequest, GymScanResponse>;
@@ -7820,7 +8050,7 @@ export interface GolbatApiClient extends Client {
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: PokemonScanResponse) => void,
   ): ClientUnaryCall;
-  /** GET /api/pokemon/id/{id}, batched. Misses are omitted; match by id. */
+  /** GET /api/pokemon/id/{pokemon_id}, batched. Misses are omitted; match by id. */
   getPokemon(
     request: GetPokemonRequest,
     callback: (error: ServiceError | null, response: GetPokemonResponse) => void,
