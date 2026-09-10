@@ -79,26 +79,14 @@ the no-filterset fallback. With Golbat's new `station_active` semantics, the fal
 `{ station_active: true, battle_available: true }` equals the SQL predicate
 `is_inactive = 0 AND is_battle_available = 1 AND start_time < now AND end_time > now`.
 
-One caveat, decided before implementation: Diadem's `shouldDisplayStation` requires
-`!is_inactive && is_battle_available && end_time > now` but **not** `start_time < now`
-(only the `isActive` filterset adds that). `station_active` now requires `start_time < now`,
-so a station with its flag set before its window opens would be excluded by the DNF but shown
-by SQL. Whether such rows exist is a data question:
+Every clause carries both `station_active: true` and `battle_available: true`. Known caveat,
+accepted: Diadem's `shouldDisplayStation` requires `!is_inactive && is_battle_available &&
+end_time > now` but not `start_time < now`, while `station_active` now does. A station whose
+flag is set before its window opens would be excluded by the DNF but shown by SQL. The game is
+expected to set the flag only once the window opens; if live data shows otherwise, drop
+`station_active` from the base, `hasGmax` and `bosses` clauses and keep it on `isActive` only.
 
-```sql
-SELECT COUNT(*) AS flag_set_before_start
-FROM station
-WHERE is_battle_available = 1 AND is_inactive = 0
-  AND end_time > UNIX_TIMESTAMP() AND start_time > UNIX_TIMESTAMP();
-```
-
-- Zero (expected: the flag is set by the game when the window opens): use
-  `station_active: true, battle_available: true` on every clause. Tight, exact.
-- Non-zero: use `battle_available: true` alone on the base, `hasGmax` and `bosses` clauses,
-  and add `station_active: true` only on `isActive`. Looser (stale flags on ended stations
-  come back and are trimmed locally) but never drops a displayable station.
-
-Tests in `fortDnf.test.ts` updated for the chosen shape.
+Tests in `fortDnf.test.ts` updated for the new shape.
 
 ## 4. Server: combined fort route
 
