@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { status } from "@grpc/grpc-js";
 import {
 	describeGrpcError,
+	fromFortScanResponse,
 	fromGymScanResponse,
 	fromPokemonScanResponse,
 	fromPokestopScanResponse,
 	fromStationScanResponse,
+	toFortCombinedScanRequest,
 	toFortScanRequest,
 	toPokemonScanRequest
 } from "./golbatGrpcMapping";
@@ -294,6 +296,69 @@ describe("fromPokemonScanResponse", () => {
 		});
 		expect(res.pokemon[0].pvp).toBeUndefined();
 		expect(res.pokemon[1].pvp).toBeUndefined();
+	});
+});
+
+describe("toFortCombinedScanRequest", () => {
+	it("maps groups with their own limits and omits absent types", () => {
+		const req = toFortCombinedScanRequest({
+			...bounds,
+			limit: 20003,
+			with_incidents: true,
+			gyms: { filters: [{ raid_level: [5] }], limit: 10001 },
+			pokestops: { filters: [], limit: 10001 }
+		});
+		expect(req).toEqual({
+			min: { lat: 51.5, lon: -0.2 },
+			max: { lat: 51.6, lon: -0.1 },
+			limit: 20003,
+			with_incidents: true,
+			gyms: { filters: [{ raid_level: [5] }], limit: 10001 },
+			pokestops: { filters: [], limit: 10001 },
+			stations: undefined
+		});
+	});
+
+	it("defaults with_incidents to false and an omitted filter list to []", () => {
+		const req = toFortCombinedScanRequest({ ...bounds, limit: 1, stations: { limit: 1 } });
+		expect(req.with_incidents).toBe(false);
+		expect(req.stations).toEqual({ filters: [], limit: 1 });
+		expect(req.gyms).toBeUndefined();
+	});
+});
+
+describe("fromFortScanResponse", () => {
+	it("maps the three slices through the per-type converters and keeps per-type stats", () => {
+		const res = fromFortScanResponse({
+			gyms: [{ id: "g1", lat: 1, lon: 2, defenders_json: "[]", cell_id: "1" }],
+			pokestops: [{ id: "p1", lat: 1, lon: 2, quest_rewards_json: "[]", enabled: true }],
+			stations: [{ id: "s1", lat: 1, lon: 2, stationed_pokemon_json: "[]", battles: [] }],
+			examined: 30,
+			skipped: 1,
+			total: 100,
+			limit_reached: true,
+			gyms_stats: { examined: 10, limit_reached: false },
+			pokestops_stats: { examined: 15, limit_reached: true },
+			stations_stats: { examined: 5, limit_reached: false }
+		});
+		expect(res.gyms[0]).toMatchObject({ id: "g1", defenders: [] });
+		expect(res.gyms[0]).not.toHaveProperty("cell_id");
+		expect(res.pokestops[0]).toMatchObject({ id: "p1", quest_rewards: "[]", enabled: 1 });
+		expect(res.stations[0]).toMatchObject({ id: "s1", stationed_pokemon: "[]" });
+		expect(res.stations[0]).not.toHaveProperty("battles");
+		expect(res).toMatchObject({ examined: 30, skipped: 1, total: 100, limit_reached: true });
+		expect(res.gyms_stats).toEqual({ examined: 10, limit_reached: false });
+		expect(res.pokestops_stats).toEqual({ examined: 15, limit_reached: true });
+		expect(res.stations_stats).toEqual({ examined: 5, limit_reached: false });
+	});
+
+	it("defaults missing slices and stats", () => {
+		const res = fromFortScanResponse({});
+		expect(res.gyms).toEqual([]);
+		expect(res.pokestops).toEqual([]);
+		expect(res.stations).toEqual([]);
+		expect(res.limit_reached).toBe(false);
+		expect(res.gyms_stats).toEqual({ examined: 0, limit_reached: false });
 	});
 });
 

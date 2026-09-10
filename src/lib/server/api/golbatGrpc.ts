@@ -2,6 +2,7 @@ import { ChannelCredentials, Metadata, type CallOptions, type ServiceError } fro
 import { GolbatApiClient } from "@/lib/server/api/grpc/golbat_api";
 import {
 	golbatInFlight,
+	type FortCombinedScanResponse,
 	type GymScanResponse,
 	type PokemonResponse,
 	type PokestopScanResponse,
@@ -9,14 +10,20 @@ import {
 } from "@/lib/server/api/golbatApi";
 import {
 	describeGrpcError,
+	fromFortScanResponse,
 	fromGymScanResponse,
 	fromPokemonScanResponse,
 	fromPokestopScanResponse,
 	fromStationScanResponse,
+	toFortCombinedScanRequest,
 	toFortScanRequest,
 	toPokemonScanRequest
 } from "@/lib/server/api/golbatGrpcMapping";
-import type { FortScanBody, PokemonScanBody } from "@/lib/server/queryMapObjects/queries";
+import type {
+	FortCombinedScanBody,
+	FortScanBody,
+	PokemonScanBody
+} from "@/lib/server/queryMapObjects/queries";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 
@@ -98,6 +105,13 @@ export async function grpcScanStations(body: FortScanBody): Promise<StationScanR
 	const request = toFortScanRequest(body);
 	return fromStationScanResponse(
 		await call("ScanStations", (c, md, opts, cb) => c.scanStations(request, md, opts, cb))
+	);
+}
+
+export async function grpcScanForts(body: FortCombinedScanBody): Promise<FortCombinedScanResponse> {
+	const request = toFortCombinedScanRequest(body);
+	return fromFortScanResponse(
+		await call("ScanForts", (c, md, opts, cb) => c.scanForts(request, md, opts, cb))
 	);
 }
 

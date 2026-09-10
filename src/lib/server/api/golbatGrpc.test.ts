@@ -1,6 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { Server, ServerCredentials, status, type Metadata } from "@grpc/grpc-js";
-import { GolbatApiService, type FortScanRequest, type GolbatApiServer } from "./grpc/golbat_api";
+import {
+	GolbatApiService,
+	type FortCombinedScanRequest,
+	type FortScanRequest,
+	type GolbatApiServer
+} from "./grpc/golbat_api";
 
 // golbatGrpc.ts reads the config object once at import and its fields per call, so mutating
 // this hoisted object after the server binds is enough to point the client at it.
@@ -13,10 +18,11 @@ vi.mock("@/lib/services/config/config.server", () => ({
 	getServerConfig: () => ({ golbat: golbatConfig })
 }));
 
-import { grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./golbatGrpc";
+import { grpcScanForts, grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./golbatGrpc";
 
 let server: Server;
 let received: { metadata: Metadata; request: FortScanRequest } | undefined;
+let receivedCombined: FortCombinedScanRequest | undefined;
 let respondWith: "ok" | "unauthenticated" | "large" = "ok";
 
 // ~1000 chars, used to pad a large response past the grpc-js default 4MiB receive cap.
@@ -87,7 +93,33 @@ beforeAll(async () => {
 		},
 		scanPokestops: unimplemented,
 		scanStations: unimplemented,
-		scanForts: unimplemented,
+		scanForts(call, callback) {
+			receivedCombined = call.request;
+			callback(null, {
+				gyms: [
+					{ id: "g1", lat: 1.5, lon: 2.5, updated: 100, deleted: false, first_seen_timestamp: 1 }
+				],
+				pokestops: [],
+				stations: [
+					{
+						id: "s1",
+						lat: 1,
+						lon: 2,
+						name: "S",
+						updated: 9,
+						is_inactive: false,
+						is_battle_available: true
+					}
+				],
+				examined: 40,
+				skipped: 0,
+				total: 40,
+				limit_reached: false,
+				gyms_stats: { examined: 25, limit_reached: false },
+				pokestops_stats: { examined: 0, limit_reached: false },
+				stations_stats: { examined: 15, limit_reached: true }
+			});
+		},
 		scanPokemon: unimplemented,
 		getPokemon: unimplemented
 	};
@@ -106,6 +138,7 @@ afterAll(() => {
 
 beforeEach(() => {
 	received = undefined;
+	receivedCombined = undefined;
 	respondWith = "ok";
 });
 
@@ -145,6 +178,30 @@ describe("golbatGrpc", () => {
 		respondWith = "large";
 		const res = await grpcScanGyms(fortBody);
 		expect(res.gyms).toHaveLength(6000);
+	});
+
+	it("round-trips a combined fort scan with per-type groups and stats", async () => {
+		const res = await grpcScanForts({
+			min: { latitude: 51.5, longitude: -0.2 },
+			max: { latitude: 51.6, longitude: -0.1 },
+			limit: 22,
+			with_incidents: true,
+			gyms: { filters: [{ raid_level: [5] }], limit: 11 },
+			stations: { filters: [{ station_active: true, battle_available: true }], limit: 11 }
+		});
+
+		expect(receivedCombined?.limit).toBe(22);
+		expect(receivedCombined?.with_incidents).toBe(true);
+		expect(receivedCombined?.gyms?.limit).toBe(11);
+		expect(receivedCombined?.gyms?.filters?.[0].raid_level).toEqual([5]);
+		expect(receivedCombined?.pokestops).toBeUndefined();
+		expect(receivedCombined?.stations?.filters?.[0].battle_available).toBe(true);
+
+		expect(res.gyms.map((g) => g.id)).toEqual(["g1"]);
+		expect(res.pokestops).toEqual([]);
+		expect(res.stations[0]).toMatchObject({ id: "s1", is_battle_available: true });
+		expect(res.gyms_stats).toEqual({ examined: 25, limit_reached: false });
+		expect(res.stations_stats).toEqual({ examined: 15, limit_reached: true });
 	});
 });
 

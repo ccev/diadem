@@ -1,6 +1,7 @@
 import { status, type ServiceError } from "@grpc/grpc-js";
 import type * as pb from "@/lib/server/api/grpc/golbat_api";
 import type {
+	FortCombinedScanResponse,
 	GolbatGymResult,
 	GolbatPokestopResult,
 	GolbatStationResult,
@@ -9,7 +10,13 @@ import type {
 	PokestopScanResponse,
 	StationScanResponse
 } from "@/lib/server/api/golbatApi";
-import type { FortScanBody, PokemonScanBody } from "@/lib/server/queryMapObjects/queries";
+import type {
+	FortCombinedScanBody,
+	FortScanBody,
+	FortTypeScanGroup,
+	FortTypeScanStats,
+	PokemonScanBody
+} from "@/lib/server/queryMapObjects/queries";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Incident } from "@/lib/types/mapObjectData/pokestop";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
@@ -46,6 +53,21 @@ export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanReque
 			...ranges,
 			pokemon: pokemon?.map(({ id, form }) => ({ pokemon_id: id, form })) ?? []
 		}))
+	};
+}
+
+export function toFortCombinedScanRequest(body: FortCombinedScanBody): pb.FortCombinedScanRequest {
+	// An absent group excludes that type; an empty filter list means every fort of the type.
+	const group = (g: FortTypeScanGroup | undefined): pb.FortTypeScanGroup | undefined =>
+		g && { filters: g.filters ?? [], limit: g.limit };
+	return {
+		min: toLatLon(body.min),
+		max: toLatLon(body.max),
+		limit: body.limit,
+		with_incidents: body.with_incidents ?? false,
+		gyms: group(body.gyms),
+		pokestops: group(body.pokestops),
+		stations: group(body.stations)
 	};
 }
 
@@ -117,6 +139,25 @@ export function fromStationScanResponse(res: pb.StationScanResponse): StationSca
 		skipped: res.skipped ?? 0,
 		total: res.total ?? 0,
 		limit_reached: res.limit_reached ?? false
+	};
+}
+
+export function fromFortScanResponse(res: pb.FortScanResponse): FortCombinedScanResponse {
+	const stats = (s: pb.FortTypeScanStats | undefined): FortTypeScanStats => ({
+		examined: s?.examined ?? 0,
+		limit_reached: s?.limit_reached ?? false
+	});
+	return {
+		gyms: (res.gyms ?? []).map(fromGym),
+		pokestops: (res.pokestops ?? []).map(fromPokestop),
+		stations: (res.stations ?? []).map(fromStation),
+		examined: res.examined ?? 0,
+		skipped: res.skipped ?? 0,
+		total: res.total ?? 0,
+		limit_reached: res.limit_reached ?? false,
+		gyms_stats: stats(res.gyms_stats),
+		pokestops_stats: stats(res.pokestops_stats),
+		stations_stats: stats(res.stations_stats)
 	};
 }
 
