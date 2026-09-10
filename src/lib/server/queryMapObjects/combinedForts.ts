@@ -4,6 +4,7 @@ import type {
 	FilterPokestop,
 	FilterStation
 } from "@/lib/features/filters/filters";
+import { combinedGolbatFortTypes, type FortType } from "@/lib/mapObjects/combinedForts";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
@@ -23,79 +24,16 @@ import {
 	buildPokestopDnfFilters,
 	buildStationDnfFilters
 } from "@/lib/server/queryMapObjects/fortDnf";
-import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
-import { NestQuery } from "@/lib/server/queryMapObjects/queryNest";
-import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
-import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import type { FortCombinedScanBody, FortTypeScanGroup } from "@/lib/server/queryMapObjects/queries";
-import { RouteQuery } from "@/lib/server/queryMapObjects/queryRoute";
-import { SpawnpointQuery } from "@/lib/server/queryMapObjects/querySpawnpoint";
-import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
-import { TappableQuery } from "@/lib/server/queryMapObjects/queryTappable";
+import { getQuery } from "@/lib/server/queryMapObjects/queryMapObjects";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { getLogger } from "@/lib/utils/logger";
-import { error } from "@sveltejs/kit";
 
-const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
-	[MapObjectType.GYM]: new GymQuery(),
-	[MapObjectType.POKESTOP]: new PokestopQuery(),
-	[MapObjectType.POKEMON]: new PokemonQuery(),
-	[MapObjectType.STATION]: new StationQuery(),
-	[MapObjectType.NEST]: new NestQuery(),
-	[MapObjectType.SPAWNPOINT]: new SpawnpointQuery(),
-	[MapObjectType.ROUTE]: new RouteQuery(),
-	[MapObjectType.TAPPABLE]: new TappableQuery()
-};
-
-const fortApiRegistry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
-	[MapObjectType.GYM]: new ApiGymQuery(),
-	[MapObjectType.POKESTOP]: new ApiPokestopQuery(),
-	[MapObjectType.STATION]: new ApiStationQuery()
-};
-
-export function getQuery(type: MapObjectType): MapObjectQuery<any, any> {
-	if (isFortApiEnabled()) {
-		const apiQuery = fortApiRegistry[type];
-		if (apiQuery) return apiQuery;
-	}
-	const query = registry[type];
-	if (!query) error(404);
-	return query;
-}
-
-export async function queryMapObjects<Data extends MapData>(
-	type: MapObjectType,
-	bounds: Bounds,
-	filter: AnyFilter | undefined,
-	polygon: PermittedPolygon = null,
-	since?: number,
-	limit?: number,
-	context?: FeaturePermissionContext
-): Promise<MapObjectResponse<Data>> {
-	if (filter !== undefined && !filter.enabled) {
-		return { examined: 0, data: [] };
-	}
-
-	return getQuery(type).getMultiple(bounds, filter, polygon, since, limit, context);
-}
-
-export async function querySingleMapObject(
-	type: MapObjectType,
-	id: string,
-	thisFetch: typeof fetch = fetch,
-	context?: FeaturePermissionContext
-) {
-	return getQuery(type).getSingle(id, thisFetch, context);
-}
+const apiGymQuery = new ApiGymQuery();
+const apiPokestopQuery = new ApiPokestopQuery();
+const apiStationQuery = new ApiStationQuery();
 
 const log = getLogger("query:forts");
-
-export type FortType = MapObjectType.GYM | MapObjectType.POKESTOP | MapObjectType.STATION;
-export const fortTypes: FortType[] = [
-	MapObjectType.GYM,
-	MapObjectType.POKESTOP,
-	MapObjectType.STATION
-];
 
 export type FortQueryEntry = {
 	filter: AnyFilter | undefined;
@@ -106,7 +44,7 @@ export type FortQueryEntry = {
 	context?: FeaturePermissionContext;
 };
 
-export async function queryFortsCombined(
+export async function combinedForts(
 	entries: Partial<Record<FortType, FortQueryEntry>>
 ): Promise<Partial<Record<FortType, MapObjectResponse<MapData>>>> {
 	const results: Partial<Record<FortType, MapObjectResponse<MapData>>> = {};
@@ -123,7 +61,7 @@ export async function queryFortsCombined(
 	};
 
 	const requested: FortType[] = [];
-	for (const type of fortTypes) {
+	for (const type of combinedGolbatFortTypes) {
 		const e = entries[type];
 		if (!e) continue;
 		if (e.filter !== undefined && !e.filter.enabled) {
@@ -134,7 +72,9 @@ export async function queryFortsCombined(
 	}
 
 	if (!isFortApiEnabled()) {
-		await Promise.all(requested.map((type) => settle(type, () => viaQuery(type, registry[type]!))));
+		await Promise.all(
+			requested.map((type) => settle(type, () => viaQuery(type, getQuery(type, false))))
+		);
 		return results;
 	}
 
@@ -207,15 +147,30 @@ export async function queryFortsCombined(
 						: done.stations_stats;
 			// A per-type flag cannot rule out overall truncation; the top-level flag retries all types.
 			if (done.limit_reached || stats.limit_reached)
-				return settle(type, () => viaQuery(type, registry[type]!));
+				return settle(type, () => viaQuery(type, getQuery(type, false)));
 			return settle(type, async () => {
-				const result =
-					type === MapObjectType.GYM
-						? apiGymQuery.processScan(done.gyms, stats.examined, e.polygon, e.since)
-						: type === MapObjectType.POKESTOP
-							? apiPokestopQuery.processScan(done.pokestops, stats.examined, e.polygon, e.since)
-							: apiStationQuery.processScan(done.stations, stats.examined, e.polygon, e.since);
-				return fortApiRegistry[type]!.finish(result, e.filter, e.polygon, e.context);
+				if (type === MapObjectType.GYM) {
+					return apiGymQuery.finish(
+						apiGymQuery.processScan(done.gyms, stats.examined, e.polygon, e.since),
+						e.filter as FilterGym | undefined,
+						e.polygon,
+						e.context
+					);
+				}
+				if (type === MapObjectType.POKESTOP) {
+					return apiPokestopQuery.finish(
+						apiPokestopQuery.processScan(done.pokestops, stats.examined, e.polygon, e.since),
+						e.filter as FilterPokestop | undefined,
+						e.polygon,
+						e.context
+					);
+				}
+				return apiStationQuery.finish(
+					apiStationQuery.processScan(done.stations, stats.examined, e.polygon, e.since),
+					e.filter as FilterStation | undefined,
+					e.polygon,
+					e.context
+				);
 			});
 		})
 	);

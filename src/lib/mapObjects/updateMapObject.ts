@@ -21,7 +21,12 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import type { FortType } from "@/lib/server/queryMapObjects/queryMapObjects";
+import {
+	combinedGolbatFortTypes,
+	type FortType,
+	type FortsRequestData,
+	type FortsResponse
+} from "@/lib/mapObjects/combinedForts";
 import { hasAnyFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { featureFamily } from "@/lib/utils/features";
@@ -38,18 +43,6 @@ export type MapObjectRequestData = Bounds & {
 	since?: number;
 };
 
-export type FortsRequestData = Bounds & {
-	types: Partial<Record<FortType, { filter?: AnyFilter; filterHash?: string; since?: number }>>;
-};
-
-export type FortsTypeResponse = {
-	status: 200 | 400 | 401 | 409 | 429;
-	filterCached?: "0" | "1";
-	result?: MapObjectResponse<MapData>;
-};
-
-export type FortsResponse = Partial<Record<FortType, FortsTypeResponse>>;
-
 export type MapObjectPlan = {
 	type: MapObjectType;
 	filter: AnyFilter;
@@ -58,13 +51,6 @@ export type MapObjectPlan = {
 	limitInfo?: DataLimitInfo;
 	removeOld: boolean;
 };
-
-// Keep runtime server imports out of the client bundle.
-export const clientFortTypes: MapObjectType[] = [
-	MapObjectType.GYM,
-	MapObjectType.POKESTOP,
-	MapObjectType.STATION
-];
 
 const STATUS_FILTER_UNKNOWN = 409;
 const uncacheableFilterHashes = new Set<string>();
@@ -387,8 +373,10 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 		);
 		limitsToClear.push(...results.filter((type) => type !== undefined));
 	} else {
-		const otherTypes = allMapObjectTypes.filter((type) => !clientFortTypes.includes(type));
-		const fortPlans = clientFortTypes
+		const otherTypes = allMapObjectTypes.filter(
+			(type) => !combinedGolbatFortTypes.some((fortType) => fortType === type)
+		);
+		const fortPlans = combinedGolbatFortTypes
 			.map((type) =>
 				planMapObjectRequest(type, removeOld, undefined, onlyChanged, controller.signal)
 			)

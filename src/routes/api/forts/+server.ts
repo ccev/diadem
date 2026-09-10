@@ -1,4 +1,9 @@
-import type { FortsRequestData, FortsResponse } from "@/lib/mapObjects/updateMapObject";
+import {
+	combinedGolbatFortTypes,
+	type FortType,
+	type FortsRequestData,
+	type FortsResponse
+} from "@/lib/mapObjects/combinedForts";
 import {
 	admitType,
 	isValidBounds,
@@ -9,12 +14,7 @@ import {
 import { rateLimitReward } from "@/lib/server/api/rateLimit";
 import { readRequestBody } from "@/lib/server/api/requestBody";
 import { respond } from "@/lib/server/api/respond";
-import {
-	type FortQueryEntry,
-	type FortType,
-	fortTypes,
-	queryFortsCombined
-} from "@/lib/server/queryMapObjects/queryMapObjects";
+import { type FortQueryEntry, combinedForts } from "@/lib/server/queryMapObjects/combinedForts";
 import { getLogger } from "@/lib/utils/logger";
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
@@ -38,7 +38,7 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 	> = {};
 
 	await Promise.all(
-		fortTypes.map(async (type) => {
+		combinedGolbatFortTypes.map(async (type) => {
 			const typeData = data.types[type];
 			if (!typeData || typeof typeData !== "object") return;
 			const admit = await admitType(type, locals, rateLimitKey);
@@ -72,8 +72,8 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 	);
 	const permCheckTime = performance.now();
 
-	const queried = fortTypes.filter((type) => entries[type]);
-	const results = await queryFortsCombined(entries).catch(async (e) => {
+	const queried = combinedGolbatFortTypes.filter((type) => entries[type]);
+	const results = await combinedForts(entries).catch(async (e) => {
 		await Promise.all(
 			queried.map((type) => rateLimitReward(rateLimitKey, entries[type]!.limit, type))
 		);

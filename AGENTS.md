@@ -96,6 +96,7 @@ An Astro Starlight-based documentation site can be founder under /docs. When add
 
 - Avoid writing functions that are only used once
 - Use inline js in Svelte HTML blocks for one-off callbacks or to generate parameters. Svelte supports "this {variable} string formatting"
+- Don't ever push superpowers files or internal plans to the repo. Either delete them if not needed anymore or don't stage them in the first place. 
 
 ## Svelte MCP
 

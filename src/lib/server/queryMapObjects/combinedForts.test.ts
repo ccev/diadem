@@ -6,7 +6,8 @@ import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
-import { fortTypes, queryFortsCombined } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { combinedGolbatFortTypes } from "@/lib/mapObjects/combinedForts";
+import { combinedForts } from "@/lib/server/queryMapObjects/combinedForts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/features/activeSearch.svelte", () => ({}));
@@ -47,7 +48,7 @@ const station = {
 const emptyStats = { examined: 0, limit_reached: false };
 const entry = (limit = 10000) => ({ filter: undefined, bounds, polygon: null, limit });
 
-describe("queryFortsCombined", () => {
+describe("combinedForts", () => {
 	it("issues one scan with a group per type, the union bbox and per-type limits, then post-processes each slice", async () => {
 		const scan = vi.spyOn(golbat, "scanForts").mockResolvedValue({
 			gyms: [gym],
@@ -62,7 +63,7 @@ describe("queryFortsCombined", () => {
 			stations_stats: { examined: 10, limit_reached: false }
 		});
 
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.POKESTOP]: { ...entry(500), bounds: wider },
 			[MapObjectType.STATION]: entry()
@@ -106,7 +107,7 @@ describe("queryFortsCombined", () => {
 			pokestops_stats: emptyStats,
 			stations_stats: emptyStats
 		});
-		const results = await queryFortsCombined({ [MapObjectType.GYM]: entry() });
+		const results = await combinedForts({ [MapObjectType.GYM]: entry() });
 		const body = scan.mock.calls[0][0];
 		expect(body.pokestops).toBeUndefined();
 		expect(body.stations).toBeUndefined();
@@ -134,7 +135,7 @@ describe("queryFortsCombined", () => {
 			.spyOn(GymQuery.prototype, "getMultiple")
 			.mockResolvedValue({ examined: 4, data: [] });
 
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.POKESTOP]: entry()
 		});
@@ -171,7 +172,7 @@ describe("queryFortsCombined", () => {
 			contest: { enabled: false, filters: [] }
 		} as unknown as AnyFilter;
 
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.POKESTOP]: { ...entry(), filter: nothing },
 			[MapObjectType.STATION]: { ...entry(), filter: disabled }
@@ -195,7 +196,7 @@ describe("queryFortsCombined", () => {
 		const scan = vi.spyOn(golbat, "scanForts");
 
 		fortApi.enabled = false;
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.STATION]: entry()
 		});
@@ -214,7 +215,7 @@ describe("queryFortsCombined", () => {
 		const disabled = { enabled: false } as unknown as AnyFilter;
 
 		fortApi.enabled = false;
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: { ...entry(), filter: disabled },
 			[MapObjectType.STATION]: entry()
 		});
@@ -250,7 +251,7 @@ describe("queryFortsCombined", () => {
 				.spyOn(StationQuery.prototype, "getMultiple")
 				.mockResolvedValue({ examined: 3, data: [] });
 
-			const results = await queryFortsCombined({
+			const results = await combinedForts({
 				[MapObjectType.GYM]: entry(),
 				[MapObjectType.POKESTOP]: entry(),
 				[MapObjectType.STATION]: entry()
@@ -276,7 +277,7 @@ describe("queryFortsCombined", () => {
 			.mockResolvedValue({ examined: 2, data: [] });
 		const gymSql = vi.spyOn(GymQuery.prototype, "getMultiple");
 
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.STATION]: entry()
 		});
@@ -303,7 +304,7 @@ describe("queryFortsCombined", () => {
 		});
 		vi.spyOn(PokestopQuery.prototype, "getMultiple").mockRejectedValue(new Error("db down"));
 
-		const results = await queryFortsCombined({
+		const results = await combinedForts({
 			[MapObjectType.GYM]: entry(),
 			[MapObjectType.POKESTOP]: entry()
 		});
@@ -313,6 +314,10 @@ describe("queryFortsCombined", () => {
 	});
 
 	it("exposes the fort types in scan order", () => {
-		expect(fortTypes).toEqual([MapObjectType.GYM, MapObjectType.POKESTOP, MapObjectType.STATION]);
+		expect(combinedGolbatFortTypes).toEqual([
+			MapObjectType.GYM,
+			MapObjectType.POKESTOP,
+			MapObjectType.STATION
+		]);
 	});
 });
