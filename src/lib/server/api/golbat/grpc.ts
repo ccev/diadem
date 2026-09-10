@@ -1,13 +1,6 @@
 import { ChannelCredentials, Metadata, type CallOptions, type ServiceError } from "@grpc/grpc-js";
 import { GolbatApiClient } from "@/lib/server/api/grpc/golbat_api";
-import {
-	golbatInFlight,
-	type FortCombinedScanResponse,
-	type GymScanResponse,
-	type PokemonResponse,
-	type PokestopScanResponse,
-	type StationScanResponse
-} from "@/lib/server/api/golbatApi";
+import { golbatInFlight } from "./http";
 import {
 	describeGrpcError,
 	fromFortScanResponse,
@@ -18,12 +11,17 @@ import {
 	toFortCombinedScanRequest,
 	toFortScanRequest,
 	toPokemonScanRequest
-} from "@/lib/server/api/golbatGrpcMapping";
+} from "./grpcMapping";
 import type {
 	FortCombinedScanBody,
+	FortCombinedScanResponse,
 	FortScanBody,
-	PokemonScanBody
-} from "@/lib/server/queryMapObjects/queries";
+	GymScanResponse,
+	PokemonResponse,
+	PokemonScanBody,
+	PokestopScanResponse,
+	StationScanResponse
+} from "./types";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 

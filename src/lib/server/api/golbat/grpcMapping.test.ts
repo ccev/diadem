@@ -10,7 +10,7 @@ import {
 	toFortCombinedScanRequest,
 	toFortScanRequest,
 	toPokemonScanRequest
-} from "./golbatGrpcMapping";
+} from "./grpcMapping";
 
 const bounds = {
 	min: { latitude: 51.5, longitude: -0.2 },

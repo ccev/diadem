@@ -1,4 +1,4 @@
-import { getCachedFortAvailability } from "@/lib/server/api/golbatFortApi";
+import { getCachedFortAvailability } from "@/lib/server/api/golbat/fortAvailability";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { getMasterPokemon } from "@/lib/services/masterfile";

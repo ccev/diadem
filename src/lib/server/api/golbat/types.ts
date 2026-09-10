@@ -1,5 +1,9 @@
 import type { MinMax } from "@/lib/features/filters/filtersets";
-import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
+import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import type { GymData, GymDefender, Rsvp } from "@/lib/types/mapObjectData/gym";
+import type { ContestFocus, Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { StationData } from "@/lib/types/mapObjectData/station";
 
 export type GolbatPokemonSpecies = { id: number; form?: number };
 
@@ -114,3 +118,91 @@ export type FortCombinedScanBody = {
 };
 
 export type FortTypeScanStats = { examined: number; limit_reached: boolean };
+
+export type PokemonResponse = {
+	pokemon: MinMapObject<PokemonData>[];
+	examined: number;
+	skipped: number;
+	total: number;
+	limit_reached?: boolean;
+};
+
+export type GolbatGymResult = Omit<
+	MinMapObject<GymData>,
+	"availble_slots" | "defenders_raw" | "defenders" | "raw_rsvps" | "rsvps" | "deleted"
+> & {
+	available_slots?: number | null;
+	deleted: boolean;
+	defenders?: GymDefender[] | null;
+	rsvps?: Rsvp[] | null;
+};
+
+export type GolbatPokestopResult = Omit<
+	MinMapObject<PokestopData>,
+	| "incident"
+	| "deleted"
+	| "quest_rewards"
+	| "alternative_quest_rewards"
+	| "showcase_focus"
+	| "showcase_rankings"
+> & {
+	deleted: boolean;
+	invasions?: Incident[];
+	quest_rewards?: object[] | string | null;
+	alternative_quest_rewards?: object[] | string | null;
+	quest_pokemon_form_id?: number | null;
+	alternative_quest_pokemon_form_id?: number | null;
+	showcase_focus?: object | string | null;
+	showcase_rankings?: object | string | null;
+};
+
+export type GolbatStationResult = Omit<
+	MinMapObject<StationData>,
+	| "is_inactive"
+	| "is_battle_available"
+	| "stationed_pokemon"
+	| "raw_stationed_pokemon"
+	| "battle_start"
+	| "battle_end"
+> & {
+	is_inactive: boolean;
+	is_battle_available: boolean;
+	stationed_pokemon?: object[] | string | null;
+	battles?: object[];
+	battle_start?: number | null;
+	battle_end?: number | null;
+};
+
+export type GymScanResponse = {
+	gyms: GolbatGymResult[];
+	examined: number;
+	skipped: number;
+	total: number;
+	limit_reached: boolean;
+};
+export type PokestopScanResponse = {
+	pokestops: GolbatPokestopResult[];
+	examined: number;
+	skipped: number;
+	total: number;
+	limit_reached: boolean;
+};
+export type StationScanResponse = {
+	stations: GolbatStationResult[];
+	examined: number;
+	skipped: number;
+	total: number;
+	limit_reached: boolean;
+};
+export type FortCombinedScanResponse = {
+	gyms: GolbatGymResult[];
+	pokestops: GolbatPokestopResult[];
+	stations: GolbatStationResult[];
+	examined: number;
+	skipped: number;
+	total: number;
+	limit_reached: boolean;
+	gyms_stats: FortTypeScanStats;
+	pokestops_stats: FortTypeScanStats;
+	stations_stats: FortTypeScanStats;
+};

@@ -1,5 +1,5 @@
-import type { GolbatPokestopResult } from "@/lib/server/api/golbatApi";
-import { mapPokestop } from "@/lib/server/queryMapObjects/pokestopApiMapper";
+import type { GolbatPokestopResult } from "@/lib/server/api/golbat/types";
+import { mapPokestop } from "@/lib/server/queryMapObjects/fortApiMapping";
 import { describe, expect, it } from "vitest";
 
 const pokestop = {

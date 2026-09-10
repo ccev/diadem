@@ -1,5 +1,5 @@
 import type { FilterGym, FilterPokestop, FilterStation } from "@/lib/features/filters/filters";
-import type { GolbatFortDnfFilter } from "@/lib/server/queryMapObjects/queries";
+import type { GolbatFortDnfFilter } from "@/lib/server/api/golbat/types";
 import {
 	ALL_LURE_IDS,
 	INCIDENT_DISPLAY_CONTEST,
@@ -8,7 +8,7 @@ import {
 	INCIDENT_DISPLAYS_INVASION,
 	RewardType
 } from "@/lib/utils/pokestopUtils";
-import { ALL_RAID_LEVELS } from "$lib/utils/gymUtils";
+import { ALL_RAID_LEVELS } from "@/lib/utils/gymUtils";
 
 const ALL_QUEST_REWARD_TYPES = Object.values(RewardType).filter(
 	(v): v is number => typeof v === "number" && v > 0

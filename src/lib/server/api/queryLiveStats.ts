@@ -1,4 +1,4 @@
-import { getMultiplePokemon } from "@/lib/server/api/golbatApi";
+import { getMultiplePokemon } from "@/lib/server/api/golbat/http";
 
 import { query } from "@/lib/server/db/external/internalQuery";
 

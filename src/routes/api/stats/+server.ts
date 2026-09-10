@@ -1,5 +1,5 @@
 import { mergeFortAvailability } from "@/lib/server/api/queryStats";
-import { FORT_API_REFRESH_SECONDS } from "@/lib/server/api/golbatFortApi";
+import { FORT_API_REFRESH_SECONDS } from "@/lib/server/api/golbat/fortAvailability";
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
 import { respond } from "@/lib/server/api/respond";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";

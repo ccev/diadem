@@ -12,26 +12,23 @@ import {
 	type MapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import { scanForts, type FortCombinedScanResponse } from "@/lib/server/api/golbatApi";
-import { getFortApiScanLimit, isFortApiEnabled } from "@/lib/server/api/golbatFortApi";
-import { grpcScanForts, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
+import { scanForts } from "@/lib/server/api/golbat/http";
+import { getFortApiScanLimit, isFortApiEnabled } from "@/lib/server/api/golbat/fortAvailability";
+import { grpcScanForts, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
-import { ApiPokestopQuery } from "@/lib/server/queryMapObjects/queryPokestopApi";
-import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import {
 	buildGymDnfFilters,
 	buildPokestopDnfFilters,
 	buildStationDnfFilters
 } from "@/lib/server/queryMapObjects/fortDnf";
-import type { FortCombinedScanBody, FortTypeScanGroup } from "@/lib/server/queryMapObjects/queries";
-import { getQuery } from "@/lib/server/queryMapObjects/queryMapObjects";
+import type {
+	FortCombinedScanBody,
+	FortCombinedScanResponse,
+	FortTypeScanGroup
+} from "@/lib/server/api/golbat/types";
+import { fortApiRegistry, getQuery } from "@/lib/server/queryMapObjects/queryMapObjects";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import { getLogger } from "@/lib/utils/logger";
-
-const apiGymQuery = new ApiGymQuery();
-const apiPokestopQuery = new ApiPokestopQuery();
-const apiStationQuery = new ApiStationQuery();
 
 const log = getLogger("query:forts");
 
@@ -150,6 +147,7 @@ export async function combinedForts(
 				return settle(type, () => viaQuery(type, getQuery(type, false)));
 			return settle(type, async () => {
 				if (type === MapObjectType.GYM) {
+					const apiGymQuery = fortApiRegistry[type];
 					return apiGymQuery.finish(
 						apiGymQuery.processScan(done.gyms, stats.examined, e.polygon, e.since),
 						e.filter as FilterGym | undefined,
@@ -158,6 +156,7 @@ export async function combinedForts(
 					);
 				}
 				if (type === MapObjectType.POKESTOP) {
+					const apiPokestopQuery = fortApiRegistry[type];
 					return apiPokestopQuery.finish(
 						apiPokestopQuery.processScan(done.pokestops, stats.examined, e.polygon, e.since),
 						e.filter as FilterPokestop | undefined,
@@ -165,6 +164,7 @@ export async function combinedForts(
 						e.context
 					);
 				}
+				const apiStationQuery = fortApiRegistry[type];
 				return apiStationQuery.finish(
 					apiStationQuery.processScan(done.stations, stats.examined, e.polygon, e.since),
 					e.filter as FilterStation | undefined,

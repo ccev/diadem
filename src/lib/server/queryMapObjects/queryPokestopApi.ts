@@ -1,17 +1,13 @@
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import {
-	getGolbatPokestop,
-	scanPokestops,
-	type GolbatPokestopResult,
-	type PokestopScanResponse
-} from "@/lib/server/api/golbatApi";
-import { grpcScanPokestops, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
-import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
+import { getGolbatPokestop, scanPokestops } from "@/lib/server/api/golbat/http";
+import type { GolbatPokestopResult, PokestopScanResponse } from "@/lib/server/api/golbat/types";
+import { grpcScanPokestops, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
+import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
 import { buildPokestopDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import { mapPokestop } from "@/lib/server/queryMapObjects/pokestopApiMapper";
+import { mapPokestop } from "@/lib/server/queryMapObjects/fortApiMapping";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";

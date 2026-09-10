@@ -1,17 +1,13 @@
 import type { FilterStation } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import {
-	getGolbatStation,
-	scanStations,
-	type GolbatStationResult,
-	type StationScanResponse
-} from "@/lib/server/api/golbatApi";
-import { grpcScanStations, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
-import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
+import { getGolbatStation, scanStations } from "@/lib/server/api/golbat/http";
+import type { GolbatStationResult, StationScanResponse } from "@/lib/server/api/golbat/types";
+import { grpcScanStations, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
+import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
 import { buildStationDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import { blobToString } from "@/lib/server/queryMapObjects/pokestopApiMapper";
+import { mapStation } from "@/lib/server/queryMapObjects/fortApiMapping";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { StationData } from "@/lib/types/mapObjectData/station";
@@ -19,25 +15,6 @@ import { getLogger } from "@/lib/utils/logger";
 import { booleanPointInPolygon, point } from "@turf/turf";
 
 const log = getLogger("query:station-api");
-
-function mapStation(s: GolbatStationResult): MinMapObject<StationData> {
-	const {
-		is_inactive,
-		is_battle_available,
-		stationed_pokemon,
-		// API-only fields are not covered by inherited permission stripping.
-		battles,
-		battle_start,
-		battle_end,
-		...rest
-	} = s;
-	return {
-		...rest,
-		is_inactive: is_inactive ? 1 : 0,
-		is_battle_available: is_battle_available ? 1 : 0,
-		raw_stationed_pokemon: blobToString(stationed_pokemon)
-	};
-}
 
 export class ApiStationQuery extends StationQuery {
 	async query(

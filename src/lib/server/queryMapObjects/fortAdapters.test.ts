@@ -1,5 +1,6 @@
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import * as golbat from "@/lib/server/api/golbatApi";
+import * as golbat from "@/lib/server/api/golbat/http";
+import type * as Golbat from "@/lib/server/api/golbat/types";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
 import { ApiPokestopQuery } from "@/lib/server/queryMapObjects/queryPokestopApi";
@@ -31,7 +32,7 @@ const gym = {
 	updated: 100,
 	first_seen_timestamp: 50,
 	deleted: false
-} satisfies golbat.GolbatGymResult;
+} satisfies Golbat.GolbatGymResult;
 
 describe("fort API adapters", () => {
 	it.each([false, true])(
@@ -51,7 +52,7 @@ describe("fort API adapters", () => {
 				battle_start: 100,
 				battle_end: 200,
 				battles: [{ battle_pokemon_id: 25, battle_start: 100, battle_end: 200 }]
-			} satisfies golbat.GolbatStationResult;
+			} satisfies Golbat.GolbatStationResult;
 			vi.spyOn(golbat, "getGolbatStation").mockResolvedValue(station);
 			vi.spyOn(golbat, "scanStations").mockResolvedValue({
 				stations: [station],
@@ -100,7 +101,7 @@ describe("fort API adapters", () => {
 				alternative_quest_target: 2,
 				alternative_quest_rewards: [{ type: 7, info: { pokemon_id: 25, form_id: 62 } }],
 				alternative_quest_pokemon_form_id: 62
-			} satisfies golbat.GolbatPokestopResult;
+			} satisfies Golbat.GolbatPokestopResult;
 			vi.spyOn(golbat, "getGolbatPokestop").mockResolvedValue(pokestop);
 			vi.spyOn(golbat, "scanPokestops").mockResolvedValue({
 				pokestops: [pokestop],

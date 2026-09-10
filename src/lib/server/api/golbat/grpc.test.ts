@@ -5,9 +5,9 @@ import {
 	type FortCombinedScanRequest,
 	type FortScanRequest,
 	type GolbatApiServer
-} from "./grpc/golbat_api";
+} from "../grpc/golbat_api";
 
-// golbatGrpc.ts reads the config object once at import and its fields per call, so mutating
+// grpc.ts reads the config object once at import and its fields per call, so mutating
 // this hoisted object after the server binds is enough to point the client at it.
 const golbatConfig = vi.hoisted(() => ({
 	url: "http://127.0.0.1:1",
@@ -18,7 +18,7 @@ vi.mock("@/lib/services/config/config.server", () => ({
 	getServerConfig: () => ({ golbat: golbatConfig })
 }));
 
-import { grpcScanForts, grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./golbatGrpc";
+import { grpcScanForts, grpcScanGyms, isGrpcEnabled, scanViaGrpcOrHttp } from "./grpc";
 
 let server: Server;
 let received: { metadata: Metadata; request: FortScanRequest } | undefined;
@@ -142,7 +142,7 @@ beforeEach(() => {
 	respondWith = "ok";
 });
 
-describe("golbatGrpc", () => {
+describe("Golbat gRPC", () => {
 	it("is enabled when the grpc target is configured", () => {
 		expect(isGrpcEnabled()).toBe(true);
 	});

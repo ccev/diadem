@@ -2,7 +2,7 @@ import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
 import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider";
 import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
-import { startFortApiDetection } from "@/lib/server/api/golbatFortApi";
+import { startFortApiDetection } from "@/lib/server/api/golbat/fortAvailability";
 import { getLogger } from "@/lib/utils/logger";
 
 export async function initDiadem() {

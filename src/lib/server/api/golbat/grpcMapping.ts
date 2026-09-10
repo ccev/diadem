@@ -8,15 +8,13 @@ import type {
 	GymScanResponse,
 	PokemonResponse,
 	PokestopScanResponse,
-	StationScanResponse
-} from "@/lib/server/api/golbatApi";
-import type {
+	StationScanResponse,
 	FortCombinedScanBody,
 	FortScanBody,
 	FortTypeScanGroup,
 	FortTypeScanStats,
 	PokemonScanBody
-} from "@/lib/server/queryMapObjects/queries";
+} from "./types";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Incident } from "@/lib/types/mapObjectData/pokestop";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";

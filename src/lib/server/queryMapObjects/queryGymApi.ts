@@ -1,14 +1,11 @@
 import type { FilterGym } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import {
-	getGolbatGym,
-	scanGyms,
-	type GolbatGymResult,
-	type GymScanResponse
-} from "@/lib/server/api/golbatApi";
-import { grpcScanGyms, scanViaGrpcOrHttp } from "@/lib/server/api/golbatGrpc";
-import { getFortApiScanLimit } from "@/lib/server/api/golbatFortApi";
+import { getGolbatGym, scanGyms } from "@/lib/server/api/golbat/http";
+import type { GolbatGymResult, GymScanResponse } from "@/lib/server/api/golbat/types";
+import { grpcScanGyms, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
+import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
+import { mapGym } from "@/lib/server/queryMapObjects/fortApiMapping";
 import { buildGymDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
@@ -18,17 +15,6 @@ import { getLogger } from "@/lib/utils/logger";
 import { booleanPointInPolygon, point } from "@turf/turf";
 
 const log = getLogger("query:gym-api");
-
-function mapGym(g: GolbatGymResult): MinMapObject<GymData> {
-	const { available_slots, deleted, defenders, rsvps, ...rest } = g;
-	return {
-		...rest,
-		availble_slots: available_slots ?? undefined,
-		deleted: deleted ? 1 : 0,
-		defenders: defenders ?? undefined,
-		rsvps: rsvps ?? undefined
-	};
-}
 
 export class ApiGymQuery extends GymQuery {
 	async query(

@@ -1,5 +1,5 @@
-import { fetchFortAvailability, fetchGolbatStatus } from "@/lib/server/api/golbatApi";
-import type { FortAvailability } from "@/lib/server/queryMapObjects/queries";
+import { fetchFortAvailability, fetchGolbatStatus } from "./http";
+import type { FortAvailability } from "./types";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { FortAvailability } from "@/lib/server/queryMapObjects/queries";
+import type { FortAvailability } from "./types";
 
 const golbat = vi.hoisted(() => ({
 	fetchFortAvailability: vi.fn(),
 	fetchGolbatStatus: vi.fn()
 }));
 
-vi.mock("@/lib/server/api/golbatApi", () => golbat);
+vi.mock("@/lib/server/api/golbat/http", () => golbat);
 
 const golbatConfig = vi.hoisted(() => ({
 	url: "http://127.0.0.1:1",
@@ -38,7 +38,7 @@ describe("Golbat fort API detection", () => {
 		});
 		golbat.fetchFortAvailability.mockResolvedValue(availability);
 
-		const api = await import("./golbatFortApi");
+		const api = await import("./fortAvailability");
 		await api.startFortApiDetection();
 		await api.refreshFortAvailability();
 
@@ -55,7 +55,7 @@ describe("Golbat fort API detection", () => {
 		});
 		golbat.fetchFortAvailability.mockResolvedValue(availability);
 
-		const api = await import("./golbatFortApi");
+		const api = await import("./fortAvailability");
 		await api.refreshFortAvailability();
 
 		expect(api.isFortApiEnabled()).toBe(true);
@@ -67,7 +67,7 @@ describe("Golbat fort API detection", () => {
 	it("uses SQL when the status contract is unavailable", async () => {
 		golbat.fetchGolbatStatus.mockResolvedValue(undefined);
 
-		const api = await import("./golbatFortApi");
+		const api = await import("./fortAvailability");
 		await api.refreshFortAvailability();
 
 		expect(api.isFortApiEnabled()).toBe(false);
@@ -80,7 +80,7 @@ describe("Golbat fort API detection", () => {
 			limits: { max_fort_results: 9000 }
 		});
 		golbat.fetchFortAvailability.mockResolvedValue(availability);
-		const api = await import("./golbatFortApi");
+		const api = await import("./fortAvailability");
 		await api.refreshFortAvailability();
 
 		golbat.fetchFortAvailability.mockRejectedValueOnce(new Error("Golbat unavailable"));

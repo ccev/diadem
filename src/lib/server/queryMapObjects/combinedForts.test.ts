@@ -1,6 +1,6 @@
 import type { AnyFilter } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as golbat from "@/lib/server/api/golbatApi";
+import * as golbat from "@/lib/server/api/golbat/http";
 import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
 import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
@@ -8,6 +8,7 @@ import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
 import { combinedGolbatFortTypes } from "@/lib/mapObjects/combinedForts";
 import { combinedForts } from "@/lib/server/queryMapObjects/combinedForts";
+import { fortApiRegistry, getQuery } from "@/lib/server/queryMapObjects/queryMapObjects";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/features/activeSearch.svelte", () => ({}));
@@ -21,7 +22,7 @@ vi.mock("$lib/server/queryMapObjects/invasionRewards", () => ({}));
 vi.mock("@/lib/services/masterfile", () => ({ getMasterPokemon: () => ({ defaultFormId: 0 }) }));
 
 const fortApi = vi.hoisted(() => ({ enabled: true }));
-vi.mock("@/lib/server/api/golbatFortApi", () => ({
+vi.mock("@/lib/server/api/golbat/fortAvailability", () => ({
 	isFortApiEnabled: () => fortApi.enabled,
 	getFortApiScanLimit: (limit: number) => Math.min(limit, 9000)
 }));
@@ -49,7 +50,20 @@ const emptyStats = { examined: 0, limit_reached: false };
 const entry = (limit = 10000) => ({ filter: undefined, bounds, polygon: null, limit });
 
 describe("combinedForts", () => {
+	it("shares API instances with dispatch and supports explicit SQL selection", () => {
+		for (const type of combinedGolbatFortTypes) {
+			expect(getQuery(type)).toBe(fortApiRegistry[type]);
+			expect(getQuery(type, false)).not.toBe(fortApiRegistry[type]);
+		}
+		expect(getQuery(MapObjectType.POKEMON, true)).toBe(getQuery(MapObjectType.POKEMON, false));
+		fortApi.enabled = false;
+		expect(getQuery(MapObjectType.GYM)).toBe(getQuery(MapObjectType.GYM, false));
+		expect(getQuery(MapObjectType.GYM, true)).toBe(fortApiRegistry[MapObjectType.GYM]);
+	});
+
 	it("issues one scan with a group per type, the union bbox and per-type limits, then post-processes each slice", async () => {
+		const gymProcess = vi.spyOn(fortApiRegistry[MapObjectType.GYM], "processScan");
+		const gymFinish = vi.spyOn(fortApiRegistry[MapObjectType.GYM], "finish");
 		const scan = vi.spyOn(golbat, "scanForts").mockResolvedValue({
 			gyms: [gym],
 			pokestops: [],
@@ -70,6 +84,8 @@ describe("combinedForts", () => {
 		});
 
 		expect(scan).toHaveBeenCalledTimes(1);
+		expect(gymProcess).toHaveBeenCalledTimes(1);
+		expect(gymFinish).toHaveBeenCalledTimes(1);
 		const body = scan.mock.calls[0][0];
 		expect(body.min).toEqual({ latitude: -1, longitude: 0 });
 		expect(body.max).toEqual({ latitude: 5, longitude: 6 });
