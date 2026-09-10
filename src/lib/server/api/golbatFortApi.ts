@@ -5,8 +5,6 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("golbat:fort");
 export const FORT_API_REFRESH_SECONDS = 60;
-// server.golbat.fortApi = false pins forts to SQL regardless of what Golbat offers
-// (useful for benchmarking the three paths: SQL, HTTP, gRPC).
 const fortApiOptedOut = getServerConfig().golbat.fortApi === false;
 
 let cachedAvailability: FortAvailability | undefined;

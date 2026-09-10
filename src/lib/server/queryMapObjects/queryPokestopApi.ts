@@ -53,8 +53,6 @@ export class ApiPokestopQuery extends PokestopQuery {
 		return this.processScan(result.pokestops, result.examined, polygon, since);
 	}
 
-	// Per-record trimming after any scan (single or combined). examined drops for records the
-	// permission polygon excludes, so rate-limit charges match what the user could see.
 	processScan(
 		pokestops: GolbatPokestopResult[],
 		examined: number,

@@ -62,8 +62,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		);
 	}
 
-	// Everything after the scan: permission stripping, local filtering, map object shaping.
-	// Shared by getMultiple() and the combined fort scan.
+	// Shared post-processing for individual queries and combined fort scans.
 	public finish(
 		result: MapObjectResponse<MinMapObject<MapObject>>,
 		filter: Filter | undefined,

@@ -4,8 +4,7 @@ import { getConfig } from "@/lib/services/config/config";
 
 const MSGPACK_CONTENT_TYPE = "application/msgpack";
 
-// client.general.msgpack = false trades ~20% more bytes for ~3x less encode/decode CPU on both
-// ends. Config may not be loaded yet for the very first request, which then defaults to msgpack.
+// Default to msgpack before config has loaded.
 function useMsgpack() {
 	return getConfig()?.general.msgpack !== false;
 }

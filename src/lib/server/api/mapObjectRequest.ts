@@ -19,9 +19,6 @@ import {
 import { featureFamily } from "@/lib/utils/features";
 import { getFilterHash } from "@/lib/utils/filterHash";
 
-// The per-type admission, filter resolution and settlement shared by the single-type route
-// (/api/<type>) and the combined fort route (/api/forts). Statuses mirror the single-type route.
-
 const FILTER_HASH_PATTERN = /^[0-9a-f]{64}$/;
 const DENIED_CHARGE = 100;
 

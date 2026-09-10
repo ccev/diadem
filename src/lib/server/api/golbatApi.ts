@@ -106,7 +106,6 @@ export type FortCombinedScanResponse = {
 const log = getLogger("golbat");
 const config = getServerConfig().golbat;
 
-/** Golbat calls (HTTP or gRPC) awaiting a response; logged so contended timings are recognisable. */
 export const golbatInFlight = { count: 0 };
 
 async function callGolbat<T>(
@@ -208,7 +207,6 @@ export function scanStations(body: FortScanBody) {
 }
 
 export function scanForts(body: FortCombinedScanBody) {
-	// quiet: a Golbat without the combined endpoint answers 404, and the caller falls back
 	return callGolbat<FortCombinedScanResponse>(
 		"api/fort/scan",
 		"POST",

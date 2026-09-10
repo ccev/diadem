@@ -29,8 +29,6 @@ import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("golbat:grpc");
 const config = getServerConfig().golbat;
-// Matches callGolbat's HTTP timeout (golbatApi.ts) so the gRPC -> HTTP -> SQL fallback chain
-// doesn't triple the wait when Golbat is wedged.
 const DEADLINE_MS = 10_000;
 
 let client: GolbatApiClient | undefined;
@@ -39,25 +37,20 @@ export function isGrpcEnabled() {
 	return Boolean(config.grpc);
 }
 
-// One channel per process; grpc-js reconnects on its own.
 function getClient() {
 	if (!client) {
 		client = new GolbatApiClient(config.grpc!, ChannelCredentials.createInsecure(), {
 			"grpc.keepalive_time_ms": 30_000,
 			"grpc.keepalive_permit_without_calls": 1,
-			// grpc-js defaults to a 4MiB receive cap; a full 10,000-object scan with JSON blobs or
-			// PVP easily exceeds that and would RESOURCE_EXHAUST into a silent HTTP fallback.
+			// Full scans can exceed gRPC's default 4 MiB receive limit.
 			"grpc.max_receive_message_length": -1,
-			// grpc-js keeps HTTP/2's 64KiB initial flow-control window and never grows it, so a
-			// 1MB scan response costs ~16 window-update round trips; grpc-go auto-tunes this,
-			// grpc-js needs it set explicitly. 16MiB covers the largest scan in one window.
+			// Avoid repeated flow-control round trips for large scans.
 			"grpc-node.flow_control_window": 16 * 1024 * 1024
 		});
 	}
 	return client;
 }
 
-// Same log format as callGolbat so HTTP and gRPC timings compare in one stream.
 function call<Res>(
 	name: string,
 	invoke: (
@@ -122,10 +115,6 @@ export async function grpcScanPokemon(body: PokemonScanBody): Promise<PokemonRes
 	);
 }
 
-/**
- * The one place that chooses the transport: gRPC when configured, falling through to HTTP on
- * any gRPC error. HTTP errors are the caller's (they already fall back to SQL or 500).
- */
 export async function scanViaGrpcOrHttp<Body, Res>(
 	name: string,
 	body: Body,

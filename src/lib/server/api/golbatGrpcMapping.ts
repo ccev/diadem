@@ -21,11 +21,6 @@ import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Incident } from "@/lib/types/mapObjectData/pokestop";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 
-// Pure conversions between the HTTP request/response shapes used throughout diadem and the
-// generated protobuf messages. Kept free of config and channel state so they unit test alone.
-// NOTE: no runtime import of pokemonUtils here (it pulls Svelte-only state into vitest); the
-// League keys below are its literal enum values.
-
 function toLatLon(p: { latitude: number; longitude: number }): pb.LatLon {
 	return { lat: p.latitude, lon: p.longitude };
 }
@@ -35,10 +30,6 @@ export function toFortScanRequest(body: FortScanBody): pb.FortScanRequest {
 		min: toLatLon(body.min),
 		max: toLatLon(body.max),
 		limit: body.limit,
-		// GolbatFortDnfFilter is structurally a FortDnfFilter; [] means "every fort" like omission
-		// Safe to pass ranges through unconverted: MinMax (filtersets.d.ts) always requires both
-		// min and max, and fortDnf.ts always sets a whole range or undefined, so we never emit a
-		// range with an implicit/unset max, which the proto's IntRange treats as 32767 vs 0 for JSON.
 		filters: body.filters ?? [],
 		with_incidents: body.with_incidents ?? false
 	};
@@ -57,7 +48,6 @@ export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanReque
 }
 
 export function toFortCombinedScanRequest(body: FortCombinedScanBody): pb.FortCombinedScanRequest {
-	// An absent group excludes that type; an empty filter list means every fort of the type.
 	const group = (g: FortTypeScanGroup | undefined): pb.FortTypeScanGroup | undefined =>
 		g && { filters: g.filters ?? [], limit: g.limit };
 	return {
@@ -74,7 +64,6 @@ export function toFortCombinedScanRequest(body: FortCombinedScanBody): pb.FortCo
 function fromGym(g: pb.Gym): GolbatGymResult {
 	const { defenders_json, rsvps_json, guarding_pokemon_display_json, cell_id, ...rest } = g;
 	const gym = rest as GolbatGymResult;
-	// Same native shape the HTTP API sends; mapGym/prepare() take it from there.
 	if (defenders_json !== undefined) gym.defenders = JSON.parse(defenders_json);
 	if (rsvps_json !== undefined) gym.rsvps = JSON.parse(rsvps_json);
 	return gym;
@@ -105,7 +94,6 @@ function fromPokestop(p: pb.Pokestop): GolbatPokestopResult {
 	} = p;
 	const stop = rest as GolbatPokestopResult;
 	if (enabled !== undefined) stop.enabled = enabled ? 1 : 0;
-	// JSON text, exactly what SQL delivers; mapPokestop's blobToString passes strings through.
 	if (quest_rewards_json !== undefined) stop.quest_rewards = quest_rewards_json;
 	if (alternative_quest_rewards_json !== undefined)
 		stop.alternative_quest_rewards = alternative_quest_rewards_json;
@@ -182,7 +170,6 @@ export function fromPokemonScanResponse(res: pb.PokemonScanResponse): PokemonRes
 	};
 }
 
-/** "UNAVAILABLE: connect failed" style summary for log lines; hints at the secret on auth failure. */
 export function describeGrpcError(err: unknown): string {
 	const e = err as Partial<ServiceError> | null | undefined;
 	if (e && typeof e.code === "number") {

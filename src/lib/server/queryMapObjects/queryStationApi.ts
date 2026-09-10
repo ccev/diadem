@@ -68,8 +68,6 @@ export class ApiStationQuery extends StationQuery {
 		return this.processScan(result.stations, result.examined, polygon, since);
 	}
 
-	// Per-record trimming after any scan (single or combined). examined drops for records the
-	// permission polygon excludes, so rate-limit charges match what the user could see.
 	processScan(
 		stations: GolbatStationResult[],
 		examined: number,

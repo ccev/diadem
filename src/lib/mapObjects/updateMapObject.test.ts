@@ -49,8 +49,8 @@ import {
 } from "@/lib/mapObjects/updateMapObject";
 
 const bounds = { minLat: 0, minLon: 0, maxLat: 1, maxLon: 1 };
-const jsonResponse = (body: unknown, status = 200) =>
-	new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+const jsonResponse = (body: unknown) =>
+	new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });
 
 let fetchMock: ReturnType<typeof vi.fn>;
 beforeEach(() => {
@@ -93,7 +93,7 @@ describe("fetchForts", () => {
 		const [url, init] = fetchMock.mock.calls[0];
 		expect(url).toBe("/api/forts");
 		const body = JSON.parse(init.body as string);
-		expect(body).toMatchObject({ ...bounds });
+		expect(body).toMatchObject(bounds);
 		expect(Object.keys(body.types).sort()).toEqual(["gym", "pokestop"]);
 		expect(body.types.gym.filter).toEqual({ enabled: true, category: "gym" });
 		expect(typeof body.types.gym.filterHash).toBe("string");
@@ -122,7 +122,6 @@ describe("fetchForts", () => {
 		expect(secondBody.types.gym.filter).toBeUndefined();
 		expect(typeof secondBody.types.gym.filterHash).toBe("string");
 
-		// 409 → retried alone through /api/gym with the filter attached
 		expect(fetchMock.mock.calls[2][0]).toBe("/api/gym");
 		const retryBody = JSON.parse(fetchMock.mock.calls[2][1].body as string);
 		expect(retryBody.filter).toEqual({ enabled: true, category: "gym" });

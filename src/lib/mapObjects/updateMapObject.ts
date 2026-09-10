@@ -59,8 +59,7 @@ export type MapObjectPlan = {
 	removeOld: boolean;
 };
 
-// The types /api/forts serves together. Kept here (not imported from the server module) so
-// the client bundle stays free of server code.
+// Keep runtime server imports out of the client bundle.
 export const clientFortTypes: MapObjectType[] = [
 	MapObjectType.GYM,
 	MapObjectType.POKESTOP,
@@ -333,7 +332,6 @@ export function applyMapObjectResponse(
 	return clearLimitAfterRender ? type : undefined;
 }
 
-// Plan → single-type fetch → apply. S2 cells are computed locally instead of fetched.
 async function runPlan(plan: MapObjectPlan, signal?: AbortSignal) {
 	if (plan.type === MapObjectType.S2_CELL) {
 		const data = getS2CellMapObjects(getBounds(), plan.filter as FilterS2Cell);
@@ -394,7 +392,7 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 			.map((type) =>
 				planMapObjectRequest(type, removeOld, undefined, onlyChanged, controller.signal)
 			)
-			.filter((plan): plan is MapObjectPlan => plan !== undefined);
+			.filter((plan) => plan !== undefined);
 
 		const updateForts = async () => {
 			if (fortPlans.length < 2) {

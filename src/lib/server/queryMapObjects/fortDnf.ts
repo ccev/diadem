@@ -152,9 +152,6 @@ export function buildPokestopDnfFilters(
 export function buildStationDnfFilters(filter: FilterStation | undefined): GolbatFortDnfFilter[] {
 	if (!filter || filter.stationPlain.enabled || !filter.maxBattle.enabled) return [];
 
-	// Diadem's max-battle display rule (shouldDisplayStation / isMaxBattleActive): not inactive,
-	// battle available, inside the station window. Golbat's station_active + battle_available is
-	// exactly that, so every clause starts from it.
 	const active: GolbatFortDnfFilter = { station_active: true, battle_available: true };
 	const clauses: GolbatFortDnfFilter[] = [];
 	for (const filterset of filter.maxBattle.filters.filter((f) => f.enabled)) {
