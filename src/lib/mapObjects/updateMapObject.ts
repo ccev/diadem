@@ -20,6 +20,7 @@ import { allMapObjectTypes, type MapData, MapObjectType } from "@/lib/mapObjects
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import type { FortType } from "@/lib/server/queryMapObjects/queryMapObjects";
 import { hasAnyFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { featureFamily } from "@/lib/utils/features";
@@ -35,6 +36,18 @@ export type MapObjectRequestData = Bounds & {
 	filterHash?: string;
 	since?: number;
 };
+
+export type FortsRequestData = Bounds & {
+	types: Partial<Record<FortType, { filter?: AnyFilter; filterHash?: string; since?: number }>>;
+};
+
+export type FortsTypeResponse = {
+	status: 200 | 401 | 409 | 429;
+	filterCached?: "0" | "1";
+	result?: MapObjectResponse<MapData>;
+};
+
+export type FortsResponse = Partial<Record<FortType, FortsTypeResponse>>;
 
 const STATUS_FILTER_UNKNOWN = 409;
 const uncacheableFilterHashes = new Set<string>();
