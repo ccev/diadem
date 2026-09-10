@@ -112,8 +112,7 @@ async function callGolbat<T>(
 	path: string,
 	method: "GET" | "POST",
 	body: BodyInit | undefined = undefined,
-	thisFetch: typeof fetch = fetch,
-	quiet = false
+	thisFetch: typeof fetch = fetch
 ): Promise<T | undefined> {
 	const start = performance.now();
 	const url = new URL(path, config.url);
@@ -139,16 +138,12 @@ async function callGolbat<T>(
 		});
 
 		if (!response.ok) {
-			if (!quiet) {
-				log.error(
-					"[%s] Golbat returned a bad status | %d (%s)",
-					url.toString(),
-					response.status,
-					await response.text()
-				);
-			} else {
-				log.debug("[%s] Golbat returned a bad status | %d", url.toString(), response.status);
-			}
+			log.error(
+				"[%s] Golbat returned a bad status | %d (%s)",
+				url.toString(),
+				response.status,
+				await response.text()
+			);
 			return undefined;
 		}
 
@@ -207,13 +202,7 @@ export function scanStations(body: FortScanBody) {
 }
 
 export function scanForts(body: FortCombinedScanBody) {
-	return callGolbat<FortCombinedScanResponse>(
-		"api/fort/scan",
-		"POST",
-		JSON.stringify(body),
-		fetch,
-		true
-	);
+	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", JSON.stringify(body));
 }
 
 export function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) {
@@ -229,9 +218,9 @@ export function getGolbatStation(id: string, thisFetch: typeof fetch = fetch) {
 }
 
 export function fetchFortAvailability() {
-	return callGolbat<FortAvailability>("api/fort/available", "GET", undefined, fetch, true);
+	return callGolbat<FortAvailability>("api/fort/available", "GET");
 }
 
 export function fetchGolbatStatus() {
-	return callGolbat<GolbatStatus>("api/status", "GET", undefined, fetch, true);
+	return callGolbat<GolbatStatus>("api/status", "GET");
 }

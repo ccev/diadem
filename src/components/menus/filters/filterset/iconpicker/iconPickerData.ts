@@ -16,8 +16,9 @@ import {
 	getIconType
 } from "@/lib/services/uicons.svelte";
 import { League } from "@/lib/utils/pokemonUtils";
-import { RewardType } from "@/lib/utils/pokestopUtils";
+import { ALL_LURE_IDS, RewardType } from "@/lib/utils/pokestopUtils";
 import emojilib from "emojilib";
+import { ALL_RAID_LEVELS } from "$lib/utils/gymUtils";
 
 export const COMMON_EMOJIS = [
 	// measurement / data
@@ -218,8 +219,6 @@ const INVASION_IDS = [
 	4, 5, 41, 42, 43, 44, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
 	27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 47, 48, 49, 50
 ];
-
-const ALL_RAID_LEVELS = [1, 11, 3, 13, 4, 14, 5, 15, 6, 7, 8, 9, 10];
 
 const LEAGUE_VALUES: League[] = [League.LITTLE, League.GREAT, League.ULTRA, League.MASTER];
 
@@ -447,8 +446,7 @@ export function getPoiIcons(): IconPickerItem[] {
 	];
 
 	// Lured pokestops
-	const lureIds = [501, 502, 503, 504, 505, 506];
-	for (const lureId of lureIds) {
+	for (const lureId of ALL_LURE_IDS) {
 		pokestopVariants.push({
 			key: `pokestop-lure-${lureId}`,
 			label: m.poi_pokestop_lured({ lure: mItem(lureId) }),
