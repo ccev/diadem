@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Package manager is pnpm 11.25.0. `pnpm` is NOT on PATH in this environment; prefix every command with `export PATH=/private/tmp/claude-501/-Users-james-dev-diadem/391ea162-2b86-4557-83ec-d2da87ceb0d7/scratchpad/bin:$PATH` (a shim that runs `corepack pnpm`). Node 24.
+- Package manager is pnpm 11.25.0. `pnpm` is NOT on PATH in this environment; prefix every command with `export PATH=/Users/james/dev/diadem/.superpowers/bin:$PATH` (a shim that runs `corepack pnpm`). Node 24.
 - **Gates for every task:** `pnpm test` fully green. `pnpm run check` and `pnpm run lint` have pre-existing failures in UI files (`src/components/**`, `src/lib/drawer`, `src/lib/ui`, `src/lib/utils/numberFormat.ts`, `project.inlang/.meta.json`) that are out of scope and must not be touched. The gate is: `pnpm run check 2>&1 | grep -E '"(src/lib/server|src/lib/services/config|src/lib/mapObjects|src/lib/utils/requests|src/routes/api|proto)/'` prints nothing, and `pnpm exec prettier --check <every file you created or modified>` passes (markdown and TOML are not prettier-checked).
 - If `pnpm run check` reports missing paraglide messages, run `pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide` first.
 - Formatting: tabs, double quotes. Run `pnpm exec prettier --write <files>` before committing; the plan's code blocks may need prettier's wrapping.
