@@ -18,7 +18,8 @@ import {
 import { League } from "@/lib/utils/pokemonUtils";
 import { ALL_LURE_IDS, RewardType } from "@/lib/utils/pokestopUtils";
 import emojilib from "emojilib";
-import { ALL_RAID_LEVELS } from "$lib/utils/gymUtils";
+
+const ALL_RAID_LEVELS = [1, 11, 3, 13, 4, 14, 5, 15, 6, 7, 8, 9, 10];
 
 export const COMMON_EMOJIS = [
 	// measurement / data

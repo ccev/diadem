@@ -8,7 +8,7 @@ import {
 	INCIDENT_DISPLAYS_INVASION,
 	RewardType
 } from "@/lib/utils/pokestopUtils";
-import { ALL_RAID_LEVELS } from "@/lib/utils/gymUtils";
+import { RAID_LEVELS } from "@/lib/utils/gymUtils";
 
 const ALL_QUEST_REWARD_TYPES = Object.values(RewardType).filter(
 	(v): v is number => typeof v === "number" && v > 0
@@ -23,7 +23,7 @@ export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnf
 	for (const filterset of filter.raid.filters.filter((f) => f.enabled)) {
 		if (filterset.show?.includes("egg")) clauses.push({ raid_pokemon_id: [{ pokemon_id: 0 }] });
 		if (filterset.show?.includes("boss")) {
-			clauses.push({ raid_level: ALL_RAID_LEVELS });
+			clauses.push({ raid_level: RAID_LEVELS });
 		}
 		if (filterset.levels?.length) clauses.push({ raid_level: filterset.levels });
 		for (const boss of filterset.bosses ?? []) {
@@ -37,7 +37,7 @@ export function buildGymDnfFilters(filter: FilterGym | undefined): GolbatFortDnf
 		}
 	}
 
-	return clauses.length ? clauses : [{ raid_level: ALL_RAID_LEVELS }];
+	return clauses.length ? clauses : [{ raid_level: RAID_LEVELS }];
 }
 
 export function buildPokestopDnfFilters(

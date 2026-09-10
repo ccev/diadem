@@ -9,7 +9,6 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 export type RaidFilterType = "level" | "boss";
 export const GYM_SLOTS = 6;
-export const ALL_RAID_LEVELS = [1, 11, 3, 13, 4, 14, 5, 15, 6, 7, 8, 9, 10];
 
 const RAID_FIELDS = [
 	"raid_end_timestamp",
