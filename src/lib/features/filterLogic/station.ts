@@ -2,6 +2,7 @@ import type { FilterStation } from "@/lib/features/filters/filters";
 import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
 import { isCurrentSelectedOverwrite } from "@/lib/mapObjects/currentSelectedState.svelte";
 import type { StationData } from "@/lib/types/mapObjectData/station";
+import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getActiveStationFilter, isMaxBattleActive } from "@/lib/utils/stationUtils";
 
 export function matchMaxBattleFilterset(
@@ -46,6 +47,13 @@ export function shouldDisplayStation(
 
 	if (!stationFilter.enabled) return false;
 	if (stationFilter.stationPlain.enabled) return true;
+	if (
+		!stationFilter.maxBattle.enabled ||
+		station.is_inactive ||
+		!station.is_battle_available ||
+		(station.end_time ?? 0) <= currentTimestamp()
+	)
+		return false;
 
 	const maxBattleFilters = stationFilter.maxBattle.filters.filter((f) => f.enabled);
 	if (maxBattleFilters.length === 0) return true;

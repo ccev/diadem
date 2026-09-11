@@ -29,12 +29,30 @@ level = "info"
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""
+grpc = "127.0.0.1:50001"
 defaultNestName = "Unknown Nest"
 ```
 
 - `url`: Golbat base URL, must be accessible to Diadem's server
 - `secret`: Must match your configured Golbat secret
+- `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
+- `fortApi`: Optional, default `true`. Set to `false` to keep gyms, pokéstops and stations on SQL even when Golbat offers the fort API (this also bypasses gRPC for them). Useful for benchmarking the three paths.
 - `defaultNestName`: The default nest name, as configured in Fletchling
+
+### Golbat Fort API
+
+It's recommended to enable in-memory forts in Golbat
+(Golbat Config -> `fort_in_memory = true` + optional `preload = true`).
+Diadem will then serve pokestops, gyms and stations from Golbat direclty, instead of having to go through the database.
+Detection is automatic; set `fortApi = false` under `[server.golbat]` to opt out and stay on SQL regardless.
+
+### Golbat gRPC API
+
+When your Golbat supports gRPC, set `grpc` to that `host:port`. Diadem then runs gym, pokéstop, station and pokémon map scans over gRPC with protobuf encoding, which is markedly cheaper than the JSON HTTP API on large responses.
+
+If a gRPC call fails for any reason, Diadem falls back to the HTTP API for that request, and for forts to SQL after that, so the map keeps working. Unset `grpc` to compare against the HTTP path.
+
+The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
 
 ## `server.dragonite`
 
@@ -281,6 +299,7 @@ image = ""
 description = ""
 allowCrawlers = false
 disallowedPaths = []
+msgpack = true
 ```
 
 - branding and defaults for map and metadata
@@ -289,6 +308,7 @@ disallowedPaths = []
 - `minZoom`, `maxZoom`: Locking users into a map zoom range
 - `url`, `image`, `description`: SEO/OpenGraph metadata
 - `allowCrawlers`, `disallowedPaths`: robots.txt config
+- `msgpack`: Default `true`. The map client and API exchange MessagePack, which is about a fifth smaller than JSON but costs roughly three times the CPU to encode and decode on both ends. Set to `false` to use JSON instead, which is the better trade on a CPU-bound server or for clients on fast connections.
 
 ## `server.staticMap`
 

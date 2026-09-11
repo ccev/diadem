@@ -1,0 +1,142 @@
+import { getServerConfig } from "@/lib/services/config/config.server";
+import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
+import type { Coords } from "@/lib/utils/coordinates";
+import { getLogger } from "@/lib/utils/logger";
+import type {
+	FortAvailability,
+	FortCombinedScanBody,
+	FortScanBody,
+	FortCombinedScanResponse,
+	GolbatGymResult,
+	GolbatPokestopResult,
+	GolbatStationResult,
+	GolbatStatus,
+	GymScanResponse,
+	PokemonResponse,
+	PokemonScanBody,
+	PokestopScanResponse,
+	StationScanResponse
+} from "./types";
+
+const log = getLogger("golbat");
+const config = getServerConfig().golbat;
+
+export const golbatInFlight = { count: 0 };
+
+async function callGolbat<T>(
+	path: string,
+	method: "GET" | "POST",
+	body: BodyInit | undefined = undefined,
+	thisFetch: typeof fetch = fetch
+): Promise<T | undefined> {
+	const start = performance.now();
+	const url = new URL(path, config.url);
+
+	const headers: HeadersInit = {
+		"Content-Type": "application/json"
+	};
+
+	if (config.auth) {
+		headers["Authorization"] = config.auth;
+	}
+	if (config.secret) {
+		headers["X-Golbat-Secret"] = config.secret;
+	}
+
+	golbatInFlight.count += 1;
+	try {
+		const response = await thisFetch(url, {
+			method,
+			body,
+			headers,
+			signal: AbortSignal.timeout(10_000)
+		});
+
+		if (!response.ok) {
+			log.error(
+				"[%s] Golbat returned a bad status | %d (%s)",
+				url.toString(),
+				response.status,
+				await response.text()
+			);
+			return undefined;
+		}
+
+		const fetched = performance.now();
+		const result = await response.json();
+		const done = performance.now();
+
+		log.debug(
+			"[%s] Request took %fms (parse %fms, in flight %d)",
+			url.pathname,
+			(done - start).toFixed(1),
+			(done - fetched).toFixed(1),
+			golbatInFlight.count - 1
+		);
+
+		return result;
+	} finally {
+		golbatInFlight.count -= 1;
+	}
+}
+
+export function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
+	return callGolbat<PokemonData>("api/pokemon/id/" + id, "GET", undefined, thisFetch);
+}
+
+export function getMultiplePokemon(body: PokemonScanBody) {
+	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
+}
+
+export function searchGyms(query: string, coords: Coords, range: number) {
+	const body = {
+		filters: [
+			{
+				name: query,
+				location_distance: {
+					location: coords.internal(),
+					distance: range
+				}
+			}
+		],
+		limit: 15
+	};
+	return callGolbat<GymData[]>("api/gym/search", "POST", JSON.stringify(body));
+}
+
+export function scanGyms(body: FortScanBody) {
+	return callGolbat<GymScanResponse>("api/gym/scan", "POST", JSON.stringify(body));
+}
+
+export function scanPokestops(body: FortScanBody) {
+	return callGolbat<PokestopScanResponse>("api/pokestop/scan", "POST", JSON.stringify(body));
+}
+
+export function scanStations(body: FortScanBody) {
+	return callGolbat<StationScanResponse>("api/station/scan", "POST", JSON.stringify(body));
+}
+
+export function scanForts(body: FortCombinedScanBody) {
+	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", JSON.stringify(body));
+}
+
+export function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) {
+	return callGolbat<GolbatGymResult>("api/gym/id/" + id, "GET", undefined, thisFetch);
+}
+
+export function getGolbatPokestop(id: string, thisFetch: typeof fetch = fetch) {
+	return callGolbat<GolbatPokestopResult>("api/pokestop/id/" + id, "GET", undefined, thisFetch);
+}
+
+export function getGolbatStation(id: string, thisFetch: typeof fetch = fetch) {
+	return callGolbat<GolbatStationResult>("api/station/id/" + id, "GET", undefined, thisFetch);
+}
+
+export function fetchFortAvailability() {
+	return callGolbat<FortAvailability>("api/fort/available", "GET");
+}
+
+export function fetchGolbatStatus() {
+	return callGolbat<GolbatStatus>("api/status", "GET");
+}

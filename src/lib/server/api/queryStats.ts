@@ -1,3 +1,4 @@
+import { getCachedFortAvailability } from "@/lib/server/api/golbat/fortAvailability";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { getMasterPokemon } from "@/lib/services/masterfile";
@@ -74,7 +75,7 @@ export type ActiveRaidStats = {
 	pokemon_id: number;
 	form: number;
 	temp_evolution_id: number;
-	count: number;
+	count?: number;
 };
 
 type InvasionStatsRow = {
@@ -123,7 +124,7 @@ export type TotalQuestStats = {
 export type ContestStatsEntry = {
 	ranking_standard: number;
 	focus: ContestFocus;
-	count: number;
+	count?: number;
 };
 
 export type MaxBattleStatsEntry = {
@@ -447,7 +448,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		);
 
 		if (existingRaid) {
-			existingRaid.count += count;
+			existingRaid.count = (existingRaid.count ?? 0) + count;
 		} else {
 			activeRaids.push({
 				level: row.level,
@@ -475,7 +476,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		);
 
 		if (existingContest) {
-			existingContest.count += count;
+			existingContest.count = (existingContest.count ?? 0) + count;
 		} else {
 			activeContests.push({
 				ranking_standard: row.ranking_standard,
@@ -614,5 +615,49 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		activeNests,
 		activeEggs: activeEggs,
 		generatedAt: Date.now()
+	};
+}
+
+export function mergeFortAvailability(stats: MasterStats): MasterStats {
+	const availability = getCachedFortAvailability();
+	if (!availability) return stats;
+
+	const activeRaids = availability.gyms.raids.flatMap((raid) => {
+		if (!raid.pokemon_id) return [];
+		return [
+			{
+				level: raid.raid_level,
+				pokemon_id: raid.pokemon_id,
+				form: getNormalizedForm(raid.pokemon_id, raid.form ?? 0),
+				temp_evolution_id: raid.temp_evolution_id
+			}
+		];
+	});
+
+	const activeContests = availability.pokestops.showcases.flatMap((showcase) => {
+		let focus = showcase.showcase_focus;
+		if (!focus && showcase.pokemon_id !== null) {
+			focus = {
+				type: "pokemon",
+				pokemon_id: showcase.pokemon_id,
+				pokemon_form: showcase.form ?? 0
+			};
+		} else if (!focus && showcase.type_id !== null) {
+			focus = { type: "type", pokemon_type_1: showcase.type_id };
+		}
+		if (!focus) return [];
+		if (focus.type === "pokemon") {
+			focus = {
+				...focus,
+				pokemon_form: getNormalizedForm(focus.pokemon_id, focus.pokemon_form ?? 0)
+			};
+		}
+		return [{ ranking_standard: showcase.ranking_standard, focus }];
+	});
+
+	return {
+		...stats,
+		activeRaids,
+		activeContests
 	};
 }

@@ -23,6 +23,7 @@ export const INCIDENT_DISPLAY_CONTEST = 9;
 export const INCIDENT_DISPLAYS_INVASION = [1, 2, 3];
 export const INVASION_CHARACTER_LEADERS = [41, 42, 43, 44, 46];
 export const KECLEON_ID = 352;
+export const ALL_LURE_IDS = [501, 502, 503, 504, 505, 506];
 
 export enum Character {
 	GRUNT_MALE = 4,

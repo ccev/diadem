@@ -5,6 +5,7 @@ import { getMap } from "@/lib/map/map.svelte";
 import {
 	clearAllDataLimits,
 	clearDataLimit,
+	type DataLimitInfo,
 	getDataLimit,
 	setDataLimit
 } from "@/lib/mapObjects/dataLimitState.svelte";
@@ -24,6 +25,12 @@ import {
 import { getS2CellMapObjects } from "@/lib/mapObjects/s2cells.js";
 import { updateWeather } from "@/lib/mapObjects/weather.svelte";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import {
+	combinedGolbatFortTypes,
+	type FortType,
+	type FortsRequestData,
+	type FortsResponse
+} from "@/lib/mapObjects/combinedForts";
 import { hasAnyFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { featureFamily } from "@/lib/utils/features";
@@ -38,6 +45,15 @@ export type MapObjectRequestData = Bounds & {
 	filter?: AnyFilter;
 	filterHash?: string;
 	since?: number;
+};
+
+export type MapObjectPlan = {
+	type: MapObjectType;
+	filter: AnyFilter;
+	since?: number;
+	isDelta: boolean;
+	limitInfo?: DataLimitInfo;
+	removeOld: boolean;
 };
 
 const STATUS_FILTER_UNKNOWN = 409;
@@ -65,6 +81,23 @@ export function clearMap() {
 	updateFeatures(getMapObjects());
 }
 
+function filterHashToSend(filter: AnyFilter | undefined) {
+	const hash = getFilterHash(filter);
+	const filterHash = hash !== undefined && uncacheableFilterHashes.has(hash) ? undefined : hash;
+	const sendFilter = hash === undefined || !knownFilterHashes.has(hash);
+	return { hash, filterHash, sendFilter };
+}
+
+function noteFilterCached(hash: string | undefined, cached: string | null | undefined) {
+	if (hash === undefined) return;
+	if (cached === "1") {
+		knownFilterHashes.add(hash);
+	} else if (cached === "0") {
+		uncacheableFilterHashes.add(hash);
+		knownFilterHashes.delete(hash);
+	}
+}
+
 export async function fetchMapObjects<T extends QueryableMapData>(
 	type: MapObjectType,
 	bounds: Bounds,
@@ -72,8 +105,7 @@ export async function fetchMapObjects<T extends QueryableMapData>(
 	signal?: AbortSignal,
 	since?: number
 ): Promise<MapObjectResponse<T> | undefined> {
-	const hash = getFilterHash(filter);
-	const filterHash = hash !== undefined && uncacheableFilterHashes.has(hash) ? undefined : hash;
+	const { hash, filterHash, sendFilter } = filterHashToSend(filter);
 
 	function post(withFilter: boolean): Promise<Response> {
 		const body: MapObjectRequestData = {
@@ -92,8 +124,6 @@ export async function fetchMapObjects<T extends QueryableMapData>(
 	}
 
 	try {
-		const sendFilter = hash === undefined || !knownFilterHashes.has(hash);
-
 		let response = await post(sendFilter);
 		if (response.status === STATUS_FILTER_UNKNOWN && hash !== undefined && !sendFilter) {
 			knownFilterHashes.delete(hash);
@@ -101,15 +131,7 @@ export async function fetchMapObjects<T extends QueryableMapData>(
 			response = await post(true);
 		}
 
-		if (hash !== undefined) {
-			const cached = response.headers.get("X-Filter-Cached");
-			if (cached === "1") {
-				knownFilterHashes.add(hash);
-			} else if (cached === "0") {
-				uncacheableFilterHashes.add(hash);
-				knownFilterHashes.delete(hash);
-			}
-		}
+		noteFilterCached(hash, response.headers.get("X-Filter-Cached"));
 
 		if (!response.ok) {
 			console.error(`Error while fetching ${type}: ${response.status}`);
@@ -124,13 +146,73 @@ export async function fetchMapObjects<T extends QueryableMapData>(
 	}
 }
 
-export async function updateMapObject(
+export async function fetchForts(
+	plans: MapObjectPlan[],
+	bounds: Bounds,
+	signal?: AbortSignal
+): Promise<Map<MapObjectType, MapObjectResponse<QueryableMapData> | undefined>> {
+	const results = new Map<MapObjectType, MapObjectResponse<QueryableMapData> | undefined>();
+	const hashes = new Map<MapObjectType, string | undefined>();
+	const body: FortsRequestData = { ...bounds, types: {} };
+	for (const plan of plans) {
+		const { hash, filterHash, sendFilter } = filterHashToSend(plan.filter);
+		hashes.set(plan.type, hash);
+		body.types[plan.type as FortType] = {
+			filter: sendFilter ? plan.filter : undefined,
+			filterHash,
+			since: plan.since
+		};
+	}
+
+	let parsed: FortsResponse | undefined;
+	try {
+		const encoded = encodeRequestBody(body);
+		const response = await fetch("/api/forts", {
+			method: "POST",
+			body: encoded.body,
+			headers: getHeaders(encoded.contentType),
+			signal
+		});
+		if (response.ok) {
+			parsed = await parseResponse<FortsResponse>(response);
+		} else {
+			console.error(`Error while fetching forts: ${response.status}`);
+		}
+	} catch (e) {
+		if (!(e instanceof DOMException && e.name === "AbortError")) {
+			console.error("Error while fetching forts", e);
+		}
+	}
+	if (!parsed) return results;
+
+	for (const plan of plans) {
+		const typeResponse = parsed[plan.type as FortType];
+		const hash = hashes.get(plan.type);
+		if (typeResponse?.status === 200) {
+			noteFilterCached(hash, typeResponse.filterCached);
+			results.set(plan.type, typeResponse.result);
+		} else if (typeResponse?.status === STATUS_FILTER_UNKNOWN) {
+			// the server lost this filter; the single-type path re-sends it
+			if (hash !== undefined) knownFilterHashes.delete(hash);
+			results.set(
+				plan.type,
+				await fetchMapObjects(plan.type, bounds, plan.filter, signal, plan.since)
+			);
+		} else {
+			console.error(`Error while fetching ${plan.type}: ${typeResponse?.status ?? "missing"}`);
+			results.set(plan.type, undefined);
+		}
+	}
+	return results;
+}
+
+export function planMapObjectRequest(
 	type: MapObjectType,
 	removeOld: boolean = true,
 	filterOverwrite: AnyFilter | undefined = undefined,
-	signal?: AbortSignal,
-	onlyChanged: boolean = false
-) {
+	onlyChanged: boolean = false,
+	signal?: AbortSignal
+): MapObjectPlan | undefined {
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
 
 	let filter: AnyFilter | undefined = undefined;
@@ -187,28 +269,32 @@ export async function updateMapObject(
 	const isDelta = onlyChanged && since !== undefined;
 	lastQueryTimestamps.set(type, currentTimestamp());
 
-	let examined: number = 0;
+	return { type, filter, since, isDelta, limitInfo, removeOld };
+}
+
+export function applyMapObjectResponse(
+	plan: MapObjectPlan,
+	response: MapObjectResponse<QueryableMapData> | undefined,
+	signal?: AbortSignal
+): MapObjectType | undefined {
+	const { type, filter, isDelta, limitInfo, removeOld } = plan;
+	if (signal?.aborted) return;
+
+	let examined = 0;
 	let data: QueryableMapData[] | undefined = undefined;
 	let clearLimitAfterRender = false;
-	if (type === MapObjectType.S2_CELL) {
-		data = getS2CellMapObjects(getBounds(), filter as FilterS2Cell);
-		examined = data.length;
-	} else {
-		const response = await fetchMapObjects(type, getBounds(), filter, signal, since);
-		if (signal?.aborted) return;
-		if (response) {
-			if (response.limitReached) {
-				setDataLimit(type, {
-					zoom: getMap()?.getZoom() ?? 0,
-					filterJson: JSON.stringify(filter)
-				});
-				data = [];
-			} else {
-				data = response.data;
-				clearLimitAfterRender = Boolean(limitInfo);
-			}
-			examined = response.examined;
+	if (response) {
+		if (response.limitReached) {
+			setDataLimit(type, {
+				zoom: getMap()?.getZoom() ?? 0,
+				filterJson: JSON.stringify(filter)
+			});
+			data = [];
+		} else {
+			data = response.data;
+			clearLimitAfterRender = Boolean(limitInfo);
 		}
+		examined = response.examined;
 	}
 
 	if (!data) {
@@ -234,6 +320,27 @@ export async function updateMapObject(
 	}
 
 	return clearLimitAfterRender ? type : undefined;
+}
+
+async function runPlan(plan: MapObjectPlan, signal?: AbortSignal) {
+	if (plan.type === MapObjectType.S2_CELL) {
+		const data = getS2CellMapObjects(getBounds(), plan.filter as FilterS2Cell);
+		return applyMapObjectResponse(plan, { data, examined: data.length }, signal);
+	}
+	const response = await fetchMapObjects(plan.type, getBounds(), plan.filter, signal, plan.since);
+	return applyMapObjectResponse(plan, response, signal);
+}
+
+export async function updateMapObject(
+	type: MapObjectType,
+	removeOld: boolean = true,
+	filterOverwrite: AnyFilter | undefined = undefined,
+	signal?: AbortSignal,
+	onlyChanged: boolean = false
+) {
+	const plan = planMapObjectRequest(type, removeOld, filterOverwrite, onlyChanged, signal);
+	if (!plan) return;
+	return runPlan(plan, signal);
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged: boolean = false) {
@@ -270,15 +377,35 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 		);
 		limitsToClear.push(...results.filter((type) => type !== undefined));
 	} else {
-		const [limitResults] = await Promise.all([
+		const otherTypes = allMapObjectTypes.filter(
+			(type) => !combinedGolbatFortTypes.some((fortType) => fortType === type)
+		);
+		const fortPlans = combinedGolbatFortTypes
+			.map((type) =>
+				planMapObjectRequest(type, removeOld, undefined, onlyChanged, controller.signal)
+			)
+			.filter((plan) => plan !== undefined);
+
+		const updateForts = async () => {
+			if (fortPlans.length < 2) {
+				return Promise.all(fortPlans.map((plan) => runPlan(plan, controller.signal)));
+			}
+			const responses = await fetchForts(fortPlans, getBounds(), controller.signal);
+			return fortPlans.map((plan) =>
+				applyMapObjectResponse(plan, responses.get(plan.type), controller.signal)
+			);
+		};
+
+		const [otherResults, fortResults] = await Promise.all([
 			Promise.all(
-				allMapObjectTypes.map((type) =>
+				otherTypes.map((type) =>
 					updateMapObject(type, removeOld, undefined, controller.signal, onlyChanged)
 				)
 			),
+			updateForts(),
 			updateWeather()
 		]);
-		limitsToClear = limitResults.filter((type) => type !== undefined);
+		limitsToClear = [...otherResults, ...fortResults].filter((type) => type !== undefined);
 	}
 
 	if (controller.signal.aborted) return;

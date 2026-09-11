@@ -1,0 +1,81 @@
+import type { FilterPokestop } from "@/lib/features/filters/filters";
+import type { Bounds } from "@/lib/mapObjects/mapBounds";
+import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
+import { getGolbatPokestop, scanPokestops } from "@/lib/server/api/golbat/http";
+import type { GolbatPokestopResult, PokestopScanResponse } from "@/lib/server/api/golbat/types";
+import { grpcScanPokestops, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
+import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
+import { buildPokestopDnfFilters } from "@/lib/server/queryMapObjects/fortDnf";
+import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { mapPokestop } from "@/lib/server/queryMapObjects/fortApiMapping";
+import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
+import { getLogger } from "@/lib/utils/logger";
+import { booleanPointInPolygon, point } from "@turf/turf";
+
+const log = getLogger("query:pokestop-api");
+
+export class ApiPokestopQuery extends PokestopQuery {
+	async query(
+		bounds: Bounds,
+		filter: FilterPokestop | undefined,
+		polygon: PermittedPolygon,
+		since?: number,
+		limit?: number
+	): Promise<MapObjectResponse<MinMapObject<PokestopData>>> {
+		const dnf = buildPokestopDnfFilters(filter);
+		if (dnf === null) return { data: [], examined: 0 };
+
+		const actualLimit = Math.min(limit ?? this.limit, this.limit);
+		let result: PokestopScanResponse | undefined;
+		try {
+			result = await scanViaGrpcOrHttp(
+				"pokestop",
+				{
+					min: { latitude: bounds.minLat, longitude: bounds.minLon },
+					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+					limit: getFortApiScanLimit(actualLimit + 1),
+					filters: dnf,
+					with_incidents: true
+				},
+				grpcScanPokestops,
+				scanPokestops
+			);
+		} catch (err) {
+			log.debug("Fort pokestop scan failed, falling back to SQL: %s", err);
+		}
+		if (!result || result.limit_reached) return super.query(bounds, filter, polygon, since, limit);
+		return this.processScan(result.pokestops, result.examined, polygon, since);
+	}
+
+	processScan(
+		pokestops: GolbatPokestopResult[],
+		examined: number,
+		polygon: PermittedPolygon,
+		since?: number
+	): MapObjectResponse<MinMapObject<PokestopData>> {
+		const data: MinMapObject<PokestopData>[] = [];
+		for (const p of pokestops) {
+			if (p.deleted) continue;
+			if (since !== undefined && (p.updated ?? 0) <= since) continue;
+			if (polygon && !booleanPointInPolygon(point([p.lon, p.lat]), polygon)) {
+				examined -= 1;
+				continue;
+			}
+			data.push(mapPokestop(p));
+		}
+		return { data, examined };
+	}
+
+	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokestopData>[]> {
+		let stop: GolbatPokestopResult | undefined;
+		try {
+			stop = await getGolbatPokestop(id, thisFetch);
+		} catch (err) {
+			log.debug("Fort pokestop fetch failed, falling back to SQL: %s", err);
+		}
+		if (!stop) return super.querySingle(id);
+		return stop.deleted ? [] : [mapPokestop(stop)];
+	}
+}

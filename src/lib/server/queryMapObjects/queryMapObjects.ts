@@ -6,6 +6,10 @@ import {
 	type MapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { isFortApiEnabled } from "@/lib/server/api/golbat/fortAvailability";
+import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
+import { ApiPokestopQuery } from "@/lib/server/queryMapObjects/queryPokestopApi";
+import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { NestQuery } from "@/lib/server/queryMapObjects/queryNest";
 import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
@@ -28,7 +32,19 @@ const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.TAPPABLE]: new TappableQuery()
 };
 
-export function getQuery(type: MapObjectType): MapObjectQuery<any, any> {
+export const fortApiRegistry = {
+	[MapObjectType.GYM]: new ApiGymQuery(),
+	[MapObjectType.POKESTOP]: new ApiPokestopQuery(),
+	[MapObjectType.STATION]: new ApiStationQuery()
+} satisfies Partial<Record<MapObjectType, MapObjectQuery<any, any>>>;
+
+export function getQuery(
+	type: MapObjectType,
+	useApi = isFortApiEnabled()
+): MapObjectQuery<any, any> {
+	if (useApi && Object.hasOwn(fortApiRegistry, type)) {
+		return fortApiRegistry[type as keyof typeof fortApiRegistry];
+	}
 	const query = registry[type];
 	if (!query) error(404);
 	return query;

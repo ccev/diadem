@@ -292,28 +292,21 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			const contestValues: unknown[] = [];
 
 			for (const filterset of contestFilters) {
-				const contestFilterClauses = ["pokestop.showcase_expiry > UNIX_TIMESTAMP()"];
-
-				if (filterset.rankingStandard) {
-					contestFilterClauses.push("pokestop.showcase_ranking_standard = ?");
-					contestValues.push(filterset.rankingStandard);
-				}
-
-				if (filterset.focus.pokemon_id) {
+				const contestFilterClauses = ["pokestop.showcase_ranking_standard = ?"];
+				contestValues.push(filterset.rankingStandard);
+				if (filterset.focus.type === "pokemon") {
 					contestFilterClauses.push("pokestop.showcase_pokemon_id = ?");
 					contestValues.push(filterset.focus.pokemon_id);
-				}
-
-				if (filterset.focus.type_id) {
+				} else if (filterset.focus.type === "type") {
 					contestFilterClauses.push("pokestop.showcase_pokemon_type_id = ?");
-					contestValues.push(filterset.focus.type_id);
+					contestValues.push(filterset.focus.pokemon_type_1);
 				}
 
 				contestClauses.push(`(${contestFilterClauses.join(" AND ")})`);
 			}
 
 			clauses.push(
-				`(incident.expiration > UNIX_TIMESTAMP() AND incident.display_type = ? AND ${contestClauses.length ? `(${contestClauses.join(" OR ")})` : "pokestop.showcase_expiry > UNIX_TIMESTAMP()"})`
+				`(incident.expiration > UNIX_TIMESTAMP() AND incident.display_type = ? AND pokestop.showcase_expiry > UNIX_TIMESTAMP()${contestClauses.length ? ` AND (${contestClauses.join(" OR ")})` : ""})`
 			);
 			values.push(INCIDENT_DISPLAY_CONTEST, ...contestValues);
 		}

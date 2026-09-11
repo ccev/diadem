@@ -44,6 +44,8 @@ type General = {
 	description?: string;
 	allowCrawlers?: boolean;
 	disallowedPaths?: string[];
+	/** Default true. Set to false to exchange JSON instead of MessagePack with the API (less CPU, more bytes). */
+	msgpack?: boolean;
 };
 
 export type DbCreds = {
@@ -142,6 +144,8 @@ export type ServerConfig = {
 		auth?: string;
 		secret?: string;
 		defaultNestName?: string;
+		grpc?: string;
+		fortApi?: boolean;
 	};
 	dragonite: {
 		// TODO: this should be optional and scout disabled

@@ -6,6 +6,13 @@ level = "info" # crit, error, warning, info, debug
 url = "http://127.0.0.1:9001"
 secret = ""
 
+# [Experimental] Optionally enable gRPC communication with Golbat
+# grpc = "127.0.0.1:50001"
+
+# Set to false to always serve gyms/pokestops/stations from SQL, ignoring Golbat's fort API and gRPC
+# Recommendation: Leave this commented
+# fortApi = false
+
 # This can be configured in Fletchling. Match the string to its config
 defaultNestName = "Unknown Nest"
 
@@ -171,6 +178,9 @@ defaultZoom = 15
 # Min/Max zoom for users, leave commented out to disable
 #minZoom = 0
 #maxZoom = 20
+
+# [Experimental] Encode client requests with msgpack. JSON costs more bytes but far less CPU on both ends
+# msgpack = false
 
 # Values to be used in search engine entries and social media previews
 url = ""  # i.e. "https://malt.ee"

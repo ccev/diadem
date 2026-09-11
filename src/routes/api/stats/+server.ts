@@ -1,3 +1,5 @@
+import { mergeFortAvailability } from "@/lib/server/api/queryStats";
+import { FORT_API_REFRESH_SECONDS } from "@/lib/server/api/golbat/fortAvailability";
 import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
 import { respond } from "@/lib/server/api/respond";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
@@ -5,7 +7,9 @@ import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
 export async function GET({ request }) {
 	try {
 		const stats = await masterstatsProvider.get();
-		return respond(request, stats, { headers: cacheHttpHeaders(300, 3600, 3600) });
+		return respond(request, mergeFortAvailability(stats), {
+			headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS)
+		});
 	} catch (e) {
 		return respond(
 			request,
@@ -13,7 +17,7 @@ export async function GET({ request }) {
 				pokemon: {},
 				generatedAt: 0
 			},
-			{ headers: cacheHttpHeaders(300, 3600, 3600) }
+			{ headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS) }
 		);
 	}
 }

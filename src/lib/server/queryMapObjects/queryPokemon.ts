@@ -2,7 +2,8 @@ import { shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbatApi";
+import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbat/http";
+import { grpcScanPokemon, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
 import {
 	MapObjectQuery,
@@ -10,8 +11,9 @@ import {
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type {
 	GolbatPokemonQuery,
-	GolbatPokemonSpecies
-} from "@/lib/server/queryMapObjects/queries";
+	GolbatPokemonSpecies,
+	PokemonScanBody
+} from "@/lib/server/api/golbat/types";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
@@ -37,14 +39,14 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 
-		const body = {
+		const body: PokemonScanBody = {
 			min: { latitude: bounds.minLat, longitude: bounds.minLon },
 			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 			limit: actualLimit,
 			filters: golbatQueries
 		};
 
-		const result = await getMultiplePokemon(body);
+		const result = await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
 
 		if (result) {
 			const data: MinMapObject<PokemonData>[] = [];

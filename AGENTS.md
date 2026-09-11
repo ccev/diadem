@@ -15,6 +15,7 @@ Diadem — a Pokémon GO map frontend built with SvelteKit and MapLibre GL. Conn
 - **Format:** `pnpm run format`
 - **DB push schema:** `pnpm run db:push`
 - **DB studio:** `pnpm run db:studio`
+- **Regenerate gRPC client:** `pnpm run grpc:generate` — after updating `proto/golbat_api.proto` from Golbat's `grpc/api.proto`; commit the regenerated `src/lib/server/api/grpc/golbat_api.ts`
 
 - **Test:** `pnpm test`
   tests are not yet implemented, ignore this.
@@ -50,6 +51,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 ### Source Organization
 
 - `src/lib/server/` — Server-only: DB, auth, API query logic, config parsing, providers
+- `src/lib/server/api/grpc/` — ts-proto generated Golbat gRPC client (never hand-edit); `golbatGrpc.ts` wraps it, `golbatGrpcMapping.ts` converts to/from the HTTP scan types
 - `src/lib/services/` — Client/isomorphic services (search, user settings, uicons, masterfile)
 - `src/lib/features/` — Feature state (filters, search, scout, coverage)
 - `src/lib/mapObjects/` — Map object state management and types
@@ -71,7 +73,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 
 1. Server hooks (`hooks.server.ts`) chain: paraglide i18n → auth/session/permissions → server init
 2. Layout load fetches config + user settings
-3. Map queries: client POSTs bounds + filters to `/api/[mapObject]` → server queries Golbat DB with permission checks → returns filtered data
+3. Map queries: client POSTs bounds + filters to `/api/[mapObject]` (or, for gyms/pokéstops/stations together, `/api/forts`) → server queries Golbat (fort API over gRPC/HTTP, or SQL) with permission checks → returns filtered data. The per-type admit/resolve/settle pipeline lives in `src/lib/server/api/mapObjectRequest.ts`.
 4. Map objects stored in reactive `mapObjectsState`, rendered via MapLibre layers
 
 ### i18n
@@ -94,6 +96,7 @@ An Astro Starlight-based documentation site can be founder under /docs. When add
 
 - Avoid writing functions that are only used once
 - Use inline js in Svelte HTML blocks for one-off callbacks or to generate parameters. Svelte supports "this {variable} string formatting"
+- Don't ever push superpowers files or internal plans to the repo. Either delete them if not needed anymore or don't stage them in the first place. 
 
 ## Svelte MCP
 
