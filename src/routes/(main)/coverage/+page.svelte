@@ -3,7 +3,6 @@
 	import MapCoverage from "@/components/map/MapCoverage.svelte";
 	import { closeMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
-	import { setIsContextMenuOpen } from "@/lib/ui/contextmenu.svelte.js";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import {
 		coverageMapActiveSnapPoint,
@@ -33,7 +32,6 @@
 		setMap(undefined);
 		openMenu(Menu.COVERAGE_MAP, false);
 		closePopup();
-		setIsContextMenuOpen(false);
 		clearMapPositionUrlParams();
 	});
 

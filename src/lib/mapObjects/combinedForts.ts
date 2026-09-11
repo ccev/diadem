@@ -1,6 +1,6 @@
 import type { AnyFilter } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import { MapObjectType, type MapData } from "@/lib/mapObjects/mapObjectTypes";
+import { MapObjectType, type QueryableMapData } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 
 export type FortType = MapObjectType.GYM | MapObjectType.POKESTOP | MapObjectType.STATION;
@@ -18,7 +18,7 @@ export type FortsRequestData = Bounds & {
 export type FortsTypeResponse = {
 	status: 200 | 400 | 401 | 409 | 429;
 	filterCached?: "0" | "1";
-	result?: MapObjectResponse<MapData>;
+	result?: MapObjectResponse<QueryableMapData>;
 };
 
 export type FortsResponse = Partial<Record<FortType, FortsTypeResponse>>;

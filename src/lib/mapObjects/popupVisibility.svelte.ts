@@ -6,7 +6,7 @@ import type { PaddingOptions } from "maplibre-gl";
 type PopupOcclusion = { width: number } | { height: number };
 
 export type PopupVisibilityRequest = {
-	data: MapData;
+	data: Pick<MapData, "lat" | "lon">;
 	bounds?: [number, number, number, number];
 };
 
@@ -14,7 +14,7 @@ let visibilityRequest: PopupVisibilityRequest | undefined = $state();
 let popupOcclusion: PopupOcclusion | undefined;
 
 export function requestPopupVisibilityCheck(
-	data: MapData,
+	data: Pick<MapData, "lat" | "lon">,
 	bounds?: [number, number, number, number]
 ) {
 	visibilityRequest = { data, bounds };

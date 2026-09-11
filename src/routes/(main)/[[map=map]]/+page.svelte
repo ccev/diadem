@@ -1,6 +1,5 @@
 <script lang="ts">
 	import BottomNav from "@/components/ui/BottomNav.svelte";
-	import ContextMenu from "@/components/ui/contextmenu/ContextMenu.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte.js";
 	import WeatherOverview from "@/components/map/WeatherOverview.svelte";
@@ -31,15 +30,19 @@
 	import MapMain from "@/components/map/MapMain.svelte";
 	import MapMenuUi from "@/components/ui/MapMenuUi.svelte";
 	import type * as maplibre from "maplibre-gl";
+	import { watch } from "runed";
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
-	$effect(() => {
-		// When opening a popup on mobile while in a menu, close the menu
-		if (getCurrentSelectedData() && !isMenuSidebar()) {
-			closeMenu();
+	watch(
+		() => [getCurrentSelectedData(), isMenuSidebar()],
+		([selected, sidebar]) => {
+			// When opening a popup on mobile while in a menu, close the menu
+			if (selected && !sidebar) {
+				closeMenu();
+			}
 		}
-	});
+	);
 
 	const errorHref = getConfig().general.customHome ? "/" : "";
 </script>
@@ -63,8 +66,6 @@
 	<RaidFilterset />
 	<InvasionFilterset />
 	<MaxBattleFilterset />
-
-	<ContextMenu />
 
 	{#if isSearchViewActive()}
 		<div class="fixed z-50 top-safe-inset-top px-2 w-full pointer-events-none">

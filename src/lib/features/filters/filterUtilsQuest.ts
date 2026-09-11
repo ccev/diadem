@@ -18,7 +18,7 @@ import { getId } from "@/lib/utils/uuid";
 export const questBounds = {
 	stardust: {
 		min: 0,
-		max: 5_000
+		max: 10_000
 	},
 	pokecoins: {
 		min: 0,

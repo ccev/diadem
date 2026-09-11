@@ -1,4 +1,4 @@
-import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type QueryableMapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { resize } from "@/lib/services/assets";
 import { getConfig } from "@/lib/services/config/config";
 import { getServerConfig } from "@/lib/services/config/config.server";
@@ -58,7 +58,7 @@ export async function fetchStaticMapBase64(
 		coords: Coords;
 		width: number;
 		height: number;
-		data: MapData;
+		data: QueryableMapData;
 		iconUrl?: string;
 	}
 ): Promise<string | null> {

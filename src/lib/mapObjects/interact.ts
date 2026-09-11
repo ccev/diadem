@@ -24,29 +24,46 @@ import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapMouseEvent } from "maplibre-gl";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { ClientMapObjectType, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
 import { getRouteBounds, getRouteEndpointFort } from "@/lib/utils/routeUtils";
 import {
 	closeOverlay,
 	getOverlayPayload,
+	initializeOverlay,
 	openOverlay,
 	replacePageState,
 	registerOverlayHandler
 } from "@/lib/ui/overlays.svelte";
+import {
+	abortLocationDetails,
+	createLocationData,
+	getLocationPath,
+	getSelectedLocation,
+	loadLocationDetails
+} from "$lib/features/location.svelte";
 
 let routePopupController: AbortController | undefined;
 
 registerOverlayHandler("map-popup", (entries) => {
 	const entry = entries.at(-1);
 	const selection = getOverlayPayload<{ data: MapData; isOverwrite: boolean }>(entry);
+	if (getSelectedLocation() && selection?.data.type !== ClientMapObjectType.LOCATION)
+		abortLocationDetails();
 	const focusedRouteMapId = getFocusedRouteMapId();
 	if (focusedRouteMapId && selection?.data.mapId !== focusedRouteMapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(selection?.data ?? null, selection?.isOverwrite ?? false);
+	if (
+		selection?.data.type === ClientMapObjectType.LOCATION &&
+		(selection.data.isAddressLoading || selection.data.isNearbyLoading)
+	) {
+		void loadLocationDetails(selection.data);
+	}
 });
 
 export function closePopup() {
+	abortLocationDetails();
 	routePopupController?.abort();
 	routePopupController = undefined;
 	clearPopupVisibilityCheck();
@@ -59,13 +76,25 @@ export function closePopup() {
 	updateAllMapObjects(true, true).then();
 }
 
-export function openPopup(data: MapData, isOverwrite: boolean = false) {
+export function openPopup(
+	data: MapData,
+	isOverwrite: boolean = false,
+	options: { initialize?: boolean } = {}
+) {
 	routePopupController?.abort();
 	routePopupController = undefined;
+	abortLocationDetails();
 	const focusedRouteMapId = getFocusedRouteMapId();
 	if (focusedRouteMapId && focusedRouteMapId !== data.mapId) setFocusedRouteMapId(null);
 	setCurrentSelectedData(data, isOverwrite);
-	openOverlay({ kind: "map-popup", id: "selected", data: { data, isOverwrite } }, getCurrentPath());
+
+	const overlay = { kind: "map-popup" as const, id: "selected", data: { data, isOverwrite } };
+	const path = getCurrentPath({ data });
+	if (options.initialize) {
+		initializeOverlay(overlay, path, getMapPath(getConfig()), ["map-popup"]);
+	} else {
+		openOverlay(overlay, path);
+	}
 
 	if (
 		(data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) &&
@@ -88,6 +117,15 @@ export function openPopup(data: MapData, isOverwrite: boolean = false) {
 	}
 }
 
+export function openLocationPopup(
+	coords: Coords,
+	options: { replace?: boolean; zoom?: number; isCurrentLocation?: boolean } = {}
+) {
+	const data = createLocationData(coords, options.zoom, options.isCurrentLocation);
+	requestPopupVisibilityCheck(data);
+	openPopup(data, false, { initialize: options.replace });
+}
+
 export function updateCurrentPath() {
 	const data = getCurrentSelectedData();
 	if (!data) return;
@@ -98,6 +136,7 @@ export function updateCurrentPath() {
 export function getCurrentPath(options: { data?: MapData } | undefined = undefined) {
 	const data = options?.data ?? getCurrentSelectedData();
 	if (data) {
+		if (data.type === ClientMapObjectType.LOCATION) return getLocationPath(data);
 		if (
 			(data.type === MapObjectType.POKESTOP || data.type === MapObjectType.GYM) &&
 			data.isRouteEndpoint

@@ -5,7 +5,6 @@ export type OverlayKind =
 	| "menu"
 	| "modal"
 	| "map-popup"
-	| "context-menu"
 	| "popup-actions"
 	| "coverage-popup"
 	| "wayfarer-popup"
@@ -106,6 +105,18 @@ export function replaceOverlay(
 	const next = [...overlays, entry];
 	if (overlays.length === current.length) pushState(url, getState(next));
 	else replaceState(url, getState(next));
+}
+
+export function initializeOverlay(
+	input: OverlayInput,
+	url: string | URL,
+	baseUrl: string | URL,
+	replaceKinds: OverlayKind[] = [input.kind]
+) {
+	const entry = createEntry(input);
+	const overlays = getOverlays().filter((overlay) => !replaceKinds.includes(overlay.kind));
+	replaceState(baseUrl, getState(overlays));
+	pushState(url, getState([...overlays, entry]));
 }
 
 export function closeOverlay(entry: Pick<OverlayEntry, "kind" | "id">, url: string | URL = "") {

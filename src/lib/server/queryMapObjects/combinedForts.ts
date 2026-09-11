@@ -6,7 +6,7 @@ import type {
 } from "@/lib/features/filters/filters";
 import { combinedGolbatFortTypes, type FortType } from "@/lib/mapObjects/combinedForts";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
+import type { QueryableMapData } from "@/lib/mapObjects/mapObjectTypes";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import {
 	type MapObjectQuery,
@@ -43,9 +43,12 @@ export type FortQueryEntry = {
 
 export async function combinedForts(
 	entries: Partial<Record<FortType, FortQueryEntry>>
-): Promise<Partial<Record<FortType, MapObjectResponse<MapData>>>> {
-	const results: Partial<Record<FortType, MapObjectResponse<MapData>>> = {};
-	const settle = async (type: FortType, run: () => Promise<MapObjectResponse<MapData>>) => {
+): Promise<Partial<Record<FortType, MapObjectResponse<QueryableMapData>>>> {
+	const results: Partial<Record<FortType, MapObjectResponse<QueryableMapData>>> = {};
+	const settle = async (
+		type: FortType,
+		run: () => Promise<MapObjectResponse<QueryableMapData>>
+	) => {
 		try {
 			results[type] = await run();
 		} catch (err) {
