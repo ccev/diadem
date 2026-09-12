@@ -38,7 +38,8 @@ async function getFeatures(thisFetch: typeof fetch): Promise<KojiFeatures | unde
 	filteredData = filteredData.filter((f) => f.properties.name);
 	// koji may return the same geofence multiple times, so filter out duplicate ids
 	filteredData = filteredData.filter(
-		(f, i, arr) => arr.findIndex((g) => g.properties.id === f.properties.id) === i
+		(f, i, arr) =>
+			f.properties.id == null || arr.findIndex((g) => g.properties.id === f.properties.id) === i
 	);
 	return filteredData;
 }
