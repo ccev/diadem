@@ -2,7 +2,9 @@ import { shouldDisplayContest } from "@/lib/features/filterLogic/pokestop";
 import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import type { BaseFilterset } from "@/lib/features/filters/filtersets";
+import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
+import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { ContestFocusPokemon, PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
@@ -24,7 +26,9 @@ vi.mock("@/lib/services/masterfile", () => ({
 }));
 vi.mock("@/lib/utils/currentTimestamp", () => ({ currentTimestamp: () => 100 }));
 vi.mock("@/lib/server/api/rateLimit", () => ({ requestLimits: { pokestop: 100 } }));
-vi.mock("@/lib/server/db/external/internalQuery", () => ({}));
+vi.mock("@/lib/server/db/external/internalQuery", () => ({
+	queryJoined: vi.fn().mockResolvedValue([])
+}));
 vi.mock("$lib/features/masterStats.svelte", () => ({}));
 vi.mock("$lib/server/queryMapObjects/invasionRewards", () => ({}));
 
@@ -56,6 +60,47 @@ class TestPokestopQuery extends PokestopQuery {
 		return super.getFilterWhere(filter);
 	}
 }
+
+describe("restricted pokestop SQL", () => {
+	it.each([undefined, 100])(
+		"preserves both spatial predicates and parameter order with since=%s",
+		async (since) => {
+			vi.mocked(queryJoined).mockClear();
+			const bounds = { minLat: 53, maxLat: 54, minLon: 10, maxLon: 11 };
+			const polygon: PermittedPolygon = {
+				type: "Feature",
+				properties: {},
+				geometry: {
+					type: "Polygon",
+					coordinates: [
+						[
+							[10, 53],
+							[11, 53],
+							[11, 54],
+							[10, 54],
+							[10, 53]
+						]
+					]
+				}
+			};
+
+			await new PokestopQuery().query(bounds, undefined, polygon, since, 25);
+
+			expect(queryJoined).toHaveBeenCalledOnce();
+			const [sql, values] = vi.mocked(queryJoined).mock.calls[0];
+			const whereSql =
+				" WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND ST_Contains(ST_GeomFromGeoJSON(?), Point(pokestop.lon, pokestop.lat)) AND deleted = 0" +
+				(since === undefined ? "" : " AND pokestop.updated > ?");
+			const spatialValues = [53, 54, 10, 11, JSON.stringify(polygon.geometry)];
+			if (since !== undefined) spatialValues.push(since);
+
+			expect(sql).toContain("SELECT DISTINCT pokestop.id AS id");
+			expect(sql).toContain("LIMIT 26");
+			expect(sql.split(whereSql)).toHaveLength(3);
+			expect(values).toEqual([...spatialValues, ...spatialValues]);
+		}
+	);
+});
 
 describe("showcase filters", () => {
 	it.each<ContestFocusPokemon>([
