@@ -232,7 +232,10 @@ export function refreshRouteFeatures() {
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
 
-export function updateFeatures(mapObjects: MapObjectsStateType) {
+export function updateFeatures(
+	mapObjects: MapObjectsStateType,
+	types: readonly MapObjectType[] = allMapObjectTypes
+) {
 	// TODO perf: only update if needed by storing a id: hash table
 	// TODO perf: when currentSelected is updated, only update what's needed and not the whole array
 	// TODO: when a gym is updated, it's not being shown on the map
@@ -268,7 +271,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	}
 
 	for (const obj of Object.values(mapObjects)) {
-		if (features[obj.type][obj.mapId]) continue;
+		if (!types.includes(obj.type) || features[obj.type][obj.mapId]) continue;
 
 		const isSelectedOverwrite = isCurrentSelectedOverwrite(obj.mapId);
 		const isSelected = obj.mapId === selectedMapId;
