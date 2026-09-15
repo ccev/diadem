@@ -1,7 +1,7 @@
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { getGolbatPokestop, scanPokestops } from "@/lib/server/api/golbat/http";
+import { getGolbatPokestop, getUpdatedAfter, scanPokestops } from "@/lib/server/api/golbat/http";
 import type { GolbatPokestopResult, PokestopScanResponse } from "@/lib/server/api/golbat/types";
 import { grpcScanPokestops, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
@@ -36,6 +36,7 @@ export class ApiPokestopQuery extends PokestopQuery {
 					min: { latitude: bounds.minLat, longitude: bounds.minLon },
 					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 					limit: getFortApiScanLimit(actualLimit + 1),
+					updated_after: getUpdatedAfter(since),
 					filters: dnf,
 					with_incidents: true
 				},

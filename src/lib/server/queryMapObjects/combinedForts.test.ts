@@ -20,6 +20,15 @@ vi.mock("@/lib/services/uicons.svelte", () => ({}));
 vi.mock("$lib/features/masterStats.svelte", () => ({}));
 vi.mock("$lib/server/queryMapObjects/invasionRewards", () => ({}));
 vi.mock("@/lib/services/masterfile", () => ({ getMasterPokemon: () => ({ defaultFormId: 0 }) }));
+vi.mock("@/lib/server/api/golbat/grpc", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@/lib/server/api/golbat/grpc")>()),
+	scanViaGrpcOrHttp: (
+		_name: string,
+		body: unknown,
+		_grpc: unknown,
+		http: (body: unknown) => unknown
+	) => http(body)
+}));
 
 const fortApi = vi.hoisted(() => ({ enabled: true }));
 vi.mock("@/lib/server/api/golbat/fortAvailability", () => ({
@@ -50,6 +59,33 @@ const emptyStats = { examined: 0, limit_reached: false };
 const entry = (limit = 10000) => ({ filter: undefined, bounds, polygon: null, limit });
 
 describe("combinedForts", () => {
+	it.each([undefined, 50])(
+		"uses the oldest group timestamp, or a full scan if any group is full (since: %s)",
+		async (since) => {
+			const cutoff = vi
+				.spyOn(golbat, "getUpdatedAfter")
+				.mockImplementation((value) => (value && value > 1 ? value - 1 : undefined));
+			const scan = vi.spyOn(golbat, "scanForts").mockResolvedValue({
+				gyms: [],
+				pokestops: [],
+				stations: [],
+				examined: 0,
+				skipped: 0,
+				total: 0,
+				limit_reached: false,
+				gyms_stats: emptyStats,
+				pokestops_stats: emptyStats,
+				stations_stats: emptyStats
+			});
+			await combinedForts({
+				[MapObjectType.GYM]: { ...entry(), since: 100 },
+				[MapObjectType.POKESTOP]: { ...entry(), since }
+			});
+			expect(cutoff).toHaveBeenCalledWith(since ?? 0);
+			expect(scan.mock.calls[0][0].updated_after).toBe(since === undefined ? undefined : 49);
+		}
+	);
+
 	it("shares API instances with dispatch and supports explicit SQL selection", () => {
 		for (const type of combinedGolbatFortTypes) {
 			expect(getQuery(type)).toBe(fortApiRegistry[type]);

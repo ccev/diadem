@@ -23,13 +23,12 @@ export function getFortApiScanLimit(limit: number) {
 }
 
 export async function refreshFortAvailability() {
-	if (fortApiOptedOut) return;
-
 	let availability: FortAvailability | undefined;
 	let limit = 0;
 	try {
 		const status = await fetchGolbatStatus();
 		if (
+			!fortApiOptedOut &&
 			status?.features.fort_in_memory &&
 			Number.isInteger(status.limits.max_fort_results) &&
 			status.limits.max_fort_results > 0
@@ -60,7 +59,6 @@ export async function startFortApiDetection() {
 		log.info(
 			"Golbat fort API disabled by config (server.golbat.fortApi = false), serving gyms/pokestops/stations from SQL"
 		);
-		return;
 	}
 
 	setInterval(() => {

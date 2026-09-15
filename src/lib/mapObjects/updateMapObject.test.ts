@@ -63,6 +63,7 @@ import {
 	cancelMapObjectRequests,
 	clearMap,
 	fetchForts,
+	getLastQueryTimestamps,
 	planMapObjectRequest,
 	updateAllMapObjects
 } from "@/lib/mapObjects/updateMapObject";
@@ -126,6 +127,54 @@ describe("planMapObjectRequest", () => {
 			removeOld: true
 		});
 		expect(planMapObjectRequest(MapObjectType.STATION)).toBeUndefined();
+	});
+
+	it("does not advance a delta timestamp until its response is applied", () => {
+		vi.spyOn(Date, "now").mockReturnValue(100_000);
+		getLastQueryTimestamps().set(MapObjectType.GYM, 50);
+		const plan = planMapObjectRequest(MapObjectType.GYM, true, undefined, true)!;
+		expect(plan).toMatchObject({ since: 50, queryTimestamp: 100, isDelta: true });
+		expect(getLastQueryTimestamps().get(MapObjectType.GYM)).toBe(50);
+
+		vi.mocked(Date.now).mockReturnValue(150_000);
+		applyMapObjectResponse(plan, { examined: 0, data: [] });
+		expect(getLastQueryTimestamps().get(MapObjectType.GYM)).toBe(99);
+	});
+
+	it.each(["failed", "aborted", "limited", "apply-failed"])(
+		"does not advance timestamps for %s responses",
+		(outcome) => {
+			vi.spyOn(console, "error").mockImplementation(() => {});
+			vi.spyOn(console, "log").mockImplementation(() => {});
+			vi.spyOn(Date, "now").mockReturnValue(100_000);
+			getLastQueryTimestamps().set(MapObjectType.GYM, 50);
+			const plan = planMapObjectRequest(MapObjectType.GYM, true, undefined, true)!;
+			const controller = new AbortController();
+			if (outcome === "aborted") controller.abort();
+			if (outcome === "apply-failed")
+				state.add.mockImplementationOnce(() => {
+					throw new Error("apply failed");
+				});
+			applyMapObjectResponse(
+				plan,
+				outcome === "failed"
+					? undefined
+					: { examined: 0, data: [], limitReached: outcome === "limited" },
+				controller.signal
+			);
+			expect(getLastQueryTimestamps().get(MapObjectType.GYM)).toBe(50);
+		}
+	);
+
+	it("retries a failed full refresh as a full snapshot instead of reusing the old viewport's timestamp", () => {
+		getLastQueryTimestamps().set(MapObjectType.GYM, 50);
+		const full = planMapObjectRequest(MapObjectType.GYM)!;
+		expect(getLastQueryTimestamps().has(MapObjectType.GYM)).toBe(false);
+		applyMapObjectResponse(full, undefined);
+		expect(planMapObjectRequest(MapObjectType.GYM, true, undefined, true)).toMatchObject({
+			since: undefined,
+			isDelta: false
+		});
 	});
 });
 
@@ -197,6 +246,24 @@ describe("fetchForts", () => {
 		const results = await fetchForts([plan], bounds);
 		applyMapObjectResponse(plan, results.get(MapObjectType.GYM));
 		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.GYM, 9);
+	});
+
+	it("commits timestamps independently for successful, failed and limited fort slices", async () => {
+		vi.spyOn(Date, "now").mockReturnValue(100_000);
+		scene.filters.station = { category: "station", enabled: true };
+		const types = [MapObjectType.GYM, MapObjectType.POKESTOP, MapObjectType.STATION];
+		for (const type of types) getLastQueryTimestamps().set(type, 50);
+		const plans = types.map((type) => planMapObjectRequest(type, true, undefined, true)!);
+		fetchMock.mockResolvedValue(
+			jsonResponse({
+				gym: { status: 200, result: { examined: 0, data: [] } },
+				pokestop: { status: 429 },
+				station: { status: 200, result: { examined: 10, data: [], limitReached: true } }
+			})
+		);
+		const responses = await fetchForts(plans, bounds);
+		for (const plan of plans) applyMapObjectResponse(plan, responses.get(plan.type));
+		expect(types.map((type) => getLastQueryTimestamps().get(type))).toEqual([99, 50, 50]);
 	});
 });
 
@@ -291,21 +358,25 @@ describe("progressive map-object publication", () => {
 	});
 
 	it("does not let an aborted batch apply old data or release the new batch's busy guard", async () => {
+		vi.spyOn(Date, "now").mockReturnValue(100_000);
 		scene.filters = { gym: { category: "gym", enabled: true } };
 		const old = Promise.withResolvers<Response>();
 		const next = Promise.withResolvers<Response>();
 		fetchMock.mockReturnValueOnce(old.promise).mockReturnValueOnce(next.promise);
 		const oldBatch = updateAllMapObjects();
+		vi.mocked(Date.now).mockReturnValue(200_000);
 		const nextBatch = updateAllMapObjects();
 		expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
 		old.resolve(jsonResponse({ examined: 1, data: [{ id: "old" }] }));
 		await oldBatch;
+		expect(getLastQueryTimestamps().has(MapObjectType.GYM)).toBe(false);
 		await updateAllMapObjects(true, true);
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 		expect(scene.objects["gym-old"]).toBeUndefined();
 		next.resolve(jsonResponse({ examined: 1, data: [{ id: "new" }] }));
 		await nextBatch;
 		expect(scene.objects["gym-new"]).toEqual({ id: "new" });
+		expect(getLastQueryTimestamps().get(MapObjectType.GYM)).toBe(199);
 	});
 
 	it("cancels pending data when clearing or leaving the map", async () => {

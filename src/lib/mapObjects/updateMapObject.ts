@@ -53,6 +53,7 @@ export type MapObjectPlan = {
 	filter: AnyFilter;
 	since?: number;
 	isDelta: boolean;
+	queryTimestamp: number;
 	limitInfo?: DataLimitInfo;
 	removeOld: boolean;
 };
@@ -274,9 +275,10 @@ export function planMapObjectRequest(
 
 	const since = onlyChanged ? lastQueryTimestamps.get(type) : undefined;
 	const isDelta = onlyChanged && since !== undefined;
-	lastQueryTimestamps.set(type, currentTimestamp());
+	// A failed full refresh must be retried as a full snapshot, not an old viewport's delta.
+	if (!onlyChanged) lastQueryTimestamps.delete(type);
 
-	return { type, filter, since, isDelta, limitInfo, removeOld };
+	return { type, filter, since, isDelta, queryTimestamp: currentTimestamp(), limitInfo, removeOld };
 }
 
 export function applyMapObjectResponse(
@@ -314,6 +316,10 @@ export function applyMapObjectResponse(
 			replaceMapObjects(data, type, examined);
 		} else {
 			addMapObjects(data, type, examined, isDelta);
+		}
+		if (!response?.limitReached) {
+			// Commit only applied responses, replaying the boundary second for timestamp granularity.
+			lastQueryTimestamps.set(type, Math.max(0, plan.queryTimestamp - 1));
 		}
 	} catch (e) {
 		clearLimitAfterRender = false;

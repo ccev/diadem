@@ -1,7 +1,7 @@
 import type { FilterGym } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { getGolbatGym, scanGyms } from "@/lib/server/api/golbat/http";
+import { getGolbatGym, getUpdatedAfter, scanGyms } from "@/lib/server/api/golbat/http";
 import type { GolbatGymResult, GymScanResponse } from "@/lib/server/api/golbat/types";
 import { grpcScanGyms, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
@@ -33,6 +33,7 @@ export class ApiGymQuery extends GymQuery {
 					min: { latitude: bounds.minLat, longitude: bounds.minLon },
 					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 					limit: getFortApiScanLimit(actualLimit + 1),
+					updated_after: getUpdatedAfter(since),
 					filters: buildGymDnfFilters(filter)
 				},
 				grpcScanGyms,

@@ -21,8 +21,25 @@ import type {
 
 const log = getLogger("golbat");
 const config = getServerConfig().golbat;
+let updatedAfterSupported = false;
 
 export const golbatInFlight = { count: 0 };
+
+export function getUpdatedAfter(since?: number): number | undefined {
+	if (
+		!updatedAfterSupported ||
+		since === undefined ||
+		!Number.isFinite(since) ||
+		since <= 0 ||
+		!Number.isSafeInteger(Math.ceil(since))
+	) {
+		return undefined;
+	}
+
+	// Golbat uses strict >; keep Pokemon's inclusive >= since boundary.
+	const cutoff = Math.ceil(since) - 1;
+	return cutoff > 0 ? cutoff : undefined;
+}
 
 async function callGolbat<T>(
 	path: string,
@@ -46,36 +63,70 @@ async function callGolbat<T>(
 
 	golbatInFlight.count += 1;
 	try {
-		const response = await thisFetch(url, {
-			method,
-			body,
-			headers,
-			signal: AbortSignal.timeout(10_000)
-		});
+		const signal = AbortSignal.timeout(10_000);
+		for (let attempt = 0; attempt < 2; attempt++) {
+			const response = await thisFetch(url, {
+				method,
+				body,
+				headers,
+				signal
+			});
 
-		if (!response.ok) {
-			log.error(
-				"[%s] Golbat returned a bad status | %d (%s)",
-				url.toString(),
-				response.status,
-				await response.text()
+			if (!response.ok) {
+				const errorText = await response.text();
+				let retryBody: string | undefined;
+				if (attempt === 0 && response.status === 422 && typeof body === "string") {
+					try {
+						const problem = JSON.parse(errorText);
+						const requestBody = JSON.parse(body);
+						if (
+							Array.isArray(problem?.errors) &&
+							problem.errors.some(
+								(error: { location?: unknown; message?: unknown } | null) =>
+									error?.location === "body.updated_after" &&
+									error.message === "unexpected property"
+							) &&
+							requestBody !== null &&
+							typeof requestBody === "object" &&
+							!Array.isArray(requestBody) &&
+							Object.hasOwn(requestBody, "updated_after")
+						) {
+							delete requestBody.updated_after;
+							retryBody = JSON.stringify(requestBody);
+						}
+					} catch {
+						// Malformed problem/request JSON follows the normal error path.
+					}
+				}
+				if (retryBody !== undefined) {
+					updatedAfterSupported = false;
+					body = retryBody;
+					continue;
+				}
+
+				log.error(
+					"[%s] Golbat returned a bad status | %d (%s)",
+					url.toString(),
+					response.status,
+					errorText
+				);
+				return undefined;
+			}
+
+			const fetched = performance.now();
+			const result = await response.json();
+			const done = performance.now();
+
+			log.debug(
+				"[%s] Request took %fms (parse %fms, in flight %d)",
+				url.pathname,
+				(done - start).toFixed(1),
+				(done - fetched).toFixed(1),
+				golbatInFlight.count - 1
 			);
-			return undefined;
+
+			return result;
 		}
-
-		const fetched = performance.now();
-		const result = await response.json();
-		const done = performance.now();
-
-		log.debug(
-			"[%s] Request took %fms (parse %fms, in flight %d)",
-			url.pathname,
-			(done - start).toFixed(1),
-			(done - fetched).toFixed(1),
-			golbatInFlight.count - 1
-		);
-
-		return result;
 	} finally {
 		golbatInFlight.count -= 1;
 	}
@@ -137,6 +188,13 @@ export function fetchFortAvailability() {
 	return callGolbat<FortAvailability>("api/fort/available", "GET");
 }
 
-export function fetchGolbatStatus() {
-	return callGolbat<GolbatStatus>("api/status", "GET");
+export async function fetchGolbatStatus() {
+	try {
+		const status = await callGolbat<GolbatStatus>("api/status", "GET");
+		updatedAfterSupported = status?.filters?.updated_after === true;
+		return status;
+	} catch (err) {
+		updatedAfterSupported = false;
+		throw err;
+	}
 }
