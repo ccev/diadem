@@ -148,7 +148,7 @@ export function fromFortScanResponse(res: pb.FortScanResponse): FortCombinedScan
 }
 
 function fromPokemon(p: pb.Pokemon): MinMapObject<PokemonData> {
-	const { spawn_id, cell_id, pvp, ...rest } = p;
+	const { spawn_id, pvp, ...rest } = p;
 	const pokemon = rest as MinMapObject<PokemonData>;
 	const rankings: NonNullable<PokemonData["pvp"]> = {};
 	if (pvp?.little?.length) rankings.little = pvp.little as PvpStats[];

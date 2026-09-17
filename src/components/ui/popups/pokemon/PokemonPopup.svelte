@@ -16,10 +16,7 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
-	import {
-		getPokemonStats as getMasterPokemonStats,
-		type PokemonStats
-	} from "$lib/features/masterStats.svelte";
+	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
 	import type { PokemonData, PvpStats } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
@@ -44,6 +41,7 @@
 	import { filterTitle } from "$lib/features/filters/filtersetUtils.svelte";
 	import {
 		ArrowLeftRight,
+		ArrowRight,
 		Award,
 		BicepsFlexed,
 		ChartColumn,
@@ -53,6 +51,7 @@
 		Expand,
 		Goal,
 		Info,
+		MapPinned,
 		Mars,
 		Ruler,
 		RulerDimensionLine,
@@ -68,7 +67,15 @@
 	import PokemonStatsCard from "@/components/ui/popups/common/PokemonStatsCard.svelte";
 	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
 	import { mLeague } from "$lib/services/ingameLocale.ts";
-	import { getIconLeague } from "$lib/services/uicons.svelte.ts";
+	import { getIconLeague, getIconPokestop } from "$lib/services/uicons.svelte.ts";
+	import { getHeaders, parseResponse } from "$lib/utils/requests";
+	import { openMapObject } from "$lib/features/directLinks.svelte";
+	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import type { PokestopData } from "$lib/types/mapObjectData/pokestop";
+	import AccessPolygonMap from "@/components/ui/popups/common/AccessPolygonMap.svelte";
+	import { s2 } from "s2js";
+	import { cellToPolygon } from "$lib/mapObjects/s2cells";
+	import { calculateCp } from "$lib/services/masterfile";
 
 	export { image, overview, main };
 
@@ -159,10 +166,30 @@
 				return a.cap - b.cap;
 			});
 	}
-</script>
 
-<script>
-	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	async function getNearbyPokestop(data: PokemonData) {
+		if (!data.pokestop_id) return;
+
+		const response = await fetch(`/api/pokestop/${data.pokestop_id}`, { headers: getHeaders() });
+		if (response.ok) {
+			const pokestop = await parseResponse<PokestopData>(response);
+			console.log(pokestop);
+			return pokestop;
+		}
+	}
+
+	const DITTO = 132;
+
+	function cp(data: PokemonData) {
+		if (data.pokemon_id === DITTO) {
+			return calculateCp({
+				pokemonId: DITTO,
+				level: data.level,
+				iv: [data?.atk_iv ?? 0, data?.def_iv ?? 0, data?.sta_iv ?? 0]
+			});
+		}
+		return data.cp
+	}
 </script>
 
 {#snippet image(d: MapData)}
@@ -217,8 +244,8 @@
 		<OverviewCard title={m.pokemon_size()} value={getPokemonSize(data?.size ?? 3)} />
 	{/if}
 
-	{#if data.cp != null}
-		<OverviewCard title={m.cp()} value={data.cp} />
+	{#if cp(data)}
+		<OverviewCard title={m.cp()} value={cp(data)} />
 	{/if}
 
 	{#if data.level != null}
@@ -238,9 +265,7 @@
 		fallbackExpire={data.first_seen_timestamp ?? 0}
 		useFallback={!hasTimer(data)}
 		fallbackTitle={m.first_seen()}
-		fallbackExplanation={data.seen_type?.includes("nearby")
-			? m.unknown_spawnpoint_notice_nearby()
-			: m.unknown_spawnpoint_notice()}
+		fallbackExplanation={m.notice_nearby({ name: speciesName(data) })}
 	/>
 
 	<div class="space-y-2">
@@ -258,10 +283,6 @@
 					alt={mItem(1151)}
 				/>
 				{m.notice_tappable({ name: speciesName(data) })}
-			</BasicMainCard>
-		{:else if data.seen_type?.includes("nearby")}
-			<BasicMainCard class="text-center">
-				{m.notice_nearby({ name: speciesName(data) })}
 			</BasicMainCard>
 		{/if}
 
@@ -335,16 +356,24 @@
 				pokemon_id: data.display_pokemon_id,
 				form: data.display_pokemon_form
 			}}
-			<BasicMainCard class="flex gap-4 font-medium items-center justify-center">
+			<BasicMainCard class="flex gap-4 items-center justify-center">
 				<ImagePopup
-					class="size-10 shrink-0"
+					class="size-12 shrink-0"
 					src={getIconPokemon(displayPokemon)}
 					alt={mPokemon(displayPokemon)}
 				/>
-				{m.notice_disguise({
-					name1: pokemonName(data),
-					name2: pokemonName(displayPokemon)
-				})}
+				<div>
+					<p class="font-semibold">
+						{m.notice_disguise({
+							name1: pokemonName(data),
+							name2: pokemonName(displayPokemon)
+						})}
+					</p>
+					<p>
+						{m.encounter_cp()}: {data.cp}
+					</p>
+				</div>
+
 			</BasicMainCard>
 		{/if}
 
@@ -356,7 +385,7 @@
 		{/if}
 	</div>
 
-	{#if data.iv != null || data.cp != null || data.level != null}
+	{#if data.iv != null || cp(data) || data.level != null}
 		<TitledMainSection Icon={SquareChartGantt} title={m.values()}>
 			<StatsMainCard>
 				{#if data.iv != null}
@@ -388,8 +417,8 @@
 					</div>
 				{/if}
 
-				{#if data.cp}
-					<StatsMainCardEntry name={m.cp()} value={data.cp} />
+				{#if cp(data)}
+					<StatsMainCardEntry name={m.cp()} value={cp(data)} />
 				{/if}
 				{#if data.level}
 					<StatsMainCardEntry name={m.level()} value={data.level} />
@@ -488,9 +517,25 @@
 
 	<PokemonStatsCard {data} />
 
-	{#if !data.seen_type?.includes("nearby")}
-		<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>
-			<div class="relative">
+	<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>
+		<div class="relative">
+			{#if data.seen_type === "nearby_cell" && data.cell_id}
+				<AccessPolygonMap
+					polygon={[cellToPolygon(BigInt(data.cell_id)).coordinates[0].map(([x, y]) => ({ x, y }))]}
+					fillColor="rgba(70, 236, 213, 0.4)"
+					strokeColor="rgba(70, 236, 213, 0.8)"
+				/>
+			{:else if data.seen_type === "nearby_stop"}
+				<MainAccessMap
+					lat={data.lat}
+					lon={data.lon}
+					type={MapObjectType.POKESTOP}
+					uiconType="pokestop"
+					radius={80}
+					zoom={15.5}
+					icon={resize(getIconPokestop({}), { width: 64 })}
+				/>
+			{:else}
 				<MainAccessMap
 					lat={data.lat}
 					lon={data.lon}
@@ -514,9 +559,59 @@
 						{m.popup_action_spacial_rend()}
 					{/if}
 				</Button>
-			</div>
-		</TitledMainSection>
-	{/if}
+			{/if}
+		</div>
+
+		{#if data.seen_type === "nearby_stop"}
+			<BasicMainCard class="mt-2">
+				<p class="text-muted-foreground">
+					{m.nearby_pokestop_notice({ species: speciesName(data) })}
+				</p>
+
+				<div class="flex">
+					{#await getNearbyPokestop(data)}
+						<div class="h-14 w-full rounded-md animate-pulse bg-accent-highlight mt-3"></div>
+					{:then pokestop}
+						{@const name = pokestop?.name ?? m.unknown_pokestop()}
+						<Button
+							variant=""
+							size=""
+							class="flex items-center justify-start! text-left! gap-3 w-full whitespace-normal! mt-3"
+							onclick={() => pokestop && openMapObject(pokestop)}
+						>
+							{#if pokestop?.url}
+								<ImagePopup
+									src={pokestop.url}
+									alt={name}
+									class="size-12 shrink-0 rounded-full object-cover"
+								/>
+							{:else}
+								<div
+									class="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-highlight"
+								>
+									<MapPinned class="size-6 text-muted-foreground" />
+								</div>
+							{/if}
+
+							<div class="min-w-0">
+								<p class="wrap-break-word font-semibold text-base">
+									{name}
+								</p>
+							</div>
+
+							<ArrowRight class="size-4 text-muted-foreground ml-auto" />
+						</Button>
+					{/await}
+				</div>
+			</BasicMainCard>
+		{:else if data.seen_type === "nearby_cell"}
+			<BasicMainCard class="mt-2">
+				<p class="text-muted-foreground">
+					{m.nearby_cell_notice({ species: speciesName(data) })}
+				</p>
+			</BasicMainCard>
+		{/if}
+	</TitledMainSection>
 
 	{#if getUserSettings().filters.pokemon.enabled && getUserSettings().filters.pokemon.filters.find((f) => f.enabled)}
 		<TitledMainSection Icon={SlidersHorizontal} title={m.matching_filtersets()}>

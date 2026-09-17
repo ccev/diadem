@@ -139,7 +139,9 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			changed: p.changed,
 			display_pokemon_id: p.display_pokemon_id,
 			display_pokemon_form: getNormalizedForm(p.display_pokemon_id, p.display_pokemon_form),
-			seen_type: p.seen_type
+			seen_type: p.seen_type,
+			pokestop_id: p.pokestop_id,
+			cell_id: p.cell_id
 		} as PokemonData;
 
 		if (pvpAllowed) {

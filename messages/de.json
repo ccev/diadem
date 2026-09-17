@@ -551,7 +551,7 @@
 	"notice_lure": "Dieses {name} kommt von einem Lockmodul",
 	"notice_tappable": "Dieses {name} kommt nachdem du einen Apfel antippst",
 	"notice_disguise": "Dises {name1} ist versteckt als ein {name2}",
-	"notice_nearby": "Dises {name} wurde in der Nähe gesehen. Sein Standort ist geschätzt und weitere Details unbekannt",
+	"notice_nearby": "Dises {name} wurde in der Nähe gesehen. Sein Standort ist geschätzt und die Despawn-Zeit ist unbekannt",
 	"notice_wild": "Dieses {name} wurde noch nicht komplett gescannt. Weitere Details sind unbekannt",
 	"notice_mighty": "Es ist ein mächtiges Pokémon! Seite Werte sind deutlich besser als gewöhnlich, dafür ist es besonders schwer zu fangen",
 	"notice_hundo": "Hundo! Dieses {name} hat 100% IV",
