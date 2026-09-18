@@ -28,7 +28,7 @@ import {
 } from "@/lib/mapObjects/mapObjectTypes";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { circle } from "@turf/turf";
+import { circle, destination } from "@turf/turf";
 import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 import { routeStartsAt } from "@/lib/utils/routeUtils";
 
@@ -242,6 +242,32 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
 
 	const actions = getUserSettings().actions;
+	const mapObjectValues = Object.values(mapObjects);
+	const nearbyPokemonGroups: Record<string, typeof mapObjectValues> = {};
+	for (const mapObject of mapObjectValues) {
+		if (mapObject.type !== MapObjectType.POKEMON || !mapObject.seen_type?.startsWith("nearby")) {
+			continue;
+		}
+
+		const key = `${mapObject.lat}:${mapObject.lon}`;
+		(nearbyPokemonGroups[key] ??= []).push(mapObject);
+	}
+
+	const nearbyPositions: Record<string, [number, number]> = {};
+	for (const group of Object.values(nearbyPokemonGroups)) {
+		if (group.length < 2) continue;
+		group.sort((a, b) => a.mapId.localeCompare(b.mapId));
+		for (const [index, mapObject] of group.entries()) {
+			const coordinates = destination(
+				[mapObject.lon, mapObject.lat],
+				10,
+				(index / group.length) * 360,
+				{ units: "meters" }
+			).geometry.coordinates;
+			nearbyPositions[mapObject.mapId] = [coordinates[0], coordinates[1]];
+		}
+	}
+
 	const focusedRouteMapId = getFocusedRouteMapId();
 	if (focusedRouteMapId && !mapObjects[focusedRouteMapId]) setFocusedRouteMapId(null);
 
@@ -267,7 +293,7 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		}
 	}
 
-	for (const obj of Object.values(mapObjects)) {
+	for (const obj of mapObjectValues) {
 		if (features[obj.type][obj.mapId]) continue;
 
 		const isSelectedOverwrite = isCurrentSelectedOverwrite(obj.mapId);
@@ -292,6 +318,16 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		};
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
 	}
+
+	for (const [mapId, entry] of Object.entries(features[MapObjectType.POKEMON])) {
+		const pokemon = mapObjects[mapId];
+		if (!pokemon) continue;
+		const position = nearbyPositions[mapId] ?? [pokemon.lon, pokemon.lat];
+		for (const feature of entry.features) {
+			if (isFeatureIcon(feature)) feature.geometry.coordinates = position;
+		}
+	}
+
 	syncRouteLineFeatures(getCurrentSelectedData());
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
