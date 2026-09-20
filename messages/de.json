@@ -704,5 +704,8 @@
 	"scout_location": "Standort scannen",
 	"address_unavailable": "Adresse nicht verfügbar",
 	"my_location": "Mein Standort",
-	"in_range": "In Reichweite"
+	"in_range": "In Reichweite",
+	"nearby_pokestop_notice": "Dieses {species} wurde in der Nähe von diesem Pokéstop gesehen. Sein exakter Standort ist unbekannt",
+	"nearby_cell_notice": "Der exakte Standort von diesem {species} ist unbekannt. Du kannst es irgendwo in diesem Rechteck finden",
+	"encounter_cp": "Begegnungs-WP"
 }
