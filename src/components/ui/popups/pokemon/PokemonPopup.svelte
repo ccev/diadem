@@ -377,12 +377,12 @@
 			</BasicMainCard>
 		{/if}
 
-		{#if Math.abs((data.changed ?? 0) - (data.updated ?? data.changed ?? 0)) > 10}
-			<BasicMainCard class="flex gap-2 items-center justify-center">
-				<ArrowLeftRight class="size-4" />
-				{m.popup_species_changed()}
-			</BasicMainCard>
-		{/if}
+		<!--{#if Math.abs((data.changed ?? 0) - (data.updated ?? data.changed ?? 0)) > 10}-->
+		<!--	<BasicMainCard class="flex gap-2 items-center justify-center">-->
+		<!--		<ArrowLeftRight class="size-4" />-->
+		<!--		{m.popup_species_changed()}-->
+		<!--	</BasicMainCard>-->
+		<!--{/if}-->
 	</div>
 
 	{#if data.iv != null || cp(data) || data.level != null}
