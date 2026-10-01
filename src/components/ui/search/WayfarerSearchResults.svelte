@@ -22,7 +22,7 @@
 	}
 </script>
 
-{#each results as result (result.item.key)}
+{#each results as result}
 	{@const entry = result.item}
 	{#if entry.type === SearchableType.AREA}
 		<SearchItem

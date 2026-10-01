@@ -529,7 +529,7 @@
 					</p>
 				{/if}
 				<div class="flex flex-wrap gap-3">
-					{#each filtersets as filterset (filterset.id)}
+					{#each filtersets as filterset}
 						<div
 							class="flex gap-3 font-medium items-center bg-accent-highlight px-4 py-2 rounded-md"
 						>
