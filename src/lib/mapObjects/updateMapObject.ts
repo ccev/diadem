@@ -1,6 +1,6 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { needsFeatureUpdate, updateFeatures } from "@/lib/map/featuresGen.svelte";
 import { getMap } from "@/lib/map/map.svelte";
 import {
 	clearAllDataLimits,
@@ -223,34 +223,7 @@ export function planMapObjectRequest(
 ): MapObjectPlan | undefined {
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
 
-	let filter: AnyFilter | undefined = undefined;
-
-	if (filterOverwrite) {
-		filter = filterOverwrite;
-	} else {
-		if (type === MapObjectType.POKEMON) {
-			filter = getUserSettings().filters.pokemon;
-		} else if (type === MapObjectType.POKESTOP) {
-			filter = getUserSettings().filters.pokestop;
-		} else if (type === MapObjectType.GYM) {
-			filter = getUserSettings().filters.gym;
-		} else if (type === MapObjectType.STATION) {
-			filter = getUserSettings().filters.station;
-		} else if (type === MapObjectType.NEST) {
-			filter = getUserSettings().filters.nest;
-		} else if (type === MapObjectType.SPAWNPOINT) {
-			filter = getUserSettings().filters.spawnpoint;
-		} else if (type === MapObjectType.ROUTE) {
-			filter = getUserSettings().filters.route;
-		} else if (type === MapObjectType.TAPPABLE) {
-			filter = getUserSettings().filters.tappable;
-		} else if (type === MapObjectType.S2_CELL) {
-			filter = getUserSettings().filters.s2cell;
-		} else {
-			console.log("unknown type while udpating map objects!");
-			return;
-		}
-	}
+	const filter = filterOverwrite ?? getUserSettings().filters[type];
 
 	if (!filter || !filter.enabled) {
 		const selected = getCurrentSelectedData();
@@ -289,26 +262,19 @@ export function applyMapObjectResponse(
 	const { type, filter, isDelta, limitInfo, removeOld } = plan;
 	if (signal?.aborted) return;
 
-	let examined = 0;
-	let data: QueryableMapData[] | undefined = undefined;
-	let clearLimitAfterRender = false;
-	if (response) {
-		if (response.limitReached) {
-			setDataLimit(type, {
-				zoom: getMap()?.getZoom() ?? 0,
-				filterJson: JSON.stringify(filter)
-			});
-			data = [];
-		} else {
-			data = response.data;
-			clearLimitAfterRender = Boolean(limitInfo);
-		}
-		examined = response.examined;
-	}
-
-	if (!data) {
+	if (!response) {
 		if (!signal) updateFeatures(getMapObjects());
 		return;
+	}
+
+	const { examined, limitReached } = response;
+	const data = limitReached ? [] : response.data;
+	let clearLimitAfterRender = !limitReached && Boolean(limitInfo);
+	if (limitReached) {
+		setDataLimit(type, {
+			zoom: getMap()?.getZoom() ?? 0,
+			filterJson: JSON.stringify(filter)
+		});
 	}
 
 	try {
@@ -317,13 +283,12 @@ export function applyMapObjectResponse(
 		} else {
 			addMapObjects(data, type, examined, isDelta);
 		}
-		if (!response?.limitReached) {
+		if (!limitReached) {
 			// Commit only applied responses, replaying the boundary second for timestamp granularity.
 			lastQueryTimestamps.set(type, Math.max(0, plan.queryTimestamp - 1));
 		}
 	} catch (e) {
 		clearLimitAfterRender = false;
-		console.log(data);
 		console.error(e);
 	}
 
@@ -395,15 +360,16 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 				publication = undefined;
 				if (controller.signal.aborted || getMap() !== map) return;
 				// Only regenerate completed families early; popup companions can have their own requests.
-				updateFeatures(getMapObjects(), final ? allMapObjectTypes : [...readyTypes]);
+				if (!onlyChanged || needsFeatureUpdate() || limitsToClear.length) {
+					updateFeatures(getMapObjects(), final ? allMapObjectTypes : [...readyTypes]);
+				}
 				for (const type of limitsToClear.splice(0)) clearDataLimit(type);
 			});
 			return publication;
 		};
-		const complete = (type: MapObjectType, recoveredLimit: MapObjectType | undefined) => {
+		const markReady = (type: MapObjectType, recoveredLimit: MapObjectType | undefined) => {
 			readyTypes.add(type);
 			if (recoveredLimit !== undefined) limitsToClear.push(recoveredLimit);
-			return publish();
 		};
 		const fortPlans = activeSearch
 			? []
@@ -412,21 +378,20 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 			.filter((plan) => fortPlans.length < 2 || !fortPlans.includes(plan))
 			.map(async (plan) => {
 				const recoveredLimit = await runPlan(plan, controller.signal);
-				await complete(plan.type, recoveredLimit);
+				markReady(plan.type, recoveredLimit);
+				await publish();
 			});
 		if (fortPlans.length >= 2) {
 			requests.push(
-				(async () => {
-					const responses = await fetchForts(fortPlans, getBounds(), controller.signal);
-					await Promise.all(
-						fortPlans.map((plan) =>
-							complete(
-								plan.type,
-								applyMapObjectResponse(plan, responses.get(plan.type), controller.signal)
-							)
-						)
-					);
-				})()
+				fetchForts(fortPlans, getBounds(), controller.signal).then((responses) => {
+					for (const plan of fortPlans) {
+						markReady(
+							plan.type,
+							applyMapObjectResponse(plan, responses.get(plan.type), controller.signal)
+						);
+					}
+					return publish();
+				})
 			);
 		}
 		if (!activeSearch) {

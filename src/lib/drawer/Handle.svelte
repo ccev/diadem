@@ -9,7 +9,7 @@
 	const isTogglable = $derived((snapPoints?.length ?? 0) >= 2);
 
 	function toggleSnapPoint() {
-		if (!isTogglable) return;
+		if (!snapPoints || snapPoints.length < 2) return;
 
 		const currentIndex = Math.max(
 			0,

@@ -9,7 +9,10 @@ import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
 } from "@/lib/mapObjects/currentSelectedState.svelte.js";
-import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+import {
+	getMapObjectsRevision,
+	type MapObjectsStateType
+} from "@/lib/mapObjects/mapObjectsState.svelte.js";
 
 import {
 	getPolygonFeature,
@@ -35,6 +38,7 @@ import { routeStartsAt } from "@/lib/utils/routeUtils";
 type FeatureEntry = {
 	lat: number;
 	lon: number;
+	data: MapData;
 	features: MapObjectFeature[];
 };
 
@@ -50,6 +54,12 @@ const RADIUS_FILL_SELECTED = "rgba(56, 189, 248, 0.2)";
 
 let features: Features = getEmptyFeatures();
 let selectedFeatures: MapObjectFeature[] = [];
+let nextFeatureExpiry = Infinity;
+let renderedRevision: number | undefined;
+
+export function needsFeatureUpdate() {
+	return renderedRevision !== getMapObjectsRevision() || nextFeatureExpiry < currentTimestamp();
+}
 
 function getEmptyFeatures(): Features {
 	return allMapObjectTypes.reduce((acc, val) => {
@@ -58,11 +68,17 @@ function getEmptyFeatures(): Features {
 	}, {} as Features);
 }
 
-function getFlattenedFeatures() {
+function publishFeatures() {
 	const flattened = Object.values(features)
-		.map((f) => Object.values(f))
-		.map((entries) => entries.map((entry) => entry.features))
-		.flat(2);
+		.flatMap((family) => Object.values(family))
+		.flatMap((entry) => entry.features);
+	nextFeatureExpiry = Infinity;
+	// Include route endpoints hidden by real forts; they can become visible again later.
+	for (const feature of flattened) {
+		if ("expires" in feature.properties && feature.properties.expires) {
+			nextFeatureExpiry = Math.min(nextFeatureExpiry, feature.properties.expires);
+		}
+	}
 	const actualForts = new Set(
 		flattened
 			.filter(
@@ -75,20 +91,27 @@ function getFlattenedFeatures() {
 			.map((feature) => feature.properties.id)
 	);
 	const routeEndpoints = new Set<string>();
-	return flattened.filter((feature) => {
-		if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
-		if (actualForts.has(feature.properties.id)) return false;
-		if (routeEndpoints.has(feature.properties.id)) return false;
-		routeEndpoints.add(feature.properties.id);
-		return true;
-	});
+	updateMapObjectsGeoJson(
+		flattened.filter((feature) => {
+			if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
+			if (actualForts.has(feature.properties.id) || routeEndpoints.has(feature.properties.id)) {
+				return false;
+			}
+			routeEndpoints.add(feature.properties.id);
+			return true;
+		})
+	);
 }
 
 export function deleteAllFeaturesOfType(type: MapObjectType) {
+	renderedRevision = undefined;
 	features[type] = {};
 }
 
 export function deleteAllFeatures() {
+	renderedRevision = undefined;
+	nextFeatureExpiry = Infinity;
+	selectedFeatures = [];
 	features = getEmptyFeatures();
 }
 
@@ -103,7 +126,7 @@ export function updateDimmedFeatures() {
 			}
 		}
 	}
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
 function getActionRadiusFeature(type: MapObjectType, mapId: string, center: [number, number]) {
@@ -150,21 +173,19 @@ export function updateRadiusFeatures() {
 			if (radiusFeature) entry.features.unshift(radiusFeature);
 		}
 	}
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
 export function updateSelected(currentSelected: MapData | null) {
 	// TODO base the scale on original modifiers, not the current size
-	if (selectedFeatures) {
-		for (const feature of selectedFeatures) {
-			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
-				feature.properties.selectedScale = 1;
-			} else if (isFeaturePolygon(feature)) {
-				feature.properties.isSelected = false;
-			}
+	for (const feature of selectedFeatures) {
+		if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
+			feature.properties.selectedScale = 1;
+		} else if (isFeaturePolygon(feature)) {
+			feature.properties.isSelected = false;
 		}
-		selectedFeatures = [];
 	}
+	selectedFeatures = [];
 
 	if (currentSelected && currentSelected.type !== ClientMapObjectType.LOCATION) {
 		const thisFeatures = features[currentSelected.type][currentSelected.mapId]?.features ?? [];
@@ -182,7 +203,7 @@ export function updateSelected(currentSelected: MapData | null) {
 
 	syncRouteLineFeatures(currentSelected);
 
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
 function syncRouteLineFeatures(currentSelected: MapData | null) {
@@ -229,20 +250,14 @@ function syncRouteLineFeatures(currentSelected: MapData | null) {
 
 export function refreshRouteFeatures() {
 	syncRouteLineFeatures(getCurrentSelectedData());
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
 export function updateFeatures(
 	mapObjects: MapObjectsStateType,
 	types: readonly MapObjectType[] = allMapObjectTypes
 ) {
-	// TODO perf: only update if needed by storing a id: hash table
-	// TODO perf: when currentSelected is updated, only update what's needed and not the whole array
-	// TODO: when a gym is updated, it's not being shown on the map
-
 	const selectedMapId = getCurrentSelectedData()?.mapId ?? "";
-	// const allCurrentMapIds = Object.keys(mapObjects);
-	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
 
 	const actions = getUserSettings().actions;
 	const focusedRouteMapId = getFocusedRouteMapId();
@@ -252,7 +267,7 @@ export function updateFeatures(
 		const thisFeatures = features[type];
 		for (const [existingId, entry] of Object.entries(thisFeatures)) {
 			const obj = mapObjects[existingId];
-			// invalidate objects that changed positions and have expired
+			// Payload changes can alter an icon even when the object hasn't moved.
 			if (
 				entry.features.find(
 					(feature) =>
@@ -261,6 +276,7 @@ export function updateFeatures(
 						feature.properties.expires < currentTimestamp()
 				) ||
 				!obj ||
+				entry.data !== obj ||
 				entry.lon !== obj.lon ||
 				entry.lat !== obj.lat
 			) {
@@ -289,6 +305,7 @@ export function updateFeatures(
 		if (radiusFeature) subFeatures.unshift(radiusFeature);
 
 		features[obj.type][obj.mapId] = {
+			data: obj,
 			lat: obj.lat,
 			lon: obj.lon,
 			features: subFeatures
@@ -296,5 +313,9 @@ export function updateFeatures(
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
 	}
 	syncRouteLineFeatures(getCurrentSelectedData());
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
+	// A partial publication may defer invalidated or preserved popup companions until the batch settles.
+	renderedRevision = allMapObjectTypes.every((type) => types.includes(type))
+		? getMapObjectsRevision()
+		: undefined;
 }

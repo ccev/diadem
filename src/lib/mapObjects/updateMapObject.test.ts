@@ -13,7 +13,10 @@ const scene = vi.hoisted(() => ({
 	events: [] as string[]
 }));
 vi.mock("@/lib/features/activeSearch.svelte.js", () => ({ getActiveSearch: () => scene.search }));
-vi.mock("@/lib/map/featuresGen.svelte", () => ({ updateFeatures: vi.fn() }));
+vi.mock("@/lib/map/featuresGen.svelte", () => ({
+	updateFeatures: vi.fn(),
+	needsFeatureUpdate: () => true
+}));
 vi.mock("@/lib/map/map.svelte", () => ({ getMap: () => scene.map }));
 vi.mock("@/lib/mapObjects/mapBounds", () => ({
 	getBounds: () => ({ minLat: 0, minLon: 0, maxLat: 1, maxLon: 1 })

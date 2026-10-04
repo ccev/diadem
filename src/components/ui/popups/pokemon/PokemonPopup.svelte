@@ -67,8 +67,8 @@
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import PokemonStatsCard from "@/components/ui/popups/common/PokemonStatsCard.svelte";
 	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
-	import { mLeague } from "$lib/services/ingameLocale.ts";
-	import { getIconLeague } from "$lib/services/uicons.svelte.ts";
+	import { mLeague } from "$lib/services/ingameLocale";
+	import { getIconLeague } from "$lib/services/uicons.svelte";
 
 	export { image, overview, main };
 

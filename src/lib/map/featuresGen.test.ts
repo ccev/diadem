@@ -3,7 +3,11 @@ import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { FeatureTypes, type MapObjectIconFeature } from "./render/featureTypes";
 
-const renderer = vi.hoisted(() => ({ render: vi.fn(), focused: undefined as string | undefined }));
+const renderer = vi.hoisted(() => ({
+	render: vi.fn(),
+	focused: undefined as string | undefined,
+	revision: 0
+}));
 vi.mock("@/lib/map/render/manageGeojson", () => ({ updateMapObjectsGeoJson: vi.fn() }));
 vi.mock("@/lib/map/render/renderMapObjects", () => ({ getRenderer: () => renderer }));
 vi.mock("@/lib/mapObjects/currentSelectedState.svelte.js", () => ({
@@ -18,8 +22,17 @@ vi.mock("$lib/features/focusedRoute.svelte.js", () => ({
 	setFocusedRouteMapId: vi.fn()
 }));
 
+vi.mock("@/lib/mapObjects/mapObjectsState.svelte.js", () => ({
+	getMapObjectsRevision: () => renderer.revision
+}));
+
 import { updateMapObjectsGeoJson } from "./render/manageGeojson";
-import { deleteAllFeatures, deleteAllFeaturesOfType, updateFeatures } from "./featuresGen.svelte";
+import {
+	deleteAllFeatures,
+	deleteAllFeaturesOfType,
+	updateFeatures,
+	needsFeatureUpdate
+} from "./featuresGen.svelte";
 import { setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 
 const pokemon = {
@@ -110,4 +123,32 @@ describe("progressive feature generation", () => {
 		updateFeatures({}, []);
 		expect(updateMapObjectsGeoJson).toHaveBeenLastCalledWith([]);
 	});
+});
+
+it("refreshes payload changes without movement and reuses unchanged features", () => {
+	const objects = { [gym.mapId]: gym } as unknown as MapObjectsStateType;
+	updateFeatures(objects);
+	expect(needsFeatureUpdate()).toBe(false);
+	renderer.render.mockClear();
+	updateFeatures(objects);
+	expect(renderer.render).not.toHaveBeenCalled();
+	updateFeatures({ [gym.mapId]: { ...gym, name: "changed" } } as unknown as MapObjectsStateType);
+	expect(renderer.render).toHaveBeenCalledOnce();
+	expect(vi.mocked(updateMapObjectsGeoJson).mock.lastCall![0][0].properties).toMatchObject({
+		textLabel: "changed"
+	});
+});
+
+it("keeps invalidated families pending until final reconciliation", () => {
+	const objects = { [gym.mapId]: gym } as unknown as MapObjectsStateType;
+	updateFeatures(objects);
+	expect(needsFeatureUpdate()).toBe(false);
+	deleteAllFeaturesOfType(MapObjectType.GYM);
+	expect(needsFeatureUpdate()).toBe(true);
+	updateFeatures(objects, []);
+	expect(needsFeatureUpdate()).toBe(true);
+	updateFeatures(objects);
+	expect(needsFeatureUpdate()).toBe(false);
+	renderer.revision++;
+	expect(needsFeatureUpdate()).toBe(true);
 });

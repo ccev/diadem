@@ -2,17 +2,15 @@ import { MapSourceId } from "@/lib/map/layers";
 import { getMap } from "@/lib/map/map.svelte.js";
 import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureTypes";
 import { ensureMapImage, getMapImageId } from "@/lib/map/render/images";
-import type { FeatureCollection } from "geojson";
 import type * as maplibre from "maplibre-gl";
 
-let mapObjectsGeoJson: FeatureCollection = {
-	type: "FeatureCollection",
-	features: []
-};
+let mapObjectFeatures: MapObjectFeature[] = [];
 let publicationVersion = 0;
 let publishedSource: maplibre.GeoJSONSource | undefined;
+const pendingImagePublications = new WeakMap<maplibre.Map, { version: number }>();
 
 function publishMapObjectsGeoJson(map: maplibre.Map, skipSource?: maplibre.GeoJSONSource) {
+	if (map._removed) return;
 	let source: maplibre.GeoJSONSource | undefined;
 	try {
 		source = map.getSource<maplibre.GeoJSONSource>(MapSourceId.MAP_OBJECTS);
@@ -22,11 +20,10 @@ function publishMapObjectsGeoJson(map: maplibre.Map, skipSource?: maplibre.GeoJS
 	if (!source || source === skipSource) return source;
 	source.setData({
 		type: "FeatureCollection",
-		features: mapObjectsGeoJson.features.filter((feature) => {
-			const mapObjectFeature = feature as MapObjectFeature;
-			if (!isFeatureIcon(mapObjectFeature)) return true;
+		features: mapObjectFeatures.filter((feature) => {
+			if (!isFeatureIcon(feature)) return true;
 
-			const imageId = getMapImageId(mapObjectFeature.properties);
+			const imageId = getMapImageId(feature.properties);
 			return imageId ? map.hasImage(imageId) : true;
 		})
 	});
@@ -34,7 +31,7 @@ function publishMapObjectsGeoJson(map: maplibre.Map, skipSource?: maplibre.GeoJS
 }
 
 export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
-	mapObjectsGeoJson = { type: "FeatureCollection", features };
+	mapObjectFeatures = features;
 	const version = ++publicationVersion;
 	publishedSource = undefined;
 
@@ -45,7 +42,7 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 	const images = [
 		...new Map(
 			features
-				.filter((f) => isFeatureIcon(f))
+				.filter(isFeatureIcon)
 				.map((f) => f.properties)
 				.filter((props) => props.imageId && props.imageUrl && !map.hasImage(getMapImageId(props)))
 				.map((props) => [getMapImageId(props), props])
@@ -56,12 +53,24 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 		void ensureMapImage(map, props)
 			.catch(() => undefined)
 			.then(() => {
-				if (getMap() !== map) return;
-				// Skip superseded callbacks only if the latest collection reached this source.
-				publishedSource = publishMapObjectsGeoJson(
-					map,
-					version !== publicationVersion ? publishedSource : undefined
-				);
+				if (getMap() !== map || map._removed) return;
+				const pending = pendingImagePublications.get(map);
+				if (pending) {
+					pending.version = Math.max(pending.version, version);
+					return;
+				}
+				const publication = { version };
+				pendingImagePublications.set(map, publication);
+				// Publish ready icons in short batches without waiting for the slowest image.
+				setTimeout(() => {
+					pendingImagePublications.delete(map);
+					if (getMap() !== map || map._removed) return;
+					// Skip obsolete work only if the latest collection reached the current source.
+					publishedSource = publishMapObjectsGeoJson(
+						map,
+						publication.version !== publicationVersion ? publishedSource : undefined
+					);
+				}, 32);
 			});
 	}
 }

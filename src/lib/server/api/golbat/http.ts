@@ -26,25 +26,16 @@ let updatedAfterSupported = false;
 export const golbatInFlight = { count: 0 };
 
 export function getUpdatedAfter(since?: number): number | undefined {
-	if (
-		!updatedAfterSupported ||
-		since === undefined ||
-		!Number.isFinite(since) ||
-		since <= 0 ||
-		!Number.isSafeInteger(Math.ceil(since))
-	) {
-		return undefined;
-	}
-
+	if (!updatedAfterSupported || typeof since !== "number") return undefined;
+	const timestamp = Math.ceil(since);
 	// Golbat uses strict >; keep Pokemon's inclusive >= since boundary.
-	const cutoff = Math.ceil(since) - 1;
-	return cutoff > 0 ? cutoff : undefined;
+	return Number.isSafeInteger(timestamp) && timestamp > 1 ? timestamp - 1 : undefined;
 }
 
 async function callGolbat<T>(
 	path: string,
 	method: "GET" | "POST",
-	body: BodyInit | undefined = undefined,
+	body?: Record<string, unknown>,
 	thisFetch: typeof fetch = fetch
 ): Promise<T | undefined> {
 	const start = performance.now();
@@ -67,41 +58,32 @@ async function callGolbat<T>(
 		for (let attempt = 0; attempt < 2; attempt++) {
 			const response = await thisFetch(url, {
 				method,
-				body,
+				body: JSON.stringify(body),
 				headers,
 				signal
 			});
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				let retryBody: string | undefined;
-				if (attempt === 0 && response.status === 422 && typeof body === "string") {
+				if (attempt === 0 && response.status === 422 && body?.updated_after !== undefined) {
 					try {
 						const problem = JSON.parse(errorText);
-						const requestBody = JSON.parse(body);
 						if (
 							Array.isArray(problem?.errors) &&
 							problem.errors.some(
 								(error: { location?: unknown; message?: unknown } | null) =>
 									error?.location === "body.updated_after" &&
 									error.message === "unexpected property"
-							) &&
-							requestBody !== null &&
-							typeof requestBody === "object" &&
-							!Array.isArray(requestBody) &&
-							Object.hasOwn(requestBody, "updated_after")
+							)
 						) {
-							delete requestBody.updated_after;
-							retryBody = JSON.stringify(requestBody);
+							body = { ...body };
+							delete body.updated_after;
+							updatedAfterSupported = false;
+							continue;
 						}
 					} catch {
-						// Malformed problem/request JSON follows the normal error path.
+						// Malformed problem JSON follows the normal error path.
 					}
-				}
-				if (retryBody !== undefined) {
-					updatedAfterSupported = false;
-					body = retryBody;
-					continue;
 				}
 
 				log.error(
@@ -137,7 +119,7 @@ export function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
 }
 
 export function getMultiplePokemon(body: PokemonScanBody) {
-	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
+	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", body);
 }
 
 export function searchGyms(query: string, coords: Coords, range: number) {
@@ -153,23 +135,23 @@ export function searchGyms(query: string, coords: Coords, range: number) {
 		],
 		limit: 15
 	};
-	return callGolbat<GymData[]>("api/gym/search", "POST", JSON.stringify(body));
+	return callGolbat<GymData[]>("api/gym/search", "POST", body);
 }
 
 export function scanGyms(body: FortScanBody) {
-	return callGolbat<GymScanResponse>("api/gym/scan", "POST", JSON.stringify(body));
+	return callGolbat<GymScanResponse>("api/gym/scan", "POST", body);
 }
 
 export function scanPokestops(body: FortScanBody) {
-	return callGolbat<PokestopScanResponse>("api/pokestop/scan", "POST", JSON.stringify(body));
+	return callGolbat<PokestopScanResponse>("api/pokestop/scan", "POST", body);
 }
 
 export function scanStations(body: FortScanBody) {
-	return callGolbat<StationScanResponse>("api/station/scan", "POST", JSON.stringify(body));
+	return callGolbat<StationScanResponse>("api/station/scan", "POST", body);
 }
 
 export function scanForts(body: FortCombinedScanBody) {
-	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", JSON.stringify(body));
+	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", body);
 }
 
 export function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) {

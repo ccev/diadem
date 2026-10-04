@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { FeatureTypes, type MapObjectIconFeature } from "./featureTypes";
 
@@ -37,6 +37,7 @@ function icon(id: string): MapObjectIconFeature {
 
 let images: Set<string>;
 beforeEach(() => {
+	vi.useFakeTimers();
 	const registered = new Set<string>();
 	images = registered;
 	scene.source = { setData };
@@ -52,6 +53,10 @@ beforeEach(() => {
 	vi.mocked(ensureMapImage).mockReset();
 });
 
+afterEach(() => {
+	vi.useRealTimers();
+});
+
 describe("map image publication versions", () => {
 	it("only publishes the latest callback when data is republished during an image load", async () => {
 		const load = Promise.withResolvers<void>();
@@ -63,7 +68,7 @@ describe("map image publication versions", () => {
 		images.add("pending");
 		load.resolve();
 		await load.promise;
-		await Promise.resolve();
+		await vi.advanceTimersByTimeAsync(32);
 		expect(setData).toHaveBeenCalledTimes(3);
 		expect(setData).toHaveBeenLastCalledWith({
 			type: "FeatureCollection",
@@ -81,12 +86,12 @@ describe("map image publication versions", () => {
 		images.add("old");
 		old.resolve();
 		await old.promise;
-		await Promise.resolve();
+		await vi.advanceTimersByTimeAsync(32);
 		expect(setData).toHaveBeenCalledTimes(2);
 		images.add("current");
 		current.resolve();
 		await current.promise;
-		await Promise.resolve();
+		await vi.advanceTimersByTimeAsync(32);
 		expect(setData).toHaveBeenCalledTimes(3);
 		expect(setData).toHaveBeenLastCalledWith({
 			type: "FeatureCollection",
@@ -103,7 +108,7 @@ describe("map image publication versions", () => {
 		updateMapObjectsGeoJson(features);
 		load.resolve();
 		await load.promise;
-		await Promise.resolve();
+		await vi.advanceTimersByTimeAsync(32);
 		expect(ensureMapImage).toHaveBeenCalledOnce();
 		expect(setData).toHaveBeenCalledTimes(2);
 		expect(setData).toHaveBeenLastCalledWith({
@@ -120,7 +125,7 @@ describe("map image publication versions", () => {
 		images.add("removed");
 		load.resolve();
 		await load.promise;
-		await Promise.resolve();
+		await vi.advanceTimersByTimeAsync(32);
 		expect(setData).toHaveBeenCalledTimes(2);
 		expect(setData).toHaveBeenLastCalledWith({
 			type: "FeatureCollection",
@@ -147,7 +152,7 @@ describe("map image publication versions", () => {
 			images.add("old");
 			old.resolve();
 			await old.promise;
-			await Promise.resolve();
+			await vi.advanceTimersByTimeAsync(32);
 			expect(restored.setData).toHaveBeenCalledExactlyOnceWith({
 				type: "FeatureCollection",
 				features
@@ -166,10 +171,63 @@ describe("map image publication versions", () => {
 		scene.source = replacement;
 		old.resolve();
 		await old.promise;
-		await Promise.resolve();
+		await vi.advanceTimersByTimeAsync(32);
 		expect(replacement.setData).toHaveBeenCalledExactlyOnceWith({
 			type: "FeatureCollection",
 			features
 		});
 	});
+});
+
+it("batches icon completions while allowing later icons to render", async () => {
+	const loads = new Map<string, () => void>();
+	vi.mocked(ensureMapImage).mockImplementation(
+		(_map, props) =>
+			new Promise<void>((resolve) => {
+				loads.set(props.imageId, () => {
+					images.add(props.imageId);
+					resolve();
+				});
+			})
+	);
+	const features = Array.from({ length: 200 }, (_, i) => icon(String(i)));
+	updateMapObjectsGeoJson(features);
+	expect(setData).toHaveBeenCalledOnce();
+	for (let i = 0; i < 100; i++) loads.get(String(i))!();
+	await vi.advanceTimersByTimeAsync(32);
+	expect(setData).toHaveBeenCalledTimes(2);
+	expect(setData.mock.lastCall![0].features).toHaveLength(100);
+	for (let i = 100; i < 200; i++) loads.get(String(i))!();
+	await vi.advanceTimersByTimeAsync(32);
+	expect(setData).toHaveBeenCalledTimes(3);
+	expect(setData.mock.lastCall![0].features).toHaveLength(200);
+});
+
+it.each(["removed", "replaced"])(
+	"does not publish a scheduled batch to a %s map",
+	async (change) => {
+		const load = Promise.withResolvers<void>();
+		vi.mocked(ensureMapImage).mockReturnValue(load.promise);
+		updateMapObjectsGeoJson([icon("a")]);
+		images.add("a");
+		load.resolve();
+		await vi.advanceTimersByTimeAsync(1);
+		if (change === "removed") Object.assign(scene.map!, { _removed: true });
+		else scene.map = undefined;
+		await vi.advanceTimersByTimeAsync(32);
+		expect(setData).toHaveBeenCalledOnce();
+	}
+);
+
+it("does not repeat a scheduled batch after a newer publication already includes its icons", async () => {
+	const load = Promise.withResolvers<void>();
+	vi.mocked(ensureMapImage).mockReturnValue(load.promise);
+	const features = [icon("ready")];
+	updateMapObjectsGeoJson(features);
+	images.add("ready");
+	load.resolve();
+	await vi.advanceTimersByTimeAsync(1);
+	updateMapObjectsGeoJson(features);
+	await vi.advanceTimersByTimeAsync(32);
+	expect(setData).toHaveBeenCalledTimes(2);
 });

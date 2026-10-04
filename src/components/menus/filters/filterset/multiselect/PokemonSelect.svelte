@@ -24,12 +24,13 @@
 		query?: string;
 	} = $props();
 
+	const searchable = $derived(query !== undefined);
 	const searcher = $derived(
-		query !== undefined
+		searchable
 			? createFuzzySearch(pokemonList, { getText: (p: PokemonVisual) => [mPokemon(p)] })
 			: undefined
 	);
-	let selectedValues = $derived(selected.map((p) => getKey(p)) ?? []);
+	let selectedValues = $derived(new Set(selected.map((p) => getKey(p))));
 
 	function getKey(p: PokemonVisual) {
 		return `${p.pokemon_id}-${p.form}-${p.temp_evolution_id}-${p.alignment}-${p.bread_mode}-${p.gender}-${p.costume}`;
@@ -76,7 +77,7 @@
 
 		<MultiSelect>
 			{#each sortedList as pokemon (getKey(pokemon))}
-				{@const isSelected = selectedValues.includes(getKey(pokemon))}
+				{@const isSelected = selectedValues.has(getKey(pokemon))}
 
 				<MultiSelectItem
 					{isSelected}
