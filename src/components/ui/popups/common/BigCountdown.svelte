@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import { Clock } from "@lucide/svelte";
 	import { hasTimer } from "$lib/utils/pokemonUtils";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";

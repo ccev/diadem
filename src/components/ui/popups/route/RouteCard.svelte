@@ -5,7 +5,7 @@
 	import { openPopup } from "@/lib/mapObjects/interact";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getPopupFitPadding } from "@/lib/mapObjects/popupVisibility.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { formatDistance, formatDuration } from "@/lib/utils/numberFormat";
 	import { getRouteBounds, getRouteColor } from "@/lib/utils/routeUtils";

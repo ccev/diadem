@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
 	import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
 	import {

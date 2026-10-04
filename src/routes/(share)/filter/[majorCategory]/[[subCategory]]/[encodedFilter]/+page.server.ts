@@ -1,3 +1,4 @@
+import { getLocale } from "@/lib/i18n/locale";
 import type { FilterCategory } from "@/lib/features/filters/filters";
 import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 import {
@@ -5,8 +6,8 @@ import {
 	FiltersetPokemonSchema,
 	FiltersetRaidSchema
 } from "@/lib/features/filters/filtersetSchemas";
-import * as m from "@/lib/paraglide/messages";
-import { getConfig, setConfig } from "@/lib/services/config/config";
+import * as m from "@/lib/i18n/messages.svelte";
+import { setConfig } from "@/lib/services/config/config";
 import type { ClientConfig } from "@/lib/services/config/configTypes";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { getLogger } from "@/lib/utils/logger";
@@ -56,7 +57,7 @@ function decodeFilterset(
 export const load: PageServerLoad = async ({ params, fetch }) => {
 	const configResponse = await fetch("/api/config", { headers: getHeaders() });
 	setConfig(await parseResponse<ClientConfig>(configResponse));
-	await loadRemoteLocale(getConfig().general.defaultLocale, fetch);
+	await loadRemoteLocale(getLocale(), fetch);
 
 	const filterset = decodeFilterset(params.majorCategory, params.subCategory, params.encodedFilter);
 	const majorCategory = filterset ? params.majorCategory : undefined;

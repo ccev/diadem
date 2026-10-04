@@ -32,7 +32,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 - **MapLibre GL** + `svelte-maplibre` for maps
 - **Drizzle ORM** with MySQL (internal DB for users/sessions)
 - **Raw SQL queries** via mysql2 for external Golbat DB
-- **Paraglide.js** (inlang) for i18n — translations in `messages/*.json`, generated code in `src/lib/paraglide/`
+- **Wuchale** for i18n — English source in `src/lib/i18n/messages.svelte.ts`, translation catalogs in `src/locales/*.po`
 - **bits-ui** for headless UI components
 - **runed** for Svelte reactivity utilities
 - **zod** for validation
@@ -71,16 +71,18 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 
 ### Data Flow
 
-1. Server hooks (`hooks.server.ts`) chain: paraglide i18n → auth/session/permissions → server init
+1. Server hooks (`hooks.server.ts`) chain: Wuchale request locale / locale-prefix redirects → auth/session/permissions → SEO metadata
 2. Layout load fetches config + user settings
 3. Map queries: client POSTs bounds + filters to `/api/[mapObject]` (or, for gyms/pokéstops/stations together, `/api/forts`) → server queries Golbat (fort API over gRPC/HTTP, or SQL) with permission checks → returns filtered data. The per-type admit/resolve/settle pipeline lives in `src/lib/server/api/mapObjectRequest.ts`.
 4. Map objects stored in reactive `mapObjectsState`, rendered via MapLibre layers
 
 ### i18n
 
-- Import translations: `import { m } from "@/lib/paraglide/messages"`
+- Import translations: `import * as m from "@/lib/i18n/messages.svelte"`
 - Use: `m.key_name()`
-- Add strings to `messages/en.json` (base), append to the end of file, do not add translations, only english.
+- Add English message functions to `src/lib/i18n/messages.svelte.ts`, with a unique `@wc-context` matching the function name. Run `pnpm i18n:extract` and commit the updated `src/locales/*.po` catalogs; do not add translations.
+- Keep existing message function names stable: saved/shared filter titles contain these identifiers.
+- Use `getLocale()` from `@/lib/i18n/locale`. Locale-prefixed links set a browser-session override and redirect to the unprefixed URL; only explicit language selection persists a preference.
 - Path alias `@` maps to `./src`
 
 ### Database

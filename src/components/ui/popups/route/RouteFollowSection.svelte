@@ -5,7 +5,7 @@
 	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import AccessRouteMap from "@/components/ui/popups/route/AccessRouteMap.svelte";
 	import RouteEndpointCard from "@/components/ui/popups/route/RouteEndpointCard.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { formatDistance, formatDuration, formatElevation } from "@/lib/utils/numberFormat";
 	import { ArrowLeftRight, Clock, Ruler, Signpost, TrendingDown, TrendingUp } from "@lucide/svelte";

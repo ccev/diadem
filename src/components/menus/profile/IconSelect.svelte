@@ -2,7 +2,7 @@
 	import { getDefaultIconSet, getUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { getConfig } from "@/lib/services/config/config";
 	import MenuGeneric from "@/components/menus/MenuGeneric.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import { onIconChange } from "@/lib/services/settings";
 	import { getIconForMap } from "@/lib/services/uicons.svelte";

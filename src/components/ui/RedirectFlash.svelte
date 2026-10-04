@@ -2,7 +2,7 @@
 	import { browser } from "$app/environment";
 	import { getMapPath } from "@/lib/utils/getMapPath";
 	import { getConfig } from "@/lib/services/config/config";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";

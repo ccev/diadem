@@ -2,7 +2,7 @@
 	import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
 	import { getQuestRewards } from "@/lib/features/masterStats.svelte";
 	import { getRewardText, rewardTypeLabel, type RewardType } from "@/lib/utils/pokestopUtils";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getIconReward } from "@/lib/services/uicons.svelte";
 	import { resize } from "@/lib/services/assets";
 	import MultiSelect from "@/components/menus/filters/filterset/multiselect/MultiSelect.svelte";

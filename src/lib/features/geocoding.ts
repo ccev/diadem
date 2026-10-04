@@ -1,5 +1,5 @@
 import { getMap } from "@/lib/map/map.svelte";
-import { getLocale } from "@/lib/paraglide/runtime";
+import { getLocale } from "@/lib/i18n/locale";
 import { addAddressSearchResults, setIsSearchingAddress } from "@/lib/services/search.svelte";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 import type { BBox, Geometry } from "geojson";

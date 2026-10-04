@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";

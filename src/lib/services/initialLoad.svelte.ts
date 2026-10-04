@@ -1,7 +1,7 @@
 import { browser } from "$app/environment";
 import { loadKojiGeofences } from "@/lib/features/koji";
 import { loadMasterStats } from "@/lib/features/masterStats.svelte";
-import { getLocale } from "@/lib/paraglide/runtime";
+import { getLocale } from "@/lib/i18n/locale";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { loadMasterFile } from "@/lib/services/masterfile";
 import { updateSupportedFeatures } from "@/lib/services/supportedFeatures";

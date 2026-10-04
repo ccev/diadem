@@ -23,7 +23,7 @@
 		hasClipboardWrite
 	} from "@/lib/utils/device";
 	import { getRootOrigin } from "@/lib/native/runtime";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { isOpenModal, type ModalType } from "@/lib/ui/modal.svelte";
 	import { closeModal } from "@/lib/ui/modal.svelte.js";
 

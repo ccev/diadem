@@ -1,12 +1,12 @@
 <script lang="ts">
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { Cloud, Moon, Paintbrush, Sun } from "@lucide/svelte";
 	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
 	import { isNative } from "@/lib/native/runtime";
 	import {
-		AVAILABLE_LANGUAGES,
-		AVAILABLE_MAP_PROVIDERS,
+		getAvailableLanguages,
+		getAvailableMapProviders,
 		onMapStyleChange,
 		onSettingsChange
 	} from "@/lib/services/settings";
@@ -21,7 +21,8 @@
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import { mode } from "mode-watcher";
 	import { setThemeMode } from "@/lib/services/themeMode";
-	import { getLocale, setLocale } from "@/lib/paraglide/runtime";
+	import { getLocale } from "@/lib/i18n/locale";
+	import { setLocale } from "@/lib/i18n/client";
 	import { getMapStyle } from "@/lib/utils/mapStyle";
 </script>
 
@@ -97,7 +98,7 @@
 			value={getUserSettings().externalMapProvider}
 			onselect={(mapProvider) =>
 				onSettingsChange("externalMapProvider", mapProvider as ExternalMapProvider)}
-			options={AVAILABLE_MAP_PROVIDERS}
+			options={getAvailableMapProviders()}
 		/>
 	{/if}
 
@@ -106,7 +107,7 @@
 		title={m.settings_language()}
 		value={getLocale()}
 		onselect={(locale) => setLocale(locale as Parameters<typeof setLocale>[0])}
-		options={AVAILABLE_LANGUAGES}
+		options={getAvailableLanguages()}
 	/>
 
 	{#if !isMenuSidebar()}

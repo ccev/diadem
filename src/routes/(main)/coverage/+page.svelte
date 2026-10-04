@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import MapCoverage from "@/components/map/MapCoverage.svelte";
 	import { closeMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";

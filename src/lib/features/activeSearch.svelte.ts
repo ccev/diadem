@@ -22,7 +22,7 @@ import {
 	openOverlay,
 	registerOverlayHandler
 } from "@/lib/ui/overlays.svelte";
-import { m } from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mPokemon } from "$lib/services/ingameLocale";
 
 export type ActiveSearchParams = {

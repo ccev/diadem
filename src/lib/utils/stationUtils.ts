@@ -1,7 +1,7 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";

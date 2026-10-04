@@ -7,7 +7,7 @@
 	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
 	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import AppearanceAttribute from "@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte";
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import AppearanceChips from "@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte";

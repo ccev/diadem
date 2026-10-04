@@ -3,7 +3,7 @@
 	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
 	import Attribute from "@/components/menus/filters/filterset/Attribute.svelte";
 	import AttributesOverview from "@/components/menus/filters/filterset/AttributesOverview.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import {

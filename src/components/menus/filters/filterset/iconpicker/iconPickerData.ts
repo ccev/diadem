@@ -1,5 +1,5 @@
 import { IconCategory } from "@/lib/features/filters/icons";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mCharacter, mItem, mPokemon, mRaid, mType } from "@/lib/services/ingameLocale";
 import { getAllPokemon, getMasterFile } from "@/lib/services/masterfile";
 import {

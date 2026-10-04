@@ -2,7 +2,7 @@
 	import { Search, X } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { closeOverlay } from "@/lib/ui/overlays.svelte";
 </script>
 

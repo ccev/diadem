@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getConfig } from "@/lib/services/config/config";
 </script>
 

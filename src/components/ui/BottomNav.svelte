@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { CircleUserRound, PocketKnife, Settings2 } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 	import { closeMenu, getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";

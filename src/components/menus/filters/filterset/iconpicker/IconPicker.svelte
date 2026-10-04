@@ -15,7 +15,7 @@
 		getAllSearchableEmojis,
 		isValidSingleEmoji
 	} from "./iconPickerData";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { fly } from "svelte/transition";
 	import { mAny } from "@/lib/utils/anyMessage";
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";

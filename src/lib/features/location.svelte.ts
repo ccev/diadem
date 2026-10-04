@@ -1,6 +1,6 @@
 import { SPAWNPOINT_OUTDATED_SECONDS } from "$lib/constants";
 import type { AnyFilter } from "$lib/features/filters/filters";
-import { getLocale } from "$lib/paraglide/runtime";
+import { getLocale } from "$lib/i18n/locale";
 import { getMap } from "$lib/map/map.svelte";
 import { type Bounds } from "$lib/mapObjects/mapBounds";
 import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";

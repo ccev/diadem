@@ -11,7 +11,7 @@
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import { setWayfarerStyle } from "@/lib/features/wayfarerMap.svelte";
 	import type { MapStyle } from "@/lib/services/config/configTypes";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		getStyleId = undefined,

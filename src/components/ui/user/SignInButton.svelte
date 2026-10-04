@@ -3,7 +3,7 @@
 	import { startLogin } from "@/lib/services/user/login";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
 	import { X } from "@lucide/svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";

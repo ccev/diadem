@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getDataLimits } from "@/lib/mapObjects/dataLimitState.svelte";
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { Telescope } from "@lucide/svelte";
 	import { slide } from "svelte/transition";
 

@@ -5,7 +5,7 @@ import {
 } from "@/lib/map/featuresGen.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { getConfig } from "@/lib/services/config/config";
 import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 import {
@@ -15,7 +15,7 @@ import {
 	type UserSettings
 } from "@/lib/services/userSettings.svelte";
 
-export const AVAILABLE_LANGUAGES = [
+export const getAvailableLanguages = () => [
 	{
 		label: m.language_english(),
 		value: "en"
@@ -38,7 +38,7 @@ export const AVAILABLE_LANGUAGES = [
 	}
 ];
 
-export const AVAILABLE_MAP_PROVIDERS = [
+export const getAvailableMapProviders = () => [
 	{
 		label: m.google_maps(),
 		value: ExternalMapProvider.GOOGLE

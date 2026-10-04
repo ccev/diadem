@@ -1,5 +1,5 @@
 import type { MinMax, Pokemon, QuestReward } from "@/lib/features/filters/filtersets";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
 
 export function makeAttributeRangeLabel(

@@ -1,5 +1,5 @@
 import type { IconCategory } from "@/lib/features/filters/icons";
-import { m } from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
 

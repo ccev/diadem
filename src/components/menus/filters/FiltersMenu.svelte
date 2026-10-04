@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";

@@ -1,7 +1,7 @@
 import type { FiltersetRaid, FiltersetTitle } from "@/lib/features/filters/filtersets";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
-import { m } from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 

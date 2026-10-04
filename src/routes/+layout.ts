@@ -1,3 +1,4 @@
+import { initLocale } from "@/lib/i18n/client";
 import { browser } from "$app/environment";
 import { redirect } from "@sveltejs/kit";
 import { setConfig } from "@/lib/services/config/config";
@@ -16,6 +17,8 @@ export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, url }) => {
 	if (!browser) return;
+
+	await initLocale(url);
 
 	// First run on native (no instance chosen yet): show the instance-gate screen.
 	if (isNative() && !getInstanceUrl()) {

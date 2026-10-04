@@ -13,7 +13,7 @@ import {
 import { getMap } from "@/lib/map/map.svelte";
 import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { m } from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import { getAllLureModuleIds } from "@/lib/services/masterfile";
 import { isSupportedFeature } from "@/lib/services/supportedFeatures";

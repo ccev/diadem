@@ -1,5 +1,5 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 
 export const mapObjectLabels: Record<MapObjectType, () => string> = {
 	[MapObjectType.POKEMON]: m.pogo_pokemon,

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import favicon from "/static/favicon.svg?inline";
 	import { getClientConfig } from "@/lib/services/config/config.server";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { getStationTitle } from "@/lib/utils/stationUtils";

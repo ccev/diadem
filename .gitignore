@@ -54,3 +54,7 @@ docker-compose.yml
 
 # F-Droid repo cloned locally
 /fdroiddata
+
+# Wuchale generated catalogs and loaders
+src/locales/.wuchale/
+src/locales/*.js

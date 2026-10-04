@@ -16,8 +16,8 @@
 		hasClipboardWrite
 	} from "@/lib/utils/device";
 	import { getRootOrigin } from "@/lib/native/runtime";
-	import { getLocale } from "@/lib/paraglide/runtime";
-	import * as m from "@/lib/paraglide/messages";
+	import { getLocale } from "@/lib/i18n/locale";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		lat,

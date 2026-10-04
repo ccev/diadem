@@ -1,6 +1,6 @@
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { time } from "@/lib/utils/time";
-import { getLocale } from "$lib/paraglide/runtime";
+import { getLocale } from "$lib/i18n/locale";
 
 export type LocalTimeOptions = {
 	showDate?: boolean;

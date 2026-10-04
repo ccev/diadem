@@ -8,7 +8,7 @@
 	} from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { Snippet } from "svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import Separator from "@/components/ui/Separator.svelte";

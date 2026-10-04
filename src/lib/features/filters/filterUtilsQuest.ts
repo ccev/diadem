@@ -9,7 +9,7 @@ import {
 	makeAttributeRewardPokemonLabel
 } from "@/lib/features/filters/makeAttributeChipLabel";
 import { getActiveQuestRewards, getQuestStats } from "@/lib/features/masterStats.svelte";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mQuest } from "@/lib/services/ingameLocale";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { RewardType } from "@/lib/utils/pokestopUtils";

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { MapPin, Nut, Search, Spotlight, Squirrel, X } from "@lucide/svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
 	import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";

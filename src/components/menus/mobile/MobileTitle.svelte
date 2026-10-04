@@ -3,7 +3,7 @@
 	import CloseButton from "@/components/ui/CloseButton.svelte";
 	import { Drawer } from "$lib/drawer";
 	import { mAny } from "@/lib/utils/anyMessage";
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import { closePopup } from "$lib/mapObjects/interact";
 	import { X } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";

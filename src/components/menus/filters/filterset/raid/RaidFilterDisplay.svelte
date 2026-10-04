@@ -9,7 +9,7 @@
 	import { getIconRaidEgg } from "@/lib/services/uicons.svelte";
 	import { mRaid } from "@/lib/services/ingameLocale";
 	import { makeAttributeRaidShowLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	let {
 		data
 	}: {

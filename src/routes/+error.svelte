@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/state";
 	import StatusScreen from "@/components/ui/StatusScreen.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { isNative } from "$lib/native/runtime";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 

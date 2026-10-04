@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import { getIcon } from "@/lib/features/filters/icons";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";

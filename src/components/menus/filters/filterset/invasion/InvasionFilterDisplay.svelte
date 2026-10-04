@@ -7,7 +7,7 @@
 	import { resize } from "@/lib/services/assets";
 	import { getIconInvasion } from "@/lib/services/uicons.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		data

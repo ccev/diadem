@@ -19,7 +19,7 @@
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { Features } from "@/lib/utils/features";
 	import { getId } from "@/lib/utils/uuid";
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		majorCategory,

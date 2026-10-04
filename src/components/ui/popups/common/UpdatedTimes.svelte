@@ -2,7 +2,7 @@
 	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "@lucide/svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { isFortOutdated } from "@/lib/utils/gymUtils";

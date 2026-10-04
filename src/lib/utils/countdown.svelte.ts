@@ -1,4 +1,4 @@
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 let countdowns = new Map<

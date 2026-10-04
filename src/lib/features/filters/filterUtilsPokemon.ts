@@ -2,7 +2,7 @@ import type { FiltersetPokemon, FiltersetTitle, MinMax } from "@/lib/features/fi
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { getPokemonSize, League } from "@/lib/utils/pokemonUtils";
 import { Features, type FeaturesKey } from "@/lib/utils/features";

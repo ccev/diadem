@@ -1,0 +1,3701 @@
+msgid ""
+msgstr ""
+"Source-Language: en\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4\n"
+"X-Plurals-Order: one, few, many, other\n"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "theme_light"
+msgid "Light"
+msgstr "Jasny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "theme_system"
+msgid "System"
+msgstr "Systemowy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "theme_dark"
+msgid "Dark"
+msgstr "Ciemny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_appearance"
+msgid "Appearance"
+msgstr "Wygląd"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_left_handed_mode_title"
+msgid "Left-handed Mode"
+msgstr "Tryb leworęczny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_left_handed_mode_description"
+msgid "Place UI elements on the left"
+msgstr "Umieść elementy interfejsu po lewej stronie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_theme"
+msgid "Theme"
+msgstr "Motyw"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_map_style"
+msgid "Map Style"
+msgstr "Styl mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_icons"
+msgid "Icon Style"
+msgstr "Styl ikon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_pokemon"
+msgid "Pokémon"
+msgstr "Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_pokestops"
+msgid "Pokéstops"
+msgstr "Pokéstopy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_gyms"
+msgid "Gyms"
+msgstr "Gymy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_advanced"
+msgid "Advanced"
+msgstr "Ustawienia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_load_map_objects_while_moving_title"
+msgid "Aggressive Map Updates"
+msgstr "Agresywne odświeżanie mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_load_map_objects_while_moving_description"
+msgid "⚠ Major performance impact! Fetch data while moving the map"
+msgstr "⚠ Duży wpływ na wydajność! Pobiera dane podczas przesuwania mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_load_map_objects_padding_title"
+msgid "Map Update Padding"
+msgstr "Margines aktualizacji mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_load_map_objects_padding_description"
+msgid "Additional pixels to fetch around the map's bounding box"
+msgstr "Dodatkowe piksele do pobrania wokół widoku mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_language"
+msgid "Language"
+msgstr "Język"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "language_auto"
+msgid "Auto"
+msgstr "Auto"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "language_english"
+msgid "English"
+msgstr "Angielski"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "language_german"
+msgid "German"
+msgstr "Niemiecki"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_map"
+msgid "Map"
+msgstr "Mapa"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_filters"
+msgid "Filters"
+msgstr "Filtry"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_settings"
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "locate_error_support"
+msgid "Your browser doesn't have location support"
+msgstr "Twoja przeglądarka nie obsługuje lokalizacji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "locate_error_perms"
+msgid "Location permissions denied"
+msgstr "Odmowa dostępu do lokalizacji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "locate_error_timeout"
+msgid "Timed out while fetching your location"
+msgstr "Przekroczono czas pobierania lokalizacji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "locate_error_unknown"
+msgid "An error occurred while fetching your location"
+msgstr "Wystąpił błąd podczas pobierania lokalizacji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "clipboard_copied"
+msgid "Copied to clipboard"
+msgstr "Skopiowano do schowka"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "clipboard_error"
+msgid "Couldn't copy to clipboard"
+msgstr "Nie udało się skopiować do schowka"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_hide_details"
+msgid "Hide details"
+msgstr "Ukryj szczegóły"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_show_details"
+msgid "Show details"
+msgstr "Pokaż szczegóły"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_navigate"
+msgid "Navigate"
+msgstr "Nawiguj"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_share"
+msgid "Share"
+msgstr "Udostępnij"
+
+#. 0: m; 1: s
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_m_s"
+msgid "{0}m {1}s"
+msgstr "{0}m {1}s"
+
+#. 0: h; 1: m; 2: s
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_h_m_s"
+msgid "{0}h {1}m {2}s"
+msgstr "{0}g {1}m {2}s"
+
+#. 0: h; 1: m; 2: s
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_h_m_s_ago"
+msgid "{0}h {1}m {2}s ago"
+msgstr "{0}g {1}m {2}s temu"
+
+#. 0: m; 1: s
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_m_s_ago"
+msgid "{0}m {1}s ago"
+msgstr "{0}m {1}s temu"
+
+#. 0: cp
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_cp"
+msgid "{0} CP"
+msgstr "{0} CP"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_level"
+msgid "Level {0}"
+msgstr "Poziom {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_found"
+msgid "Found"
+msgstr "Znaleziono"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_estimated_location"
+msgid "Estimated location"
+msgstr "Szacowana lokalizacja"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_no_iv_scanned"
+msgid "No IV scanned"
+msgstr "Brak zeskanowanych IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_pokestop"
+msgid "Pokéstop"
+msgstr "Pokéstop"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_gym"
+msgid "Gym"
+msgstr "Gym"
+
+#. 0: type
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "direct_link_not_found"
+msgid "Didn't find {0}"
+msgstr "Nie znaleziono {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "context_menu_copy_coordinates"
+msgid "Copy coordinates"
+msgstr "Kopiuj współrzędne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "context_menu_navigate_here"
+msgid "Navigate here"
+msgstr "Nawiguj tutaj"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "context_menu_scout_location"
+msgid "Scout location"
+msgstr "Skanuj lokalizację"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_pokestop"
+msgid "Unknown Pokéstop"
+msgstr "Nieznany Pokéstop"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_station"
+msgid "Power Spot"
+msgstr "Power Spot"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_stations"
+msgid "Power Spots"
+msgstr "Power Spoty"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_gym"
+msgid "Unknown Gym"
+msgstr "Nieznany Gym"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "view_full_image"
+msgid "View full image"
+msgstr "Zobacz pełny obraz"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "default_"
+msgid "Default"
+msgstr "Domyślny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_pokemon"
+msgid "Unknown Pokémon"
+msgstr "Nieznany Pokémon"
+
+#. 0: d; 1: h; 2: m
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_d_h_m"
+msgid "{0}d {1}h {2}m"
+msgstr "{0}d {1}g {2}m"
+
+#. 0: d; 1: h; 2: m
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_d_h_m_ago"
+msgid "{0}d {1}h {2}m ago"
+msgstr "{0}d {1}g {2}m temu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "ex_gym"
+msgid "EX Gym"
+msgstr "EX Gym"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "gym_members"
+msgid "Defenders"
+msgstr "Obrońcy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "gym_power"
+msgid "Total CP"
+msgstr "Łączne CP"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_ends"
+msgid "Ends"
+msgstr "Koniec"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_starts"
+msgid "Starts"
+msgstr "Start"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "confirmed"
+msgid "confirmed"
+msgstr "potwierdzone"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "outdated"
+msgid "outdated"
+msgstr "nieaktualne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_seen"
+msgid "Last seen"
+msgstr "Ostatnio widziany"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_updated"
+msgid "Last updated"
+msgstr "Ostatnia aktualizacja"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "first_seen"
+msgid "First seen"
+msgstr "Pierwszy raz widziany"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "outdated_message"
+msgid "Hasn't been updated in a while"
+msgstr "Nie był aktualizowany od dłuższego czasu"
+
+#. 0: h; 1: m
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_h_m"
+msgid "{0}h {1}m"
+msgstr "{0}g {1}m"
+
+#. 0: h; 1: m
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_format_h_m_ago"
+msgid "{0}h {1}m ago"
+msgstr "{0}g {1}m temu"
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "yesterday_time"
+msgid "Yesterday, {0}"
+msgstr "Wczoraj, {0}"
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "today_time"
+msgid "Today, {0}"
+msgstr "Dziś, {0}"
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tomorrow_time"
+msgid "Tomorrow, {0}"
+msgstr "Jutro, {0}"
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_smallest"
+msgid "Smallest {0}"
+msgstr "Najmniejszy {0}"
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_biggest"
+msgid "Biggest {0}"
+msgstr "Największy {0}"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_buddy_min_level"
+msgid "Buddy (Level {0}+)"
+msgstr "Buddy (poziom {0}+)"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_class_1"
+msgid "Legendary"
+msgstr "Legendarny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_class_2"
+msgid "Mythic"
+msgstr "Mityczny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_class_3"
+msgid "Ultra Beast"
+msgstr "Ultra Beast"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_pokemon_family"
+msgid "{0} (Evolution line)"
+msgstr "{0} (linia ewolucyjna)"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_hatched"
+msgid "Hatched Pokémon"
+msgstr "Wykluty Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_not_hatched"
+msgid "Non-hatched Pokémon"
+msgstr "Nie wykluty Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_mega_evolution"
+msgid "Mega Evolution"
+msgstr "Mega Ewolucja"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_not_mega_evolution"
+msgid "Non-Mega Evolution"
+msgstr "Bez Mega Ewolucji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_shiny"
+msgid "Shiny"
+msgstr "Shiny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest_not_shiny"
+msgid "Non-Shiny"
+msgstr "Nie-Shiny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_species_changed"
+msgid "Species previously changed!"
+msgstr "Gatunek został wcześniej zmieniony!"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_pokemon_moves"
+msgid "Moves"
+msgstr "Ataki"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_gender_male"
+msgid "Male"
+msgstr "Męska"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_gender_female"
+msgid "Female"
+msgstr "Żeńska"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_gender_neutral"
+msgid "Neutral"
+msgstr "Neutralna"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_gender"
+msgid "Gender"
+msgstr "Płeć"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "weather_boost"
+msgid "Weather Boost"
+msgstr "Wzmocnienie pogodowe"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_weather_boost"
+msgid "No Weather Boost"
+msgstr "Bez wzmocnienia pogodowego"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_pokemon_is_strong"
+msgid "Is a Mighty Pokémon"
+msgstr "To Mighty Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_despawns"
+msgid "Despawns"
+msgstr "Znika"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "little_league"
+msgid "Little League"
+msgstr "Little League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "great_league"
+msgid "Great League"
+msgstr "Great League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "ultra_league"
+msgid "Ultra League"
+msgstr "Ultra League"
+
+#. 0: league
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "league_rank"
+msgid "{0} Rank"
+msgstr "Ranga {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "until"
+msgid "until"
+msgstr "do"
+
+#. 0: type
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_type"
+msgid "{0}-Type"
+msgstr "Typ {0}"
+
+#. 0: first; 1: second
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "connected_and"
+msgid "{0}- and {1}"
+msgstr "{0}- i {1}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_dynamax_pokemon"
+msgid "Dynamax {0}"
+msgstr "Dynamax {0}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_gigantamax_pokemon"
+msgid "Gigantamax {0}"
+msgstr "Gigantamax {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "start"
+msgid "Start"
+msgstr "Start"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "end"
+msgid "End"
+msgstr "Koniec"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_start_max_battle"
+msgid "{0}-Star Max Battle"
+msgstr "{0}-gwiazdkowy Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "webgl_disabled_error"
+msgid "WebGL is required to use the map, but seems to be disabled in your browser. Please enable it or try to restart your browser."
+msgstr "Mapa wymaga WebGL, ale wygląda na wyłączony w przeglądarce. Włącz go lub uruchom przeglądarkę ponownie."
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "webgl_unsupported_error"
+msgid "WebGL is required to use the map. Please use a modern device and browser."
+msgstr "Mapa wymaga WebGL. Użyj nowoczesnego urządzenia i przeglądarki."
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_changed"
+msgid "Last changed"
+msgstr "Ostatnia zmiana"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "boosted"
+msgid "Boosted"
+msgstr "Wzmocniony"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_show_debug_title"
+msgid "Show Map Debug Menu"
+msgstr "Pokaż menu debugowania mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_show_debug_description"
+msgid "Display in-depth information about the app"
+msgstr "Wyświetl szczegółowe informacje o aplikacji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_address_loading"
+msgid "Loading..."
+msgstr "Ładowanie..."
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_address_no_place_found"
+msgid "Found nothing"
+msgstr "Nic nie znaleziono"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_area_no_areas_found"
+msgid "No areas found"
+msgstr "Nie znaleziono obszarów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_area_title"
+msgid "Areas"
+msgstr "Obszary"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_place_title"
+msgid "Places"
+msgstr "Miejsca"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_placeholder"
+msgid "Search..."
+msgstr "Szukaj..."
+
+#. 0: going; 1: maybe
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rsvp_entry"
+msgid "{0} going · {1} maybe"
+msgstr "{0} idzie · {1} być może"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_xp"
+msgid "{0} XP"
+msgstr "{0} XP"
+
+#. 0: count; 1: item
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_item"
+msgid "{0}x {1}"
+msgstr "{0}x {1}"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_stardust"
+msgid "{0} Stardust"
+msgstr "{0} Stardust"
+
+#. 0: count; 1: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_candy"
+msgid "{0} {1} Candy"
+msgstr "{0} Cukierków {1}"
+
+#. 0: count; 1: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_xl_candy"
+msgid "{0} {1} Candy XL"
+msgstr "{0} Cukierków XL {1}"
+
+#. 0: count; 1: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_mega_resource"
+msgid "{0} {1} Mega Energy"
+msgstr "{0} Mega Energii {1}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signin_toast_error"
+msgid "Error while signing in, please try again"
+msgstr "Błąd logowania, spróbuj ponownie"
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signin_toast_success"
+msgid "Signed in as {0}"
+msgstr "Zalogowano jako {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signout"
+msgid "Unlink Discord"
+msgstr "Odłącz Discord"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_profile"
+msgid "Profile"
+msgstr "Profil"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signin_prompt_bold"
+msgid "Link your Discord account"
+msgstr "Połącz konto Discord"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signin_prompt_part_2"
+msgid "to access more features"
+msgstr "aby uzyskać więcej funkcji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_icon_size"
+msgid "Map Icon Size"
+msgstr "Rozmiar ikon na mapie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_weather"
+msgid "Unknown Weather"
+msgstr "Nieznana pogoda"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_type"
+msgid "Unknown Type"
+msgstr "Nieznany typ"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_item"
+msgid "Unknown Item"
+msgstr "Nieznany przedmiot"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_raid"
+msgid "Unknown Raid"
+msgstr "Raid"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_move"
+msgid "Unknown Move"
+msgstr "Nieznany atak"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_alignment"
+msgid "Unknown Alignment"
+msgstr "Nieznane wyrównanie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_generation"
+msgid "Unknown Generation"
+msgstr "Nieznana generacja"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_quest"
+msgid "Unknown Quest"
+msgstr "Nieznane zadanie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_character"
+msgid "Unknown Grunt"
+msgstr "Nieznany Grunt"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_scout"
+msgid "Scout"
+msgstr "Skaner"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "scout_area_size"
+msgid "Area Size"
+msgstr "Rozmiar obszaru"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "scout_queue_position"
+msgid "Position in queue"
+msgstr "Pozycja w kolejce"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "scout_toast_success"
+msgid "Started scouting, please wait a few seconds"
+msgstr "Rozpoczęto skanowanie, poczekaj kilka sekund"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "scout_toast_error"
+msgid "There was an error while scouting, please try again"
+msgstr "Błąd podczas skanowania, spróbuj ponownie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "scout_start"
+msgid "Start scout"
+msgstr "Rozpocznij skanowanie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_ivs"
+msgid "IVs"
+msgstr "IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_station"
+msgid "Unknown Power Spot"
+msgstr "Nieznany Power Spot"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_quest"
+msgid "Quest"
+msgstr "Zadanie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_quests"
+msgid "Quests"
+msgstr "Zadania"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_invasion"
+msgid "Team Rocket"
+msgstr "Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_max_battle"
+msgid "Max Battle"
+msgstr "Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "any"
+msgid "Any"
+msgstr "Dowolny"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_pokemon"
+msgid "{0} Pokémon"
+msgstr "{0} Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "species"
+msgid "Species"
+msgstr "Gatunek"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "cp"
+msgid "CP"
+msgstr "CP"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "level"
+msgid "Level"
+msgstr "Poziom"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filterset_title_new_pokemon"
+msgid "New Pokémon Filter"
+msgstr "Nowy filtr Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filterset_title_edit_pokemon"
+msgid "Edit Pokémon Filter"
+msgstr "Edytuj filtr Pokémon"
+
+#. 0: atk; 1: def; 2: sta
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "atk_def_sta"
+msgid "{0}/{1}/{2}"
+msgstr "{0}/{1}/{2}"
+
+#. 0: x; 1: y
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "range_to"
+msgid "{0} – {1}"
+msgstr "{0} – {1}"
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "range_min"
+msgid "{0}+"
+msgstr "{0}+"
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "range_max"
+msgid "≤{0}"
+msgstr "≤{0}"
+
+#. 0: rank
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rank_x"
+msgid "Rank {0}"
+msgstr "Ranga {0}"
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_percentage"
+msgid "{0}%"
+msgstr "{0}%"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_genders"
+msgid "{0} genders"
+msgstr "{0} płci"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_filter"
+msgid "Pokémon Filter"
+msgstr "Filtr Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_size"
+msgid "Size"
+msgstr "Rozmiar"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "details"
+msgid "Details"
+msgstr "Szczegóły"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "shared_pokemon_filter"
+msgid "Shared Pokémon Filter"
+msgstr "Udostępniony filtr Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_filter"
+msgid "Unknown Filter"
+msgstr "Nieznany filtr"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_hundo"
+msgid "100% IV"
+msgstr "100% IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_nundo"
+msgid "0% IV"
+msgstr "0% IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_rank1_great"
+msgid "Rank 1 Great League"
+msgstr "Ranga 1 Great League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_rank1_ultra"
+msgid "Rank 1 Ultra League"
+msgstr "Ranga 1 Ultra League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_xxl_magikarp"
+msgid "XXL Magikarp"
+msgstr "XXL Magikarp"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_xxl"
+msgid "All XXL"
+msgstr "Wszystkie XXL"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_unown"
+msgid "Unown"
+msgstr "Unown"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_sea_trio"
+msgid "Lake Trio"
+msgstr "Sea Trio"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "shiny_rate"
+msgid "Shiny Rate"
+msgstr "Szansa na Shiny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_contest"
+msgid "Unknown Showcase"
+msgstr "Nieznane Showcase"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contest"
+msgid "Showcase"
+msgstr "Showcase"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_filter"
+msgid "Quest Filter"
+msgstr "Filtr zadań"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "shared_quest_filter"
+msgid "Shared Quest Filter"
+msgstr "Udostępniony filtr zadań"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "new_quest_filter"
+msgid "New Quest Filter"
+msgstr "Nowy filtr zadań"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "edit_quest_filter"
+msgid "Edit Quest Filter"
+msgstr "Edytuj filtr zadań"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity_common"
+msgid "Common"
+msgstr "Pospolity"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity_uncommon"
+msgid "Uncommon"
+msgstr "Niepospolity"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity_rare"
+msgid "Rare"
+msgstr "Rzadki"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity_very_rare"
+msgid "Very Rare"
+msgstr "Bardzo rzadki"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity_extremely_rare"
+msgid "Elusive"
+msgstr "Wyjątkowy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity_legendary"
+msgid "Off the charts"
+msgstr "Poza skalą"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stats"
+msgid "Stats"
+msgstr "Statystyki"
+
+#. 0: days
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_x_days"
+msgid "Last {0} days"
+msgstr "Ostatnie {0} dni"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "total_seen"
+msgid "Total seen"
+msgstr "Łącznie widziano"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_shiny"
+msgid "No shiny"
+msgstr "Brak shiny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rarity"
+msgid "Rarity"
+msgstr "Rzadkość"
+
+#. 0: showing; 1: examined
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "showing_showing_of_examined"
+msgid "Showing {0} of {1}"
+msgstr "Pokazano {0} z {1}"
+
+#. 0: showing
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "showing_showing"
+msgid "Showing {0}"
+msgstr "Pokazano {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "both"
+msgid "Both"
+msgstr "Oba"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward"
+msgid "Reward"
+msgstr "Nagroda"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "items"
+msgid "Items"
+msgstr "Przedmioty"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "mega_energy"
+msgid "Mega Energy"
+msgstr "Mega Energia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "candy"
+msgid "Candy"
+msgstr "Cukierek"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stardust"
+msgid "Stardust"
+msgstr "Stardust"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "xp"
+msgid "XP"
+msgstr "XP"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "xl_candy"
+msgid "Candy XL"
+msgstr "Cukierek XL"
+
+#. 0: goal
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "redirect_notice"
+msgid "You're being automatically redirected to {0}. Click here if that didn't work."
+msgstr "Trwa automatyczne przekierowanie do {0}. Kliknij tutaj, jeśli to nie działa."
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "language_spanish"
+msgid "Spanish"
+msgstr "Hiszpański"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "language_portuguese"
+msgid "Portuguese"
+msgstr "Portugalski"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_filter"
+msgid "Raid Filter"
+msgstr "Filtr Raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "shared_raid_filter"
+msgid "Shared Raid Filter"
+msgstr "Udostępniony filtr Raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "new_raid_filter"
+msgid "New Raid Filter"
+msgstr "Nowy filtr Raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "edit_raid_filter"
+msgid "Edit Raid Filter"
+msgstr "Edytuj filtr Raidów"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_raid_levels"
+msgid "{0} Raid levels"
+msgstr "{0} poziomów raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "iv_product_label"
+msgid "IV %"
+msgstr "IV %"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "attack_iv"
+msgid "Attack IV"
+msgstr "Atak IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defense_iv"
+msgid "Defense IV"
+msgstr "Obrona IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stamina_iv"
+msgid "HP IV"
+msgstr "Wytrzymałość IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "iv_product_label_long"
+msgid "Total IV"
+msgstr "Łączne IV"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_looks"
+msgid "Cosmetics"
+msgstr "Wygląd"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "little_league_rank"
+msgid "Little League Rank"
+msgstr "Ranga Little League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "great_league_rank"
+msgid "Great League Rank"
+msgstr "Ranga Great League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "ultra_league_rank"
+msgid "Ultra League Rank"
+msgstr "Ranga Ultra League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_show"
+msgid "Show"
+msgstr "Pokaż"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_show_eggs"
+msgid "Eggs"
+msgstr "Jaja"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_show_bosses"
+msgid "Bosses"
+msgstr "Bossy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_levels"
+msgid "Levels"
+msgstr "Poziomy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_levels_long"
+msgid "Raid Levels"
+msgstr "Poziomy raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_bosses"
+msgid "Bosses"
+msgstr "Bossy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_bosses_long"
+msgid "Raid Bosses"
+msgstr "Bossy raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_boss_select_available"
+msgid "Show available bosses"
+msgstr "Pokaż dostępnych bossów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_filter_by"
+msgid "Filter by"
+msgstr "Filtruj według"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_filter_by_level"
+msgid "Raid Level"
+msgstr "Poziom raidu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid_filter_by_boss"
+msgid "Raid Boss"
+msgstr "Boss raidu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "add_filter_pokemon_undefined"
+msgid "Add Pokémon filter"
+msgstr "Dodaj filtr Pokémon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "add_filter_pokestop_quest"
+msgid "Add Quest filter"
+msgstr "Dodaj filtr zadań"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "add_filter_pokestop_invasion"
+msgid "Add Team Rocket filter"
+msgstr "Dodaj filtr Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "add_filter_gym_raid"
+msgid "Add Raid filter"
+msgstr "Dodaj filtr raidów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "error_back_to_website"
+msgid "Back to site"
+msgstr "Powrót do strony"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "error_webgl_unavailable"
+msgid "WebGL unavailable"
+msgstr "WebGL niedostępny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "error_404"
+msgid "404: Page not found"
+msgstr "404: Nie znaleziono strony"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "discord_block_title"
+msgid "Discord Link required"
+msgstr "Wymagane połączenie z Discord"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "discord_block_desc"
+msgid "You have to link your Discord account before accessing the map"
+msgstr "Musisz połączyć konto Discord, aby uzyskać dostęp do mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "discord_block_button"
+msgid "Link Discord"
+msgstr "Połącz Discord"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_5"
+msgid "Legendary Raids"
+msgstr "Legendarne raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_5_shadow"
+msgid "Legendary Shadow Raids"
+msgstr "Legendarne Shadow Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_shadow"
+msgid "Shadow Raids"
+msgstr "Shadow Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_mega"
+msgid "Mega Raids"
+msgstr "Mega Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_mega_legendary"
+msgid "Mega Legendary Raids"
+msgstr "Mega Legendarne Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_primal"
+msgid "Primal Raids"
+msgstr "Primal Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_ultra_beast"
+msgid "Ultra Beast Raids"
+msgstr "Ultra Beast Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_elite"
+msgid "Elite Raids"
+msgstr "Elitarne Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "enable_filters"
+msgid "Enable filters"
+msgstr "Włącz filtry"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "disable_filters"
+msgid "Disable filters"
+msgstr "Wyłącz filtry"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_raids"
+msgid "Raids"
+msgstr "Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_bosses"
+msgid "Bosses"
+msgstr "Bossy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_eggs"
+msgid "Eggs"
+msgstr "Jaja"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_elite"
+msgid "Elite {0}"
+msgstr "Elitarne {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_ultra_beast"
+msgid "Ultra Beast {0}"
+msgstr "Ultra Beast {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_primal"
+msgid "Primal {0}"
+msgstr "Primal {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_mega_legendary"
+msgid "Mega Legendary {0}"
+msgstr "Mega Legendarne {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_mega"
+msgid "Mega {0}"
+msgstr "Mega {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_legendary"
+msgid "Legendary {0}"
+msgstr "Legendarne {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_legendary_shadow"
+msgid "Legendary Shadow {0}"
+msgstr "Legendarne Shadow {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_shadow"
+msgid "Shadow {0}"
+msgstr "Shadow {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_1_star"
+msgid "★ {0}"
+msgstr "★ {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_1_star_shadow"
+msgid "Shadow ★ {0}"
+msgstr "Shadow ★ {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_3_star"
+msgid "★★★ {0}"
+msgstr "★★★ {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_3_star_shadow"
+msgid "Shadow ★★★ {0}"
+msgstr "Shadow ★★★ {0}"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_various"
+msgid "Various {0}"
+msgstr "Różne {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_fallback"
+msgid "Raid Filter"
+msgstr "Filtr Raidów"
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_raids_all"
+msgid "All {0}"
+msgstr "Wszystkie {0}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_pokemon_raids"
+msgid "{0} Raids"
+msgstr "Raidy {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_pokemon_fallback"
+msgid "Pokémon Filter"
+msgstr "Filtr Pokémon"
+
+#. 0: attributes; 1: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_pokemon_template"
+msgid "{0}{1}"
+msgstr "{0}{1}"
+
+#. 0: rank
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "short_rank_little_league"
+msgid "LL #{0}"
+msgstr "LL #{0}"
+
+#. 0: rank
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "short_rank_great_league"
+msgid "GL #{0}"
+msgstr "GL #{0}"
+
+#. 0: rank
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "short_rank_ultra_league"
+msgid "UL #{0}"
+msgstr "UL #{0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "context_menu_share_position"
+msgid "Share map position"
+msgstr "Udostępnij pozycję mapy"
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_km"
+msgid "{0}km"
+msgstr "{0}km"
+
+#. 0: pokemon; 1: display
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "display_pokemon_notice"
+msgid "This {0} is hiding as a {1}"
+msgstr "Ten {0} ukrywa się jako {1}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "plain_pokestops"
+msgid "Plain Pokéstops"
+msgstr "Zwykłe Pokéstopy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "lures"
+msgid "Lures"
+msgstr "Wabiki"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "contests"
+msgid "Showcases"
+msgstr "Showcases"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "routes"
+msgid "Routes"
+msgstr "Trasy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "kecleon"
+msgid "Kecleon"
+msgstr "Kecleon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "golden_pokestops"
+msgid "Golden Pokéstops"
+msgstr "Złote Pokéstopy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raids"
+msgid "Raids"
+msgstr "Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "plain_gyms"
+msgid "Plain Gyms"
+msgstr "Zwykłe Gymy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "plain_stations"
+msgid "Plain Power Spots"
+msgstr "Zwykłe Power Spoty"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battles"
+msgid "Max Battles"
+msgstr "Max Battles"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "s2_cells"
+msgid "S2 Cells"
+msgstr "Komórki S2"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tappables"
+msgid "Ground Items"
+msgstr "Przedmioty na ziemi"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "spawnpoints"
+msgid "Spawnpoints"
+msgstr "Punkty spawnu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nests"
+msgid "Nests"
+msgstr "Gniazda"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_nest"
+msgid "{0} Nest"
+msgstr "Gniazdo {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "park_name"
+msgid "Park Name"
+msgstr "Nazwa parku"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nest_avg"
+msgid "Spawn Rate"
+msgstr "Tempo spawnu"
+
+#. 0: avg
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nest_avg_value"
+msgid "~{0}/hour"
+msgstr "~{0}/godz"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nest_ratio"
+msgid "Spawn Ratio"
+msgstr "Współczynnik spawnu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nest_spawnpoint_count"
+msgid "Total Spawnpoints"
+msgstr "Łącznie punktów spawnu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nest_size"
+msgid "Area"
+msgstr "Obszar"
+
+#. 0: size
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "square_m_value"
+msgid "{0}m²"
+msgstr "{0}m²"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_nest"
+msgid "Nest"
+msgstr "Gniazdo"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_s2cell"
+msgid "S2 Cell"
+msgstr "Komórka S2"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_tappable"
+msgid "Ground Item"
+msgstr "Przedmiot na ziemi"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_spawnpoint"
+msgid "Spawnpoint"
+msgstr "Punkt spawnu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_route"
+msgid "Route"
+msgstr "Trasa"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "lure_hint"
+msgid "This Pokémon was seen at a Lure Module"
+msgstr "Tego Pokémona widziano przy module wabika"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tappable_hint"
+msgid "This Pokémon appears after tapping an Apple"
+msgstr "Ten Pokémon pojawia się po dotknięciu Apple"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_tappable"
+msgid "Unknown Ground Item"
+msgstr "Nieznany przedmiot na ziemi"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "time_is_estimated"
+msgid "Time is estimated"
+msgstr "Czas jest szacowany"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "spawnpoint_despawns"
+msgid "Despawns"
+msgstr "Znika"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "spawnpoint_unknown"
+msgid "Unknown despawn time"
+msgstr "Nieznany czas zniknięcia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_filter"
+msgid "Team Rocket Filter"
+msgstr "Filtr Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "shared_invasion_filter"
+msgid "Shared Team Rocket Filter"
+msgstr "Udostępniony filtr Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "new_invasion_filter"
+msgid "New Team Rocket Filter"
+msgstr "Nowy filtr Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "edit_invasion_filter"
+msgid "Edit Team Rocket Filter"
+msgstr "Edytuj filtr Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_filter_by"
+msgid "Filter by"
+msgstr "Filtruj według"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_filter_by_reward"
+msgid "Rewards"
+msgstr "Nagrody"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_filter_by_character"
+msgid "Grunts"
+msgstr "Grunci"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rewards"
+msgid "Rewards"
+msgstr "Nagrody"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "grunts"
+msgid "Grunts"
+msgstr "Grunci"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_characters"
+msgid "{0} Grunts"
+msgstr "{0} Gruntów"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_leaders"
+msgid "{0} Leaders"
+msgstr "{0} Liderów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_invasion_fallback"
+msgid "Team Rocket Filter"
+msgstr "Filtr Team Rocket"
+
+#. 0: type
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_invasion_one_grunt"
+msgid "{0}"
+msgstr "{0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_invasion_giovanni"
+msgid "Giovanni"
+msgstr "Giovanni"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "create_new"
+msgid "Create new"
+msgstr "Utwórz nowy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "or_select_suggested_filter"
+msgid "or select suggested filter"
+msgstr "lub wybierz sugerowany filtr"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "save"
+msgid "Save"
+msgstr "Zapisz"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "cancel"
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "edit"
+msgid "Edit"
+msgstr "Edytuj"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "delete"
+msgid "Delete"
+msgstr "Usuń"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "searching_for"
+msgid "Searching for"
+msgstr "Szukam"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nothing_to_see_here"
+msgid "Here you can search for anything"
+msgstr "Możesz tutaj wyszukać cokolwiek"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nothing_found"
+msgid "Nothing came up"
+msgstr "Nic nie znaleziono"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_hint"
+msgid "Try searching for Pokémon, areas, addresses, Gyms or Quests"
+msgstr "Spróbuj wyszukać Pokémony, obszary, adresy, Gymy lub Zadania"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_hint_no_address"
+msgid "Try searching for Pokémon, areas, Gyms or Quests"
+msgstr "Spróbuj wyszukać Pokémony, obszary, Gymy lub Zadania"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_hint_no_area"
+msgid "Try searching for Pokémon, addresses, Gyms or Quests"
+msgstr "Spróbuj wyszukać Pokémony, adresy, Gymy lub Zadania"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_hint_no_area_address"
+msgid "Try searching for Pokémon, Pokéstops, Gyms or Quests"
+msgstr "Spróbuj wyszukać Pokémony, Pokéstopy, Gymy lub Zadania"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "area"
+msgid "Area"
+msgstr "Obszar"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_recent"
+msgid "Recent"
+msgstr "Ostatnie"
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_quests"
+msgid "{0} Quests"
+msgstr "{0} Zadań"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_items"
+msgid "{0} Items"
+msgstr "{0} Przedmiotów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tasks"
+msgid "Tasks"
+msgstr "Zadania"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_mega_resource"
+msgid "{0} Mega Energy"
+msgstr "Mega Energia {0}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_candy"
+msgid "{0} Candy"
+msgstr "Cukierek {0}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_xl_candy"
+msgid "{0} Candy XL"
+msgstr "Cukierek XL {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "kecleon_pokestops"
+msgid "Kecleon Pokéstops"
+msgstr "Pokéstopy Kecleon"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_contests"
+msgid "Showcases"
+msgstr "Showcases"
+
+#. 0: character
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "character_grunt"
+msgid "{0} Grunt"
+msgstr "Grunt {0}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_raids"
+msgid "{0} Raids"
+msgstr "Raidy {0}"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_star_max_battles"
+msgid "{0}-Star Max Battles"
+msgstr "{0}-gwiazdkowe Max Battles"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_max_battles"
+msgid "{0} Max Battles"
+msgstr "Max Battles {0}"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_nests"
+msgid "{0} Nests"
+msgstr "Gniazda {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "address"
+msgid "Address"
+msgstr "Adres"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "searching_for_addresses"
+msgid "Looking for addresses"
+msgstr "Szukam adresów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_tools"
+msgid "Tools"
+msgstr "Narzędzia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_coveragemap"
+msgid "Coverage Map"
+msgstr "Mapa pokrycia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "back_to_map"
+msgid "Back to map"
+msgstr "Powrót do mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "external_map_context_menu"
+msgid "Selected location"
+msgstr "Wybrana lokalizacja"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "google_maps"
+msgid "Google Maps"
+msgstr "Google Maps"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "apple_maps"
+msgid "Apple Maps"
+msgstr "Apple Maps"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_external_map_provider"
+msgid "Navigate using"
+msgstr "Nawiguj używając"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_cells"
+msgid "Wayfarer Cells"
+msgstr "Komórki Wayfarer"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "cell_level"
+msgid "S2 Cell Level"
+msgstr "Poziom komórki S2"
+
+#. 0: goal
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "redirect_title"
+msgid "Bringing you to {0}"
+msgstr "Przekierowanie do {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "redirect_button"
+msgid "Click here if that didn't work"
+msgstr "Kliknij tutaj, jeśli to nie działa"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_legendary_birds"
+msgid "Legendary Birds"
+msgstr "Legendarne ptaki"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "species_quick_filter_selected"
+msgid "Selected"
+msgstr "Wybrane"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_rotate_pitch_title"
+msgid "Lock map rotate & pitch"
+msgstr "Zablokuj obrót i pochylenie mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "settings_rotate_pitch_description"
+msgid "Disables rotation and pitching of the map"
+msgstr "Wyłącza obrót i pochylanie mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tool_scout_title"
+msgid "Scout"
+msgstr "Skaner"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tool_scout_description"
+msgid "Scan any location"
+msgstr "Skanuj dowolną lokalizację"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tool_coverage_map_title"
+msgid "Coverage Map"
+msgstr "Mapa pokrycia"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tool_coverage_map_description"
+msgid "Overview of all scanned areas"
+msgstr "Przegląd wszystkich zeskanowanych obszarów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "plain_pokestop_filter"
+msgid "Plain Pokéstop Filter"
+msgstr "Filtr zwykłych Pokéstopów"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_attributes"
+msgid "Attributes"
+msgstr "Atrybuty"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_icon"
+msgid "Icon"
+msgstr "Ikona"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_name"
+msgid "Name"
+msgstr "Nazwa"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_avatar_clothing"
+msgid "Avatar Clothing"
+msgstr "Ubrania awatara"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_quest"
+msgid "Quest"
+msgstr "Zadanie"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_pokecoins"
+msgid "Pokécoins"
+msgstr "Pokécoiny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_level_cap"
+msgid "Level Cap"
+msgstr "Limit poziomu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_sticker"
+msgid "Sticker"
+msgstr "Naklejka"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_incident"
+msgid "Incident"
+msgstr "Incydent"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_player_attribute"
+msgid "Player Attribute"
+msgstr "Atrybut gracza"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_event_badge"
+msgid "Event Badge"
+msgstr "Odznaka eventu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "reward_egg"
+msgid "Egg"
+msgstr "Jajo"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_nest"
+msgid "Unknown Nest"
+msgstr "Nieznane gniazdo"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "toast_copied_default"
+msgid "Copied to clipboard"
+msgstr "Skopiowano do schowka"
+
+#. 0: type
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "direct_link_no_permission"
+msgid "No permission to view this {0}"
+msgstr "Brak uprawnień do wyświetlenia tego {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_lineup_unavailable"
+msgid "Lineups not available"
+msgstr "Składy niedostępne"
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_x_possible_rewards"
+msgid "{0} possible rewards"
+msgstr "{0} możliwych nagród"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "invasion_reward"
+msgid "Reward"
+msgstr "Nagroda"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_pokemon_invasion"
+msgid "{0} Grunts"
+msgstr "Grunci {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "add_filter_station_maxBattle"
+msgid "Add Max Battle filter"
+msgstr "Dodaj filtr Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_filter"
+msgid "Max Battle Filter"
+msgstr "Filtr Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "shared_max_battle_filter"
+msgid "Shared Max Battle Filter"
+msgstr "Udostępniony filtr Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "new_max_battle_filter"
+msgid "New Max Battle Filter"
+msgstr "Nowy filtr Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "edit_max_battle_filter"
+msgid "Edit Max Battle Filter"
+msgstr "Edytuj filtr Max Battle"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_boss_select_available"
+msgid "Show available"
+msgstr "Pokaż dostępne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_inactive"
+msgid "Inactive"
+msgstr "Nieaktywne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_max_battle_fallback"
+msgid "Max Battle Filter"
+msgstr "Filtr Max Battle"
+
+#. 0: pokemon
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_pokemon_max_battles"
+msgid "{0} Max Battles"
+msgstr "Max Battles {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_only_show_active"
+msgid "Only show active"
+msgstr "Pokaż tylko aktywne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_only_show"
+msgid "Only show"
+msgstr "Pokaż tylko"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_active"
+msgid "Active"
+msgstr "Aktywne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_has_gmax"
+msgid "Has Gigantamax"
+msgstr "Posiada Gigantamax"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_power_spot_has"
+msgid "Power spot has"
+msgstr "Power Spot posiada"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "max_battle_gmax"
+msgid "Gigantamax"
+msgstr "Gigantamax"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_emoji"
+msgid "Emoji"
+msgstr "Emoji"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_type"
+msgid "Types"
+msgstr "Typy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_raid"
+msgid "Raids"
+msgstr "Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_invasion"
+msgid "Grunts"
+msgstr "Grunci"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_item"
+msgid "Items"
+msgstr "Przedmioty"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_search_placeholder"
+msgid "Search for an icon"
+msgstr "Szukaj ikony"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_misc"
+msgid "Misc"
+msgstr "Różne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "icon_picker_poi"
+msgid "POIs"
+msgstr "POI"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "team_neutral"
+msgid "Neutral"
+msgstr "Neutralny"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "team_mystic"
+msgid "Mystic"
+msgstr "Mystic"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "team_valor"
+msgid "Valor"
+msgstr "Valor"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "team_instinct"
+msgid "Instinct"
+msgstr "Instinct"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "master_league"
+msgid "Master League"
+msgstr "Master League"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_pokestop_invasion"
+msgid "Pokéstop (Team Rocket)"
+msgstr "Pokéstop (Team Rocket)"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_pokestop_gold"
+msgid "Golden Pokéstop"
+msgstr "Złoty Pokéstop"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_pokestop_kecleon"
+msgid "Pokéstop (Kecleon)"
+msgstr "Pokéstop (Kecleon)"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_pokestop_contest"
+msgid "Pokéstop (Showcase)"
+msgstr "Pokéstop (Showcase)"
+
+#. 0: lure
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_pokestop_lured"
+msgid "Pokéstop ({0})"
+msgstr "Pokéstop ({0})"
+
+#. 0: team
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_gym_team"
+msgid "Gym ({0})"
+msgstr "Gym ({0})"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_station_active"
+msgid "Power Spot (Active)"
+msgstr "Power Spot (Aktywny)"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "poi_station_inactive"
+msgid "Power Spot (Inactive)"
+msgstr "Power Spot (Nieaktywny)"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_visual"
+msgid "Visual"
+msgstr "Wizualne"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_glow"
+msgid "Glow"
+msgstr "Poświata"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_glow_intensity"
+msgid "Glow intensity"
+msgstr "Intensywność poświaty"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_background"
+msgid "Background"
+msgstr "Tło"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_background_circle"
+msgid "Circle"
+msgstr "Okrąg"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_background_intensity"
+msgid "Circle intensity"
+msgstr "Intensywność okręgu"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_scale"
+msgid "Scale"
+msgstr "Skala"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_rotation"
+msgid "Rotation"
+msgstr "Obrót"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_none"
+msgid "None"
+msgstr "Brak"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_show_badge"
+msgid "Show Badge"
+msgstr "Pokaż odznakę"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_show_label"
+msgid "Show Label"
+msgstr "Pokaż etykietę"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "modifier_map_preview"
+msgid "Map Preview"
+msgstr "Podgląd mapy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "coveragemap_view"
+msgid "View"
+msgstr "Widok"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_placeholder_pokemon"
+msgid "Search for Pokémon"
+msgstr "Szukaj Pokémona"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_picker_selected"
+msgid "Selected"
+msgstr "Wybrane"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokemon_picker_available"
+msgid "Available"
+msgstr "Dostępne"
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "alolan_pokemon"
+msgid "Alolan {0}"
+msgstr "Alolański {0}"
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "hisuian_pokemon"
+msgid "Hisuian {0}"
+msgstr "Hisuiański {0}"
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "galarian_pokemon"
+msgid "Galarian {0}"
+msgstr "Galariański {0}"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_star_raid"
+msgid "{0}-Star Raid"
+msgstr "{0}-gwiazdkowy Raid"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_star_raids"
+msgid "{0}-Star Raids"
+msgstr "{0}-gwiazdkowe Raidy"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_star_shadow_raid"
+msgid "{0}-Star Shadow Raid"
+msgstr "{0}-gwiazdkowy Shadow Raid"
+
+#. 0: level
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "x_star_shadow_raids"
+msgid "{0}-Star Shadow Raids"
+msgstr "{0}-gwiazdkowe Shadow Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "legendary_shadow_raid"
+msgid "Legendary Shadow Raid"
+msgstr "Legendarny Shadow Raid"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "legendary_shadow_raids"
+msgid "Legendary Shadow Raids"
+msgstr "Legendarne Shadow Raidy"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "only_show_hatched"
+msgid "Only show hatched"
+msgstr "Pokaż tylko wyklute"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_mega_energies"
+msgid "{0} Mega Energies"
+msgstr "{0} Mega Energii"
+
+#. 0: reward
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_reward_none_available"
+msgid "No {0} currently available from Quests"
+msgstr "Brak {0} dostępnych obecnie z zadań"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_tasks"
+msgid "{0} Tasks"
+msgstr "{0} Zadań"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_tasks_only_matching_rewards"
+msgid "Matching rewards"
+msgstr "Pasujące nagrody"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "task"
+msgid "Task"
+msgstr "Zadanie"
+
+#. 0: reward
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_quest_reward"
+msgid "{0} Quests"
+msgstr "Zadania {0}"
+
+#. 0: task
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_quest_task"
+msgid "{0}"
+msgstr "{0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_quest_fallback"
+msgid "Quest Filter"
+msgstr "Filtr zadań"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_candies"
+msgid "{0} Candies"
+msgstr "{0} Cukierków"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_xl_candies"
+msgid "{0} Candies XL"
+msgstr "{0} Cukierków XL"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_stardust"
+msgid "{0} Stardust"
+msgstr "{0} Stardust"
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_xp"
+msgid "{0} XP"
+msgstr "{0} XP"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_invasion_leaders"
+msgid "Team Rocket Leaders"
+msgstr "Liderzy Team Rocket"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "join_server"
+msgid "Join Server"
+msgstr "Dołącz do serwera"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signout_toast_error"
+msgid "Error while signing out, please try again"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_league"
+msgid "Unknown League"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "target_cp"
+msgid "Target CP"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "considered_max_level"
+msgid "Considered max level"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "copy_link"
+msgid "Copy link"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_dim"
+msgid "Dim"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_undim"
+msgid "Undim"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_radius"
+msgid "Show range"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_hide_radius"
+msgid "Hide range"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_spacial_rend"
+msgid "Spacial Rend"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_undim_all_pokemon"
+msgid "Undim all Pokémon"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_on_every_pokemon"
+msgid "Show on every Pokémon"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_undim_all_pokestop"
+msgid "Undim all Pokéstops"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_on_every_pokestop"
+msgid "Show on every Pokéstop"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_undim_all_gym"
+msgid "Undim all Gyms"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_on_every_gym"
+msgid "Show on every Gym"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_undim_all_station"
+msgid "Undim all Power Spots"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_on_every_station"
+msgid "Show on every Power Spot"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_undim_all_tappable"
+msgid "Undim all Ground Items"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_on_every_tappable"
+msgid "Show on every Ground Item"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_show_timer"
+msgid "Show timer"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "popup_action_hide_timer"
+msgid "Hide timer"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "close"
+msgid "Close"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "language_polish"
+msgid "Polish"
+msgstr "Polski"
+
+#. 0: hp
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_hp"
+msgid "{0} HP"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "cpm"
+msgid "CP Multiplier"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defender_fed"
+msgid "{0}x fed"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defender_won"
+msgid "{0}x won"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defender_lost"
+msgid "{0}x lost"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defender_placed"
+msgid "Placed"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "nav_wayfarer"
+msgid "Wayfarer Map"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tool_wayfarer_title"
+msgid "Wayfarer Map"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tool_wayfarer_description"
+msgid "Plan your Wayfarer submissions"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_sponsored"
+msgid "Sponsored"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_pokestops_required_for_gym"
+msgid "New Pokéstops required for next Gym: <b>{0}</b>"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_gym_limit_reached"
+msgid "Cell has reached its Gym limit"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_poi"
+msgid "Unknown POI"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "is_a_pokestop"
+msgid "Is a Pokéstop"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "is_a_gym"
+msgid "Is a Gym"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "not_in_game"
+msgid "Not available in-game"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_cell_title"
+msgid "Level 14 Cell"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_pokestops_count"
+msgid "Pokéstops: <b>{0}</b>"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wayfarer_gyms_count"
+msgid "Gyms: <b>{0}</b>"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_hint_coverage"
+msgid "Try searching an address or area"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_hint_wayfarer"
+msgid "Try searching for Pokéstops, addresses or areas"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "search_no_results_generic"
+msgid "Nothing came up"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "coordinates"
+msgid "Coordinates"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "lasts_until"
+msgid "Lasts until"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "connecting"
+msgid "Connecting"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "connect"
+msgid "Connect"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "error_retry"
+msgid "Retry"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "status_offline_title"
+msgid "You're offline"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "status_offline_desc"
+msgid "Check your internet connection and try again"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "status_unreachable_title"
+msgid "Can't reach {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "status_unreachable_desc"
+msgid "Check that it's online and try again"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "status_generic_title"
+msgid "Something went wrong"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "disconnect_from_name"
+msgid "Disconnect from {0}"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "app_connected_to_name"
+msgid "Your Diadem App is connected to {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "diadem_map"
+msgid "Diadem Map"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "instance_gate_prompt"
+msgid "Enter an URL below to connect to a Diadem Map"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "connection_checking"
+msgid "Checking..."
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "connecting_to_name"
+msgid "Connecting to {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "connection_failed"
+msgid "Connection failed"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "diadem_connection"
+msgid "Diadem Connection"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "wild_pokemon"
+msgid "Wild Pokémon"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "disappear_time"
+msgid "Disappear Time"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_spawnpoint_notice"
+msgid "This spawnpoint's disappear time is not yet known. It will be learned over time"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_spawnpoint_notice_nearby"
+msgid "This Pokémon's disappear time is unknown"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_xxl"
+msgid "It's huge! This {0} is XXL"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_xxs"
+msgid "It's tiny! This {0} is XXS"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_lure"
+msgid "This {0} comes from a Lure Module"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_tappable"
+msgid "This {0} appears after tapping an apple"
+msgstr ""
+
+#. 0: name1; 1: name2
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_disguise"
+msgid "This {0} is disguised as a {1}"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_nearby"
+msgid "This {0} was seen nearby. Its location is estimated and details are unknown"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_wild"
+msgid "This {0} has not yet been scanned completely. Its details are unknown"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_mighty"
+msgid "This is a Mighty Pokémon! Its stats are much better than usual, but it's extra difficult to catch"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_hundo"
+msgid "Hundo! This {0} has 100% IV"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_nundo"
+msgid "Nundo! This {0} has 0% IV"
+msgstr ""
+
+#. 0: name; 1: chance
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_extremely_rare"
+msgid "What a sight! {0} are extremely rare at 1 in {1}"
+msgstr ""
+
+#. 0: name; 1: league
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "notice_pvp_rank"
+msgid "Cool! This {0} performs great in {1}"
+msgstr ""
+
+#. 0: part1; 1: part2
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "listed_and"
+msgid "{0} and {1}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "values"
+msgid "Values"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "attack"
+msgid "Attack"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defense"
+msgid "Defense"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stamina"
+msgid "HP"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stats_unavailable"
+msgid "Stats unavailable for this {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_shinies_seen"
+msgid "None seen"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unavailable"
+msgid "Unavailable"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_pokemon"
+msgid "About this {0}"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_pokemon"
+msgid "Access this {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "matching_filtersets"
+msgid "Matching Filters"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown"
+msgid "Unknown"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "normal"
+msgid "Normal"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filters_dont_match_pokemon"
+msgid "None of your filters match this Pokémon"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "lure_module"
+msgid "Lure Module"
+msgstr ""
+
+#. 0: character
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "character_grunts"
+msgid "{0} Grunts"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "male_grunt"
+msgid "Male Grunt"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "female_grunt"
+msgid "Female Grunt"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "male_grunts"
+msgid "Male Grunts"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "female_grunts"
+msgid "Female Grunts"
+msgstr ""
+
+#. 0: type
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "male_type"
+msgid "Male {0}"
+msgstr ""
+
+#. 0: type
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "female_type"
+msgid "Female {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "giovanni_or_decoy"
+msgid "Giovanni or Decoy"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "decoy"
+msgid "Decoy"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "hidden_here"
+msgid "Hidden here"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokestop_outdated_notice"
+msgid "This Pokéstop is outdated! It was last seen {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_quest_scanned_today"
+msgid "No Quest was scanned here today"
+msgstr ""
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "find_more_x_quests"
+msgid "Find more {0} Quests"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_invasions_at_pokestop"
+msgid "No Team Rocket Grunts are currently at this Pokéstop"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "confirmed_reward"
+msgid "Confirmed Reward"
+msgstr ""
+
+#. 0: chance
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "or_x_chance_to_get"
+msgid "or {0}% chance to get"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "possible_lineup"
+msgid "Possible Lineup"
+msgstr ""
+
+#. 0: x
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "find_more_x"
+msgid "Find more {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_lure_seen_here"
+msgid "No Lure Module was ever seen here"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_lure_ended"
+msgid "Last Lure Module ended {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_kecleon_hiding_here"
+msgid "There's no Kecleon hiding here"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "kecleon_hiding_here"
+msgid "A Kecleon is hiding here"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pokestop_never_hosted_showcase"
+msgid "This Pokéstop never hosted a showcase"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_showcase_ended"
+msgid "Last showcase ended {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "entries"
+msgid "Entries"
+msgstr ""
+
+#. 0: score
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "score_x"
+msgid "Score: {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_pokestop"
+msgid "Access this Pokéstop"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filters_dont_match_pokestop"
+msgid "None of your filters match this Pokéstop"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_pokestop"
+msgid "About this Pokéstop"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_description"
+msgid "No description"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "cover_photo_of"
+msgid "Cover Photo of {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "go_to_wayfarer_map"
+msgid "Go to Wayfarer Map"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_nest"
+msgid "About this Nest"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_nest"
+msgid "View the Nest"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_tappable"
+msgid "Access this Ground item"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_spawnpoint"
+msgid "About this Spawnpoint"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_spawnpoint"
+msgid "Access this Spawnpoint"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "spawnpoint_outdated_notice"
+msgid "This Spawnpoint is outdated! It was last seen {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_power_spot"
+msgid "Access this Power Spot"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_max_battle_notice"
+msgid "Last Max Battle ended {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stationed_pokemon"
+msgid "Stationed Pokémon"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "stationed"
+msgid "Stationed"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "total_stationed"
+msgid "Total Stationed"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "s2_cell_id"
+msgid "S2 Cell ID"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "power_spot_never_had_max_battle"
+msgid "This Power Spot is not hosting a Max Battle"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "name"
+msgid "Name"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tier"
+msgid "Tier"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "started"
+msgid "Started"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "attack_bonus"
+msgid "Attack Bonus"
+msgstr ""
+
+#. 0: total; 1: gmax
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "station_overview_count"
+msgid "{0} Total · {1} Gmax"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "raid"
+msgid "Raid"
+msgstr ""
+
+#. 0: team
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "gym_team"
+msgid "Team {0}"
+msgstr ""
+
+#. 0: occupied; 1: total
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "gym_slots"
+msgid "Slots: {0}/{1}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "slots_occupied"
+msgid "Slots occupied"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_raid_at_gym"
+msgid "This Gym is not hosting a Raid"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "last_raid_ended"
+msgid "Last Raid ended {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_defenders_at_gym"
+msgid "There are no defenders in this Gym"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "gym_outdated_notice"
+msgid "This Gym is outdated! It was last seen {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "access_this_gym"
+msgid "Access this Gym"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_gym"
+msgid "About this Gym"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "read_more"
+msgid "Read more"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_details"
+msgid "Unknown details"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "defending"
+msgid "Defending"
+msgstr ""
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "yesterday_time_lower"
+msgid "yesterday, {0}"
+msgstr "wczoraj, {0}"
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "today_time_lower"
+msgid "today, {0}"
+msgstr "dziś, {0}"
+
+#. 0: time
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "tomorrow_time_lower"
+msgid "tomorrow, {0}"
+msgstr "jutro, {0}"
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "battle_time"
+msgid "Battle Time"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "possible_hatch"
+msgid "Possible Hatch"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "possible_hatches"
+msgid "Possible Hatches"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "rsvp"
+msgid "RSVP"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pvp_performance"
+msgid "PVP Performance"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pvp_target"
+msgid "Target"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "league"
+msgid "League"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "performance"
+msgid "Performance"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "won"
+msgid "Won"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "lost"
+msgid "Lost"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "fed"
+msgid "Fed"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "catchable"
+msgid "Catchable"
+msgstr ""
+
+#. 0: name
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "find_wild_name"
+msgid "Find wild {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filters_dont_match_gym"
+msgid "None of your filters match this Gym"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "super_mega_raid"
+msgid "Super Mega Raid"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "super_mega_raids"
+msgid "Super Mega Raids"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "legendary_super_mega_raid"
+msgid "Legendary Super Mega Raid"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "legendary_super_mega_raids"
+msgid "Legendary Super Mega Raids"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unity_raid"
+msgid "Unity Raid"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unity_raids"
+msgid "Unity Raids"
+msgstr ""
+
+#. 0: kind
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "filter_template_levels_super_mega"
+msgid "Super Mega {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_sation"
+msgid "About this Power Spot"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "quest_pokecoins"
+msgid "{0} Pokécoins"
+msgstr ""
+
+#. 0: count
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "count_pokecoins"
+msgid "{0} Pokécoins"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "background"
+msgid "Background"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "with_background"
+msgid "With Background"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "map_limit_title"
+msgid "Limit reached"
+msgstr ""
+
+#. 0: objects
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "map_limit_zoom_hint"
+msgid "Zoom in to see more {0}"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "pogo_data"
+msgid "data"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "routes_starting_here"
+msgid "Routes starting here"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "no_routes_starting_here"
+msgid "No routes start here"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "show_route"
+msgid "Show Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "hide_route"
+msgid "Hide Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "show_all_routes"
+msgid "Show all routes"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_details"
+msgid "Route details"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_distance"
+msgid "Distance"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_duration"
+msgid "Duration"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_direction"
+msgid "Direction"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_reversible"
+msgid "Reversible"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_one_way"
+msgid "One way"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unknown_route"
+msgid "Unknown Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "focus_route"
+msgid "Focus Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "unfocus_route"
+msgid "Unfocus Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_map"
+msgid "Route map"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "about_this_route"
+msgid "About this Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_shortcode"
+msgid "Share Code"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_description"
+msgid "Description"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_tags"
+msgid "Tags"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_endpoints"
+msgid "Route start and end"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_uphill"
+msgid "Uphill"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_downhill"
+msgid "Downhill"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "follow_this_route"
+msgid "Follow this Route"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_reversible_notice"
+msgid "This route can be started from either end"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_reverse_direction"
+msgid "Reverse direction"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "routes_from_here"
+msgid "Routes from here"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "route_leads_to"
+msgid "Leads to"
+msgstr ""
+
+#. 0: distance
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "format_distance_meters"
+msgid "{0} m"
+msgstr ""
+
+#. 0: distance
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "format_distance_kilometers"
+msgid "{0} km"
+msgstr ""
+
+#. 0: minutes
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "format_duration_minutes"
+msgid "{0} min"
+msgstr ""
+
+#. 0: hours; 1: minutes
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "format_duration_hours_minutes"
+msgid "{0} hr {1} min"
+msgstr ""
+
+#. 0: elevation
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "format_elevation_meters"
+msgid "{0} m"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "location"
+msgid "Location"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "scout_location"
+msgid "Scout location"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "address_unavailable"
+msgid "Address unavailable"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "my_location"
+msgid "My Location"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "in_range"
+msgid "In Range"
+msgstr ""
+
+#: src/lib/i18n/messages.svelte.ts
+msgctxt "signin_prompt_part_1"
+msgid " "
+msgstr " "

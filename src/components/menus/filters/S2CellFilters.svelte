@@ -3,7 +3,7 @@
 	import Select from "@/components/ui/input/Select.svelte";
 	import Slider from "@/components/ui/input/slider/Slider.svelte";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { updateMapObject } from "@/lib/mapObjects/updateMapObject";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
