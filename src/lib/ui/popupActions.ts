@@ -13,6 +13,9 @@ export enum PopupAction {
 	FOCUS_ROUTE = "focusRoute"
 }
 
+// Route focus is transient map state, not a saved popup preference.
+type SavedPopupAction = PopupAction.DIMMED | PopupAction.RADIUS | PopupAction.TIMER;
+
 export type PopupActionDropdown = {
 	label: string;
 	Icon: LucideIcon;
@@ -92,7 +95,7 @@ export function togglePopupExpanded(mapObject: MapObjectType | undefined) {
 export function isPopupActionActive(
 	mapObject: MapObjectType | undefined,
 	mapId: string | undefined,
-	action: PopupAction
+	action: SavedPopupAction
 ) {
 	if (!mapObject || !mapId || !supportsPopupAction(mapObject, action)) return false;
 
@@ -105,7 +108,7 @@ export function isPopupActionActive(
 export function togglePopupAction(
 	mapObject: MapObjectType | undefined,
 	mapId: string | undefined,
-	action: PopupAction
+	action: SavedPopupAction
 ) {
 	if (!mapObject || !mapId || !supportsPopupAction(mapObject, action)) return;
 
@@ -133,14 +136,20 @@ export function togglePopupAction(
 	if (action === PopupAction.RADIUS) updateRadiusFeatures();
 }
 
-export function isPopupActionAllActive(mapObject: MapObjectType | undefined, action: PopupAction) {
+export function isPopupActionAllActive(
+	mapObject: MapObjectType | undefined,
+	action: SavedPopupAction
+) {
 	if (!mapObject || !supportsPopupAction(mapObject, action)) return false;
 
 	const actionState = getUserSettings().actions[mapObject][action];
 	return "all" in actionState ? actionState.all : false;
 }
 
-export function togglePopupActionAll(mapObject: MapObjectType | undefined, action: PopupAction) {
+export function togglePopupActionAll(
+	mapObject: MapObjectType | undefined,
+	action: SavedPopupAction
+) {
 	if (!mapObject || !supportsPopupAction(mapObject, action)) return;
 
 	const actionState = getUserSettings().actions[mapObject][action];
@@ -152,7 +161,7 @@ export function togglePopupActionAll(mapObject: MapObjectType | undefined, actio
 	if (action === PopupAction.RADIUS) updateRadiusFeatures();
 }
 
-export function clearPopupAction(mapObject: MapObjectType | undefined, action: PopupAction) {
+export function clearPopupAction(mapObject: MapObjectType | undefined, action: SavedPopupAction) {
 	if (!mapObject || !supportsPopupAction(mapObject, action)) return;
 
 	const actionState = getUserSettings().actions[mapObject][action];

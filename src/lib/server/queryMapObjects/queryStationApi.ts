@@ -1,7 +1,7 @@
 import type { FilterStation } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { getGolbatStation, scanStations } from "@/lib/server/api/golbat/http";
+import { getGolbatStation, getUpdatedAfter, scanStations } from "@/lib/server/api/golbat/http";
 import type { GolbatStationResult, StationScanResponse } from "@/lib/server/api/golbat/types";
 import { grpcScanStations, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { getFortApiScanLimit } from "@/lib/server/api/golbat/fortAvailability";
@@ -33,6 +33,7 @@ export class ApiStationQuery extends StationQuery {
 					min: { latitude: bounds.minLat, longitude: bounds.minLon },
 					max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 					limit: getFortApiScanLimit(actualLimit + 1),
+					updated_after: getUpdatedAfter(since),
 					filters: buildStationDnfFilters(filter)
 				},
 				grpcScanStations,

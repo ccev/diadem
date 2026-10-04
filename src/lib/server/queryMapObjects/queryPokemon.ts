@@ -2,7 +2,11 @@ import { shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbat/http";
+import {
+	getMultiplePokemon,
+	getSinglePokemon,
+	getUpdatedAfter
+} from "@/lib/server/api/golbat/http";
 import { grpcScanPokemon, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
 import {
@@ -43,6 +47,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			min: { latitude: bounds.minLat, longitude: bounds.minLon },
 			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 			limit: actualLimit,
+			updated_after: getUpdatedAfter(since),
 			filters: golbatQueries
 		};
 

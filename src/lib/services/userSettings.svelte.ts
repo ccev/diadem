@@ -322,6 +322,7 @@ function deepMerge(defaultObj: { [key: string]: any }, newObj: { [key: string]: 
 }
 
 function migrateUserSettings(settings: LegacyUserSettings): UserSettings {
+	settings.recentSearches = settings.recentSearches?.slice(0, 20) ?? [];
 	if (settings.expandedMapObjects) {
 		for (const objectType of settings.expandedMapObjects) {
 			if (settings?.actions?.[objectType]) {

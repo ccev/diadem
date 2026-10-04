@@ -35,6 +35,7 @@ const fortBody = {
 	min: { latitude: 51.5, longitude: -0.2 },
 	max: { latitude: 51.6, longitude: -0.1 },
 	limit: 11,
+	updated_after: 99,
 	filters: [{ raid_level: [5] }]
 };
 
@@ -154,6 +155,7 @@ describe("Golbat gRPC", () => {
 		expect(received?.request.min).toEqual({ lat: 51.5, lon: -0.2 });
 		expect(received?.request.max).toEqual({ lat: 51.6, lon: -0.1 });
 		expect(received?.request.limit).toBe(11);
+		expect(received?.request.updated_after).toBe(99);
 		expect(received?.request.with_incidents).toBe(false);
 		expect(received?.request.filters).toHaveLength(1);
 		expect(received?.request.filters?.[0].raid_level).toEqual([5]);
@@ -185,12 +187,14 @@ describe("Golbat gRPC", () => {
 			min: { latitude: 51.5, longitude: -0.2 },
 			max: { latitude: 51.6, longitude: -0.1 },
 			limit: 22,
+			updated_after: 99,
 			with_incidents: true,
 			gyms: { filters: [{ raid_level: [5] }], limit: 11 },
 			stations: { filters: [{ station_active: true, battle_available: true }], limit: 11 }
 		});
 
 		expect(receivedCombined?.limit).toBe(22);
+		expect(receivedCombined?.updated_after).toBe(99);
 		expect(receivedCombined?.with_incidents).toBe(true);
 		expect(receivedCombined?.gyms?.limit).toBe(11);
 		expect(receivedCombined?.gyms?.filters?.[0].raid_level).toEqual([5]);

@@ -12,7 +12,7 @@ import {
 	type MapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import { scanForts } from "@/lib/server/api/golbat/http";
+import { getUpdatedAfter, scanForts } from "@/lib/server/api/golbat/http";
 import { getFortApiScanLimit, isFortApiEnabled } from "@/lib/server/api/golbat/fortAvailability";
 import { grpcScanForts, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
@@ -118,6 +118,8 @@ export async function combinedForts(
 		min: { latitude: union.minLat, longitude: union.minLon },
 		max: { latitude: union.maxLat, longitude: union.maxLon },
 		limit: getFortApiScanLimit(scanTypes.reduce((sum, type) => sum + groups[type]!.limit, 0)),
+		// A full request in any group must not inherit another group's delta cutoff.
+		updated_after: getUpdatedAfter(Math.min(...scanTypes.map((type) => entries[type]!.since ?? 0))),
 		with_incidents: Boolean(groups[MapObjectType.POKESTOP]),
 		gyms: groups[MapObjectType.GYM],
 		pokestops: groups[MapObjectType.POKESTOP],

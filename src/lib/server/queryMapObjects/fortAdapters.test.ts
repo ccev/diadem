@@ -5,6 +5,9 @@ import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { ApiGymQuery } from "@/lib/server/queryMapObjects/queryGymApi";
 import { ApiPokestopQuery } from "@/lib/server/queryMapObjects/queryPokestopApi";
 import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
+import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
+import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
+import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
 import { Features } from "@/lib/utils/features";
@@ -12,7 +15,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/features/activeSearch.svelte", () => ({}));
 vi.mock("@/lib/features/masterStats.svelte", () => ({}));
-vi.mock("@/lib/mapObjects/currentSelectedState.svelte", () => ({}));
+vi.mock("@/lib/mapObjects/currentSelectedState.svelte", () => ({
+	isCurrentSelectedOverwrite: () => false
+}));
+vi.mock("@/lib/server/api/golbat/grpc", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@/lib/server/api/golbat/grpc")>()),
+	scanViaGrpcOrHttp: (
+		_name: string,
+		body: unknown,
+		_grpc: unknown,
+		http: (body: unknown) => unknown
+	) => http(body)
+}));
 vi.mock("@/lib/services/userSettings.svelte", () => ({}));
 vi.mock("@/lib/services/ingameLocale", () => ({}));
 vi.mock("@/lib/services/uicons.svelte", () => ({}));
@@ -35,6 +49,154 @@ const gym = {
 } satisfies Golbat.GolbatGymResult;
 
 describe("fort API adapters", () => {
+	it("forwards a conservative Pokemon cutoff without changing its inclusive local boundary", async () => {
+		const cutoff = vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
+		const scan = vi.spyOn(golbat, "getMultiplePokemon").mockResolvedValue({
+			pokemon: [99, 100, 101].map((updated) => ({
+				id: String(updated),
+				lat: 1,
+				lon: 2,
+				pokemon_id: 25,
+				form: 0,
+				updated
+			})),
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: false
+		});
+		const result = await new PokemonQuery().query(
+			bounds,
+			{ category: "pokemon", enabled: true, filters: [] },
+			null,
+			100
+		);
+		expect(cutoff).toHaveBeenCalledWith(100);
+		expect(scan.mock.calls[0][0].updated_after).toBe(99);
+		expect(result.data.map((p) => p.id)).toEqual(["100", "101"]);
+		expect(result.examined).toBe(1000);
+	});
+
+	it("keeps a capped empty Pokemon delta limited", async () => {
+		vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
+		vi.spyOn(golbat, "getMultiplePokemon").mockResolvedValue({
+			pokemon: [],
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: true
+		});
+		expect(
+			await new PokemonQuery().query(
+				bounds,
+				{ category: "pokemon", enabled: true, filters: [] },
+				null,
+				100
+			)
+		).toEqual({ data: [], examined: 1000, limitReached: true });
+	});
+
+	it("forwards a gym cutoff while retaining exclusive local filtering", async () => {
+		vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
+		const scan = vi.spyOn(golbat, "scanGyms").mockResolvedValue({
+			gyms: [99, 100, 101].map((updated) => ({ ...gym, id: String(updated), updated })),
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: false
+		});
+		const result = await new ApiGymQuery().query(bounds, undefined, null, 100);
+		expect(scan.mock.calls[0][0].updated_after).toBe(99);
+		expect(result.data.map((g) => g.id)).toEqual(["101"]);
+		expect(result.examined).toBe(1000);
+	});
+
+	it("forwards a pokestop cutoff without dropping incident enrichment", async () => {
+		vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
+		const scan = vi.spyOn(golbat, "scanPokestops").mockResolvedValue({
+			pokestops: [99, 100, 101].map((updated) => ({
+				id: String(updated),
+				lat: 1,
+				lon: 2,
+				first_seen_timestamp: 50,
+				quests: [],
+				updated,
+				deleted: false
+			})),
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: false
+		});
+		const result = await new ApiPokestopQuery().query(bounds, undefined, null, 100);
+		expect(scan.mock.calls[0][0]).toMatchObject({ updated_after: 99, with_incidents: true });
+		expect(result.data.map((p) => p.id)).toEqual(["101"]);
+	});
+
+	it("forwards a station cutoff while retaining exclusive local filtering", async () => {
+		vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
+		const scan = vi.spyOn(golbat, "scanStations").mockResolvedValue({
+			stations: [99, 100, 101].map((updated) => ({
+				id: String(updated),
+				name: "Station",
+				cell_id: 0n,
+				cooldown_complete: 0,
+				lat: 1,
+				lon: 2,
+				updated,
+				is_inactive: false,
+				is_battle_available: true
+			})),
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: false
+		});
+		const result = await new ApiStationQuery().query(bounds, undefined, null, 100);
+		expect(scan.mock.calls[0][0].updated_after).toBe(99);
+		expect(result.data.map((s) => s.id)).toEqual(["101"]);
+	});
+
+	it("keeps SQL fallback and the original since value for capped empty fort deltas", async () => {
+		vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
+		vi.spyOn(golbat, "scanGyms").mockResolvedValue({
+			gyms: [],
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: true
+		});
+		vi.spyOn(golbat, "scanPokestops").mockResolvedValue({
+			pokestops: [],
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: true
+		});
+		vi.spyOn(golbat, "scanStations").mockResolvedValue({
+			stations: [],
+			examined: 1000,
+			skipped: 0,
+			total: 1000,
+			limit_reached: true
+		});
+		const gymSql = vi
+			.spyOn(GymQuery.prototype, "query")
+			.mockResolvedValue({ examined: 0, data: [] });
+		const stopSql = vi
+			.spyOn(PokestopQuery.prototype, "query")
+			.mockResolvedValue({ examined: 0, data: [] });
+		const stationSql = vi
+			.spyOn(StationQuery.prototype, "query")
+			.mockResolvedValue({ examined: 0, data: [] });
+		for (const query of [new ApiGymQuery(), new ApiPokestopQuery(), new ApiStationQuery()]) {
+			await query.query(bounds, undefined, null, 100, 20);
+		}
+		for (const query of [gymSql, stopSql, stationSql]) {
+			expect(query).toHaveBeenCalledExactlyOnceWith(bounds, undefined, null, 100, 20);
+		}
+	});
+
 	it.each([false, true])(
 		"omits station API-only fields in single and bulk results (battle permission: %s)",
 		async (allowed) => {

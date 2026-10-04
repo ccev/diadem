@@ -1,6 +1,6 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { needsFeatureUpdate, updateFeatures } from "@/lib/map/featuresGen.svelte";
 import { getMap } from "@/lib/map/map.svelte";
 import {
 	clearAllDataLimits,
@@ -39,6 +39,7 @@ import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 import { getFilterHash } from "@/lib/utils/filterHash";
 import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import { SvelteMap } from "svelte/reactivity";
+import { tick } from "svelte";
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
 
 export type MapObjectRequestData = Bounds & {
@@ -52,6 +53,7 @@ export type MapObjectPlan = {
 	filter: AnyFilter;
 	since?: number;
 	isDelta: boolean;
+	queryTimestamp: number;
 	limitInfo?: DataLimitInfo;
 	removeOld: boolean;
 };
@@ -71,8 +73,14 @@ export function getLastQueryTimestamps() {
 	return lastQueryTimestamps;
 }
 
+export function cancelMapObjectRequests() {
+	currentController?.abort();
+	currentController = undefined;
+}
+
 export function clearMap() {
 	// TODO: Also do this on login
+	cancelMapObjectRequests();
 	clearAllMapObjects();
 	resetLastQueryTimestamps();
 	clearAllDataLimits();
@@ -215,34 +223,7 @@ export function planMapObjectRequest(
 ): MapObjectPlan | undefined {
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
 
-	let filter: AnyFilter | undefined = undefined;
-
-	if (filterOverwrite) {
-		filter = filterOverwrite;
-	} else {
-		if (type === MapObjectType.POKEMON) {
-			filter = getUserSettings().filters.pokemon;
-		} else if (type === MapObjectType.POKESTOP) {
-			filter = getUserSettings().filters.pokestop;
-		} else if (type === MapObjectType.GYM) {
-			filter = getUserSettings().filters.gym;
-		} else if (type === MapObjectType.STATION) {
-			filter = getUserSettings().filters.station;
-		} else if (type === MapObjectType.NEST) {
-			filter = getUserSettings().filters.nest;
-		} else if (type === MapObjectType.SPAWNPOINT) {
-			filter = getUserSettings().filters.spawnpoint;
-		} else if (type === MapObjectType.ROUTE) {
-			filter = getUserSettings().filters.route;
-		} else if (type === MapObjectType.TAPPABLE) {
-			filter = getUserSettings().filters.tappable;
-		} else if (type === MapObjectType.S2_CELL) {
-			filter = getUserSettings().filters.s2cell;
-		} else {
-			console.log("unknown type while udpating map objects!");
-			return;
-		}
-	}
+	const filter = filterOverwrite ?? getUserSettings().filters[type];
 
 	if (!filter || !filter.enabled) {
 		const selected = getCurrentSelectedData();
@@ -267,9 +248,10 @@ export function planMapObjectRequest(
 
 	const since = onlyChanged ? lastQueryTimestamps.get(type) : undefined;
 	const isDelta = onlyChanged && since !== undefined;
-	lastQueryTimestamps.set(type, currentTimestamp());
+	// A failed full refresh must be retried as a full snapshot, not an old viewport's delta.
+	if (!onlyChanged) lastQueryTimestamps.delete(type);
 
-	return { type, filter, since, isDelta, limitInfo, removeOld };
+	return { type, filter, since, isDelta, queryTimestamp: currentTimestamp(), limitInfo, removeOld };
 }
 
 export function applyMapObjectResponse(
@@ -280,26 +262,19 @@ export function applyMapObjectResponse(
 	const { type, filter, isDelta, limitInfo, removeOld } = plan;
 	if (signal?.aborted) return;
 
-	let examined = 0;
-	let data: QueryableMapData[] | undefined = undefined;
-	let clearLimitAfterRender = false;
-	if (response) {
-		if (response.limitReached) {
-			setDataLimit(type, {
-				zoom: getMap()?.getZoom() ?? 0,
-				filterJson: JSON.stringify(filter)
-			});
-			data = [];
-		} else {
-			data = response.data;
-			clearLimitAfterRender = Boolean(limitInfo);
-		}
-		examined = response.examined;
-	}
-
-	if (!data) {
+	if (!response) {
 		if (!signal) updateFeatures(getMapObjects());
 		return;
+	}
+
+	const { examined, limitReached } = response;
+	const data = limitReached ? [] : response.data;
+	let clearLimitAfterRender = !limitReached && Boolean(limitInfo);
+	if (limitReached) {
+		setDataLimit(type, {
+			zoom: getMap()?.getZoom() ?? 0,
+			filterJson: JSON.stringify(filter)
+		});
 	}
 
 	try {
@@ -308,9 +283,12 @@ export function applyMapObjectResponse(
 		} else {
 			addMapObjects(data, type, examined, isDelta);
 		}
+		if (!limitReached) {
+			// Commit only applied responses, replaying the boundary second for timestamp granularity.
+			lastQueryTimestamps.set(type, Math.max(0, plan.queryTimestamp - 1));
+		}
 	} catch (e) {
 		clearLimitAfterRender = false;
-		console.log(data);
 		console.error(e);
 	}
 
@@ -344,72 +322,92 @@ export async function updateMapObject(
 }
 
 export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged: boolean = false) {
+	const map = getMap();
+	if (!map) return;
 	if (onlyChanged && currentController) return;
 
 	currentController?.abort();
 	const controller = new AbortController();
 	currentController = controller;
 
-	const activeSearch = getActiveSearch();
-	let limitsToClear: MapObjectType[] = [];
-
-	if (activeSearch) {
-		const loadRoutes = [MapObjectType.POKESTOP, MapObjectType.GYM].includes(activeSearch.mapObject);
-		for (const mapObjectType of allMapObjectTypes) {
-			if (
-				mapObjectType !== activeSearch.mapObject &&
-				(mapObjectType !== MapObjectType.ROUTE || !loadRoutes)
-			)
-				clearMapObjects(mapObjectType);
+	try {
+		const activeSearch = getActiveSearch();
+		const requestedTypes = activeSearch ? [activeSearch.mapObject] : [...allMapObjectTypes];
+		if (activeSearch) {
+			if ([MapObjectType.POKESTOP, MapObjectType.GYM].includes(activeSearch.mapObject)) {
+				requestedTypes.push(MapObjectType.ROUTE);
+			}
+			for (const type of allMapObjectTypes) {
+				if (!requestedTypes.includes(type)) clearMapObjects(type);
+			}
 		}
-		const searchTypes = [activeSearch.mapObject];
-		if (loadRoutes) searchTypes.push(MapObjectType.ROUTE);
-		const results = await Promise.all(
-			searchTypes.map((type) =>
-				updateMapObject(
+		const plans = requestedTypes
+			.map((type) =>
+				planMapObjectRequest(
 					type,
 					removeOld,
-					type === activeSearch.mapObject ? activeSearch.filter : undefined,
-					controller.signal,
-					onlyChanged
+					activeSearch?.mapObject === type ? activeSearch.filter : undefined,
+					onlyChanged,
+					controller.signal
 				)
-			)
-		);
-		limitsToClear.push(...results.filter((type) => type !== undefined));
-	} else {
-		const otherTypes = allMapObjectTypes.filter(
-			(type) => !combinedGolbatFortTypes.some((fortType) => fortType === type)
-		);
-		const fortPlans = combinedGolbatFortTypes
-			.map((type) =>
-				planMapObjectRequest(type, removeOld, undefined, onlyChanged, controller.signal)
 			)
 			.filter((plan) => plan !== undefined);
-
-		const updateForts = async () => {
-			if (fortPlans.length < 2) {
-				return Promise.all(fortPlans.map((plan) => runPlan(plan, controller.signal)));
-			}
-			const responses = await fetchForts(fortPlans, getBounds(), controller.signal);
-			return fortPlans.map((plan) =>
-				applyMapObjectResponse(plan, responses.get(plan.type), controller.signal)
-			);
+		const readyTypes = new Set<MapObjectType>();
+		const limitsToClear: MapObjectType[] = [];
+		let publication: Promise<void> | undefined;
+		const publish = (final = false) => {
+			publication ??= tick().then(() => {
+				publication = undefined;
+				if (controller.signal.aborted || getMap() !== map) return;
+				// Only regenerate completed families early; popup companions can have their own requests.
+				if (!onlyChanged || needsFeatureUpdate() || limitsToClear.length) {
+					updateFeatures(getMapObjects(), final ? allMapObjectTypes : [...readyTypes]);
+				}
+				for (const type of limitsToClear.splice(0)) clearDataLimit(type);
+			});
+			return publication;
 		};
-
-		const [otherResults, fortResults] = await Promise.all([
-			Promise.all(
-				otherTypes.map((type) =>
-					updateMapObject(type, removeOld, undefined, controller.signal, onlyChanged)
-				)
-			),
-			updateForts(),
-			updateWeather()
-		]);
-		limitsToClear = [...otherResults, ...fortResults].filter((type) => type !== undefined);
+		const markReady = (type: MapObjectType, recoveredLimit: MapObjectType | undefined) => {
+			readyTypes.add(type);
+			if (recoveredLimit !== undefined) limitsToClear.push(recoveredLimit);
+		};
+		const fortPlans = activeSearch
+			? []
+			: plans.filter((plan) => combinedGolbatFortTypes.some((type) => type === plan.type));
+		const requests = plans
+			.filter((plan) => fortPlans.length < 2 || !fortPlans.includes(plan))
+			.map(async (plan) => {
+				const recoveredLimit = await runPlan(plan, controller.signal);
+				markReady(plan.type, recoveredLimit);
+				await publish();
+			});
+		if (fortPlans.length >= 2) {
+			requests.push(
+				fetchForts(fortPlans, getBounds(), controller.signal).then((responses) => {
+					for (const plan of fortPlans) {
+						markReady(
+							plan.type,
+							applyMapObjectResponse(plan, responses.get(plan.type), controller.signal)
+						);
+					}
+					return publish();
+				})
+			);
+		}
+		if (!activeSearch) {
+			requests.push(
+				updateWeather().catch((error) => console.error("Error while updating weather", error))
+			);
+		}
+		// Clear disabled families promptly, even when every request is skipped.
+		requests.push(publish());
+		await Promise.all(requests);
+		// Reconcile removals/expiry and unrequested preserved objects after all work settles.
+		await publish(true);
+	} catch (error) {
+		controller.abort();
+		throw error;
+	} finally {
+		if (currentController === controller) currentController = undefined;
 	}
-
-	if (controller.signal.aborted) return;
-	currentController = undefined;
-	updateFeatures(getMapObjects());
-	for (const type of limitsToClear) clearDataLimit(type);
 }
