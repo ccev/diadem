@@ -705,5 +705,10 @@
 	"scout_location": "Scout location",
 	"address_unavailable": "Address unavailable",
 	"my_location": "My Location",
-	"in_range": "In Range"
+	"in_range": "In Range",
+	"quick_action_enable": "Enable",
+	"quick_action_disable": "Disable",
+	"quick_action_focus": "Focus",
+	"quick_action_move_up": "Move up",
+	"quick_action_move_down": "Move down"
 }
