@@ -116,12 +116,11 @@ export function getConfigModifiers(iconSet: UiconSet | undefined, type: UiconSet
 	if (iconSet) {
 		const modifier = iconSet[type];
 		const baseModifier = iconSet.base;
-		if (modifier && typeof modifier === "object") {
-			scale = modifier?.scale ?? baseModifier?.scale ?? scale;
-			offsetY = modifier?.offsetY ?? baseModifier?.offsetY ?? offsetY;
-			offsetX = modifier?.offsetX ?? baseModifier?.offsetX ?? offsetX;
-			spacing = modifier?.spacing ?? baseModifier?.spacing ?? spacing;
-		}
+		const typeModifier = typeof modifier === "object" ? modifier : undefined;
+		scale = typeModifier?.scale ?? baseModifier?.scale ?? scale;
+		offsetY = typeModifier?.offsetY ?? baseModifier?.offsetY ?? offsetY;
+		offsetX = typeModifier?.offsetX ?? baseModifier?.offsetX ?? offsetX;
+		spacing = typeModifier?.spacing ?? baseModifier?.spacing ?? spacing;
 	}
 
 	return { scale, offsetY, offsetX, spacing };
@@ -439,14 +438,16 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 
 		const features: MapObjectFeature[] = [];
 
+		const gymProps = this.getBasicProps(data, selectedScale);
 		if (shouldDisplayRaid(data)) {
 			const filterset = matchRaidFilterset(data);
+			gymProps.imageSize *= filterset?.modifiers?.scale ?? 1;
 
 			if (data.raid_pokemon_id) {
 				const mapId = data.mapId + "-raidpokemon-" + data.raid_spawn_timestamp;
 				let raidModifiers = getConfigModifiers(this.iconSet, "raid_pokemon");
 
-				if (data.availble_slots === 0 && this.iconSet?.raid_egg_6) {
+				if (data.availble_slots === 0 && this.iconSet?.raid_pokemon_6) {
 					raidModifiers = getConfigModifiers(this.iconSet, "raid_pokemon_6");
 				}
 
@@ -488,7 +489,7 @@ class GymRenderer extends MapObjectRenderer<GymData> {
 			}
 		}
 
-		features.push(this.renderBasicIcon(data, selectedScale));
+		features.push(this.getFeature(data, gymProps));
 		return features;
 	}
 }
