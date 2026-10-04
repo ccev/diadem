@@ -30,7 +30,11 @@ export async function loadMasterStats() {
 		return;
 	}
 
-	masterStats = await parseResponse<MasterStats>(response);
+	const stats = await parseResponse<MasterStats>(response);
+	masterStats = {
+		...stats,
+		tappablesAvailable: stats.tappablesAvailable ?? masterStats?.tappablesAvailable
+	};
 }
 
 export function setMasterStats(stats: MasterStats) {

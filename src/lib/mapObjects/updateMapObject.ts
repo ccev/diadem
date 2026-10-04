@@ -1,3 +1,4 @@
+import { getMasterStats } from "@/lib/features/masterStats.svelte";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
@@ -244,7 +245,11 @@ export function planMapObjectRequest(
 		}
 	}
 
-	if (!filter || !filter.enabled) {
+	if (
+		!filter ||
+		!filter.enabled ||
+		(type === MapObjectType.TAPPABLE && getMasterStats()?.tappablesAvailable === false)
+	) {
 		const selected = getCurrentSelectedData();
 		const preserveRoutesForFortPopup =
 			type === MapObjectType.ROUTE &&

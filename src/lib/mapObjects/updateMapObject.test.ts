@@ -10,6 +10,10 @@ vi.mock("@/lib/mapObjects/dataLimitState.svelte", () => ({
 	getDataLimit: () => undefined,
 	setDataLimit: vi.fn()
 }));
+const availability = vi.hoisted(() => ({ available: undefined as boolean | undefined }));
+vi.mock("@/lib/features/masterStats.svelte", () => ({
+	getMasterStats: () => ({ tappablesAvailable: availability.available })
+}));
 const state = vi.hoisted(() => ({ replace: vi.fn(), add: vi.fn() }));
 vi.mock("@/lib/mapObjects/mapObjectsState.svelte.js", () => ({
 	addMapObjects: state.add,
@@ -142,5 +146,21 @@ describe("fetchForts", () => {
 		const results = await fetchForts([plan], bounds);
 		applyMapObjectResponse(plan, results.get(MapObjectType.GYM));
 		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.GYM, 9);
+	});
+});
+
+describe("tappable availability", () => {
+	it("disables unavailable tappables without changing the saved filter", () => {
+		availability.available = false;
+		const filter = { category: "tappable" as const, enabled: true, filters: [] };
+		expect(planMapObjectRequest(MapObjectType.TAPPABLE, true, filter)).toBeUndefined();
+		expect(filter.enabled).toBe(true);
+		availability.available = true;
+		expect(planMapObjectRequest(MapObjectType.TAPPABLE, true, filter)?.filter).toBe(filter);
+	});
+	it("preserves querying if availability could not be loaded", () => {
+		availability.available = undefined;
+		const filter = { category: "tappable" as const, enabled: true, filters: [] };
+		expect(planMapObjectRequest(MapObjectType.TAPPABLE, true, filter)?.filter).toBe(filter);
 	});
 });

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { CircleLayer, FillLayer, GeoJSON, LineLayer } from "svelte-maplibre";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte.js";
-	import { onDestroy, onMount, tick } from "svelte";
+	import { onDestroy, onMount, tick, untrack } from "svelte";
 	import {
 		getDirectLinkFeature,
 		getDirectLinkObject,
 		openMapObject
 	} from "@/lib/features/directLinks.svelte.js";
 	import { clickMapHandler, openLocationPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
-	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
+	import { updateAllMapObjects, updateMapObject } from "@/lib/mapObjects/updateMapObject";
 	import * as m from "@/lib/paraglide/messages";
 	import {
 		clearUpdateMapObjectsInterval,
@@ -57,6 +57,8 @@
 	import { setSearchedGeometry } from "$lib/services/search.svelte";
 	import MapAttribution from "@/components/map/MapAttribution.svelte";
 	import { isUiLeft } from "$lib/utils/device";
+	import { getMasterStats, loadMasterStats } from "@/lib/features/masterStats.svelte";
+	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 	let {
 		map = $bindable()
@@ -151,6 +153,24 @@
 		setMap(undefined);
 		updateCurrentPath();
 		if (!initialLocation) clearMapPositionUrlParams();
+	});
+
+	const tappablesAvailable = $derived(getMasterStats()?.tappablesAvailable);
+	$effect(() => {
+		if (tappablesAvailable !== undefined && getMap() && isInitUpdatedMapObjects) {
+			untrack(() => {
+				void updateMapObject(MapObjectType.TAPPABLE);
+			});
+		}
+	});
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			if (document.visibilityState === "visible") {
+				void loadMasterStats().catch((error) => console.error("Stat fetching failed!", error));
+			}
+		}, 60_000);
+		return () => clearInterval(interval);
 	});
 
 	onDestroy(() => {
