@@ -1,6 +1,6 @@
 import { getMap } from "@/lib/map/map.svelte";
 import { isNative } from "@/lib/native/runtime";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { round } from "@/lib/utils/numberFormat";
 import { distance } from "@turf/turf";

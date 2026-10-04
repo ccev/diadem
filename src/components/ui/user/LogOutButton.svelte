@@ -9,7 +9,7 @@
 	import { isNative } from "@/lib/native/runtime";
 	import { nativeLogout } from "@/lib/native/auth";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let { isLoggingOut = $bindable(), children, ...rest } = $props();
 

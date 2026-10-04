@@ -8,7 +8,7 @@
 		getAttributeLabelRank,
 		getAttributeLabelSize
 	} from "@/lib/features/filters/filterUtilsPokemon";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";

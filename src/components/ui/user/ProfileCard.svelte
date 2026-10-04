@@ -2,7 +2,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 	import { getLoginLink } from "@/lib/services/user/login";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import LogOutButton from "@/components/ui/user/LogOutButton.svelte";
 	// noinspection ES6UnusedImports
 	import { Avatar } from "bits-ui";

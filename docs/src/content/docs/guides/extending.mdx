@@ -75,16 +75,25 @@ Refer to the [SvelteKit documentation](https://svelte.dev/docs/kit/introduction)
 
 ## Add your own translations
 
-Diadem uses [Paraglide JS](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) for localizing.
-You can add your own translation keys to `/messages/{locale}.json`. Just prepend them to the file, and git should be
-able to auto merge them. Add a unique prefix to your keys to avoid conflicts.
+Diadem uses [Wuchale](https://wuchale.dev/) for localization. English source messages live in
+`src/lib/i18n/messages.svelte.ts`. Add a function with a unique name and matching context:
 
-```diff
-"$schema": "https://inlang.com/schema/inlang-message-format",
-+"dm_hello": "Hello",
-"theme_light": "Light",
-...
+```ts
+export function dm_hello() {
+    // @wc-context: dm_hello
+    return "Hello";
+}
 ```
+
+Use it with `import * as m from "@/lib/i18n/messages.svelte"` and `{m.dm_hello()}` in a component.
+For parameters, accept a typed object and return a template literal. Wuchale extracts the English text
+and placeholders when you run `pnpm i18n:extract`, or start the dev server/build.
+
+Commit the source and `src/locales/*.po` catalogs. Translate `msgstr` entries in those catalogs;
+leave `msgid`, `msgctxt`, and numbered placeholders unchanged. Missing translations fall back to English.
+Generated loaders and compiled catalogs are ignored by git.
+
+Keep existing message function names stable: saved and shared filters store these identifiers.
 
 :::note
 Diadem is licensed under [GNU Affero General Public License v3.0](https://github.com/ccev/diadem/blob/main/LICENSE).

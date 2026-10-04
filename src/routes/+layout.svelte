@@ -5,7 +5,7 @@
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import StatusScreen from "@/components/ui/StatusScreen.svelte";
 	import InstanceGate from "@/components/ui/InstanceGate.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { onMount } from "svelte";
 	import { getConfig } from "$lib/services/config/config";
 	import { getInstanceUrl } from "$lib/native/runtime";

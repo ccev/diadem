@@ -1,7 +1,7 @@
+import { getLocale } from "@/lib/i18n/locale";
 import { getShareTitle } from "@/lib/features/shareTexts";
 import { allMapObjectTypes } from "@/lib/mapObjects/mapObjectTypes";
 import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
-import { getConfig } from "@/lib/services/config/config";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
 import { getLogger } from "@/lib/utils/logger";
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 	const [mapObject, ..._] = await Promise.all([
 		querySingleMapObject(params.directLink, params.id, fetch),
 		initAllIconSets(fetch),
-		loadRemoteLocale(getConfig().general.defaultLocale, fetch)
+		loadRemoteLocale(getLocale(), fetch)
 	]);
 
 	log.info(

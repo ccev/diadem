@@ -3,7 +3,7 @@
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		data

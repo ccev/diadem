@@ -4,7 +4,7 @@
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import NumberInput from "@/components/ui/input/NumberInput.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { onSettingsChange } from "@/lib/services/settings";
 	import { getMap, handleRotatePitchDisable, resetMap } from "@/lib/map/map.svelte";
 </script>

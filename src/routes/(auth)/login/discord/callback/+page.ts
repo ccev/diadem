@@ -1,4 +1,4 @@
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { getConfig } from "@/lib/services/config/config";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { getMapPath } from "@/lib/utils/getMapPath";

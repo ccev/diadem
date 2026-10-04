@@ -7,7 +7,7 @@
 	import { SvelteSet } from "svelte/reactivity";
 	import { slide } from "svelte/transition";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type * as icons from "@lucide/svelte";
 
 	let expandedAreas: Set<number> = new SvelteSet();

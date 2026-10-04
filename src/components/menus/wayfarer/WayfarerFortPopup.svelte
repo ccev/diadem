@@ -2,7 +2,7 @@
 	import { getClickedFort, setClickedFort } from "@/lib/features/wayfarerMap.svelte";
 	import { getIconGym, getIconPokestop } from "@/lib/services/uicons.svelte";
 	import { BadgeEuro, Clock, ClockAlert, MapPin, Search } from "@lucide/svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import WayfarerBasePopup from "@/components/ui/popups/WayfarerBasePopup.svelte";
 	import { isFortOutdated } from "$lib/utils/gymUtils";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";

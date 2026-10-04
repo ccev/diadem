@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte";
 	import { openFortDetailsModal } from "@/components/ui/popups/common/FortDetailsModal.svelte";
 	import Button from "@/components/ui/input/Button.svelte";

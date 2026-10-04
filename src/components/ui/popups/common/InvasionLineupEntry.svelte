@@ -5,7 +5,7 @@
 	import { getInvasionPokemon } from "$lib/features/masterStats.svelte";
 	import type { InvasionPokemonStats } from "$lib/server/api/queryStats";
 	import type { PokemonVisual } from "$lib/types/mapObjectData/pokemon";
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 
 	let {
 		position,

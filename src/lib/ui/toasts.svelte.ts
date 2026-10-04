@@ -1,7 +1,7 @@
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 
 let isToastOpen: boolean = $state(false);
-let toastText: string = $state(m.toast_copied_default());
+let toastText: string = $state("");
 let timeout: NodeJS.Timeout | undefined = undefined;
 
 function _openToast(text: string, ms: number) {
@@ -22,7 +22,7 @@ export function openToast(text: string, ms: number = 1500) {
 }
 
 export function getToastText() {
-	return toastText;
+	return toastText || m.toast_copied_default();
 }
 
 export function getIsToastOpen() {

@@ -8,7 +8,7 @@
 	import WayfarerBasePopup from "@/components/ui/popups/WayfarerBasePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import { Circle, Diamond, TriangleAlert } from "@lucide/svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let data = $derived(getClickedL14Cell());
 	let highlight = $derived(data ? getWayfarerCellHighlight(data.fortCount, data.gymCount) : "");

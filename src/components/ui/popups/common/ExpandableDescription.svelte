@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { tick } from "svelte";
 
 	let {

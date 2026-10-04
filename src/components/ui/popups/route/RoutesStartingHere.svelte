@@ -4,7 +4,7 @@
 	import RouteCard from "@/components/ui/popups/route/RouteCard.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";

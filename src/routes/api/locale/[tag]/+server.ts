@@ -1,4 +1,4 @@
-import { locales } from "@/lib/paraglide/runtime";
+import { locales } from "@/lib/i18n/locales";
 import { respond } from "@/lib/server/api/respond";
 import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";

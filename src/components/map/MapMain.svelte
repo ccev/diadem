@@ -9,7 +9,7 @@
 	} from "@/lib/features/directLinks.svelte.js";
 	import { clickMapHandler, openLocationPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import {
 		clearUpdateMapObjectsInterval,
 		resetUpdateMapObjectsInterval

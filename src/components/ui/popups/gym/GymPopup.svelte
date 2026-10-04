@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import { mMove, mPokemon, mRaid, mTeam } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { GymData, GymDefender } from "$lib/types/mapObjectData/gym";

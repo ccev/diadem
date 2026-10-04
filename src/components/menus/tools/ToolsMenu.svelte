@@ -20,7 +20,7 @@
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getDefaultMapStyle } from "@/lib/services/themeMode";
 	import { featureCollection } from "@turf/turf";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 </script>
 
 <div class="space-y-2">

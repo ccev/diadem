@@ -1,9 +1,9 @@
+import { getLocale } from "@/lib/i18n/locale";
 import MapObject from "@/components/thumbnail/MapObject.svelte";
 import { allMapObjectTypes, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
 import { generateThumbnail } from "@/lib/server/thumbnails/generateThumbnail";
 import { fetchStaticMapBase64, imageUrlToBase64 } from "@/lib/server/thumbnails/thumbnailUtils";
-import { getClientConfig } from "@/lib/services/config/config.server";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
 import { getIconForMap, getIconPokemon, initAllIconSets } from "@/lib/services/uicons.svelte";
 import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
@@ -24,7 +24,7 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
 	const [data, ..._] = await Promise.all([
 		querySingleMapObject(params.directLink, params.id, fetch), // bypassing permissions :S
 		initAllIconSets(fetch),
-		loadRemoteLocale(getClientConfig().general.defaultLocale, fetch)
+		loadRemoteLocale(getLocale(), fetch)
 	]);
 
 	if (!data) error(404);

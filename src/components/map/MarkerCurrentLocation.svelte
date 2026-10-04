@@ -2,7 +2,7 @@
 	import { Marker } from "svelte-maplibre";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { openLocationPopup } from "@/lib/mapObjects/interact";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { scale, fly } from "svelte/transition";
 

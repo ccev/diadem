@@ -1,5 +1,5 @@
 import { ClientMapObjectType, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { NestData } from "@/lib/types/mapObjectData/nest";

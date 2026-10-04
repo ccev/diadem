@@ -2,7 +2,7 @@ import { POKEMON_MIN_RANK } from "@/lib/constants";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Image } from "@lucide/svelte";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import IconSelect from "@/components/menus/profile/IconSelect.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 </script>

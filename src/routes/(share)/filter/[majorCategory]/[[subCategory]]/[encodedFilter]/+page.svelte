@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from "./$types";
 	import { browser } from "$app/environment";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import {
 		getAttributeLabelCp,
 		getAttributeLabelIvProduct,

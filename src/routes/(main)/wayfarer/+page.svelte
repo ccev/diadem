@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";

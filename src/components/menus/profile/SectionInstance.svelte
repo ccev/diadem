@@ -4,7 +4,7 @@
 	import { getConfig } from "@/lib/services/config/config";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { setInstanceUrl } from "@/lib/native/runtime";
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 
 	const mapName = getConfig().general.mapName;

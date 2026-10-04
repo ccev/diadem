@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowLeft } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";

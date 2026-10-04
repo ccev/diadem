@@ -1,6 +1,6 @@
 import { updateDimmedFeatures, updateRadiusFeatures } from "@/lib/map/featuresGen.svelte";
 import { ClientMapObjectType, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import type { LucideIcon } from "@/lib/types/lucide";
 import { mAny } from "@/lib/utils/anyMessage";

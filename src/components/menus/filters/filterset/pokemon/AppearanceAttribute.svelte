@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { pokemonSizes } from "@/lib/utils/pokemonUtils";
 	import ToggleGroup from "@/components/ui/input/selectgroup/ToggleGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";

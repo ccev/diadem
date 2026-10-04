@@ -3,7 +3,7 @@
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { LocationData } from "$lib/types/mapObjectData/location";
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 	import { getIconGym, getIconPokestop, getIconStation } from "$lib/services/uicons.svelte";
 	import { copyToClipboard, hasClipboardWrite } from "$lib/utils/device";

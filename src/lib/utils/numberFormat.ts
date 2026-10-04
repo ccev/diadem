@@ -1,5 +1,5 @@
-import * as m from "@/lib/paraglide/messages";
-import { getLocale } from "@/lib/paraglide/runtime";
+import * as m from "@/lib/i18n/messages.svelte";
+import { getLocale } from "@/lib/i18n/locale";
 
 export function round(num: number, places: number) {
 	const factor = 10 ** places;

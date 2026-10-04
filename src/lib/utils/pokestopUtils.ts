@@ -1,7 +1,7 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { mAlignment, mGeneration, mItem, mPokemon, mType } from "@/lib/services/ingameLocale";
 import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";

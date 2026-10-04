@@ -13,7 +13,7 @@ import { generateMaxBattleFilterDetails } from "@/lib/features/filters/filterUti
 import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtilsPokemon";
 import { generateQuestFilterDetails } from "@/lib/features/filters/filterUtilsQuest";
 import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import {
 	getIconInvasion,
 	getIconPokemon,

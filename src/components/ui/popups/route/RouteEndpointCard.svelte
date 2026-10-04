@@ -4,7 +4,7 @@
 	import { openPopup } from "@/lib/mapObjects/interact";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { getRouteEndpointFort } from "@/lib/utils/routeUtils";
 	import { ArrowRight, MapPinned } from "@lucide/svelte";

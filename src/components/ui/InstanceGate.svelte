@@ -5,7 +5,7 @@
 	import { fetchInstanceMapName, setInstanceUrl } from "@/lib/native/runtime";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { fly } from "svelte/transition";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	// makes sure this is loadable before anything else
 	let { initial = "", onCancel }: { initial?: string; onCancel?: () => void } = $props();

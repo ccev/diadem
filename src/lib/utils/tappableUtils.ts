@@ -1,5 +1,5 @@
 import { mItem, mPokemon } from "@/lib/services/ingameLocale";
-import { m } from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import type { TappableData } from "@/lib/types/mapObjectData/tappable";
 
 export function getTappableName(data: TappableData) {

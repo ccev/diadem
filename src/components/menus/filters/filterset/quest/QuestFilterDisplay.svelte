@@ -7,7 +7,7 @@
 	import { resize } from "@/lib/services/assets";
 	import { getIconItem, getIconReward } from "@/lib/services/uicons.svelte";
 	import { mItem, mPokemon, mQuest } from "@/lib/services/ingameLocale";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import {
 		getAttributeLabelPokecoins,

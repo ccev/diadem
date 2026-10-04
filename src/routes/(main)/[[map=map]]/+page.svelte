@@ -14,7 +14,7 @@
 	import Home from "@/components/custom/Home.svelte";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
 	import { startLogin } from "@/lib/services/user/login";

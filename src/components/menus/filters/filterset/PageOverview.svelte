@@ -10,7 +10,7 @@
 	} from "@/lib/features/filters/filtersetPages.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import EditDetails from "@/components/menus/filters/filterset/EditDetails.svelte";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";

@@ -4,7 +4,7 @@
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
 	import Input from "@/components/ui/input/Input.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import ColorSwatches from "@/components/menus/filters/filterset/modifiers/ColorSwatches.svelte";
 	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";

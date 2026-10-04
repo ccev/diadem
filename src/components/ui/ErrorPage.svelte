@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import Card from "@/components/ui/Card.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { Snippet } from "svelte";
 
 	let {

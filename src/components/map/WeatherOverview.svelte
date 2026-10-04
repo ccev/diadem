@@ -9,7 +9,7 @@
 	import { getMap } from "@/lib/map/map.svelte";
 	import { ArrowBigUpDash, Clock } from "@lucide/svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getWeatherIcon } from "@/lib/utils/weatherIcons.js";
 	import { closePopup } from "@/lib/mapObjects/interact";
 	import { slide, fade } from "svelte/transition";

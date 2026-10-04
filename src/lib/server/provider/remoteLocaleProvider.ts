@@ -1,5 +1,5 @@
 import { REFRESH_REMOTE_LOCALE } from "@/lib/constants";
-import { locales } from "@/lib/paraglide/runtime";
+import { locales } from "@/lib/i18n/locales";
 import { BulkDataProvider } from "@/lib/server/provider/dataProvider";
 import { prefixes as localePrefixesObject } from "@/lib/services/ingameLocale";
 import { getLogger } from "@/lib/utils/logger";

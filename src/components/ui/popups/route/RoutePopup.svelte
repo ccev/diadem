@@ -8,7 +8,7 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import RouteFollowSection from "@/components/ui/popups/route/RouteFollowSection.svelte";
 	import { type MapData } from "@/lib/mapObjects/mapObjectTypes";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { Hash, Info, Signpost } from "@lucide/svelte";
 	import { mRouteTag } from "$lib/services/ingameLocale";

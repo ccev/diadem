@@ -2,24 +2,38 @@
 title: Translate Diadem
 ---
 
-import { Steps } from '@astrojs/starlight/components';
-
 Diadem has first-party translations for English and German. All further translations are community-contributed.
 
 :::note{icon="heart"}
 Machine translations are not accepted. All translations have to be made by humans.
 :::
 
-## Using Fink
+## Translate with Wuchale
 
-Fink is an easy to use web UI that allows you to easily view, edit and submit your translations.
+Diadem uses [Wuchale](https://wuchale.dev/) and gettext PO catalogs in `src/locales/`.
 
-<Steps>
-	1. [Open Fink in your browser](https://fink.inlang.com/github.com/ccev/diadem)
+1. Fork the repository and install dependencies with `pnpm install`.
+2. Run `pnpm i18n:extract` to update the catalogs from the English message functions.
+3. Open your language's `.po` file in a gettext editor or text editor and translate its `msgstr` entries.
+4. Keep `msgid`, `msgctxt`, and placeholders such as `{0}` unchanged. The comments above a message explain each placeholder. Empty translations fall back to English.
+5. Run `pnpm check`, `pnpm test`, and `pnpm build`, then submit a pull request with your `.po` changes.
 
-	2. Log in using your GitHub account
+To add a language, add its code to `src/lib/i18n/locales.ts` and its selector label to
+`getAvailableLanguages()` in `src/lib/services/settings.ts`, then run `pnpm i18n:extract`.
+Pokémon GO names come from the separate game-data translation provider, which must also support that language.
 
-	3. Edit and add your translations. You can add a language in the settings
+## Language links
 
-	4. When done, follow the steps at the bottom of the screen to submit the translations
-</Steps>
+Supported language prefixes are `/en`, `/de`, `/es`, `/pt`, and `/pl`. For example,
+`/de/map?zoom=15` redirects to `/map?zoom=15` and selects German for the browser session.
+The rest of the path, query parameters, and fragment are preserved (a legacy `lang` query parameter is removed so the prefix takes precedence). The redirect is temporary and
+uncached so each visit can set the language cookie. Unsupported prefixes follow normal routing.
+
+Language links do not change the saved language choice or account settings. The session override
+survives page reloads and navigation; once the browser session ends, the saved choice (or browser
+language) applies again. Choosing a language explicitly in Appearance saves that preference and
+overrides the session language. Older `?lang=de` share links remain supported.
+
+The destination keeps its unprefixed canonical URL; prefixed links are language-selection entry points,
+not separately indexed translated pages. Server-rendered link previews use the session or `?lang=`
+language when supplied, otherwise `client.general.defaultLocale`.

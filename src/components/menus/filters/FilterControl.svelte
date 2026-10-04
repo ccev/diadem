@@ -19,7 +19,7 @@
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getMapObjectCounts } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { formatNumberCompact } from "@/lib/utils/numberFormat";
 	import { tick } from "svelte";

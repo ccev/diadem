@@ -28,7 +28,7 @@
 		getIconReward
 	} from "@/lib/services/uicons.svelte";
 	import SearchItem from "@/components/ui/search/SearchItem.svelte";
-	import { m } from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { getFeatureJump } from "@/lib/utils/geo";
 	import { jumpTo } from "@/lib/map/utils";
 	import { closeSearchModal } from "@/lib/ui/modal.svelte";

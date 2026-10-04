@@ -2,7 +2,7 @@ import { getMap } from "@/lib/map/map.svelte";
 import { openPopup } from "@/lib/mapObjects/interact";
 import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { type QueryableMapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/paraglide/messages";
+import * as m from "@/lib/i18n/messages.svelte";
 import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
 import { mAny } from "@/lib/utils/anyMessage";

@@ -2,7 +2,7 @@
 	import Card from "@/components/ui/Card.svelte";
 	import type { Snippet } from "svelte";
 	import type { LucideIcon } from "@/lib/types/lucide";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 	import { Image } from "@lucide/svelte";
 
 	let {

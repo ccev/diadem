@@ -1,5 +1,5 @@
-import * as m from "@/lib/paraglide/messages";
-import { getLocale } from "@/lib/paraglide/runtime";
+import * as m from "@/lib/i18n/messages.svelte";
+import { getLocale } from "@/lib/i18n/locale";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { formatNumber } from "@/lib/utils/numberFormat";
@@ -45,7 +45,7 @@ function mIngame(key: string): string {
  * Base method to translate basic IDs
  *  - if no ID is given, return "unknown X"
  *  - if translation is missing, return "unknown X" or defaultName if given
- * @param name name, from the prefixes object. an "unknown_{name}" paraglide message must exist
+ * @param name name, from the prefixes object. an "unknown_{name}" UI message must exist
  * @param id the ID to translate, can be nullish
  * @param defaultName placeholder for missing translations, defaults to "unknown X"
  * @param plural I true, append "_plural"

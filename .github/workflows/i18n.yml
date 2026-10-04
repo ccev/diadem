@@ -1,0 +1,33 @@
+name: Localization
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/i18n.yml"
+      - "src/lib/i18n/**"
+      - "src/lib/server/i18n*"
+      - "src/locales/**"
+      - "src/params/locale.ts"
+      - "src/routes/**"
+      - "wuchale.config.js"
+      - "vite.config.ts"
+      - "vitest.config.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable && corepack prepare pnpm@11.25.0 --activate
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm i18n:extract
+      - run: git diff --exit-code -- src/locales
+      - run: pnpm test

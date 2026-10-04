@@ -14,7 +14,7 @@
 
 <script lang="ts">
 	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
-	import * as m from "$lib/paraglide/messages";
+	import * as m from "$lib/i18n/messages.svelte";
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import {
 		backupShareUrl,
@@ -26,7 +26,7 @@
 	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
 	import { getRootOrigin } from "$lib/native/runtime";
 	import { closePopup, getCurrentPath } from "$lib/mapObjects/interact";
-	import { getLocale } from "$lib/paraglide/runtime";
+	import { getLocale } from "$lib/i18n/locale";
 	import { getMapsUrl } from "$lib/utils/mapUrl";
 	import { Coords } from "$lib/utils/coordinates";
 	import { getShareTitle } from "$lib/features/shareTexts";

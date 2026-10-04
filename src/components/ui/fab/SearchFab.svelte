@@ -23,7 +23,7 @@
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
 	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
-	import * as m from "@/lib/paraglide/messages";
+	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		searchMode = "main",
