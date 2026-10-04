@@ -15,8 +15,11 @@ vi.mock("@/lib/native/auth", () => ({
 	clearStoredToken: vi.fn(async () => {}),
 	completeNativeLogin: vi.fn(async () => true)
 }));
+const app = vi.hoisted(() => ({
+	addListener: vi.fn<(eventName: string, listener: (event: { url: string }) => void) => void>()
+}));
 vi.mock("@capacitor/app", () => ({
-	App: { addListener: vi.fn(), getLaunchUrl: vi.fn() }
+	App: { addListener: app.addListener, getLaunchUrl: vi.fn() }
 }));
 
 const link = "diadem://instance?url=https%3A%2F%2Fnew.example";
@@ -92,9 +95,7 @@ describe("instance deep links", () => {
 	it("allows the same warm-start link again after disconnecting", async () => {
 		vi.mocked(App.getLaunchUrl).mockResolvedValue(undefined);
 		await installDeepLinks();
-		const listener = vi.mocked(App.addListener).mock.calls[0][1] as (event: {
-			url: string;
-		}) => void;
+		const listener = app.addListener.mock.calls[0][1];
 		listener({ url: link });
 		await vi.waitFor(() => expect(assign).toHaveBeenCalledTimes(1));
 		listener({ url: link });
@@ -104,9 +105,7 @@ describe("instance deep links", () => {
 	it("deduplicates simultaneous OS delivery of the same link", async () => {
 		vi.mocked(App.getLaunchUrl).mockResolvedValue(undefined);
 		await installDeepLinks();
-		const listener = vi.mocked(App.addListener).mock.calls[0][1] as (event: {
-			url: string;
-		}) => void;
+		const listener = app.addListener.mock.calls[0][1];
 		listener({ url: link });
 		listener({ url: link });
 		await vi.waitFor(() => expect(assign).toHaveBeenCalledOnce());
