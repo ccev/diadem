@@ -46,9 +46,9 @@
 	in:fly={getFiltersetPageTransition().in}
 	out:fly={getFiltersetPageTransition().out}
 >
-	<Card class="w-full text-sm divide-y-border divide-y overflow-hidden">
+	<Card class="w-full text-sm divide-y-border divide-y">
 		<Button
-			class="w-full! h-full! justify-start py-3! px-4! gap-2 group rounded-none!"
+			class="w-full! h-full! justify-start py-3! px-4! gap-2 rounded-b-none!"
 			variant="ghost"
 			onclick={() => {
 				setCurrentAttributePage(editDetailsPage, m.details());
@@ -61,17 +61,14 @@
 				>
 					<FiltersetIcon filterset={filterset.data} size={5} />
 				</div>
-				<div class="relative text-left text-base min-w-0 w-full overflow-hidden">
-					<div
-						class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent group-active:from-accent transition-colors"
-					></div>
+				<div class="text-fade text-left text-base w-full">
 					<b>{filterTitle(filterset.data)}</b>
 				</div>
 			{/if}
 			<Pencil class="ml-auto shrink-0" size="14" />
 		</Button>
 		<Button
-			class="w-full! h-fit! block! justify-start p-0! gap-2 group rounded-none! relative"
+			class="w-full! h-fit! block! justify-start p-0! gap-2 rounded-t-none! relative"
 			variant="ghost"
 			onclick={() => {
 				setCurrentAttributePage(editVisualPage, m.modifier_visual());
@@ -79,7 +76,7 @@
 			}}
 		>
 			<ModifierPreview
-				class="h-20! rounded-none! border-none!"
+				class="h-20! rounded-t-none! border-none!"
 				filterset={filterset?.data}
 				majorCategory={filterset?.majorCategory}
 				subCategory={filterset?.subCategory as FilterCategory | undefined}

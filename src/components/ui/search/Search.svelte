@@ -50,10 +50,10 @@
 	}}
 >
 	<Command.Root
-		class="rounded-lg bg-card text-card-foreground max-h-[calc(100vh-1rem)] overflow-hidden"
+		class="flex flex-col rounded-lg bg-card text-card-foreground max-h-[calc(100dvh-1rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-hidden"
 		shouldFilter={false}
 	>
-		<div class="flex items-center border-b pb-px pr-px pl-2">
+		<div class="flex shrink-0 items-center border-b pb-px pr-px pl-2">
 			<Search class="mr-2 h-4 w-4 shrink-0 opacity-50" />
 
 			<Command.Input
@@ -63,15 +63,21 @@
 				autocomplete="off"
 				spellcheck="false"
 				type="search"
-				class="placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 pr-2 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
+				class="placeholder:text-muted-foreground flex min-w-0 h-11 w-full rounded-md bg-transparent py-3 pr-2 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
 			/>
 
-			<Button variant="ghost" size="" class="rounded-md p-2 mr-1" onclick={closeSearchModal}>
+			<Button
+				variant="ghost"
+				size=""
+				class="shrink-0 rounded-md p-2 mr-1"
+				title={m.close()}
+				onclick={closeSearchModal}
+			>
 				<X size="20" class="opacity-50" />
 			</Button>
 		</div>
 
-		<Command.List class="overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200">
+		<Command.List class="min-h-0 overflow-y-auto overflow-x-hidden mx-1 pb-1 max-h-200">
 			<Command.Viewport>
 				{#if (searchOptions?.showRecents ?? true) && !getCurrentSearchQuery() && recentSearches.length > 0}
 					<Command.Group>

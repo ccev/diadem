@@ -251,7 +251,7 @@
 										{#if pokemon.background}
 											<ImagePopup
 												class="absolute size-10 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
-												src={resize(getIconBackground(defender.background), { width: 64 })}
+												src={resize(getIconBackground(pokemon.background), { width: 64 })}
 												alt={m.background()}
 											/>
 										{/if}

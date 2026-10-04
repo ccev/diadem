@@ -59,7 +59,7 @@
 </script>
 
 <div
-	class="px-4 flex gap-2 w-full overflow-x-auto pb-2"
+	class="px-4 flex gap-2 w-full overflow-x-auto pt-1 pb-2"
 	class:flex-wrap={isMenuSidebar()}
 	class:*:flex-1={isMenuSidebar()}
 >
