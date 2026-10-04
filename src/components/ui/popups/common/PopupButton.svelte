@@ -9,7 +9,7 @@
 	import {
 		closeOverlay,
 		isReconcilingOverlays,
-		openOverlay,
+		replaceOverlay,
 		registerOverlayHandler
 	} from "@/lib/ui/overlays.svelte";
 
@@ -33,20 +33,20 @@
 	const overlayId = $props.id();
 	let dropdownOpen = $state(false);
 	const unregisterOverlayHandler = registerOverlayHandler("popup-actions", (entries) => {
-		dropdownOpen = entries.some((entry) => entry.id === overlayId);
+		dropdownOpen = entries.at(-1)?.id === overlayId;
 	});
 	onDestroy(unregisterOverlayHandler);
 
 	function setDropdownOpen(open: boolean) {
 		dropdownOpen = open;
 		if (isReconcilingOverlays()) return;
-		if (open) openOverlay({ kind: "popup-actions", id: overlayId });
+		if (open) replaceOverlay({ kind: "popup-actions", id: overlayId });
 		else closeOverlay({ kind: "popup-actions", id: overlayId });
 	}
 </script>
 
 <div class="flex gap-0.5 [&>*:first-child:not(:last-child)]:rounded-r-none" role="group">
-	<Button size="default" variant="secondary" class="items-center" {...rest}>
+	<Button size="default" variant="secondary" class="items-center w-full" {...rest}>
 		{#if !active}
 			<Icon class="size-4 mb-0.5" />
 			{label}

@@ -337,18 +337,20 @@ export function initSearch(searchOptions: SearchOptions) {
 		shouldSearchType(SearchableType.QUEST, searchOptions) &&
 		hasFeatureAnywhere(permissions, Features.QUEST)
 	) {
-		questEntries =
-			getActiveQuestRewards()?.map((r) => {
-				const { name, reward } = getActiveSearchQuestParams(r);
+		const uniqueRewards: Record<string, QuestSearchEntry> = {};
+		for (const r of getActiveQuestRewards() ?? []) {
+			const { name, reward } = getActiveSearchQuestParams(r);
+			const key = "quest-" + JSON.stringify(reward);
 
-				return {
-					category: "pogo_quests",
-					key: "quest-" + JSON.stringify(reward),
-					type: SearchableType.QUEST,
-					name,
-					reward
-				} as QuestSearchEntry;
-			}) ?? [];
+			uniqueRewards[key] = {
+				category: "pogo_quests",
+				key,
+				type: SearchableType.QUEST,
+				name,
+				reward
+			} as QuestSearchEntry;
+		}
+		questEntries = Object.values(uniqueRewards);
 	}
 
 	let kecleonEntries: KecleonSearchEntry[] = [];

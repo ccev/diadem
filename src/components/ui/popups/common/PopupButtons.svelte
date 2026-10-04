@@ -39,6 +39,7 @@
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
 	import { Menu, openMenu } from "$lib/ui/menus.svelte";
 	import { Features } from "$lib/utils/features";
+	import { isMenuSidebar } from "$lib/utils/device";
 
 	let {
 		lat,
@@ -57,7 +58,11 @@
 	);
 </script>
 
-<div class="flex px-4 gap-2 w-full overflow-x-auto pb-2">
+<div
+	class="px-4 flex gap-2 w-full overflow-x-auto pb-2"
+	class:flex-wrap={isMenuSidebar()}
+	class:*:flex-1={isMenuSidebar()}
+>
 	<PopupButton
 		variant="default"
 		Icon={Navigation}
