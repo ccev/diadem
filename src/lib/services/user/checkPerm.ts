@@ -11,6 +11,7 @@ import {
 	bbox,
 	booleanIntersects,
 	booleanPointInPolygon,
+	difference,
 	featureCollection,
 	intersect,
 	feature as makeFeature,
@@ -203,6 +204,17 @@ export class FeaturePermissionContext {
 
 	allowedEverywhere(feature: FeaturesKey): boolean {
 		return this.everywhere.has(feature);
+	}
+
+	allowedThroughout(feature: FeaturesKey, area: PermittedPolygon): boolean {
+		if (this.everywhere.has(feature)) return true;
+		if (!area) return false;
+		let remaining: PermittedPolygon = area;
+		for (const permitted of this.areaPolygons.get(feature) ?? []) {
+			remaining = difference(featureCollection([remaining, permitted]));
+			if (!remaining) return true;
+		}
+		return false;
 	}
 
 	isAllowedAt(feature: FeaturesKey, lat: number, lon: number): boolean {
