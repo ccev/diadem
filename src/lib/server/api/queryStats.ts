@@ -160,6 +160,7 @@ export type InvasionPokemonStats = {
 };
 
 export type MasterStats = {
+	tappablesAvailable?: boolean;
 	totalPokemon: TotalPokemonStats;
 	pokemon: {
 		[key: string]: PokemonStatEntry; // key format: "pokemonId-formId"

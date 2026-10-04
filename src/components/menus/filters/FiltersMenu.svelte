@@ -5,6 +5,7 @@
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { featureFamily, Features } from "@/lib/utils/features";
+	import { getMasterStats } from "@/lib/features/masterStats.svelte";
 </script>
 
 <div
@@ -127,13 +128,15 @@
 		isFilterable={false}
 	/>
 
-	<FilterSection
-		requiredPermission={MapObjectType.TAPPABLE}
-		title={mapObjectLabels[MapObjectType.TAPPABLE]()}
-		mapObject={MapObjectType.TAPPABLE}
-		category="tappable"
-		isFilterable={false}
-	/>
+	{#if getMasterStats()?.tappablesAvailable}
+		<FilterSection
+			requiredPermission={MapObjectType.TAPPABLE}
+			title={mapObjectLabels[MapObjectType.TAPPABLE]()}
+			mapObject={MapObjectType.TAPPABLE}
+			category="tappable"
+			isFilterable={false}
+		/>
+	{/if}
 
 	<FilterSection
 		requiredPermission={MapObjectType.S2_CELL}
