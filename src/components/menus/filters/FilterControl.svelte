@@ -173,7 +173,7 @@
 				{/each}
 			</div>
 
-			<div class="flex justify-between ml-2" class:mb-0.5={hasAnyFilterset}>
+			<div class="flex flex-wrap gap-1 justify-between ml-2" class:mb-0.5={hasAnyFilterset}>
 				<Button class="" variant="ghost" size="sm" onclick={onAddFilter}>
 					<FunnelPlus size="14" />
 					<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>

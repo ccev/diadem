@@ -10,7 +10,7 @@
 	} = $props();
 </script>
 
-<div class="whitespace-normal {class_}">
+<div class="min-w-0 wrap-anywhere whitespace-normal {class_}">
 	<p class="font-semibold text-base">
 		{title}
 	</p>

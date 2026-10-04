@@ -57,7 +57,8 @@
 			{result.item.name}
 		</span>
 		<span
-			class="text-muted-foreground shrink-0 ml-auto overflow-x-hidden text-right font-normal!"
+			class="text-muted-foreground max-w-[45%] shrink-0 ml-auto truncate text-right font-normal!"
+			title={mAny(result.item.category)}
 			{@attach highlightSearchMatches(result.matches[1])}
 		>
 			{mAny(result.item.category)}

@@ -166,6 +166,11 @@
 	grid-template-columns: repeat(auto-fill, minmax(calc(--value(integer) * 0.25rem), 1fr));
 }
 
+@utility text-fade {
+	@apply min-w-0 overflow-hidden whitespace-nowrap pr-4;
+	mask-image: linear-gradient(to right, black calc(100% - 1rem), transparent);
+}
+
 b {
 	@apply font-semibold;
 }
