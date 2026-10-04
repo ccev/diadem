@@ -1,9 +1,16 @@
-import { isNative } from "@/lib/native/runtime";
-import { completeNativeLogin } from "@/lib/native/auth";
+import {
+	fetchInstanceMapName,
+	getInstanceUrl,
+	isInstanceUrlBaked,
+	isNative,
+	setInstanceUrl
+} from "@/lib/native/runtime";
+import { clearStoredToken, completeNativeLogin } from "@/lib/native/auth";
 
 /**
  * Handle an incoming deep link URL (always the diadem:// scheme — that's the only
- * scheme the Android manifest registers). Two kinds:
+ * scheme the Android manifest registers):
+ *  - diadem://instance?url=... — connect the generic app to a web instance.
  *  - diadem://auth?code=... — the OAuth handoff: exchange the one-time code for a
  *    bearer session, then reload so all auth-gated data refetches authenticated.
  *  - diadem://<path> — a content link (/a, /pokemon/<id>, /wayfarer, …): navigate
@@ -21,6 +28,34 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 	}
 
 	if (url.protocol !== "diadem:") return;
+
+	if (url.hostname === "instance") {
+		if (!isNative() || isInstanceUrlBaked()) return;
+		const rawInstance = url.searchParams.get("url");
+		if (!rawInstance) return;
+		let instance: URL;
+		try {
+			instance = new URL(rawInstance);
+		} catch {
+			return;
+		}
+		if (
+			!["https:", "http:"].includes(instance.protocol) ||
+			instance.username ||
+			instance.password ||
+			instance.pathname !== "/" ||
+			instance.search ||
+			instance.hash
+		)
+			return;
+		if (instance.origin === getInstanceUrl()) return;
+		if ((await fetchInstanceMapName(instance.origin)) === null) return;
+		// Clear the previous instance's session before any request can use the new origin.
+		await clearStoredToken();
+		await setInstanceUrl(instance.origin);
+		window.location.assign("/");
+		return;
+	}
 
 	if (url.hostname === "auth") {
 		const code = url.searchParams.get("code");
@@ -59,21 +94,26 @@ async function routeDeepLink(path: string): Promise<void> {
 	await goto(path);
 }
 
-let lastHandled = "";
+const pendingLinks = new Set<string>();
+
+async function handleIncomingLink(url: string): Promise<void> {
+	if (pendingLinks.has(url)) return;
+	pendingLinks.add(url);
+	try {
+		await handleDeepLink(url);
+	} finally {
+		pendingLinks.delete(url);
+	}
+}
 
 /** Register the OS deep-link listener + handle a cold-start launch URL. No-op off native. */
 export async function installDeepLinks(): Promise<void> {
 	if (!isNative()) return;
 	const { App } = await import("@capacitor/app");
 	await App.addListener("appUrlOpen", (event) => {
-		if (event.url === lastHandled) return;
-		lastHandled = event.url;
-		void handleDeepLink(event.url);
+		void handleIncomingLink(event.url);
 	});
 	// Cold start: the app may have been launched by a deep link.
 	const launch = await App.getLaunchUrl();
-	if (launch?.url && launch.url !== lastHandled) {
-		lastHandled = launch.url;
-		void handleDeepLink(launch.url);
-	}
+	if (launch?.url) void handleIncomingLink(launch.url);
 }

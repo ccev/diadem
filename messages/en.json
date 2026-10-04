@@ -705,5 +705,6 @@
 	"scout_location": "Scout location",
 	"address_unavailable": "Address unavailable",
 	"my_location": "My Location",
-	"in_range": "In Range"
+	"in_range": "In Range",
+	"open_in_diadem_app": "Open in Diadem app"
 }

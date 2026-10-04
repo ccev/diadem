@@ -143,6 +143,18 @@ xcrun simctl openurl booted "diadem://pokemon/<id>"
 
 ### Testing deep links and auth
 
+- In the web map, **Profile → Open in Diadem app** opens the installed generic
+  app and connects it to that map's instance. The app checks that the instance
+  is reachable before switching, clears the old instance's local session, and
+  reloads. Opening the current instance keeps the session. Branded builds keep
+  their configured instance.
+
+  To test this on Android:
+
+  ```bash
+  adb shell am start -a android.intent.action.VIEW -d "diadem://instance?url=https%3A%2F%2Fmap.example.com"
+  ```
+
 - Deep links use the `diadem://` scheme. Simulate one with:
 
   ```bash
