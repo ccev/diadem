@@ -1,9 +1,10 @@
+import { shouldSuppressMapClick } from "@/lib/map/locationEvents";
+import { closeQuickActions } from "@/lib/ui/quickActions.svelte";
 import { page } from "$app/state";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
-import { MapObjectLayerId } from "@/lib/map/layers";
+import { getMapObjectAtPoint } from "@/lib/map/hitTest";
 import { getMap } from "@/lib/map/map.svelte";
-import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureTypes";
 import {
 	getCurrentSelectedData,
 	setCurrentSelectedData
@@ -26,8 +27,7 @@ import { getMapPath } from "@/lib/utils/getMapPath";
 import type { MapMouseEvent } from "maplibre-gl";
 import { ClientMapObjectType, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
-import type { RouteData } from "@/lib/types/mapObjectData/route";
-import { getRouteBounds, getRouteEndpointFort } from "@/lib/utils/routeUtils";
+import { getRouteBounds } from "@/lib/utils/routeUtils";
 import {
 	closeOverlay,
 	getOverlayPayload,
@@ -158,7 +158,8 @@ function setCurrentPath() {
 }
 
 export function clickMapHandler(event: MapMouseEvent) {
-	if (event.originalEvent.defaultPrevented) return;
+	if (event.originalEvent.defaultPrevented || shouldSuppressMapClick()) return;
+	closeQuickActions();
 
 	const map = getMap();
 	if (!map) return;
@@ -166,28 +167,8 @@ export function clickMapHandler(event: MapMouseEvent) {
 	if (getOpenedMenu() === Menu.SCOUT) {
 		setCurrentScoutCenter(Coords.infer(event.lngLat));
 	} else {
-		const features = map.queryRenderedFeatures(event.point, {
-			layers: Object.values(MapObjectLayerId)
-		});
-
-		const mapFeatures = features as unknown as MapObjectFeature[];
-		const feature =
-			mapFeatures.find(
-				(feature) =>
-					!("isModifierUnderlay" in feature.properties) || !feature.properties.isModifierUnderlay
-			) ?? mapFeatures[0];
-
-		if (feature) {
-			let data: MapData | undefined = getMapObjects()[feature.properties.id];
-			if (!data && isFeatureIcon(feature) && feature.properties.routeEndpointFortId) {
-				data = getRouteEndpointFort(
-					Object.values(getMapObjects()).filter(
-						(object): object is RouteData => object.type === MapObjectType.ROUTE
-					),
-					feature.properties.routeEndpointFortId
-				);
-			}
-			if (!data) return;
+		const data = getMapObjectAtPoint(event.point);
+		if (data) {
 			requestPopupVisibilityCheck(
 				data,
 				data.type === MapObjectType.ROUTE ? getRouteBounds(data) : undefined

@@ -15,7 +15,12 @@
 		resetUpdateMapObjectsInterval
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
-	import { clearPressTimer, onLocationContext } from "$lib/map/locationEvents";
+	import {
+		clearPressTimer,
+		onLocationContext,
+		onMapTouchEnd,
+		resetMapPress
+	} from "$lib/map/locationEvents";
 	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
 	import {
 		onMapDragStart,
@@ -56,6 +61,8 @@
 	import { jumpTo } from "$lib/map/utils";
 	import { setSearchedGeometry } from "$lib/services/search.svelte";
 	import MapAttribution from "@/components/map/MapAttribution.svelte";
+	import QuickActions from "@/components/ui/QuickActions.svelte";
+	import { closeQuickActions } from "@/lib/ui/quickActions.svelte";
 	import { isUiLeft } from "$lib/utils/device";
 
 	let {
@@ -73,9 +80,9 @@
 		map.on("moveend", onMapMoveEnd);
 		map.on("contextmenu", onLocationContext);
 		map.on("touchstart", onTouchStart);
-		map.on("touchend", clearPressTimer);
+		map.on("touchend", onMapTouchEnd);
 		map.on("touchmove", clearPressTimer);
-		map.on("touchcancel", clearPressTimer);
+		map.on("touchcancel", onMapTouchEnd);
 		map.on("dragstart", onMapDragStart);
 		map.on("movestart", onMapMoveStart);
 
@@ -154,6 +161,8 @@
 	});
 
 	onDestroy(() => {
+		resetMapPress();
+		closeQuickActions();
 		clearUpdateMapObjectsInterval();
 		clearLoadMapObjectsInterval();
 		setMap(undefined);
@@ -163,6 +172,7 @@
 <svelte:window onfocus={onWindowFocus} onblur={clearUpdateMapObjectsInterval} />
 
 <DebugMenu />
+<QuickActions />
 
 <MapCommon
 	bind:map

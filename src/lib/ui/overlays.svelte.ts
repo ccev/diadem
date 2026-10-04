@@ -1,5 +1,6 @@
 import { pushState, replaceState } from "$app/navigation";
 import { page } from "$app/state";
+import { closeQuickActions, getQuickActions } from "@/lib/ui/quickActions.svelte";
 
 export type OverlayKind =
 	| "menu"
@@ -136,6 +137,12 @@ export function closeOverlay(entry: Pick<OverlayEntry, "kind" | "id">, url: stri
 }
 
 export function closeTopOverlay() {
+	const quickActions = getQuickActions();
+	if (quickActions) {
+		closeQuickActions();
+		quickActions.trigger?.focus({ preventScroll: true });
+		return true;
+	}
 	const overlay = getOverlays().at(-1);
 	if (!overlay) return false;
 	history.back();

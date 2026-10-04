@@ -198,3 +198,17 @@ export function openFiltersetModal() {
 		openModal("filtersetMaxBattle");
 	}
 }
+
+export function reorderFiltersets(
+	filters: AnyFilterset[],
+	from: number,
+	to: number,
+	mapObject: MapObjectType
+) {
+	if (from === to || from < 0 || to < 0 || from >= filters.length || to >= filters.length) return;
+	const [moved] = filters.splice(from, 1);
+	filters.splice(to, 0, moved);
+	updateUserSettings();
+	deleteAllFeaturesOfType(mapObject);
+	void updateAllMapObjects();
+}

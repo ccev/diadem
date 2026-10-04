@@ -26,6 +26,7 @@ export default defineConfig({
 					items: [
 						{ label: "Installation", slug: "guides/installation" },
 						{ label: "Native Apps", slug: "guides/native" },
+						{ label: "Quick actions", slug: "guides/quick-actions" },
 						{ label: "Translate Diadem", slug: "guides/translating" },
 						{ label: "Caching", slug: "guides/cache" },
 						{ label: "Extending Diadem", slug: "guides/extending" },
