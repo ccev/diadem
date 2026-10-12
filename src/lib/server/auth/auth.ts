@@ -14,10 +14,27 @@ export async function getUserByDiscordId(discordId: string) {
 	return result ?? null;
 }
 
+export async function getUserById(id: string) {
+	const [result] = await db.select().from(table.user).where(eq(table.user.id, id));
+	return result ?? null;
+}
+
+export async function getLinkedIdentities(userId: string) {
+	return db
+		.select({ providerId: table.account.providerId, accountId: table.account.accountId })
+		.from(table.account)
+		.where(eq(table.account.userId, userId));
+}
+
 // Reject anything that isn't a path on this origin. Blocks protocol-relative
 // (`//evil.com`) and absolute URLs so we can't be used as an open redirect.
 export function sanitizeRedirectPath(redirectPath: string | null | undefined, fallback: string) {
 	if (!redirectPath) return fallback;
-	if (!redirectPath.startsWith("/") || redirectPath.startsWith("//")) return fallback;
+	if (
+		!redirectPath.startsWith("/") ||
+		redirectPath.startsWith("//") ||
+		/[\\\u0000-\u0020\u007f]/.test(redirectPath)
+	)
+		return fallback;
 	return redirectPath;
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import { startLogin } from "@/lib/services/user/login";
-	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
-	import { X } from "@lucide/svelte";
+	import AuthLoginIcon from "./AuthLoginIcon.svelte";
+	import { getConfig } from "@/lib/services/config/config";
 	import * as m from "@/lib/paraglide/messages";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
@@ -22,13 +22,15 @@
 		size=""
 		onclick={() => startLogin()}
 	>
-		<DiscordIcon class="w-4 shrink-0" />
-		<p class="">
-			{m.signin_prompt_part_1()}
-			<span class="font-semibold underline">
-				{m.signin_prompt_bold()}
-			</span>
-			{m.signin_prompt_part_2()}
-		</p>
+		<AuthLoginIcon />
+		{#if !getConfig().auth || (getConfig().auth?.providers.length === 1 && getConfig().auth?.providers[0] === "discord")}
+			<p>
+				{m.signin_prompt_part_1()}
+				<span class="font-semibold underline">{m.signin_prompt_bold()}</span>
+				{m.signin_prompt_part_2()}
+			</p>
+		{:else}
+			<p class="font-semibold">{m.auth_signin_prompt()}</p>
+		{/if}
 	</Button>
 {/if}

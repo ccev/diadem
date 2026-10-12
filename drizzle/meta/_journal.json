@@ -15,6 +15,13 @@
 			"when": 1781451699413,
 			"tag": "0001_majestic_bucky",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "5",
+			"when": 1791816966453,
+			"tag": "0002_telegram_accounts",
+			"breakpoints": true
 		}
 	]
 }

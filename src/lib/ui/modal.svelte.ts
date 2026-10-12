@@ -13,6 +13,7 @@ import {
 } from "@/lib/ui/overlays.svelte";
 
 export type OpenModals = {
+	authProvider: boolean;
 	search: boolean;
 	fortDetails: boolean;
 	select: boolean;
@@ -27,6 +28,7 @@ export type OpenModals = {
 export type ModalType = keyof OpenModals;
 
 let openModals: OpenModals = $state({
+	authProvider: false,
 	search: false,
 	fortDetails: false,
 	select: false,

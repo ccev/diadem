@@ -4,7 +4,7 @@
 	import { clearMap } from "@/lib/mapObjects/updateMapObject";
 	import { getConfig } from "@/lib/services/config/config";
 	import { isSupportedFeature, updateSupportedFeatures } from "@/lib/services/supportedFeatures";
-	import { getLoginLink, startLogin } from "@/lib/services/user/login";
+	import { startLogin } from "@/lib/services/user/login";
 	import { updateUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { isNative } from "@/lib/native/runtime";
 	import { nativeLogout } from "@/lib/native/auth";
@@ -35,12 +35,8 @@
 			if (isSupportedFeature("authRequired")) {
 				if (getConfig().general.customHome) {
 					await goto("/");
-				} else if (isNative()) {
-					// /login/discord is a server route the static app can't navigate to;
-					// start the native (system-browser) login flow instead.
-					await startLogin();
 				} else {
-					await goto(getLoginLink());
+					await startLogin();
 				}
 			}
 		} finally {

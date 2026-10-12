@@ -6,8 +6,12 @@ import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
+import { createTelegramMembershipLookup } from "./telegramMembership";
 
 const log = getLogger("permissions");
+const telegramMembership = createTelegramMembershipLookup(
+	getServerConfig().auth.telegram?.botToken ?? ""
+);
 
 let initializedEveryonePerms: boolean = false;
 let everyonePerms: Perms = { everywhere: [], areas: [] };
@@ -74,7 +78,12 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 	return everyonePerms;
 }
 
-export async function updatePermissions(user: User, accessToken: string, thisFetch: typeof fetch) {
+export async function updatePermissions(
+	user: User,
+	accessToken: string,
+	thisFetch: typeof fetch,
+	telegramId?: string
+) {
 	const guildCache: { [key: string]: DiscordGuildData } = {};
 	const permConfig = getServerConfig().permissions;
 	const canCheckGuildRules = accessToken.trim().length > 0;
@@ -89,14 +98,10 @@ export async function updatePermissions(user: User, accessToken: string, thisFet
 		for (const rule of permConfig) {
 			let ruleApplies = !!rule.loggedIn || !!rule.everyone;
 
-			if (!ruleApplies && rule.guildId) {
-				if (!canCheckGuildRules) {
-					continue;
-				}
-
+			if (!ruleApplies && rule.guildId && canCheckGuildRules) {
 				let guild = guildCache[rule.guildId];
 				if (!guild) {
-					const lookup = await getGuildMemberInfo(rule.guildId, accessToken);
+					const lookup = await getGuildMemberInfo(rule.guildId, accessToken).catch(() => undefined);
 					if (!lookup) {
 						log.warning(
 							`discord guild lookup failed for user ${user.id}; treating guild ${rule.guildId} as non-member`
@@ -114,6 +119,9 @@ export async function updatePermissions(user: User, accessToken: string, thisFet
 				} else if (rule.roleId && roles.includes(rule.roleId)) {
 					ruleApplies = true;
 				}
+			}
+			if (!ruleApplies && rule.telegramChatId && telegramId) {
+				ruleApplies = await telegramMembership(rule.telegramChatId, telegramId);
 			}
 
 			if (ruleApplies) {

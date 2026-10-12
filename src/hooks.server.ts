@@ -1,6 +1,6 @@
 import type { Handle, ServerInit } from "@sveltejs/kit";
 
-import { getUserByDiscordId } from "@/lib/server/auth/auth";
+import { getUserById, getLinkedIdentities } from "@/lib/server/auth/auth";
 import {
 	AUTH_BASE_PATH,
 	auth,
@@ -45,6 +45,8 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 	});
 
 const permissionCache: TTLCache<string, Perms> = new TTLCache({
+	max: 10000,
+	checkAgeOnGet: true,
 	ttl: PERMISSION_UPDATE_INTERVAL * 1000
 });
 const authLog = getServerLogger("auth");
@@ -59,10 +61,15 @@ function isPublicRoute(pathname: string) {
 	);
 }
 
-function updatePermissionsLocked(user: User, accessToken: string, thisFetch: typeof fetch) {
+function updatePermissionsLocked(
+	user: User,
+	accessToken: string,
+	thisFetch: typeof fetch,
+	telegramId?: string
+) {
 	let updatePromise = permissionUpdateInFlight.get(user.id);
 	if (!updatePromise) {
-		updatePromise = updatePermissions(user, accessToken, thisFetch).finally(() => {
+		updatePromise = updatePermissions(user, accessToken, thisFetch, telegramId).finally(() => {
 			permissionUpdateInFlight.delete(user.id);
 		});
 		permissionUpdateInFlight.set(user.id, updatePromise);
@@ -104,23 +111,21 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const discordId = authSession.user.discordId;
-	if (!discordId) {
-		authLog.warning("Authenticated user has no discordId in Better Auth session");
-		return resolve(event);
-	}
-
-	const user = await getUserByDiscordId(discordId);
+	const user = await getUserById(authSession.user.id);
 	if (!user) {
-		authLog.warning(`No user row found for Discord id ${discordId}`);
+		authLog.warning("No user row found for authenticated session");
 		return resolve(event);
 	}
 
 	let perms = permissionCache.get(user.id);
 	if (!perms) {
-		const accessToken = await getDiscordAccessToken(event);
+		const identities = await getLinkedIdentities(user.id);
+		const accessToken = identities.some((identity) => identity.providerId === "discord")
+			? await getDiscordAccessToken(event)
+			: null;
+		const telegramId = identities.find((identity) => identity.providerId === "telegram")?.accountId;
 		try {
-			perms = await updatePermissionsLocked(user, accessToken ?? "", event.fetch);
+			perms = await updatePermissionsLocked(user, accessToken ?? "", event.fetch, telegramId);
 			permissionCache.set(user.id, perms);
 		} catch (error) {
 			authLog.warning(`Failed to update permissions for user ${user.id}: ${error}`);

@@ -1,4 +1,24 @@
 import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
+import { TTLCache } from "@isaacs/ttlcache";
+
+const flows = new TTLCache<string, { challenge: string; appId: string | null }>({
+	ttl: 600000,
+	max: 10000,
+	checkAgeOnGet: true
+});
+
+export function beginNativeFlow(challenge: string, appId: string | null) {
+	const flow = randomBytes(32).toString("base64url");
+	flows.set(flow, { challenge, appId });
+	return flow;
+}
+
+export function consumeNativeFlow(flow: string | null, cookie: string | undefined) {
+	if (!flow || flow !== cookie) return null;
+	const entry = flows.get(flow);
+	flows.delete(flow);
+	return entry ?? null;
+}
 
 /**
  * Short-lived, single-use handoff codes for native (Capacitor) login.
@@ -28,6 +48,7 @@ function sweep(now: number): void {
 export function issueNativeCode(token: string, challenge: string): string {
 	const now = Date.now();
 	sweep(now);
+	if (codes.size >= 10000) throw new Error("Native handoff capacity reached");
 	const code = randomBytes(32).toString("base64url");
 	codes.set(code, { token, challenge, expiresAt: now + TTL_MS });
 	return code;

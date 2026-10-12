@@ -79,6 +79,7 @@
 		"dompurify": "^3.4.14",
 		"drizzle-orm": "^0.45.2",
 		"emojilib": "^4.0.3",
+		"jose": "^6.2.3",
 		"maplibre-gl": "^6.7.0",
 		"mode-watcher": "^1.1.0",
 		"mysql2": "^3.24.3",

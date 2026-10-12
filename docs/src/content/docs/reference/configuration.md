@@ -155,10 +155,70 @@ clientId = ""
 clientSecret = ""
 ```
 
-Currently, only Discord auth is supported.
-
 Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications)
 and enabling OAuth2. The callback URL is `<baseUrl>/api/auth/callback/discord` — register this exact URL in the Discord OAuth app's redirect list.
+
+### Telegram OIDC and provider selection
+
+```toml
+[client.auth]
+providers = ["discord", "telegram"]
+
+[server.auth.telegram]
+clientId = "123456789"
+clientSecret = "..."
+botToken = "..."
+```
+
+Omitting `client.auth.providers` preserves the Discord-only default. Use `["telegram"]`
+for Telegram-only instances. One provider starts login directly; multiple providers open
+an accessible picker at every built-in login entry point, including native. Unknown or
+duplicate providers, empty lists, or enabled providers without credentials fail startup.
+Only provider names belong in the public client auth section. Never put secrets there.
+
+Use the **new Telegram OIDC code flow**, not the legacy login widget/HMAC protocol.
+In BotFather → your bot → Login Widget, obtain the client ID/secret and register this
+exact redirect URL: `<baseUrl>/api/auth/oauth2/callback/telegram`. Keep Telegram's default
+RS256 signing algorithm (ES256 is also supported). The requested scopes are `openid profile`;
+phone numbers and bot messaging permission are not requested. See
+[Telegram's public login documentation](https://core.telegram.org/bots/telegram-login).
+
+Better Auth 1.6.18 manages sessions, state, PKCE and account linking. Its generic OAuth
+default ID-token decoder is **not** used: Diadem verifies the signature against Telegram's
+JWKS, issuer, audience, expiry and required identity claims. Telegram has no UserInfo
+endpoint. The signed numeric `id` profile claim (not the opaque OIDC `sub`, username or
+display name) is stored as the Telegram provider account ID and used with the Bot API.
+The internal `id@telegram.invalid` email required by Better Auth is unverified and cannot
+implicitly link accounts. Discord's existing `id@discord.internal` migration matching is
+unchanged.
+
+### Account linking and migration
+
+Back up the internal database and run `pnpm run db:migrate` before starting this version.
+Migration `0002_telegram_accounts` only makes `user.discord_id` nullable; it preserves
+existing user IDs, unique Discord IDs, settings, accounts and sessions. New Telegram-only
+users have no Discord ID. Sessions and settings resolve by the stable local `user.id`.
+
+To link providers, **sign in to your existing account on the web**, open Profile and choose
+**Link Discord** or **Link Telegram**, then authorize that second identity. The authenticated
+session plus the second provider's OAuth proof is required. Linking an identity owned by
+another user is rejected, never merged; signing in separately with each provider before
+linking creates separate accounts. Linking does not copy or combine settings. Display
+names and emails are not used to merge Discord and Telegram accounts.
+This also protects legacy Discord users who have not signed in since the Better Auth
+migration: their `user.discord_id` binding cannot be claimed by another local account.
+
+Linking UI is web-only; native users should use the same instance's web profile to link.
+Once linked, either provider can log into the same account on **both web and native**.
+Custom home components should call the shared `startLogin()` helper instead of hardcoding
+`/login/discord`, so they participate in provider selection.
+
+Authentication tests run with `pnpm test` (mocked providers, real Better Auth and JWT
+verification). To also exercise the SQL upgrade on a disposable, socket-only MariaDB,
+install `mariadb-install-db` and `mariadbd` and run `DIADEM_MIGRATION_TEST=1 pnpm test`.
+This opt-in test ignores local database defaults and never connects to a running instance.
+Before rollout, also smoke-test actual provider consent, chat membership, account linking
+and browser-to-app return on your registered instance and physical devices.
 
 ## `client.discord`
 
@@ -180,6 +240,7 @@ Permission rules are an array of sets:
 # loggedIn = true
 # guildId = "123..."
 # roleId = "123..."
+# telegramChatId = "-1001234567890"
 # areas = ["London"]
 features = ["gym*", "quest"]
 ```
@@ -192,6 +253,28 @@ Rule match fields:
 - `loggedIn` (bool)
 - `guildId` (Discord guild id)
 - `roleId` (Discord role id)
+- `telegramChatId` (stable numeric Telegram group/channel ID **as a quoted string**, not an `@username`)
+
+Each rule matches **everyone OR loggedIn OR (Discord guild AND optional role) OR Telegram
+membership**. `everyone` and `loggedIn` keep their existing independent semantics; adding
+`loggedIn = true` to a restricted rule makes it apply to every authenticated user. A role
+without a guild is a configuration error. The existing feature/area mapper is shared by
+both providers. Permissions consider the linked Discord and Telegram identities regardless
+of which provider started the current session. A failed branch cannot cancel a valid grant
+from the other branch, but grants nothing specific to the failed branch.
+
+For Telegram rules, `server.auth.telegram.botToken` is required and the bot **must be an
+administrator in every checked chat** for reliable `getChatMember` results. Members,
+administrators and creators qualify; restricted users qualify only when `is_member` is
+true. Left, kicked, unknown/malformed responses, mismatched user IDs and API errors do not.
+Do not log Bot API request URLs: they contain the bot token.
+
+Telegram membership requests have a 5-second timeout, a 60-second positive/negative cache
+(10,000 entries per process), concurrent-request deduplication, a ceiling of 20 requests
+per second / 20 in flight, and bounded `retry_after` backoff on rate limiting. No stale
+positive is reused after expiry. The existing permission cache is five minutes, so allow
+**up to six minutes** for membership revocation or newly linked grants to propagate.
+Limits/caches are per process, not a distributed rate limiter; size deployments accordingly.
 
 Grant fields:
 

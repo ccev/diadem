@@ -149,9 +149,21 @@ xcrun simctl openurl booted "diadem://pokemon/<id>"
   adb shell am start -a android.intent.action.VIEW -d "diadem://pokemon/<id>"
   ```
 
-- Discord/OAuth login opens the system browser and returns to the app via
+- Discord and Telegram OIDC login open the system browser and return to the app via
   `diadem://auth`. This works against any Diadem instance, the required
   `bearer` auth support is built into the Diadem server.
+
+- The instance's `client.auth.providers` controls the same direct-login/provider-picker
+  behavior as the web app. Telegram uses the server's registered HTTPS OIDC callback,
+  not a Telegram native SDK or a legacy widget. No bot/client secret is shipped in the app.
+- The app persists a PKCE verifier before opening the browser. The server binds the
+  challenge to a short-lived, single-use browser flow and hands off only a two-minute
+  one-time code, never the session token in a deep link. Exchange requires the original
+  verifier; mismatched, expired or replayed codes fail. OAuth errors return an error link.
+- Native flow/code storage is in-memory. Use a single server process or sticky routing
+  across login, callback and exchange; restarting the server during login requires retrying.
+- Account linking is available in the **web profile** after signing in to the existing
+  account. Both linked identities then work for native login and permissions.
 
 ## Production builds
 

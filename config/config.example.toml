@@ -53,12 +53,24 @@ baseUrl = "https://map.co"
 clientId = ""
 clientSecret = ""
 
+[client.auth]
+# Omit for the Discord-compatible default. One provider logs in directly;
+# multiple providers show a picker on both web and native.
+providers = ["discord"] # ["discord", "telegram"] or ["telegram"]
+
+#[server.auth.telegram]
+#clientId = "" # BotFather Login Widget client ID (not the bot token)
+#clientSecret = ""
+#botToken = "" # server-only; required for telegramChatId permission rules
+# Register https://YOUR_INSTANCE/api/auth/oauth2/callback/telegram in BotFather.
+
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
 serverId = "1359028304128245934"
 
 # Permissions work by defining permission sets.
-# When a user fulfills every requirement in that set,
+# When a user matches everyone, loggedIn, (guildId AND optional roleId),
+# OR telegramChatId membership in that set,
 # they will allow access to every configured feature,
 # only in the configured areas.
 #
@@ -67,6 +79,9 @@ serverId = "1359028304128245934"
 #   - loggedIn: bool
 #   - guildId:  id
 #   - roleId:   id
+#   - telegramChatId: numeric chat ID string, e.g. "-1001234567890"
+# Both linked identities are checked, regardless of the login provider.
+# The Telegram bot must be an administrator in each checked group/channel.
 #
 # Allows access to:
 #   - areas:    name[]    (area name, as configured in koji)

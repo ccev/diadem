@@ -16,7 +16,7 @@
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import Button from "@/components/ui/input/Button.svelte";
-	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
+	import AuthLoginIcon from "@/components/ui/user/AuthLoginIcon.svelte";
 	import { startLogin } from "@/lib/services/user/login";
 	import QuestFilterset from "@/components/menus/filters/filterset/quest/QuestFilterset.svelte";
 	import RaidFilterset from "@/components/menus/filters/filterset/raid/RaidFilterset.svelte";
@@ -52,11 +52,15 @@
 {:else if !isWebglSupported()}
 	<ErrorPageWebGl />
 {:else if hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES) && isSupportedFeature("showFullscreenLogin")}
-	<ErrorPage error={m.discord_block_title()} description={m.discord_block_desc()} href={errorHref}>
+	<ErrorPage
+		error={m.auth_required_title()}
+		description={m.auth_required_description()}
+		href={errorHref}
+	>
 		{#snippet extraButtons()}
 			<Button onclick={() => startLogin()}>
-				<DiscordIcon class="w-3.5 shrink-0" />
-				<span>{m.discord_block_button()}</span>
+				<AuthLoginIcon class="w-3.5 shrink-0" />
+				<span>{m.auth_choose_provider()}</span>
 			</Button>
 		{/snippet}
 	</ErrorPage>

@@ -1,9 +1,11 @@
 import type { Config } from "@/lib/services/config/configTypes";
 import fs from "node:fs";
 import { parse } from "toml";
+import { validateAuthConfig } from "./authProviders";
 
 const configFile = fs.readFileSync("./src/lib/server/config.toml", "utf8");
 const config: Config = parse(configFile);
+validateAuthConfig(config);
 
 export function getServerConfig() {
 	return config.server;

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
-	import { getLoginLink } from "@/lib/services/user/login";
 	import * as m from "@/lib/paraglide/messages";
 	import LogOutButton from "@/components/ui/user/LogOutButton.svelte";
 	// noinspection ES6UnusedImports
 	import { Avatar } from "bits-ui";
-	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
-	import { Link2Off, LogOut } from "@lucide/svelte";
+	import { Link2Off } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
+	import { isNative } from "@/lib/native/runtime";
+	import { openToast } from "@/lib/ui/toasts.svelte";
 
 	let details = $derived(getUserDetails().details);
 	let isLoggingOut = $state(false);
@@ -57,5 +57,31 @@
 				</LogOutButton>
 			</div>
 		</div>
+		{#if !isNative()}
+			<div class="p-4 flex flex-wrap gap-2">
+				{#each getConfig().auth?.providers ?? ["discord"] as provider}
+					{#if !getUserDetails().linkedProviders?.includes(provider)}
+						<Button
+							variant="outline"
+							onclick={async () => {
+								try {
+									const response = await fetch(`/link/${provider}`, { method: "POST" });
+									const result = await response.json();
+									if (!response.ok || !result.url) throw new Error("Link failed");
+									window.location.assign(result.url);
+								} catch {
+									openToast(m.auth_link_error(), 10000);
+								}
+							}}
+							>{m.auth_link_provider({
+								provider: provider === "discord" ? "Discord" : "Telegram"
+							})}</Button
+						>
+					{/if}
+				{/each}
+			</div>
+		{:else if (getConfig().auth?.providers.length ?? 1) > 1}
+			<p class="p-4 text-muted-foreground">{m.auth_link_on_web()}</p>
+		{/if}
 	</div>
 {/if}

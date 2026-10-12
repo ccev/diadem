@@ -61,10 +61,11 @@ type Auth = {
 	optional: boolean;
 	secret?: string;
 	baseUrl?: string;
-	discord?: AuthDiscord;
+	discord?: OAuthCredentials;
+	telegram?: OAuthCredentials & { botToken?: string };
 };
 
-type AuthDiscord = {
+type OAuthCredentials = {
 	clientId: string;
 	clientSecret: string;
 };
@@ -79,6 +80,7 @@ export type Permissions = {
 	loggedIn?: boolean;
 	guildId?: string;
 	roleId?: string;
+	telegramChatId?: string;
 	areas?: string[];
 	features?: FeaturesKey[];
 };
@@ -126,6 +128,7 @@ type StaticMap = {
 };
 
 export type ClientConfig = {
+	auth?: { providers: AuthProvider[] };
 	mapStyles: MapStyle[];
 	uiconSets: UiconSet[];
 	general: General;
@@ -199,3 +202,5 @@ export type Config = {
 	server: ServerConfig;
 	client: ClientConfig;
 };
+
+export type AuthProvider = "discord" | "telegram";

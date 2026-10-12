@@ -3,7 +3,7 @@ import type { PageServerLoad } from "./$types";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { getMapPath } from "@/lib/utils/getMapPath";
 import { getNativeAuthToken, isAuthRequired } from "@/lib/server/auth/betterAuth";
-import { issueNativeCode } from "@/lib/server/auth/nativeHandoff";
+import { consumeNativeFlow, issueNativeCode } from "@/lib/server/auth/nativeHandoff";
 import { sanitizeRedirectPath } from "@/lib/server/auth/auth";
 import { getServerLogger } from "@/lib/server/logging";
 
@@ -30,18 +30,24 @@ export const load: PageServerLoad = async (event) => {
 	// Native login: hand the freshly-established session to the app via a one-time
 	// CODE on the diadem:// deep link (never the token itself). The app exchanges
 	// the code + its PKCE verifier for the token over HTTPS — see nativeHandoff.ts.
-	if (event.url.searchParams.get("native") === "1") {
-		const appId = event.url.searchParams.get("app");
-		const challenge = event.url.searchParams.get("challenge");
-		if (event.locals.user && challenge) {
+	const nativeCookie = event.cookies.get("diadem_native_flow");
+	const earlyError = event.params.provider === "error";
+	if (event.url.searchParams.get("native") === "1" || (earlyError && nativeCookie)) {
+		const flow = consumeNativeFlow(
+			earlyError ? nativeCookie! : event.url.searchParams.get("flow"),
+			nativeCookie
+		);
+		event.cookies.delete("diadem_native_flow", { path: "/login" });
+		const appId = flow?.appId ?? null;
+		if (event.locals.user && flow && !earlyError && !event.url.searchParams.has("error")) {
 			const token = getNativeAuthToken(event);
 			if (token) {
-				const code = issueNativeCode(token, challenge);
+				const code = issueNativeCode(token, flow.challenge);
 				const params = new URLSearchParams({ code, redir: redirectLink });
 				throw redirect(302, nativeReturnUrl(`auth?${params.toString()}`, appId));
 			}
 		}
-		log.info("Native Discord login failed before token handoff");
+		log.info("Native login failed before token handoff");
 		throw redirect(302, nativeReturnUrl("auth?error=1", appId));
 	}
 
@@ -51,14 +57,14 @@ export const load: PageServerLoad = async (event) => {
 		name: ""
 	};
 
-	if (event.locals.user) {
+	if (event.locals.user && !earlyError && !event.url.searchParams.has("error")) {
 		response.name = event.locals.user.name || "";
 		return response;
 	}
 
 	const reason =
 		event.url.searchParams.get("error") === "1" ? "error=1 url parameter" : "no event.locals.user";
-	log.info(`Discord Login failed: ${reason}`);
-	response.error = "Discord Login failed";
+	log.info(`Provider login failed: ${reason}`);
+	response.error = "Provider login failed";
 	return response;
 };

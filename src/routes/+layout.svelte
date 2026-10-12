@@ -5,6 +5,7 @@
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import StatusScreen from "@/components/ui/StatusScreen.svelte";
 	import InstanceGate from "@/components/ui/InstanceGate.svelte";
+	import AuthProviderModal from "@/components/ui/user/AuthProviderModal.svelte";
 	import * as m from "@/lib/paraglide/messages";
 	import { onMount } from "svelte";
 	import { getConfig } from "$lib/services/config/config";
@@ -31,6 +32,7 @@
 	{/if}
 {:else}
 	<Metadata />
+	<AuthProviderModal />
 
 	<ModeWatcher defaultMode={getUserSettings().themeMode} track={false} />
 	{@render children()}

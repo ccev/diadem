@@ -705,5 +705,15 @@
 	"scout_location": "Scout location",
 	"address_unavailable": "Address unavailable",
 	"my_location": "My Location",
-	"in_range": "In Range"
+	"in_range": "In Range",
+	"auth_choose_provider": "Sign in",
+	"auth_choose_provider_description": "Choose an account to sign in with.",
+	"auth_continue_with": "Continue with {provider}",
+	"auth_cancel": "Cancel",
+	"auth_link_provider": "Link {provider}",
+	"auth_link_error": "Could not link this account. It may already belong to another user.",
+	"auth_link_on_web": "To link another sign-in provider, open this instance in your web browser and sign in to your existing account.",
+	"auth_signin_prompt": "Sign in to access more features",
+	"auth_required_title": "Sign-in required",
+	"auth_required_description": "Sign in to your account before accessing the map"
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `user` MODIFY COLUMN `discord_id` varchar(255);

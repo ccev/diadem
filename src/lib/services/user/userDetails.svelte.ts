@@ -4,6 +4,7 @@ import type { Perms } from "@/lib/utils/features";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export type UserData = {
+	linkedProviders?: string[];
 	details?: DiscordUser;
 	permissions: Perms;
 	isGuildMember?: boolean;

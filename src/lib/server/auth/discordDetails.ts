@@ -26,6 +26,7 @@ const endpoint = "https://discord.com/api/users/@me";
 
 function getFetchOptions(accessToken: string): RequestInit {
 	return {
+		signal: AbortSignal.timeout(5000),
 		headers: {
 			Authorization: `Bearer ${accessToken}`
 		}
