@@ -15,7 +15,7 @@ import toml from "toml";
 import mysql from "mysql2/promise";
 const db = toml.parse(readFileSync("./src/lib/server/config.toml", "utf8")).server.internalDb;
 const c = await mysql.createConnection({ host: db.host, port: db.port, user: db.user, password: db.password, database: db.database });
-const requiredTables = ["user", "session", "account", "verification", "linked_trainer"];
+const requiredTables = ["user", "session", "account", "verification"];
 const [rows] = await c.query(
   "SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema = ? AND table_name IN (?)",
   [db.database, requiredTables]

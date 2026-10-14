@@ -106,6 +106,9 @@ with personal shiny support in its v3 pokemon scan
 - `apiKey`: Your PlayerID API key. It is only used by Diadem's server and never sent to browsers
 - `maxTrainers`: How many trainers one user can link (default 10)
 
+Linked trainers are stored in a `linked_trainer` table, which Diadem creates on startup when
+`[server.playerId]` is set. No `db:push` is needed when updating.
+
 PlayerID's limits (requests per minute, tickets per day) apply to the whole map, since every
 user's lookups go through the one key. Tickets are keyed by friend code, so a code that was
 looked up before doesn't count against the daily limit again. A trainer who can't be invited
