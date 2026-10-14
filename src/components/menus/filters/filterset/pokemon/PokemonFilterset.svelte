@@ -28,6 +28,7 @@
 	import { Features } from "@/lib/utils/features";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import PersonalShinyTrainerAttribute from "@/components/menus/filters/filterset/pokemon/PersonalShinyTrainerAttribute.svelte";
+	import ShowcaseAttribute from "@/components/menus/filters/filterset/pokemon/ShowcaseAttribute.svelte";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		FiltersetPokemon | undefined;
@@ -80,6 +81,9 @@
 				</Attribute>
 				{#if canPersonalShiny}
 					<PersonalShinyTrainerAttribute {data} />
+				{/if}
+				{#if canPersonalShiny && canIv}
+					<ShowcaseAttribute {data} />
 				{/if}
 			</AttributesOverview>
 			{#if canIv}

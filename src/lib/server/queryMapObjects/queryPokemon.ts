@@ -11,15 +11,18 @@ import {
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type {
 	GolbatPokemonQuery,
+	GolbatPokemonResult,
 	GolbatPokemonSpecies,
 	PokemonScanBody
 } from "@/lib/server/api/golbat/types";
+import { getShowcaseMetadata } from "@/lib/server/provider/showcaseMetadata";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
-import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
+import type { PersonalSize, PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 import { Features } from "@/lib/utils/features";
 import { round } from "@/lib/utils/numberFormat";
 import { getNormalizedForm, League, showPvp } from "@/lib/utils/pokemonUtils";
+import { calculateShowcaseScore } from "@/lib/utils/showcase";
 import { error } from "@sveltejs/kit";
 import { booleanPointInPolygon, point } from "@turf/turf";
 
@@ -125,6 +128,23 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 		const ivAllowed = context.isAllowedAt(Features.POKEMON_IV, data.lat, data.lon);
 		const pvpAllowed = context.isAllowedAt(Features.POKEMON_PVP, data.lat, data.lon);
+		const personalAllowed = context.isAllowedAt(
+			Features.POKEMON_PERSONAL_SHINY,
+			data.lat,
+			data.lon
+		);
+
+		if (!ivAllowed || !personalAllowed) {
+			data.personal_sizes = undefined;
+		} else if (data.personal_sizes) {
+			for (const linkId of Object.keys(data.personal_sizes)) {
+				const playerId = context.personalTrainerLinks?.get(linkId);
+				if (!playerId || !context.personalTrainers?.has(playerId)) {
+					delete data.personal_sizes[linkId];
+				}
+			}
+			if (Object.keys(data.personal_sizes).length === 0) data.personal_sizes = undefined;
+		}
 
 		if (!ivAllowed) {
 			data.iv = undefined;
@@ -141,7 +161,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	}
 
 	private makePokemon(
-		p: MinMapObject<PokemonData>,
+		p: GolbatPokemonResult,
 		filter: FilterPokemon | undefined,
 		context?: FeaturePermissionContext
 	): PokemonData {
@@ -156,6 +176,49 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			? linkIdsFor(context?.personalTrainerLinks, p.shiny_for)
 			: undefined;
 		const backgroundFor = personalAllowed ? trainerNames(trainers, p.background_for) : undefined;
+		let personalSizes: Record<string, PersonalSize> | undefined;
+		if (personalAllowed && ivAllowed && p.size_for && context?.personalTrainerLinks) {
+			const metadata = getShowcaseMetadata(p.pokemon_id, p.form);
+			const canScore =
+				![710, 711].includes(p.pokemon_id) &&
+				!p.is_ditto &&
+				(!p.display_pokemon_id || p.display_pokemon_id === p.pokemon_id) &&
+				!p.alignment &&
+				!p.temp_evolution_id &&
+				!p.bread_mode;
+			for (const [linkId, playerId] of context.personalTrainerLinks) {
+				const trainerName = trainers.get(playerId);
+				const dimensions = p.size_for[playerId];
+				if (
+					!trainerName ||
+					!dimensions ||
+					!Number.isFinite(dimensions.height) ||
+					dimensions.height <= 0 ||
+					!Number.isFinite(dimensions.weight) ||
+					dimensions.weight < 0
+				) {
+					continue;
+				}
+				const score =
+					canScore && metadata
+						? calculateShowcaseScore(metadata, {
+								height: dimensions.height,
+								weight: dimensions.weight,
+								size: p.size,
+								atk_iv: p.atk_iv,
+								def_iv: p.def_iv,
+								sta_iv: p.sta_iv
+							})
+						: undefined;
+				personalSizes ??= {};
+				personalSizes[linkId] = {
+					trainerName,
+					height: dimensions.height,
+					weight: dimensions.weight,
+					score
+				};
+			}
+		}
 
 		const pokemon = {
 			id: p.id,
@@ -190,7 +253,8 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			shiny: shinyFor ? true : undefined,
 			shiny_for: shinyFor,
 			shiny_for_links: shinyForLinks,
-			background_for: backgroundFor
+			background_for: backgroundFor,
+			personal_sizes: personalSizes
 		} as PokemonData;
 
 		if (pvpAllowed) {
@@ -248,11 +312,16 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			return [{ pokemon: [] }];
 		}
 
-		// A personal filterset can't match anything without (any of its) linked trainers.
+		// A personal filterset can't match anything without its linked trainer(s).
 		// Never send an empty shiny_for: Golbat would treat it as no constraint at all.
-		const enabledFilters = allEnabledFilters.filter(
-			(f) => !f.personalShiny || playersForFilterset(f, context).length > 0
-		);
+		const enabledFilters = allEnabledFilters.filter((f) => {
+			if (f.personalShiny && playersForFilterset(f, context).length === 0) return false;
+			if (f.showcase) {
+				const playerId = context?.personalTrainerLinks?.get(f.showcase.trainerId);
+				if (!playerId || !context?.personalTrainers?.has(playerId)) return false;
+			}
+			return true;
+		});
 
 		return enabledFilters.map((filter) => {
 			const query: GolbatPokemonQuery = {};

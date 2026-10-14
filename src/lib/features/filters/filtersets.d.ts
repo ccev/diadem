@@ -89,6 +89,8 @@ export type FiltersetPokemon = BaseFilterset & {
 	 * linking a second trainer later doesn't widen filtersets made for the first.
 	 */
 	personalShinyTrainers?: string[];
+	/** Predicted biggest-showcase score for one linked_trainer id. */
+	showcase?: { trainerId: string; minScore: number };
 };
 
 export type FiltersetPokestopPlain = BaseFilterset & {

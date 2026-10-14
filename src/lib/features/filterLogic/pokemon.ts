@@ -11,6 +11,19 @@ function inRange(value: number | null | undefined, range: MinMax): boolean {
 }
 
 function pokemonMatchesFilterset(data: PokemonData, filterset: FiltersetPokemon): boolean {
+	if (filterset.showcase) {
+		const { trainerId, minScore } = filterset.showcase;
+		const score = data.personal_sizes?.[trainerId]?.score;
+		if (
+			!trainerId ||
+			!Number.isFinite(minScore) ||
+			minScore < 0 ||
+			score == null ||
+			!Number.isFinite(score) ||
+			score < minScore
+		)
+			return false;
+	}
 	if (filterset.personalShiny) {
 		if (!data.shiny_for?.length) return false;
 		const trainers = filterset.personalShinyTrainers;

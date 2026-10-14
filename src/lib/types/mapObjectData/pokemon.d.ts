@@ -31,6 +31,14 @@ export type PokemonVisual = {
 	background?: number;
 };
 
+export type PersonalSize = {
+	trainerName: string;
+	height: number;
+	weight: number;
+	/** Predicted single-species biggest-showcase score, when all scoring inputs are available. */
+	score?: number;
+};
+
 export type PokemonData = {
 	id: string;
 	type: MapObjectType.POKEMON;
@@ -79,4 +87,6 @@ export type PokemonData = {
 	shiny_for_links?: string[];
 	/** Linked trainers (by name) this pokemon has a background for */
 	background_for?: string[];
+	/** Personal dimensions and scores, keyed by linked_trainer id rather than player id. */
+	personal_sizes?: Record<string, PersonalSize>;
 } & PokemonVisual;

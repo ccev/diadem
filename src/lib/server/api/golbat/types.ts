@@ -122,8 +122,13 @@ export type FortCombinedScanBody = {
 
 export type FortTypeScanStats = { examined: number; limit_reached: boolean };
 
+/** Raw personal annotations stay in the server query layer and are never sent to clients. */
+export type GolbatPokemonResult = MinMapObject<PokemonData> & {
+	size_for?: Record<string, { height: number; weight: number }>;
+};
+
 export type PokemonResponse = {
-	pokemon: MinMapObject<PokemonData>[];
+	pokemon: GolbatPokemonResult[];
 	examined: number;
 	skipped: number;
 	total: number;

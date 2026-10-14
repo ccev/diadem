@@ -14,6 +14,8 @@
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
+	import { getCompleteTrainers } from "@/lib/services/linkedTrainers.svelte";
+	import { formatNumber } from "@/lib/utils/numberFormat";
 
 	let {
 		data
@@ -31,6 +33,20 @@
 		<AttributeDisplay
 			label={m.personal_shiny_filter()}
 			value={personalShinyTrainerLabel(data) ?? m.personal_shiny_all_trainers()}
+		/>
+	{/if}
+	{#if data.showcase}
+		{@const trainer = getCompleteTrainers().find(
+			(trainer) => trainer.id === data.showcase?.trainerId
+		)}
+		<AttributeDisplay
+			label={m.showcase_filter()}
+			value={m.showcase_filter_summary({
+				trainer: trainer
+					? (trainer.trainerName ?? m.linked_trainers_unnamed())
+					: m.personal_shiny_trainer_missing(),
+				score: formatNumber(data.showcase.minScore)
+			})}
 		/>
 	{/if}
 	{#if data.iv}

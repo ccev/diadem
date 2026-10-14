@@ -25,7 +25,7 @@ export function personalShinyTrainerLabel(filter: FiltersetPokemon): string | un
 
 export function pokemonFiltersetRequiredFeature(fs: FiltersetPokemon): FeaturesKey {
 	if (fs.pvpRankLittle || fs.pvpRankGreat || fs.pvpRankUltra) return Features.POKEMON_PVP;
-	if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size)
+	if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size || fs.showcase)
 		return Features.POKEMON_IV;
 	if (fs.personalShiny) return Features.POKEMON_PERSONAL_SHINY;
 	return Features.POKEMON;
@@ -88,6 +88,15 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 		const trainer = personalShinyTrainerLabel(filter);
 		attributes.push(
 			trainer ? `${m.personal_shiny_short()} (${trainer})` : m.personal_shiny_short()
+		);
+	}
+	if (filter.showcase) {
+		const trainer = getLinkedTrainers().find((linked) => linked.id === filter.showcase?.trainerId);
+		attributes.push(
+			m.showcase_filter_summary({
+				trainer: trainer?.trainerName ?? m.personal_shiny_trainer_missing(),
+				score: String(filter.showcase.minScore)
+			})
 		);
 	}
 	if (filter.iv) {

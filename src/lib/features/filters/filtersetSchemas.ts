@@ -71,7 +71,10 @@ export const FiltersetPokemonSchema = BaseFiltersetSchema.extend({
 	size: MinMaxSchema.optional(),
 	pvpRankLittle: MinMaxSchema.optional(),
 	pvpRankGreat: MinMaxSchema.optional(),
-	pvpRankUltra: MinMaxSchema.optional()
+	pvpRankUltra: MinMaxSchema.optional(),
+	showcase: z
+		.object({ trainerId: z.string().min(1).max(255), minScore: z.number().finite().nonnegative() })
+		.optional()
 });
 
 export const FiltersetPokestopPlainSchema = BaseFiltersetSchema.extend({

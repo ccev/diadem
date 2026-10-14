@@ -22,7 +22,7 @@ import {
 export const protobufPackage = "golbat_api";
 
 /**
- * Copied verbatim from UnownHash/Golbat grpc/api.proto at commit a1938c6 (PR #423, branch personal-shiny-filter).
+ * Copied verbatim from UnownHash/Golbat grpc/api.proto at commit dbcb90559c12288db216ce93a8a93a0206661ecd (PR #424, branch personal-sizes).
  * Do not edit. Re-copy when Golbat changes it, then run `pnpm run grpc:generate` and commit both.
  */
 
@@ -188,7 +188,19 @@ export interface Pokemon {
    * for / has a background for. Empty unless annotate_for was sent.
    */
   shiny_for?: string[] | undefined;
-  background_for?: string[] | undefined;
+  background_for?:
+    | string[]
+    | undefined;
+  /**
+   * Height and weight each annotate_for player would see, keyed by player
+   * ID. Empty without masterfile size data or derived IVs.
+   */
+  size_for?: { [key: string]: PersonalSize } | undefined;
+}
+
+export interface Pokemon_SizeForEntry {
+  key: string;
+  value?: PersonalSize | undefined;
 }
 
 export interface ContestFocus {
@@ -516,6 +528,12 @@ export interface FortScanResponse {
   gyms_stats?: FortTypeScanStats | undefined;
   pokestops_stats?: FortTypeScanStats | undefined;
   stations_stats?: FortTypeScanStats | undefined;
+}
+
+/** Mirrors decoder.ApiPersonalSize: one player's height (m) and weight (kg). */
+export interface PersonalSize {
+  height?: number | undefined;
+  weight?: number | undefined;
 }
 
 function createBaseLatLon(): LatLon {
@@ -1996,6 +2014,7 @@ function createBasePokemon(): Pokemon {
     is_event: 0,
     shiny_for: [],
     background_for: [],
+    size_for: {},
   };
 }
 
@@ -2125,6 +2144,9 @@ export const Pokemon: MessageFns<Pokemon> = {
         writer.uint32(322).string(v!);
       }
     }
+    globalThis.Object.entries(message.size_for || {}).forEach(([key, value]: [string, PersonalSize]) => {
+      Pokemon_SizeForEntry.encode({ key: key as any, value }, writer.uint32(330).fork()).join();
+    });
     return writer;
   },
 
@@ -2467,6 +2489,17 @@ export const Pokemon: MessageFns<Pokemon> = {
             }
             continue;
           }
+          case 41: {
+            if (tag !== 330) {
+              break;
+            }
+
+            const entry41 = Pokemon_SizeForEntry.decode(reader, reader.uint32());
+            if (entry41.value !== undefined) {
+              message.size_for![entry41.key] = entry41.value;
+            }
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2609,6 +2642,33 @@ export const Pokemon: MessageFns<Pokemon> = {
         : globalThis.Array.isArray(object?.background_for)
         ? object.background_for.map((e: any) => globalThis.String(e))
         : [],
+      size_for: isObject(object.sizeFor)
+        ? (globalThis.Object.entries(object.sizeFor) as [string, any][]).reduce(
+          (acc: { [key: string]: PersonalSize }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: PersonalSize.fromJSON(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : isObject(object.size_for)
+        ? (globalThis.Object.entries(object.size_for) as [string, any][]).reduce(
+          (acc: { [key: string]: PersonalSize }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: PersonalSize.fromJSON(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : {},
     };
   },
 
@@ -2734,6 +2794,15 @@ export const Pokemon: MessageFns<Pokemon> = {
     if (message.background_for?.length) {
       obj.backgroundFor = message.background_for;
     }
+    if (message.size_for) {
+      const entries = globalThis.Object.entries(message.size_for) as [string, PersonalSize][];
+      if (entries.length > 0) {
+        obj.sizeFor = {};
+        entries.forEach(([k, v]) => {
+          obj.sizeFor[k] = PersonalSize.toJSON(v);
+        });
+      }
+    }
     return obj;
   },
 
@@ -2782,6 +2851,102 @@ export const Pokemon: MessageFns<Pokemon> = {
     message.is_event = object.is_event ?? 0;
     message.shiny_for = object.shiny_for?.map((e) => e) || [];
     message.background_for = object.background_for?.map((e) => e) || [];
+    message.size_for = (globalThis.Object.entries(object.size_for ?? {}) as [string, PersonalSize][]).reduce(
+      (acc: { [key: string]: PersonalSize }, [key, value]: [string, PersonalSize]) => {
+        if (value !== undefined) {
+          acc[key] = PersonalSize.fromPartial(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    return message;
+  },
+};
+
+function createBasePokemon_SizeForEntry(): Pokemon_SizeForEntry {
+  return { key: "", value: undefined };
+}
+
+export const Pokemon_SizeForEntry: MessageFns<Pokemon_SizeForEntry> = {
+  encode(message: Pokemon_SizeForEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      PersonalSize.encode(message.value, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Pokemon_SizeForEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePokemon_SizeForEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = PersonalSize.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Pokemon_SizeForEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? PersonalSize.fromJSON(object.value) : undefined,
+    };
+  },
+
+  toJSON(message: Pokemon_SizeForEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== undefined) {
+      obj.value = PersonalSize.toJSON(message.value);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Pokemon_SizeForEntry>, I>>(base?: I): Pokemon_SizeForEntry {
+    return Pokemon_SizeForEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Pokemon_SizeForEntry>, I>>(object: I): Pokemon_SizeForEntry {
+    const message = createBasePokemon_SizeForEntry();
+    message.key = object.key ?? "";
+    message.value = (object.value !== undefined && object.value !== null)
+      ? PersonalSize.fromPartial(object.value)
+      : undefined;
     return message;
   },
 };
@@ -8179,6 +8344,91 @@ export const FortScanResponse: MessageFns<FortScanResponse> = {
   },
 };
 
+function createBasePersonalSize(): PersonalSize {
+  return { height: 0, weight: 0 };
+}
+
+export const PersonalSize: MessageFns<PersonalSize> = {
+  encode(message: PersonalSize, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.height !== undefined && message.height !== 0) {
+      writer.uint32(13).float(message.height);
+    }
+    if (message.weight !== undefined && message.weight !== 0) {
+      writer.uint32(21).float(message.weight);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PersonalSize {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePersonalSize();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 13) {
+              break;
+            }
+
+            message.height = reader.float();
+            continue;
+          }
+          case 2: {
+            if (tag !== 21) {
+              break;
+            }
+
+            message.weight = reader.float();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): PersonalSize {
+    return {
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      weight: isSet(object.weight) ? globalThis.Number(object.weight) : 0,
+    };
+  },
+
+  toJSON(message: PersonalSize): unknown {
+    const obj: any = {};
+    if (message.height !== undefined && message.height !== 0) {
+      obj.height = message.height;
+    }
+    if (message.weight !== undefined && message.weight !== 0) {
+      obj.weight = message.weight;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PersonalSize>, I>>(base?: I): PersonalSize {
+    return PersonalSize.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PersonalSize>, I>>(object: I): PersonalSize {
+    const message = createBasePersonalSize();
+    message.height = object.height ?? 0;
+    message.weight = object.weight ?? 0;
+    return message;
+  },
+};
+
 /**
  * GolbatApi is the gRPC counterpart of the HTTP /api scan endpoints. Every
  * message mirrors the JSON request/response struct it is named after, field
@@ -8393,6 +8643,10 @@ function longToNumber(int64: { toString(): string }): number {
     throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
+}
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {
