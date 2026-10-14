@@ -106,8 +106,8 @@ with personal shiny support in its v3 pokemon scan
 - `apiKey`: Your PlayerID API key. It is only used by Diadem's server and never sent to browsers
 - `maxTrainers`: How many trainers one user can link (default 10)
 
-Linked trainers are stored in a `linked_trainer` table, which Diadem creates on startup when
-`[server.playerId]` is set. No `db:push` is needed when updating.
+Linked trainers are stored in a `linked_trainer` table. Run `pnpm run db:push` after updating
+(Docker installs do this automatically on start).
 
 ### Syncing linked trainers to Poracle
 
