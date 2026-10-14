@@ -1,0 +1,60 @@
+{
+	"provenance": {
+		"description": "Exact public source field subsets for Pawmi Normal (921, 3236); no game or account data.",
+		"gameMaster": {
+			"url": "https://raw.githubusercontent.com/PokeMiners/game_masters/8e227be44f288d34463e23bf04e9b564d3c16f79/latest/latest.json",
+			"sha256": "5c947ac64d1de8859bea1b3bf044609d74b6e8429d53f8cb1aa30a72a46dce84"
+		},
+		"masterfile": {
+			"url": "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/ab84e1e8fd63908da1ef781431f0f4b41ba422ab/master-latest-everything.json",
+			"sha256": "8f0372147098470b95338d65ce7033ee98523fdfea4c31672602fb8703f73927"
+		}
+	},
+	"gameMaster": [
+		{
+			"templateId": "EXTENDED_V0921_POKEMON_PAWMI_NORMAL",
+			"data": {
+				"pokemonExtendedSettings": {
+					"uniqueId": "PAWMI",
+					"form": "PAWMI_NORMAL",
+					"sizeSettings": {
+						"xxsLowerBound": 0.147,
+						"xsLowerBound": 0.15,
+						"mLowerBound": 0.225,
+						"mUpperBound": 0.375,
+						"xlUpperBound": 0.45,
+						"xxlUpperBound": 0.465
+					}
+				}
+			}
+		},
+		{
+			"templateId": "V0921_POKEMON_PAWMI_NORMAL",
+			"data": {
+				"pokemonSettings": {
+					"pokemonId": "PAWMI",
+					"form": "PAWMI_NORMAL",
+					"pokedexHeightM": 0.3,
+					"pokedexWeightKg": 2.5,
+					"weightStdDev": 0.3125
+				}
+			}
+		}
+	],
+	"masterfile": {
+		"pokemon": {
+			"921": {
+				"name": "Pawmi",
+				"pokedexId": 921,
+				"defaultFormId": 3236,
+				"forms": {
+					"3236": {
+						"name": "Normal",
+						"proto": "PAWMI_NORMAL",
+						"form": 3236
+					}
+				}
+			}
+		}
+	}
+}

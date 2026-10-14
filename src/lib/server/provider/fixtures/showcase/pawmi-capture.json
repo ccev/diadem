@@ -1,0 +1,30 @@
+{
+	"provenance": {
+		"kind": "Sanitized single-record projection of a genuine HTTP response",
+		"captured_date": "2026-10-14",
+		"endpoint": "POST /api/pokemon/v3/scan",
+		"status": 202,
+		"reported_personal_api_revision": "fe18d857e0dc18cd0ae1e3cef0673a9c480f70ad",
+		"additional_backend_guard": "ordinary-only-class-checked-v1",
+		"original_page_limit_reached": true,
+		"redactions": "Synthetic encounter ID, player ID and coordinates; other fields omitted. Species, form, IVs, size category and personal height/weight are unchanged.",
+		"scope": "One backend-predicted record, not a complete scan page or an observed game score."
+	},
+	"pokemon": {
+		"id": "1000000000000000001",
+		"lat": 0,
+		"lon": 0,
+		"pokemon_id": 921,
+		"form": 3236,
+		"atk_iv": 11,
+		"def_iv": 12,
+		"sta_iv": 12,
+		"size": 3,
+		"size_for": {
+			"fixture-trainer": {
+				"height": 0.24174303,
+				"weight": 1.2884699
+			}
+		}
+	}
+}

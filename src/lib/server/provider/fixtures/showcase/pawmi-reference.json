@@ -1,0 +1,48 @@
+{
+	"source": {
+		"url": "https://docs.google.com/spreadsheets/d/1ZZwlZ2DOYeO0ouUgu-jXn3qmIf8jE4WTa3BhmtVupHc/edit",
+		"xlsx_sha256": "11d6c273bbfb0473cdfb4033a116dc7413bab8b46e50b18279b4552a2ba105d8",
+		"named_formula": "SHOWCASE_SCORE",
+		"named_formula_sha256": "e606a72f540468835f644f9690cbfbfa677216266cf6e7c9a1c8acfc8796557b",
+		"metadata_cells": {
+			"Data!A1060": "Pawmi",
+			"Data!B1060": "0.3",
+			"Data!C1060": "2.5",
+			"Data!D1060": "1.55",
+			"Data!I1060": "0.3125"
+		}
+	},
+	"scope": "Independent arithmetic reference evaluated with Decimal precision 50 from the published SHOWCASE_SCORE formula and workbook metadata; no Diadem implementation was used. These are calculated scores, not observed game scores.",
+	"input": {
+		"pokemon_id": 921,
+		"form": 3236,
+		"height": "0.24174303",
+		"weight": "1.2884699",
+		"size": 3,
+		"atk_iv": 11,
+		"def_iv": 12,
+		"sta_iv": 12
+	},
+	"expected": {
+		"http_json_decimal": {
+			"height": "0.24174303",
+			"weight": "1.2884699",
+			"height_contribution": "415.90198709677419354838709677419354838709677419355",
+			"weight_contribution": "37.711314146341463414634146341463414634146341463415",
+			"iv_contribution": "38.888888888888888888888888888888888888888888888889",
+			"xxl_bonus": "0",
+			"score": "492.50219013200454585191013200454585191013200454585",
+			"float64": 492.50219013200456
+		},
+		"grpc_float32_exact": {
+			"height": "0.241743028163909912109375",
+			"weight": "1.28846991062164306640625",
+			"height_contribution": "415.90198393790952620967741935483870967741935483871",
+			"weight_contribution": "37.711314457218821455792682926829268292682926829268",
+			"iv_contribution": "38.888888888888888888888888888888888888888888888889",
+			"xxl_bonus": "0",
+			"score": "492.50218728401723655435899117055686685899117055687",
+			"float64": 492.5021872840172
+		}
+	}
+}
