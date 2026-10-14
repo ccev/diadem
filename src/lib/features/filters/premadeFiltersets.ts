@@ -60,6 +60,16 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 			}
 		}),
 		filterset<FiltersetPokemon>({
+			emoji: "✨",
+			title: "filter_template_personal_shiny",
+			personalShiny: true,
+			modifiers: {
+				glow: {
+					color: MODIFIER_COLORS.purple
+				}
+			}
+		}),
+		filterset<FiltersetPokemon>({
 			emoji: "🗑️",
 			title: "filter_template_nundo",
 			iv: { min: 0, max: 0 },

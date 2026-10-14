@@ -86,6 +86,34 @@ By default, Diadem shows a Globe icon for areas in the search menu. You can conf
 by setting a `lucideIcon` property in Koji.
 [You can find supported icons here.](https://lucide.dev/icons/) Make sure to convert the icon name from `kebab-case` to `PascalCase`.
 
+## `server.playerId`
+
+```toml
+[server.playerId]
+url = "https://playerid.mew.is"
+apiKey = "pid_..."
+maxTrainers = 10
+```
+
+Optional. Enables personal shinies: users link their trainers by friend code in the Profile
+menu, and pokemon that are shiny (or have a background) for one of their trainers are marked on
+the map and can be filtered with the **Personal Shinies** filterset attribute. Requires a Golbat
+with personal shiny support in its v3 pokemon scan
+([UnownHash/Golbat#423](https://github.com/UnownHash/Golbat/pull/423)) and its own
+`[shiny_rates]` configured.
+
+- `url`: Base URL of a [PlayerID](https://playerid.mew.is) service, which finds the player id behind a friend code. Must be accessible to Diadem's server
+- `apiKey`: Your PlayerID API key. It is only used by Diadem's server and never sent to browsers
+- `maxTrainers`: How many trainers one user can link (default 10)
+
+PlayerID's limits (requests per minute, tickets per day) apply to the whole map, since every
+user's lookups go through the one key. Tickets are keyed by friend code, so a code that was
+looked up before doesn't count against the daily limit again. A trainer who can't be invited
+(usually their remote raid limit) stays pending while PlayerID retries, which can take a day.
+
+Users also need the `pokemon_personal_shiny` permission (see [`server.permissions`](#serverpermissions)).
+Personal scans always use Golbat's HTTP API, since the gRPC API does not support them.
+
 ## Reverse Geocoding
 
 Diadem supports different geocoding providers for address search. 
@@ -229,7 +257,7 @@ Use the `*`-suffixed wildcard (`pokemon*`, `pokestop*`, `gym*`, `station*`) to r
 Supported feature keys:
 
 - `*` — everything
-- **Pokemon:** `pokemon` (basic — no iv/pvp/cp/level), `pokemon_iv` (iv/cp/level), `pokemon_pvp` (full — iv + pvp), `pokemon*`
+- **Pokemon:** `pokemon` (basic — no iv/pvp/cp/level), `pokemon_iv` (iv/cp/level), `pokemon_pvp` (full — iv + pvp), `pokemon*`, `pokemon_personal_shiny` (link trainers and see personal shinies, needs [`server.playerId`](#serverplayerid); not included in `pokemon*`)
 - **Pokestops:** `pokestop` (plain), `quest`, `invasion`, `lure`, `contest`, `kecleon`, `golden_pokestop`, `pokestop*`
 - **Gyms:** `gym` (plain), `raid`, `gym*`
 - **Stations:** `station` (plain), `max_battle`, `station*`

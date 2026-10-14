@@ -292,6 +292,20 @@
 			</BasicMainCard>
 		{/if}
 
+		<!--Personal shiny/background for linked trainers-->
+		{#if data.shiny_for?.length}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<span> ✨ </span>
+				{m.notice_personal_shiny({ trainers: data.shiny_for.join(", ") })}
+			</BasicMainCard>
+		{/if}
+		{#if data.background_for?.length}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<span> 🖼️ </span>
+				{m.notice_personal_background({ trainers: data.background_for.join(", ") })}
+			</BasicMainCard>
+		{/if}
+
 		<!--IV notices-->
 		{#if data.iv != null && data.iv > 99}
 			<BasicMainCard class="flex gap-2 font-medium justify-center">

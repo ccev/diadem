@@ -181,6 +181,10 @@ export function isPointInAllowedArea(
 export class FeaturePermissionContext {
 	private readonly everywhere = new Set<FeaturesKey>();
 	private readonly areaPolygons = new Map<FeaturesKey, Feature<Polygon>[]>();
+	/** Player id → trainer name for personal shiny/background scans. Server-side only. */
+	personalTrainers?: Map<string, string>;
+	/** linked_trainer id → player id, for filtersets limited to specific trainers. Server-side only. */
+	personalTrainerLinks?: Map<string, string>;
 
 	constructor(perms: Perms, features: FeaturesKey[]) {
 		for (const feature of features) {

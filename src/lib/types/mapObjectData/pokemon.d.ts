@@ -73,4 +73,10 @@ export type PokemonData = {
 	};
 	is_event?: number;
 	strong?: number;
+	/** Linked trainers (by name) this pokemon is shiny for */
+	shiny_for?: string[];
+	/** Same trainers as shiny_for, by linked_trainer id, for per-trainer filtersets */
+	shiny_for_links?: string[];
+	/** Linked trainers (by name) this pokemon has a background for */
+	background_for?: string[];
 } & PokemonVisual;
