@@ -189,6 +189,13 @@ export type ServerConfig = {
 		/** Linked trainers per user. Default 10. */
 		maxTrainers?: number;
 	};
+	poracle?: {
+		/** PoracleNG API, e.g. http://127.0.0.1:3030 */
+		url: string;
+		secret?: string;
+		/** Copy linked trainers to the user's Poracle accounts. Default false. */
+		syncLinkedTrainers?: boolean;
+	};
 	log: Log;
 	internalDb: DbCreds;
 	auth: Auth;

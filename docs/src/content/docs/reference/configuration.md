@@ -109,6 +109,30 @@ with personal shiny support in its v3 pokemon scan
 Linked trainers are stored in a `linked_trainer` table, which Diadem creates on startup when
 `[server.playerId]` is set. No `db:push` is needed when updating.
 
+### Syncing linked trainers to Poracle
+
+```toml
+[server.poracle]
+url = "http://127.0.0.1:3030"
+secret = "your-poracle-api-secret"
+syncLinkedTrainers = true
+```
+
+Optional, and off unless `syncLinkedTrainers = true`. When enabled, a trainer's player id is added
+to the user's [PoracleNG](https://github.com/jfberry/PoracleNG) linked accounts as soon as it's
+linked in Diadem (labelled with the trainer name), and removed when it's unlinked, so Poracle's
+personal shiny alerts work without linking the same trainers again there. Once an hour per user,
+trainers that Poracle is missing (for example ones linked before syncing was enabled) are added.
+Accounts added in Poracle directly are left alone.
+
+- `url`: PoracleNG's API, must be accessible to Diadem's server
+- `secret`: Poracle's API secret, sent as `X-Poracle-Secret`
+- `syncLinkedTrainers`: Enables the sync (default `false`)
+
+Needs a PoracleNG with personal shiny support (its `/health` reports `capabilities.personalShiny`);
+otherwise nothing is synced. Users who aren't registered in Poracle are skipped. Syncing never
+blocks or fails linking in Diadem; problems are only logged.
+
 PlayerID's limits (requests per minute, tickets per day) apply to the whole map, since every
 user's lookups go through the one key. Tickets are keyed by friend code, so a code that was
 looked up before doesn't count against the daily limit again. A trainer who can't be invited

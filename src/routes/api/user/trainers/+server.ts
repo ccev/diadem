@@ -7,6 +7,10 @@ import {
 	getPlayerIdLink,
 	normalizeFriendCode
 } from "@/lib/server/api/playerIdApi";
+import {
+	addLinkedTrainerToPoracle,
+	resyncLinkedTrainersToPoracle
+} from "@/lib/server/api/poracleSync";
 import type { LinkedTrainer } from "@/lib/server/db/internal/schema";
 import {
 	deleteTrainer,
@@ -79,6 +83,20 @@ export const GET: RequestHandler = async ({ locals, request }) => {
 	const refreshed = await Promise.all(
 		rows.map((row) => refreshPending(userId, row, linkedPlayers))
 	);
+
+	// Optional Poracle sync, in the background: newly linked trainers are added right away, and
+	// the rest are checked now and then in case Poracle is missing any
+	const discordId = locals.user.discordId;
+	const linked = refreshed.flatMap((row) =>
+		row?.status === "complete" && row.playerId
+			? [{ id: row.id, playerId: row.playerId, trainerName: row.trainerName }]
+			: []
+	);
+	const wasLinked = new Set(rows.filter((row) => row.status === "complete").map((row) => row.id));
+	for (const trainer of linked) {
+		if (!wasLinked.has(trainer.id)) void addLinkedTrainerToPoracle(discordId, trainer);
+	}
+	void resyncLinkedTrainersToPoracle(discordId, linked);
 
 	return respond(request, {
 		error: null,
