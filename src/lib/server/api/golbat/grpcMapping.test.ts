@@ -83,6 +83,17 @@ describe("toPokemonScanRequest", () => {
 		expect(req.limit).toBe(3000);
 	});
 
+	it("passes personal shiny fields through", () => {
+		const req = toPokemonScanRequest({
+			...bounds,
+			limit: 1,
+			filters: [{ shiny_for: ["p1"], background_for: ["p2"] }],
+			annotate_for: ["p1", "p2"]
+		});
+		expect(req.filters).toEqual([{ pokemon: [], shiny_for: ["p1"], background_for: ["p2"] }]);
+		expect(req.annotate_for).toEqual(["p1", "p2"]);
+	});
+
 	it("keeps the empty-pokemon catch-all clause", () => {
 		const req = toPokemonScanRequest({ ...bounds, limit: 1, filters: [{ pokemon: [] }] });
 		expect(req.filters).toEqual([{ pokemon: [] }]);
@@ -285,6 +296,14 @@ describe("fromPokemonScanResponse", () => {
 		expect(mon.pvp).toEqual({ great: [great], ultra: [ultra] });
 		expect(mon).not.toHaveProperty("spawn_id");
 		expect(mon).not.toHaveProperty("cell_id");
+	});
+
+	it("keeps personal shiny annotations", () => {
+		const res = fromPokemonScanResponse({
+			pokemon: [{ id: "1", pokemon_id: 25, shiny_for: ["p1"], background_for: ["p1", "p2"] }]
+		});
+		expect(res.pokemon[0].shiny_for).toEqual(["p1"]);
+		expect(res.pokemon[0].background_for).toEqual(["p1", "p2"]);
 	});
 
 	it("omits pvp entirely when every league is empty or unset", () => {

@@ -1,4 +1,4 @@
-// Copied verbatim from UnownHash/Golbat grpc/api.proto at commit b24956a (branch feat/grpc-api).
+// Copied verbatim from UnownHash/Golbat grpc/api.proto at commit a1938c6 (PR #423, branch personal-shiny-filter).
 // Do not edit. Re-copy when Golbat changes it, then run `pnpm run grpc:generate` and commit both.
 syntax = "proto3";
 
@@ -8,7 +8,9 @@ package golbat_api;
 
 // GolbatApi is the gRPC counterpart of the HTTP /api scan endpoints. Every
 // message mirrors the JSON request/response struct it is named after, field
-// for field (see docs/superpowers/specs/2026-09-09-grpc-api-design.md).
+// for field; decoder/api_grpc_parity_test.go enforces that. Semantics,
+// auth and the differences from the JSON API are documented in api.md
+// under "gRPC API".
 service GolbatApi {
   // POST /api/pokemon/v3/scan
   rpc ScanPokemon (PokemonScanRequest) returns (PokemonScanResponse) {}
@@ -60,6 +62,11 @@ message PokemonDnfFilter {
   IntRange pvp_little = 10;
   IntRange pvp_great = 11;
   IntRange pvp_ultra = 12;
+  // Personal conditions, as in JSON: match if shiny (or has a background)
+  // for any of these player IDs; ANDed with the rest of the clause. Empty
+  // means no constraint. Needs [shiny_rates]; see docs/personal-shinies.md.
+  repeated string shiny_for = 13;
+  repeated string background_for = 14;
 }
 
 message PokemonScanRequest {
@@ -69,6 +76,15 @@ message PokemonScanRequest {
   // OR'd clauses. As in the JSON API an EMPTY list matches nothing; send one
   // clause with no conditions ({}) to match every pokemon.
   repeated PokemonDnfFilter filters = 4;
+  // Only pokemon with updated > updated_after (unix seconds); unset = all.
+  // Applied at response build, after the scan and limit: counters and
+  // limit_reached describe the scan, so a page may come back short. Entities
+  // that expire or stop matching disappear silently; pass max(updated)-1
+  // from the previous response and expect the boundary second again.
+  optional int64 updated_after = 5;
+  // Player IDs to check every returned pokemon against; results list the
+  // matching ones in Pokemon.shiny_for / background_for. Does not filter.
+  repeated string annotate_for = 6;
 }
 
 message PokemonScanResponse {
@@ -146,6 +162,10 @@ message Pokemon {
   optional double capture_3 = 36;
   PvpRankings pvp = 37;
   int32 is_event = 38;
+  // Player IDs from PokemonScanRequest.annotate_for this pokemon is shiny
+  // for / has a background for. Empty unless annotate_for was sent.
+  repeated string shiny_for = 39;
+  repeated string background_for = 40;
 }
 
 // ---- forts ----
@@ -195,6 +215,7 @@ message FortScanRequest {
   int32 limit = 3;                       // 0 = server default (tuning.max_fort_results)
   repeated FortDnfFilter filters = 4;    // empty = every fort of the requested type
   bool with_incidents = 5;               // pokestop scans only
+  optional int64 updated_after = 6;      // see PokemonScanRequest.updated_after
 }
 
 message FortTypeScanGroup {
@@ -216,6 +237,7 @@ message FortCombinedScanRequest {
   FortTypeScanGroup gyms = 5;            // unset = exclude gyms (unless all three unset)
   FortTypeScanGroup pokestops = 6;
   FortTypeScanGroup stations = 7;
+  optional int64 updated_after = 8;      // applies to every group; see PokemonScanRequest.updated_after
 }
 
 // Mirrors decoder.ApiPokestopIncident.

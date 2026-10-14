@@ -139,7 +139,6 @@ looked up before doesn't count against the daily limit again. A trainer who can'
 (usually their remote raid limit) stays pending while PlayerID retries, which can take a day.
 
 Users also need the `pokemon_personal_shiny` permission (see [`server.permissions`](#serverpermissions)).
-Personal scans always use Golbat's HTTP API, since the gRPC API does not support them.
 
 ## Reverse Geocoding
 

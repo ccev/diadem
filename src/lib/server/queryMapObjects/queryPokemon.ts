@@ -86,10 +86,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const personalPlayers = [...(context?.personalTrainers?.keys() ?? [])];
 		if (personalPlayers.length > 0) body.annotate_for = personalPlayers;
 
-		// Golbat only supports personal fields over HTTP; gRPC would silently drop them
-		const result = body.annotate_for
-			? await getMultiplePokemon(body)
-			: await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
+		const result = await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
 
 		if (result) {
 			const data: MinMapObject<PokemonData>[] = [];
