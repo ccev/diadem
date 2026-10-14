@@ -69,6 +69,8 @@
 	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
 	import { mLeague } from "$lib/services/ingameLocale.ts";
 	import { getIconLeague } from "$lib/services/uicons.svelte.ts";
+	import PersonalShowcase from "@/components/ui/popups/pokemon/PersonalShowcase.svelte";
+	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 
 	export { image, overview, main };
 
@@ -228,6 +230,7 @@
 
 {#snippet main(d: MapData)}
 	{@const data = d as PokemonData}
+	{@const personalData = getMapObjects()[data.mapId] ?? data}
 	{@const stats: PokemonStats | undefined = getMasterPokemonStats(data.pokemon_id, data.form ?? 0)}
 	{@const statsEntry = stats?.entry}
 	{@const WeatherIcon = getWeatherIcon(data.weather)}
@@ -289,6 +292,20 @@
 			<BasicMainCard class="flex gap-2 justify-center">
 				<BicepsFlexed class="size-4 mt-0.5" />
 				{m.notice_mighty()}
+			</BasicMainCard>
+		{/if}
+
+		<!--Personal shiny/background for linked trainers-->
+		{#if data.shiny_for?.length}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<span> ✨ </span>
+				{m.notice_personal_shiny({ trainers: data.shiny_for.join(", ") })}
+			</BasicMainCard>
+		{/if}
+		{#if data.background_for?.length}
+			<BasicMainCard class="flex gap-2 font-medium justify-center">
+				<span> 🖼️ </span>
+				{m.notice_personal_background({ trainers: data.background_for.join(", ") })}
 			</BasicMainCard>
 		{/if}
 
@@ -355,6 +372,10 @@
 			</BasicMainCard>
 		{/if}
 	</div>
+
+	{#if personalData.type === MapObjectType.POKEMON && canSeeIv(personalData) && isPointInAllowedArea(getUserDetails().permissions, Features.POKEMON_PERSONAL_SHINY, personalData.lat, personalData.lon) && Object.keys(personalData.personal_sizes ?? {}).length}
+		<PersonalShowcase data={personalData} />
+	{/if}
 
 	{#if data.iv != null || data.cp != null || data.level != null}
 		<TitledMainSection Icon={SquareChartGantt} title={m.values()}>

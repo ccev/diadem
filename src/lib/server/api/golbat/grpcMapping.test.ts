@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { status } from "@grpc/grpc-js";
+import { PokemonScanRequest, PokemonScanResponse } from "../grpc/golbat_api";
 import {
 	describeGrpcError,
 	fromFortScanResponse,
@@ -81,6 +82,31 @@ describe("toPokemonScanRequest", () => {
 			}
 		]);
 		expect(req.limit).toBe(3000);
+	});
+
+	it("passes personal shiny fields through", () => {
+		const req = toPokemonScanRequest({
+			...bounds,
+			limit: 1,
+			filters: [{ shiny_for: ["p1"], background_for: ["p2"] }],
+			annotate_for: ["p1", "p2"]
+		});
+		expect(req.filters).toEqual([{ pokemon: [], shiny_for: ["p1"], background_for: ["p2"] }]);
+		expect(req.annotate_for).toEqual(["p1", "p2"]);
+	});
+
+	it("preserves opaque annotation player ids over the protobuf wire", () => {
+		const players = ["Player-ID:ABC/123", " Trainer-é "];
+		const request = toPokemonScanRequest({
+			...bounds,
+			limit: 10,
+			filters: [{ shiny_for: [players[0]], background_for: [players[1]] }],
+			annotate_for: players
+		});
+		const decoded = PokemonScanRequest.decode(PokemonScanRequest.encode(request).finish());
+		expect(decoded.annotate_for).toEqual(players);
+		expect(decoded.filters?.[0].shiny_for).toEqual([players[0]]);
+		expect(decoded.filters?.[0].background_for).toEqual([players[1]]);
 	});
 
 	it("keeps the empty-pokemon catch-all clause", () => {
@@ -285,6 +311,54 @@ describe("fromPokemonScanResponse", () => {
 		expect(mon.pvp).toEqual({ great: [great], ultra: [ultra] });
 		expect(mon).not.toHaveProperty("spawn_id");
 		expect(mon).not.toHaveProperty("cell_id");
+	});
+
+	it("keeps personal shiny annotations", () => {
+		const res = fromPokemonScanResponse({
+			pokemon: [{ id: "1", pokemon_id: 25, shiny_for: ["p1"], background_for: ["p1", "p2"] }]
+		});
+		expect(res.pokemon[0].shiny_for).toEqual(["p1"]);
+		expect(res.pokemon[0].background_for).toEqual(["p1", "p2"]);
+	});
+
+	it("preserves each player's personal dimensions through protobuf decoding and HTTP-shape mapping", () => {
+		const decoded = PokemonScanResponse.decode(
+			PokemonScanResponse.encode({
+				pokemon: [
+					{
+						id: "18446744073709551557",
+						pokemon_id: 25,
+						size_for: {
+							"Player-ID:ABC/123": { height: 0.71, weight: 6.52 },
+							" Trainer-é ": { height: 0.75, weight: 0 }
+						}
+					}
+				],
+				examined: 1,
+				total: 1
+			}).finish()
+		);
+		const result = fromPokemonScanResponse(decoded);
+		expect(result.pokemon[0].id).toBe("18446744073709551557");
+		expect(result.pokemon[0].size_for).toEqual({
+			"Player-ID:ABC/123": { height: Math.fround(0.71), weight: Math.fround(6.52) },
+			" Trainer-é ": { height: 0.75, weight: 0 }
+		});
+	});
+
+	it("omits unavailable and empty personal dimension maps after protobuf decoding", () => {
+		const decoded = PokemonScanResponse.decode(
+			PokemonScanResponse.encode({
+				pokemon: [
+					{ id: "1", pokemon_id: 25 },
+					{ id: "2", pokemon_id: 25, size_for: {} }
+				]
+			}).finish()
+		);
+		const result = fromPokemonScanResponse(decoded);
+		for (const pokemon of result.pokemon) {
+			expect(pokemon).not.toHaveProperty("size_for");
+		}
 	});
 
 	it("omits pvp entirely when every league is empty or unset", () => {

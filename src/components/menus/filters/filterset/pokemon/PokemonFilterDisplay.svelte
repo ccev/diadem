@@ -6,13 +6,16 @@
 		getAttributeLabelIvValues,
 		getAttributeLabelLevel,
 		getAttributeLabelRank,
-		getAttributeLabelSize
+		getAttributeLabelSize,
+		personalShinyTrainerLabel
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import * as m from "@/lib/paraglide/messages";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
+	import { getCompleteTrainers } from "@/lib/services/linkedTrainers.svelte";
+	import { formatNumber } from "@/lib/utils/numberFormat";
 
 	let {
 		data
@@ -26,6 +29,26 @@
 		<PokemonDisplay label={m.species()} pokemon={data.pokemon} />
 	{/if}
 
+	{#if data.personalShiny}
+		<AttributeDisplay
+			label={m.personal_shiny_filter()}
+			value={personalShinyTrainerLabel(data) ?? m.personal_shiny_all_trainers()}
+		/>
+	{/if}
+	{#if data.showcase}
+		{@const trainer = getCompleteTrainers().find(
+			(trainer) => trainer.id === data.showcase?.trainerId
+		)}
+		<AttributeDisplay
+			label={m.showcase_filter()}
+			value={m.showcase_filter_summary({
+				trainer: trainer
+					? (trainer.trainerName ?? m.linked_trainers_unnamed())
+					: m.personal_shiny_trainer_missing(),
+				score: formatNumber(data.showcase.minScore)
+			})}
+		/>
+	{/if}
 	{#if data.iv}
 		<AttributeDisplay
 			label={m.iv_product_label_long()}

@@ -80,6 +80,17 @@ export type FiltersetPokemon = BaseFilterset & {
 	pvpRankLittle?: MinMax;
 	pvpRankGreat?: MinMax;
 	pvpRankUltra?: MinMax;
+	/** Only pokemon that are shiny for one of the user's linked trainers */
+	personalShiny?: boolean;
+	/**
+	 * Limit personalShiny to these linked trainers (linked_trainer ids, as listed by
+	 * /api/user/trainers). [] = explicitly all linked trainers. Absent = not chosen yet:
+	 * matches all, and is pinned to the user's trainer while they have exactly one, so
+	 * linking a second trainer later doesn't widen filtersets made for the first.
+	 */
+	personalShinyTrainers?: string[];
+	/** Predicted biggest-showcase score for one linked_trainer id. */
+	showcase?: { trainerId: string; minScore: number };
 };
 
 export type FiltersetPokestopPlain = BaseFilterset & {

@@ -21,6 +21,20 @@ defaultNestName = "Unknown Nest"
 url = "http://127.0.0.1:7272"
 secret = ""
 
+# Optional personal shinies: trainers are linked by friend code through a PlayerID service.
+# Needs Golbat with personal shiny support and [shiny_rates] configured, and the
+# pokemon_personal_shiny permission. Comment out to disable
+#[server.playerId]
+#url = "https://playerid.mew.is"
+#apiKey = ""
+
+# Optional, for personal shinies: also link users' trainers in PoracleNG (needs PoracleNG with
+# personal shiny support), so its personal shiny alerts work without linking them again there
+#[server.poracle]
+#url = "http://127.0.0.1:3030"
+#secret = ""
+#syncLinkedTrainers = true
+
 # Optional Koji integrtion. Comment out to disable
 [server.koji]
 url = "http://127.0.0.1:8080"

@@ -127,7 +127,16 @@ one worker until rate limiting is backed by shared storage.
 		pnpm install
 		pnpm run build
 		```
-	3. Restart
+
+	3. Update the internal DB schema
+
+		```bash
+		pnpm run db:push
+		```
+
+		Only changes Diadem's own tables. When nothing changed it reports `No changes detected`.
+
+	4. Restart
 		```bash
 		pm2 restart diadem
 		```

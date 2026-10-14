@@ -3,6 +3,7 @@ import type * as pb from "@/lib/server/api/grpc/golbat_api";
 import type {
 	FortCombinedScanResponse,
 	GolbatGymResult,
+	GolbatPokemonResult,
 	GolbatPokestopResult,
 	GolbatStationResult,
 	GymScanResponse,
@@ -15,7 +16,6 @@ import type {
 	FortTypeScanStats,
 	PokemonScanBody
 } from "./types";
-import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { Incident } from "@/lib/types/mapObjectData/pokestop";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
 
@@ -41,7 +41,8 @@ export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanReque
 		filters: body.filters.map(({ pokemon, ...ranges }) => ({
 			...ranges,
 			pokemon: pokemon?.map(({ id, form }) => ({ pokemon_id: id, form })) ?? []
-		}))
+		})),
+		annotate_for: body.annotate_for
 	};
 }
 
@@ -147,9 +148,11 @@ export function fromFortScanResponse(res: pb.FortScanResponse): FortCombinedScan
 	};
 }
 
-function fromPokemon(p: pb.Pokemon): MinMapObject<PokemonData> {
+function fromPokemon(p: pb.Pokemon): GolbatPokemonResult {
 	const { spawn_id, cell_id, pvp, ...rest } = p;
-	const pokemon = rest as MinMapObject<PokemonData>;
+	const pokemon = rest as GolbatPokemonResult;
+	// Protobuf decodes an absent map as {}, whereas HTTP omits empty annotations.
+	if (Object.keys(p.size_for ?? {}).length === 0) delete pokemon.size_for;
 	const rankings: NonNullable<PokemonData["pvp"]> = {};
 	if (pvp?.little?.length) rankings.little = pvp.little as PvpStats[];
 	if (pvp?.great?.length) rankings.great = pvp.great as PvpStats[];

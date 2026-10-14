@@ -1,8 +1,28 @@
 diff --git a/api.js b/api.js
-index f4ecb91959f62fc938416a0585458c0a710af161..cff5e6308fb0e46961c4c441f9f2e8406c482978 100644
+index f4ecb91959f62fc938416a0585458c0a710af161..a80538398a1b4822ffba5832031175c8cdef006f 100644
 --- a/api.js
 +++ b/api.js
-@@ -25345,10 +25345,12 @@ AND
+@@ -25074,7 +25074,7 @@ ${withStyle.errorWarning(
+         const dataType = column6["DATA_TYPE"];
+         const columnType = column6["COLUMN_TYPE"];
+         const isPrimary = column6["COLUMN_KEY"] === "PRI";
+-        const columnDefault = column6["COLUMN_DEFAULT"];
++        const columnDefault = column6["COLUMN_DEFAULT"] === "NULL" && column6["IS_NULLABLE"] === "YES" ? null : column6["COLUMN_DEFAULT"];
+         const collation = column6["CHARACTER_SET_NAME"];
+         const geenratedExpression = column6["GENERATION_EXPRESSION"];
+         let columnExtra = column6["EXTRA"];
+@@ -25166,8 +25166,8 @@ ${withStyle.errorWarning(
+       const tableToPk = {};
+       const tableToPkRows = tablePks;
+       for (const tableToPkRow of tableToPkRows) {
+-        const tableName = tableToPkRow["TABLE_NAME"];
+-        const columnName = tableToPkRow["COLUMN_NAME"];
++        const tableName = tableToPkRow["TABLE_NAME"] ?? tableToPkRow["table_name"];
++        const columnName = tableToPkRow["COLUMN_NAME"] ?? tableToPkRow["column_name"];
+         const position = tableToPkRow["ordinal_position"];
+         if (typeof result[tableName] === "undefined") {
+           continue;
+@@ -25345,10 +25345,17 @@ AND
          progressCallback("checks", checksCount, "fetching");
        }
        for (const checkConstraintRow of checkConstraints) {
@@ -15,14 +35,39 @@ index f4ecb91959f62fc938416a0585458c0a710af161..cff5e6308fb0e46961c4c441f9f2e840
          const tableInResult = result[tableName];
 +        if (typeof tableInResult === "undefined")
 +          continue;
++        const jsonColumn = tableInResult.columns[constraintName];
++        if (jsonColumn && (jsonColumn.type === "longtext" || jsonColumn.type === "json") && constraintValue === `json_valid(\`${constraintName}\`)`) {
++          jsonColumn.type = "json";
++          continue;
++        }
          tableInResult.checkConstraint[constraintName] = {
            name: constraintName,
            value: constraintValue
 diff --git a/api.mjs b/api.mjs
-index a940272dfb05accf57a472c46c52652ec9ad0080..3a4b4ebf315694e713fce6b9527c229058ee15ce 100644
+index a940272dfb05accf57a472c46c52652ec9ad0080..9e5be11e9a39aceee55a3f366417fc32f35ab358 100644
 --- a/api.mjs
 +++ b/api.mjs
-@@ -25374,10 +25374,12 @@ AND
+@@ -25103,7 +25103,7 @@ ${withStyle.errorWarning(
+         const dataType = column6["DATA_TYPE"];
+         const columnType = column6["COLUMN_TYPE"];
+         const isPrimary = column6["COLUMN_KEY"] === "PRI";
+-        const columnDefault = column6["COLUMN_DEFAULT"];
++        const columnDefault = column6["COLUMN_DEFAULT"] === "NULL" && column6["IS_NULLABLE"] === "YES" ? null : column6["COLUMN_DEFAULT"];
+         const collation = column6["CHARACTER_SET_NAME"];
+         const geenratedExpression = column6["GENERATION_EXPRESSION"];
+         let columnExtra = column6["EXTRA"];
+@@ -25195,8 +25195,8 @@ ${withStyle.errorWarning(
+       const tableToPk = {};
+       const tableToPkRows = tablePks;
+       for (const tableToPkRow of tableToPkRows) {
+-        const tableName = tableToPkRow["TABLE_NAME"];
+-        const columnName = tableToPkRow["COLUMN_NAME"];
++        const tableName = tableToPkRow["TABLE_NAME"] ?? tableToPkRow["table_name"];
++        const columnName = tableToPkRow["COLUMN_NAME"] ?? tableToPkRow["column_name"];
+         const position = tableToPkRow["ordinal_position"];
+         if (typeof result[tableName] === "undefined") {
+           continue;
+@@ -25374,10 +25374,17 @@ AND
          progressCallback("checks", checksCount, "fetching");
        }
        for (const checkConstraintRow of checkConstraints) {
@@ -35,14 +80,39 @@ index a940272dfb05accf57a472c46c52652ec9ad0080..3a4b4ebf315694e713fce6b9527c2290
          const tableInResult = result[tableName];
 +        if (typeof tableInResult === "undefined")
 +          continue;
++        const jsonColumn = tableInResult.columns[constraintName];
++        if (jsonColumn && (jsonColumn.type === "longtext" || jsonColumn.type === "json") && constraintValue === `json_valid(\`${constraintName}\`)`) {
++          jsonColumn.type = "json";
++          continue;
++        }
          tableInResult.checkConstraint[constraintName] = {
            name: constraintName,
            value: constraintValue
 diff --git a/bin.cjs b/bin.cjs
-index 07274ea6f53fd54a129b3d338892feda6e995cff..0372da84aaff2c165c21c77747bd4626f62fcbb8 100755
+index 07274ea6f53fd54a129b3d338892feda6e995cff..38177f8329c5e20f2253339f2743e6bf8027538d 100755
 --- a/bin.cjs
 +++ b/bin.cjs
-@@ -16683,10 +16683,12 @@ AND
+@@ -16412,7 +16412,7 @@ ${withStyle.errorWarning(
+         const dataType = column11["DATA_TYPE"];
+         const columnType = column11["COLUMN_TYPE"];
+         const isPrimary = column11["COLUMN_KEY"] === "PRI";
+-        const columnDefault = column11["COLUMN_DEFAULT"];
++        const columnDefault = column11["COLUMN_DEFAULT"] === "NULL" && column11["IS_NULLABLE"] === "YES" ? null : column11["COLUMN_DEFAULT"];
+         const collation = column11["CHARACTER_SET_NAME"];
+         const geenratedExpression = column11["GENERATION_EXPRESSION"];
+         let columnExtra = column11["EXTRA"];
+@@ -16504,8 +16504,8 @@ ${withStyle.errorWarning(
+       const tableToPk = {};
+       const tableToPkRows = tablePks;
+       for (const tableToPkRow of tableToPkRows) {
+-        const tableName = tableToPkRow["TABLE_NAME"];
+-        const columnName = tableToPkRow["COLUMN_NAME"];
++        const tableName = tableToPkRow["TABLE_NAME"] ?? tableToPkRow["table_name"];
++        const columnName = tableToPkRow["COLUMN_NAME"] ?? tableToPkRow["column_name"];
+         const position = tableToPkRow["ordinal_position"];
+         if (typeof result[tableName] === "undefined") {
+           continue;
+@@ -16683,10 +16683,17 @@ AND
          progressCallback("checks", checksCount, "fetching");
        }
        for (const checkConstraintRow of checkConstraints) {
@@ -55,6 +125,11 @@ index 07274ea6f53fd54a129b3d338892feda6e995cff..0372da84aaff2c165c21c77747bd4626
          const tableInResult = result[tableName];
 +        if (typeof tableInResult === "undefined")
 +          continue;
++        const jsonColumn = tableInResult.columns[constraintName];
++        if (jsonColumn && (jsonColumn.type === "longtext" || jsonColumn.type === "json") && constraintValue === `json_valid(\`${constraintName}\`)`) {
++          jsonColumn.type = "json";
++          continue;
++        }
          tableInResult.checkConstraint[constraintName] = {
            name: constraintName,
            value: constraintValue
