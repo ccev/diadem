@@ -23,12 +23,13 @@ export function personalShinyTrainerLabel(filter: FiltersetPokemon): string | un
 		.join(", ");
 }
 
-export function pokemonFiltersetRequiredFeature(fs: FiltersetPokemon): FeaturesKey {
-	if (fs.pvpRankLittle || fs.pvpRankGreat || fs.pvpRankUltra) return Features.POKEMON_PVP;
-	if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size)
-		return Features.POKEMON_IV;
-	if (fs.personalShiny) return Features.POKEMON_PERSONAL_SHINY;
-	return Features.POKEMON;
+export function pokemonFiltersetRequiredFeatures(fs: FiltersetPokemon): FeaturesKey[] {
+	const required: FeaturesKey[] = [];
+	if (fs.pvpRankLittle || fs.pvpRankGreat || fs.pvpRankUltra) required.push(Features.POKEMON_PVP);
+	else if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size)
+		required.push(Features.POKEMON_IV);
+	if (fs.personalShiny) required.push(Features.POKEMON_PERSONAL_SHINY);
+	return required;
 }
 
 export const pokemonBounds = {

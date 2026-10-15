@@ -176,6 +176,7 @@
 	"details": "Details",
 	"shared_pokemon_filter": "Shared Pokémon Filter",
 	"unknown_filter": "Unknown Filter",
+	"filter_template_shundo": "Shundo",
 	"filter_template_hundo": "100% IV",
 	"filter_template_nundo": "0% IV",
 	"filter_template_rank1_great": "Rank 1 Great League",
