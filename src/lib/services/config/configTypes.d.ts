@@ -144,6 +144,7 @@ export type ServerConfig = {
 		auth?: string;
 		secret?: string;
 		defaultNestName?: string;
+		nestSource?: "fletchling" | "talonflame";
 		grpc?: string;
 		fortApi?: boolean;
 	};

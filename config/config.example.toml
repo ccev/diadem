@@ -16,6 +16,9 @@ secret = ""
 # This can be configured in Fletchling. Match the string to its config
 defaultNestName = "Unknown Nest"
 
+# Use confirmed logical groups and spawnpoint footprints from Talonflame
+# nestSource = "talonflame"
+
 # Dragonite integration for scout
 [server.dragonite]
 url = "http://127.0.0.1:7272"

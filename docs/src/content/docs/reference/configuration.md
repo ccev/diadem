@@ -38,6 +38,28 @@ defaultNestName = "Unknown Nest"
 - `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
 - `fortApi`: Optional, default `true`. Set to `false` to keep gyms, pokéstops and stations on SQL even when Golbat offers the fort API (this also bypasses gRPC for them). Useful for benchmarking the three paths.
 - `defaultNestName`: The default nest name, as configured in Fletchling
+- `nestSource`: Optional, `"fletchling"` (default) or `"talonflame"`. Selects the nest backend for map queries, direct nest links and nest statistics.
+
+### Talonflame nests
+
+Set `nestSource = "talonflame"` under `[server.golbat]` when using Talonflame.
+Talonflame's schema and spawnpoint backfill must already be applied to the database
+configured in `server.db`. Diadem's database account needs `SELECT` on `nests`,
+`talonflame_nest_groups`, `talonflame_nest_sources` and `talonflame_spawnpoint_state`.
+
+Each confirmed logical group gets its own marker and stable ID, including inferred
+subnests with negative IDs. Multiple source polygons linked to the same group do
+not create duplicate nests. Conflicting and provisional groups are excluded.
+
+Markers are placed on assigned spawnpoints. Outlines show the assigned level-20
+S2 spawnpoint cells, not the entire imported park boundary: this is a conservative
+membership footprint, not an inferred exact park boundary. Separate populations
+within one park can therefore be displayed without assigning the entire park to
+every species. Legacy Fletchling averages/ratios are unavailable in this mode.
+
+Talonflame has no per-group update timestamp, so nest queries return the current
+confirmed groups even during incremental refreshes. `last_changed` remains the
+inferred species-change boundary and is not used as a freshness timestamp.
 
 ### Golbat Fort API
 
