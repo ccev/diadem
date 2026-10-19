@@ -33,8 +33,14 @@ const ATTACK_BONUSES: Record<string, number> = {
 };
 
 export function getStationTitle(data: StationData) {
-	if (isMaxBattleActive(data) && data.battle_pokemon_id) return mPokemon(getStationPokemon(data));
+	if (hasMaxBattle(data)) return mPokemon(getStationPokemon(data));
 	return data.name ?? m.pogo_station();
+}
+
+// A known, unexpired boss remains visible outside the station's active battle hours.
+// Keep this separate from isMaxBattleActive, which controls activity filters and station icons.
+export function hasMaxBattle(data: Partial<StationData>) {
+	return (data.battle_pokemon_id ?? 0) > 0 && (data.end_time ?? 0) > currentTimestamp();
 }
 
 export function isMaxBattleActive(data: Partial<StationData>) {
