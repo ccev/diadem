@@ -52,7 +52,7 @@ export function getBiomeFieldLabel(field: keyof typeof fieldLabels, value?: numb
 	return fieldLabels[field][value]?.() ?? m.biome_unknown_value({ value });
 }
 
-type BiomeName =
+export type BiomeName =
 	| "cropland"
 	| "shrubland"
 	| "forest"
@@ -90,8 +90,9 @@ const temperatureNames: Record<
 	6: "polar"
 };
 
-// Shared by titles and colors: water > beach > desert > city > landcover.
-function getInternalBiomeName(fields: BiomeFields): BiomeName | undefined {
+// Shared by titles, colors and icons: water > beach > desert > city > landcover.
+export function getBiomeName(fields: BiomeFields | null): BiomeName | undefined {
+	if (!fields) return;
 	const features = fields.features ?? [];
 	if ([3, 4, 5].filter((feature) => features.includes(feature)).length > 1) return "waters";
 	for (const [feature, name] of [
@@ -111,7 +112,7 @@ export function getBiomeLabel(profile: BiomeProfile): string {
 	const fields = profile.fields;
 	if (!fields) return m.biome();
 
-	const name = getInternalBiomeName(fields);
+	const name = getBiomeName(fields);
 	const temperature = temperatureNames[fields.temperature ?? 0];
 	if (!name || !temperature) return m.biome();
 
@@ -144,7 +145,7 @@ const biomeColors: Record<BiomeName, [number, number, number]> = {
 export function getBiomeColor(profile: BiomeProfile, opacity = 0.25): string {
 	let color: [number, number, number] = [98, 116, 142]; // slate-500 fallback
 	if (profile.fields) {
-		const name = getInternalBiomeName(profile.fields);
+		const name = getBiomeName(profile.fields);
 		if (name) {
 			color = biomeColors[name];
 		}

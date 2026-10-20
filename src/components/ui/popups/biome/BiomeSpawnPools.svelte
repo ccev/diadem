@@ -52,7 +52,7 @@
 				{#if spawns.length}
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex (The horizontal scroll region needs keyboard access.) -->
 					<div
-						class="overflow-x-auto overscroll-x-contain pb-2 touch-pan-x"
+						class="overflow-x-auto overscroll-x-contain pb-2 touch-auto"
 						role="region"
 						aria-label={section.title}
 						tabindex="0"

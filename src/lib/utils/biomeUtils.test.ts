@@ -4,6 +4,7 @@ import {
 	getBiomeFieldLabel,
 	getBiomePoolSpawns,
 	getBiomeLabel,
+	getBiomeName,
 	isDiscoveredBiome
 } from "@/lib/utils/biomeUtils";
 import { describe, expect, it } from "vitest";
@@ -34,6 +35,14 @@ describe("biome geography", () => {
 		expect(getBiomeFieldLabel("landcover", 0)).toBe("Unknown (0)");
 		expect(getBiomeFieldLabel("landcover", 7)).toBe("Unknown (7)");
 		expect(getBiomeFieldLabel("landcover", 8)).toBe("Snowy");
+	});
+
+	it.each([
+		{ field: "landcover", value: 1, label: "Farmland" },
+		{ field: "landcover", value: 4, label: "Meadows" },
+		{ field: "landform", value: 3, label: "Plateaus" }
+	] as const)("uses $label for $field value $value", ({ field, value, label }) => {
+		expect(getBiomeFieldLabel(field, value)).toBe(label);
 	});
 
 	it("keeps colors independent of temperature, landform, moisture and update timestamps", () => {
@@ -97,10 +106,10 @@ describe("biome geography", () => {
 
 describe("biome names", () => {
 	it.each<{ name: string; label: string; fields: BiomeFields }>([
-		{ name: "cropland", label: "Cropland", fields: { landcover: 1 } },
+		{ name: "cropland", label: "Farmland", fields: { landcover: 1 } },
 		{ name: "shrubland", label: "Shrubland", fields: { landcover: 2 } },
 		{ name: "forest", label: "Forest", fields: { landcover: 3 } },
-		{ name: "grassland", label: "Grassland", fields: { landcover: 4 } },
+		{ name: "grassland", label: "Meadows", fields: { landcover: 4 } },
 		{ name: "settlements", label: "Settlements", fields: { landcover: 5 } },
 		{ name: "sparse", label: "Barrens", fields: { landcover: 6 } },
 		{ name: "snowy", label: "Snowfields", fields: { landcover: 8 } },
@@ -114,11 +123,13 @@ describe("biome names", () => {
 	])(
 		"has complete translations for every temperature and landform of $name",
 		({ name, label, fields }) => {
+			expect(getBiomeName(fields)).toBe(name);
 			const temperatures = ["Boreal", "Cool", "Warm", "Subtropical", "Tropical", "Polar"];
 			const landforms = ["", "Mountainous", "Hilly"];
 			for (const [temperature, temperatureLabel] of temperatures.entries()) {
 				for (const [landform, landformLabel] of landforms.entries()) {
 					const expected = [temperatureLabel, landformLabel, label].filter(Boolean).join(" ");
+					expect(getBiomeName({ ...fields, temperature: temperature + 1, landform })).toBe(name);
 					expect(
 						getBiomeLabel({
 							...profile,
@@ -257,6 +268,9 @@ describe("biome names", () => {
 
 	it("uses the generic name for unavailable geography", () => {
 		expect(getBiomeLabel({ ...profile, fields: null })).toBe("Biome");
+		expect(getBiomeName(null)).toBeUndefined();
+		expect(getBiomeName({})).toBeUndefined();
+		expect(getBiomeName({ landcover: 99, features: [99] })).toBeUndefined();
 	});
 });
 
@@ -281,29 +295,33 @@ describe("biome feature priority", () => {
 	});
 
 	it.each([
-		{ features: [3, 2, 6, 1], dominant: [3], name: "Cool Ocean" },
-		{ features: [4, 2, 6, 1], dominant: [4], name: "Cool River" },
-		{ features: [5, 2, 6, 1], dominant: [5], name: "Cool Lake" },
-		{ features: [3, 4, 5, 2, 6, 1], dominant: [3, 4], name: "Cool Waters" },
-		{ features: [4, 5, 2, 6, 1], dominant: [3, 4], name: "Cool Waters" },
-		{ features: [2, 6, 1], dominant: [2], name: "Cool Beach" },
-		{ features: [6, 1], dominant: [6], name: "Cool Desert" },
-		{ features: [1], dominant: [1], name: "Cool City" }
-	])("aligns the name and color for $name", ({ features, dominant, name }) => {
-		const expectedColor = getBiomeColor({
-			...profile,
-			fields: { ...profile.fields, features: dominant }
-		});
-		expect(expectedColor).not.toBe(getBiomeColor(profile));
-		for (const ordered of [features, [...features].reverse(), [...features, 99, ...features]]) {
-			const biome = {
+		{ features: [3, 2, 6, 1], dominant: [3], name: "Cool Ocean", baseName: "ocean" },
+		{ features: [4, 2, 6, 1], dominant: [4], name: "Cool River", baseName: "river" },
+		{ features: [5, 2, 6, 1], dominant: [5], name: "Cool Lake", baseName: "lake" },
+		{ features: [3, 4, 5, 2, 6, 1], dominant: [3, 4], name: "Cool Waters", baseName: "waters" },
+		{ features: [4, 5, 2, 6, 1], dominant: [3, 4], name: "Cool Waters", baseName: "waters" },
+		{ features: [2, 6, 1], dominant: [2], name: "Cool Beach", baseName: "beach" },
+		{ features: [6, 1], dominant: [6], name: "Cool Desert", baseName: "desert" },
+		{ features: [1], dominant: [1], name: "Cool City", baseName: "city" }
+	])(
+		"aligns the name, color and icon classification for $name",
+		({ features, dominant, name, baseName }) => {
+			const expectedColor = getBiomeColor({
 				...profile,
-				fields: { ...profile.fields, landcover: 8, features: ordered }
-			};
-			expect(getBiomeLabel(biome)).toBe(name);
-			expect(getBiomeColor(biome)).toBe(expectedColor);
+				fields: { ...profile.fields, features: dominant }
+			});
+			expect(expectedColor).not.toBe(getBiomeColor(profile));
+			for (const ordered of [features, [...features].reverse(), [...features, 99, ...features]]) {
+				const biome = {
+					...profile,
+					fields: { ...profile.fields, landcover: 8, features: ordered }
+				};
+				expect(getBiomeLabel(biome)).toBe(name);
+				expect(getBiomeName(biome.fields)).toBe(baseName);
+				expect(getBiomeColor(biome)).toBe(expectedColor);
+			}
 		}
-	});
+	);
 });
 
 describe("overall biome spawn chances", () => {

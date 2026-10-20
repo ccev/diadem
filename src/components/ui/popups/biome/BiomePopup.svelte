@@ -1,27 +1,61 @@
+<svelte:options runes={true} />
+
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
 	import type { MapData } from "@/lib/mapObjects/mapObjectTypes";
 	import type { BiomeData } from "@/lib/types/mapObjectData/biome";
 	import * as m from "@/lib/paraglide/messages";
-	import { getBiomeColor, getBiomeFieldLabel, getBiomeLabel } from "@/lib/utils/biomeUtils";
-	import { formatNumber } from "@/lib/utils/numberFormat";
 	import {
+		getBiomeColor,
+		getBiomeFieldLabel,
+		getBiomeLabel,
+		getBiomeName,
+		type BiomeName
+	} from "@/lib/utils/biomeUtils";
+	import {
+		BuildingComplex,
+		Droplet,
 		Earth,
+		FingerprintPattern,
+		Houses,
 		Info,
-		Mountain,
-		Sprout,
-		ThermometerSun,
-		Waves,
 		Leaf,
-		Trees,
+		Mountain,
+		Parasol,
+		Shrub,
+		Snowflake,
+		Sprout,
+		Stone,
+		Sun,
+		ThermometerSun,
 		TreePalm,
-		FingerprintPattern
+		Trees,
+		WavesHorizontal,
+		Wheat,
+		type LucideIcon
 	} from "@lucide/svelte";
 	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
 	import TitledMainSection from "@/components/ui/popups/common/TitledMainSection.svelte";
 	import BiomeSpawnPools from "@/components/ui/popups/biome/BiomeSpawnPools.svelte";
 	import UpdatedTimeCountdown from "@/components/ui/popups/common/UpdatedTimeCountdown.svelte";
+
+	const biomeIcons: Record<BiomeName, LucideIcon> = {
+		cropland: Wheat,
+		shrubland: Shrub,
+		forest: Trees,
+		grassland: Leaf,
+		settlements: Houses,
+		city: BuildingComplex,
+		sparse: Stone,
+		snowy: Snowflake,
+		beach: Parasol,
+		ocean: WavesHorizontal,
+		river: Droplet,
+		lake: Droplet,
+		waters: Droplet,
+		desert: Sun
+	};
 
 	export { image, main };
 
@@ -33,12 +67,14 @@
 
 {#snippet image(d: MapData)}
 	{@const data = d as BiomeData}
+	{@const name = getBiomeName(data.profile.fields)}
+	{@const Icon = name ? biomeIcons[name] : Leaf}
 	<div
 		class="size-12 -mr-2 shrink-0 flex items-center justify-center rounded-full"
 		style:background={getBiomeColor(data.profile, 0.4)}
 		style:color={getBiomeColor(data.profile, 1)}
 	>
-		<Leaf class="size-5" />
+		<Icon class="size-5" />
 	</div>
 {/snippet}
 
