@@ -37,6 +37,7 @@ export type MapObjectPolygonProperties = {
 	id: string;
 	type: FeatureTypes.POLYGON;
 	fillColor: string;
+	fillOutlineColor?: string;
 	strokeColor: string;
 	selectedFill: string;
 	isSelected: boolean;

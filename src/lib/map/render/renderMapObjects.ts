@@ -41,6 +41,8 @@ import {
 } from "@/lib/services/uicons.svelte";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
+import type { BiomeData } from "@/lib/types/mapObjectData/biome";
+import { getBiomeColor } from "@/lib/utils/biomeUtils";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import type { PokestopData, QuestData, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
@@ -635,6 +637,22 @@ class S2CellRenderer extends MapObjectRenderer<S2CellData> {
 	}
 }
 
+class BiomeRenderer extends MapObjectRenderer<BiomeData> {
+	public render(data: BiomeData, isSelected: boolean) {
+		const polygon = cellToPolygon(BigInt(data.id));
+		return [
+			getPolygonFeature(data.mapId, [polygon.coordinates], {
+				id: data.mapId,
+				strokeColor: "transparent",
+				fillColor: getBiomeColor(data.profile),
+				fillOutlineColor: "transparent",
+				selectedFill: getBiomeColor(data.profile, 0.45),
+				isSelected
+			})
+		];
+	}
+}
+
 class RouteRenderer extends MapObjectRenderer<RouteData> {
 	constructor() {
 		// Route endpoints use the user's default Pokestop icon set.
@@ -699,6 +717,7 @@ const rendererClasses: Record<
 	[MapObjectType.POKEMON]: PokemonRenderer,
 	[MapObjectType.STATION]: StationRenderer,
 	[MapObjectType.NEST]: NestRenderer,
+	[MapObjectType.BIOME]: BiomeRenderer,
 	[MapObjectType.SPAWNPOINT]: SpawnpointRenderer,
 	[MapObjectType.TAPPABLE]: TappableRenderer,
 	[MapObjectType.S2_CELL]: S2CellRenderer,

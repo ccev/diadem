@@ -96,7 +96,7 @@
 	{#if mapObject && !subCategory}
 		{@const { showing, examined } = getMapObjectCounts(mapObject)}
 		<p class="text-sm text-muted-foreground font-semibold">
-			{#if showing === examined}
+			{#if showing === examined || mapObject === MapObjectType.BIOME}
 				{m.showing_showing({ showing })}
 			{:else}
 				{m.showing_showing_of_examined({
