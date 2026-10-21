@@ -8,7 +8,11 @@ const renderer = vi.hoisted(() => ({
 	focused: undefined as string | undefined,
 	revision: 0
 }));
-vi.mock("@/lib/map/render/manageGeojson", () => ({ updateMapObjectsGeoJson: vi.fn() }));
+vi.mock("@/lib/map/render/manageGeojson", () => ({
+	updateMapObjectsGeoJson: vi.fn(),
+	needsMapObjectsGeoJsonUpdate: () => false,
+	refreshMapObjectsGeoJson: vi.fn()
+}));
 vi.mock("@/lib/map/render/renderMapObjects", () => ({ getRenderer: () => renderer }));
 vi.mock("@/lib/mapObjects/currentSelectedState.svelte.js", () => ({
 	getCurrentSelectedData: () => undefined,

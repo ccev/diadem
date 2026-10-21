@@ -13,6 +13,7 @@ import type { GymData, GymDefender } from "@/lib/types/mapObjectData/gym";
 import { Features } from "@/lib/utils/features";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("$app/environment", () => ({ building: true, dev: false }));
 vi.mock("@/lib/features/activeSearch.svelte", () => ({}));
 vi.mock("@/lib/features/masterStats.svelte", () => ({}));
 vi.mock("@/lib/mapObjects/currentSelectedState.svelte", () => ({

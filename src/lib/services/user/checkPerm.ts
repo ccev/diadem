@@ -9,6 +9,7 @@ import {
 } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import {
+	bbox,
 	booleanIntersects,
 	booleanPointInPolygon,
 	feature as makeFeature,
@@ -53,18 +54,36 @@ export type PermittedBounds = {
 };
 
 // null grants at least one requested feature everywhere; [] means no eligible areas.
-export function getPermissionPolygons(perms: Perms, features: FeaturesKey[]): Polygon[] | null {
+export function getPermissionPolygons(
+	perms: Perms,
+	features: FeaturesKey[],
+	bounds?: Bounds
+): Polygon[] | null {
 	if (features.some((feature) => isFeatureInFeatureList(perms.everywhere, feature))) {
 		return null;
 	}
 
 	const polygons: Polygon[] = [];
 	for (const area of perms.areas) {
-		if (features.some((feature) => isFeatureInFeatureList(area.features, feature))) {
-			if (area.polygon) {
-				polygons.push(area.polygon);
-			}
+		if (
+			!area.polygon ||
+			!features.some((feature) => isFeatureInFeatureList(area.features, feature))
+		) {
+			continue;
 		}
+		if (bounds) {
+			// Reject distant areas before clipping or worker serialization. Recompute so a stale
+			// GeoJSON bbox cannot hide a permitted area; intersectPermissionBounds remains exact.
+			const [minLon, minLat, maxLon, maxLat] = bbox(area.polygon, { recompute: true });
+			if (
+				maxLon < bounds.minLon ||
+				minLon > bounds.maxLon ||
+				maxLat < bounds.minLat ||
+				minLat > bounds.maxLat
+			)
+				continue;
+		}
+		polygons.push(area.polygon);
 	}
 	return polygons;
 }
@@ -84,7 +103,7 @@ export function checkFeaturesInBounds(
 	features: FeaturesKey[],
 	bounds: Bounds
 ): PermittedBounds | null {
-	const permittedPolygons = getPermissionPolygons(perms, features);
+	const permittedPolygons = getPermissionPolygons(perms, features, bounds);
 	if (permittedPolygons === null) {
 		return { bounds, polygon: null };
 	}

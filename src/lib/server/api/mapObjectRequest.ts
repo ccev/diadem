@@ -83,9 +83,9 @@ export async function resolveTypeRequest(
 	} catch (error) {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
 		if (!(error instanceof CpuWorkerError)) throw error;
-		getLogger("geometry-workers").debug("[%s] Permission job rejected: %s", type, error.code);
+		getLogger("cpu-workers").debug("[%s] Permission job rejected: %s", type, error.code);
 		if (error.code === "failed" || error.code === "too-large") {
-			getLogger("geometry-workers").warning(
+			getLogger("cpu-workers").warning(
 				"[%s] Permission job failed: %s",
 				type,
 				error.cause ?? error

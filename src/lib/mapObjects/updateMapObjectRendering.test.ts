@@ -5,7 +5,11 @@ import type { MapObjectIconFeature } from "@/lib/map/render/featureTypes";
 const scene = vi.hoisted(() => {
 	vi.stubGlobal("$state", (value: unknown) => value);
 	return {
-		map: { getZoom: () => 15 },
+		map: {
+			getZoom: () => 15,
+			getSource: vi.fn(),
+			hasImage: vi.fn(() => true)
+		},
 		filters: {
 			gym: { category: "gym", enabled: true },
 			pokemon: { category: "pokemon", enabled: true }
@@ -47,7 +51,10 @@ vi.mock("$lib/features/focusedRoute.svelte.js", () => ({
 	getFocusedRouteMapId: () => null,
 	setFocusedRouteMapId: vi.fn()
 }));
-vi.mock("@/lib/map/render/manageGeojson", () => ({ updateMapObjectsGeoJson: scene.publish }));
+vi.mock("@/lib/map/render/images", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@/lib/map/render/images")>()),
+	ensureMapImage: vi.fn()
+}));
 vi.mock("@/lib/map/render/renderMapObjects", () => ({
 	getRenderer: () => ({
 		render: (obj: {
@@ -83,6 +90,7 @@ vi.mock("@/lib/map/render/renderMapObjects", () => ({
 import { cancelMapObjectRequests, clearMap, updateAllMapObjects } from "./updateMapObject";
 import { delMapObject, getMapObjects } from "./mapObjectsState.svelte";
 import { needsFeatureUpdate } from "@/lib/map/featuresGen.svelte";
+import { ensureMapImage } from "@/lib/map/render/images";
 import { updateWeather } from "./weather.svelte";
 
 const gym = {
@@ -113,6 +121,11 @@ beforeEach(() => {
 	vi.setSystemTime(100_000);
 	scene.filters.gym.enabled = true;
 	scene.filters.pokemon.enabled = true;
+	scene.map.getSource.mockReturnValue({
+		setData: (data: { features: MapObjectIconFeature[] }) => scene.publish(data.features)
+	});
+	scene.map.hasImage.mockReturnValue(true);
+	vi.mocked(ensureMapImage).mockReset().mockResolvedValue(undefined);
 	scene.fetch
 		.mockReset()
 		.mockImplementation(async (url: string) => response([url === "/api/gym" ? gym : pokemon]));
@@ -145,6 +158,52 @@ it.each(["empty", "replayed"])(
 		expect(needsFeatureUpdate()).toBe(false);
 	}
 );
+
+it("does not republish unchanged full snapshots or repeat a completed progressive publication", async () => {
+	await updateAllMapObjects();
+	expect(scene.publish).toHaveBeenCalledOnce();
+	expect(scene.publish.mock.lastCall![0]).toHaveLength(2);
+	scene.publish.mockClear();
+	await updateAllMapObjects();
+	expect(scene.publish).not.toHaveBeenCalled();
+});
+
+it("restores unchanged data to a replacement source when every icon is already loaded", async () => {
+	await updateAllMapObjects();
+	scene.publish.mockClear();
+	const setData = vi.fn();
+	scene.map.getSource.mockReturnValue({ setData });
+	scene.fetch.mockImplementation(async () => response([]));
+	expect(needsFeatureUpdate()).toBe(true);
+	await updateAllMapObjects(true, true);
+	expect(setData).toHaveBeenCalledOnce();
+	expect(setData.mock.lastCall![0].features).toHaveLength(2);
+	expect(ensureMapImage).not.toHaveBeenCalled();
+	expect(needsFeatureUpdate()).toBe(false);
+});
+
+it("retries failed icons on unchanged polls without uploading the failed collection again", async () => {
+	scene.map.hasImage.mockReturnValue(false);
+	await updateAllMapObjects();
+	await vi.advanceTimersByTimeAsync(32);
+	expect(scene.publish).toHaveBeenCalledOnce();
+	expect(scene.publish.mock.lastCall![0]).toEqual([]);
+	scene.publish.mockClear();
+	scene.fetch.mockImplementation(async () => response([]));
+	await vi.advanceTimersByTimeAsync(1000);
+	await updateAllMapObjects(true, true);
+	await vi.advanceTimersByTimeAsync(32);
+	expect(scene.publish).not.toHaveBeenCalled();
+	vi.mocked(ensureMapImage).mockImplementation(async () => {
+		scene.map.hasImage.mockReturnValue(true);
+	});
+	await vi.advanceTimersByTimeAsync(1000);
+	await updateAllMapObjects(true, true);
+	await vi.advanceTimersByTimeAsync(32);
+	expect(scene.publish).toHaveBeenCalledOnce();
+	expect(scene.publish.mock.lastCall![0]).toHaveLength(2);
+	expect(needsFeatureUpdate()).toBe(false);
+});
 
 it("publishes changed stationary markers before slower families and weather", async () => {
 	await updateAllMapObjects();

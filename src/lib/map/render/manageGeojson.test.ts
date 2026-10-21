@@ -169,6 +169,7 @@ describe("map image publication versions", () => {
 		updateMapObjectsGeoJson(features);
 		const replacement = { setData: vi.fn() };
 		scene.source = replacement;
+		images.add("old");
 		old.resolve();
 		await old.promise;
 		await vi.advanceTimersByTimeAsync(32);
@@ -202,6 +203,19 @@ it("batches icon completions while allowing later icons to render", async () => 
 	expect(setData).toHaveBeenCalledTimes(3);
 	expect(setData.mock.lastCall![0].features).toHaveLength(200);
 });
+
+it.each(["resolved", "rejected"])(
+	"does not republish the source when an image fails to register (%s load)",
+	async (outcome) => {
+		vi.mocked(ensureMapImage).mockImplementation(() =>
+			outcome === "resolved" ? Promise.resolve() : Promise.reject(new Error("offline"))
+		);
+		updateMapObjectsGeoJson([icon("missing")]);
+		await vi.advanceTimersByTimeAsync(32);
+		expect(setData).toHaveBeenCalledOnce();
+		expect(setData.mock.lastCall![0].features).toEqual([]);
+	}
+);
 
 it.each(["removed", "replaced"])(
 	"does not publish a scheduled batch to a %s map",

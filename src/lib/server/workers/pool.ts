@@ -1,4 +1,4 @@
-import type { GeometryWorkersConfig } from "@/lib/services/config/configTypes";
+import type { CpuWorkersConfig } from "@/lib/services/config/configTypes";
 import Piscina from "piscina";
 
 export class CpuWorkerError extends Error {
@@ -12,7 +12,7 @@ export class CpuWorkerError extends Error {
 }
 
 export class CpuWorkerPool {
-	readonly options: Readonly<Required<GeometryWorkersConfig>>;
+	readonly options: Readonly<Required<CpuWorkersConfig>>;
 	private readonly pool?: Piscina<ArrayBuffer, ArrayBuffer>;
 	private pendingTasks = 0;
 	private pendingBytes = 0;
@@ -23,11 +23,12 @@ export class CpuWorkerPool {
 
 	constructor(
 		filename: string | URL,
-		config: GeometryWorkersConfig = {},
-		onError?: (error: unknown) => void
+		config: CpuWorkersConfig = {},
+		onError?: (error: unknown) => void,
+		workerData: Record<string, unknown> = {}
 	) {
 		if (!config || typeof config !== "object" || Array.isArray(config)) {
-			throw new TypeError("server.geometryWorkers must be a table");
+			throw new TypeError("server.cpuWorkers must be a table");
 		}
 		const options = {
 			threads: 0,
@@ -41,17 +42,17 @@ export class CpuWorkerPool {
 		for (const [name, value] of Object.entries(options)) {
 			const min = name === "threads" || name === "maxQueue" ? 0 : 1;
 			if (!Number.isSafeInteger(value) || value < min) {
-				throw new RangeError(`server.geometryWorkers.${name} must be an integer >= ${min}`);
+				throw new RangeError(`server.cpuWorkers.${name} must be an integer >= ${min}`);
 			}
 		}
 		if (options.timeoutMs > 2 ** 31 - 1 || options.memoryMb < 16) {
-			throw new RangeError("geometryWorkers requires timeoutMs <= 2147483647 and memoryMb >= 16");
+			throw new RangeError("cpuWorkers requires timeoutMs <= 2147483647 and memoryMb >= 16");
 		}
 		if (
 			options.maxPendingBytes < options.maxTaskBytes ||
 			!Number.isSafeInteger(options.threads + options.maxQueue)
 		) {
-			throw new RangeError("Invalid geometryWorkers byte budget or task capacity");
+			throw new RangeError("Invalid cpuWorkers byte budget or task capacity");
 		}
 		this.options = Object.freeze(options);
 		if (!this.enabled) return;
@@ -63,7 +64,7 @@ export class CpuWorkerPool {
 			maxQueue: 0,
 			concurrentTasksPerWorker: 1,
 			resourceLimits: { maxOldGenerationSizeMb: options.memoryMb },
-			workerData: { maxTaskBytes: options.maxTaskBytes },
+			workerData: { ...workerData, maxTaskBytes: options.maxTaskBytes },
 			execArgv: [],
 			recordTiming: false
 		});

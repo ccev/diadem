@@ -17,8 +17,12 @@ const config = {
 					async adapt(builder) {
 						await nodeAdapter.adapt(builder);
 						builder.copy(
-							"src/lib/server/workers/geometry.worker.mjs",
-							"build/server/workers/geometry.worker.mjs"
+							"src/lib/server/workers/cpu.worker.mjs",
+							"build/server/workers/cpu.worker.mjs"
+						);
+						builder.copy(
+							"src/lib/server/encounterIdCrypto.mjs",
+							"build/server/encounterIdCrypto.mjs"
 						);
 						builder.copy(
 							"src/lib/geometry/permissionBounds.mjs",

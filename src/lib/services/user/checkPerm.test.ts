@@ -68,6 +68,28 @@ describe("FeaturePermissionContext geometry", () => {
 describe("permission polygon selection", () => {
 	const bounds = { minLon: 0, minLat: 0, maxLon: 6, maxLat: 6 };
 
+	it("prefilters distant areas without trusting stale bboxes or excluding touching boundaries", () => {
+		const near = bboxPolygon([1, 1, 2, 2]).geometry;
+		near.bbox = [20, 20, 21, 21];
+		const touching = bboxPolygon([6, 1, 7, 2]).geometry;
+		const far = bboxPolygon([20, 20, 21, 21]).geometry;
+		const perms: Perms = {
+			everywhere: [],
+			areas: [far, near, touching].map((polygon, index) => ({
+				name: String(index),
+				features: [Features.GYM],
+				polygon
+			}))
+		};
+		expect(getPermissionPolygons(perms, [Features.GYM], bounds)).toEqual([near, touching]);
+		expect(checkFeaturesInBounds(perms, [Features.GYM], bounds)).toEqual(
+			intersectPermissionBounds([near, touching], bounds)
+		);
+		// Permissions can be refreshed in place; no cached bbox may survive a coordinate change.
+		far.coordinates = bboxPolygon([3, 3, 4, 4]).geometry.coordinates;
+		expect(getPermissionPolygons(perms, [Features.GYM], bounds)).toEqual([far, near, touching]);
+	});
+
 	it.each([
 		Features.ALL,
 		Features.MAP_OBJECT_ALL,

@@ -11,6 +11,7 @@ import { combinedForts } from "@/lib/server/queryMapObjects/combinedForts";
 import { fortApiRegistry, getQuery } from "@/lib/server/queryMapObjects/queryMapObjects";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("$app/environment", () => ({ building: true, dev: false }));
 vi.mock("@/lib/features/activeSearch.svelte", () => ({}));
 vi.mock("@/lib/features/masterStats.svelte", () => ({}));
 vi.mock("@/lib/mapObjects/currentSelectedState.svelte", () => ({}));

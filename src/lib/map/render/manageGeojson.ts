@@ -7,16 +7,29 @@ import type * as maplibre from "maplibre-gl";
 let mapObjectFeatures: MapObjectFeature[] = [];
 let publicationVersion = 0;
 let publishedSource: maplibre.GeoJSONSource | undefined;
+let nextImageRetry = Infinity;
 const pendingImagePublications = new WeakMap<maplibre.Map, { version: number }>();
 
-function publishMapObjectsGeoJson(map: maplibre.Map, skipSource?: maplibre.GeoJSONSource) {
-	if (map._removed) return;
-	let source: maplibre.GeoJSONSource | undefined;
+function getMapObjectsSource(map: maplibre.Map) {
 	try {
-		source = map.getSource<maplibre.GeoJSONSource>(MapSourceId.MAP_OBJECTS);
+		return map.getSource<maplibre.GeoJSONSource>(MapSourceId.MAP_OBJECTS);
 	} catch {
 		return;
 	}
+}
+
+export function needsMapObjectsGeoJsonUpdate() {
+	const map = getMap();
+	return Boolean(
+		map &&
+		!map._removed &&
+		(nextImageRetry <= Date.now() || getMapObjectsSource(map) !== publishedSource)
+	);
+}
+
+function publishMapObjectsGeoJson(map: maplibre.Map, skipSource?: maplibre.GeoJSONSource) {
+	if (map._removed) return;
+	const source = getMapObjectsSource(map);
 	if (!source || source === skipSource) return source;
 	source.setData({
 		type: "FeatureCollection",
@@ -36,12 +49,24 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 	publishedSource = undefined;
 
 	const map = getMap();
-	if (!map) return;
+	if (!map || map._removed) return;
 	publishedSource = publishMapObjectsGeoJson(map);
+	loadMapImages(map, version);
+}
 
+export function refreshMapObjectsGeoJson() {
+	const map = getMap();
+	if (!map || map._removed) return;
+	// A new source needs the cached data; failed images only need another load attempt.
+	publishedSource = publishMapObjectsGeoJson(map, publishedSource);
+	loadMapImages(map, publicationVersion);
+}
+
+function loadMapImages(map: maplibre.Map, version: number) {
+	nextImageRetry = Infinity;
 	const images = [
 		...new Map(
-			features
+			mapObjectFeatures
 				.filter(isFeatureIcon)
 				.map((f) => f.properties)
 				.filter((props) => props.imageId && props.imageUrl && !map.hasImage(getMapImageId(props)))
@@ -54,6 +79,11 @@ export function updateMapObjectsGeoJson(features: MapObjectFeature[]) {
 			.catch(() => undefined)
 			.then(() => {
 				if (getMap() !== map || map._removed) return;
+				if (!map.hasImage(getMapImageId(props))) {
+					// Retry on a later poll, without repeatedly retrying during one progressive batch.
+					if (version === publicationVersion) nextImageRetry = Date.now() + 1000;
+					return;
+				}
 				const pending = pendingImagePublications.get(map);
 				if (pending) {
 					pending.version = Math.max(pending.version, version);

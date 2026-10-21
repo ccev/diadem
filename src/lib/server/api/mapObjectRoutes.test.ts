@@ -5,12 +5,18 @@ import {
 	resolveTypeRequest,
 	settleTypeRequest
 } from "@/lib/server/api/mapObjectRequest";
-import { rateLimitReward } from "@/lib/server/api/rateLimit";
+import { rateLimitConsume, rateLimitReward } from "@/lib/server/api/rateLimit";
+import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { combinedForts } from "@/lib/server/queryMapObjects/combinedForts";
-import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
+import {
+	queryMapObjects,
+	querySingleMapObject
+} from "@/lib/server/queryMapObjects/queryMapObjects";
+import { CpuWorkerError } from "@/lib/server/workers/pool";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { featureFamily, Features } from "@/lib/utils/features";
 import { POST as postSingle } from "@/routes/api/[queryMapObject=mapObject]/+server";
+import { GET as getSingle } from "@/routes/api/[queryMapObject=mapObject]/[id]/+server";
 import { POST as postForts } from "@/routes/api/forts/+server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,8 +28,15 @@ vi.mock("@/lib/server/api/mapObjectRequest", () => ({
 	resolveTypeRequest: vi.fn(),
 	settleTypeRequest: vi.fn()
 }));
-vi.mock("@/lib/server/api/rateLimit", () => ({ rateLimitReward: vi.fn() }));
-vi.mock("@/lib/server/queryMapObjects/queryMapObjects", () => ({ queryMapObjects: vi.fn() }));
+vi.mock("@/lib/server/api/rateLimit", () => ({
+	rateLimitReward: vi.fn(),
+	rateLimitConsume: vi.fn()
+}));
+vi.mock("@/lib/server/auth/checkIfAuthed", () => ({ hasAnyFeatureAnywhereServer: vi.fn() }));
+vi.mock("@/lib/server/queryMapObjects/queryMapObjects", () => ({
+	queryMapObjects: vi.fn(),
+	querySingleMapObject: vi.fn()
+}));
 vi.mock("@/lib/server/queryMapObjects/combinedForts", () => ({ combinedForts: vi.fn() }));
 
 const bounds = { minLat: 0, minLon: 0, maxLat: 1, maxLon: 1 };
@@ -54,6 +67,42 @@ beforeEach(() => {
 });
 
 describe("single map object POST", () => {
+	it.each(["busy", "too-large", "timeout", "aborted", "unavailable", "failed"] as const)(
+		"refunds encryption-stage %s failures and returns 503 without result data",
+		async (code) => {
+			const context = new FeaturePermissionContext(locals.perms, [Features.POKEMON]);
+			vi.mocked(resolveTypeRequest).mockResolvedValue({
+				status: 200,
+				filter: undefined,
+				permitted: { bounds, polygon: null },
+				context,
+				filterCached: "1"
+			});
+			vi.mocked(queryMapObjects).mockRejectedValue(new CpuWorkerError(code));
+			const event = requestEvent(MapObjectType.POKEMON, bounds);
+			const response = await postSingle(event as Parameters<typeof postSingle>[0]);
+			expect(response.status).toBe(503);
+			expect(await response.json()).toEqual({ data: [] });
+			expect(response.headers.get("X-Filter-Cached")).toBe("1");
+			expect(queryMapObjects).toHaveBeenCalledExactlyOnceWith(
+				MapObjectType.POKEMON,
+				bounds,
+				undefined,
+				null,
+				undefined,
+				requestLimit,
+				context,
+				event.request.signal
+			);
+			expect(rateLimitReward).toHaveBeenCalledExactlyOnceWith(
+				"u1",
+				requestLimit,
+				MapObjectType.POKEMON
+			);
+			expect(settleTypeRequest).not.toHaveBeenCalled();
+			expect(refundDenied).not.toHaveBeenCalled();
+		}
+	);
 	it.each([401, 409, 503] as const)(
 		"responds with resolved status %s without querying or refunding again",
 		async (status) => {
@@ -102,6 +151,31 @@ describe("single map object POST", () => {
 		expect(resolveTypeRequest).not.toHaveBeenCalled();
 		expect(queryMapObjects).not.toHaveBeenCalled();
 	});
+});
+
+it("refunds failed single-object encryption and returns 503 while forwarding cancellation", async () => {
+	vi.mocked(hasAnyFeatureAnywhereServer).mockReturnValue(true);
+	vi.mocked(rateLimitConsume).mockResolvedValue([true, 100, 1000, {}]);
+	vi.mocked(querySingleMapObject).mockRejectedValue(new CpuWorkerError("busy"));
+	const event = {
+		...requestEvent(MapObjectType.POKEMON, bounds),
+		request: new Request("http://localhost/api/pokemon/pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA"),
+		params: { queryMapObject: MapObjectType.POKEMON, id: "pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA" },
+		fetch: vi.fn<typeof fetch>()
+	};
+	await expect(
+		getSingle(event as unknown as Parameters<typeof getSingle>[0])
+	).rejects.toMatchObject({
+		status: 503
+	});
+	expect(querySingleMapObject).toHaveBeenCalledExactlyOnceWith(
+		MapObjectType.POKEMON,
+		event.params.id,
+		event.fetch,
+		expect.any(FeaturePermissionContext),
+		event.request.signal
+	);
+	expect(rateLimitReward).toHaveBeenCalledExactlyOnceWith("u1", 2, MapObjectType.POKEMON);
 });
 
 describe("combined forts POST", () => {

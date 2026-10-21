@@ -12,6 +12,7 @@ import {
 } from "@/lib/server/api/mapObjectRequest";
 import { respond } from "@/lib/server/api/respond";
 import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { CpuWorkerError } from "@/lib/server/workers/pool";
 import { getLogger } from "@/lib/utils/logger";
 import { error } from "@sveltejs/kit";
 import { constants } from "http2";
@@ -79,11 +80,20 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		resolved.permitted.polygon,
 		since,
 		requestLimit,
-		resolved.context
+		resolved.context,
+		request.signal
 	).catch(async (e) => {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
+		if (e instanceof CpuWorkerError) {
+			log.debug("[%s] CPU job rejected: %s", type, e.code);
+			if (e.code === "failed" || e.code === "too-large") {
+				log.warning("[%s] CPU job failed: %s", type, e.cause ?? e);
+			}
+			return undefined;
+		}
 		throw e;
 	});
+	if (!result) return respond(request, { data: [] }, { status: 503, headers: extraHeaders });
 
 	const { charge, remainingPoints } = await settleTypeRequest(
 		type,

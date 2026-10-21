@@ -4,7 +4,11 @@ import {
 	RANGE_POKEMON_EXTENDED,
 	SELECTED_MAP_OBJECT_SCALE
 } from "@/lib/constants";
-import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
+import {
+	needsMapObjectsGeoJsonUpdate,
+	refreshMapObjectsGeoJson,
+	updateMapObjectsGeoJson
+} from "@/lib/map/render/manageGeojson";
 import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
@@ -56,9 +60,14 @@ let features: Features = getEmptyFeatures();
 let selectedFeatures: MapObjectFeature[] = [];
 let nextFeatureExpiry = Infinity;
 let renderedRevision: number | undefined;
+let featuresDirty = false;
 
 export function needsFeatureUpdate() {
-	return renderedRevision !== getMapObjectsRevision() || nextFeatureExpiry < currentTimestamp();
+	return (
+		renderedRevision !== getMapObjectsRevision() ||
+		nextFeatureExpiry < currentTimestamp() ||
+		needsMapObjectsGeoJsonUpdate()
+	);
 }
 
 function getEmptyFeatures(): Features {
@@ -90,6 +99,7 @@ function publishFeatures() {
 			)
 			.map((feature) => feature.properties.id)
 	);
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- Local scratch set, never reactive state.
 	const routeEndpoints = new Set<string>();
 	updateMapObjectsGeoJson(
 		flattened.filter((feature) => {
@@ -107,11 +117,13 @@ export function deleteAllFeaturesOfType(type: MapObjectType) {
 	// Unsupported optional families can be cleared on every poll without changing the map.
 	if (Object.keys(features[type]).length === 0) return;
 	renderedRevision = undefined;
+	featuresDirty = true;
 	features[type] = {};
 }
 
 export function deleteAllFeatures() {
 	renderedRevision = undefined;
+	featuresDirty = true;
 	nextFeatureExpiry = Infinity;
 	selectedFeatures = [];
 	features = getEmptyFeatures();
@@ -260,9 +272,11 @@ export function refreshRouteFeatures() {
 
 export function updateFeatures(
 	mapObjects: MapObjectsStateType,
-	types: readonly MapObjectType[] = allMapObjectTypes
+	readyTypes?: readonly MapObjectType[]
 ) {
+	let changed = featuresDirty;
 	const selectedMapId = getCurrentSelectedData()?.mapId ?? "";
+	const now = currentTimestamp();
 
 	const actions = getUserSettings().actions;
 	const focusedRouteMapId = getFocusedRouteMapId();
@@ -274,11 +288,11 @@ export function updateFeatures(
 			const obj = mapObjects[existingId];
 			// Payload changes can alter an icon even when the object hasn't moved.
 			if (
-				entry.features.find(
+				entry.features.some(
 					(feature) =>
 						"expires" in feature.properties &&
 						feature.properties.expires &&
-						feature.properties.expires < currentTimestamp()
+						feature.properties.expires < now
 				) ||
 				!obj ||
 				entry.data !== obj ||
@@ -287,12 +301,14 @@ export function updateFeatures(
 			) {
 				selectedFeatures = selectedFeatures.filter((feature) => !entry.features.includes(feature));
 				delete features[type][existingId];
+				changed = true;
 			}
 		}
 	}
 
 	for (const obj of Object.values(mapObjects)) {
-		if (!types.includes(obj.type) || features[obj.type][obj.mapId]) continue;
+		if (readyTypes && !readyTypes.includes(obj.type)) continue;
+		if (features[obj.type][obj.mapId]) continue;
 
 		const isSelectedOverwrite = isCurrentSelectedOverwrite(obj.mapId);
 		const isSelected = obj.mapId === selectedMapId;
@@ -317,11 +333,17 @@ export function updateFeatures(
 			features: subFeatures
 		};
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
+		changed = true;
 	}
 	syncRouteLineFeatures(getCurrentSelectedData());
-	publishFeatures();
+	// Polling batches publish only actual changes. Explicit refreshes (e.g. a new map style)
+	// omit readyTypes and must replay the collection even if the payloads are unchanged.
+	if (changed || !readyTypes) publishFeatures();
+	else if (needsMapObjectsGeoJsonUpdate()) refreshMapObjectsGeoJson();
+	featuresDirty = false;
 	// A partial publication may defer invalidated or preserved popup companions until the batch settles.
-	renderedRevision = allMapObjectTypes.every((type) => types.includes(type))
-		? getMapObjectsRevision()
-		: undefined;
+	renderedRevision =
+		!readyTypes || allMapObjectTypes.every((type) => readyTypes.includes(type))
+			? getMapObjectsRevision()
+			: undefined;
 }

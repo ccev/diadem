@@ -63,11 +63,11 @@
 	let highlights = $derived.by(() => {
 		if (!fuzzyResults) return undefined;
 
-		return new Map<string, HighlightRanges>(
-			fuzzyResults.flatMap(({ item, matches }) =>
-				matches[0] ? [[getKey(item), matches[0]] as const] : []
-			)
-		);
+		const ranges: Record<string, HighlightRanges> = {};
+		for (const { item, matches } of fuzzyResults) {
+			if (matches[0]) ranges[getKey(item)] = matches[0];
+		}
+		return ranges;
 	});
 
 	let sortedList = $derived(
@@ -100,7 +100,7 @@
 						loading="lazy"
 					/>
 					<div class="grow text-center align-middle flex items-center px-1">
-						<span class="h-fit" {@attach highlightSearchMatches(highlights?.get(key))}>
+						<span class="h-fit" {@attach highlightSearchMatches(highlights?.[key])}>
 							{name}
 						</span>
 					</div>

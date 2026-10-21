@@ -88,7 +88,7 @@ export type Log = {
 	file?: string;
 };
 
-export type GeometryWorkersConfig = {
+export type CpuWorkersConfig = {
 	threads?: number;
 	maxQueue?: number;
 	maxTaskBytes?: number;
@@ -192,7 +192,9 @@ export type ServerConfig = {
 		hasGeometries?: boolean;
 	};
 	log: Log;
-	geometryWorkers?: GeometryWorkersConfig;
+	cpuWorkers?: CpuWorkersConfig;
+	/** @deprecated Use cpuWorkers. Both names configure the same shared pool. */
+	geometryWorkers?: CpuWorkersConfig;
 	internalDb: DbCreds;
 	auth: Auth;
 	permissions?: Permissions[];

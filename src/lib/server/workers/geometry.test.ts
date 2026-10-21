@@ -1,15 +1,15 @@
-import type { GeometryWorkersConfig } from "@/lib/services/config/configTypes";
+import type { CpuWorkersConfig } from "@/lib/services/config/configTypes";
 import { checkFeaturesInBounds } from "@/lib/services/user/checkPerm";
 import { Features, type Perms } from "@/lib/utils/features";
 import { bboxPolygon } from "@turf/turf";
 import type { EventEmitter } from "node:events";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const settings = vi.hoisted(() => ({ config: {} as GeometryWorkersConfig }));
+const settings = vi.hoisted(() => ({ config: {} as CpuWorkersConfig }));
 const environment = vi.hoisted(() => ({ building: false, dev: true }));
 vi.mock("$app/environment", () => environment);
 vi.mock("@/lib/services/config/config.server", () => ({
-	getServerConfig: () => ({ geometryWorkers: settings.config })
+	getServerConfig: () => ({ cpuWorkers: settings.config })
 }));
 
 const bounds = { minLat: 0, minLon: 0, maxLat: 8, maxLon: 8 };
@@ -22,14 +22,14 @@ const perms: Perms = {
 		{ name: "hidden", features: [Features.POKEMON], polygon: bboxPolygon([0, 0, 8, 8]).geometry }
 	]
 };
-let geometry: typeof import("./geometry") | undefined;
+let geometry: (typeof import("./geometry") & typeof import("./cpu")) | undefined;
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 const lifecycle = process as EventEmitter;
 
-async function load(config: GeometryWorkersConfig = { threads: 1 }) {
+async function load(config: CpuWorkersConfig = { threads: 1 }) {
 	settings.config = config;
-	return (geometry = await import("./geometry"));
+	return (geometry = { ...(await import("./cpu")), ...(await import("./geometry")) });
 }
 
 beforeEach(() => {
@@ -38,9 +38,9 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
-	await geometry?.closeGeometryWorkers();
+	await geometry?.closeCpuWorkers();
 	if (geometry) {
-		expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(geometry.closeGeometryWorkers);
+		expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(geometry.closeCpuWorkers);
 	}
 	geometry = undefined;
 	vi.restoreAllMocks();
@@ -48,26 +48,26 @@ afterEach(async () => {
 
 describe("server permission geometry", () => {
 	it("keeps the disabled inline path without dispatching or registering shutdown work", async () => {
-		const { checkFeaturesInBoundsServer, closeGeometryWorkers } = await load({ threads: 0 });
+		const { checkFeaturesInBoundsServer, closeCpuWorkers } = await load({ threads: 0 });
 		const { CpuWorkerPool } = await import("./pool");
 		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
 		expect(await checkFeaturesInBoundsServer(perms, features, bounds)).toEqual(
 			checkFeaturesInBounds(perms, features, bounds)
 		);
 		expect(run).not.toHaveBeenCalled();
-		expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(closeGeometryWorkers);
+		expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(closeCpuWorkers);
 	});
 
 	it("does not create a worker pool while SvelteKit is building", async () => {
 		environment.building = true;
-		const { checkFeaturesInBoundsServer, closeGeometryWorkers } = await load();
+		const { checkFeaturesInBoundsServer, closeCpuWorkers } = await load();
 		const { CpuWorkerPool } = await import("./pool");
 		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
 		expect(await checkFeaturesInBoundsServer(perms, features, bounds)).toEqual(
 			checkFeaturesInBounds(perms, features, bounds)
 		);
 		expect(run).not.toHaveBeenCalled();
-		expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(closeGeometryWorkers);
+		expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(closeCpuWorkers);
 	});
 
 	it("does not dispatch unrestricted grants, absent grants, or unrelated areas", async () => {
@@ -88,6 +88,21 @@ describe("server permission geometry", () => {
 			await checkFeaturesInBoundsServer({ everywhere: [], areas: [] }, features, bounds)
 		).toBeNull();
 		expect(await checkFeaturesInBoundsServer(perms, [Features.STATION], bounds)).toBeNull();
+		expect(run).not.toHaveBeenCalled();
+	});
+
+	it("rejects distant permitted areas before encoding or queueing a worker job", async () => {
+		const { checkFeaturesInBoundsServer } = await load();
+		const { CpuWorkerPool } = await import("./pool");
+		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
+		expect(
+			await checkFeaturesInBoundsServer(perms, features, {
+				minLat: 20,
+				minLon: 20,
+				maxLat: 21,
+				maxLon: 21
+			})
+		).toBeNull();
 		expect(run).not.toHaveBeenCalled();
 	});
 
@@ -123,7 +138,9 @@ describe("server permission geometry", () => {
 		const result = await checkFeaturesInBoundsServer(perms, features, body);
 		expect(result).toEqual(expected);
 		expect(result?.polygon?.geometry.type).toBe("MultiPolygon");
-		expect(jobs).toEqual([{ polygons: [perms.areas[0].polygon, perms.areas[1].polygon], bounds }]);
+		expect(jobs).toEqual([
+			{ type: "geometry", polygons: [perms.areas[0].polygon, perms.areas[1].polygon], bounds }
+		]);
 		expect(perms).toEqual(before);
 		if (result) result.bounds.maxLat = 99;
 		expect(await checkFeaturesInBoundsServer(perms, features, bounds)).toEqual(expected);
@@ -173,12 +190,12 @@ describe("server permission geometry", () => {
 	});
 
 	it("closes via the adapter shutdown listener and keeps restricted work unavailable afterward", async () => {
-		const { initGeometryWorkers, closeGeometryWorkers, checkFeaturesInBoundsServer } = await load();
-		initGeometryWorkers();
-		initGeometryWorkers();
+		const { initCpuWorkers, closeCpuWorkers, checkFeaturesInBoundsServer } = await load();
+		initCpuWorkers();
+		initCpuWorkers();
 		const listeners = lifecycle.listeners("sveltekit:shutdown");
-		expect(listeners.filter((listener) => listener === closeGeometryWorkers)).toHaveLength(1);
-		await listeners.find((listener) => listener === closeGeometryWorkers)!();
+		expect(listeners.filter((listener) => listener === closeCpuWorkers)).toHaveLength(1);
+		await listeners.find((listener) => listener === closeCpuWorkers)!();
 		await expect(checkFeaturesInBoundsServer(perms, features, bounds)).rejects.toMatchObject({
 			code: "unavailable"
 		});
@@ -195,14 +212,12 @@ describe("server permission geometry", () => {
 				await expect(
 					previous.checkFeaturesInBoundsServer(perms, features, bounds)
 				).rejects.toMatchObject({ code: "unavailable" });
-				expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(
-					previous.closeGeometryWorkers
-				);
+				expect(lifecycle.listeners("sveltekit:shutdown")).not.toContain(previous.closeCpuWorkers);
 				expect(await current.checkFeaturesInBoundsServer(perms, features, bounds)).toEqual(
 					checkFeaturesInBounds(perms, features, bounds)
 				);
 			} finally {
-				await previous.closeGeometryWorkers();
+				await previous.closeCpuWorkers();
 			}
 		}
 	);
