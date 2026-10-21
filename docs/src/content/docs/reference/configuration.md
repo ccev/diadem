@@ -38,36 +38,7 @@ defaultNestName = "Unknown Nest"
 - `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
 - `fortApi`: Optional, default `true`. Set to `false` to keep gyms, pokéstops and stations on SQL even when Golbat offers the fort API (this also bypasses gRPC for them). Useful for benchmarking the three paths.
 - `defaultNestName`: The default nest name, as configured in Fletchling
-- `nestSource`: Optional, `"fletchling"` (default) or `"talonflame"`. Selects the nest backend for map queries, direct nest links and nest statistics.
-
-### Talonflame nests
-
-Set `nestSource = "talonflame"` under `[server.golbat]` when using Talonflame.
-Talonflame's schema and spawnpoint backfill must already be applied to the database
-configured in `server.db`. Diadem's database account needs `SELECT` on `nests`,
-`talonflame_nest_groups`, `talonflame_nest_sources` and `talonflame_spawnpoint_state`.
-
-Confirmed groups use their imported OSM park outlines. A park with one species
-keeps its original geofence, including holes and disconnected parts. Where
-confirmed populations of different species disagree, assigned spawnpoints guide
-a straight cut through that geofence. Each split creates two adjoining regions;
-parks with more than two populations are divided with successive straight cuts.
-The regions cover the original park without gaps or overlapping interiors.
-
-Groups of the same species/form share a region instead of creating cosmetic
-splits or duplicate park overlays. Logical IDs, including negative subnest IDs,
-remain usable in direct links. Splits use all competing populations, so hiding a
-species or panning the map does not move the cut. Conflicting and provisional
-groups are excluded. Markers lie inside their displayed region, preferably on
-an assigned spawnpoint. Area permissions clip the resulting regions.
-
-Cuts are an approximation fitted to the species evidence; they do not establish
-an exact in-game boundary. S2 cells are used to locate spawnpoints and are not
-drawn as nest outlines. Legacy Fletchling averages/ratios are unavailable here.
-
-Talonflame has no per-group update timestamp, so nest queries return the current
-confirmed groups even during incremental refreshes. `last_changed` remains the
-inferred species-change boundary and is not used as a freshness timestamp.
+- `nestSource`: Optional, `"fletchling"` (default) or `"talonflame"`
 
 ### Golbat Fort API
 

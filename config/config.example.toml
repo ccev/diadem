@@ -16,7 +16,7 @@ secret = ""
 # This can be configured in Fletchling. Match the string to its config
 defaultNestName = "Unknown Nest"
 
-# Use confirmed Talonflame groups with OSM park outlines and straight subnest cuts
+# Uncomment when ussing ccev/Talonflame for correct nest displays
 # nestSource = "talonflame"
 
 # Dragonite integration for scout
