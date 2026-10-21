@@ -1,8 +1,20 @@
-import { openLocationPopup } from "@/lib/mapObjects/interact";
+import { getCurrentPath, openLocationPopup } from "@/lib/mapObjects/interact";
 import { getMapObjectAtPoint } from "@/lib/map/mapObjectsAtPoint";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
+import { formattedCoordinates, getLocationPath } from "@/lib/features/location.svelte";
 import { getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
+import {
+	backupShareUrl,
+	canNativeShare,
+	copyToClipboard,
+	hasClipboardWrite
+} from "@/lib/utils/device";
+import { getRootOrigin } from "@/lib/native/runtime";
+import { m } from "@/lib/paraglide/messages";
+import { getLocale } from "@/lib/paraglide/runtime";
+import { Copy, Link, Share2 } from "@lucide/svelte";
 import { openQuickActions } from "@/lib/ui/quickActions.svelte";
 import { getPrimaryPopupActions } from "@/lib/ui/primaryPopupActions";
 import { getPopupProps } from "@/lib/ui/popupProps";
@@ -47,12 +59,47 @@ export function onLocationContext(event: MapTouchEvent | MapMouseEvent) {
 
 	const data = getMapObjectAtPoint(event.point);
 	if (data) {
+		const isPolygon =
+			data.type === MapObjectType.NEST ||
+			data.type === MapObjectType.BIOME ||
+			data.type === MapObjectType.S2_CELL;
+		const actionCoords = isPolygon ? coords : new Coords(data.lat, data.lon);
 		const bounds = event.target.getCanvas().getBoundingClientRect();
 		openQuickActions({
 			x: bounds.left + event.point.x,
 			y: bounds.top + event.point.y,
 			title: getPopupProps(data)?.title ?? "",
-			getActions: () => getPrimaryPopupActions(data),
+			getActions: () => {
+				const actions = getPrimaryPopupActions(data, actionCoords.lat, actionCoords.lon);
+				const path =
+					data.type === MapObjectType.S2_CELL
+						? getLocationPath(actionCoords)
+						: getCurrentPath({ data });
+				const url = new URL(getRootOrigin() + path);
+				url.searchParams.set("lang", getLocale());
+				const shareUrl = url.toString();
+				if (canNativeShare({ url: shareUrl })) {
+					actions.push({
+						label: m.popup_share(),
+						Icon: Share2,
+						onclick: () => backupShareUrl(shareUrl)
+					});
+				} else if (hasClipboardWrite()) {
+					actions.push({
+						label: m.copy_link(),
+						Icon: Link,
+						onclick: () => copyToClipboard(shareUrl)
+					});
+				}
+				if (hasClipboardWrite()) {
+					actions.push({
+						label: m.context_menu_copy_coordinates(),
+						Icon: Copy,
+						onclick: () => copyToClipboard(formattedCoordinates(actionCoords))
+					});
+				}
+				return actions;
+			},
 			trigger: event.target.getCanvas()
 		});
 		return;
