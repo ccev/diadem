@@ -15,6 +15,7 @@
 	} from "@/components/ui/popups/common/PopupBaseStatic.svelte";
 	import { getPopupPropsPokestop } from "@/components/ui/popups/pokestop/PokestopPopup.svelte";
 	import { getPopupPropsNest } from "@/components/ui/popups/nest/NestPopup.svelte";
+	import { getPopupPropsBiome } from "@/components/ui/popups/biome/BiomePopup.svelte";
 	import { getPopupPropsTappable } from "@/components/ui/popups/tappable/TappablePopup.svelte";
 	import { getPopupPropsSpawnpoint } from "@/components/ui/popups/spawnpoint/SpawnpointPopup.svelte";
 	import { getPopupPropsStation } from "@/components/ui/popups/station/StationPopup.svelte";
@@ -41,6 +42,7 @@
 		[MapObjectType.POKEMON]: getPopupPropsPokemon,
 		[MapObjectType.POKESTOP]: getPopupPropsPokestop,
 		[MapObjectType.NEST]: getPopupPropsNest,
+		[MapObjectType.BIOME]: getPopupPropsBiome,
 		[MapObjectType.TAPPABLE]: getPopupPropsTappable,
 		[MapObjectType.SPAWNPOINT]: getPopupPropsSpawnpoint,
 		[MapObjectType.GYM]: getPopupPropsGym,

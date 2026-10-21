@@ -88,7 +88,7 @@ serverId = "1359028304128245934"
 #     pokestop* / pokestop, quest, invasion, lure, contest, kecleon, golden_pokestop
 #     gym* / gym, raid
 #     station* / station, max_battle
-#     minor_map_object* (map objects with no sub-features) / nest, tappable, s2cell, spawnpoint, route
+#     minor_map_object* (map objects with no sub-features) / nest, biome, tappable, s2cell, spawnpoint, route
 #   tool* / scout, coverage_map, wayfarer_map
 #   ui* / search, weather
 #
@@ -149,12 +149,17 @@ heavyFilterRatio = 0.2
 #   rateLimit is the max amount of objects to be given out in {rateLimitTime} seconds.
 #   rateLimitTime is the amount of seconds for {rateLimit} to reset
 #
-# Available map objects: pokemon, pokestop, gym, station, nest, spawnpoint, tappable
+# Available map objects: pokemon, pokestop, gym, station, nest, biome, s2cell, spawnpoint, tappable, route
 # When no value is set, sane defaults will be used
 #[server.limits.pokemon]
 #requestLimit = 10000
 #rateLimit = 2000000
 #rateLimitTime = 3600
+
+# Optional Biomes API
+#[server.biomes]
+#url = ""
+#secret = ""
 
 # Connection to your Golbat DB, user should have SELECT permissions
 [server.db]

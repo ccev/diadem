@@ -145,6 +145,10 @@ export type ServerConfig = {
 		/** A random 32-byte key encoded as 64 hex characters. Server-only. */
 		secret?: string;
 	};
+	biomes?: {
+		url?: string;
+		secret?: string;
+	};
 	golbat: {
 		url: string;
 		auth?: string;

@@ -95,6 +95,7 @@
 				LoadedFeature.MASTER_FILE,
 				LoadedFeature.ICON_SETS,
 				LoadedFeature.USER_DETAILS,
+				LoadedFeature.SUPPORTED_FEATURES,
 				LoadedFeature.SERVER_USER_SETTINGS
 			)
 		) {
@@ -217,6 +218,16 @@
 					["coalesce", ["get", "isSelected"], false],
 					["coalesce", ["get", "selectedFill"], "transparent"],
 					["coalesce", ["get", "fillColor"], "transparent"]
+				],
+				"fill-outline-color": [
+					"coalesce",
+					["get", "fillOutlineColor"],
+					[
+						"case",
+						["coalesce", ["get", "isSelected"], false],
+						["coalesce", ["get", "selectedFill"], "transparent"],
+						["coalesce", ["get", "fillColor"], "transparent"]
+					]
 				]
 			}}
 			hoverCursor="pointer"

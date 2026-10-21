@@ -10,6 +10,7 @@ export const GET: RequestHandler = async ({ locals, request }) => {
 
 	return respond(request, {
 		koji: !!config.koji && !!config.koji.url,
+		biomes: Boolean(config.biomes?.url?.trim()),
 		geocoding:
 			(!!config.nominatim && !!config.nominatim.url) ||
 			(!!config.pelias && !!config.pelias.url) ||

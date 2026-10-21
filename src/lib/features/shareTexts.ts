@@ -40,6 +40,7 @@ import { getStationTitle, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { getTappableName } from "@/lib/utils/tappableUtils";
 import { getMmSsFromSeconds } from "@/lib/utils/time";
 import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
+import { getBiomeLabel } from "@/lib/utils/biomeUtils";
 import { formattedCoordinates } from "$lib/features/location.svelte";
 
 // unused; was replaced by thumbnails
@@ -90,6 +91,8 @@ export function getShareTitle(data: MapData | null | undefined) {
 		return title;
 	} else if (data.type === MapObjectType.NEST) {
 		return m.pokemon_nest({ pokemon: mPokemon(data) });
+	} else if (data.type === MapObjectType.BIOME) {
+		return getBiomeLabel(data.profile);
 	} else if (data.type === MapObjectType.SPAWNPOINT) {
 		return m.pogo_spawnpoint();
 	} else if (data.type === MapObjectType.ROUTE) {
