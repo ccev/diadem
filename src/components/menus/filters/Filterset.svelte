@@ -66,7 +66,7 @@
 				Icon: Focus,
 				onclick: () => {
 					setActiveSearch({
-						name: filterTitle($state.snapshot(filter)),
+						name: filterTitle(filter),
 						mapObject,
 						filter,
 						subCategory
