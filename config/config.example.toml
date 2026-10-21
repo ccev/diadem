@@ -43,6 +43,11 @@ projectName = "reactmap"
 #basicAuth = ""
 #userAgent = "Diadem / Contact: name@email.com"
 
+# Optional Biomes API
+#[server.biomes]
+#url = ""
+#secret = ""
+
 [server.auth]
 enabled = false
 optional = true
@@ -149,10 +154,10 @@ heavyFilterRatio = 0.2
 #rateLimit = 2000000
 #rateLimitTime = 3600
 
-# Optional Biomes API
-#[server.biomes]
-#url = ""
-#secret = ""
+# Optionally encrypt encounter ID
+[server.encounterIdObfuscation]
+enabled = false
+secret = "" # Required when enabled. Generate a private key with: openssl rand -hex 32
 
 # Connection to your Golbat DB, user should have SELECT permissions
 [server.db]
