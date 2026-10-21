@@ -531,7 +531,7 @@
 					lon={data.lon}
 					type={MapObjectType.POKESTOP}
 					uiconType="pokestop"
-					radius={80}
+					radius={50}
 					zoom={15.5}
 					icon={resize(getIconPokestop({}), { width: 64 })}
 				/>
