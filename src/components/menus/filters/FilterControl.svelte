@@ -5,6 +5,8 @@
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 
+	import { sortFiltersets } from "@/lib/features/filters/sortFiltersets";
+	import { reorderFiltersets } from "@/lib/features/filters/filtersetPageData.svelte";
 	import { slide } from "svelte/transition";
 	import Filterset from "@/components/menus/filters/Filterset.svelte";
 	import { type ModalType, openModal } from "@/lib/ui/modal.svelte.js";
@@ -167,9 +169,25 @@
 
 	{#if isEnabled && isFilterable}
 		{#if hasAnyFilterset && filterModal && (!collapsibleByFiltersets || expanded)}
-			<div class="w-full my-1 flex flex-col gap-1 pl-2" transition:slide={{ duration: 90 }}>
-				{#each filtersets ?? [] as filterset (filterset.id)}
-					<Filterset filter={filterset} {majorCategory} {subCategory} {filterModal} {mapObject} />
+			<div
+				class="w-full my-1 flex flex-col gap-1 pl-2"
+				transition:slide={{ duration: 90 }}
+				{@attach (node) =>
+					sortFiltersets(node, (from, to) =>
+						reorderFiltersets(filtersets ?? [], from, to, mapObject)
+					)}
+			>
+				{#each filtersets ?? [] as filterset, index (filterset.id)}
+					<Filterset
+						filter={filterset}
+						{majorCategory}
+						{subCategory}
+						{filterModal}
+						{mapObject}
+						{index}
+						count={filtersets?.length ?? 0}
+						onMove={(to) => reorderFiltersets(filtersets ?? [], index, to, mapObject)}
+					/>
 				{/each}
 			</div>
 

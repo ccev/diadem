@@ -1,26 +1,12 @@
 <script lang="ts">
 	import { fly } from "svelte/transition";
 	import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
-	import {
-		ClientMapObjectType,
-		type MapData,
-		MapObjectType
-	} from "@/lib/mapObjects/mapObjectTypes";
+	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import PopupBaseDrawer from "@/components/ui/popups/common/PopupBaseDrawer.svelte";
 	import { Coords } from "$lib/utils/coordinates";
 	import { watch } from "runed";
-	import { getPopupPropsPokemon } from "@/components/ui/popups/pokemon/PokemonPopup.svelte";
-	import PopupBaseStatic, {
-		type MapObjectPopupProps
-	} from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import { getPopupPropsPokestop } from "@/components/ui/popups/pokestop/PokestopPopup.svelte";
-	import { getPopupPropsNest } from "@/components/ui/popups/nest/NestPopup.svelte";
-	import { getPopupPropsBiome } from "@/components/ui/popups/biome/BiomePopup.svelte";
-	import { getPopupPropsTappable } from "@/components/ui/popups/tappable/TappablePopup.svelte";
-	import { getPopupPropsSpawnpoint } from "@/components/ui/popups/spawnpoint/SpawnpointPopup.svelte";
-	import { getPopupPropsStation } from "@/components/ui/popups/station/StationPopup.svelte";
-	import { getPopupPropsGym } from "@/components/ui/popups/gym/GymPopup.svelte";
-	import { getPopupPropsRoute } from "@/components/ui/popups/route/RoutePopup.svelte";
+	import PopupBaseStatic from "@/components/ui/popups/common/PopupBaseStatic.svelte";
+	import { getPopupProps } from "@/lib/ui/popupProps";
 	import { isAllowedTwoSidebars } from "$lib/utils/device";
 	import { closeMenu } from "$lib/ui/menus.svelte";
 	import { isSearchViewActive } from "$lib/features/activeSearch.svelte";
@@ -30,26 +16,12 @@
 		setPopupOcclusion,
 		type PopupVisibilityRequest
 	} from "$lib/mapObjects/popupVisibility.svelte";
-	import { getPopupPropsLocation } from "@/components/ui/popups/location/LocationPopup.svelte";
 
 	let {
 		alwaysExpanded = false
 	}: {
 		alwaysExpanded?: boolean;
 	} = $props();
-
-	const propMap: Partial<Record<MapData["type"], (data: MapData) => MapObjectPopupProps>> = {
-		[MapObjectType.POKEMON]: getPopupPropsPokemon,
-		[MapObjectType.POKESTOP]: getPopupPropsPokestop,
-		[MapObjectType.NEST]: getPopupPropsNest,
-		[MapObjectType.BIOME]: getPopupPropsBiome,
-		[MapObjectType.TAPPABLE]: getPopupPropsTappable,
-		[MapObjectType.SPAWNPOINT]: getPopupPropsSpawnpoint,
-		[MapObjectType.GYM]: getPopupPropsGym,
-		[MapObjectType.STATION]: getPopupPropsStation,
-		[MapObjectType.ROUTE]: getPopupPropsRoute,
-		[ClientMapObjectType.LOCATION]: getPopupPropsLocation
-	};
 
 	let data = $derived(getCurrentSelectedData());
 	let doesDataExist = $derived(Boolean(data && data.type !== MapObjectType.S2_CELL));
@@ -94,7 +66,7 @@
 	);
 
 	let popupData = $derived(data ?? snapshotData);
-	let popupProps = $derived(popupData ? propMap[popupData.type]?.(popupData) : undefined);
+	let popupProps = $derived(popupData ? getPopupProps(popupData) : undefined);
 	let popupCoords = $derived(new Coords(popupData?.lat ?? 0, popupData?.lon ?? 0));
 </script>
 
