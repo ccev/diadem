@@ -57,7 +57,7 @@ import {
 	givesQuestBackground,
 	isIncidentInvasion
 } from "@/lib/utils/pokestopUtils";
-import { getStationPokemon, isMaxBattleActive } from "@/lib/utils/stationUtils";
+import { getStationPokemon, hasMaxBattle } from "@/lib/utils/stationUtils";
 import { cellToPolygon } from "@/lib/mapObjects/s2cells";
 import type { MultiPolygon, Polygon } from "geojson";
 import { getRouteColor, getRouteCoordinates, getRouteEndpointFort } from "@/lib/utils/routeUtils";
@@ -518,7 +518,7 @@ class StationRenderer extends MapObjectRenderer<StationData> {
 
 		const features: MapObjectFeature[] = [];
 
-		if (data.battle_pokemon_id && isMaxBattleActive(data)) {
+		if (hasMaxBattle(data)) {
 			const mapId = data.mapId + "-maxbattle-" + data.battle_pokemon_id;
 			const maxBattleModifiers = getConfigModifiers(this.iconSet, "max_battle");
 
