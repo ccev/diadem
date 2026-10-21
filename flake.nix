@@ -16,7 +16,7 @@
         };
 
         android = pkgs.androidenv.composeAndroidPackages {
-          platformVersions = [ "34" "35" ];
+          platformVersions = [ "34" "35" "36" ];
           buildToolsVersions = [ "34.0.0" "35.0.0" ];
           includeEmulator = false;
           includeSystemImages = false;
