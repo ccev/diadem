@@ -1,0 +1,93 @@
+name: Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      play_track:
+        description: "Google Play track"
+        required: false
+        default: internal
+        type: choice
+        options: [internal, alpha, beta, production]
+
+permissions:
+  contents: read
+
+# Serialize Play uploads with the full Release workflow.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  google-play:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;35.0.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare default config files
+        run: bash setup.sh
+
+      - name: Prepare current release changelog
+        run: |
+          node scripts/release/set-version.mjs --print
+          code="$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]+([0-9]+)[[:space:]]*$/\1/p' android/app/build.gradle)"
+          mkdir -p "$RUNNER_TEMP/whatsnew"
+          cp "fastlane/metadata/android/en-US/changelogs/${code}.txt" "$RUNNER_TEMP/whatsnew/whatsnew-en-US"
+
+      - name: Sync SvelteKit
+        run: pnpm exec svelte-kit sync
+
+      - name: Build web client
+        run: BUILD_TARGET=native pnpm build
+
+      - name: Capacitor sync
+        run: pnpm exec cap sync android
+
+      - name: Decode signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > android/upload-keystore.jks
+          cat > android/keystore.properties <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=${STORE_PW}
+          keyAlias=${ALIAS}
+          keyPassword=${KEY_PW}
+          EOF
+
+      - name: Build signed AAB
+        run: ./gradlew bundleRelease
+        working-directory: android
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ee.malt.diadem
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          tracks: ${{ inputs.play_track }}
+          status: completed
+          whatsNewDirectory: ${{ runner.temp }}/whatsnew

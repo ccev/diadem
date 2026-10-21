@@ -28,7 +28,7 @@ import {
 } from "@/lib/mapObjects/mapObjectTypes";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
-import { circle } from "@turf/turf";
+import { rangeCircle } from "@/lib/utils/rangeGeometry";
 import { getFocusedRouteMapId, setFocusedRouteMapId } from "$lib/features/focusedRoute.svelte.js";
 import { routeStartsAt } from "@/lib/utils/routeUtils";
 
@@ -106,37 +106,41 @@ export function updateDimmedFeatures() {
 	updateMapObjectsGeoJson(getFlattenedFeatures());
 }
 
-function getActionRadiusFeature(type: MapObjectType, mapId: string, center: [number, number]) {
+function getActionRadiusFeatures(
+	type: MapObjectType,
+	mapId: string,
+	center: [number, number],
+	isSelected = false
+) {
 	const action = getUserSettings().actions[type]?.radius;
-	if (!action) return;
+	if (!action) return [];
 
 	const hasMapOverride = action.mapIds.includes(mapId);
 	const shouldShow = action.all ? !hasMapOverride : hasMapOverride;
-	if (!shouldShow) return;
+	if (!shouldShow) return [];
 
-	let radius: number | undefined = undefined;
-	if (type === MapObjectType.POKEMON) {
-		radius = action?.extraRadius ? RANGE_POKEMON_EXTENDED : RANGE_POKEMON;
+	const isPokemon = type === MapObjectType.POKEMON;
+	const radii: { radius: number; fillColor: string }[] = [];
+	if (isPokemon) {
+		if (action.extraRadius) {
+			radii.push({ radius: RANGE_POKEMON_EXTENDED, fillColor: "rgba(96, 165, 250, 0.2)" });
+		}
+		radii.push({ radius: RANGE_POKEMON, fillColor: "rgba(59, 130, 246, 0.2)" });
 	} else if ([MapObjectType.POKESTOP, MapObjectType.GYM, MapObjectType.STATION].includes(type)) {
-		radius = RANGE_FORTS;
-	} else {
-		return;
+		radii.push({ radius: RANGE_FORTS, fillColor: RADIUS_FILL });
 	}
 
-	if (!radius) return;
+	return radii.map(({ radius, fillColor }) => {
+		const feature = rangeCircle(center, radius, { steps: 96 });
 
-	const feature = circle(center, radius, {
-		steps: 96,
-		units: "meters"
-	});
-
-	return getPolygonFeature(mapId + "-radius", [feature.geometry.coordinates], {
-		id: mapId,
-		strokeColor: RADIUS_STROKE,
-		fillColor: RADIUS_FILL,
-		selectedFill: RADIUS_FILL_SELECTED,
-		isSelected: false,
-		isActionRadius: true
+		return getPolygonFeature(`${mapId}-radius-${radius}`, [feature.geometry.coordinates], {
+			id: mapId,
+			strokeColor: isPokemon ? "transparent" : RADIUS_STROKE,
+			fillColor,
+			selectedFill: isPokemon ? fillColor : RADIUS_FILL_SELECTED,
+			isSelected,
+			isActionRadius: true
+		});
 	});
 }
 
@@ -146,11 +150,10 @@ export function updateRadiusFeatures() {
 			entry.features = entry.features.filter(
 				(feature) => !(isFeaturePolygon(feature) && feature.properties.isActionRadius)
 			);
-			const radiusFeature = getActionRadiusFeature(type, mapId, [entry.lon, entry.lat]);
-			if (radiusFeature) entry.features.unshift(radiusFeature);
+			entry.features.unshift(...getActionRadiusFeatures(type, mapId, [entry.lon, entry.lat]));
 		}
 	}
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	updateSelected(getCurrentSelectedData());
 }
 
 export function updateSelected(currentSelected: MapData | null) {
@@ -282,8 +285,9 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 			}
 		}
 
-		const radiusFeature = getActionRadiusFeature(obj.type, obj.mapId, [obj.lon, obj.lat]);
-		if (radiusFeature) subFeatures.unshift(radiusFeature);
+		subFeatures.unshift(
+			...getActionRadiusFeatures(obj.type, obj.mapId, [obj.lon, obj.lat], isSelected)
+		);
 
 		features[obj.type][obj.mapId] = {
 			lat: obj.lat,

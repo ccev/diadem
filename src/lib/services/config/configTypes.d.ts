@@ -139,6 +139,14 @@ export type ClientConfig = {
 };
 
 export type ServerConfig = {
+	encounterIdObfuscation?: {
+		enabled?: boolean;
+		secret?: string;
+	};
+	biomes?: {
+		url?: string;
+		secret?: string;
+	};
 	golbat: {
 		url: string;
 		auth?: string;

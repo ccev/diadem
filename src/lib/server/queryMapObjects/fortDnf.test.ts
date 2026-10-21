@@ -256,13 +256,13 @@ describe("buildPokestopDnfFilters", () => {
 describe("buildStationDnfFilters", () => {
 	const active = { station_active: true, battle_available: true };
 
-	it("falls back to the active-with-battle-available clause when no filterset is enabled", () => {
+	it("leaves activity unrestricted when no filterset is enabled", () => {
 		const filter = getDefaultStationFilter();
 		filter.enabled = true;
 		filter.maxBattle.enabled = true;
 		filter.maxBattle.filters = [];
 
-		expect(buildStationDnfFilters(filter)).toStrictEqual([active]);
+		expect(buildStationDnfFilters(filter)).toStrictEqual([]);
 	});
 
 	it("translates isActive to the same clause", () => {
@@ -274,7 +274,7 @@ describe("buildStationDnfFilters", () => {
 		expect(buildStationDnfFilters(filter)).toStrictEqual([active]);
 	});
 
-	it("merges enabled bosses with the active clause but without form or bread-mode constraints", () => {
+	it("queries enabled bosses regardless of activity, without form or bread-mode constraints", () => {
 		const filter = getDefaultStationFilter();
 		filter.enabled = true;
 		filter.maxBattle.enabled = true;
@@ -290,7 +290,7 @@ describe("buildStationDnfFilters", () => {
 		];
 
 		expect(buildStationDnfFilters(filter)).toStrictEqual([
-			{ ...active, battle_pokemon: [{ pokemon_id: 809 }, { pokemon_id: 25 }] }
+			{ battle_pokemon: [{ pokemon_id: 809 }, { pokemon_id: 25 }] }
 		]);
 	});
 
@@ -300,6 +300,14 @@ describe("buildStationDnfFilters", () => {
 		filter.maxBattle.enabled = true;
 		filter.maxBattle.filters = [{ ...filterset, hasGmax: true }];
 
-		expect(buildStationDnfFilters(filter)).toStrictEqual([{ ...active, stationed_gmax: true }]);
+		expect(buildStationDnfFilters(filter)).toStrictEqual([{ stationed_gmax: true }]);
+	});
+
+	it("does not let a restrictive clause hide battles admitted by an unrestricted filterset", () => {
+		const filter = getDefaultStationFilter();
+		filter.enabled = true;
+		filter.maxBattle.enabled = true;
+		filter.maxBattle.filters = [{ ...filterset, isActive: true }, { ...filterset }];
+		expect(buildStationDnfFilters(filter)).toStrictEqual([]);
 	});
 });

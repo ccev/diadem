@@ -12,6 +12,7 @@ import { ApiPokestopQuery } from "@/lib/server/queryMapObjects/queryPokestopApi"
 import { ApiStationQuery } from "@/lib/server/queryMapObjects/queryStationApi";
 import { GymQuery } from "@/lib/server/queryMapObjects/queryGym";
 import { NestQuery } from "@/lib/server/queryMapObjects/queryNest";
+import { BiomeQuery } from "@/lib/server/queryMapObjects/queryBiome";
 import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
 import { RouteQuery } from "@/lib/server/queryMapObjects/queryRoute";
@@ -27,6 +28,7 @@ const registry: Partial<Record<MapObjectType, MapObjectQuery<any, any>>> = {
 	[MapObjectType.POKEMON]: new PokemonQuery(),
 	[MapObjectType.STATION]: new StationQuery(),
 	[MapObjectType.NEST]: new NestQuery(),
+	[MapObjectType.BIOME]: new BiomeQuery(),
 	[MapObjectType.SPAWNPOINT]: new SpawnpointQuery(),
 	[MapObjectType.ROUTE]: new RouteQuery(),
 	[MapObjectType.TAPPABLE]: new TappableQuery()

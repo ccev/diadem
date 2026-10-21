@@ -1,5 +1,11 @@
 export type optionalFeatures =
-	"koji" | "geocoding" | "auth" | "authRequired" | "showFullscreenLogin" | "geometryLookup";
+	| "koji"
+	| "biomes"
+	| "geocoding"
+	| "auth"
+	| "authRequired"
+	| "showFullscreenLogin"
+	| "geometryLookup";
 
 export type SupportedFeatures = {
 	[key in optionalFeatures]: boolean;
@@ -10,6 +16,7 @@ export type SupportedFeatures = {
 let supportedFeatures: SupportedFeatures = {
 	koji: false,
 	nestSource: "fletch",
+	biomes: false,
 	geocoding: false,
 	auth: false,
 	authRequired: false,
