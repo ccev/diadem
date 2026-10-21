@@ -50,6 +50,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;35.0.0"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -217,7 +222,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: ee.malt.diadem
           releaseFiles: ${{ steps.art.outputs.aab }}
-          track: ${{ inputs.play_track }}
+          tracks: ${{ inputs.play_track }}
           status: completed
           whatsNewDirectory: ${{ runner.temp }}/whatsnew
 
