@@ -11,6 +11,7 @@ vi.mock("@/lib/utils/pokemonUtils", () => ({
 }));
 
 import { NestQuery } from "./queryNest";
+import { polygon } from "@turf/turf";
 
 const bounds = { minLat: 53.55, minLon: 9.97, maxLat: 53.57, maxLon: 9.99 };
 const group = {
@@ -25,6 +26,21 @@ const spawnpoint = (
 	s2.cellid.parent(s2.cellid.fromLatLng(s2.LatLng.fromDegrees(53.56, 9.98)), 20) >> 20n
 ).toString();
 const member = { nest_id: group.id, spawnpoint_id: spawnpoint };
+const source = {
+	id: group.id,
+	group_id: group.id,
+	pokemon_id: group.pokemon_id,
+	form: 0,
+	geometry: polygon([
+		[
+			[9.97, 53.55],
+			[9.99, 53.55],
+			[9.99, 53.57],
+			[9.97, 53.57],
+			[9.97, 53.55]
+		]
+	]).geometry
+};
 
 class TestNestQuery extends NestQuery {
 	calls: { sql: string; values: unknown[] }[] = [];
@@ -54,17 +70,18 @@ describe("NestQuery backends", () => {
 	});
 
 	it("returns confirmed logical groups even when the legacy species/update is absent", async () => {
-		const query = new TestNestQuery([[group], [member]]);
+		const query = new TestNestQuery([[group], [source], [member]]);
 		const result = await query.query(bounds, undefined, null, 2000000000);
 		expect(result.data).toHaveLength(1);
 		expect(result.data[0].pokemon_id).toBe(16);
-		expect(query.calls).toHaveLength(2);
+		expect(query.calls).toHaveLength(3);
 		expect(query.calls[0].sql).toContain("g.status = 'confirmed'");
 		expect(query.calls[0].sql).not.toContain("n.pokemon_id");
 		expect(query.calls[0].sql).not.toContain("updated >");
 		expect(query.calls[0].values).not.toContain(2000000000);
 		expect(query.calls[0].sql).toContain("GROUP BY g.nest_id");
 		expect(query.calls[1].values).toEqual([group.id]);
+		expect(query.calls[1].sql).toContain("ST_AsGeoJSON(n.polygon)");
 	});
 
 	it("applies species filters to logical group species", async () => {
@@ -81,7 +98,7 @@ describe("NestQuery backends", () => {
 		expect(query.calls[0].values.at(-1)).toBe(16);
 	});
 
-	it("limits logical groups before loading their member footprints", async () => {
+	it("limits logical groups before loading source polygons and members", async () => {
 		const query = new TestNestQuery([[group, { ...group, id: "-375", pokemon_id: 769 }]]);
 		const result = await query.query(bounds, undefined, null, undefined, 1);
 		expect(result).toEqual({ data: [], examined: 1, limitReached: true });
@@ -91,12 +108,40 @@ describe("NestQuery backends", () => {
 
 	it("supports stable negative group IDs in direct links", async () => {
 		const subnest = { ...group, id: "-375", pokemon_id: 769 };
-		const query = new TestNestQuery([[subnest], [{ ...member, nest_id: subnest.id }]]);
+		const query = new TestNestQuery([
+			[subnest],
+			[{ ...source, group_id: subnest.id, pokemon_id: 769 }],
+			[{ ...member, nest_id: subnest.id }]
+		]);
 		const result = await query.querySingle(subnest.id);
 		expect(result[0].id).toBe("-375");
 		expect(result[0].pokemon_id).toBe(769);
 		expect(query.calls[0].values).toEqual(["-375"]);
 		expect(query.calls[0].sql).toContain("g.status = 'confirmed'");
+	});
+
+	it("loads competing populations for a filtered/direct group so its cut stays unchanged", async () => {
+		const competitor = { ...source, group_id: "-375", pokemon_id: 769 };
+		const query = new TestNestQuery([
+			[group],
+			[source, competitor],
+			[
+				member,
+				{
+					nest_id: competitor.group_id,
+					spawnpoint_id: (
+						s2.cellid.parent(s2.cellid.fromLatLng(s2.LatLng.fromDegrees(53.56, 9.986)), 20) >> 20n
+					).toString()
+				}
+			]
+		]);
+		const [nest] = await query.querySingle(group.id);
+		expect(query.calls[1].values).toEqual([group.id]);
+		expect(query.calls[1].sql).toContain("g.status = 'confirmed'");
+		expect(query.calls[1].sql).not.toContain("g.pokemon_id = ?");
+		expect(query.calls[2].values).toEqual([group.id, "-375"]);
+		expect(nest.pokemon_id).toBe(16);
+		expect(nest.m2).toBeLessThan(2000000);
 	});
 
 	it("does not load membership when no confirmed group matches", async () => {

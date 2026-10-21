@@ -10,7 +10,8 @@ import {
 import {
 	buildTalonflameNests,
 	type TalonflameGroup,
-	type TalonflameMember
+	type TalonflameMember,
+	type TalonflameSource
 } from "@/lib/server/queryMapObjects/talonflameNest";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
@@ -121,14 +122,31 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 		polygon?: PermittedPolygon
 	): Promise<MinMapObject<NestData>[]> {
 		if (!groups.length) return [];
+		// Load all competing confirmed populations for these parks, even when a
+		// species filter or a direct link requested only one of their groups.
+		const sources = await this.executeQuery<TalonflameSource[]>(
+			`SELECT CAST(s.source_nest_id AS CHAR) AS id,CAST(s.group_id AS CHAR) AS group_id,
+			g.pokemon_id,g.pokemon_form AS form,ST_AsGeoJSON(n.polygon) AS geometry
+			FROM talonflame_nest_sources s
+			JOIN talonflame_nest_groups g ON g.nest_id = s.group_id
+			JOIN nests n ON n.nest_id = s.source_nest_id
+			WHERE g.status = 'confirmed' AND g.pokemon_id IS NOT NULL AND n.active = 1
+			AND s.source_nest_id IN
+			(SELECT source_nest_id FROM talonflame_nest_sources
+			WHERE group_id IN (${groups.map(() => "?").join(",")}))
+			ORDER BY s.source_nest_id,s.group_id`,
+			groups.map((group) => group.id)
+		);
+		const participants = [...new Set(sources.map((source) => source.group_id))];
+		if (!participants.length) return [];
 		const members = await this.executeQuery<TalonflameMember[]>(
 			`SELECT CAST(nest_id AS CHAR) AS nest_id,CAST(spawnpoint_id AS CHAR) AS spawnpoint_id
 			FROM talonflame_spawnpoint_state
-			WHERE nest_id IN (${groups.map(() => "?").join(",")})
+			WHERE nest_id IN (${participants.map(() => "?").join(",")})
 			ORDER BY nest_id,spawnpoint_id`,
-			groups.map((group) => group.id)
+			participants
 		);
-		return buildTalonflameNests(groups, members, bounds, polygon);
+		return buildTalonflameNests(groups, members, sources, bounds, polygon);
 	}
 
 	protected buildSpatialFilter(

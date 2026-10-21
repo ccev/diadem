@@ -47,15 +47,23 @@ Talonflame's schema and spawnpoint backfill must already be applied to the datab
 configured in `server.db`. Diadem's database account needs `SELECT` on `nests`,
 `talonflame_nest_groups`, `talonflame_nest_sources` and `talonflame_spawnpoint_state`.
 
-Each confirmed logical group gets its own marker and stable ID, including inferred
-subnests with negative IDs. Multiple source polygons linked to the same group do
-not create duplicate nests. Conflicting and provisional groups are excluded.
+Confirmed groups use their imported OSM park outlines. A park with one species
+keeps its original geofence, including holes and disconnected parts. Where
+confirmed populations of different species disagree, assigned spawnpoints guide
+a straight cut through that geofence. Each split creates two adjoining regions;
+parks with more than two populations are divided with successive straight cuts.
+The regions cover the original park without gaps or overlapping interiors.
 
-Markers are placed on assigned spawnpoints. Outlines show the assigned level-20
-S2 spawnpoint cells, not the entire imported park boundary: this is a conservative
-membership footprint, not an inferred exact park boundary. Separate populations
-within one park can therefore be displayed without assigning the entire park to
-every species. Legacy Fletchling averages/ratios are unavailable in this mode.
+Groups of the same species/form share a region instead of creating cosmetic
+splits or duplicate park overlays. Logical IDs, including negative subnest IDs,
+remain usable in direct links. Splits use all competing populations, so hiding a
+species or panning the map does not move the cut. Conflicting and provisional
+groups are excluded. Markers lie inside their displayed region, preferably on
+an assigned spawnpoint. Area permissions clip the resulting regions.
+
+Cuts are an approximation fitted to the species evidence; they do not establish
+an exact in-game boundary. S2 cells are used to locate spawnpoints and are not
+drawn as nest outlines. Legacy Fletchling averages/ratios are unavailable here.
 
 Talonflame has no per-group update timestamp, so nest queries return the current
 confirmed groups even during incremental refreshes. `last_changed` remains the
