@@ -1,13 +1,14 @@
 import Sortable from "sortablejs";
-import { longPressDuration, pressMoveTolerance } from "@/lib/ui/actions/quickPress";
+import { pressMoveTolerance } from "@/lib/ui/actions/quickPress";
 import { closeQuickActions } from "@/lib/ui/quickActions.svelte";
 
 export function sortFiltersets(node: HTMLElement, onMove: (from: number, to: number) => void) {
 	let originalChildren: ChildNode[] = [];
 	let suppressClickUntil = 0;
+	let chosen: HTMLElement | undefined;
 	const sortable = Sortable.create(node, {
 		animation: 150,
-		delay: longPressDuration,
+		delay: 100,
 		delayOnTouchOnly: true,
 		touchStartThreshold: pressMoveTolerance,
 		fallbackTolerance: pressMoveTolerance,
@@ -18,12 +19,22 @@ export function sortFiltersets(node: HTMLElement, onMove: (from: number, to: num
 		preventOnFilter: false,
 		ghostClass: "opacity-30",
 		chosenClass: "ring-2",
-		onChoose: () => {
+		onChoose: ({ item }) => {
 			originalChildren = Array.from(node.childNodes);
+			chosen = item;
+			// Until the touch delay expires, let the drawer handle swipes on the row.
+			chosen.setAttribute("data-base-ui-swipe-ignore", "");
+		},
+		onUnchoose: () => {
+			chosen?.removeAttribute("data-base-ui-swipe-ignore");
+			chosen = undefined;
 		},
 		onStart: () => {
 			closeQuickActions();
 			node.dataset.sorting = "true";
+			// Buttons explicitly enable pointer events; do not let the preview hide drop targets.
+			for (const element of Sortable.ghost?.querySelectorAll<HTMLElement>("*") ?? [])
+				element.style.pointerEvents = "none";
 		},
 		onEnd: ({ oldDraggableIndex, newDraggableIndex }) => {
 			delete node.dataset.sorting;
@@ -50,6 +61,8 @@ export function sortFiltersets(node: HTMLElement, onMove: (from: number, to: num
 	node.addEventListener("click", suppressClick, true);
 	return () => {
 		sortable.destroy();
+		chosen?.removeAttribute("data-base-ui-swipe-ignore");
+		delete node.dataset.sorting;
 		node.removeEventListener("pointerdown", resetClick);
 		node.removeEventListener("click", suppressClick, true);
 	};

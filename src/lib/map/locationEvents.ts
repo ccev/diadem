@@ -5,7 +5,7 @@ import { getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import { openQuickActions } from "@/lib/ui/quickActions.svelte";
 import { getPrimaryPopupActions } from "@/lib/ui/primaryPopupActions";
-import { getShareTitle } from "@/lib/features/shareTexts";
+import { getPopupProps } from "@/lib/ui/popupProps";
 import { longPressDuration } from "@/lib/ui/actions/quickPress";
 import type { MapMouseEvent, MapTouchEvent } from "maplibre-gl";
 
@@ -51,7 +51,7 @@ export function onLocationContext(event: MapTouchEvent | MapMouseEvent) {
 		openQuickActions({
 			x: bounds.left + event.point.x,
 			y: bounds.top + event.point.y,
-			title: getShareTitle(data),
+			title: getPopupProps(data)?.title ?? "",
 			getActions: () => getPrimaryPopupActions(data),
 			trigger: event.target.getCanvas()
 		});

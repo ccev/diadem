@@ -59,15 +59,6 @@
 		return [
 			{ label: m.edit(), Icon: Pencil, onclick: () => edit(true) },
 			{
-				label: m.delete(),
-				Icon: Trash,
-				destructive: true,
-				onclick: () => {
-					setCurrentSelectedFilterset(majorCategory, subCategory, filter, true);
-					deleteCurrentSelectedFilterset(mapObject);
-				}
-			},
-			{
 				label: filter.enabled ? m.quick_action_disable() : m.quick_action_enable(),
 				Icon: filter.enabled ? EyeClosed : Eye,
 				onclick: () => toggleFilterset(filter, mapObject)
@@ -112,6 +103,15 @@
 						`${getRootOrigin()}/filter/${path}/${getCurrentSelectedFiltersetEncoded()}`
 					);
 				}
+			},
+			{
+				label: m.delete(),
+				Icon: Trash,
+				destructive: true,
+				onclick: () => {
+					setCurrentSelectedFilterset(majorCategory, subCategory, filter, true);
+					deleteCurrentSelectedFilterset(mapObject);
+				}
 			}
 		];
 	}
@@ -119,8 +119,7 @@
 
 <div
 	data-filterset={filter.id}
-	data-base-ui-swipe-ignore
-	class="flex items-center rounded-md border border-input bg-background group select-none cursor-grab active:cursor-grabbing"
+	class="inline-flex items-center gap-1.5 pr-1 relative overflow-hidden rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground transition-colors group select-none cursor-grab active:cursor-grabbing"
 	style="-webkit-touch-callout: none"
 	{@attach (node) =>
 		quickPress(node, (x, y) =>
@@ -133,29 +132,41 @@
 			})
 		)}
 >
-	<button
-		class="flex items-center min-w-0 flex-1 h-12 text-sm font-medium text-left rounded-l-md overflow-hidden hover:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring cursor-inherit"
+	<Button
+		class="pl-0! pr-0! h-fit! min-w-0 flex-1 cursor-inherit"
+		variant=""
+		size=""
 		aria-haspopup="menu"
 		onclick={() => edit()}
 	>
-		<span
-			class="h-12 w-0.5 mr-1.5 shrink-0"
+		<div
+			class="h-12 w-0.5 mr-1.5 transition-colors shrink-0"
 			class:bg-green={filter.enabled}
 			class:bg-red={!filter.enabled}
-		></span>
-		<span class="min-w-0 flex items-center gap-2 pr-2" class:opacity-50={!filter.enabled}>
+		></div>
+		<div
+			class="shrink-1 min-w-0 w-full flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-0 transition-opacity relative"
+			class:opacity-50={!filter.enabled}
+		>
+			<div
+				class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent transition-colors"
+			></div>
 			<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
-			<span class="truncate">{filterTitle($state.snapshot(filter))}</span>
-		</span>
-	</button>
+			<span class="overflow-x-hidden">{filterTitle($state.snapshot(filter))}</span>
+		</div>
+	</Button>
 	<Button
 		data-no-drag
-		class="mr-1 shrink-0"
+		class="ml-auto my-0! shrink-0"
 		variant="outline"
 		size="icon"
 		aria-label={filter.enabled ? m.quick_action_disable() : m.quick_action_enable()}
 		onclick={() => toggleFilterset(filter, mapObject)}
 	>
-		{#if filter.enabled}<Eye size="16" />{:else}<EyeClosed size="16" />{/if}
+		{#if filter.enabled}
+			<Eye size="16" />
+		{:else}
+			<EyeClosed size="16" />
+		{/if}
 	</Button>
 </div>

@@ -6,7 +6,8 @@ const state = vi.hoisted(() => ({
 	location: vi.fn(),
 	scout: vi.fn(),
 	menu: null as string | null,
-	actions: vi.fn(() => [])
+	actions: vi.fn(() => []),
+	popupProps: vi.fn(() => ({ title: "Popup marker title" }))
 }));
 vi.mock("@/lib/mapObjects/interact", () => ({ openLocationPopup: state.location }));
 vi.mock("@/lib/map/hitTest", () => ({ getMapObjectAtPoint: state.hit }));
@@ -17,7 +18,7 @@ vi.mock("@/lib/ui/menus.svelte", () => ({
 }));
 vi.mock("@/lib/ui/quickActions.svelte", () => ({ openQuickActions: state.open }));
 vi.mock("@/lib/ui/primaryPopupActions", () => ({ getPrimaryPopupActions: state.actions }));
-vi.mock("@/lib/features/shareTexts", () => ({ getShareTitle: () => "Marker" }));
+vi.mock("@/lib/ui/popupProps", () => ({ getPopupProps: state.popupProps }));
 import {
 	onLocationContext,
 	onMapTouchEnd,
@@ -53,7 +54,8 @@ describe("map context actions", () => {
 		onLocationContext(event("contextmenu"));
 		expect(state.location).not.toHaveBeenCalled();
 		const menu = state.open.mock.calls[0][0];
-		expect(menu).toMatchObject({ x: 30, y: 45, title: "Marker" });
+		expect(menu).toMatchObject({ x: 30, y: 45, title: "Popup marker title" });
+		expect(state.popupProps).toHaveBeenCalledExactlyOnceWith(marker);
 		menu.getActions();
 		expect(state.actions).toHaveBeenCalledWith(marker);
 	});
