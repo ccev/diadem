@@ -35,15 +35,45 @@ describe("filterset quick presses", () => {
 		dispatch(node, "pointerdown");
 		vi.advanceTimersByTime(100);
 		dispatch(windowTarget, "pointerup");
+		vi.advanceTimersByTime(longPressDuration);
 		expect(open).not.toHaveBeenCalled();
+		expect(dispatch(node, "mousedown").defaultPrevented).toBe(false);
 		expect(dispatch(node, "click").defaultPrevented).toBe(false);
 	});
-	it("opens after holding and releasing, suppressing the synthetic click", () => {
+	it("opens at the hold threshold without waiting for release", () => {
 		dispatch(node, "pointerdown");
-		vi.advanceTimersByTime(longPressDuration);
+		vi.advanceTimersByTime(longPressDuration - 1);
+		expect(open).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(1);
+		expect(open).toHaveBeenCalledExactlyOnceWith(20, 30);
 		dispatch(windowTarget, "pointerup");
 		expect(open).toHaveBeenCalledExactlyOnceWith(20, 30);
+		expect(dispatch(node, "mousedown").defaultPrevented).toBe(true);
 		expect(dispatch(node, "click").defaultPrevented).toBe(true);
+	});
+	it("suppresses release clicks even if the finger stays down for much longer", () => {
+		dispatch(node, "pointerdown");
+		vi.advanceTimersByTime(longPressDuration + 5000);
+		expect(open).toHaveBeenCalledOnce();
+		dispatch(windowTarget, "pointerup");
+		expect(dispatch(node, "click").defaultPrevented).toBe(true);
+		vi.advanceTimersByTime(801);
+		expect(dispatch(node, "click").defaultPrevented).toBe(false);
+	});
+	it("keeps holding through small finger movements", () => {
+		dispatch(node, "pointerdown");
+		dispatch(windowTarget, "pointermove", { clientX: 24, clientY: 33 });
+		vi.advanceTimersByTime(longPressDuration);
+		expect(open).toHaveBeenCalledExactlyOnceWith(20, 30);
+	});
+	it("replaces the pending hold when a new press starts", () => {
+		dispatch(node, "pointerdown");
+		vi.advanceTimersByTime(300);
+		dispatch(node, "pointerdown", { clientX: 40, clientY: 50 });
+		vi.advanceTimersByTime(200);
+		expect(open).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(300);
+		expect(open).toHaveBeenCalledExactlyOnceWith(40, 50);
 	});
 	it("allows a deliberate tap immediately after dismissing a hold menu", () => {
 		dispatch(node, "pointerdown");
@@ -52,6 +82,7 @@ describe("filterset quick presses", () => {
 		dispatch(node, "click");
 		dispatch(node, "pointerdown");
 		dispatch(windowTarget, "pointerup");
+		expect(dispatch(node, "mousedown").defaultPrevented).toBe(false);
 		expect(dispatch(node, "click").defaultPrevented).toBe(false);
 	});
 
@@ -64,16 +95,21 @@ describe("filterset quick presses", () => {
 	});
 	it("leaves dragging and scrolling to the list", () => {
 		dispatch(node, "pointerdown");
-		vi.advanceTimersByTime(longPressDuration);
+		vi.advanceTimersByTime(100);
 		dispatch(windowTarget, "pointermove", { clientY: 60 });
+		vi.advanceTimersByTime(longPressDuration);
 		dispatch(windowTarget, "pointerup");
 		expect(open).not.toHaveBeenCalled();
 	});
 	it("does not open early when a native touch context menu fires", () => {
 		dispatch(node, "pointerdown");
-		vi.advanceTimersByTime(longPressDuration);
+		vi.advanceTimersByTime(longPressDuration - 1);
 		expect(dispatch(node, "contextmenu").defaultPrevented).toBe(true);
 		expect(open).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(1);
+		expect(open).toHaveBeenCalledOnce();
+		dispatch(node, "contextmenu");
+		expect(open).toHaveBeenCalledOnce();
 		dispatch(windowTarget, "pointerup");
 		dispatch(node, "contextmenu");
 		expect(open).toHaveBeenCalledTimes(1);
@@ -89,6 +125,7 @@ describe("filterset quick presses", () => {
 	it("removes listeners when detached", () => {
 		dispatch(node, "pointerdown");
 		cleanup();
+		expect(vi.getTimerCount()).toBe(0);
 		vi.advanceTimersByTime(longPressDuration);
 		dispatch(windowTarget, "pointerup");
 		dispatch(node, "contextmenu");
