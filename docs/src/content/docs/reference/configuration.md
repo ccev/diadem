@@ -38,7 +38,6 @@ defaultNestName = "Unknown Nest"
 - `grpc`: Optional. Golbat's gRPC target (`host:port`), see below
 - `fortApi`: Optional, default `true`. Set to `false` to keep gyms, pokéstops and stations on SQL even when Golbat offers the fort API (this also bypasses gRPC for them). Useful for benchmarking the three paths.
 - `defaultNestName`: The default nest name, as configured in Fletchling
-- `nestSource`: Optional, `"fletchling"` (default) or `"talonflame"`
 
 ### Golbat Fort API
 
@@ -54,6 +53,10 @@ When your Golbat supports gRPC, set `grpc` to that `host:port`. Diadem then runs
 If a gRPC call fails for any reason, Diadem falls back to the HTTP API for that request, and for forts to SQL after that, so the map keeps working. Unset `grpc` to compare against the HTTP path.
 
 The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
+
+## `server.talonflame`
+
+Optional. Set `url = "http://127.0.0.1:9042"` under `[server.talonflame]` to use Talonflame's nest API instead of Fletchling SQL. The URL must be accessible to Diadem's server.
 
 ## `server.dragonite`
 

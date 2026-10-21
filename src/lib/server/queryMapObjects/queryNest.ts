@@ -7,16 +7,22 @@ import {
 	DbMapObjectQuery,
 	type MapObjectResponse
 } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import {
-	buildTalonflameNests,
-	type TalonflameGroup,
-	type TalonflameMember,
-	type TalonflameSource
-} from "@/lib/server/queryMapObjects/talonflameNest";
+import { fetchTalonflame, type TalonflameResponse } from "@/lib/server/api/talonflame";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
+import {
+	area,
+	booleanIntersects,
+	booleanPointInPolygon,
+	bboxPolygon,
+	feature,
+	featureCollection,
+	intersect,
+	point,
+	pointOnFeature
+} from "@turf/turf";
 
 export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 	protected readonly type = MapObjectType.NEST;
@@ -43,10 +49,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 
 	protected readonly extraWhere = ["active = 1", "pokemon_id IS NOT NULL"];
 
-	protected getFilterWhere(
-		filter: FilterNest | undefined,
-		pokemonColumn = "pokemon_id"
-	): { sql: string; values: unknown[] } {
+	protected getFilterWhere(filter: FilterNest | undefined): { sql: string; values: unknown[] } {
 		if (!filter?.enabled) return { sql: "", values: [] };
 
 		const filters = filter.filters.filter((f) => f.enabled);
@@ -57,7 +60,7 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 
 		for (const filterset of filters) {
 			for (const pokemon of filterset.pokemon ?? []) {
-				clauses.push(`${pokemonColumn} = ?`);
+				clauses.push("pokemon_id = ?");
 				values.push(pokemon.pokemon_id);
 			}
 		}
@@ -73,80 +76,89 @@ export class NestQuery extends DbMapObjectQuery<NestData, FilterNest> {
 		since?: number,
 		limit?: number
 	): Promise<MapObjectResponse<MinMapObject<NestData>>> {
-		if (getServerConfig().golbat.nestSource !== "talonflame") {
+		if (!getServerConfig().talonflame?.url) {
 			return super.query(bounds, filter, polygon, since, limit);
 		}
 
-		const spatial = this.buildSpatialFilter(polygon, bounds);
-		const species = this.getFilterWhere(filter, "g.pokemon_id");
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
-		const groups = await this.executeQuery<TalonflameGroup[]>(
-			this.talonflameSelect +
-				` WHERE g.status = 'confirmed' AND g.pokemon_id IS NOT NULL AND n.active = 1
-				AND ${spatial.sql}${species.sql ? ` AND ${species.sql}` : ""}
-				GROUP BY g.nest_id,g.pokemon_id,g.pokemon_form,g.last_changed
-				ORDER BY g.nest_id LIMIT ${actualLimit + 1}`,
-			[...spatial.values, ...species.values]
-		);
-		if (groups.length > actualLimit) {
-			return { data: [], examined: actualLimit, limitReached: true };
+		const params = new URLSearchParams({
+			bbox: [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat].join(","),
+			limit: String(actualLimit)
+		});
+		const filtersets = filter?.enabled ? filter.filters.filter((f) => f.enabled) : [];
+		if (filtersets.length) {
+			const species = [
+				...new Set(filtersets.flatMap((f) => f.pokemon?.map((p) => p.pokemon_id) ?? []))
+			].sort((a, b) => a - b);
+			if (!species.length) return { data: [], examined: 0, snapshot: true };
+			params.set("pokemon", species.join(","));
 		}
-		// Talonflame has no group update timestamp. A species change or split may
-		// leave nests.updated untouched, so always fetch current confirmations.
-		const data = await this.talonflameMembers(groups, bounds, polygon);
-		return { data, examined: data.length };
+		const response = await fetchTalonflame<TalonflameResponse>(`?${params}`);
+		return this.talonflameData(response, polygon, bounds);
 	}
 
-	async querySingle(id: string): Promise<MinMapObject<NestData>[]> {
-		if (getServerConfig().golbat.nestSource !== "talonflame") return super.querySingle(id);
-		const groups = await this.executeQuery<TalonflameGroup[]>(
-			this.talonflameSelect +
-				` WHERE g.nest_id = ? AND g.status = 'confirmed'
-				AND g.pokemon_id IS NOT NULL AND n.active = 1
-				GROUP BY g.nest_id,g.pokemon_id,g.pokemon_form,g.last_changed`,
-			[id]
+	async querySingle(id: string, thisFetch = fetch): Promise<MinMapObject<NestData>[]> {
+		if (!getServerConfig().talonflame?.url) return super.querySingle(id);
+		const response = await fetchTalonflame<TalonflameResponse>(
+			`?id=${encodeURIComponent(id)}`,
+			thisFetch
 		);
-		return this.talonflameMembers(groups);
+		return this.talonflameData(response, null).data;
 	}
 
-	private readonly talonflameSelect = `SELECT CAST(g.nest_id AS CHAR) AS id,
-		g.pokemon_id,g.pokemon_form AS form,g.last_changed,
-		MIN(n.name) AS name,MIN(n.area_name) AS area_name
-		FROM talonflame_nest_groups g
-		JOIN talonflame_nest_sources s ON s.group_id = g.nest_id
-		JOIN nests n ON n.nest_id = s.source_nest_id`;
-
-	private async talonflameMembers(
-		groups: TalonflameGroup[],
-		bounds?: Bounds,
-		polygon?: PermittedPolygon
-	): Promise<MinMapObject<NestData>[]> {
-		if (!groups.length) return [];
-		// Load all competing confirmed populations for these parks, even when a
-		// species filter or a direct link requested only one of their groups.
-		const sources = await this.executeQuery<TalonflameSource[]>(
-			`SELECT CAST(s.source_nest_id AS CHAR) AS id,CAST(s.group_id AS CHAR) AS group_id,
-			g.pokemon_id,g.pokemon_form AS form,ST_AsGeoJSON(n.polygon) AS geometry
-			FROM talonflame_nest_sources s
-			JOIN talonflame_nest_groups g ON g.nest_id = s.group_id
-			JOIN nests n ON n.nest_id = s.source_nest_id
-			WHERE g.status = 'confirmed' AND g.pokemon_id IS NOT NULL AND n.active = 1
-			AND s.source_nest_id IN
-			(SELECT source_nest_id FROM talonflame_nest_sources
-			WHERE group_id IN (${groups.map(() => "?").join(",")}))
-			ORDER BY s.source_nest_id,s.group_id`,
-			groups.map((group) => group.id)
-		);
-		const participants = [...new Set(sources.map((source) => source.group_id))];
-		if (!participants.length) return [];
-		const members = await this.executeQuery<TalonflameMember[]>(
-			`SELECT CAST(nest_id AS CHAR) AS nest_id,CAST(spawnpoint_id AS CHAR) AS spawnpoint_id
-			FROM talonflame_spawnpoint_state
-			WHERE nest_id IN (${participants.map(() => "?").join(",")})
-			ORDER BY nest_id,spawnpoint_id`,
-			participants
-		);
-		return buildTalonflameNests(groups, members, sources, bounds, polygon);
+	private talonflameData(
+		response: TalonflameResponse,
+		permission: PermittedPolygon,
+		bounds?: Bounds
+	): MapObjectResponse<MinMapObject<NestData>> {
+		if (response.limitReached)
+			return {
+				data: [],
+				examined: response.examined,
+				limitReached: true,
+				snapshot: true,
+				revision: response.revision
+			};
+		const data: MinMapObject<NestData>[] = [];
+		for (const nest of response.data) {
+			let region = feature(nest.geometry);
+			if (permission) {
+				const clipped = intersect(featureCollection([region, permission]));
+				if (!clipped) continue;
+				region = clipped;
+			}
+			if (
+				bounds &&
+				bounds.minLon <= bounds.maxLon &&
+				!booleanIntersects(
+					region,
+					bboxPolygon([bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat])
+				)
+			)
+				continue;
+			const anchor = booleanPointInPolygon(point([nest.lon, nest.lat]), region)
+				? [nest.lon, nest.lat]
+				: pointOnFeature(region).geometry.coordinates;
+			const coordinates =
+				region.geometry.type === "Polygon"
+					? [region.geometry.coordinates]
+					: region.geometry.coordinates;
+			const { geometry: _, ...metadata } = nest;
+			data.push({
+				...metadata,
+				lat: anchor[1],
+				lon: anchor[0],
+				polygon: coordinates.map((rings) => rings.map((ring) => ring.map(([x, y]) => ({ x, y })))),
+				m2: permission ? area(region) : nest.m2,
+				active: 1,
+				pokemon_avg: null,
+				pokemon_ratio: null,
+				pokemon_count: null,
+				discarded: null,
+				updated: null
+			});
+		}
+		return { data, examined: response.examined, snapshot: true, revision: response.revision };
 	}
 
 	protected buildSpatialFilter(

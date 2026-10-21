@@ -64,6 +64,19 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("planMapObjectRequest", () => {
+	it("replaces idle-refresh snapshots so withdrawn nests disappear", () => {
+		applyMapObjectResponse(
+			{
+				type: MapObjectType.NEST,
+				filter: { enabled: true, filters: [] } as never,
+				isDelta: true,
+				removeOld: false
+			},
+			{ data: [], examined: 0, snapshot: true, revision: "withdrawn" }
+		);
+		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.NEST, 0, false);
+		expect(state.add).not.toHaveBeenCalled();
+	});
 	it("plans enabled types and skips disabled ones", () => {
 		expect(planMapObjectRequest(MapObjectType.GYM)).toMatchObject({
 			type: MapObjectType.GYM,

@@ -3,6 +3,7 @@ import { query } from "@/lib/server/db/external/internalQuery";
 import { masterfileProvider } from "@/lib/server/provider/masterfileProvider";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getServerConfig } from "@/lib/services/config/config.server";
+import { fetchTalonflameStats } from "@/lib/server/api/talonflame";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getLogger } from "@/lib/utils/logger";
 import { getNormalizedForm } from "@/lib/utils/pokemonUtils";
@@ -342,17 +343,15 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"AND battle_start > UNIX_TIMESTAMP() - 86400 " +
 				"GROUP BY 1, 2, 3, 4"
 		),
-		query<NestStatsRow[]>(
-			getServerConfig().golbat.nestSource === "talonflame"
-				? "SELECT pokemon_id, pokemon_form AS form, COUNT(*) AS count " +
-						"FROM talonflame_nest_groups WHERE status = 'confirmed' AND pokemon_id IS NOT NULL " +
-						"GROUP BY 1, 2"
-				: "SELECT pokemon_id, pokemon_form AS form, COUNT(*) AS count " +
+		getServerConfig().talonflame?.url
+			? fetchTalonflameStats()
+			: query<NestStatsRow[]>(
+					"SELECT pokemon_id, pokemon_form AS form, COUNT(*) AS count " +
 						"FROM nests " +
 						"WHERE pokemon_id IS NOT NULL " +
 						"AND updated > UNIX_TIMESTAMP() - 86400 " +
 						"GROUP BY 1, 2"
-		),
+				),
 		fetchJson(`${scrapedDuckUrl}eggs.min.json`),
 		fetchJson(`${scrapedDuckUrl}rocketLineups.min.json`)
 	]);

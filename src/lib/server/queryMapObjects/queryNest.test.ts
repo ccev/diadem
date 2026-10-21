@@ -1,152 +1,161 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { s2 } from "s2js";
+import { booleanPointInPolygon, multiPolygon, point, polygon } from "@turf/turf";
 import type { FilterNest } from "@/lib/features/filters/filters";
 
-const config = vi.hoisted(() => ({ golbat: { nestSource: "talonflame" as string } }));
-vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => config }));
-vi.mock("@/lib/server/db/external/internalQuery", () => ({ query: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+	config: { golbat: {}, talonflame: { url: "http://talon:9042" } as { url: string } | undefined },
+	api: vi.fn(),
+	sql: vi.fn()
+}));
+vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => mocks.config }));
+vi.mock("@/lib/server/db/external/internalQuery", () => ({ query: mocks.sql }));
+vi.mock("@/lib/server/api/talonflame", () => ({ fetchTalonflame: mocks.api }));
 vi.mock("@/lib/features/filterLogic/nest", () => ({ shouldDisplayNest: () => true }));
 vi.mock("@/lib/utils/pokemonUtils", () => ({
 	getNormalizedForm: (_id: number, form: number) => form
 }));
 
 import { NestQuery } from "./queryNest";
-import { polygon } from "@turf/turf";
 
 const bounds = { minLat: 53.55, minLon: 9.97, maxLat: 53.57, maxLon: 9.99 };
-const group = {
+const geometry = polygon([
+	[
+		[9.97, 53.55],
+		[9.99, 53.55],
+		[9.99, 53.57],
+		[9.97, 53.57],
+		[9.97, 53.55]
+	]
+]).geometry;
+const nest = {
 	id: "8103463",
 	pokemon_id: 16,
 	form: 0,
 	name: "Planten un Blomen",
 	area_name: "Hamburg",
-	last_changed: null
+	lat: 53.56,
+	lon: 9.98,
+	m2: 3000000,
+	spawnpoints: 1005,
+	last_changed: null,
+	geometry
 };
-const spawnpoint = (
-	s2.cellid.parent(s2.cellid.fromLatLng(s2.LatLng.fromDegrees(53.56, 9.98)), 20) >> 20n
-).toString();
-const member = { nest_id: group.id, spawnpoint_id: spawnpoint };
-const source = {
-	id: group.id,
-	group_id: group.id,
-	pokemon_id: group.pokemon_id,
-	form: 0,
-	geometry: polygon([
-		[
-			[9.97, 53.55],
-			[9.99, 53.55],
-			[9.99, 53.57],
-			[9.97, 53.57],
-			[9.97, 53.55]
-		]
-	]).geometry
-};
-
-class TestNestQuery extends NestQuery {
-	calls: { sql: string; values: unknown[] }[] = [];
-	constructor(private responses: unknown[][]) {
-		super();
-	}
-	protected async executeQuery<T>(sql: string, values: unknown[]): Promise<T> {
-		this.calls.push({ sql, values });
-		return this.responses.shift() as T;
-	}
-}
+const snapshot = { data: [nest], examined: 1, snapshot: true, revision: "revision-1" };
 
 beforeEach(() => {
-	config.golbat.nestSource = "talonflame";
+	vi.clearAllMocks();
+	mocks.config.talonflame = { url: "http://talon:9042" };
+	mocks.api.mockResolvedValue(snapshot);
 });
 
-describe("NestQuery backends", () => {
-	it("keeps Fletchling SQL as the default without referencing Talonflame tables", async () => {
-		config.golbat.nestSource = "";
-		const query = new TestNestQuery([[]]);
-		await query.query(bounds, undefined, null, 100);
-		expect(query.calls).toHaveLength(1);
-		expect(query.calls[0].sql).toContain("FROM nests");
-		expect(query.calls[0].sql).toContain("pokemon_id IS NOT NULL");
-		expect(query.calls[0].sql).toContain("updated > ?");
-		expect(query.calls[0].sql).not.toContain("talonflame");
+describe("NestQuery API backend", () => {
+	it("uses legacy SQL when no Talonflame URL is configured", async () => {
+		mocks.config.talonflame = undefined;
+		mocks.sql.mockResolvedValue([]);
+		await new NestQuery().query(bounds, undefined, null, 100);
+		expect(mocks.sql.mock.calls[0][0]).toContain("FROM nests");
+		expect(mocks.sql.mock.calls[0][0]).toContain("updated > ?");
+		expect(mocks.api).not.toHaveBeenCalled();
 	});
 
-	it("returns confirmed logical groups even when the legacy species/update is absent", async () => {
-		const query = new TestNestQuery([[group], [source], [member]]);
-		const result = await query.query(bounds, undefined, null, 2000000000);
-		expect(result.data).toHaveLength(1);
-		expect(result.data[0].pokemon_id).toBe(16);
-		expect(query.calls).toHaveLength(3);
-		expect(query.calls[0].sql).toContain("g.status = 'confirmed'");
-		expect(query.calls[0].sql).not.toContain("n.pokemon_id");
-		expect(query.calls[0].sql).not.toContain("updated >");
-		expect(query.calls[0].values).not.toContain(2000000000);
-		expect(query.calls[0].sql).toContain("GROUP BY g.nest_id");
-		expect(query.calls[1].values).toEqual([group.id]);
-		expect(query.calls[1].sql).toContain("ST_AsGeoJSON(n.polygon)");
+	it("fetches finished geometry without SQL, membership reads or species inference", async () => {
+		const result = await new NestQuery().query(bounds, undefined, null, 2000000000);
+		expect(mocks.sql).not.toHaveBeenCalled();
+		expect(mocks.api).toHaveBeenCalledTimes(1);
+		const params = new URLSearchParams(mocks.api.mock.calls[0][0].slice(1));
+		expect(params.get("bbox")).toBe("9.97,53.55,9.99,53.57");
+		expect(params.has("since")).toBe(false);
+		expect(result).toMatchObject({ examined: 1, snapshot: true, revision: "revision-1" });
+		expect(result.data[0]).toMatchObject({
+			id: nest.id,
+			pokemon_id: 16,
+			spawnpoints: 1005,
+			updated: null
+		});
+		expect(result.data[0].polygon).toEqual([
+			geometry.coordinates.map((ring) => ring.map(([x, y]) => ({ x, y })))
+		]);
 	});
 
-	it("applies species filters to logical group species", async () => {
-		const query = new TestNestQuery([[]]);
-		await query.query(
+	it("bounds the upstream query and filters species before transfer", async () => {
+		await new NestQuery().query(
 			bounds,
 			{
 				enabled: true,
-				filters: [{ enabled: true, pokemon: [{ pokemon_id: 16, form: 0 }] }]
+				filters: [
+					{
+						enabled: true,
+						pokemon: [
+							{ pokemon_id: 276, form: 0 },
+							{ pokemon_id: 16, form: 0 }
+						]
+					}
+				]
 			} as FilterNest,
-			null
+			null,
+			undefined,
+			10
 		);
-		expect(query.calls[0].sql).toContain("g.pokemon_id = ?");
-		expect(query.calls[0].values.at(-1)).toBe(16);
+		const params = new URLSearchParams(mocks.api.mock.calls[0][0].slice(1));
+		expect(params.get("limit")).toBe("10");
+		expect(params.get("pokemon")).toBe("16,276");
 	});
 
-	it("limits logical groups before loading source polygons and members", async () => {
-		const query = new TestNestQuery([[group, { ...group, id: "-375", pokemon_id: 769 }]]);
-		const result = await query.query(bounds, undefined, null, undefined, 1);
-		expect(result).toEqual({ data: [], examined: 1, limitReached: true });
-		expect(query.calls).toHaveLength(1);
-		expect(query.calls[0].sql).toContain("LIMIT 2");
+	it("propagates explicit snapshot and revision through final map-object processing", async () => {
+		const result = await new NestQuery().getMultiple(bounds, undefined, null, 123);
+		expect(result.snapshot).toBe(true);
+		expect(result.revision).toBe(snapshot.revision);
+		expect(result.data[0].mapId).toBe("nest-8103463");
 	});
 
-	it("supports stable negative group IDs in direct links", async () => {
-		const subnest = { ...group, id: "-375", pokemon_id: 769 };
-		const query = new TestNestQuery([
-			[subnest],
-			[{ ...source, group_id: subnest.id, pokemon_id: 769 }],
-			[{ ...member, nest_id: subnest.id }]
-		]);
-		const result = await query.querySingle(subnest.id);
-		expect(result[0].id).toBe("-375");
-		expect(result[0].pokemon_id).toBe(769);
-		expect(query.calls[0].values).toEqual(["-375"]);
-		expect(query.calls[0].sql).toContain("g.status = 'confirmed'");
+	it("represents withdrawals with an empty complete snapshot", async () => {
+		mocks.api.mockResolvedValue({ ...snapshot, revision: "revision-2", data: [], examined: 0 });
+		expect(await new NestQuery().getMultiple(bounds, undefined, null, 123)).toEqual({
+			revision: "revision-2",
+			snapshot: true,
+			data: [],
+			examined: 0
+		});
 	});
 
-	it("loads competing populations for a filtered/direct group so its cut stays unchanged", async () => {
-		const competitor = { ...source, group_id: "-375", pokemon_id: 769 };
-		const query = new TestNestQuery([
-			[group],
-			[source, competitor],
+	it("retains limits and snapshot semantics without processing geometry", async () => {
+		mocks.api.mockResolvedValue({ ...snapshot, data: [], examined: 10, limitReached: true });
+		expect(await new NestQuery().getMultiple(bounds, undefined, null)).toEqual({
+			data: [],
+			examined: 10,
+			limitReached: true,
+			snapshot: true,
+			revision: snapshot.revision
+		});
+	});
+
+	it("clips to user permissions and moves the marker inside the permitted piece", async () => {
+		const permission = polygon([
 			[
-				member,
-				{
-					nest_id: competitor.group_id,
-					spawnpoint_id: (
-						s2.cellid.parent(s2.cellid.fromLatLng(s2.LatLng.fromDegrees(53.56, 9.986)), 20) >> 20n
-					).toString()
-				}
+				[9.97, 53.55],
+				[9.975, 53.55],
+				[9.975, 53.57],
+				[9.97, 53.57],
+				[9.97, 53.55]
 			]
 		]);
-		const [nest] = await query.querySingle(group.id);
-		expect(query.calls[1].values).toEqual([group.id]);
-		expect(query.calls[1].sql).toContain("g.status = 'confirmed'");
-		expect(query.calls[1].sql).not.toContain("g.pokemon_id = ?");
-		expect(query.calls[2].values).toEqual([group.id, "-375"]);
-		expect(nest.pokemon_id).toBe(16);
-		expect(nest.m2).toBeLessThan(2000000);
+		const [result] = (await new NestQuery().query(bounds, undefined, permission)).data;
+		expect(booleanPointInPolygon(point([result.lon, result.lat]), permission)).toBe(true);
+		const clipped = multiPolygon(
+			(result.polygon as { x: number; y: number }[][][]).map((rings) =>
+				rings.map((ring) => ring.map(({ x, y }) => [x, y]))
+			)
+		);
+		expect(booleanPointInPolygon(point([9.98, 53.56]), clipped)).toBe(false);
+		expect(nest.lon).toBe(9.98); // shared API cache was not modified
 	});
 
-	it("does not load membership when no confirmed group matches", async () => {
-		const query = new TestNestQuery([[]]);
-		expect(await query.querySingle("-999")).toEqual([]);
-		expect(query.calls).toHaveLength(1);
+	it("supports direct negative-ID links via the same API", async () => {
+		mocks.api.mockResolvedValue({ ...snapshot, data: [{ ...nest, id: "-375", pokemon_id: 769 }] });
+		const query = new NestQuery();
+		const result = await query.querySingle("-375");
+		expect(mocks.api.mock.calls[0][0]).toBe("?id=-375");
+		expect(result[0].id).toBe("-375");
+		expect(mocks.sql).not.toHaveBeenCalled();
 	});
 });
