@@ -134,6 +134,21 @@ url = "https://nominatim.openstreetmap.org/"
 
 - `userAgent`: Set this to something unique if you're using public nominatim
 
+## `server.biomes`
+
+```toml
+[server.biomes]
+url = "https://biomes.example.com"
+# secret = "YOUR_SECRET"
+```
+
+Optional Biomes API integration. There is no public service, you'd have to make your own.
+
+- `url`: Biomes API base URL, accessible from Diadem's server (has to follow the [Biomes API](/reference/biomes))
+- `secret`: Optional bearer token for deployments requiring authentication
+
+Without a non-empty `url`, Biomes is completely disabled. Remember to grant users the `biome` permission.
+
 ## `server.auth`
 
 ```toml
@@ -218,14 +233,14 @@ Supported feature keys:
 - **Pokestops:** `pokestop` (plain), `quest`, `invasion`, `lure`, `contest`, `kecleon`, `golden_pokestop`, `pokestop*`
 - **Gyms:** `gym` (plain), `raid`, `gym*`
 - **Stations:** `station` (plain), `max_battle`, `station*`
-- **Other map objects:** `nest`, `tappable`, `s2cell`, `spawnpoint`, `route`
+- **Other map objects:** `nest`, `biome`, `tappable`, `s2cell`, `spawnpoint`, `route`
 - **Tools:** `scout`, `coverage_map`, `wayfarer_map`
 - **UI:** `search`, `weather`
 
 Umbrella wildcards bundle several of the above:
 
 - `map_object*` — every map object (`pokemon*`, `pokestop*`, `gym*`, `station*` and all minor map objects)
-- `minor_map_object*` — map objects with no sub-features (`nest`, `tappable`, `s2cell`, `spawnpoint`, `route`)
+- `minor_map_object*` — map objects with no sub-features (`nest`, `biome`, `tappable`, `s2cell`, `spawnpoint`, `route`)
 - `tool*` — `scout`, `coverage_map`, `wayfarer_map`
 - `ui*` — `search`, `weather`
 
@@ -259,7 +274,24 @@ rateLimitTime = 3600
 
 Available keys:
 
-- `pokemon`, `pokestop`, `gym`, `station`, `nest`, `spawnpoint`, `route`, `tappable`, `s2cell`
+- `pokemon`, `pokestop`, `gym`, `station`, `nest`, `biome`, `spawnpoint`, `route`, `tappable`, `s2cell`
+
+## `server.encounterIdObfuscation`
+
+Encrypts encounter IDs before sending them to clients, and decrypts incoming IDs on the server. 
+
+```toml
+[server.encounterIdObfuscation]
+enabled = false
+secret = ""
+```
+
+- `enabled`: Set true to enable
+- `secret`: Required when enabled. A random 32-byte key encoded as 64 hexadecimal characters. Generate one with:
+
+  ```sh
+  openssl rand -hex 32
+  ```
 
 ## `server.db` and `server.internalDb`
 

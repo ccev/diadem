@@ -34,6 +34,7 @@ export type FilterCategory =
 	| "maxBattle"
 	| "s2cell"
 	| "nest"
+	| "biome"
 	| "spawnpoint"
 	| "tappable";
 
@@ -56,6 +57,7 @@ export type AnyFilter =
 	| FilterMaxBattle
 	| FilterS2Cell
 	| FilterNest
+	| FilterBiome
 	| FilterSpawnpoint
 	| FilterTappable;
 
@@ -164,6 +166,11 @@ export type FilterS2Cell = BaseFilter & {
 export type FilterNest = BaseFilter & {
 	category: "nest";
 	filters: FiltersetNest[];
+};
+
+export type FilterBiome = BaseFilter & {
+	category: "biome";
+	filters: never[];
 };
 
 export type FilterSpawnpoint = BaseFilter & {

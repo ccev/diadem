@@ -16,8 +16,8 @@
 	import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 	import { getUserSettings, type UserSettings } from "@/lib/services/userSettings.svelte";
 	import { getMapStyle, mapStyleForTheme, mapStyleFromId } from "@/lib/utils/mapStyle";
-	import { circle } from "@turf/turf";
-	import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
+	import { rangeCircle } from "@/lib/utils/rangeGeometry";
+	import type { FeatureCollection, Point, Polygon } from "geojson";
 	import type * as maplibre from "maplibre-gl";
 	import MapAttribution from "@/components/map/MapAttribution.svelte";
 	import { untrack } from "svelte";
@@ -83,10 +83,7 @@
 			);
 		}
 
-		const radiusFeature = circle(accessCenter, radius, {
-			steps: 96,
-			units: "meters"
-		}) as Feature<Polygon>;
+		const radiusFeature = rangeCircle(accessCenter, radius, { steps: 96 });
 
 		const iconFeatures = features.filter((feature) =>
 			isFeatureIcon(feature)

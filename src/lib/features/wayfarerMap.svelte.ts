@@ -4,7 +4,6 @@ import { featureCollection } from "@turf/turf";
 import type { Feature, FeatureCollection, Point, Polygon } from "geojson";
 import type * as maplibre from "maplibre-gl";
 import { geojson, s2 } from "s2js";
-import { getCoveringS2Cells } from "@/lib/mapObjects/s2cells";
 import type { MapStyle } from "@/lib/services/config/configTypes";
 import { getMapStyle } from "@/lib/utils/mapStyle";
 import {
@@ -16,6 +15,7 @@ import {
 	replaceOverlay
 } from "@/lib/ui/overlays.svelte";
 import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
+import { getS2CellCenter, getS2CellsInBounds } from "@/lib/utils/s2";
 
 const MAX_S2_CELLS = 5000;
 export const WAYFARER_CELLS_14_MIN_ZOOM = 10;
@@ -294,8 +294,10 @@ export function generateWayfarerData(
 	labels: FeatureCollection<Point, L14LabelProperties>;
 	cellIds: string[];
 } | null {
-	const l14Cells = zoom >= WAYFARER_CELLS_14_MIN_ZOOM ? getCoveringS2Cells(bounds, 14) : null;
-	const l17Cells = zoom >= WAYFARER_CELLS_17_MIN_ZOOM ? getCoveringS2Cells(bounds, 17) : null;
+	const l14Cells =
+		zoom >= WAYFARER_CELLS_14_MIN_ZOOM ? getS2CellsInBounds(bounds, 14, MAX_S2_CELLS) : null;
+	const l17Cells =
+		zoom >= WAYFARER_CELLS_17_MIN_ZOOM ? getS2CellsInBounds(bounds, 17, MAX_S2_CELLS) : null;
 
 	// L17 occupancy is derived from full fort data and only meaningful at higher zoom
 	// (when forts are fetched). At low zoom (countsOnly), forts is empty so the set stays empty.
@@ -312,7 +314,7 @@ export function generateWayfarerData(
 	const cells17Features: Feature<Polygon, S2CellPolygonProperties>[] = [];
 	const labelFeatures: Feature<Point, L14LabelProperties>[] = [];
 
-	if (l14Cells && l14Cells.length <= MAX_S2_CELLS) {
+	if (l14Cells) {
 		const c = getWayfarerColors();
 		for (const cellId of l14Cells) {
 			const key = cellId.toString();
@@ -322,11 +324,7 @@ export function generateWayfarerData(
 
 			const cell = s2.Cell.fromCellID(cellId);
 			const polygon = geojson.toGeoJSON(cell) as Polygon;
-			const center = cell.center();
-			const centerCoords: [number, number] = [
-				(s2.LatLng.longitude(center) * 180) / Math.PI,
-				(s2.LatLng.latitude(center) * 180) / Math.PI
-			];
+			const center = getS2CellCenter(cellId);
 
 			let fillColor = "transparent";
 			let strokeColor = c.l14Stroke;
@@ -363,7 +361,7 @@ export function generateWayfarerData(
 			if (count > 0) {
 				labelFeatures.push({
 					type: "Feature",
-					geometry: { type: "Point", coordinates: centerCoords },
+					geometry: { type: "Point", coordinates: [center.lon, center.lat] },
 					properties: {
 						id: "l14-label-" + key,
 						label: count.toString(),
@@ -377,7 +375,7 @@ export function generateWayfarerData(
 		}
 	}
 
-	if (l17Cells && l17Cells.length <= MAX_S2_CELLS) {
+	if (l17Cells) {
 		const c = getWayfarerColors();
 		for (const cellId of l17Cells) {
 			const key = cellId.toString();
@@ -453,15 +451,10 @@ export function wayfarerMapClickHandler(event: maplibre.MapMouseEvent) {
 			const cellFeatures = map.queryRenderedFeatures(event.point, { layers: cellLayers });
 			if (cellFeatures.length > 0) {
 				const props = cellFeatures[0].properties as S2CellPolygonProperties;
-				const cell = s2.Cell.fromCellID(BigInt(props.cellId));
-				const center = cell.center();
-				const coords: [number, number] = [
-					(s2.LatLng.longitude(center) * 180) / Math.PI,
-					(s2.LatLng.latitude(center) * 180) / Math.PI
-				];
+				const center = getS2CellCenter(BigInt(props.cellId));
 				setClickedL14Cell({
 					cellId: props.cellId,
-					center: coords,
+					center: [center.lon, center.lat],
 					fortCount: props.fortCount,
 					gymCount: gymCounts[props.cellId] ?? 0
 				});

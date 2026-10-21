@@ -36,7 +36,10 @@ export default defineConfig({
 				},
 				{
 					label: "Reference",
-					items: [{ label: "Configuration", slug: "reference/configuration" }]
+					items: [
+						{ label: "Configuration", slug: "reference/configuration" },
+						{ label: "Biomes API", slug: "reference/biomes" }
+					]
 				}
 			]
 		})
