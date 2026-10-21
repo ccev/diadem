@@ -13,7 +13,7 @@
 
 <Card
 	class="w-full text-sm divide-y-border divide-y grid"
-	style="grid-template-columns: auto 1fr auto"
+	style="grid-template-columns: fit-content(50%) minmax(0, 1fr) auto"
 >
 	{@render children()}
 </Card>

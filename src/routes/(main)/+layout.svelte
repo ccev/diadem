@@ -39,7 +39,7 @@
 <Modal modalType="select">
 	<div
 		style="width: min(calc(100vw - 1rem), 32rem);"
-		class="py-4 px-3 flex flex-col gap-0.5 bg-popover text-popover-foreground border rounded-md"
+		class="max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto py-4 px-3 flex flex-col gap-0.5 bg-popover text-popover-foreground border rounded-md"
 	>
 		{@render getSelectOptions()?.()}
 	</div>

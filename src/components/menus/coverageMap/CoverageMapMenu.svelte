@@ -19,12 +19,12 @@
 
 {#snippet areaTitle(area: KojiFeature)}
 	<LucideIcon class="size-4 ml-2" name={getAreaIcon(area)} />
-	<span>{area.properties.name}</span>
+	<span class="min-w-0 truncate" title={area.properties.name}>{area.properties.name}</span>
 {/snippet}
 
 {#snippet jumpButton(area: KojiFeature)}
 	<Button
-		class="ml-auto px-6"
+		class="ml-auto shrink-0 px-6"
 		size="sm"
 		variant="secondary"
 		onclick={() => selectCoverageMapArea(area)}
@@ -40,7 +40,7 @@
 			{@render areaTitle(area)}
 		{:else}
 			<Button
-				class="gap-3! pl-0!"
+				class="min-w-0 gap-3! pl-0!"
 				size="sm"
 				variant="ghost"
 				onclick={() => {

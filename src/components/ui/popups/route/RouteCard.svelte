@@ -57,7 +57,7 @@
 <div class="mt-3 grid grid-cols-2 gap-3">
 	{#each routeMetrics as { Icon, title, value } (title)}
 		<div class="border bg-accent-highlight border-border rounded-lg px-3 py-2">
-			<h2 class="flex items-center gap-1 text-muted-foreground text-sm font-semibold mb0.5">
+			<h2 class="flex items-center gap-1 text-muted-foreground text-sm font-semibold mb-0.5">
 				<Icon class="size-3.5" />
 				{title}
 			</h2>

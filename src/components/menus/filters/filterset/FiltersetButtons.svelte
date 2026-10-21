@@ -63,56 +63,53 @@
 </script>
 
 {#if showBaseButtons || showProgressButtons}
-	<!-- button padding cuz they're absolute -->
-	<div class="h-12"></div>
-{/if}
-
-<div
-	class="flex gap-2 mt-3 justify-end absolute bottom-0 w-full"
-	transition:fly={{ duration: isOpenModal(modalType) ? 100 : 0, y: 80 }}
->
-	{#if showBaseButtons}
-		{#if existsCurrentSelectedFilterset()}
-			<Button class="mr-auto" variant="secondary" onclick={ondelete}>
-				<Trash size="14" />
-				<span>
-					{m.delete()}
-				</span>
-			</Button>
-
-			{#if canBackupShare({ url: getShareUrl() })}
-				<Button class="" variant="secondary" onclick={() => backupShareUrl(getShareUrl())}>
-					<Share2 size="14" />
+	<div
+		class="flex flex-wrap gap-2 pt-3 justify-end w-full"
+		transition:fly={{ duration: isOpenModal(modalType) ? 100 : 0, y: 80 }}
+	>
+		{#if showBaseButtons}
+			{#if existsCurrentSelectedFilterset()}
+				<Button class="mr-auto" variant="secondary" onclick={ondelete}>
+					<Trash size="14" />
 					<span>
-						{m.popup_share()}
+						{m.delete()}
 					</span>
 				</Button>
+
+				{#if canBackupShare({ url: getShareUrl() })}
+					<Button class="" variant="secondary" onclick={() => backupShareUrl(getShareUrl())}>
+						<Share2 size="14" />
+						<span>
+							{m.popup_share()}
+						</span>
+					</Button>
+				{/if}
 			{/if}
+
+			<Button
+				class={!existsCurrentSelectedFilterset() ? "mr-auto" : ""}
+				variant={existsCurrentSelectedFilterset() ? "default" : "secondary"}
+				onclick={() => filtersetPageEdit()}
+			>
+				<Pencil size="14" />
+				<span>
+					{m.edit()}
+				</span>
+			</Button>
 		{/if}
 
-		<Button
-			class={!existsCurrentSelectedFilterset() ? "mr-auto" : ""}
-			variant={existsCurrentSelectedFilterset() ? "default" : "secondary"}
-			onclick={() => filtersetPageEdit()}
-		>
-			<Pencil size="14" />
-			<span>
-				{m.edit()}
-			</span>
-		</Button>
-	{/if}
-
-	{#if showProgressButtons}
-		<Button class="" variant="secondary" onclick={() => filtersetPageClose(modalType)}>
-			{m.cancel()}
-		</Button>
-		<Button
-			class=""
-			variant="default"
-			onclick={() => filtersetPageSave(modalType, mapObject)}
-			disabled={getCurrentSelectedFiltersetIsEmpty() && getCurrentFiltersetPage() !== "attribute"}
-		>
-			{m.save()}
-		</Button>
-	{/if}
-</div>
+		{#if showProgressButtons}
+			<Button class="" variant="secondary" onclick={() => filtersetPageClose(modalType)}>
+				{m.cancel()}
+			</Button>
+			<Button
+				class=""
+				variant="default"
+				onclick={() => filtersetPageSave(modalType, mapObject)}
+				disabled={getCurrentSelectedFiltersetIsEmpty() && getCurrentFiltersetPage() !== "attribute"}
+			>
+				{m.save()}
+			</Button>
+		{/if}
+	</div>
+{/if}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
+	import { m } from "@/lib/paraglide/messages";
 	import { Eye, EyeClosed } from "@lucide/svelte";
 
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
@@ -31,50 +32,40 @@
 	} = $props();
 </script>
 
-<Button
-	class="pl-0! pr-1! h-fit! relative overflow-hidden group"
-	variant="outline"
-	size="lg"
-	onclick={() => {
-		setCurrentSelectedFilterset(majorCategory, subCategory, filter, true);
-		filtersetPageReset();
-		openModal(filterModal);
-	}}
+<div
+	class="flex min-w-0 items-center gap-1 rounded-md border border-input bg-background pr-1 transition-colors hover:bg-accent"
 >
-	<div
-		class="h-12 w-0.5 mr-1.5 transition-colors shrink-0"
-		class:bg-green={filter.enabled}
-		class:bg-red={!filter.enabled}
-	></div>
-
-	<div
-		class="shrink-1 min-w-0 w-full flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-0 transition-opacity relative"
-		class:opacity-50={!filter.enabled}
-	>
-		<div
-			class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent transition-colors"
-		></div>
-		<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
-
-		<span class="overflow-x-hidden">{filterTitle($state.snapshot(filter))}</span>
-	</div>
-	<!--	<Button class="flex-1 justify-start rounded-md py-2 h-12 m-0! pl-4 pr-2" size="" variant="ghost">-->
-	<!--		<span>{filter.icon}</span>-->
-	<!--		<span>{filter.title}</span>-->
-	<!--	</Button>-->
-
-	<!--	<Button class="ml-auto my-0!" variant="outline" size="icon">-->
-	<!--		<Pencil size="16" />-->
-	<!--	</Button>-->
-
 	<Button
-		class="ml-auto my-0! shrink-0"
+		class="min-w-0 flex-1 pl-0! pr-0! py-0! h-12! justify-start!"
+		variant="ghost"
+		title={filterTitle($state.snapshot(filter))}
+		onclick={() => {
+			setCurrentSelectedFilterset(majorCategory, subCategory, filter, true);
+			filtersetPageReset();
+			openModal(filterModal);
+		}}
+	>
+		<span
+			class="h-full w-0.5 rounded-l-md transition-colors shrink-0"
+			class:bg-green={filter.enabled}
+			class:bg-red={!filter.enabled}
+		></span>
+		<span
+			class="min-w-0 flex flex-1 gap-2 items-center transition-opacity"
+			class:opacity-50={!filter.enabled}
+		>
+			<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
+			<span class="text-fade text-left flex-1">{filterTitle($state.snapshot(filter))}</span>
+		</span>
+	</Button>
+	<Button
+		class="shrink-0"
 		variant="outline"
 		size="icon"
-		onclick={(e) => {
-			e.stopPropagation();
-			toggleFilterset(filter, mapObject);
-		}}
+		title={filter.enabled ? m.disable_filters() : m.enable_filters()}
+		aria-label={filterTitle($state.snapshot(filter))}
+		aria-pressed={filter.enabled}
+		onclick={() => toggleFilterset(filter, mapObject)}
 	>
 		{#if filter.enabled}
 			<Eye size="16" />
@@ -82,4 +73,4 @@
 			<EyeClosed size="16" />
 		{/if}
 	</Button>
-</Button>
+</div>

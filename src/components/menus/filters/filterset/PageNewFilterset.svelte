@@ -69,7 +69,7 @@
 					}}
 				>
 					<FiltersetIcon {filterset} size={5} />
-					<span>{filterTitle(filterset)}</span>
+					<span class="text-fade text-left">{filterTitle(filterset)}</span>
 				</Button>
 			{/each}
 		</div>
