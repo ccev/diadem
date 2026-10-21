@@ -10,7 +10,7 @@ vi.mock("@/lib/utils/routeUtils", () => ({ getRouteEndpointFort: state.endpoint 
 vi.mock("@/lib/map/render/featureTypes", () => ({
 	isFeatureIcon: (feature: { properties: { type: number } }) => feature.properties.type === 0
 }));
-import { getMapObjectAtPoint } from "./hitTest";
+import { getMapObjectAtPoint } from "./mapObjectsAtPoint";
 import type { MapMouseEvent } from "maplibre-gl";
 const point = { x: 5, y: 10 } as MapMouseEvent["point"];
 beforeEach(() => {
@@ -18,7 +18,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 });
 
-describe("map object hit testing", () => {
+describe("map objects at a point", () => {
 	it("prefers a marker over a modifier underlay", () => {
 		const marker = { id: "marker", type: "pokemon" };
 		state.objects = { marker, glow: { id: "glow" } };

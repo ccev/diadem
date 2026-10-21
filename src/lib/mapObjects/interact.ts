@@ -3,7 +3,7 @@ import { closeQuickActions } from "@/lib/ui/quickActions.svelte";
 import { page } from "$app/state";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { updateFeatures } from "@/lib/map/featuresGen.svelte";
-import { getMapObjectAtPoint } from "@/lib/map/hitTest";
+import { getMapObjectAtPoint } from "@/lib/map/mapObjectsAtPoint";
 import { getMap } from "@/lib/map/map.svelte";
 import {
 	getCurrentSelectedData,

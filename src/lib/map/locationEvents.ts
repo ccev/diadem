@@ -1,5 +1,5 @@
 import { openLocationPopup } from "@/lib/mapObjects/interact";
-import { getMapObjectAtPoint } from "@/lib/map/hitTest";
+import { getMapObjectAtPoint } from "@/lib/map/mapObjectsAtPoint";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
 import { getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
@@ -31,7 +31,7 @@ export function onLocationContext(event: MapTouchEvent | MapMouseEvent) {
 	clearPressTimer();
 	event.preventDefault();
 	event.originalEvent.preventDefault();
-	// A touch hold can also generate a browser contextmenu event.
+
 	if (event.type === "contextmenu" && shouldSuppressMapClick()) return;
 	if (
 		event.type === "touchstart" ||

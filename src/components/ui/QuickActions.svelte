@@ -16,9 +16,7 @@
 		(event) => {
 			if (!menu || !content || (event.target instanceof Node && content.contains(event.target)))
 				return;
-			// A touch's compatibility mouse event can focus its trigger after the menu opens.
 			if (event.type === "focusin" && event.target === menu.trigger) return;
-			// Remove the focus/scroll scope before the outside interaction continues.
 			flushSync(closeQuickActions);
 		},
 		{ capture: true, passive: true }

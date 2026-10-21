@@ -10,7 +10,7 @@ const state = vi.hoisted(() => ({
 	popupProps: vi.fn(() => ({ title: "Popup marker title" }))
 }));
 vi.mock("@/lib/mapObjects/interact", () => ({ openLocationPopup: state.location }));
-vi.mock("@/lib/map/hitTest", () => ({ getMapObjectAtPoint: state.hit }));
+vi.mock("@/lib/map/mapObjectsAtPoint", () => ({ getMapObjectAtPoint: state.hit }));
 vi.mock("@/lib/features/scout.svelte", () => ({ setCurrentScoutCenter: state.scout }));
 vi.mock("@/lib/ui/menus.svelte", () => ({
 	getOpenedMenu: () => state.menu,

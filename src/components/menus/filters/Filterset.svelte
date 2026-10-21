@@ -21,8 +21,6 @@
 	import { openQuickActions, type QuickAction } from "@/lib/ui/quickActions.svelte";
 	import { quickPress } from "@/lib/ui/actions/quickPress";
 	import { setActiveSearch } from "@/lib/features/activeSearch.svelte";
-	import { focusFilterset } from "@/lib/features/filters/focusFilterset";
-	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { closeMenu } from "@/lib/ui/menus.svelte";
 	import { backupShareUrl } from "@/lib/utils/device";
 	import { getRootOrigin } from "@/lib/native/runtime";
@@ -67,16 +65,11 @@
 				label: m.quick_action_focus(),
 				Icon: Focus,
 				onclick: () => {
-					// Closing the menu is asynchronous when it is the top history entry.
-					// Keep the search above it so closing it cannot undo the new search.
 					setActiveSearch({
 						name: filterTitle($state.snapshot(filter)),
 						mapObject,
-						filter: focusFilterset(
-							$state.snapshot(getUserSettings().filters[majorCategory]),
-							$state.snapshot(filter),
-							subCategory
-						)
+						filter,
+						subCategory
 					});
 					closeMenu();
 				}
