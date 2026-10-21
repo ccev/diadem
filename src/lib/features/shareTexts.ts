@@ -36,10 +36,11 @@ import {
 	isIncidentKecleon,
 	KECLEON_ID
 } from "@/lib/utils/pokestopUtils";
-import { getStationTitle, isMaxBattleActive } from "@/lib/utils/stationUtils";
+import { getStationTitle, hasMaxBattle } from "@/lib/utils/stationUtils";
 import { getTappableName } from "@/lib/utils/tappableUtils";
 import { getMmSsFromSeconds } from "@/lib/utils/time";
 import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
+import { getBiomeLabel } from "@/lib/utils/biomeUtils";
 import { formattedCoordinates } from "$lib/features/location.svelte";
 
 // unused; was replaced by thumbnails
@@ -77,7 +78,7 @@ export function getShareTitle(data: MapData | null | undefined) {
 		return mPokemon(data);
 	} else if (data.type === MapObjectType.STATION) {
 		let title = "";
-		if (data.battle_pokemon_id && isMaxBattleActive(data)) {
+		if (hasMaxBattle(data)) {
 			title = m.pogo_max_battle();
 		} else {
 			title = m.pogo_station();
@@ -90,6 +91,8 @@ export function getShareTitle(data: MapData | null | undefined) {
 		return title;
 	} else if (data.type === MapObjectType.NEST) {
 		return m.pokemon_nest({ pokemon: mPokemon(data) });
+	} else if (data.type === MapObjectType.BIOME) {
+		return getBiomeLabel(data.profile);
 	} else if (data.type === MapObjectType.SPAWNPOINT) {
 		return m.pogo_spawnpoint();
 	} else if (data.type === MapObjectType.ROUTE) {
@@ -201,13 +204,13 @@ function getGymShareText(data: GymData) {
 function getStationShareText(data: StationData) {
 	let text = "";
 
-	if (data.battle_pokemon_id && isMaxBattleActive(data)) {
+	if (hasMaxBattle(data)) {
 		text += `📍 ${m.pogo_station()}: ${data.name}\n`;
 	}
-	if (data.start_time && isMaxBattleActive(data)) {
+	if (data.start_time && hasMaxBattle(data)) {
 		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, { showDate: true })}\n`;
 	}
-	if (data.end_time && isMaxBattleActive(data)) {
+	if (data.end_time && hasMaxBattle(data)) {
 		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, { showDate: true })}\n`;
 	}
 

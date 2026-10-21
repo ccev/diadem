@@ -1,16 +1,13 @@
 import { MapSourceId, updateMapGeojsonSource } from "@/lib/map/layers";
 import { getMap } from "@/lib/map/map.svelte";
 import { getBounds } from "@/lib/mapObjects/mapBounds";
-import {
-	cellToFeature,
-	getCoveringS2Cells,
-	type S2CellProperties
-} from "@/lib/mapObjects/s2cells.js";
+import { cellToFeature, type S2CellProperties } from "@/lib/mapObjects/s2cells.js";
 import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import type { WeatherData } from "@/lib/types/mapObjectData/weather";
 import { Features } from "@/lib/utils/features";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
+import { getS2CellsInBounds } from "@/lib/utils/s2";
 import { TTLCache } from "@isaacs/ttlcache";
 import type { FeatureCollection, Polygon } from "geojson";
 import { s2 } from "s2js";
@@ -69,9 +66,9 @@ export async function updateWeather() {
 	}
 
 	const bounds = getBounds(false);
-	const cells = getCoveringS2Cells(bounds, WEATHER_CELL_LEVEL);
+	const cells = getS2CellsInBounds(bounds, WEATHER_CELL_LEVEL);
 
-	if (cells.length <= 0) return;
+	if (!cells?.length) return;
 
 	let weatherCell: CellID = cells[0];
 

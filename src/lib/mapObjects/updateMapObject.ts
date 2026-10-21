@@ -1,6 +1,10 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
-import { needsFeatureUpdate, updateFeatures } from "@/lib/map/featuresGen.svelte";
+import {
+	deleteAllFeaturesOfType,
+	needsFeatureUpdate,
+	updateFeatures
+} from "@/lib/map/featuresGen.svelte";
 import { getMap } from "@/lib/map/map.svelte";
 import {
 	clearAllDataLimits,
@@ -41,6 +45,7 @@ import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/reques
 import { SvelteMap } from "svelte/reactivity";
 import { tick } from "svelte";
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 
 export type MapObjectRequestData = Bounds & {
 	filter?: AnyFilter;
@@ -221,6 +226,13 @@ export function planMapObjectRequest(
 	onlyChanged: boolean = false,
 	signal?: AbortSignal
 ): MapObjectPlan | undefined {
+	if (type === MapObjectType.BIOME && !isSupportedFeature("biomes")) {
+		clearMapObjects(type);
+		deleteAllFeaturesOfType(type);
+		clearDataLimit(type);
+		if (!signal) updateFeatures(getMapObjects());
+		return;
+	}
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
 
 	const filter = filterOverwrite ?? getUserSettings().filters[type];
@@ -246,7 +258,9 @@ export function planMapObjectRequest(
 		if (!zoomedIn && !filterChanged) return;
 	}
 
-	const since = onlyChanged ? lastQueryTimestamps.get(type) : undefined;
+	// The biome service exposes current snapshots, not deltas (a profile can become unresolved).
+	const since =
+		onlyChanged && type !== MapObjectType.BIOME ? lastQueryTimestamps.get(type) : undefined;
 	const isDelta = onlyChanged && since !== undefined;
 	// A failed full refresh must be retried as a full snapshot, not an old viewport's delta.
 	if (!onlyChanged) lastQueryTimestamps.delete(type);
@@ -278,6 +292,7 @@ export function applyMapObjectResponse(
 	}
 
 	try {
+		if (type === MapObjectType.BIOME) deleteAllFeaturesOfType(type);
 		if (removeOld && !isDelta) {
 			replaceMapObjects(data, type, examined);
 		} else {

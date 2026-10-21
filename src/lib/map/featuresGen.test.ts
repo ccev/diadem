@@ -152,3 +152,10 @@ it("keeps invalidated families pending until final reconciliation", () => {
 	renderer.revision++;
 	expect(needsFeatureUpdate()).toBe(true);
 });
+
+it("does not invalidate a rendered map when clearing an empty optional family", () => {
+	updateFeatures({ [gym.mapId]: gym } as unknown as MapObjectsStateType);
+	expect(needsFeatureUpdate()).toBe(false);
+	deleteAllFeaturesOfType(MapObjectType.BIOME);
+	expect(needsFeatureUpdate()).toBe(false);
+});

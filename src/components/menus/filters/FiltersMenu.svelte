@@ -5,6 +5,8 @@
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { featureFamily, Features } from "@/lib/utils/features";
+	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
+	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 </script>
 
 <div
@@ -126,6 +128,16 @@
 		category="nest"
 		isFilterable={false}
 	/>
+
+	{#if hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES) && isSupportedFeature("biomes")}
+		<FilterSection
+			requiredPermission={Features.BIOME}
+			title={mapObjectLabels[MapObjectType.BIOME]()}
+			mapObject={MapObjectType.BIOME}
+			category="biome"
+			isFilterable={false}
+		/>
+	{/if}
 
 	<FilterSection
 		requiredPermission={MapObjectType.TAPPABLE}

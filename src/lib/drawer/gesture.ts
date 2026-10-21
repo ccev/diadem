@@ -190,6 +190,11 @@ export function drawerGesture(state: DrawerState): Attachment<HTMLDivElement> {
 
 		function touchMove(event: TouchEvent) {
 			if (!touchActive || event.touches.length !== 1 || isRangeInput(event.target)) return;
+			// A delayed child drag can take over after this touch has already begun.
+			if ((event.target as HTMLElement).closest("[data-base-ui-swipe-ignore]")) {
+				touchCancel();
+				return;
+			}
 			const touch = activeTouch(event.touches);
 			if (!touch) return;
 			const dx = touch.clientX - startX;
