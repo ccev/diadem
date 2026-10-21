@@ -139,6 +139,12 @@ export type ClientConfig = {
 };
 
 export type ServerConfig = {
+	encounterIdObfuscation?: {
+		/** Disabled by default. Encrypt encounter IDs exposed to clients. */
+		enabled?: boolean;
+		/** A random 32-byte key encoded as 64 hex characters. Server-only. */
+		secret?: string;
+	};
 	golbat: {
 		url: string;
 		auth?: string;

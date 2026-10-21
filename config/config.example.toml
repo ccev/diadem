@@ -2,6 +2,13 @@
 level = "info" # crit, error, warning, info, debug
 # file = "/var/log/diadem.log"
 
+# Encrypt encounter IDs in map responses and shared links. Disabled by default.
+[server.encounterIdObfuscation]
+enabled = false
+secret = "" # Required when enabled. Generate a private key with: openssl rand -hex 32
+# Use the same secret on all Diadem instances. Changing it invalidates existing encrypted links.
+# When enabled, incoming Pokemon IDs must be encrypted tokens; old raw-ID links stop working.
+
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""

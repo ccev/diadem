@@ -23,6 +23,31 @@ level = "info"
 - `level`: log level (`crit`, `error`, `warning`, `info`, `debug`)
 - `file`: optional rotating log output path
 
+## `server.encounterIdObfuscation`
+
+Encrypts Pokémon encounter IDs before sending them to clients, and decrypts incoming IDs on the server before querying Golbat. Applies to map responses (both JSON and MessagePack), individual Pokémon lookups, shared links, and thumbnails. Both `id` and the encounter-ID portion of `mapId` use the encrypted token.
+
+```toml
+[server.encounterIdObfuscation]
+enabled = false
+secret = ""
+```
+
+- `enabled`: Optional, default `false`. Omit the section or leave this disabled to retain raw encounter IDs.
+- `secret`: Required when enabled. A **random 32-byte key encoded as 64 hexadecimal characters**, kept only in the server configuration. Generate one with:
+
+  ```sh
+  openssl rand -hex 32
+  ```
+
+Paste the output into `secret`, set `enabled = true`, and restart Diadem. A missing or malformed secret prevents startup when this feature is enabled. Use the same secret on every instance serving the same map; keep it across restarts.
+
+The tokens use **AES-256-SIV authenticated encryption (RFC 5297)**, with a purpose-specific key derived using HKDF-SHA-256. This provides reversible encryption and tamper detection without relying on the source code being private. Tokens are URL-safe and deterministic: the same encounter ID and secret always produce the same token, keeping map updates and shared links stable without storing an ID-to-token table. The full unsigned 64-bit encounter ID is preserved.
+
+When enabled, client requests must use encrypted tokens. Raw IDs, modified tokens, and tokens from another secret are rejected with HTTP 400 before reaching Golbat. Existing raw-ID links stop working. Changing the secret invalidates previous encrypted links; changing the toggle also changes the ID format, so clients should reload the map after either change.
+
+Security depends on keeping the generated key private. Deterministic tokens reveal when two IDs are equal, and the visible Pokémon data can still be correlated; this feature conceals the underlying encounter ID rather than preventing data scraping.
+
 ## `server.golbat`
 
 ```toml

@@ -5,6 +5,7 @@ import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectType
 import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbat/http";
 import { grpcScanPokemon, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
+import { decodeEncounterId, encodeEncounterId } from "@/lib/server/encounterIds";
 import {
 	MapObjectQuery,
 	type MapObjectResponse
@@ -77,7 +78,9 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	}
 
 	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
-		const mon = await getSinglePokemon(id, thisFetch);
+		const encounterId = decodeEncounterId(id);
+		if (encounterId === undefined) error(400, "Invalid Pokémon ID");
+		const mon = await getSinglePokemon(encounterId, thisFetch);
 		return mon ? [this.makePokemon(mon, undefined)] : [];
 	}
 
@@ -111,7 +114,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const statsAllowed = ivAllowed || pvpAllowed;
 
 		const pokemon = {
-			id: p.id,
+			id: encodeEncounterId(p.id),
 			lat: round(p.lat, 6),
 			lon: round(p.lon, 6),
 			pokemon_id: p.pokemon_id,
