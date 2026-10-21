@@ -155,6 +155,7 @@ export type ServerConfig = {
 		grpc?: string;
 		fortApi?: boolean;
 	};
+	talonflame?: { url: string };
 	dragonite: {
 		// TODO: this should be optional and scout disabled
 		url: string;

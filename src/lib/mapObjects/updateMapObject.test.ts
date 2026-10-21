@@ -76,6 +76,20 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("planMapObjectRequest", () => {
+	it("replaces idle-refresh snapshots so withdrawn nests disappear", () => {
+		applyMapObjectResponse(
+			{
+				type: MapObjectType.NEST,
+				filter: { enabled: true, filters: [] } as never,
+				isDelta: true,
+				removeOld: false
+			},
+			{ data: [], examined: 0, snapshot: true, revision: "withdrawn" }
+		);
+		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.NEST, 0, false);
+		expect(state.add).not.toHaveBeenCalled();
+	});
+
 	it("ignores enabled saved biome filters and filter overrides when biomes are unsupported", () => {
 		vi.mocked(isSupportedFeature).mockReturnValue(false);
 		expect(planMapObjectRequest(MapObjectType.BIOME)).toBeUndefined();

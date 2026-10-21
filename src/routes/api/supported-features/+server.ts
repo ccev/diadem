@@ -7,9 +7,16 @@ import type { RequestHandler } from "./$types";
 export const GET: RequestHandler = async ({ locals, request }) => {
 	const config = getServerConfig();
 	const authRequired = isAuthRequired();
+	let nestSource: SupportedFeatures["nestSource"];
+	if (config.talonflame?.url) {
+		nestSource = "talon";
+	} else {
+		nestSource = "fletch";
+	}
 
 	return respond(request, {
 		koji: !!config.koji && !!config.koji.url,
+		nestSource,
 		biomes: Boolean(config.biomes?.url?.trim()),
 		geocoding:
 			(!!config.nominatim && !!config.nominatim.url) ||

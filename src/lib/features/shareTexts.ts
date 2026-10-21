@@ -1,6 +1,7 @@
 import { ClientMapObjectType, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import * as m from "@/lib/paraglide/messages";
 import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
+import { getNestSource } from "@/lib/services/supportedFeatures";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
@@ -224,7 +225,9 @@ function getNestShareText(data: NestData) {
 		text += `🌳 ${m.park_name()}: ${data.name}\n`;
 	}
 
-	text += `🔄 ${m.nest_avg()}: ${m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}\n`;
+	if (getNestSource() === "fletch") {
+		text += `🔄 ${m.nest_avg()}: ${m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}\n`;
+	}
 
 	return text;
 }

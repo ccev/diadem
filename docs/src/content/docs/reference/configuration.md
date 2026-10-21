@@ -54,6 +54,10 @@ If a gRPC call fails for any reason, Diadem falls back to the HTTP API for that 
 
 The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
 
+## `server.talonflame`
+
+Optional. Set `url = "http://127.0.0.1:9042"` under `[server.talonflame]` to use Talonflame's nest API instead of Fletchling SQL. The URL must be accessible to Diadem's server.
+
 ## `server.dragonite`
 
 ```toml

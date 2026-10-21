@@ -316,7 +316,9 @@ export function applyMapObjectResponse(
 
 	try {
 		if (type === MapObjectType.BIOME) deleteAllFeaturesOfType(type);
-		if (removeOld && !isDelta) {
+		if (response?.snapshot) {
+			replaceMapObjects(data, type, examined, false);
+		} else if (removeOld && !isDelta) {
 			replaceMapObjects(data, type, examined);
 		} else {
 			addMapObjects(data, type, examined, isDelta);
