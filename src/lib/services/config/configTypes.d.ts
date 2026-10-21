@@ -139,6 +139,10 @@ export type ClientConfig = {
 };
 
 export type ServerConfig = {
+	biomes?: {
+		url?: string;
+		secret?: string;
+	};
 	golbat: {
 		url: string;
 		auth?: string;
