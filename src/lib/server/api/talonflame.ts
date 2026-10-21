@@ -49,7 +49,6 @@ function deleteCacheEntry(url: string) {
 	cachedBytes -= entry.bytes;
 }
 
-// Shared across requests. Expired entries are kept for ETag revalidation.
 export async function fetchTalonflame<T>(path: string, thisFetch = fetch): Promise<T> {
 	const baseUrl = getServerConfig().talonflame?.url;
 	if (!baseUrl) error(503, "Talonflame URL is not configured");
@@ -57,7 +56,6 @@ export async function fetchTalonflame<T>(path: string, thisFetch = fetch): Promi
 	const url = `${baseUrl.replace(/\/$/, "")}/api/map/nests${path}`;
 	const cached = cache.get(url);
 	if (cached && cached.expiresAt > Date.now()) {
-		// Move cache hits to the end so the least recently used entry is evicted first.
 		cache.delete(url);
 		cache.set(url, cached);
 		return cached.value as T;
