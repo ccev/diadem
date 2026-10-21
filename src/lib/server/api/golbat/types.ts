@@ -20,6 +20,8 @@ export type GolbatPokemonQuery = {
 	pvp_little?: MinMax;
 	pvp_great?: MinMax;
 	pvp_ultra?: MinMax;
+	shiny_for?: string[];
+	background_for?: string[];
 };
 
 export type GolbatDnfId = { pokemon_id: number; form?: number };
@@ -103,6 +105,7 @@ export type PokemonScanBody = {
 	max: { latitude: number; longitude: number };
 	limit: number;
 	filters: GolbatPokemonQuery[];
+	annotate_for?: string[];
 };
 
 export type FortTypeScanGroup = { filters?: GolbatFortDnfFilter[]; limit: number };

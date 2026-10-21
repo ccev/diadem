@@ -94,4 +94,30 @@ export const verification = mysqlTable(
 	})
 );
 
+export const linkedTrainer = mysqlTable(
+	"linked_trainer",
+	{
+		id: varchar("id", { length: 255 }).primaryKey(),
+		userId: varchar("user_id", { length: 255 })
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		// PlayerID ticket, kept until it resolves (or fails/expires)
+		jobId: varchar("job_id", { length: 255 }),
+		status: varchar("status", { length: 32 }).notNull(),
+		playerId: varchar("player_id", { length: 255 }),
+		trainerName: varchar("trainer_name", { length: 255 }),
+		createdAt: datetime("created_at").notNull(),
+		updatedAt: datetime("updated_at").notNull()
+	},
+	(table) => ({
+		userIdIdx: index("linked_trainer_user_id_idx").on(table.userId),
+		userPlayerUnique: uniqueIndex("linked_trainer_user_player_unique").on(
+			table.userId,
+			table.playerId
+		)
+	})
+);
+
+export type LinkedTrainer = typeof linkedTrainer.$inferSelect;
+
 export type User = typeof user.$inferSelect;

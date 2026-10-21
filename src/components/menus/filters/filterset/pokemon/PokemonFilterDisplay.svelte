@@ -6,7 +6,8 @@
 		getAttributeLabelIvValues,
 		getAttributeLabelLevel,
 		getAttributeLabelRank,
-		getAttributeLabelSize
+		getAttributeLabelSize,
+		personalShinyTrainerLabel
 	} from "@/lib/features/filters/filterUtilsPokemon";
 	import * as m from "@/lib/paraglide/messages";
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
@@ -26,6 +27,12 @@
 		<PokemonDisplay label={m.species()} pokemon={data.pokemon} />
 	{/if}
 
+	{#if data.personalShiny}
+		<AttributeDisplay
+			label={m.personal_shiny_filter()}
+			value={personalShinyTrainerLabel(data) ?? m.personal_shiny_all_trainers()}
+		/>
+	{/if}
 	{#if data.iv}
 		<AttributeDisplay
 			label={m.iv_product_label_long()}

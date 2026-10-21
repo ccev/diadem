@@ -1,6 +1,6 @@
 import type { AnyFilter } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
-import type { MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { recallFilter, rememberFilter } from "@/lib/server/api/filterCache";
 import {
 	calculateRequestCharge,
@@ -10,13 +10,15 @@ import {
 	requestLimits
 } from "@/lib/server/api/rateLimit";
 import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
+import { canUsePersonalShiny } from "@/lib/server/api/playerIdApi";
+import { getPersonalTrainers } from "@/lib/server/db/internal/trainers";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import {
 	checkFeaturesInBounds,
 	FeaturePermissionContext,
 	type PermittedBounds
 } from "@/lib/services/user/checkPerm";
-import { featureFamily } from "@/lib/utils/features";
+import { featureFamily, Features } from "@/lib/utils/features";
 import { getFilterHash } from "@/lib/utils/filterHash";
 
 const FILTER_HASH_PATTERN = /^[0-9a-f]{64}$/;
@@ -107,11 +109,26 @@ export async function resolveTypeRequest(
 		}
 	}
 
+	// Personal shinies are an add-on to seeing pokemon, not part of the family that admits a
+	// request, so the context checks them separately.
+	const isPokemon = type === MapObjectType.POKEMON;
+	const context = new FeaturePermissionContext(
+		locals.perms,
+		isPokemon ? [...family, Features.POKEMON_PERSONAL_SHINY] : family
+	);
+	if (isPokemon && locals.user && canUsePersonalShiny(locals)) {
+		const { trainers, links } = await getPersonalTrainers(locals.user.id);
+		if (trainers.size > 0) {
+			context.personalTrainers = trainers;
+			context.personalTrainerLinks = links;
+		}
+	}
+
 	return {
 		status: 200,
 		filter,
 		permitted,
-		context: new FeaturePermissionContext(locals.perms, family),
+		context,
 		filterCached
 	};
 }

@@ -6,12 +6,30 @@ import * as m from "@/lib/paraglide/messages";
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { getPokemonSize, League } from "@/lib/utils/pokemonUtils";
 import { Features, type FeaturesKey } from "@/lib/utils/features";
+import { getLinkedTrainers } from "@/lib/services/linkedTrainers.svelte";
 
-export function pokemonFiltersetRequiredFeature(fs: FiltersetPokemon): FeaturesKey {
-	if (fs.pvpRankLittle || fs.pvpRankGreat || fs.pvpRankUltra) return Features.POKEMON_PVP;
-	if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size)
-		return Features.POKEMON_IV;
-	return Features.POKEMON;
+/** Names of the trainers a personal filterset is limited to, if any ("Ash, Misty"). */
+export function personalShinyTrainerLabel(filter: FiltersetPokemon): string | undefined {
+	const ids = filter.personalShinyTrainers;
+	if (!ids?.length) return undefined;
+	const linked = getLinkedTrainers();
+	return ids
+		.map((id) => {
+			const trainer = linked.find((t) => t.id === id);
+			return trainer
+				? (trainer.trainerName ?? m.linked_trainers_unnamed())
+				: m.personal_shiny_trainer_missing();
+		})
+		.join(", ");
+}
+
+export function pokemonFiltersetRequiredFeatures(fs: FiltersetPokemon): FeaturesKey[] {
+	const required: FeaturesKey[] = [];
+	if (fs.pvpRankLittle || fs.pvpRankGreat || fs.pvpRankUltra) required.push(Features.POKEMON_PVP);
+	else if (fs.iv || fs.cp || fs.ivAtk || fs.ivDef || fs.ivSta || fs.level || fs.size)
+		required.push(Features.POKEMON_IV);
+	if (fs.personalShiny) required.push(Features.POKEMON_PERSONAL_SHINY);
+	return required;
 }
 
 export const pokemonBounds = {
@@ -67,6 +85,12 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 		kind = m.count_pokemon({ count: filter.pokemon.length });
 	}
 
+	if (filter.personalShiny) {
+		const trainer = personalShinyTrainerLabel(filter);
+		attributes.push(
+			trainer ? `${m.personal_shiny_short()} (${trainer})` : m.personal_shiny_short()
+		);
+	}
 	if (filter.iv) {
 		attributes.push(getAttributeLabelIvProduct(filter.iv));
 	}
@@ -131,6 +155,8 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 	if (filter.pokemon && filter.pokemon.length === 1) {
 		// prio: pokemon icon if only one species
 		setFilterIcon(filter, { uicon: { category: IconCategory.POKEMON, params: filter.pokemon[0] } });
+	} else if (filter.personalShiny) {
+		setFilterIcon(filter, { emoji: "✨" });
 	} else if (
 		(filter.iv?.min ?? 0) >= 98 ||
 		(filter.ivAtk?.min ?? 0) + (filter.ivDef?.min ?? 0) + (filter.ivSta?.min ?? 0) >= 45

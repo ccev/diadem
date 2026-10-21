@@ -7,11 +7,14 @@
 
 	let {
 		label = undefined,
+		emptyLabel = undefined,
 		isEmpty = false,
 		color = "yellow",
 		onremove = () => {}
 	}: {
 		label?: string;
+		/** Shown when isEmpty; defaults to "Any" */
+		emptyLabel?: string;
 		isEmpty: boolean;
 		color?: "yellow" | "muted";
 		onremove?: () => void;
@@ -38,7 +41,7 @@
 >
 	<span class="py-1">
 		{#if isEmpty}
-			{m.any()}
+			{emptyLabel ?? m.any()}
 		{:else}
 			{label}
 		{/if}

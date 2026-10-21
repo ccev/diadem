@@ -41,7 +41,8 @@ export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanReque
 		filters: body.filters.map(({ pokemon, ...ranges }) => ({
 			...ranges,
 			pokemon: pokemon?.map(({ id, form }) => ({ pokemon_id: id, form })) ?? []
-		}))
+		})),
+		annotate_for: body.annotate_for
 	};
 }
 

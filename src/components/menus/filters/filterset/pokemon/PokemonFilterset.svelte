@@ -26,12 +26,18 @@
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { Features } from "@/lib/utils/features";
+	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
+	import PersonalShinyTrainerAttribute from "@/components/menus/filters/filterset/pokemon/PersonalShinyTrainerAttribute.svelte";
 
 	let data: FiltersetPokemon | undefined = $derived(getCurrentSelectedFilterset()?.data) as
 		FiltersetPokemon | undefined;
 
 	let canIv = $derived(hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_IV));
 	let canPvp = $derived(hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_PVP));
+	let canPersonalShiny = $derived(
+		isSupportedFeature("personalShiny") &&
+			hasFeatureAnywhere(getUserDetails().permissions, Features.POKEMON_PERSONAL_SHINY)
+	);
 </script>
 
 <FiltersetModal
@@ -72,6 +78,9 @@
 						<AppearanceAttribute data={thisData} sizeBounds={pokemonBounds.size} showSize={canIv} />
 					{/snippet}
 				</Attribute>
+				{#if canPersonalShiny}
+					<PersonalShinyTrainerAttribute {data} />
+				{/if}
 			</AttributesOverview>
 			{#if canIv}
 				<AttributesOverview>

@@ -14,10 +14,9 @@
 	import { getPremadeFiltersets } from "@/lib/features/filters/premadeFiltersets";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import type { AnyFilterset, FiltersetPokemon } from "@/lib/features/filters/filtersets";
-	import { pokemonFiltersetRequiredFeature } from "@/lib/features/filters/filterUtilsPokemon";
+	import { pokemonFiltersetRequiredFeatures } from "@/lib/features/filters/filterUtilsPokemon";
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
-	import { Features } from "@/lib/utils/features";
 	import { getId } from "@/lib/utils/uuid";
 	import { m } from "@/lib/paraglide/messages";
 
@@ -32,9 +31,8 @@
 	function isPremadePermitted(filterset: AnyFilterset): boolean {
 		if (majorCategory !== "pokemon" && subCategory !== "pokemon") return true;
 
-		const required = pokemonFiltersetRequiredFeature(filterset as FiltersetPokemon);
-		if (required === Features.POKEMON) return true;
-		return hasFeatureAnywhere(getUserDetails().permissions, required);
+		const required = pokemonFiltersetRequiredFeatures(filterset as FiltersetPokemon);
+		return required.every((feature) => hasFeatureAnywhere(getUserDetails().permissions, feature));
 	}
 
 	let allPremades = $derived(
