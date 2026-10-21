@@ -15,6 +15,7 @@ export type TalonflameNest = {
 	last_changed: number | null;
 	geometry: Polygon | MultiPolygon;
 };
+
 export type TalonflameResponse = {
 	revision: string;
 	snapshot: true;
@@ -23,63 +24,88 @@ export type TalonflameResponse = {
 	data: TalonflameNest[];
 };
 
-type CacheEntry = { value: unknown; etag: string | null; expires: number; bytes: number };
-const cache = new Map<string, CacheEntry>();
-const pending = new Map<string, Promise<unknown>>();
+type CacheEntry = {
+	value: unknown;
+	etag: string | null;
+	expiresAt: number;
+	bytes: number;
+};
+
+const CACHE_TTL_MS = 5_000;
+const REQUEST_TIMEOUT_MS = 10_000;
+const MAX_CACHE_ENTRIES = 128;
+const MAX_PENDING_REQUESTS = 128;
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
+
+const cache = new Map<string, CacheEntry>();
+const pendingRequests = new Map<string, Promise<unknown>>();
 let cachedBytes = 0;
 
-// Shared per worker, bounded by both bytes and entries. Identical concurrent
-// requests share one upstream call; expired entries are revalidated by ETag.
+function deleteCacheEntry(url: string) {
+	const entry = cache.get(url);
+	if (!entry) return;
+
+	cache.delete(url);
+	cachedBytes -= entry.bytes;
+}
+
+// Shared across requests. Expired entries are kept for ETag revalidation.
 export async function fetchTalonflame<T>(path: string, thisFetch = fetch): Promise<T> {
-	const base = getServerConfig().talonflame?.url;
-	if (!base) error(503, "Talonflame URL is not configured");
-	const url = `${base.replace(/\/$/, "")}/api/map/nests${path}`;
-	const existing = cache.get(url);
-	if (existing && existing.expires > Date.now()) {
+	const baseUrl = getServerConfig().talonflame?.url;
+	if (!baseUrl) error(503, "Talonflame URL is not configured");
+
+	const url = `${baseUrl.replace(/\/$/, "")}/api/map/nests${path}`;
+	const cached = cache.get(url);
+	if (cached && cached.expiresAt > Date.now()) {
+		// Move cache hits to the end so the least recently used entry is evicted first.
 		cache.delete(url);
-		cache.set(url, existing);
-		return existing.value as T;
+		cache.set(url, cached);
+		return cached.value as T;
 	}
-	const inFlight = pending.get(url);
+
+	const inFlight = pendingRequests.get(url);
 	if (inFlight) return inFlight as Promise<T>;
-	if (pending.size >= 128) error(503, "Talonflame request queue is full");
-	const request = (async () => {
-		const response = await thisFetch(url, {
-			headers: existing?.etag ? { "If-None-Match": existing.etag } : undefined,
-			signal: AbortSignal.timeout(10_000)
-		});
-		if (response.status === 304 && existing) {
-			existing.expires = Date.now() + 5000;
-			return existing.value as T;
-		}
-		if (!response.ok) error(502, `Talonflame returned ${response.status}`);
-		const text = await response.text();
-		const value = JSON.parse(text) as T;
-		if (existing && cache.delete(url)) cachedBytes -= existing.bytes;
-		const bytes = Buffer.byteLength(text);
-		if (bytes <= MAX_CACHE_BYTES) {
-			while (cache.size >= 128 || cachedBytes + bytes > MAX_CACHE_BYTES) {
-				const oldest = cache.keys().next().value!;
-				cachedBytes -= cache.get(oldest)!.bytes;
-				cache.delete(oldest);
+	if (pendingRequests.size >= MAX_PENDING_REQUESTS) error(503, "Talonflame request queue is full");
+
+	const headers: Record<string, string> = {};
+	if (cached?.etag) {
+		headers["If-None-Match"] = cached.etag;
+	}
+
+	const request = thisFetch(url, {
+		headers,
+		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+	})
+		.then(async (response) => {
+			if (response.status === 304 && cached) {
+				cached.expiresAt = Date.now() + CACHE_TTL_MS;
+				return cached.value as T;
+			}
+			if (!response.ok) error(502, `Talonflame returned ${response.status}`);
+
+			const text = await response.text();
+			const value = JSON.parse(text) as T;
+			const bytes = Buffer.byteLength(text);
+			deleteCacheEntry(url);
+			if (bytes > MAX_CACHE_BYTES) return value;
+
+			for (const cachedUrl of cache.keys()) {
+				if (cache.size < MAX_CACHE_ENTRIES && cachedBytes + bytes <= MAX_CACHE_BYTES) break;
+				deleteCacheEntry(cachedUrl);
 			}
 			cache.set(url, {
 				value,
 				etag: response.headers.get("ETag"),
-				expires: Date.now() + 5000,
+				expiresAt: Date.now() + CACHE_TTL_MS,
 				bytes
 			});
 			cachedBytes += bytes;
-		}
-		return value;
-	})();
-	pending.set(url, request);
-	try {
-		return await request;
-	} finally {
-		pending.delete(url);
-	}
+			return value;
+		})
+		.finally(() => pendingRequests.delete(url));
+
+	pendingRequests.set(url, request);
+	return request;
 }
 
 export async function fetchTalonflameStats() {

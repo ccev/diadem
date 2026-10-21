@@ -15,7 +15,7 @@
 	import {
 		CircleDot,
 		CircleSlash2,
-		ClockArrowUp,
+		Clock,
 		Info,
 		MapPinned,
 		RotateCcw,
@@ -95,7 +95,7 @@
 				value={m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}
 			/>
 			{#if data.last_changed !== undefined}
-				<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_changed()}>
+				<StatsMainCardEntry Icon={Clock} name={m.last_changed()}>
 					{#snippet value()}
 						{#if data.last_changed !== null}
 							{timestampToLocalTime(data.last_changed, { showDate: true, showSeconds: false })}
