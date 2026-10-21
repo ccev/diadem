@@ -1,16 +1,31 @@
 import type { ServerConfig } from "@/lib/services/config/configTypes";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { TTLCache } from "@isaacs/ttlcache";
+import { aessiv } from "@noble/ciphers/aes.js";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const config = vi.hoisted(() => ({
 	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"]
 }));
 vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => config }));
+vi.mock("@isaacs/ttlcache", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("@isaacs/ttlcache")>();
+	return { ...actual, TTLCache: vi.fn(class extends actual.TTLCache {}) };
+});
+vi.mock("@noble/ciphers/aes.js", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("@noble/ciphers/aes.js")>();
+	return { ...actual, aessiv: vi.fn(actual.aessiv) };
+});
 
 const secret = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
 
 beforeEach(() => {
 	vi.resetModules();
+	vi.clearAllMocks();
 	config.encounterIdObfuscation = { enabled: true, secret };
+});
+
+afterEach(() => {
+	vi.restoreAllMocks();
 });
 
 describe("encounter ID encryption", () => {
@@ -19,7 +34,7 @@ describe("encounter ID encryption", () => {
 		async (id) => {
 			const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
 			const token = encodeEncounterId(id);
-			expect(token).toMatch(/^enc1_[A-Za-z0-9_-]{32}$/);
+			expect(token).toMatch(/^pid_[A-Za-z0-9_-]{32}$/);
 			expect(token).not.toBe(id);
 			expect(decodeEncounterId(token)).toBe(id);
 		}
@@ -40,11 +55,11 @@ describe("encounter ID encryption", () => {
 	it("rejects modifications to every byte of the authentication tag and ciphertext", async () => {
 		const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
 		const token = encodeEncounterId("18446744073709551615");
-		const encrypted = Buffer.from(token.slice(5), "base64url");
+		const encrypted = Buffer.from(token.slice(4), "base64url");
 		for (let i = 0; i < encrypted.length; i++) {
 			const modified = Buffer.from(encrypted);
 			modified[i] ^= 1;
-			expect(decodeEncounterId("enc1_" + modified.toString("base64url"))).toBeUndefined();
+			expect(decodeEncounterId("pid_" + modified.toString("base64url"))).toBeUndefined();
 		}
 	});
 
@@ -64,14 +79,14 @@ describe("encounter ID encryption", () => {
 		for (const invalid of [
 			"",
 			"12345678901234567890",
-			"enc1_",
-			token.replace("enc1_", "enc2_"),
+			"pid_",
+			token.replace("pid_", "enc1_"),
 			token.slice(0, -1),
 			token + "A",
 			token + "=",
 			token + "\n",
-			"enc1_" + "/".repeat(32),
-			"enc1_" + "A".repeat(32)
+			"pid_" + "/".repeat(32),
+			"pid_" + "A".repeat(32)
 		]) {
 			expect(decodeEncounterId(invalid)).toBeUndefined();
 		}
@@ -107,6 +122,80 @@ describe("encounter ID encryption", () => {
 			const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
 			expect(encodeEncounterId("18446744073709551615")).toBe("18446744073709551615");
 			expect(decodeEncounterId("18446744073709551615")).toBe("18446744073709551615");
+			expect(aessiv).not.toHaveBeenCalled();
+			expect(TTLCache).not.toHaveBeenCalled();
 		}
 	);
+});
+
+describe("encounter ID encryption cache", () => {
+	it("only initializes the cache when obfuscation is enabled", async () => {
+		await import("./encounterIds");
+		expect(TTLCache).toHaveBeenCalledExactlyOnceWith({
+			max: 1_000_000,
+			ttl: 60 * 60 * 1000,
+			checkAgeOnGet: true
+		});
+	});
+
+	it("reuses encrypted tokens without encrypting again", async () => {
+		const { encodeEncounterId } = await import("./encounterIds");
+		const token = encodeEncounterId("18446744073709551615");
+		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(aessiv).toHaveBeenCalledTimes(1);
+
+		expect(encodeEncounterId("18446744073709551614")).not.toBe(token);
+		expect(aessiv).toHaveBeenCalledTimes(2);
+	});
+
+	it("expires after one hour without extending the TTL on cache hits", async () => {
+		const now = vi.spyOn(performance, "now").mockReturnValue(0);
+		const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
+		const token = encodeEncounterId("18446744073709551615");
+
+		now.mockReturnValue(30 * 60 * 1000);
+		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		now.mockReturnValue(60 * 60 * 1000 - 1);
+		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(aessiv).toHaveBeenCalledTimes(1);
+
+		// Even if the purge timer has not run, an expired entry must be recomputed.
+		now.mockReturnValue(60 * 60 * 1000);
+		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(aessiv).toHaveBeenCalledTimes(2);
+		expect(decodeEncounterId(token)).toBe("18446744073709551615");
+	});
+
+	it("evicts the oldest entry when the cache limit is exceeded", async () => {
+		vi.spyOn(performance, "now").mockReturnValue(0);
+		const { encodeEncounterId } = await import("./encounterIds");
+		const cache = vi.mocked(TTLCache).mock.results[0].value;
+		// Exercise eviction without filling the entire production-size cache.
+		cache.max = 2;
+
+		const first = encodeEncounterId("0");
+		encodeEncounterId("1");
+		expect(encodeEncounterId("0")).toBe(first);
+		expect(aessiv).toHaveBeenCalledTimes(2);
+
+		const newest = encodeEncounterId("2");
+		expect(encodeEncounterId("2")).toBe(newest);
+		expect(aessiv).toHaveBeenCalledTimes(3);
+		expect(cache.size).toBe(2);
+
+		expect(encodeEncounterId("0")).toBe(first);
+		expect(aessiv).toHaveBeenCalledTimes(4);
+		expect(cache.size).toBe(2);
+	});
+
+	it("does not cache failed encryptions", async () => {
+		const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
+		vi.mocked(aessiv).mockImplementationOnce(() => {
+			throw new Error("Encryption failed");
+		});
+		expect(() => encodeEncounterId("18446744073709551615")).toThrow("Encryption failed");
+		const token = encodeEncounterId("18446744073709551615");
+		expect(aessiv).toHaveBeenCalledTimes(2);
+		expect(decodeEncounterId(token)).toBe("18446744073709551615");
+	});
 });

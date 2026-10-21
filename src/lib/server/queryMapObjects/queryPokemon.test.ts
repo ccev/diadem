@@ -67,7 +67,7 @@ describe("Pokémon encounter IDs at the client boundary", () => {
 			const delta = await query.getMultiple(bounds, filter, null, 99);
 			const token = result.data[0].id;
 
-			expect(token).toMatch(/^enc1_[A-Za-z0-9_-]{32}$/);
+			expect(token).toMatch(/^pid_[A-Za-z0-9_-]{32}$/);
 			expect(result.data[0].mapId).toBe(`pokemon-${token}`);
 			expect(delta.data[0].id).toBe(token);
 			expect(delta.data[0].mapId).toBe(result.data[0].mapId);
@@ -99,14 +99,14 @@ describe("Pokémon encounter IDs at the client boundary", () => {
 		expect(JSON.stringify(single)).not.toContain(pokemon.id);
 	});
 
-	it("rejects raw and tampered IDs before contacting Golbat", async () => {
+	it("ignores raw and tampered IDs without contacting Golbat", async () => {
 		const { PokemonQuery } = await import("./queryPokemon");
 		const query = new PokemonQuery();
 		const bulk = await query.getMultiple(bounds, filter, null);
-		const encrypted = Buffer.from(bulk.data[0].id.slice(5), "base64url");
+		const encrypted = Buffer.from(bulk.data[0].id.slice(4), "base64url");
 		encrypted[0] ^= 1;
-		for (const invalid of [pokemon.id, "invalid", "enc1_" + encrypted.toString("base64url")]) {
-			await expect(query.getSingle(invalid)).rejects.toMatchObject({ status: 400 });
+		for (const invalid of [pokemon.id, "invalid", "pid_" + encrypted.toString("base64url")]) {
+			await expect(query.getSingle(invalid)).resolves.toBeUndefined();
 		}
 		expect(getSinglePokemon).not.toHaveBeenCalled();
 	});

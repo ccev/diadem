@@ -1,4 +1,5 @@
 import { getServerConfig } from "@/lib/services/config/config.server";
+import { TTLCache } from "@isaacs/ttlcache";
 import { aessiv } from "@noble/ciphers/aes.js";
 import { hkdfSync } from "node:crypto";
 
@@ -21,9 +22,20 @@ if (config?.enabled) {
 	key = new Uint8Array(hkdfSync("sha256", Buffer.from(config.secret, "hex"), "", context, 64));
 }
 
-/** Stable, authenticated tokens for map keys and shared links, without a nonce or lookup table. */
+const encodedIds = config?.enabled
+	? new TTLCache<string, string>({
+			max: 1_000_000,
+			ttl: 60 * 60 * 1000,
+			checkAgeOnGet: true
+		})
+	: undefined;
+
+/** Stable, authenticated tokens for map keys and shared links, without a nonce or persistent mapping. */
 export function encodeEncounterId(id: string): string {
 	if (!key) return id;
+	const cached = encodedIds?.get(id);
+	if (cached !== undefined) return cached;
+
 	if (!/^(0|[1-9][0-9]{0,19})$/.test(id) || id.trim() !== id || BigInt(id) > 0xffffffffffffffffn) {
 		throw new Error("Invalid encounter ID from Golbat");
 	}
@@ -32,7 +44,9 @@ export function encodeEncounterId(id: string): string {
 	const plaintext = Buffer.alloc(8);
 	plaintext.writeBigUInt64BE(BigInt(id));
 	const encrypted = aessiv(key, context).encrypt(plaintext);
-	return prefix + Buffer.from(encrypted).toString("base64url");
+	const token = prefix + Buffer.from(encrypted).toString("base64url");
+	encodedIds?.set(id, token);
+	return token;
 }
 
 /** Reject raw IDs and invalid tokens while enabled, before they reach Golbat. */
