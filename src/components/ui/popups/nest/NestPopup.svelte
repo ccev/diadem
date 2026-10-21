@@ -11,9 +11,11 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { getIconPokemon } from "$lib/services/uicons.svelte";
 	import { formatDecimal, formatNumber, formatPercentage } from "$lib/utils/numberFormat";
+	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import {
 		CircleDot,
 		CircleSlash2,
+		ClockArrowUp,
 		Info,
 		MapPinned,
 		RotateCcw,
@@ -92,7 +94,19 @@
 				name={m.nest_size()}
 				value={m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}
 			/>
-			<UpdatedTimes updated={data.updated ?? undefined} />
+			{#if data.last_changed !== undefined}
+				<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_changed()}>
+					{#snippet value()}
+						{#if data.last_changed !== null}
+							{timestampToLocalTime(data.last_changed, { showDate: true, showSeconds: false })}
+						{:else}
+							{m.unknown()}
+						{/if}
+					{/snippet}
+				</StatsMainCardEntry>
+			{:else}
+				<UpdatedTimes updated={data.updated ?? undefined} />
+			{/if}
 			<QuickSearchButton
 				class="mt-0!"
 				label={m.find_wild_name({ name: mPokemon(data) })}
