@@ -13,10 +13,6 @@ const state = vi.hoisted(() => ({
 	actions: vi.fn(() => [] as QuickAction[]),
 	popupProps: vi.fn(() => ({ title: "Popup marker title" })),
 	path: vi.fn(({ data }: { data: { type: string; id: string } }) => `/${data.type}/${data.id}`),
-	locationPath: vi.fn(
-		(coords: { lat: number; lon: number }) =>
-			`/map?lat=${coords.lat.toFixed(6)}&lon=${coords.lon.toFixed(6)}`
-	),
 	canShare: vi.fn(() => false),
 	clipboard: vi.fn(() => true),
 	copy: vi.fn(),
@@ -39,8 +35,7 @@ vi.mock("@/lib/ui/primaryPopupActions", () => ({ getPrimaryPopupActions: state.a
 vi.mock("@/lib/ui/popupProps", () => ({ getPopupProps: state.popupProps }));
 vi.mock("@/lib/features/location.svelte", () => ({
 	formattedCoordinates: (coords: { lat: number; lon: number }) =>
-		`${coords.lat.toFixed(6)}, ${coords.lon.toFixed(6)}`,
-	getLocationPath: state.locationPath
+		`${coords.lat.toFixed(6)}, ${coords.lon.toFixed(6)}`
 }));
 vi.mock("@/lib/utils/device", () => ({
 	canNativeShare: state.canShare,
@@ -100,6 +95,7 @@ describe("map context actions", () => {
 		const menu = state.open.mock.calls[0][0];
 		expect(menu).toMatchObject({ x: 30, y: 45, title: "Popup marker title" });
 		expect(state.popupProps).toHaveBeenCalledExactlyOnceWith(marker);
+		expect(state.hit).toHaveBeenCalledExactlyOnceWith({ x: 20, y: 30 }, { quickActions: true });
 		menu.getActions();
 		expect(state.actions).toHaveBeenCalledWith(marker, marker.lat, marker.lon);
 	});
@@ -143,6 +139,7 @@ describe("map context actions", () => {
 		MapObjectType.GYM,
 		MapObjectType.POKESTOP,
 		MapObjectType.STATION,
+		MapObjectType.NEST,
 		MapObjectType.SPAWNPOINT,
 		MapObjectType.TAPPABLE,
 		MapObjectType.ROUTE
@@ -155,32 +152,17 @@ describe("map context actions", () => {
 		actions.at(-1)?.onclick?.();
 		expect(state.copy).toHaveBeenCalledExactlyOnceWith("12.345679, 98.765432");
 	});
-	it.each([MapObjectType.NEST, MapObjectType.BIOME, MapObjectType.S2_CELL])(
-		"copies and navigates to the clicked point for %s without moving the object",
-		(type) => {
-			const polygon = { id: "target", type, lat: 12, lon: 98 };
-			state.hit.mockReturnValue(polygon);
-			onLocationContext(event("contextmenu"));
-			const actions: QuickAction[] = state.open.mock.calls[0][0].getActions();
-			expect(state.actions).toHaveBeenCalledExactlyOnceWith(polygon, 50, 8);
-			actions.at(-1)?.onclick?.();
-			expect(state.copy).toHaveBeenCalledExactlyOnceWith("50.000000, 8.000000");
-			expect(polygon).toMatchObject({ lat: 12, lon: 98 });
-		}
-	);
-	it("shares S2 cells using the clicked location instead of an unsupported object permalink", () => {
-		state.hit.mockReturnValue({ id: "cell", type: MapObjectType.S2_CELL, lat: 12, lon: 98 });
+	it("shares the nest marker using its permalink, instance origin and locale", () => {
+		const nest = { id: "target", type: MapObjectType.NEST, lat: 12, lon: 98 };
+		state.hit.mockReturnValue(nest);
 		state.origin = "https://native-map.example";
 		state.locale = "de";
 		onLocationContext(event("contextmenu"));
 		const actions: QuickAction[] = state.open.mock.calls[0][0].getActions();
 		actions.at(-2)?.onclick?.();
-		expect(state.path).not.toHaveBeenCalled();
-		expect(state.locationPath).toHaveBeenCalledExactlyOnceWith(
-			expect.objectContaining({ lat: 50, lon: 8 })
-		);
+		expect(state.path).toHaveBeenCalledExactlyOnceWith({ data: nest });
 		expect(state.copy).toHaveBeenCalledExactlyOnceWith(
-			"https://native-map.example/map?lat=50.000000&lon=8.000000&lang=de"
+			"https://native-map.example/nest/target?lang=de"
 		);
 	});
 	it("does not offer unsupported clipboard actions", () => {

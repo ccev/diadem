@@ -1,8 +1,7 @@
 import { getCurrentPath, openLocationPopup } from "@/lib/mapObjects/interact";
 import { getMapObjectAtPoint } from "@/lib/map/mapObjectsAtPoint";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { setCurrentScoutCenter } from "@/lib/features/scout.svelte";
-import { formattedCoordinates, getLocationPath } from "@/lib/features/location.svelte";
+import { formattedCoordinates } from "@/lib/features/location.svelte";
 import { getOpenedMenu, Menu } from "@/lib/ui/menus.svelte";
 import { Coords } from "@/lib/utils/coordinates";
 import {
@@ -57,13 +56,9 @@ export function onLocationContext(event: MapTouchEvent | MapMouseEvent) {
 		return;
 	}
 
-	const data = getMapObjectAtPoint(event.point);
+	const data = getMapObjectAtPoint(event.point, { quickActions: true });
 	if (data) {
-		const isPolygon =
-			data.type === MapObjectType.NEST ||
-			data.type === MapObjectType.BIOME ||
-			data.type === MapObjectType.S2_CELL;
-		const actionCoords = isPolygon ? coords : new Coords(data.lat, data.lon);
+		const actionCoords = new Coords(data.lat, data.lon);
 		const bounds = event.target.getCanvas().getBoundingClientRect();
 		openQuickActions({
 			x: bounds.left + event.point.x,
@@ -71,10 +66,7 @@ export function onLocationContext(event: MapTouchEvent | MapMouseEvent) {
 			title: getPopupProps(data)?.title ?? "",
 			getActions: () => {
 				const actions = getPrimaryPopupActions(data, actionCoords.lat, actionCoords.lon);
-				const path =
-					data.type === MapObjectType.S2_CELL
-						? getLocationPath(actionCoords)
-						: getCurrentPath({ data });
+				const path = getCurrentPath({ data });
 				const url = new URL(getRootOrigin() + path);
 				url.searchParams.set("lang", getLocale());
 				const shareUrl = url.toString();
