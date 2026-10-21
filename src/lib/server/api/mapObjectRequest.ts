@@ -11,13 +11,12 @@ import {
 } from "@/lib/server/api/rateLimit";
 import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import type { MapObjectResponse } from "@/lib/server/queryMapObjects/MapObjectQuery";
-import {
-	checkFeaturesInBounds,
-	FeaturePermissionContext,
-	type PermittedBounds
-} from "@/lib/services/user/checkPerm";
+import { checkFeaturesInBoundsServer } from "@/lib/server/workers/geometry";
+import { CpuWorkerError } from "@/lib/server/workers/pool";
+import { FeaturePermissionContext, type PermittedBounds } from "@/lib/services/user/checkPerm";
 import { featureFamily } from "@/lib/utils/features";
 import { getFilterHash } from "@/lib/utils/filterHash";
+import { getLogger } from "@/lib/utils/logger";
 
 const FILTER_HASH_PATTERN = /^[0-9a-f]{64}$/;
 const DENIED_CHARGE = 100;
@@ -65,9 +64,10 @@ export async function resolveTypeRequest(
 	rateLimitKey: string,
 	requestLimit: number,
 	bounds: Bounds,
-	data: TypeRequestData
+	data: TypeRequestData,
+	signal?: AbortSignal
 ): Promise<
-	| { status: 400 | 401 | 409 }
+	| { status: 400 | 401 | 409 | 503 }
 	| {
 			status: 200;
 			filter: AnyFilter | undefined;
@@ -77,7 +77,22 @@ export async function resolveTypeRequest(
 	  }
 > {
 	const family = featureFamily[type];
-	const permitted = checkFeaturesInBounds(locals.perms, family, bounds);
+	let permitted: PermittedBounds | null;
+	try {
+		permitted = await checkFeaturesInBoundsServer(locals.perms, family, bounds, signal);
+	} catch (error) {
+		await rateLimitReward(rateLimitKey, requestLimit, type);
+		if (!(error instanceof CpuWorkerError)) throw error;
+		getLogger("geometry-workers").debug("[%s] Permission job rejected: %s", type, error.code);
+		if (error.code === "failed" || error.code === "too-large") {
+			getLogger("geometry-workers").warning(
+				"[%s] Permission job failed: %s",
+				type,
+				error.cause ?? error
+			);
+		}
+		return { status: 503 };
+	}
 	if (!permitted) {
 		await refundDenied(type, rateLimitKey, requestLimit);
 		return { status: 401 };

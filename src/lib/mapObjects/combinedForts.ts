@@ -16,7 +16,7 @@ export type FortsRequestData = Bounds & {
 };
 
 export type FortsTypeResponse = {
-	status: 200 | 400 | 401 | 409 | 429;
+	status: 200 | 400 | 401 | 409 | 429 | 503;
 	filterCached?: "0" | "1";
 	result?: MapObjectResponse<QueryableMapData>;
 };

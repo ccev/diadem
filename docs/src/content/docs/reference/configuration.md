@@ -23,6 +23,74 @@ level = "info"
 - `level`: log level (`crit`, `error`, `warning`, `info`, `debug`)
 - `file`: optional rotating log output path
 
+## `server.geometryWorkers`
+
+Optional worker pool for exact Turf permission-polygon intersections and unions in the main map APIs
+(`/api/[type]` and `/api/forts`). It shares the geometry core with the synchronous path. Omit this table
+or leave `threads = 0` to retain the original synchronous behavior. Even when enabled, unrestricted
+requests and denials with no eligible areas take the cheap main-thread path without a worker job.
+
+All settings are optional; defaults are shown below. To opt in, uncomment the block and set `threads = 1`.
+
+```toml
+# [server.geometryWorkers]
+# threads = 0
+# maxQueue = 8
+# maxTaskBytes = 4194304
+# maxPendingBytes = 16777216
+# timeoutMs = 5000
+# memoryMb = 128
+```
+
+- `threads`: Fixed worker count **per Node process**. Default `0` disables the pool; there is no automatic CPU-count sizing.
+- `maxQueue`: Maximum queued jobs **in addition to** the thread slots. Waiting jobs are dispatched in FIFO order; `0` allows no waiting queue.
+- `maxTaskBytes`: Maximum encoded JSON bytes for **each input or output separately**, not their sum (default 4 MiB).
+- `maxPendingBytes`: Maximum total admitted **input** bytes, including running and queued jobs (default 16 MiB).
+- `timeoutMs`: Job deadline in milliseconds covering queue wait and execution, including input encoding, not a fresh timeout when execution starts.
+- `memoryMb`: V8 old-generation heap limit in MB **per worker**. This is not a process RSS limit or a hard total-memory cap; Node flags such as `--max-old-space-size` may override it.
+
+All values must be safe integers. `threads` and `maxQueue` must be at least `0`, and their sum must also
+be a safe integer. Other values must be positive, with `timeoutMs <= 2147483647`, `memoryMb >= 16`, and
+`maxPendingBytes >= maxTaskBytes`. Invalid settings are rejected even when `threads = 0`.
+
+### Opt-In Tuning
+
+Start with one worker on a spare core and measure CPU usage, event-loop delay, request latency, memory,
+and worker rejections before increasing it. Budget for `replicas * Node processes per replica * geometry
+threads per process`, plus each process's main thread, libuv pool, and other native CPU work. More workers
+do not increase CPU capacity when all cores are already busy. There are no production throughput
+benchmarks yet.
+
+Keep queues and byte budgets bounded for your workload. Increasing `maxQueue` admits more waiting jobs,
+not more parallel execution, and queue time consumes `timeoutMs`. Tune byte limits using representative
+geometry inputs and outputs, leaving room for decoded data and geometry intermediates: these byte
+budgets do not account for all decoded memory. Use trusted geometry inputs; this pool is not a sandbox
+for arbitrary geometry.
+
+### Scope and Failures
+
+Fort search (`/api/search/forts`) and Wayfarer (`/api/wayfarer/forts`) still run geometry inline in this
+step. Other permission helpers, per-object permission stripping, protobuf processing, HTTP encoding,
+and SQL remain on the main thread or asynchronous paths as before. Worker transfer uses encoded JSON
+bytes, so input encoding and result decoding still add main-thread overhead.
+
+Queue or byte-budget overflow, oversized input or output, deadline expiry, cancellation, and worker
+unavailability or failure return `503` for the affected map type and refund its **full reserved
+rate-limit budget**. In combined `/api/forts` responses, this is a nested per-type `status: 503`, not an
+outer HTTP `503`. With the pool enabled, rejected jobs never fall back to CPU work inline.
+
+Provided `AbortSignal`s are honored for geometry jobs; request cancellation depends on the adapter
+propagating an abort. This does not guarantee that every client disconnect cancels server work, nor
+does it cancel upstream scans.
+
+### Deployment
+
+Use the supported Node 24+ runtime. The official adapter-node production build copies the worker and
+shared pure geometry core into the build; no TypeScript loader or extra service is needed. Native
+static builds have no server-side workers. The pool closes on adapter-node's `sveltekit:shutdown`
+hook; a custom server must emit that process event during shutdown. Development HMR closes the old
+pool when its server module is reloaded, including Vite SSR reloads without `import.meta.hot`.
+
 ## `server.golbat`
 
 ```toml

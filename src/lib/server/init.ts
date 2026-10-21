@@ -3,12 +3,14 @@ import { masterstatsProvider } from "@/lib/server/provider/masterStatsProvider";
 import { remoteLocaleProvider } from "@/lib/server/provider/remoteLocaleProvider";
 import { uiconsIndexProvider } from "@/lib/server/provider/uiconsIndexProvider";
 import { startFortApiDetection } from "@/lib/server/api/golbat/fortAvailability";
+import { initGeometryWorkers } from "@/lib/server/workers/geometry";
 import { getLogger } from "@/lib/utils/logger";
 import "@/lib/server/encounterIds";
 
 export async function initDiadem() {
 	const log = getLogger("init");
 	log.info("Initializing Diadem");
+	initGeometryWorkers();
 
 	await Promise.all([
 		masterfileProvider.refresh(),

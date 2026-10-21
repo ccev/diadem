@@ -54,13 +54,18 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		error(400);
 	}
 
-	const resolved = await resolveTypeRequest(type, locals, rateLimitKey, requestLimit, data, data);
+	const resolved = await resolveTypeRequest(
+		type,
+		locals,
+		rateLimitKey,
+		requestLimit,
+		data,
+		data,
+		request.signal
+	);
 	if (resolved.status !== 200) {
 		if (resolved.status === 400) error(400);
-		if (resolved.status === 401) {
-			return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
-		}
-		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_CONFLICT });
+		return respond(request, { data: [] }, { status: resolved.status });
 	}
 	const extraHeaders = resolved.filterCached
 		? { "X-Filter-Cached": resolved.filterCached }
