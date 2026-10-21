@@ -1,8 +1,18 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import * as constants from "@/lib/constants";
+import {
+	FeatureTypes,
+	getIconFeature,
+	getPolygonFeature,
+	isFeatureCircle,
+	isFeatureIcon,
+	isFeaturePolygon,
+	type MapObjectFeature,
+	type MapObjectPolygonFeature
+} from "@/lib/map/render/featureTypes";
 import { Coords } from "./coordinates";
 import {
 	isWithinRange,
@@ -11,7 +21,7 @@ import {
 	rangeDestination,
 	rangeDistanceMeters
 } from "./rangeGeometry";
-import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { ClientMapObjectType, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { Feature, Polygon } from "geojson";
 
 const sourceRoot = path.resolve(import.meta.dirname, "../..");
@@ -108,59 +118,198 @@ describe("geographic range callers", () => {
 		}
 	);
 
-	it("keeps main-map Pokemon normal/extended and fort ranges and selected styling", () => {
-		let extraRadius = false;
-		const getActionRadiusFeature = producer(
+	describe("main-map interaction ranges", () => {
+		const action = { all: true, mapIds: [] as string[], extraRadius: false };
+		const getActionRadiusFeatures = producer(
 			"lib/map/featuresGen.svelte.ts",
-			"getActionRadiusFeature",
+			"getActionRadiusFeatures",
 			{
 				...constants,
 				MapObjectType,
 				rangeCircle,
 				getUserSettings: () => ({
 					actions: Object.fromEntries(
-						Object.values(MapObjectType).map((type) => [
-							type,
-							{ radius: { all: true, mapIds: [], extraRadius } }
-						])
+						Object.values(MapObjectType).map((type) => [type, { radius: action }])
 					)
 				}),
-				getPolygonFeature: (_id: string, coordinates: number[][][][], properties: unknown) => ({
-					geometry: { type: "MultiPolygon", coordinates },
-					properties
-				}),
+				getPolygonFeature,
 				RADIUS_STROKE: "stroke",
 				RADIUS_FILL: "fill",
 				RADIUS_FILL_SELECTED: "selected"
 			}
-		);
-		for (const type of [
-			MapObjectType.POKEMON,
-			MapObjectType.GYM,
-			MapObjectType.POKESTOP,
-			MapObjectType.STATION
-		]) {
-			for (extraRadius of [false, true]) {
-				const feature = getActionRadiusFeature(type, "test", center);
+		) as (
+			type: MapObjectType,
+			mapId: string,
+			center: [number, number],
+			isSelected?: boolean
+		) => MapObjectPolygonFeature[];
+
+		beforeEach(() => {
+			Object.assign(action, { all: true, mapIds: [], extraRadius: false });
+		});
+
+		it.each([false, true])("draws borderless blue Pokemon circles (extended: %s)", (extended) => {
+			action.extraRadius = extended;
+			const features = getActionRadiusFeatures(MapObjectType.POKEMON, "test", center);
+			const radii = extended ? [80, 40] : [40];
+			expect(features).toHaveLength(radii.length);
+			expect(new Set(features.map((feature) => feature.id)).size).toBe(features.length);
+			features.forEach((feature, index) => {
 				assertCircle(
 					{
 						...feature,
 						geometry: { type: "Polygon", coordinates: feature.geometry.coordinates[0] }
 					},
 					center,
-					type === MapObjectType.POKEMON && !extraRadius ? 40 : 80,
+					radii[index],
+					96
+				);
+				const fillColor =
+					radii[index] === 40 ? "rgba(59, 130, 246, 0.2)" : "rgba(96, 165, 250, 0.2)";
+				expect(feature.properties).toMatchObject({
+					id: "test",
+					isActionRadius: true,
+					strokeColor: "transparent",
+					fillColor,
+					selectedFill: fillColor,
+					isSelected: false
+				});
+			});
+			expect(
+				getActionRadiusFeatures(MapObjectType.POKEMON, "test", center, true).every(
+					(feature) => feature.properties.isSelected
+				)
+			).toBe(true);
+		});
+
+		it.each([MapObjectType.GYM, MapObjectType.POKESTOP, MapObjectType.STATION])(
+			"keeps the single 80 m fort range and selected styling for %s",
+			(type) => {
+				action.extraRadius = true;
+				const features = getActionRadiusFeatures(type, "test", center, true);
+				expect(features).toHaveLength(1);
+				const [feature] = features;
+				assertCircle(
+					{
+						...feature,
+						geometry: { type: "Polygon", coordinates: feature.geometry.coordinates[0] }
+					},
+					center,
+					80,
 					96
 				);
 				expect(feature.properties).toMatchObject({
 					isActionRadius: true,
 					strokeColor: "stroke",
 					fillColor: "fill",
-					selectedFill: "selected"
+					selectedFill: "selected",
+					isSelected: true
 				});
 			}
+		);
+
+		it("respects per-Pokemon and global visibility overrides for both rings", () => {
+			action.extraRadius = true;
+			action.all = false;
+			expect(getActionRadiusFeatures(MapObjectType.POKEMON, "test", center)).toEqual([]);
+			action.mapIds = ["test"];
+			expect(getActionRadiusFeatures(MapObjectType.POKEMON, "test", center)).toHaveLength(2);
+			action.all = true;
+			expect(getActionRadiusFeatures(MapObjectType.POKEMON, "test", center)).toEqual([]);
+			action.mapIds = [];
+			expect(getActionRadiusFeatures(MapObjectType.POKEMON, "test", center)).toHaveLength(2);
+		});
+
+		it.each([MapObjectType.NEST, MapObjectType.SPAWNPOINT])(
+			"does not add interaction ranges to %s",
+			(type) => {
+				expect(getActionRadiusFeatures(type, "test", center)).toEqual([]);
+			}
+		);
+
+		it("replaces both rings cleanly on toggles and keeps selection in sync", () => {
+			const marker = getIconFeature("test", center, {
+				id: "test",
+				imageUrl: "test",
+				imageSize: 1,
+				selectedScale: 1,
+				expires: null
+			});
+			const entry = {
+				lon: center[0],
+				lat: center[1],
+				features: [marker] as MapObjectFeature[]
+			};
+			const features = { [MapObjectType.POKEMON]: { test: entry } };
+			let selection: { type: MapObjectType; mapId: string } | null = {
+				type: MapObjectType.POKEMON,
+				mapId: "test"
+			};
+			const updateSelected = producer("lib/map/featuresGen.svelte.ts", "updateSelected", {
+				...constants,
+				features,
+				selectedFeatures: [],
+				ClientMapObjectType,
+				isFeatureIcon,
+				isFeatureCircle,
+				isFeaturePolygon,
+				syncRouteLineFeatures: () => {},
+				updateMapObjectsGeoJson: () => {},
+				getFlattenedFeatures: () => entry.features
+			});
+			const updateRadiusFeatures = producer(
+				"lib/map/featuresGen.svelte.ts",
+				"updateRadiusFeatures",
+				{
+					features,
+					allMapObjectTypes: [MapObjectType.POKEMON],
+					isFeaturePolygon,
+					getActionRadiusFeatures,
+					updateSelected,
+					getCurrentSelectedData: () => selection
+				}
+			);
+			for (const extended of [false, true, true, false]) {
+				action.extraRadius = extended;
+				updateRadiusFeatures();
+				const radii = entry.features.filter(isFeaturePolygon);
+				expect(radii).toHaveLength(extended ? 2 : 1);
+				expect(radii.every((feature) => feature.properties.isSelected)).toBe(true);
+				expect(entry.features.at(-1)).toBe(marker);
+			}
+			selection = null;
+			action.extraRadius = true;
+			updateRadiusFeatures();
+			expect(
+				entry.features.filter(isFeaturePolygon).every((feature) => !feature.properties.isSelected)
+			).toBe(true);
+			expect(marker.properties.selectedScale).toBe(1);
+			action.all = false;
+			updateRadiusFeatures();
+			expect(entry.features).toEqual([marker]);
+		});
+	});
+
+	it("renders action radii separately from other polygons without doubling the fill", () => {
+		const source = readFileSync(path.join(sourceRoot, "components/map/MapMain.svelte"), "utf8");
+		const layers = [
+			...source.matchAll(
+				/<(?:FillLayer|LineLayer)\s+id=\{MapObjectLayerId\.(RADIUS_FILL|RADIUS_STROKE|POLYGON_FILL|POLYGON_STROKE)\}[\s\S]*?filter=\{(\[[\s\S]*?\])\}/g
+			)
+		];
+		expect(layers).toHaveLength(4);
+		for (const [, id, expression] of layers) {
+			const filter = new Function("FeatureTypes", `return (${expression});`)(FeatureTypes);
+			if (id.startsWith("RADIUS")) {
+				expect(filter).toEqual(["==", ["get", "isActionRadius"], true]);
+			} else {
+				expect(filter).toEqual([
+					"all",
+					["==", ["get", "type"], FeatureTypes.POLYGON],
+					["!=", ["get", "isActionRadius"], true]
+				]);
+			}
 		}
-		expect(getActionRadiusFeature(MapObjectType.NEST, "test", center)).toBeUndefined();
-		expect(getActionRadiusFeature(MapObjectType.SPAWNPOINT, "test", center)).toBeUndefined();
 	});
 
 	it.each([0, 1, 2])("keeps scout size %i coverage, radius units and spherical spacing", (size) => {

@@ -199,7 +199,12 @@
 			id={MapObjectLayerId.RADIUS_FILL}
 			filter={["==", ["get", "isActionRadius"], true]}
 			paint={{
-				"fill-color": ["coalesce", ["get", "fillColor"], "transparent"]
+				"fill-color": [
+					"case",
+					["coalesce", ["get", "isSelected"], false],
+					["coalesce", ["get", "selectedFill"], "transparent"],
+					["coalesce", ["get", "fillColor"], "transparent"]
+				]
 			}}
 		/>
 		<LineLayer
@@ -210,7 +215,11 @@
 		/>
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
-			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.POLYGON],
+				["!=", ["get", "isActionRadius"], true]
+			]}
 			paint={{
 				"fill-color": [
 					"case",
@@ -223,7 +232,11 @@
 		/>
 		<LineLayer
 			id={MapObjectLayerId.POLYGON_STROKE}
-			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.POLYGON],
+				["!=", ["get", "isActionRadius"], true]
+			]}
 			layout={{ "line-cap": "round", "line-join": "round" }}
 			paint={{ "line-color": ["coalesce", ["get", "strokeColor"], "transparent"], "line-width": 1 }}
 			hoverCursor="pointer"
