@@ -21,10 +21,15 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		polygon: PermittedPolygon,
 		since?: number,
 		limit?: number,
-		context?: FeaturePermissionContext
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
 	): Promise<MapObjectResponse<MinMapObject<MapObject>>>;
 
-	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
+	abstract querySingle(
+		id: string,
+		thisFetch?: typeof fetch,
+		signal?: AbortSignal
+	): Promise<MinMapObject<MapObject>[]>;
 
 	filter(
 		data: MinMapObject<MapObject>,
@@ -52,10 +57,11 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		polygon: PermittedPolygon,
 		since?: number,
 		limit?: number,
-		context?: FeaturePermissionContext
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
 	): Promise<MapObjectResponse<MapObject>> {
 		return this.finish(
-			await this.query(bounds, filter, polygon, since, limit, context),
+			await this.query(bounds, filter, polygon, since, limit, context, signal),
 			filter,
 			polygon,
 			context
@@ -91,8 +97,13 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		return { examined: result.examined, data };
 	}
 
-	public async getSingle(id: string, thisFetch?: typeof fetch, context?: FeaturePermissionContext) {
-		const mapObjects = await this.querySingle(id, thisFetch);
+	public async getSingle(
+		id: string,
+		thisFetch?: typeof fetch,
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
+	) {
+		const mapObjects = await this.querySingle(id, thisFetch, signal);
 		if (!mapObjects.length || !mapObjects[0]) return;
 
 		const mapObject = mapObjects[0];

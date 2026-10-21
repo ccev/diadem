@@ -4,8 +4,11 @@ import { aessiv } from "@noble/ciphers/aes.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const config = vi.hoisted(() => ({
-	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"]
+	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"],
+	cpuWorkers: {} as ServerConfig["cpuWorkers"],
+	geometryWorkers: undefined as ServerConfig["geometryWorkers"]
 }));
+vi.mock("$app/environment", () => ({ building: false, dev: true }));
 vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => config }));
 vi.mock("@isaacs/ttlcache", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("@isaacs/ttlcache")>();
@@ -22,9 +25,14 @@ beforeEach(() => {
 	vi.resetModules();
 	vi.clearAllMocks();
 	config.encounterIdObfuscation = { enabled: true, secret };
+	config.cpuWorkers = {};
+	config.geometryWorkers = undefined;
 });
 
-afterEach(() => {
+afterEach(async () => {
+	await (
+		globalThis as typeof globalThis & { __diademCpuWorkers?: () => Promise<void> | undefined }
+	).__diademCpuWorkers?.();
 	vi.restoreAllMocks();
 });
 
@@ -33,7 +41,7 @@ describe("encounter ID encryption", () => {
 		"round-trips uint64 ID %s without losing precision",
 		async (id) => {
 			const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
-			const token = encodeEncounterId(id);
+			const token = await encodeEncounterId(id);
 			expect(token).toMatch(/^pid_[A-Za-z0-9_-]{32}$/);
 			expect(token).not.toBe(id);
 			expect(decodeEncounterId(token)).toBe(id);
@@ -42,19 +50,19 @@ describe("encounter ID encryption", () => {
 
 	it("keeps tokens stable across calls and server instances using the same key", async () => {
 		const first = await import("./encounterIds");
-		const token = first.encodeEncounterId("18446744073709551615");
-		expect(first.encodeEncounterId("18446744073709551615")).toBe(token);
-		expect(first.encodeEncounterId("18446744073709551614")).not.toBe(token);
+		const token = await first.encodeEncounterId("18446744073709551615");
+		expect(await first.encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(await first.encodeEncounterId("18446744073709551614")).not.toBe(token);
 
 		vi.resetModules();
 		const second = await import("./encounterIds");
-		expect(second.encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(await second.encodeEncounterId("18446744073709551615")).toBe(token);
 		expect(second.decodeEncounterId(token)).toBe("18446744073709551615");
 	});
 
 	it("rejects modifications to every byte of the authentication tag and ciphertext", async () => {
 		const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
-		const token = encodeEncounterId("18446744073709551615");
+		const token = await encodeEncounterId("18446744073709551615");
 		const encrypted = Buffer.from(token.slice(4), "base64url");
 		for (let i = 0; i < encrypted.length; i++) {
 			const modified = Buffer.from(encrypted);
@@ -65,17 +73,17 @@ describe("encounter ID encryption", () => {
 
 	it("uses different tokens for a different secret and rejects the old tokens", async () => {
 		const first = await import("./encounterIds");
-		const token = first.encodeEncounterId("12345678901234567890");
+		const token = await first.encodeEncounterId("12345678901234567890");
 		config.encounterIdObfuscation!.secret = "ab".repeat(32);
 		vi.resetModules();
 		const second = await import("./encounterIds");
-		expect(second.encodeEncounterId("12345678901234567890")).not.toBe(token);
+		expect(await second.encodeEncounterId("12345678901234567890")).not.toBe(token);
 		expect(second.decodeEncounterId(token)).toBeUndefined();
 	});
 
 	it("rejects raw IDs, malformed tokens, and unknown versions", async () => {
 		const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
-		const token = encodeEncounterId("12345678901234567890");
+		const token = await encodeEncounterId("12345678901234567890");
 		for (const invalid of [
 			"",
 			"12345678901234567890",
@@ -96,7 +104,7 @@ describe("encounter ID encryption", () => {
 		"rejects invalid backend ID %j rather than emitting it",
 		async (id) => {
 			const { encodeEncounterId } = await import("./encounterIds");
-			expect(() => encodeEncounterId(id)).toThrow("Invalid encounter ID from Golbat");
+			await expect(encodeEncounterId(id)).rejects.toThrow("Invalid encounter ID from Golbat");
 		}
 	);
 
@@ -120,7 +128,7 @@ describe("encounter ID encryption", () => {
 		async (options) => {
 			config.encounterIdObfuscation = options;
 			const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
-			expect(encodeEncounterId("18446744073709551615")).toBe("18446744073709551615");
+			expect(await encodeEncounterId("18446744073709551615")).toBe("18446744073709551615");
 			expect(decodeEncounterId("18446744073709551615")).toBe("18446744073709551615");
 			expect(aessiv).not.toHaveBeenCalled();
 			expect(TTLCache).not.toHaveBeenCalled();
@@ -140,28 +148,28 @@ describe("encounter ID encryption cache", () => {
 
 	it("reuses encrypted tokens without encrypting again", async () => {
 		const { encodeEncounterId } = await import("./encounterIds");
-		const token = encodeEncounterId("18446744073709551615");
-		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		const token = await encodeEncounterId("18446744073709551615");
+		expect(await encodeEncounterId("18446744073709551615")).toBe(token);
 		expect(aessiv).toHaveBeenCalledTimes(1);
 
-		expect(encodeEncounterId("18446744073709551614")).not.toBe(token);
+		expect(await encodeEncounterId("18446744073709551614")).not.toBe(token);
 		expect(aessiv).toHaveBeenCalledTimes(2);
 	});
 
 	it("expires after one hour without extending the TTL on cache hits", async () => {
 		const now = vi.spyOn(performance, "now").mockReturnValue(0);
 		const { encodeEncounterId, decodeEncounterId } = await import("./encounterIds");
-		const token = encodeEncounterId("18446744073709551615");
+		const token = await encodeEncounterId("18446744073709551615");
 
 		now.mockReturnValue(30 * 60 * 1000);
-		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(await encodeEncounterId("18446744073709551615")).toBe(token);
 		now.mockReturnValue(60 * 60 * 1000 - 1);
-		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(await encodeEncounterId("18446744073709551615")).toBe(token);
 		expect(aessiv).toHaveBeenCalledTimes(1);
 
 		// Even if the purge timer has not run, an expired entry must be recomputed.
 		now.mockReturnValue(60 * 60 * 1000);
-		expect(encodeEncounterId("18446744073709551615")).toBe(token);
+		expect(await encodeEncounterId("18446744073709551615")).toBe(token);
 		expect(aessiv).toHaveBeenCalledTimes(2);
 		expect(decodeEncounterId(token)).toBe("18446744073709551615");
 	});
@@ -173,17 +181,17 @@ describe("encounter ID encryption cache", () => {
 		// Exercise eviction without filling the entire production-size cache.
 		cache.max = 2;
 
-		const first = encodeEncounterId("0");
-		encodeEncounterId("1");
-		expect(encodeEncounterId("0")).toBe(first);
+		const first = await encodeEncounterId("0");
+		await encodeEncounterId("1");
+		expect(await encodeEncounterId("0")).toBe(first);
 		expect(aessiv).toHaveBeenCalledTimes(2);
 
-		const newest = encodeEncounterId("2");
-		expect(encodeEncounterId("2")).toBe(newest);
+		const newest = await encodeEncounterId("2");
+		expect(await encodeEncounterId("2")).toBe(newest);
 		expect(aessiv).toHaveBeenCalledTimes(3);
 		expect(cache.size).toBe(2);
 
-		expect(encodeEncounterId("0")).toBe(first);
+		expect(await encodeEncounterId("0")).toBe(first);
 		expect(aessiv).toHaveBeenCalledTimes(4);
 		expect(cache.size).toBe(2);
 	});
@@ -193,9 +201,175 @@ describe("encounter ID encryption cache", () => {
 		vi.mocked(aessiv).mockImplementationOnce(() => {
 			throw new Error("Encryption failed");
 		});
-		expect(() => encodeEncounterId("18446744073709551615")).toThrow("Encryption failed");
-		const token = encodeEncounterId("18446744073709551615");
+		await expect(encodeEncounterId("18446744073709551615")).rejects.toThrow("Encryption failed");
+		const token = await encodeEncounterId("18446744073709551615");
 		expect(aessiv).toHaveBeenCalledTimes(2);
 		expect(decodeEncounterId(token)).toBe("18446744073709551615");
+	});
+});
+
+describe("encounter ID worker batches", () => {
+	beforeEach(() => {
+		config.cpuWorkers = { threads: 1 };
+	});
+
+	it("encrypts unique cache misses off-thread, preserves order, and retains existing token values", async () => {
+		const { encodeEncounterIds, decodeEncounterId } = await import("./encounterIds");
+		const { CpuWorkerPool } = await import("./workers/pool");
+		const original = CpuWorkerPool.prototype.run;
+		const jobs: unknown[] = [];
+		const run = vi.spyOn(CpuWorkerPool.prototype, "run").mockImplementation(function (
+			this: InstanceType<typeof CpuWorkerPool>,
+			encode,
+			signal
+		) {
+			return original.call(
+				this,
+				() => {
+					const input = encode();
+					jobs.push(JSON.parse(new TextDecoder().decode(input)));
+					return input;
+				},
+				signal
+			);
+		});
+		const ids = ["18446744073709551615", "0", "1", "18446744073709551615", "9007199254740993"];
+		const tokens = await encodeEncounterIds(ids);
+		expect(tokens).toEqual([
+			"pid_9bkW_dTQYqQ1Kj2lO4TAs8o060PxxGPo",
+			"pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA",
+			"pid_YmdAhF60aDPG5b4SkaJrlEc_CKNrCSf8",
+			"pid_9bkW_dTQYqQ1Kj2lO4TAs8o060PxxGPo",
+			"pid_YbtsvIDt-W-ePrplAG1MVf4yU6rnNfcv"
+		]);
+		expect(aessiv).not.toHaveBeenCalled(); // The worker has its own real crypto module.
+		expect(jobs).toEqual([{ type: "encounterIds", ids: [...new Set(ids)] }]);
+		expect(await encodeEncounterIds([...ids].reverse())).toEqual([...tokens].reverse());
+		expect(await encodeEncounterIds([])).toEqual([]);
+		expect(run).toHaveBeenCalledOnce();
+		expect(tokens.map(decodeEncounterId)).toEqual(ids);
+	});
+
+	it("keeps the process-wide cache shared across workers and smaller than an individual batch", async () => {
+		config.cpuWorkers = { threads: 2 };
+		const { encodeEncounterIds, decodeEncounterId } = await import("./encounterIds");
+		const cache = vi.mocked(TTLCache).mock.results[0].value;
+		cache.max = 2;
+		const ids = ["0", "1", "2", "0", "3"];
+		const tokens = await encodeEncounterIds(ids);
+		expect(tokens.map(decodeEncounterId)).toEqual(ids);
+		expect(cache.size).toBe(2);
+		const { CpuWorkerPool } = await import("./workers/pool");
+		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
+		expect(await encodeEncounterIds(["2", "3"])).toEqual([tokens[2], tokens[4]]);
+		expect(run).not.toHaveBeenCalled();
+	});
+
+	it("does not cache a partial batch when a worker rejects an invalid ID", async () => {
+		const { encodeEncounterIds, decodeEncounterId } = await import("./encounterIds");
+		await expect(encodeEncounterIds(["0", "invalid"])).rejects.toMatchObject({ code: "failed" });
+		expect(vi.mocked(TTLCache).mock.results[0].value.size).toBe(0);
+		const [token] = await encodeEncounterIds(["0"]);
+		expect(decodeEncounterId(token)).toBe("0");
+	});
+
+	it("shares admission limits with geometry instead of creating a separate encryption pool", async () => {
+		config.cpuWorkers = { threads: 1, maxQueue: 0 };
+		const { encodeEncounterIds } = await import("./encounterIds");
+		const { checkFeaturesInBoundsServer } = await import("./workers/geometry");
+		const { Features } = await import("@/lib/utils/features");
+		const geometry = checkFeaturesInBoundsServer(
+			{
+				everywhere: [],
+				areas: [
+					{
+						name: "test",
+						features: [Features.GYM],
+						polygon: {
+							type: "Polygon",
+							coordinates: [
+								[
+									[0, 0],
+									[0, 2],
+									[2, 2],
+									[2, 0],
+									[0, 0]
+								]
+							]
+						}
+					}
+				]
+			},
+			[Features.GYM],
+			{ minLat: 0, minLon: 0, maxLat: 1, maxLon: 1 }
+		);
+		await expect(encodeEncounterIds(["0"])).rejects.toMatchObject({ code: "busy" });
+		expect((await geometry)?.polygon?.geometry.type).toBe("Polygon");
+		expect(await encodeEncounterIds(["0"])).toEqual(["pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA"]);
+	});
+
+	it.each(["busy", "too-large", "timeout", "aborted", "unavailable", "failed"] as const)(
+		"rejects %s without a raw-ID or inline-encryption fallback, while serving cached tokens",
+		async (code) => {
+			const { encodeEncounterIds } = await import("./encounterIds");
+			const cached = await encodeEncounterIds(["0"]);
+			const { CpuWorkerPool, CpuWorkerError } = await import("./workers/pool");
+			const run = vi
+				.spyOn(CpuWorkerPool.prototype, "run")
+				.mockRejectedValue(new CpuWorkerError(code));
+			await expect(encodeEncounterIds(["0", "1"])).rejects.toMatchObject({ code });
+			expect(await encodeEncounterIds(["0"])).toEqual(cached);
+			expect(run).toHaveBeenCalledOnce();
+			expect(aessiv).not.toHaveBeenCalled();
+			expect(vi.mocked(TTLCache).mock.results[0].value.has("1")).toBe(false);
+		}
+	);
+
+	it.each([null, {}, [], ["0"], ["pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA", "extra"]])(
+		"rejects malformed, raw, or mis-sized worker output without caching it: %j",
+		async (output) => {
+			const { encodeEncounterIds } = await import("./encounterIds");
+			const { CpuWorkerPool } = await import("./workers/pool");
+			vi.spyOn(CpuWorkerPool.prototype, "run").mockResolvedValue(
+				new TextEncoder().encode(JSON.stringify(output)).buffer
+			);
+			await expect(encodeEncounterIds(["0"])).rejects.toMatchObject({ code: "failed" });
+			expect(vi.mocked(TTLCache).mock.results[0].value.size).toBe(0);
+			expect(aessiv).not.toHaveBeenCalled();
+		}
+	);
+
+	it("rejects an aborted request before dispatching encryption", async () => {
+		const { encodeEncounterIds } = await import("./encounterIds");
+		const { CpuWorkerPool } = await import("./workers/pool");
+		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
+		await expect(encodeEncounterIds(["0"], AbortSignal.abort())).rejects.toMatchObject({
+			code: "aborted"
+		});
+		expect(run).not.toHaveBeenCalled();
+		expect(aessiv).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		{ maxTaskBytes: 16, ids: ["0"], code: "too-large" },
+		{ maxTaskBytes: 64, ids: ["0", "1"], code: "failed" }
+	])("bounds both encryption input and output: %j", async ({ maxTaskBytes, ids, code }) => {
+		config.cpuWorkers = { threads: 1, maxTaskBytes };
+		const { encodeEncounterIds } = await import("./encounterIds");
+		await expect(encodeEncounterIds(ids)).rejects.toMatchObject({ code });
+		expect(vi.mocked(TTLCache).mock.results[0].value.size).toBe(0);
+	});
+
+	it("supports the old geometryWorkers setting and lets cpuWorkers take precedence", async () => {
+		config.geometryWorkers = { threads: 1 };
+		config.cpuWorkers = { threads: 0 };
+		const first = await import("./workers/cpu");
+		expect(first.getCpuWorkerPool()).toBeUndefined();
+		await first.closeCpuWorkers();
+		config.cpuWorkers = undefined;
+		vi.resetModules();
+		const { encodeEncounterIds } = await import("./encounterIds");
+		expect(await encodeEncounterIds(["0"])).toEqual(["pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA"]);
+		expect(aessiv).not.toHaveBeenCalled();
 	});
 });

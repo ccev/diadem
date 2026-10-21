@@ -17,7 +17,6 @@
 	<WayfarerBasePopup
 		class="pb-2"
 		isExpanded={() => true}
-		buttons={undefined}
 		canShare={false}
 		onclose={() => setClickedFort(undefined)}
 	>

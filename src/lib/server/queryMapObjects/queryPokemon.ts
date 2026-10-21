@@ -2,10 +2,18 @@ import { shouldDisplayPokemon } from "@/lib/features/filterLogic/pokemon";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
-import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbat/http";
+import {
+	getMultiplePokemon,
+	getSinglePokemon,
+	getUpdatedAfter
+} from "@/lib/server/api/golbat/http";
 import { grpcScanPokemon, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { decodeEncounterId, encodeEncounterId } from "@/lib/server/encounterIds";
+import {
+	decodeEncounterId,
+	encodeEncounterId,
+	encodeEncounterIds
+} from "@/lib/server/encounterIds";
 import {
 	MapObjectQuery,
 	type MapObjectResponse
@@ -34,7 +42,8 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		polygon: PermittedPolygon,
 		since?: number,
 		limit?: number,
-		context?: FeaturePermissionContext
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
 	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
 		const golbatQueries = this.buildGolbatQueries(filter, context);
 
@@ -44,6 +53,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			min: { latitude: bounds.minLat, longitude: bounds.minLon },
 			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
 			limit: actualLimit,
+			updated_after: getUpdatedAfter(since),
 			filters: golbatQueries
 		};
 
@@ -72,18 +82,29 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 				data.push(pokemon);
 			}
 
+			const ids = await encodeEncounterIds(
+				data.map((pokemon) => pokemon.id),
+				signal
+			);
+			for (let i = 0; i < data.length; i++) data[i].id = ids[i];
 			return { data, examined };
 		}
 		error(500);
 	}
 
-	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
+	async querySingle(
+		id: string,
+		thisFetch?: typeof fetch,
+		signal?: AbortSignal
+	): Promise<MinMapObject<PokemonData>[]> {
 		const encounterId = decodeEncounterId(id);
-		let mon: PokemonData | undefined = undefined
+		let mon: PokemonData | undefined = undefined;
 		if (encounterId) {
 			mon = await getSinglePokemon(encounterId, thisFetch);
 		}
-		return mon ? [this.makePokemon(mon, undefined)] : [];
+		return mon
+			? [{ ...this.makePokemon(mon, undefined), id: await encodeEncounterId(mon.id, signal) }]
+			: [];
 	}
 
 	prepare(data: MinMapObject<PokemonData>, context?: FeaturePermissionContext): void {
@@ -116,7 +137,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const statsAllowed = ivAllowed || pvpAllowed;
 
 		const pokemon = {
-			id: encodeEncounterId(p.id),
+			id: p.id,
 			lat: round(p.lat, 6),
 			lon: round(p.lon, 6),
 			pokemon_id: p.pokemon_id,

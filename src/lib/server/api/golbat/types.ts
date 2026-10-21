@@ -53,6 +53,7 @@ export type FortScanBody = {
 	min: { latitude: number; longitude: number };
 	max: { latitude: number; longitude: number };
 	limit: number;
+	updated_after?: number;
 	filters?: GolbatFortDnfFilter[];
 	with_incidents?: boolean;
 };
@@ -60,6 +61,7 @@ export type FortScanBody = {
 export type GolbatStatus = {
 	features: { fort_in_memory: boolean };
 	limits: { max_fort_results: number };
+	filters?: { updated_after?: boolean };
 };
 
 export type FortAvailability = {
@@ -102,6 +104,7 @@ export type PokemonScanBody = {
 	min: { latitude: number; longitude: number };
 	max: { latitude: number; longitude: number };
 	limit: number;
+	updated_after?: number;
 	filters: GolbatPokemonQuery[];
 };
 
@@ -111,6 +114,7 @@ export type FortCombinedScanBody = {
 	min: { latitude: number; longitude: number };
 	max: { latitude: number; longitude: number };
 	limit: number;
+	updated_after?: number;
 	with_incidents?: boolean;
 	gyms?: FortTypeScanGroup;
 	pokestops?: FortTypeScanGroup;

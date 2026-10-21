@@ -1,3 +1,4 @@
+import { intersectPermissionBounds } from "@/lib/geometry/permissionBounds.mjs";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import {
 	Features,
@@ -11,12 +12,8 @@ import {
 	bbox,
 	booleanIntersects,
 	booleanPointInPolygon,
-	featureCollection,
-	intersect,
 	feature as makeFeature,
-	point,
-	polygon,
-	union
+	point
 } from "@turf/turf";
 import type { Feature, Geometry, MultiPolygon, Polygon } from "geojson";
 
@@ -56,6 +53,41 @@ export type PermittedBounds = {
 	polygon: PermittedPolygon;
 };
 
+// null grants at least one requested feature everywhere; [] means no eligible areas.
+export function getPermissionPolygons(
+	perms: Perms,
+	features: FeaturesKey[],
+	bounds?: Bounds
+): Polygon[] | null {
+	if (features.some((feature) => isFeatureInFeatureList(perms.everywhere, feature))) {
+		return null;
+	}
+
+	const polygons: Polygon[] = [];
+	for (const area of perms.areas) {
+		if (
+			!area.polygon ||
+			!features.some((feature) => isFeatureInFeatureList(area.features, feature))
+		) {
+			continue;
+		}
+		if (bounds) {
+			// Reject distant areas before clipping or worker serialization. Recompute so a stale
+			// GeoJSON bbox cannot hide a permitted area; intersectPermissionBounds remains exact.
+			const [minLon, minLat, maxLon, maxLat] = bbox(area.polygon, { recompute: true });
+			if (
+				maxLon < bounds.minLon ||
+				minLon > bounds.maxLon ||
+				maxLat < bounds.minLat ||
+				minLat > bounds.maxLat
+			)
+				continue;
+		}
+		polygons.push(area.polygon);
+	}
+	return polygons;
+}
+
 export function checkFeatureInBounds(
 	perms: Perms,
 	feature: FeaturesKey,
@@ -71,75 +103,28 @@ export function checkFeaturesInBounds(
 	features: FeaturesKey[],
 	bounds: Bounds
 ): PermittedBounds | null {
-	if (features.some((feature) => isFeatureInFeatureList(perms.everywhere, feature))) {
+	const permittedPolygons = getPermissionPolygons(perms, features, bounds);
+	if (permittedPolygons === null) {
 		return { bounds, polygon: null };
 	}
 
 	const start = performance.now();
 
-	const viewportPolygon = polygon([
-		[
-			[bounds.minLon, bounds.minLat],
-			[bounds.minLon, bounds.maxLat],
-			[bounds.maxLon, bounds.maxLat],
-			[bounds.maxLon, bounds.minLat],
-			[bounds.minLon, bounds.minLat]
-		]
-	]);
-
-	const permittedPolygons: Feature<Polygon>[] = [];
-	for (const area of perms.areas) {
-		if (features.some((feature) => isFeatureInFeatureList(area.features, feature))) {
-			if (area.polygon) {
-				permittedPolygons.push(makeFeature(area.polygon));
-			}
-		}
-	}
-
 	if (permittedPolygons.length === 0) {
 		return null;
 	}
 
-	let combinedIntersection: PermittedPolygon = null;
-	for (const permittedPolygon of permittedPolygons) {
-		const areaIntersection = intersect(featureCollection([viewportPolygon, permittedPolygon]));
-		if (areaIntersection) {
-			if (!combinedIntersection) {
-				combinedIntersection = areaIntersection as Feature<Polygon | MultiPolygon>;
-			} else {
-				combinedIntersection = union(
-					featureCollection([
-						combinedIntersection,
-						areaIntersection as Feature<Polygon | MultiPolygon>
-					])
-				) as PermittedPolygon;
-			}
-		}
-	}
+	const result = intersectPermissionBounds(permittedPolygons, bounds);
 
 	log.debug(
 		"calculated area intersections | areas: %d | features: %s | any match permissions: %s | took: %fms",
 		permittedPolygons.length,
 		features.join(","),
-		Boolean(combinedIntersection),
+		Boolean(result?.polygon),
 		(performance.now() - start).toFixed(1)
 	);
 
-	if (!combinedIntersection) {
-		return null;
-	}
-
-	const result = bbox(combinedIntersection);
-
-	return {
-		bounds: {
-			minLon: result[0],
-			minLat: result[1],
-			maxLon: result[2],
-			maxLat: result[3]
-		},
-		polygon: combinedIntersection
-	};
+	return result;
 }
 
 export function isPointInAllowedArea(

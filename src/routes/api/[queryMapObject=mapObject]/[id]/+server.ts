@@ -1,8 +1,9 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import { rateLimitConsume } from "@/lib/server/api/rateLimit";
+import { rateLimitConsume, rateLimitReward } from "@/lib/server/api/rateLimit";
 import { respond } from "@/lib/server/api/respond";
 import { hasAnyFeatureAnywhereServer } from "@/lib/server/auth/checkIfAuthed";
 import { querySingleMapObject } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { CpuWorkerError } from "@/lib/server/workers/pool";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { featureFamily } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
@@ -45,8 +46,13 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 		params.queryMapObject,
 		params.id,
 		fetch,
-		permissionContext
-	);
+		permissionContext,
+		request.signal
+	).catch(async (cause) => {
+		if (!(cause instanceof CpuWorkerError)) throw cause;
+		await rateLimitReward(rateLimitKey, 2, type);
+		error(constants.HTTP_STATUS_SERVICE_UNAVAILABLE);
+	});
 
 	if (!data) error(constants.HTTP_STATUS_NOT_FOUND);
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FortAvailability } from "./types";
 
 const golbat = vi.hoisted(() => ({
@@ -25,9 +25,15 @@ const availability: FortAvailability = {
 describe("Golbat fort API detection", () => {
 	beforeEach(() => {
 		vi.resetModules();
+		vi.useFakeTimers();
 		golbat.fetchFortAvailability.mockReset();
 		golbat.fetchGolbatStatus.mockReset();
 		golbatConfig.fortApi = undefined;
+	});
+
+	afterEach(() => {
+		vi.clearAllTimers();
+		vi.useRealTimers();
 	});
 
 	it("stays on SQL when server.golbat.fortApi is false, even if Golbat offers the API", async () => {
@@ -40,11 +46,14 @@ describe("Golbat fort API detection", () => {
 
 		const api = await import("./fortAvailability");
 		await api.startFortApiDetection();
+		expect(golbat.fetchGolbatStatus).toHaveBeenCalledTimes(1);
+		await vi.advanceTimersByTimeAsync(api.FORT_API_REFRESH_SECONDS * 1000);
+		expect(golbat.fetchGolbatStatus).toHaveBeenCalledTimes(2);
 		await api.refreshFortAvailability();
 
 		expect(api.isFortApiEnabled()).toBe(false);
 		expect(api.getCachedFortAvailability()).toBeUndefined();
-		expect(golbat.fetchGolbatStatus).not.toHaveBeenCalled();
+		expect(golbat.fetchGolbatStatus).toHaveBeenCalledTimes(3);
 		expect(golbat.fetchFortAvailability).not.toHaveBeenCalled();
 	});
 

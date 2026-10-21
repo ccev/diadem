@@ -1,28 +1,11 @@
-import { getServerConfig } from "@/lib/services/config/config.server";
+import { decryptEncounterId, encryptEncounterId } from "@/lib/server/encounterIdCrypto.mjs";
+import { encounterIdKey, getCpuWorkerPool } from "@/lib/server/workers/cpu";
+import { CpuWorkerError } from "@/lib/server/workers/pool";
 import { TTLCache } from "@isaacs/ttlcache";
-import { aessiv } from "@noble/ciphers/aes.js";
-import { hkdfSync } from "node:crypto";
 
-const config = getServerConfig().encounterIdObfuscation;
-const context = Buffer.from("diadem:encounter-id:v1");
-const prefix = "pid_";
-let key: Uint8Array | undefined;
-
-if (config?.enabled) {
-	if (
-		typeof config.secret !== "string" ||
-		config.secret.length !== 64 ||
-		!/^[0-9a-fA-F]{64}$/.test(config.secret)
-	) {
-		throw new Error(
-			"server.encounterIdObfuscation.secret must be a random 32-byte key encoded as 64 hex characters (generate with: openssl rand -hex 32)"
-		);
-	}
-	// AES-256-SIV uses two 256-bit keys. Derive a dedicated pair from the configured master key.
-	key = new Uint8Array(hkdfSync("sha256", Buffer.from(config.secret, "hex"), "", context, 64));
-}
-
-const encodedIds = config?.enabled
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+const encodedIds = encounterIdKey
 	? new TTLCache<string, string>({
 			max: 1_000_000,
 			ttl: 60 * 60 * 1000,
@@ -30,35 +13,66 @@ const encodedIds = config?.enabled
 		})
 	: undefined;
 
-/** Stable, authenticated tokens for map keys and shared links, without a nonce or persistent mapping. */
-export function encodeEncounterId(id: string): string {
-	if (!key) return id;
-	const cached = encodedIds?.get(id);
-	if (cached !== undefined) return cached;
-
-	if (!/^(0|[1-9][0-9]{0,19})$/.test(id) || id.trim() !== id || BigInt(id) > 0xffffffffffffffffn) {
-		throw new Error("Invalid encounter ID from Golbat");
+/** Cache hits stay local; encrypt only unique missing IDs in one bounded worker job. */
+export async function encodeEncounterIds(
+	ids: readonly string[],
+	signal?: AbortSignal
+): Promise<string[]> {
+	if (signal?.aborted) throw new CpuWorkerError("aborted");
+	const key = encounterIdKey;
+	if (!key || !encodedIds) return [...ids];
+	const tokens = new Map<string, string | undefined>();
+	const missing: string[] = [];
+	for (const id of ids) {
+		if (tokens.has(id)) continue;
+		const cached = encodedIds.get(id);
+		tokens.set(id, cached);
+		if (cached === undefined) missing.push(id);
 	}
 
-	// Keep all 64 bits; converting encounter IDs through Number would lose precision.
-	const plaintext = Buffer.alloc(8);
-	plaintext.writeBigUInt64BE(BigInt(id));
-	const encrypted = aessiv(key, context).encrypt(plaintext);
-	const token = prefix + Buffer.from(encrypted).toString("base64url");
-	encodedIds?.set(id, token);
-	return token;
+	if (missing.length) {
+		const pool = getCpuWorkerPool();
+		let encrypted: string[];
+		if (pool) {
+			const output = await pool.run(
+				() => encoder.encode(JSON.stringify({ type: "encounterIds", ids: missing })).buffer,
+				signal
+			);
+			try {
+				const result: unknown = JSON.parse(decoder.decode(output));
+				if (
+					!Array.isArray(result) ||
+					result.length !== missing.length ||
+					!result.every(
+						(token) =>
+							typeof token === "string" &&
+							token.length === 36 &&
+							/^pid_[A-Za-z0-9_-]{32}$/.test(token)
+					)
+				)
+					throw new Error("Invalid encounter ID worker output");
+				encrypted = result;
+			} catch (cause) {
+				throw new CpuWorkerError("failed", { cause });
+			}
+		} else {
+			encrypted = missing.map((id) => encryptEncounterId(id, key));
+		}
+		// Publish to the cache only after the entire batch succeeds and its output is validated.
+		for (let i = 0; i < missing.length; i++) {
+			tokens.set(missing[i], encrypted[i]);
+			encodedIds.set(missing[i], encrypted[i]);
+		}
+	}
+	return ids.map((id) => tokens.get(id)!);
+}
+
+/** Stable, authenticated tokens for map keys and shared links, without a nonce or persistent mapping. */
+export async function encodeEncounterId(id: string, signal?: AbortSignal): Promise<string> {
+	return (await encodeEncounterIds([id], signal))[0];
 }
 
 /** Reject raw IDs and invalid tokens while enabled, before they reach Golbat. */
 export function decodeEncounterId(id: string): string | undefined {
-	if (!key) return id;
-	if (id.length !== 36 || !/^pid_[A-Za-z0-9_-]{32}$/.test(id)) return undefined;
-
-	try {
-		const encrypted = Buffer.from(id.slice(prefix.length), "base64url");
-		const plaintext = aessiv(key, context).decrypt(encrypted);
-		return Buffer.from(plaintext).readBigUInt64BE().toString();
-	} catch {
-		return undefined;
-	}
+	return encounterIdKey ? decryptEncounterId(id, encounterIdKey) : id;
 }

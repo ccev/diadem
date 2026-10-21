@@ -1,3 +1,4 @@
+import { iconCache } from "@/lib/server/iconCache";
 import { ALLOWED_FORMATS, ALLOWED_WIDTHS } from "@/lib/services/assets";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { cacheHttpHeaders } from "@/lib/utils/apiUtils.server";
@@ -33,36 +34,41 @@ export async function GET({ params, fetch, url }) {
 	const iconUrl = iconSet.url + "/" + iconPath;
 
 	try {
-		const res = await fetch(iconUrl);
-		if (!res.ok) {
-			error(500, "Fetching image failed");
-		}
-		const fetchDone = performance.now();
+		const outBuf = await iconCache.get(JSON.stringify([iconUrl, width, format]), async () => {
+			const res = await fetch(iconUrl, { signal: AbortSignal.timeout(30_000) });
+			if (!res.ok) {
+				error(500, "Fetching image failed");
+			}
+			const fetchDone = performance.now();
 
-		let sharpImage = sharp(Buffer.from(await res.arrayBuffer()));
-		if (width) {
-			sharpImage = sharpImage.resize({
-				width: Number(width),
-				withoutEnlargement: false
-			});
-		}
+			let sharpImage = sharp(Buffer.from(await res.arrayBuffer()));
+			if (width) {
+				sharpImage = sharpImage.resize({
+					width: Number(width),
+					withoutEnlargement: false
+				});
+			}
 
-		if (format === "webp") {
-			sharpImage = sharpImage.webp();
-		} else if (format === "png") {
-			sharpImage = sharpImage.png();
-		}
+			if (format === "webp") {
+				sharpImage = sharpImage.webp();
+			} else if (format === "png") {
+				sharpImage = sharpImage.png();
+			}
+			const data = await sharpImage.toBuffer();
 
-		log.info(
-			"[%s] Serving icon %s (width=%s) / fetch: %fms + optimizing: %fms",
-			iconSetId,
-			iconPath,
-			width ?? "oiginal",
-			(fetchDone - start).toFixed(),
-			(performance.now() - fetchDone).toFixed(1)
-		);
+			log.info(
+				"[%s] Serving icon %s (width=%s) / fetch: %fms + optimizing: %fms",
+				iconSetId,
+				iconPath,
+				width ?? "original",
+				(fetchDone - start).toFixed(),
+				(performance.now() - fetchDone).toFixed(1)
+			);
 
-		return new Response(await sharpImage.toBuffer(), {
+			return data;
+		});
+
+		return new Response(new Uint8Array(outBuf), {
 			headers: {
 				...cacheHttpHeaders(),
 				"Content-Type": "image/" + format

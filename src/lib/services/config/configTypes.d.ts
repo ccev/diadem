@@ -88,6 +88,15 @@ export type Log = {
 	file?: string;
 };
 
+export type CpuWorkersConfig = {
+	threads?: number;
+	maxQueue?: number;
+	maxTaskBytes?: number;
+	maxPendingBytes?: number;
+	timeoutMs?: number;
+	memoryMb?: number;
+};
+
 export type MapStyle = {
 	id: string;
 	name: string;
@@ -183,6 +192,9 @@ export type ServerConfig = {
 		hasGeometries?: boolean;
 	};
 	log: Log;
+	cpuWorkers?: CpuWorkersConfig;
+	/** @deprecated Use cpuWorkers. Both names configure the same shared pool. */
+	geometryWorkers?: CpuWorkersConfig;
 	internalDb: DbCreds;
 	auth: Auth;
 	permissions?: Permissions[];

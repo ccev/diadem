@@ -8,16 +8,19 @@ import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import { Features } from "@/lib/utils/features";
 import { decode } from "@msgpack/msgpack";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const config = vi.hoisted(() => ({
-	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"]
+	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"],
+	cpuWorkers: {} as NonNullable<ServerConfig["cpuWorkers"]>
 }));
+vi.mock("$app/environment", () => ({ building: false, dev: true }));
 vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => config }));
 vi.mock("@/lib/server/db/external/internalQuery", () => ({ query: vi.fn() }));
 vi.mock("@/lib/server/api/golbat/http", () => ({
 	getSinglePokemon: vi.fn(),
-	getMultiplePokemon: vi.fn()
+	getMultiplePokemon: vi.fn(),
+	getUpdatedAfter: () => undefined
 }));
 vi.mock("@/lib/server/api/golbat/grpc", () => ({
 	grpcScanPokemon: vi.fn(),
@@ -57,91 +60,159 @@ beforeEach(() => {
 	vi.mocked(getSinglePokemon).mockResolvedValue(pokemon as PokemonData);
 });
 
-describe("Pokémon encounter IDs at the client boundary", () => {
-	it.each(["application/json", "application/msgpack"])(
-		"hides both id and mapId in %s map results, including delta updates",
-		async (accept) => {
+afterEach(async () => {
+	await (await import("../workers/cpu")).closeCpuWorkers();
+});
+
+describe.each([0, 1])(
+	"Pokémon encounter IDs at the client boundary (%i worker threads)",
+	(threads) => {
+		beforeEach(() => {
+			config.cpuWorkers = { threads };
+		});
+		it("encrypts only returned IDs in one batch and forwards cancellation", async () => {
 			const { PokemonQuery } = await import("./queryPokemon");
-			const query = new PokemonQuery();
-			const result = await query.getMultiple(bounds, filter, null);
-			const delta = await query.getMultiple(bounds, filter, null, 99);
-			const token = result.data[0].id;
-
-			expect(token).toMatch(/^pid_[A-Za-z0-9_-]{32}$/);
-			expect(result.data[0].mapId).toBe(`pokemon-${token}`);
-			expect(delta.data[0].id).toBe(token);
-			expect(delta.data[0].mapId).toBe(result.data[0].mapId);
-			expect(pokemon.id).toBe("18446744073709551615");
-
-			const response = respond(
-				new Request("http://localhost/api/pokemon", { headers: { Accept: accept } }),
-				result
+			const { CpuWorkerPool } = await import("../workers/pool");
+			const original = CpuWorkerPool.prototype.run;
+			const jobs: unknown[] = [];
+			const controller = new AbortController();
+			const run = vi.spyOn(CpuWorkerPool.prototype, "run").mockImplementation(function (
+				this: InstanceType<typeof CpuWorkerPool>,
+				encode,
+				signal
+			) {
+				expect(signal).toBe(controller.signal);
+				return original.call(
+					this,
+					() => {
+						const input = encode();
+						jobs.push(JSON.parse(new TextDecoder().decode(input)));
+						return input;
+					},
+					signal
+				);
+			});
+			vi.mocked(scanViaGrpcOrHttp).mockResolvedValue({
+				pokemon: [
+					pokemon,
+					{ ...pokemon, id: "stale-invalid", updated: 0 },
+					{ ...pokemon, id: "filtered-invalid", cp: 0 }
+				],
+				examined: 3,
+				skipped: 0,
+				total: 3,
+				limit_reached: false
+			});
+			const result = await new PokemonQuery().getMultiple(
+				bounds,
+				{
+					...filter,
+					filters: [
+						{
+							id: "test",
+							title: { message: "test" },
+							icon: { isUserSelected: false },
+							enabled: true,
+							cp: { min: 400, max: 600 }
+						}
+					]
+				},
+				null,
+				99,
+				undefined,
+				undefined,
+				controller.signal
 			);
-			const body =
-				accept === "application/json"
-					? await response.json()
-					: decode(new Uint8Array(await response.arrayBuffer()));
-			expect(body).toMatchObject({ data: [{ id: token, mapId: `pokemon-${token}` }] });
-			expect(JSON.stringify(body)).not.toContain(pokemon.id);
-		}
-	);
+			expect(result.data).toHaveLength(1);
+			expect(result.data[0].id).toMatch(/^pid_/);
+			if (threads) expect(jobs).toEqual([{ type: "encounterIds", ids: [pokemon.id] }]);
+			else expect(run).not.toHaveBeenCalled();
+		});
+		it.each(["application/json", "application/msgpack"])(
+			"hides both id and mapId in %s map results, including delta updates",
+			async (accept) => {
+				const { PokemonQuery } = await import("./queryPokemon");
+				const query = new PokemonQuery();
+				const result = await query.getMultiple(bounds, filter, null);
+				const delta = await query.getMultiple(bounds, filter, null, 99);
+				const token = result.data[0].id;
 
-	it("decrypts single-object requests and re-encrypts results used by APIs, shares, and thumbnails", async () => {
-		const { PokemonQuery } = await import("./queryPokemon");
-		const query = new PokemonQuery();
-		const bulk = await query.getMultiple(bounds, filter, null);
-		const token = bulk.data[0].id;
-		const thisFetch = vi.fn<typeof fetch>();
-		const single = await query.getSingle(token, thisFetch);
+				expect(token).toMatch(/^pid_[A-Za-z0-9_-]{32}$/);
+				expect(result.data[0].mapId).toBe(`pokemon-${token}`);
+				expect(delta.data[0].id).toBe(token);
+				expect(delta.data[0].mapId).toBe(result.data[0].mapId);
+				expect(pokemon.id).toBe("18446744073709551615");
 
-		expect(getSinglePokemon).toHaveBeenCalledExactlyOnceWith(pokemon.id, thisFetch);
-		expect(single).toEqual(bulk.data[0]);
-		expect(JSON.stringify(single)).not.toContain(pokemon.id);
-	});
+				const response = respond(
+					new Request("http://localhost/api/pokemon", { headers: { Accept: accept } }),
+					result
+				);
+				const body =
+					accept === "application/json"
+						? await response.json()
+						: decode(new Uint8Array(await response.arrayBuffer()));
+				expect(body).toMatchObject({ data: [{ id: token, mapId: `pokemon-${token}` }] });
+				expect(JSON.stringify(body)).not.toContain(pokemon.id);
+			}
+		);
 
-	it("ignores raw and tampered IDs without contacting Golbat", async () => {
-		const { PokemonQuery } = await import("./queryPokemon");
-		const query = new PokemonQuery();
-		const bulk = await query.getMultiple(bounds, filter, null);
-		const encrypted = Buffer.from(bulk.data[0].id.slice(4), "base64url");
-		encrypted[0] ^= 1;
-		for (const invalid of [pokemon.id, "invalid", "pid_" + encrypted.toString("base64url")]) {
-			await expect(query.getSingle(invalid)).resolves.toBeUndefined();
-		}
-		expect(getSinglePokemon).not.toHaveBeenCalled();
-	});
-
-	it("still strips restricted stats from encrypted single-object responses", async () => {
-		const { PokemonQuery } = await import("./queryPokemon");
-		const query = new PokemonQuery();
-		const bulk = await query.getMultiple(bounds, filter, null);
-		const context = new FeaturePermissionContext({ everywhere: [Features.POKEMON], areas: [] }, [
-			Features.POKEMON,
-			Features.POKEMON_IV,
-			Features.POKEMON_PVP
-		]);
-		const single = await query.getSingle(bulk.data[0].id, undefined, context);
-		expect(single?.id).toBe(bulk.data[0].id);
-		expect(single?.cp).toBeUndefined();
-		expect(single?.iv).toBeUndefined();
-	});
-
-	it.each([undefined, { enabled: false }])(
-		"keeps raw IDs in requests and responses when disabled (%j)",
-		async (options) => {
-			config.encounterIdObfuscation = options;
+		it("decrypts single-object requests and re-encrypts results used by APIs, shares, and thumbnails", async () => {
 			const { PokemonQuery } = await import("./queryPokemon");
 			const query = new PokemonQuery();
 			const bulk = await query.getMultiple(bounds, filter, null);
-			const single = await query.getSingle(pokemon.id);
-			expect(getSinglePokemon).toHaveBeenCalledExactlyOnceWith(pokemon.id, undefined);
-			for (const item of [single, ...bulk.data]) {
-				expect(item).toMatchObject({
-					id: pokemon.id,
-					mapId: `pokemon-${pokemon.id}`,
-					type: MapObjectType.POKEMON
-				});
+			const token = bulk.data[0].id;
+			const thisFetch = vi.fn<typeof fetch>();
+			const single = await query.getSingle(token, thisFetch);
+
+			expect(getSinglePokemon).toHaveBeenCalledExactlyOnceWith(pokemon.id, thisFetch);
+			expect(single).toEqual(bulk.data[0]);
+			expect(JSON.stringify(single)).not.toContain(pokemon.id);
+		});
+
+		it("ignores raw and tampered IDs without contacting Golbat", async () => {
+			const { PokemonQuery } = await import("./queryPokemon");
+			const query = new PokemonQuery();
+			const bulk = await query.getMultiple(bounds, filter, null);
+			const encrypted = Buffer.from(bulk.data[0].id.slice(4), "base64url");
+			encrypted[0] ^= 1;
+			for (const invalid of [pokemon.id, "invalid", "pid_" + encrypted.toString("base64url")]) {
+				await expect(query.getSingle(invalid)).resolves.toBeUndefined();
 			}
-		}
-	);
-});
+			expect(getSinglePokemon).not.toHaveBeenCalled();
+		});
+
+		it("still strips restricted stats from encrypted single-object responses", async () => {
+			const { PokemonQuery } = await import("./queryPokemon");
+			const query = new PokemonQuery();
+			const bulk = await query.getMultiple(bounds, filter, null);
+			const context = new FeaturePermissionContext({ everywhere: [Features.POKEMON], areas: [] }, [
+				Features.POKEMON,
+				Features.POKEMON_IV,
+				Features.POKEMON_PVP
+			]);
+			const single = await query.getSingle(bulk.data[0].id, undefined, context);
+			expect(single?.id).toBe(bulk.data[0].id);
+			expect(single?.cp).toBeUndefined();
+			expect(single?.iv).toBeUndefined();
+		});
+
+		it.each([undefined, { enabled: false }])(
+			"keeps raw IDs in requests and responses when disabled (%j)",
+			async (options) => {
+				config.encounterIdObfuscation = options;
+				const { PokemonQuery } = await import("./queryPokemon");
+				const query = new PokemonQuery();
+				const bulk = await query.getMultiple(bounds, filter, null);
+				const single = await query.getSingle(pokemon.id);
+				expect(getSinglePokemon).toHaveBeenCalledExactlyOnceWith(pokemon.id, undefined);
+				for (const item of [single, ...bulk.data]) {
+					expect(item).toMatchObject({
+						id: pokemon.id,
+						mapId: `pokemon-${pokemon.id}`,
+						type: MapObjectType.POKEMON
+					});
+				}
+			}
+		);
+	}
+);

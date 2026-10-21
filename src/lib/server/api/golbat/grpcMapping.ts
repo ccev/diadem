@@ -28,6 +28,7 @@ export function toFortScanRequest(body: FortScanBody): pb.FortScanRequest {
 		min: toLatLon(body.min),
 		max: toLatLon(body.max),
 		limit: body.limit,
+		updated_after: body.updated_after,
 		filters: body.filters ?? [],
 		with_incidents: body.with_incidents ?? false
 	};
@@ -38,6 +39,7 @@ export function toPokemonScanRequest(body: PokemonScanBody): pb.PokemonScanReque
 		min: toLatLon(body.min),
 		max: toLatLon(body.max),
 		limit: body.limit,
+		updated_after: body.updated_after,
 		filters: body.filters.map(({ pokemon, ...ranges }) => ({
 			...ranges,
 			pokemon: pokemon?.map(({ id, form }) => ({ pokemon_id: id, form })) ?? []
@@ -52,6 +54,7 @@ export function toFortCombinedScanRequest(body: FortCombinedScanBody): pb.FortCo
 		min: toLatLon(body.min),
 		max: toLatLon(body.max),
 		limit: body.limit,
+		updated_after: body.updated_after,
 		with_incidents: body.with_incidents ?? false,
 		gyms: group(body.gyms),
 		pokestops: group(body.pokestops),

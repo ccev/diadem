@@ -25,7 +25,7 @@
 			(s) => s.key !== result.item.key
 		);
 		getUserSettings().recentSearches.unshift(result.item);
-		getUserSettings().recentSearches.slice(0, 20);
+		getUserSettings().recentSearches.splice(20);
 		updateUserSettings();
 	}
 </script>

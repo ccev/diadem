@@ -21,13 +21,21 @@ import type {
 
 const log = getLogger("golbat");
 const config = getServerConfig().golbat;
+let updatedAfterSupported = false;
 
 export const golbatInFlight = { count: 0 };
+
+export function getUpdatedAfter(since?: number): number | undefined {
+	if (!updatedAfterSupported || typeof since !== "number") return undefined;
+	const timestamp = Math.ceil(since);
+	// Golbat uses strict >; keep Pokemon's inclusive >= since boundary.
+	return Number.isSafeInteger(timestamp) && timestamp > 1 ? timestamp - 1 : undefined;
+}
 
 async function callGolbat<T>(
 	path: string,
 	method: "GET" | "POST",
-	body: BodyInit | undefined = undefined,
+	body?: Record<string, unknown>,
 	thisFetch: typeof fetch = fetch
 ): Promise<T | undefined> {
 	const start = performance.now();
@@ -46,36 +54,61 @@ async function callGolbat<T>(
 
 	golbatInFlight.count += 1;
 	try {
-		const response = await thisFetch(url, {
-			method,
-			body,
-			headers,
-			signal: AbortSignal.timeout(10_000)
-		});
+		const signal = AbortSignal.timeout(10_000);
+		for (let attempt = 0; attempt < 2; attempt++) {
+			const response = await thisFetch(url, {
+				method,
+				body: JSON.stringify(body),
+				headers,
+				signal
+			});
 
-		if (!response.ok) {
-			log.error(
-				"[%s] Golbat returned a bad status | %d (%s)",
-				url.toString(),
-				response.status,
-				await response.text()
+			if (!response.ok) {
+				const errorText = await response.text();
+				if (attempt === 0 && response.status === 422 && body?.updated_after !== undefined) {
+					try {
+						const problem = JSON.parse(errorText);
+						if (
+							Array.isArray(problem?.errors) &&
+							problem.errors.some(
+								(error: { location?: unknown; message?: unknown } | null) =>
+									error?.location === "body.updated_after" &&
+									error.message === "unexpected property"
+							)
+						) {
+							body = { ...body };
+							delete body.updated_after;
+							updatedAfterSupported = false;
+							continue;
+						}
+					} catch {
+						// Malformed problem JSON follows the normal error path.
+					}
+				}
+
+				log.error(
+					"[%s] Golbat returned a bad status | %d (%s)",
+					url.toString(),
+					response.status,
+					errorText
+				);
+				return undefined;
+			}
+
+			const fetched = performance.now();
+			const result = await response.json();
+			const done = performance.now();
+
+			log.debug(
+				"[%s] Request took %fms (parse %fms, in flight %d)",
+				url.pathname,
+				(done - start).toFixed(1),
+				(done - fetched).toFixed(1),
+				golbatInFlight.count - 1
 			);
-			return undefined;
+
+			return result;
 		}
-
-		const fetched = performance.now();
-		const result = await response.json();
-		const done = performance.now();
-
-		log.debug(
-			"[%s] Request took %fms (parse %fms, in flight %d)",
-			url.pathname,
-			(done - start).toFixed(1),
-			(done - fetched).toFixed(1),
-			golbatInFlight.count - 1
-		);
-
-		return result;
 	} finally {
 		golbatInFlight.count -= 1;
 	}
@@ -86,7 +119,7 @@ export function getSinglePokemon(id: string, thisFetch: typeof fetch = fetch) {
 }
 
 export function getMultiplePokemon(body: PokemonScanBody) {
-	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", JSON.stringify(body));
+	return callGolbat<PokemonResponse>("api/pokemon/v3/scan", "POST", body);
 }
 
 export function searchGyms(query: string, coords: Coords, range: number) {
@@ -102,23 +135,23 @@ export function searchGyms(query: string, coords: Coords, range: number) {
 		],
 		limit: 15
 	};
-	return callGolbat<GymData[]>("api/gym/search", "POST", JSON.stringify(body));
+	return callGolbat<GymData[]>("api/gym/search", "POST", body);
 }
 
 export function scanGyms(body: FortScanBody) {
-	return callGolbat<GymScanResponse>("api/gym/scan", "POST", JSON.stringify(body));
+	return callGolbat<GymScanResponse>("api/gym/scan", "POST", body);
 }
 
 export function scanPokestops(body: FortScanBody) {
-	return callGolbat<PokestopScanResponse>("api/pokestop/scan", "POST", JSON.stringify(body));
+	return callGolbat<PokestopScanResponse>("api/pokestop/scan", "POST", body);
 }
 
 export function scanStations(body: FortScanBody) {
-	return callGolbat<StationScanResponse>("api/station/scan", "POST", JSON.stringify(body));
+	return callGolbat<StationScanResponse>("api/station/scan", "POST", body);
 }
 
 export function scanForts(body: FortCombinedScanBody) {
-	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", JSON.stringify(body));
+	return callGolbat<FortCombinedScanResponse>("api/fort/scan", "POST", body);
 }
 
 export function getGolbatGym(id: string, thisFetch: typeof fetch = fetch) {
@@ -137,6 +170,13 @@ export function fetchFortAvailability() {
 	return callGolbat<FortAvailability>("api/fort/available", "GET");
 }
 
-export function fetchGolbatStatus() {
-	return callGolbat<GolbatStatus>("api/status", "GET");
+export async function fetchGolbatStatus() {
+	try {
+		const status = await callGolbat<GolbatStatus>("api/status", "GET");
+		updatedAfterSupported = status?.filters?.updated_after === true;
+		return status;
+	} catch (err) {
+		updatedAfterSupported = false;
+		throw err;
+	}
 }

@@ -49,7 +49,7 @@ export abstract class BaseDataProvider<T> {
 		let data: string | undefined = undefined;
 		while (!data) {
 			try {
-				const response = await fetch(url);
+				const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
 
 				if (!response.ok) {
 					log.crit(
@@ -59,11 +59,9 @@ export abstract class BaseDataProvider<T> {
 						response.status,
 						await response.text()
 					);
-					await sleep(1000 * 60);
-					continue;
+				} else {
+					data = await response.text();
 				}
-
-				data = await response.text();
 			} catch (err) {
 				log.crit(
 					"Error while fetching resource %s, trying again in 1min | url: %s | err: %s",
@@ -72,6 +70,7 @@ export abstract class BaseDataProvider<T> {
 					err
 				);
 			}
+			if (!data) await sleep(1000 * 60);
 		}
 
 		log.info("Successfully updated resource: %s", resourceName);

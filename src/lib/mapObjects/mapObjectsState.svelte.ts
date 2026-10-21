@@ -12,8 +12,41 @@ export type MapObjectsStateType = {
 };
 
 let mapObjectsState: MapObjectsStateType = $state({});
+let revision = 0;
+// Compare decoded payloads without walking Svelte's reactive proxies on every poll.
+const payloads = new Map<string, QueryableMapData>();
 let mapObjectCounts = $state(getInitialMapObjectCount());
 const popupPreservedRouteMapIds = new Set<string>();
+
+/** Compare decoded payloads: timestamps alone cannot identify nested or permission-filtered changes. */
+function sameMapObject(a: unknown, b: unknown): boolean {
+	if (Object.is(a, b)) return true;
+	if (a === null || b === null || typeof a !== "object" || typeof b !== "object") return false;
+	if (Array.isArray(a)) {
+		return (
+			Array.isArray(b) && a.length === b.length && a.every((value, i) => sameMapObject(value, b[i]))
+		);
+	}
+	if (Array.isArray(b)) return false;
+	const left = a as Record<string, unknown>;
+	const right = b as Record<string, unknown>;
+	const keys = Object.keys(left);
+	return (
+		keys.length === Object.keys(right).length &&
+		keys.every((key) => Object.hasOwn(right, key) && sameMapObject(left[key], right[key]))
+	);
+}
+
+function reuseUnchangedMapObject(object: QueryableMapData) {
+	const existing = mapObjectsState[object.mapId];
+	if (existing && sameMapObject(payloads.get(object.mapId), object)) return existing;
+	payloads.set(object.mapId, object);
+	return object;
+}
+
+export function getMapObjectsRevision() {
+	return revision;
+}
 
 export function getMapObjects() {
 	return mapObjectsState;
@@ -25,10 +58,17 @@ export function addMapObjects(
 	examined: number,
 	isDelta: boolean = false
 ) {
-	mapObjectsState = {
-		...mapObjectsState,
-		...Object.fromEntries(mapObjects.map((o) => [o.mapId, o]))
-	};
+	if (isDelta && mapObjects.length === 0) return;
+	const changed = mapObjects
+		.map(reuseUnchangedMapObject)
+		.filter((o) => mapObjectsState[o.mapId] !== o);
+	if (changed.length) {
+		mapObjectsState = {
+			...mapObjectsState,
+			...Object.fromEntries(changed.map((o) => [o.mapId, o]))
+		};
+		revision++;
+	}
 	if (isDelta) {
 		const prefix = type + "-";
 		let showing = 0;
@@ -53,38 +93,49 @@ export function replaceMapObjects(
 	const selected = getCurrentSelectedData();
 	const selectedMapId = selected?.mapId;
 	const prefix = type + "-";
-	const nextMapObjects = { ...mapObjectsState };
+	let nextMapObjects: MapObjectsStateType | undefined;
 	const incomingMapIds = new Set(mapObjects.map((mapObject) => mapObject.mapId));
 
-	for (const mapId in nextMapObjects) {
+	for (const mapId in mapObjectsState) {
+		if (!mapId.startsWith(prefix) || incomingMapIds.has(mapId)) continue;
 		const preserveForFortPopup =
 			type === MapObjectType.ROUTE &&
-			!incomingMapIds.has(mapId) &&
 			(selected?.type === MapObjectType.POKESTOP || selected?.type === MapObjectType.GYM) &&
-			nextMapObjects[mapId]?.type === MapObjectType.ROUTE &&
-			routeStartsAt(nextMapObjects[mapId] as RouteData, selected.id);
+			mapObjectsState[mapId]?.type === MapObjectType.ROUTE &&
+			routeStartsAt(mapObjectsState[mapId] as RouteData, selected.id);
 		if (preserveForFortPopup) popupPreservedRouteMapIds.add(mapId);
-		if (mapId !== selectedMapId && !preserveForFortPopup && mapId.startsWith(prefix)) {
+		if (mapId !== selectedMapId && !preserveForFortPopup) {
 			popupPreservedRouteMapIds.delete(mapId);
+			payloads.delete(mapId);
+			nextMapObjects ??= { ...mapObjectsState };
 			delete nextMapObjects[mapId];
 		}
 	}
 	for (const mapObject of mapObjects) {
 		popupPreservedRouteMapIds.delete(mapObject.mapId);
-		nextMapObjects[mapObject.mapId] = mapObject;
+		const object = reuseUnchangedMapObject(mapObject);
+		if (mapObjectsState[object.mapId] !== object) {
+			nextMapObjects ??= { ...mapObjectsState };
+			nextMapObjects[object.mapId] = object;
+		}
 	}
 
-	mapObjectsState = nextMapObjects;
+	if (nextMapObjects) {
+		mapObjectsState = nextMapObjects;
+		revision++;
+	}
 	mapObjectCounts[type] = { showing: mapObjects.length, examined };
 }
 
 export function delMapObject(key: string) {
+	payloads.delete(key);
+	if (key in mapObjectsState) revision++;
 	popupPreservedRouteMapIds.delete(key);
 	delete mapObjectsState[key];
 }
 
 export function clearPopupPreservedRoutes() {
-	for (const mapId of popupPreservedRouteMapIds) delete mapObjectsState[mapId];
+	for (const mapId of popupPreservedRouteMapIds) delMapObject(mapId);
 	popupPreservedRouteMapIds.clear();
 }
 
@@ -102,6 +153,8 @@ export function clearMapObjects(type: MapObjectType) {
 }
 
 export function clearAllMapObjects() {
+	payloads.clear();
+	revision++;
 	mapObjectsState = {};
 	mapObjectCounts = getInitialMapObjectCount();
 	popupPreservedRouteMapIds.clear();
