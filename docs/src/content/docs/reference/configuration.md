@@ -23,31 +23,6 @@ level = "info"
 - `level`: log level (`crit`, `error`, `warning`, `info`, `debug`)
 - `file`: optional rotating log output path
 
-## `server.encounterIdObfuscation`
-
-Encrypts Pokémon encounter IDs before sending them to clients, and decrypts incoming IDs on the server before querying Golbat. Applies to map responses (both JSON and MessagePack), individual Pokémon lookups, shared links, and thumbnails. Both `id` and the encounter-ID portion of `mapId` use the encrypted token.
-
-```toml
-[server.encounterIdObfuscation]
-enabled = false
-secret = ""
-```
-
-- `enabled`: Optional, default `false`. Omit the section or leave this disabled to retain raw encounter IDs.
-- `secret`: Required when enabled. A **random 32-byte key encoded as 64 hexadecimal characters**, kept only in the server configuration. Generate one with:
-
-  ```sh
-  openssl rand -hex 32
-  ```
-
-Paste the output into `secret`, set `enabled = true`, and restart Diadem. A missing or malformed secret prevents startup when this feature is enabled. Use the same secret on every instance serving the same map; keep it across restarts.
-
-The tokens use **AES-256-SIV authenticated encryption (RFC 5297)**, with a purpose-specific key derived using HKDF-SHA-256. This provides reversible encryption and tamper detection without relying on the source code being private. Tokens are URL-safe and deterministic: the same encounter ID and secret always produce the same token, keeping map updates and shared links stable without storing an ID-to-token table. The full unsigned 64-bit encounter ID is preserved.
-
-When enabled, client requests must use encrypted tokens. Raw IDs, modified tokens, and tokens from another secret are rejected with HTTP 400 before reaching Golbat. Existing raw-ID links stop working. Changing the secret invalidates previous encrypted links; changing the toggle also changes the ID format, so clients should reload the map after either change.
-
-Security depends on keeping the generated key private. Deterministic tokens reveal when two IDs are equal, and the visible Pokémon data can still be correlated; this feature conceals the underlying encounter ID rather than preventing data scraping.
-
 ## `server.golbat`
 
 ```toml
@@ -78,21 +53,6 @@ When your Golbat supports gRPC, set `grpc` to that `host:port`. Diadem then runs
 If a gRPC call fails for any reason, Diadem falls back to the HTTP API for that request, and for forts to SQL after that, so the map keeps working. Unset `grpc` to compare against the HTTP path.
 
 The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
-
-## `server.biomes`
-
-```toml
-[server.biomes]
-url = "https://biomes.example.com"
-# secret = "YOUR_SECRET"
-```
-
-Optional Biomes API integration. There is no public service, you'd have to make your own.
-
-- `url`: Biomes API base URL, accessible from Diadem's server (has to follow the [Biomes API](/reference/biomes))
-- `secret`: Optional bearer token for deployments requiring authentication
-
-Without a non-empty `url`, Biomes is completely disabled. Remember to grant users the `biome` permission.
 
 ## `server.dragonite`
 
@@ -173,6 +133,21 @@ url = "https://nominatim.openstreetmap.org/"
 ```
 
 - `userAgent`: Set this to something unique if you're using public nominatim
+
+## `server.biomes`
+
+```toml
+[server.biomes]
+url = "https://biomes.example.com"
+# secret = "YOUR_SECRET"
+```
+
+Optional Biomes API integration. There is no public service, you'd have to make your own.
+
+- `url`: Biomes API base URL, accessible from Diadem's server (has to follow the [Biomes API](/reference/biomes))
+- `secret`: Optional bearer token for deployments requiring authentication
+
+Without a non-empty `url`, Biomes is completely disabled. Remember to grant users the `biome` permission.
 
 ## `server.auth`
 
@@ -300,6 +275,23 @@ rateLimitTime = 3600
 Available keys:
 
 - `pokemon`, `pokestop`, `gym`, `station`, `nest`, `biome`, `spawnpoint`, `route`, `tappable`, `s2cell`
+
+## `server.encounterIdObfuscation`
+
+Encrypts encounter IDs before sending them to clients, and decrypts incoming IDs on the server. 
+
+```toml
+[server.encounterIdObfuscation]
+enabled = false
+secret = ""
+```
+
+- `enabled`: Set true to enable
+- `secret`: Required when enabled. A random 32-byte key encoded as 64 hexadecimal characters. Generate one with:
+
+  ```sh
+  openssl rand -hex 32
+  ```
 
 ## `server.db` and `server.internalDb`
 

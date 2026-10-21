@@ -4,7 +4,7 @@ import { hkdfSync } from "node:crypto";
 
 const config = getServerConfig().encounterIdObfuscation;
 const context = Buffer.from("diadem:encounter-id:v1");
-const prefix = "enc1_";
+const prefix = "pid_";
 let key: Uint8Array | undefined;
 
 if (config?.enabled) {
@@ -38,8 +38,7 @@ export function encodeEncounterId(id: string): string {
 /** Reject raw IDs and invalid tokens while enabled, before they reach Golbat. */
 export function decodeEncounterId(id: string): string | undefined {
 	if (!key) return id;
-	// Eight bytes of ciphertext + the 16-byte SIV tag encode to exactly 32 URL-safe characters.
-	if (id.length !== 37 || !/^enc1_[A-Za-z0-9_-]{32}$/.test(id)) return undefined;
+	if (id.length !== 36 || !/^pid_[A-Za-z0-9_-]{32}$/.test(id)) return undefined;
 
 	try {
 		const encrypted = Buffer.from(id.slice(prefix.length), "base64url");

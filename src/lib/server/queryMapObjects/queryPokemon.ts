@@ -79,8 +79,10 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
 		const encounterId = decodeEncounterId(id);
-		if (encounterId === undefined) error(400, "Invalid Pokémon ID");
-		const mon = await getSinglePokemon(encounterId, thisFetch);
+		let mon: PokemonData | undefined = undefined
+		if (encounterId) {
+			mon = await getSinglePokemon(encounterId, thisFetch);
+		}
 		return mon ? [this.makePokemon(mon, undefined)] : [];
 	}
 
