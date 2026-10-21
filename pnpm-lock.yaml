@@ -54,8 +54,8 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5
       '@lucide/svelte':
-        specifier: ^1.40.0
-        version: 1.40.0(svelte@5.57.0(@typescript-eslint/types@8.58.0))
+        specifier: ^1.59.0
+        version: 1.59.0(svelte@5.57.0(@typescript-eslint/types@8.58.0))
       '@msgpack/msgpack':
         specifier: ^3.1.3
         version: 3.1.3
@@ -1154,8 +1154,8 @@ packages:
   '@lix-js/sdk@0.12.3':
     resolution: {integrity: sha512-T2194yoZsM2S9kyRmI8UtEJL0fgXYAkeY9jZ/PVyC0K78/wmBvrqOSt9SdvgYxM5qnZ57re3NLOjVlV+X5hWxQ==}
 
-  '@lucide/svelte@1.40.0':
-    resolution: {integrity: sha512-Uf0kxl48bLepYJDnXddrYX0/YuK2KnaF/tPm0zSZZEcEvrpJ9U8dPAFOC7LYATzjoNntwEAcugUXKZZ5/Gfo1Q==}
+  '@lucide/svelte@1.59.0':
+    resolution: {integrity: sha512-ga9IrEsFJBkt/34VnRFcQ2HLs8eOpOovXZ62XzwfC7f0zBfo4y116FBIDroZkD0gInYYY2hSSAcsQEm/Vm+AoA==}
     peerDependencies:
       svelte: ^5
 
@@ -4563,7 +4563,7 @@ snapshots:
       '@lix-js/sdk-linux-x64': 0.12.3
       '@lix-js/sdk-win32-x64': 0.12.3
 
-  '@lucide/svelte@1.40.0(svelte@5.57.0(@typescript-eslint/types@8.58.0))':
+  '@lucide/svelte@1.59.0(svelte@5.57.0(@typescript-eslint/types@8.58.0))':
     dependencies:
       svelte: 5.57.0(@typescript-eslint/types@8.58.0)
 
