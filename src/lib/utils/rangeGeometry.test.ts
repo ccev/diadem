@@ -60,7 +60,6 @@ describe("range geometry", () => {
 		[42, -90]
 	])("matches every sampled circle vertex at %j", (...center) => {
 		for (const radius of [
-			35, // Static-map spawnpoint thumbnail
 			RANGE_POKEMON,
 			RANGE_POKEMON_EXTENDED,
 			RANGE_FORTS,

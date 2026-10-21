@@ -160,6 +160,7 @@ describe("geographic range callers", () => {
 			}
 		}
 		expect(getActionRadiusFeature(MapObjectType.NEST, "test", center)).toBeUndefined();
+		expect(getActionRadiusFeature(MapObjectType.SPAWNPOINT, "test", center)).toBeUndefined();
 	});
 
 	it.each([0, 1, 2])("keeps scout size %i coverage, radius units and spherical spacing", (size) => {
@@ -229,16 +230,18 @@ describe("geographic range callers", () => {
 		for (const bounds of queries) expect(bounds).toMatchObject({ minLon: -180, maxLon: 180 });
 	});
 
-	it("spawnpoint thumbnails send a 35 m polygon with the static-map API's lat/lon ordering", async () => {
+	it("spawnpoint thumbnails keep the static-map API's circle instead of a range polygon", async () => {
 		let payload:
 			| {
-					polygons: {
-						path: [number, number][];
+					circles: {
+						radius: number;
+						latitude: number;
+						longitude: number;
 						fill_color: string;
 						stroke_color: string;
 						stroke_width: number;
 					}[];
-					circles?: unknown;
+					polygons?: unknown;
 			  }
 			| undefined;
 		const fetchStaticMapBase64 = producer(
@@ -246,7 +249,6 @@ describe("geographic range callers", () => {
 			"fetchStaticMapBase64",
 			{
 				MapObjectType,
-				rangeCircle,
 				getServerConfig: () => ({
 					staticMap: { enabled: true, url: "https://tiles.example", style: "test" }
 				}),
@@ -267,24 +269,17 @@ describe("geographic range callers", () => {
 				data: { type: MapObjectType.SPAWNPOINT }
 			}
 		);
-		expect(payload?.circles).toBeUndefined();
-		expect(payload?.polygons).toHaveLength(1);
-		const polygon = payload!.polygons[0];
-		expect(polygon).toMatchObject({
-			fill_color: "rgba(116,223,253,0.6)",
-			stroke_color: "rgba(57,140,168,0.8)",
-			stroke_width: 1
-		});
-		assertCircle(
+		expect(payload?.polygons).toBeUndefined();
+		expect(payload?.circles).toEqual([
 			{
-				type: "Feature",
-				properties: {},
-				geometry: { type: "Polygon", coordinates: [polygon.path.map(([lat, lon]) => [lon, lat])] }
-			},
-			center,
-			35,
-			64
-		);
+				fill_color: "rgba(116,223,253,0.6)",
+				stroke_color: "rgba(57,140,168,0.8)",
+				stroke_width: 1,
+				radius: 35,
+				latitude: center[1],
+				longitude: center[0]
+			}
+		]);
 	});
 
 	it("audits every circle producer and prevents fallback to Turf circle/destination geometry", () => {
@@ -314,8 +309,7 @@ describe("geographic range callers", () => {
 			"components/map/LocationMapOverlay.svelte",
 			"components/ui/popups/common/MainAccessMap.svelte",
 			"lib/features/scout.svelte.ts",
-			"lib/map/featuresGen.svelte.ts",
-			"lib/server/thumbnails/thumbnailUtils.ts"
+			"lib/map/featuresGen.svelte.ts"
 		]);
 	});
 });

@@ -8,7 +8,6 @@ import { getDefaultIconSet } from "@/lib/services/userSettings.svelte";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { Coords } from "@/lib/utils/coordinates";
 import { getLogger } from "@/lib/utils/logger";
-import { rangeCircle } from "@/lib/utils/rangeGeometry";
 import sharp from "sharp";
 
 const log = getLogger("thumbnail");
@@ -129,14 +128,14 @@ export async function fetchStaticMapBase64(
 			}));
 		}
 	} else if (options.data.type === MapObjectType.SPAWNPOINT) {
-		const ring = rangeCircle(options.coords.geojson(), 35).geometry.coordinates[0];
-		payload.polygons = [
+		payload.circles = [
 			{
 				fill_color: "rgba(116,223,253,0.6)",
 				stroke_color: "rgba(57,140,168,0.8)",
 				stroke_width: 1,
-				// Static-map polygon paths use [latitude, longitude], unlike GeoJSON.
-				path: ring.map(([lon, lat]) => [lat, lon])
+				radius: 35,
+				latitude: options.coords.lat,
+				longitude: options.coords.lon
 			}
 		];
 	}
