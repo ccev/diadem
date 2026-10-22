@@ -22,7 +22,7 @@ import { Features } from "@/lib/utils/features";
 import { round } from "@/lib/utils/numberFormat";
 import { getNormalizedForm, League, showPvp } from "@/lib/utils/pokemonUtils";
 import { error } from "@sveltejs/kit";
-import { booleanPointInPolygon, point } from "@turf/turf";
+import { bboxPolygon, booleanPointInPolygon } from "@turf/turf";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -36,50 +36,43 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		limit?: number,
 		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
-		const golbatQueries = this.buildGolbatQueries(filter, context);
-
+		if (filter && !filter.enabled) return { data: [], examined: 0 };
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
-
 		const body: PokemonScanBody = {
 			min: { latitude: bounds.minLat, longitude: bounds.minLon },
 			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
-			limit: actualLimit,
-			filters: golbatQueries
+			// Use Golbat's cap; the display limit applies after local filtering.
+			limit: 0,
+			filters: this.buildGolbatQueries(filter, bounds, polygon, context)
 		};
-
 		const result = await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
+		if (!result) error(500);
 
-		if (result) {
-			const data: MinMapObject<PokemonData>[] = [];
-			let examined = result.examined;
-
-			if (result.limit_reached) {
-				return { data: [], examined, limitReached: true };
+		const data: PokemonData[] = [];
+		let examined = result.examined;
+		let matched = 0;
+		for (const p of result.pokemon) {
+			if (polygon && !booleanPointInPolygon([p.lon, p.lat], polygon)) {
+				examined -= 1;
+				continue;
 			}
+			const pokemon = this.makePokemon(p, filter, context);
+			if (filter && !shouldDisplayPokemon(pokemon, filter)) continue;
 
-			for (const p of result.pokemon) {
-				if (since && (p.updated ?? 0) < since) {
-					continue;
-				}
-				if (polygon && !booleanPointInPolygon(point([p.lon, p.lat]), polygon)) {
-					examined -= 1;
-					continue;
-				}
-				const pokemon = this.makePokemon(p, filter, context);
-				// need to re-check pvp filters after removing mega evolutions
-				if (!shouldDisplayPokemon(pokemon, filter)) continue;
-
-				data.push(pokemon);
+			// Unchanged matches still count toward the limit on delta refreshes.
+			if (++matched > actualLimit) {
+				return { data: [], examined: actualLimit, limitReached: true };
 			}
-
-			return { data, examined };
+			if (since !== undefined && (pokemon.updated ?? 0) < since) continue;
+			data.push(pokemon);
 		}
-		error(500);
+
+		return { data, examined: Math.max(0, examined) };
 	}
 
 	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
 		const encounterId = decodeEncounterId(id);
-		let mon: PokemonData | undefined = undefined
+		let mon: PokemonData | undefined = undefined;
 		if (encounterId) {
 			mon = await getSinglePokemon(encounterId, thisFetch);
 		}
@@ -190,17 +183,31 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 	private buildGolbatQueries(
 		filter: FilterPokemon | undefined,
+		bounds: Bounds,
+		polygon: PermittedPolygon,
 		context?: FeaturePermissionContext
 	): GolbatPokemonQuery[] {
-		// Numeric iv/pvp constraints would leak whether unseen mons match. Only push them to
-		// Golbat when the tier is granted globally; otherwise drop them and strip per-object.
-		const ivConstraintsAllowed = !context || context.allowedEverywhere(Features.POKEMON_IV);
-		const pvpConstraintsAllowed = !context || context.allowedEverywhere(Features.POKEMON_PVP);
-
 		const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
 		if (enabledFilters.length === 0) {
 			return [{ pokemon: [] }];
 		}
+
+		const area =
+			polygon ?? bboxPolygon([bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]);
+		const ivConstraintsAllowed =
+			enabledFilters.some(
+				(f) => f.iv || f.ivAtk || f.ivDef || f.ivSta || f.size || f.level || f.cp
+			) &&
+			(!context || context.allowedThroughout(Features.POKEMON_IV, area));
+		const pvpConstraintsAllowed =
+			enabledFilters.some(
+				(f) =>
+					f.pvpRankLittle ||
+					f.pvpRankGreat ||
+					f.pvpRankUltra ||
+					(!ivConstraintsAllowed && (f.level || f.cp))
+			) &&
+			(!context || context.allowedThroughout(Features.POKEMON_PVP, area));
 
 		return enabledFilters.map((filter) => {
 			const query: GolbatPokemonQuery = {};
