@@ -1,13 +1,54 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { compile } from "svelte/compiler";
+import { compile, compileModule } from "svelte/compiler";
 import { getConfig, IndexTracker, pofile } from "wuchale";
 
 const root = path.resolve(import.meta.dirname, "../../..");
 const config = await getConfig(path.join(root, "wuchale.config.js"));
 
 describe("source-text extraction", () => {
+	it("extracts the bottom navigation labels used after changing language", async () => {
+		const filename = "src/components/ui/BottomNav.svelte";
+		const result = await config.adapters.main.transform({
+			filename,
+			content: readFileSync(path.join(root, filename), "utf8"),
+			index: new IndexTracker(true),
+			expr: { plain: "load()", reactive: "load()" },
+			matchUrl: () => null
+		});
+		expect(result.txts.map((text) => text.body)).toEqual(["Filters", "Tools", "Profile"]);
+	});
+
+	it.each(["js", "ts"])(
+		"initializes translated function runtimes in .svelte.%s modules",
+		async (ext) => {
+			const filename = `src/Example.svelte.${ext}`;
+			const result = await config.adapters.main.transform({
+				filename,
+				content: `let menu = $state("profile");
+				export function title() {
+					if (menu === "profile") return "Profile";
+					return "Filters";
+				}`,
+				index: new IndexTracker(true),
+				expr: { plain: "load()", reactive: "load()" },
+				matchUrl: () => null
+			});
+			const code = result.output("").code!;
+			const compiled = compileModule(code, { filename, generate: "server" }).js.code;
+			const load = vi.fn(() => (index: number) => ["Profil", "Filter"][index]);
+			const title = new Function(
+				"load",
+				compiled.replace(/^import .*;$/gm, "").replace("export function title", "function title") +
+					"\nreturn title;"
+			)(load);
+			expect(load).not.toHaveBeenCalled();
+			expect(title()).toBe("Profil");
+			expect(load).toHaveBeenCalledOnce();
+		}
+	);
+
 	it("extracts reactive Svelte text and abbreviations while preserving technical values", async () => {
 		const result = await config.adapters.main.transform({
 			filename: "src/Example.svelte",

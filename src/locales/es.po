@@ -151,6 +151,7 @@ msgstr "Tasa de Aparición"
 msgid "~{0}/hour"
 msgstr "~{0}/hora"
 
+#: src/components/custom/Home.svelte
 #: src/components/menus/filters/filterset/iconpicker/iconPickerData.ts
 #: src/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte
 #: src/components/menus/profile/SectionIcons.svelte
@@ -164,6 +165,7 @@ msgstr "~{0}/hora"
 msgid "Pokémon"
 msgstr "Pokémon"
 
+#: src/components/custom/Home.svelte
 #: src/components/ui/popups/location/LocationPopup.svelte
 #: src/lib/mapObjects/mapObjectLabels.ts
 #: src/lib/services/search.svelte.ts
@@ -1320,10 +1322,12 @@ msgstr "Coordenadas"
 msgid "Address"
 msgstr "Dirección"
 
+#: src/components/ui/BottomNav.svelte
 #: src/lib/ui/menus.svelte.ts
 msgid "Profile"
 msgstr "Perfil"
 
+#: src/components/ui/BottomNav.svelte
 #: src/lib/ui/menus.svelte.ts
 msgid "Filters"
 msgstr "Filtros"
@@ -1333,6 +1337,7 @@ msgstr "Filtros"
 msgid "Scout"
 msgstr "Escaneo bajo demanda"
 
+#: src/components/ui/BottomNav.svelte
 #: src/lib/ui/menus.svelte.ts
 msgid "Tools"
 msgstr "Herramientas"
@@ -1364,9 +1369,8 @@ msgstr "hace {0}h {1}m {2}s"
 msgid "{0}m {1}s ago"
 msgstr "hace {0}m {1}s"
 
-#: src/components/custom/Home.svelte
-msgid "Home Page"
-msgstr ""
+#~ msgid "Home Page"
+#~ msgstr ""
 
 #: src/components/map/DataLimitNotice.svelte
 msgid "data"
@@ -3279,3 +3283,117 @@ msgstr "% de IV"
 #: src/components/menus/filters/filterset/pokemon/IvAttribute.svelte
 msgid "HP IV"
 msgstr "IV de PS"
+
+#: src/components/custom/Home.svelte
+msgid "Demap Icon"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Demap"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Discord"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Zur Map"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Die größte kostenlose Map für Pokémon GO"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Arenen"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Live"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Discord beitreten"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Aktuell kommt es zu Problemen mit den Scans. Mehr erfährst du auf dem Demap Discord"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "/test"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Live Map öffnen"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Städte erkunden"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Pokémon und Quests in"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "<0/> Städten"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Pokéstops, Arenen und Kraftquellen in"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Ganz Deutschland"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Mehr?"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+#: src/components/custom/Home.svelte
+msgid "Beitreten"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Persönliche Nachrichten, Stadtanfragen, Neuigkeiten und Details"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Demap Discord"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Gesamt Deutschland"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Pokéstops, Arenen und Kraftquellen"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+#: src/components/custom/Home.svelte
+msgid "Pokéstops, Arenen auf der Demap"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Ausgewählte Städte"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Pokémon und Quests"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Auf dem Demap Discord bekommst du <0>Persönliche Nachrichten</0> und kannst <1>deine eigene Stadt anfragen</1>"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Bleib auf dem Laufenden"
+msgstr ""
+
+#: src/components/custom/Home.svelte
+msgid "Aktuelle Abdeckung"
+msgstr ""

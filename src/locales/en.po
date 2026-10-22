@@ -151,6 +151,7 @@ msgstr "Spawn Rate"
 msgid "~{0}/hour"
 msgstr "~{0}/hour"
 
+#: src/components/custom/Home.svelte
 #: src/components/menus/filters/filterset/iconpicker/iconPickerData.ts
 #: src/components/menus/filters/filterset/quest/QuestFilterDisplay.svelte
 #: src/components/menus/profile/SectionIcons.svelte
@@ -164,6 +165,7 @@ msgstr "~{0}/hour"
 msgid "Pokémon"
 msgstr "Pokémon"
 
+#: src/components/custom/Home.svelte
 #: src/components/ui/popups/location/LocationPopup.svelte
 #: src/lib/mapObjects/mapObjectLabels.ts
 #: src/lib/services/search.svelte.ts
@@ -1320,10 +1322,12 @@ msgstr "Coordinates"
 msgid "Address"
 msgstr "Address"
 
+#: src/components/ui/BottomNav.svelte
 #: src/lib/ui/menus.svelte.ts
 msgid "Profile"
 msgstr "Profile"
 
+#: src/components/ui/BottomNav.svelte
 #: src/lib/ui/menus.svelte.ts
 msgid "Filters"
 msgstr "Filters"
@@ -1333,6 +1337,7 @@ msgstr "Filters"
 msgid "Scout"
 msgstr "Scout"
 
+#: src/components/ui/BottomNav.svelte
 #: src/lib/ui/menus.svelte.ts
 msgid "Tools"
 msgstr "Tools"
@@ -1364,9 +1369,8 @@ msgstr "{0}h {1}m {2}s ago"
 msgid "{0}m {1}s ago"
 msgstr "{0}m {1}s ago"
 
-#: src/components/custom/Home.svelte
-msgid "Home Page"
-msgstr "Home Page"
+#~ msgid "Home Page"
+#~ msgstr "Home Page"
 
 #: src/components/map/DataLimitNotice.svelte
 msgid "data"
@@ -3279,3 +3283,117 @@ msgstr "IV %"
 #: src/components/menus/filters/filterset/pokemon/IvAttribute.svelte
 msgid "HP IV"
 msgstr "HP IV"
+
+#: src/components/custom/Home.svelte
+msgid "Demap Icon"
+msgstr "Demap Icon"
+
+#: src/components/custom/Home.svelte
+msgid "Demap"
+msgstr "Demap"
+
+#: src/components/custom/Home.svelte
+msgid "Discord"
+msgstr "Discord"
+
+#: src/components/custom/Home.svelte
+msgid "Zur Map"
+msgstr "Zur Map"
+
+#: src/components/custom/Home.svelte
+msgid "Die größte kostenlose Map für Pokémon GO"
+msgstr "Die größte kostenlose Map für Pokémon GO"
+
+#: src/components/custom/Home.svelte
+msgid "Arenen"
+msgstr "Arenen"
+
+#: src/components/custom/Home.svelte
+msgid "Live"
+msgstr "Live"
+
+#: src/components/custom/Home.svelte
+msgid "Discord beitreten"
+msgstr "Discord beitreten"
+
+#: src/components/custom/Home.svelte
+msgid "Aktuell kommt es zu Problemen mit den Scans. Mehr erfährst du auf dem Demap Discord"
+msgstr "Aktuell kommt es zu Problemen mit den Scans. Mehr erfährst du auf dem Demap Discord"
+
+#: src/components/custom/Home.svelte
+msgid "/test"
+msgstr "/test"
+
+#: src/components/custom/Home.svelte
+msgid "Live Map öffnen"
+msgstr "Live Map öffnen"
+
+#: src/components/custom/Home.svelte
+msgid "Städte erkunden"
+msgstr "Städte erkunden"
+
+#: src/components/custom/Home.svelte
+msgid "Pokémon und Quests in"
+msgstr "Pokémon und Quests in"
+
+#: src/components/custom/Home.svelte
+msgid "<0/> Städten"
+msgstr "<0/> Städten"
+
+#: src/components/custom/Home.svelte
+msgid "Pokéstops, Arenen und Kraftquellen in"
+msgstr "Pokéstops, Arenen und Kraftquellen in"
+
+#: src/components/custom/Home.svelte
+msgid "Ganz Deutschland"
+msgstr "Ganz Deutschland"
+
+#: src/components/custom/Home.svelte
+msgid "Mehr?"
+msgstr "Mehr?"
+
+#: src/components/custom/Home.svelte
+#: src/components/custom/Home.svelte
+msgid "Beitreten"
+msgstr "Beitreten"
+
+#: src/components/custom/Home.svelte
+msgid "Persönliche Nachrichten, Stadtanfragen, Neuigkeiten und Details"
+msgstr "Persönliche Nachrichten, Stadtanfragen, Neuigkeiten und Details"
+
+#: src/components/custom/Home.svelte
+msgid "Demap Discord"
+msgstr "Demap Discord"
+
+#: src/components/custom/Home.svelte
+msgid "Gesamt Deutschland"
+msgstr "Gesamt Deutschland"
+
+#: src/components/custom/Home.svelte
+msgid "Pokéstops, Arenen und Kraftquellen"
+msgstr "Pokéstops, Arenen und Kraftquellen"
+
+#: src/components/custom/Home.svelte
+#: src/components/custom/Home.svelte
+msgid "Pokéstops, Arenen auf der Demap"
+msgstr "Pokéstops, Arenen auf der Demap"
+
+#: src/components/custom/Home.svelte
+msgid "Ausgewählte Städte"
+msgstr "Ausgewählte Städte"
+
+#: src/components/custom/Home.svelte
+msgid "Pokémon und Quests"
+msgstr "Pokémon und Quests"
+
+#: src/components/custom/Home.svelte
+msgid "Auf dem Demap Discord bekommst du <0>Persönliche Nachrichten</0> und kannst <1>deine eigene Stadt anfragen</1>"
+msgstr "Auf dem Demap Discord bekommst du <0>Persönliche Nachrichten</0> und kannst <1>deine eigene Stadt anfragen</1>"
+
+#: src/components/custom/Home.svelte
+msgid "Bleib auf dem Laufenden"
+msgstr "Bleib auf dem Laufenden"
+
+#: src/components/custom/Home.svelte
+msgid "Aktuelle Abdeckung"
+msgstr "Aktuelle Abdeckung"

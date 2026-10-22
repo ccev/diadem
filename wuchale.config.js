@@ -1,4 +1,4 @@
-import { adapter as svelte, svelteKitDefaultHeuristic } from "@wuchale/svelte";
+import { adapter as svelte, defaultArgs, svelteKitDefaultHeuristic } from "@wuchale/svelte";
 import { defineConfig } from "wuchale";
 import { adapter as vanilla } from "wuchale/adapter-vanilla";
 import { locales } from "./src/lib/i18n/locales.ts";
@@ -40,6 +40,22 @@ export default defineConfig({
 	adapters: {
 		main: svelte({
 			loader: "sveltekit",
+			// The adapter currently recognizes .svelte.js, but misses .svelte.ts
+			// when choosing module runtime scopes. Treat both module extensions alike.
+			runtime: {
+				initReactive: (path, file, context) =>
+					defaultArgs.runtime.initReactive(
+						path,
+						file.replace(/\.svelte\.ts$/, ".svelte.js"),
+						context
+					),
+				useReactive: (path, file, context) =>
+					defaultArgs.runtime.useReactive(
+						path,
+						file.replace(/\.svelte\.ts$/, ".svelte.js"),
+						context
+					)
+			},
 			heuristic: (text, file) => heuristic(text) ?? svelteKitDefaultHeuristic(text, file),
 			files: {
 				include: ["src/**/*.svelte", "src/**/*.svelte.{js,ts}"],
@@ -64,6 +80,8 @@ export default defineConfig({
 					"src/lib/utils/requests.ts",
 					"src/lib/utils/apiUtils.server.ts",
 					"src/lib/i18n/**",
+					// Older installations may retain ignored Paraglide output.
+					"src/lib/paraglide/**",
 					"src/routes/api/**",
 					"src/routes/assets/**",
 					"src/routes/robots.txt/**",

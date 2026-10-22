@@ -28,21 +28,21 @@
 	}[] = [];
 
 	buttons.push({
-		text: "Filters",
+		text: /* @wc-include */ "Filters",
 		icon: Settings2,
 		type: Menu.FILTERS
 	});
 
 	if (getConfig().tools?.showToolsMenu) {
 		buttons.push({
-			text: "Tools",
+			text: /* @wc-include */ "Tools",
 			icon: PocketKnife,
 			type: Menu.TOOLS
 		});
 	}
 
 	buttons.push({
-		text: "Profile",
+		text: /* @wc-include */ "Profile",
 		icon: CircleUserRound,
 		type: Menu.PROFILE
 	});
