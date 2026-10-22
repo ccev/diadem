@@ -1,6 +1,6 @@
 <script lang="ts" generics="Data extends Record<string, any>">
 	import PokemonSelect from "@/components/menus/filters/filterset/multiselect/PokemonSelect.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 	import type { Pokemon } from "@/lib/features/filters/filtersets";
@@ -43,19 +43,14 @@
 	}
 </script>
 
-<SearchBar placeholder={m.search_placeholder_pokemon()} class="mb-2 mt-1" bind:query />
+<SearchBar placeholder="Search for Pokémon" class="mb-2 mt-1" bind:query />
 
 <div class="space-y-5 mt-2">
 	{#if !query && data[attribute]}
 		<div transition:slide={{ duration: 90 }}>
-			<PokemonSelect
-				pokemonList={selected}
-				{selected}
-				{onselect}
-				title={m.pokemon_picker_selected()}
-			/>
+			<PokemonSelect pokemonList={selected} {selected} {onselect} title="Selected" />
 		</div>
 	{/if}
 
-	<PokemonSelect {pokemonList} {selected} {onselect} {query} title={m.pokemon_picker_available()} />
+	<PokemonSelect {pokemonList} {selected} {onselect} {query} title="Available" />
 </div>

@@ -8,7 +8,7 @@
 	} from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { Snippet } from "svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { FilterCategory } from "@/lib/features/filters/filters";
 	import ModifierPreview from "./modifiers/ModifierPreview.svelte";
 	import Separator from "@/components/ui/Separator.svelte";
@@ -38,7 +38,7 @@
 	</div>
 
 	{#if filterset?.data.modifiers}
-		<Separator class="my-3" text={m.modifier_map_preview()} />
+		<Separator class="my-3" text="Map Preview" />
 		<div class="w-full">
 			<ModifierPreview
 				filterset={filterset.data}
@@ -48,7 +48,7 @@
 		</div>
 	{/if}
 
-	<Separator class="my-3" text={m.filter_attributes()} />
+	<Separator class="my-3" text="Attributes" />
 
 	{#if filterset?.data}
 		<div class="overflow-y-auto">

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
 	import { Cloud, Moon, Paintbrush, Sun } from "@lucide/svelte";
 	import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { isMenuSidebar } from "@/lib/utils/device";
@@ -26,8 +25,8 @@
 	import { getMapStyle } from "@/lib/utils/mapStyle";
 </script>
 
-<MenuCard title={m.settings_appearance()} Icon={Paintbrush}>
-	<MenuGeneric title={m.settings_theme()}>
+<MenuCard title="Appearance" Icon={Paintbrush}>
+	<MenuGeneric title="Theme">
 		<RadioGroup
 			value={mode.current}
 			onValueChange={setThemeMode as (value: string) => void}
@@ -35,20 +34,20 @@
 		>
 			<SelectGroupItem class="p-4" value="light">
 				<Sun size="20" />
-				{m.theme_light()}
+				Light
 			</SelectGroupItem>
 			<SelectGroupItem class="p-4" value="system">
 				<Cloud size="20" />
-				{m.theme_system()}
+				System
 			</SelectGroupItem>
 			<SelectGroupItem class="p-4" value="dark">
 				<Moon size="20" />
-				{m.theme_dark()}
+				Dark
 			</SelectGroupItem>
 		</RadioGroup>
 	</MenuGeneric>
 
-	<MenuGeneric title={m.settings_map_style()}>
+	<MenuGeneric title="Map Style">
 		<RadioGroup
 			value={getUserSettings().mapStyle.id}
 			onValueChange={onMapStyleChange}
@@ -77,7 +76,7 @@
 		</RadioGroup>
 	</MenuGeneric>
 
-	<MenuGeneric title={m.settings_icon_size()}>
+	<MenuGeneric title="Map Icon Size">
 		<SliderSteps
 			value={getUserSettings().mapIconSize}
 			onchange={(value) => onSettingsChange("mapIconSize", value)}
@@ -94,7 +93,7 @@
 	{#if !isNative()}
 		<Select
 			class="py-3 px-4 "
-			title={m.settings_external_map_provider()}
+			title="Navigate using"
 			value={getUserSettings().externalMapProvider}
 			onselect={(mapProvider) =>
 				onSettingsChange("externalMapProvider", mapProvider as ExternalMapProvider)}
@@ -104,7 +103,7 @@
 
 	<Select
 		class="py-3 px-4 "
-		title={m.settings_language()}
+		title="Language"
 		value={getLocale()}
 		onselect={(locale) => setLocale(locale as Parameters<typeof setLocale>[0])}
 		options={getAvailableLanguages()}
@@ -112,8 +111,8 @@
 
 	{#if !isMenuSidebar()}
 		<Toggle
-			title={m.settings_left_handed_mode_title()}
-			description={m.settings_left_handed_mode_description()}
+			title="Left-handed Mode"
+			description="Place UI elements on the left"
 			onclick={() => onSettingsChange("isLeftHanded", !getUserSettings().isLeftHanded)}
 			value={getUserSettings().isLeftHanded}
 		/>

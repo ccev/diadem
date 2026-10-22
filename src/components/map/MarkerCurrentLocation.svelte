@@ -2,7 +2,7 @@
 	import { Marker } from "svelte-maplibre";
 	import { getCurrentLocation } from "@/lib/map/geolocate.svelte";
 	import { openLocationPopup } from "@/lib/mapObjects/interact";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { Coords } from "@/lib/utils/coordinates";
 	import { scale, fly } from "svelte/transition";
 
@@ -14,7 +14,7 @@
 	<Marker lngLat={location}>
 		<button
 			type="button"
-			title={showLocationPopup ? m.my_location() : undefined}
+			title={showLocationPopup ? "My Location" : undefined}
 			disabled={!showLocationPopup}
 			style:--color-marker="var(--color-blue-600)"
 			class="relative size-3 rounded-full bg-(--color-marker) outline-blue-300/60 outline-6"

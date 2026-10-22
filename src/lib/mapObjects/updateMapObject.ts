@@ -131,7 +131,7 @@ export async function fetchMapObjects<T extends QueryableMapData>(
 			response = await post(true);
 		}
 
-		noteFilterCached(hash, response.headers.get("X-Filter-Cached"));
+		noteFilterCached(hash, response.headers.get(/* @wc-ignore */ "X-Filter-Cached"));
 
 		if (!response.ok) {
 			console.error(`Error while fetching ${type}: ${response.status}`);

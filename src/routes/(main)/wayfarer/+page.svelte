@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPageWebGl from "@/components/ui/ErrorPageWebGl.svelte";
@@ -18,7 +17,7 @@
 
 	let map: maplibre.Map | undefined = $state(undefined);
 
-	useMetadata(() => ({ title: m.nav_wayfarer() }));
+	useMetadata(() => ({ title: "Wayfarer Map" }));
 
 	onMount(async () => {
 		await tick();

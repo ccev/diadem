@@ -2,7 +2,7 @@ import type { FiltersetPokemon, FiltersetTitle, MinMax } from "@/lib/features/fi
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 import { makeAttributeRangeLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { getPokemonSize, League } from "@/lib/utils/pokemonUtils";
 import { Features, type FeaturesKey } from "@/lib/utils/features";
@@ -44,7 +44,7 @@ export const pokemonBounds = {
 export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 	const title: FiltersetTitle = {
 		title: filter.title.title,
-		message: "filter_template_pokemon_fallback"
+		message: /* @wc-ignore */ "Pokémon Filter"
 	};
 
 	const basePokemonMatch =
@@ -56,7 +56,7 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 	let attributes: string[] = [];
 
 	if (!filter.pokemon) {
-		kind = m.pogo_pokemon();
+		kind = "Pokémon";
 	} else if (filter.pokemon.length === 1) {
 		// todo properly localized pokemon names (when language changes)
 		kind = mPokemon(filter.pokemon[0]);
@@ -64,7 +64,7 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 		// base name if all pokemon ids are the same
 		kind = mPokemon({ pokemon_id: filter.pokemon[0].pokemon_id });
 	} else {
-		kind = m.count_pokemon({ count: filter.pokemon.length });
+		kind = `${filter.pokemon.length} Pokémon`;
 	}
 
 	if (filter.iv) {
@@ -72,45 +72,39 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 	}
 	if (filter.pvpRankLittle) {
 		attributes.push(
-			m.short_rank_little_league({
-				rank: makeAttributeRangeLabel(
-					filter.pvpRankLittle,
-					pokemonBounds.rank.min,
-					pokemonBounds.rank.max
-				)
-			})
+			/* @wc-include */ `LL #${makeAttributeRangeLabel(
+				filter.pvpRankLittle,
+				pokemonBounds.rank.min,
+				pokemonBounds.rank.max
+			)}`
 		);
 	}
 	if (filter.pvpRankGreat) {
 		attributes.push(
-			m.short_rank_great_league({
-				rank: makeAttributeRangeLabel(
-					filter.pvpRankGreat,
-					pokemonBounds.rank.min,
-					pokemonBounds.rank.max
-				)
-			})
+			/* @wc-include */ `GL #${makeAttributeRangeLabel(
+				filter.pvpRankGreat,
+				pokemonBounds.rank.min,
+				pokemonBounds.rank.max
+			)}`
 		);
 	}
 	if (filter.pvpRankUltra) {
 		attributes.push(
-			m.short_rank_ultra_league({
-				rank: makeAttributeRangeLabel(
-					filter.pvpRankUltra,
-					pokemonBounds.rank.min,
-					pokemonBounds.rank.max
-				)
-			})
+			/* @wc-include */ `UL #${makeAttributeRangeLabel(
+				filter.pvpRankUltra,
+				pokemonBounds.rank.min,
+				pokemonBounds.rank.max
+			)}`
 		);
 	}
 	if (filter.ivAtk || filter.ivDef || filter.ivSta) {
 		attributes.push(getAttributeLabelIvValues(filter.ivAtk, filter.ivDef, filter.ivSta));
 	}
 	if (filter.cp) {
-		attributes.push(m.pogo_cp({ cp: getAttributeLabelCp(filter.cp) }));
+		attributes.push(/* @wc-include */ `${getAttributeLabelCp(filter.cp)} CP`);
 	}
 	if (filter.level) {
-		attributes.push(m.pogo_level({ level: getAttributeLabelLevel(filter.level) }));
+		attributes.push(`Level ${getAttributeLabelLevel(filter.level)}`);
 	}
 	if (filter.size) {
 		attributes.push(getAttributeLabelSize(filter.size));
@@ -121,8 +115,8 @@ export function generatePokemonFilterDetails(filter: FiltersetPokemon) {
 		attrText = attributes.join(" & ") + " ";
 	}
 
-	if (attrText || kind !== m.pogo_pokemon()) {
-		title.message = "filter_template_pokemon_template";
+	if (attrText || kind !== "Pokémon") {
+		title.message = /* @wc-ignore */ "{attributes}{kind}";
 		title.params = { attributes: attrText, kind: kind };
 	}
 
@@ -205,8 +199,8 @@ export function getAttributeLabelIvProduct(iv: MinMax) {
 		iv,
 		pokemonBounds.ivProduct.min,
 		pokemonBounds.ivProduct.max,
-		m.x_percentage({ x: iv?.min ?? pokemonBounds.ivProduct.min }),
-		m.x_percentage({ x: iv?.max ?? pokemonBounds.ivProduct.max })
+		/* @wc-include */ `${iv?.min ?? pokemonBounds.ivProduct.min}%`,
+		/* @wc-include */ `${iv?.max ?? pokemonBounds.ivProduct.max}%`
 	);
 }
 
@@ -228,16 +222,8 @@ export function getAttributeLabelIvValues(
 		},
 		pokemonBounds.iv.min * 3,
 		pokemonBounds.iv.max * 3,
-		m.atk_def_sta({
-			atk: ivAtk?.min ?? pokemonBounds.iv.min,
-			def: ivDef?.min ?? pokemonBounds.iv.min,
-			sta: ivSta?.min ?? pokemonBounds.iv.min
-		}),
-		m.atk_def_sta({
-			atk: ivAtk?.max ?? pokemonBounds.iv.max,
-			def: ivDef?.max ?? pokemonBounds.iv.max,
-			sta: ivSta?.max ?? pokemonBounds.iv.max
-		})
+		/* @wc-include */ `${ivAtk?.min ?? pokemonBounds.iv.min}/${ivDef?.min ?? pokemonBounds.iv.min}/${ivSta?.min ?? pokemonBounds.iv.min}`,
+		/* @wc-include */ `${ivAtk?.max ?? pokemonBounds.iv.max}/${ivDef?.max ?? pokemonBounds.iv.max}/${ivSta?.max ?? pokemonBounds.iv.max}`
 	);
 }
 
@@ -260,7 +246,5 @@ export function getAttributeLabelLevel(level: MinMax | undefined) {
 }
 
 export function getAttributeLabelRank(rank: MinMax | undefined) {
-	return m.rank_x({
-		rank: makeAttributeRangeLabel(rank, pokemonBounds.rank.min, pokemonBounds.rank.max)
-	});
+	return `Rank ${makeAttributeRangeLabel(rank, pokemonBounds.rank.min, pokemonBounds.rank.max)}`;
 }

@@ -23,7 +23,6 @@
 	import CoverageSearchResults from "@/components/ui/search/CoverageSearchResults.svelte";
 	import WayfarerSearchResults from "@/components/ui/search/WayfarerSearchResults.svelte";
 	import type { FuzzyResult } from "@nozbe/microfuzz";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		searchMode = "main",
@@ -39,8 +38,8 @@
 				types: [SearchableType.AREA, SearchableType.ADDRESS, SearchableType.COORDINATES],
 				showRecents: false,
 				resultSnippet: coverageSearchResults,
-				textSearchHint: m.search_hint_coverage(),
-				textNoResults: m.search_no_results_generic()
+				textSearchHint: "Try searching an address or area",
+				textNoResults: "Nothing came up"
 			} as SearchOptions;
 		} else if (searchMode === "wayfarer") {
 			return {
@@ -52,8 +51,8 @@
 				],
 				showRecents: false,
 				resultSnippet: wayfarerSearchResults,
-				textSearchHint: m.search_hint_wayfarer(),
-				textNoResults: m.search_no_results_generic()
+				textSearchHint: "Try searching for Pokéstops, addresses or areas",
+				textNoResults: "Nothing came up"
 			} as SearchOptions;
 		} else {
 			return {

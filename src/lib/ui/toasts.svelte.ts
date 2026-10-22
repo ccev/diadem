@@ -1,5 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
-
 let isToastOpen: boolean = $state(false);
 let toastText: string = $state("");
 let timeout: NodeJS.Timeout | undefined = undefined;
@@ -22,7 +20,7 @@ export function openToast(text: string, ms: number = 1500) {
 }
 
 export function getToastText() {
-	return toastText || m.toast_copied_default();
+	return toastText || "Copied to clipboard";
 }
 
 export function getIsToastOpen() {

@@ -17,7 +17,6 @@
 	} from "@/lib/utils/device";
 	import { getRootOrigin } from "@/lib/native/runtime";
 	import { getLocale } from "@/lib/i18n/locale";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		lat,
@@ -61,7 +60,7 @@
 						variant="ghost"
 						size=""
 						class="rounded-full size-8 p-2"
-						title={m.popup_share()}
+						title="Share"
 						onclick={() => backupShareUrl(getShareUrl())}
 					>
 						<Share2 class="size-3.5" />
@@ -71,7 +70,7 @@
 						variant="ghost"
 						size=""
 						class="rounded-full size-8 p-2"
-						title={m.copy_link()}
+						title="Copy link"
 						onclick={() => copyToClipboard(getShareUrl())}
 					>
 						<Copy class="size-3.5" />
@@ -83,7 +82,7 @@
 				variant="ghost"
 				size=""
 				class="rounded-full p-2 size-8"
-				title={m.close()}
+				title="Close"
 				onclick={onclose}
 			>
 				<X class="size-4.5" />

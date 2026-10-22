@@ -1,6 +1,6 @@
 import { getMap } from "@/lib/map/map.svelte";
 import { isNative } from "@/lib/native/runtime";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { round } from "@/lib/utils/numberFormat";
 import { distance } from "@turf/turf";
@@ -138,11 +138,11 @@ function flyToLocation(map: maplibre.Map, location: Location) {
 
 function handleGeolocationError(e: GeolocationPositionError) {
 	if (e.code === 1) {
-		openToast(m.locate_error_perms());
+		openToast("Location permissions denied");
 	} else if (e.code === 2 || e.code === 3) {
-		openToast(m.locate_error_timeout());
+		openToast("Timed out while fetching your location");
 	} else {
-		openToast(m.locate_error_unknown());
+		openToast("An error occurred while fetching your location");
 	}
 
 	geolocationEnabled = false;
@@ -155,16 +155,16 @@ export async function updateGeolocationEnabled(showResult: boolean = false) {
 
 	if (!window.navigator.permissions) {
 		geolocationOk = !!window.navigator.geolocation;
-		if (!geolocationOk) errorReason = m.locate_error_support();
+		if (!geolocationOk) errorReason = "Your browser doesn't have location support";
 	} else {
 		try {
 			const permsState = (await window.navigator.permissions.query({ name: "geolocation" })).state;
 			geolocationOk = permsState !== "denied";
-			if (!geolocationOk) errorReason = m.locate_error_perms();
+			if (!geolocationOk) errorReason = "Location permissions denied";
 		} catch {
 			// Fix for iOS16 which rejects query but still supports geolocation
 			geolocationOk = !!window.navigator.geolocation;
-			if (!geolocationOk) errorReason = m.locate_error_support();
+			if (!geolocationOk) errorReason = "Your browser doesn't have location support";
 		}
 	}
 
@@ -272,19 +272,19 @@ async function nativeLocationHandler(map: maplibre.Map | undefined, allowFollow:
 			beginLocate(map, allowFollow);
 		} else {
 			geolocationEnabled = false;
-			openToast(m.locate_error_perms());
+			openToast("Location permissions denied");
 		}
 	} catch (e) {
 		console.error("Failed to request native location permission", e);
 		geolocationEnabled = false;
-		openToast(m.locate_error_support());
+		openToast("Your browser doesn't have location support");
 	}
 }
 
 function beginLocate(map: maplibre.Map | undefined, allowFollow: boolean) {
 	if (!navigator.geolocation) {
 		geolocationEnabled = false;
-		openToast(m.locate_error_support());
+		openToast("Your browser doesn't have location support");
 		return;
 	}
 

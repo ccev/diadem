@@ -7,7 +7,6 @@
 	import { resize } from "@/lib/services/assets";
 	import { getIconInvasion } from "@/lib/services/uicons.svelte";
 	import { mCharacter } from "@/lib/services/ingameLocale";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		data
@@ -18,10 +17,10 @@
 
 <FilterDisplay>
 	{#if data.rewards}
-		<PokemonDisplay label={m.rewards()} pokemon={data.rewards} />
+		<PokemonDisplay label="Rewards" pokemon={data.rewards} />
 	{/if}
 	{#if data.characters}
-		<HorizontalScrollDisplay label={m.grunts()}>
+		<HorizontalScrollDisplay label="Grunts">
 			{#each data.characters as character (character)}
 				<HorizontalScrollElement>
 					<img

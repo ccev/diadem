@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
 	import BossSelectPage from "@/components/menus/filters/filterset/multiselect/BossSelectPage.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { getActiveMaxBattles } from "@/lib/features/masterStats.svelte";
 	import type { PokemonVisual } from "@/lib/types/mapObjectData/pokemon";
 
@@ -38,5 +38,5 @@
 	bosses={getActiveMaxBattles()}
 	selected={data?.bosses ?? []}
 	{onselect}
-	getLevelTitle={(level) => m.x_star_max_battles({ level })}
+	getLevelTitle={(level) => `${level}-Star Max Battles`}
 />

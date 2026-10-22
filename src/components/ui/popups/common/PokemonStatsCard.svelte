@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ChartColumn, Crown, Sparkles } from "@lucide/svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { formatNumber, formatNumberCompact, formatRatio } from "$lib/utils/numberFormat";
 	import { getRarityLabel } from "$lib/utils/pokemonUtils";
 	import StatsMainCard from "@/components/ui/popups/common/StatsMainCard.svelte";
@@ -25,32 +25,30 @@
 	let statsEntry = $derived(stats?.entry);
 </script>
 
-<TitledMainSection Icon={ChartColumn} title={m.stats()}>
+<TitledMainSection Icon={ChartColumn} title="Stats">
 	{#snippet rightPart()}
 		<p class="text-sm text-muted-foreground">
 			{#if stats}
-				{m.last_x_days({ days: formatNumber(stats.total.days) })} ·
+				Last {formatNumber(stats.total.days)} days ·
 			{/if}
 			{#if statsEntry}
-				{m.total_seen()}: {formatNumberCompact(
-					statsEntry?.shiny?.total ?? statsEntry?.spawns?.count
-				)}
+				Total seen: {formatNumberCompact(statsEntry?.shiny?.total ?? statsEntry?.spawns?.count)}
 			{/if}
 		</p>
 	{/snippet}
 
 	<StatsMainCard>
 		{#if !statsEntry || !stats}
-			{m.stats_unavailable({ name: mPokemon(data) })}
+			Stats unavailable for this {mPokemon(data)}
 		{:else}
 			<StatsMainCardEntry
 				Icon={Sparkles}
-				name={statsEntry.shiny && statsEntry.shiny.shinies > 0 ? m.shiny_rate() : m.contest_shiny()}
+				name={statsEntry.shiny && statsEntry.shiny.shinies > 0 ? "Shiny Rate" : "Shiny"}
 				value={statsEntry.shiny && statsEntry.shiny.shinies > 0
 					? formatRatio(statsEntry.shiny.shinies, statsEntry.shiny.total)
-					: m.no_shinies_seen()}
+					: "None seen"}
 			/>
-			<StatsMainCardEntry Icon={Crown} name={m.rarity()}>
+			<StatsMainCardEntry Icon={Crown} name="Rarity">
 				{#snippet value()}
 					{#if statsEntry.spawns && statsEntry.spawns.count > 0}
 						<p class="flex gap-2">
@@ -61,7 +59,7 @@
 							<span>{getRarityLabel(statsEntry.spawns.count, stats.total.count)}</span>
 						</p>
 					{:else}
-						{m.unavailable()}
+						Unavailable
 					{/if}
 				{/snippet}
 			</StatsMainCardEntry>

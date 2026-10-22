@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { tick } from "svelte";
 
 	let {
@@ -46,7 +46,7 @@
 
 {#if !description}
 	{#if showFallback}
-		<p class="text-muted-foreground {class_}">{m.no_description()}</p>
+		<p class="text-muted-foreground {class_}">No description</p>
 	{/if}
 {:else}
 	<p
@@ -65,7 +65,7 @@
 			size=""
 			onclick={() => (expandedDescription = description)}
 		>
-			{m.read_more()}
+			Read more
 		</Button>
 	{/if}
 {/if}

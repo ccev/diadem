@@ -1,4 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
 import { getLocale } from "@/lib/i18n/locale";
 
 export function round(num: number, places: number) {
@@ -122,12 +121,10 @@ export function formatDecimal(value: number | null | undefined, decimals: number
  */
 export function formatDistance(distance: number): string {
 	if (distance < 1000) {
-		return m.format_distance_meters({ distance: formatNumber(distance) });
+		return `${formatNumber(distance)} m`;
 	}
 
-	return m.format_distance_kilometers({
-		distance: formatNumber(distance / 1000, { maximumFractionDigits: 2 })
-	});
+	return `${formatNumber(distance / 1000, { maximumFractionDigits: 2 })} km`;
 }
 
 /**
@@ -137,12 +134,9 @@ export function formatDistance(distance: number): string {
  */
 export function formatDuration(duration: number): string {
 	const minutes = Math.max(1, Math.ceil(duration / 60));
-	if (minutes < 60) return m.format_duration_minutes({ minutes });
+	if (minutes < 60) return `${minutes} min`;
 
-	return m.format_duration_hours_minutes({
-		hours: Math.floor(minutes / 60),
-		minutes: minutes % 60
-	});
+	return `${Math.floor(minutes / 60)} hr ${minutes % 60} min`;
 }
 
 /**
@@ -151,7 +145,5 @@ export function formatDuration(duration: number): string {
  * @returns Formatted elevation string (e.g., "12.5 m")
  */
 export function formatElevation(elevation: number): string {
-	return m.format_elevation_meters({
-		elevation: formatNumber(elevation, { maximumFractionDigits: 1 })
-	});
+	return `${formatNumber(elevation, { maximumFractionDigits: 1 })} m`;
 }

@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { mItem, mMove, mPokemon, mWeather } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
@@ -88,7 +88,7 @@
 	export function getPopupPropsPokemon(data: MapData) {
 		data = data as PokemonData;
 		return {
-			type: m.wild_pokemon(),
+			type: "Wild Pokémon",
 			title: pokemonName(data),
 			image,
 			overview,
@@ -116,9 +116,9 @@
 
 	function getPvpNotice(data: PokemonData) {
 		const leagues = [
-			{ league: m.little_league(), rank: getBestRank(data, League.LITTLE) },
-			{ league: m.great_league(), rank: getBestRank(data, League.GREAT) },
-			{ league: m.ultra_league(), rank: getBestRank(data, League.ULTRA) }
+			{ league: "Little League", rank: getBestRank(data, League.LITTLE) },
+			{ league: "Great League", rank: getBestRank(data, League.GREAT) },
+			{ league: "Ultra League", rank: getBestRank(data, League.ULTRA) }
 		]
 			.filter(({ rank }) => rank > 0 && rank <= 5)
 			.map(({ league }) => league);
@@ -126,10 +126,7 @@
 		if (leagues.length === 0) return undefined;
 		if (leagues.length === 1) return leagues[0];
 
-		return m.listed_and({
-			part1: leagues.slice(0, leagues.length - 1).join(", "),
-			part2: leagues[leagues.length - 1]
-		});
+		return `${leagues.slice(0, leagues.length - 1).join(", ")} and ${leagues[leagues.length - 1]}`;
 	}
 
 	function getPvpPopupEntries(data: PokemonData): PvpPopupEntry[] {
@@ -175,14 +172,14 @@
 {#snippet overview(d: MapData)}
 	{@const data = d as PokemonData}
 
-	<OverviewCard title={hasTimer(data) ? m.popup_despawns() : m.popup_found()}>
+	<OverviewCard title={hasTimer(data) ? "Despawns" : "Found"}>
 		{#snippet value()}
 			<Countdown expireTime={hasTimer(data) ? data.expire_timestamp : data.first_seen_timestamp} />
 		{/snippet}
 	</OverviewCard>
 
 	{#if data.iv != null}
-		<OverviewCard title={m.pogo_ivs()}>
+		<OverviewCard title="IVs">
 			{#snippet value()}
 				{@render coloredIvs(data?.iv ?? -1, 1)}
 			{/snippet}
@@ -190,7 +187,7 @@
 	{/if}
 
 	{#if showLittle(data)}
-		<OverviewCard title={m.little_league()}>
+		<OverviewCard title="Little League">
 			{#snippet value()}
 				#{getBestRank(data, League.LITTLE)}
 			{/snippet}
@@ -198,7 +195,7 @@
 	{/if}
 
 	{#if showGreat(data)}
-		<OverviewCard title={m.great_league()}>
+		<OverviewCard title="Great League">
 			{#snippet value()}
 				#{getBestRank(data, League.GREAT)}
 			{/snippet}
@@ -206,7 +203,7 @@
 	{/if}
 
 	{#if showUltra(data)}
-		<OverviewCard title={m.ultra_league()}>
+		<OverviewCard title="Ultra League">
 			{#snippet value()}
 				#{getBestRank(data, League.ULTRA)}
 			{/snippet}
@@ -214,15 +211,15 @@
 	{/if}
 
 	{#if data.size && [1, 5].includes(data.size)}
-		<OverviewCard title={m.pokemon_size()} value={getPokemonSize(data?.size ?? 3)} />
+		<OverviewCard title="Size" value={getPokemonSize(data?.size ?? 3)} />
 	{/if}
 
 	{#if data.cp != null}
-		<OverviewCard title={m.cp()} value={data.cp} />
+		<OverviewCard title={/* @wc-include */ "CP"} value={data.cp} />
 	{/if}
 
 	{#if data.level != null}
-		<OverviewCard title={m.level()} value={data.level} />
+		<OverviewCard title="Level" value={data.level} />
 	{/if}
 {/snippet}
 
@@ -237,10 +234,10 @@
 		expire={data.expire_timestamp ?? 0}
 		fallbackExpire={data.first_seen_timestamp ?? 0}
 		useFallback={!hasTimer(data)}
-		fallbackTitle={m.first_seen()}
+		fallbackTitle="First seen"
 		fallbackExplanation={data.seen_type?.includes("nearby")
-			? m.unknown_spawnpoint_notice_nearby()
-			: m.unknown_spawnpoint_notice()}
+			? "This Pokémon's disappear time is unknown"
+			: "This spawnpoint's disappear time is not yet known. It will be learned over time"}
 	/>
 
 	<div class="space-y-2">
@@ -248,7 +245,7 @@
 		{#if data.seen_type?.includes("lure")}
 			<BasicMainCard class="flex gap-4 font-medium items-center justify-center">
 				<img class="w-8 shrink-0" src={resize(getIconItem(501), { width: 64 })} alt={mItem(501)} />
-				{m.notice_lure({ name: speciesName(data) })}
+				This {speciesName(data)} comes from a Lure Module
 			</BasicMainCard>
 		{:else if data.seen_type?.includes("tappable")}
 			<BasicMainCard class="flex gap-4 font-medium items-center justify-center">
@@ -257,18 +254,18 @@
 					src={resize(getIconItem(1151), { width: 64 })}
 					alt={mItem(1151)}
 				/>
-				{m.notice_tappable({ name: speciesName(data) })}
+				This {speciesName(data)} appears after tapping an apple
 			</BasicMainCard>
 		{:else if data.seen_type?.includes("nearby")}
 			<BasicMainCard class="text-center">
-				{m.notice_nearby({ name: speciesName(data) })}
+				This {speciesName(data)} was seen nearby. Its location is estimated and details are unknown
 			</BasicMainCard>
 		{/if}
 
 		<!--No IVs-->
 		{#if !data.seen_type?.includes("nearby") && !data.iv && data.iv !== 0 && canSeeIv(data)}
 			<BasicMainCard class="text-center">
-				{m.notice_wild({ name: speciesName(data) })}
+				This {speciesName(data)} has not yet been scanned completely. Its details are unknown
 			</BasicMainCard>
 		{/if}
 
@@ -277,9 +274,9 @@
 			<BasicMainCard class="flex gap-2 font-medium justify-center">
 				<RulerDimensionLine class="size-4 mt-1" />
 				{#if data.size === 1}
-					{m.notice_xxs({ name: speciesName(data) })}
+					It's tiny! This {speciesName(data)} is XXS
 				{:else if data.size === 5}
-					{m.notice_xxl({ name: speciesName(data) })}
+					It's huge! This {speciesName(data)} is XXL
 				{/if}
 			</BasicMainCard>
 		{/if}
@@ -288,7 +285,7 @@
 		{#if data.strong}
 			<BasicMainCard class="flex gap-2 justify-center">
 				<BicepsFlexed class="size-4 mt-0.5" />
-				{m.notice_mighty()}
+				This is a Mighty Pokémon! Its stats are much better than usual, but it's extra difficult to catch
 			</BasicMainCard>
 		{/if}
 
@@ -296,12 +293,12 @@
 		{#if data.iv != null && data.iv > 99}
 			<BasicMainCard class="flex gap-2 font-medium justify-center">
 				<span> 💯 </span>
-				{m.notice_hundo({ name: speciesName(data) })}
+				Hundo! This {speciesName(data)} has 100% IV
 			</BasicMainCard>
 		{:else if data.iv === 0}
 			<BasicMainCard class="flex gap-2 font-medium justify-center">
 				<Trash2 class="size-4 mt-1" />
-				{m.notice_nundo({ name: speciesName(data) })}
+				Nundo! This {speciesName(data)} has 0% IV
 			</BasicMainCard>
 		{/if}
 
@@ -309,12 +306,12 @@
 		{#if stats && statsEntry && statsEntry.spawns && statsEntry.spawns.count / stats.total.count <= 0.000001}
 			<BasicMainCard class="flex gap-2 font-medium justify-center">
 				<Spotlight class="size-4 mt-1" />
-				{m.notice_extremely_rare({
-					name: speciesName(data),
-					chance: formatNumber(stats.total.count / statsEntry.spawns.count, {
+				What a sight! {speciesName(data)} are extremely rare at 1 in {formatNumber(
+					stats.total.count / statsEntry.spawns.count,
+					{
 						maximumFractionDigits: 0
-					})
-				})}
+					}
+				)}
 			</BasicMainCard>
 		{/if}
 
@@ -322,10 +319,7 @@
 		{#if pvpNotice}
 			<BasicMainCard class="flex gap-2 font-medium justify-center">
 				<Swords class="size-4 mt-1" />
-				{m.notice_pvp_rank({
-					name: speciesName(data),
-					league: pvpNotice
-				})}
+				Cool! This {speciesName(data)} performs great in {pvpNotice}
 			</BasicMainCard>
 		{/if}
 
@@ -341,23 +335,20 @@
 					src={getIconPokemon(displayPokemon)}
 					alt={mPokemon(displayPokemon)}
 				/>
-				{m.notice_disguise({
-					name1: pokemonName(data),
-					name2: pokemonName(displayPokemon)
-				})}
+				This {pokemonName(data)} is disguised as a {pokemonName(displayPokemon)}
 			</BasicMainCard>
 		{/if}
 
 		{#if Math.abs((data.changed ?? 0) - (data.updated ?? data.changed ?? 0)) > 10}
 			<BasicMainCard class="flex gap-2 items-center justify-center">
 				<ArrowLeftRight class="size-4" />
-				{m.popup_species_changed()}
+				Species previously changed!
 			</BasicMainCard>
 		{/if}
 	</div>
 
 	{#if data.iv != null || data.cp != null || data.level != null}
-		<TitledMainSection Icon={SquareChartGantt} title={m.values()}>
+		<TitledMainSection Icon={SquareChartGantt} title="Values">
 			<StatsMainCard>
 				{#if data.iv != null}
 					<div>
@@ -367,9 +358,7 @@
 							class="flex text-base! font-normal! justify-between! w-full"
 							onclick={() => (showIvBreakdown = !showIvBreakdown)}
 						>
-							<p class="text-muted-foreground">
-								{m.iv_product_label_long()}
-							</p>
+							<p class="text-muted-foreground">Total IV</p>
 							<div class="flex items-center">
 								<ChevronDown
 									class="size-3.5 mr-2 text-muted-foreground transition-transform"
@@ -380,21 +369,21 @@
 						</Button>
 						{#if showIvBreakdown}
 							<div class="mt-4 mb-5 space-y-1" transition:slide={{ duration: 110 }}>
-								<IvBreakdown name={m.attack()} value={data.atk_iv ?? 0} />
-								<IvBreakdown name={m.defense()} value={data.def_iv ?? 0} />
-								<IvBreakdown name={m.stamina()} value={data.sta_iv ?? 0} />
+								<IvBreakdown name="Attack" value={data.atk_iv ?? 0} />
+								<IvBreakdown name="Defense" value={data.def_iv ?? 0} />
+								<IvBreakdown name={/* @wc-include */ "HP"} value={data.sta_iv ?? 0} />
 							</div>
 						{/if}
 					</div>
 				{/if}
 
 				{#if data.cp}
-					<StatsMainCardEntry name={m.cp()} value={data.cp} />
+					<StatsMainCardEntry name={/* @wc-include */ "CP"} value={data.cp} />
 				{/if}
 				{#if data.level}
-					<StatsMainCardEntry name={m.level()} value={data.level} />
+					<StatsMainCardEntry name="Level" value={data.level} />
 				{/if}
-				<StatsMainCardEntry name={m.weather_boost()}>
+				<StatsMainCardEntry name="Weather Boost">
 					{#snippet value()}
 						{#if data.weather}
 							<div class="flex items-center gap-1.5">
@@ -402,7 +391,7 @@
 								{mWeather(data.weather)}
 							</div>
 						{:else}
-							{m.modifier_none()}
+							None
 						{/if}
 					{/snippet}
 				</StatsMainCardEntry>
@@ -411,7 +400,7 @@
 	{/if}
 
 	{#if showGreat(data) || showUltra(data) || showLittle(data)}
-		<TitledMainSection Icon={Swords} title={m.pvp_performance()}>
+		<TitledMainSection Icon={Swords} title="PVP Performance">
 			<BasicMainCard>
 				<div class="-mx-4 mt-2">
 					<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">
@@ -439,13 +428,9 @@
 								</div>
 
 								<div class="space-y-1 mt-2">
-									<StatsMainCardEntry
-										Icon={Award}
-										name={m.league()}
-										value={mLeague(pokemon.league)}
-									/>
+									<StatsMainCardEntry Icon={Award} name="League" value={mLeague(pokemon.league)} />
 
-									<StatsMainCardEntry Icon={ChartColumn} name={m.performance()}>
+									<StatsMainCardEntry Icon={ChartColumn} name="Performance">
 										{#snippet value()}
 											<p>
 												<span class="text-muted-foreground">
@@ -455,20 +440,20 @@
 													})} ·
 												</span>
 												<span>
-													{m.rank_x({ rank: pokemon.rank })}
+													Rank {pokemon.rank}
 												</span>
 											</p>
 										{/snippet}
 									</StatsMainCardEntry>
 
-									<StatsMainCardEntry Icon={Goal} name={m.pvp_target()}>
+									<StatsMainCardEntry Icon={Goal} name="Target">
 										{#snippet value()}
 											<p>
 												<span class="text-muted-foreground">
-													{m.pogo_level({ level: formatNumber(pokemon.level) })} ·
+													Level {formatNumber(pokemon.level)} ·
 												</span>
 												<span>
-													{m.pogo_cp({ cp: pokemon.cp })}
+													{pokemon.cp} CP
 												</span>
 											</p>
 										{/snippet}
@@ -476,7 +461,7 @@
 								</div>
 
 								<IconValue Icon={Info} class="text-muted-foreground mt-3">
-									{m.considered_max_level()}: {pokemon.cap}
+									Considered max level: {pokemon.cap}
 								</IconValue>
 							</div>
 						{/each}
@@ -489,7 +474,7 @@
 	<PokemonStatsCard {data} />
 
 	{#if !data.seen_type?.includes("nearby")}
-		<TitledMainSection Icon={CircleDot} title={m.access_this_pokemon({ name: speciesName(data) })}>
+		<TitledMainSection Icon={CircleDot} title="Access this {speciesName(data)}">
 			<div class="relative">
 				<MainAccessMap
 					lat={data.lat}
@@ -508,10 +493,10 @@
 				>
 					{#if mapExpandedRadius}
 						<Shrink class="size-3.5" />
-						{m.normal()}
+						Normal
 					{:else}
 						<Expand class="size-3.5" />
-						{m.popup_action_spacial_rend()}
+						Spacial Rend
 					{/if}
 				</Button>
 			</div>
@@ -519,14 +504,12 @@
 	{/if}
 
 	{#if getUserSettings().filters.pokemon.enabled && getUserSettings().filters.pokemon.filters.find((f) => f.enabled)}
-		<TitledMainSection Icon={SlidersHorizontal} title={m.matching_filtersets()}>
+		<TitledMainSection Icon={SlidersHorizontal} title="Matching Filters">
 			<BasicMainCard>
 				{@const filtersets = matchPokemonFiltersets(data)}
 
 				{#if filtersets.length === 0}
-					<p>
-						{m.filters_dont_match_pokemon()}
-					</p>
+					<p>None of your filters match this Pokémon</p>
 				{/if}
 				<div class="flex flex-wrap gap-3">
 					{#each filtersets as filterset}
@@ -542,34 +525,32 @@
 		</TitledMainSection>
 	{/if}
 
-	<TitledMainSection Icon={Info} title={m.about_this_pokemon({ name: speciesName(data) })}>
+	<TitledMainSection Icon={Info} title="About this {speciesName(data)}">
 		<StatsMainCard>
 			<StatsMainCardEntry
 				Icon={data.gender === 1 ? Mars : data.gender === 2 ? Venus : CircleSmall}
-				name={m.pokemon_gender()}
+				name="Gender"
 			>
 				{#snippet value()}
 					{#if data.gender != null}
 						{#if data.gender === 1}
-							{m.pokemon_gender_male()}
+							Male
 						{:else if data.gender === 2}
-							{m.pokemon_gender_female()}
+							Female
 						{:else}
-							{m.pokemon_gender_neutral()}
+							{/* @wc-context: Pokémon gender */ "Neutral"}
 						{/if}
 					{:else}
-						<span class="text-muted-foreground">
-							{m.unknown()}
-						</span>
+						<span class="text-muted-foreground"> Unknown </span>
 					{/if}
 				{/snippet}
 			</StatsMainCardEntry>
 			<StatsMainCardEntry
 				Icon={Ruler}
-				name={m.pokemon_size()}
-				value={data.size != null ? getPokemonSize(data.size) : m.unknown()}
+				name="Size"
+				value={data.size != null ? getPokemonSize(data.size) : "Unknown"}
 			/>
-			<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
+			<StatsMainCardEntry Icon={Swords} name="Moves">
 				{#snippet value()}
 					<p class="flex gap-2">
 						{#if data.move_1 && data.move_2}
@@ -577,7 +558,7 @@
 							<span>·</span>
 							<span>{mMove(data.move_2)}</span>
 						{:else}
-							{m.unknown()}
+							Unknown
 						{/if}
 					</p>
 				{/snippet}

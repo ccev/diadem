@@ -1,6 +1,7 @@
 @import "./custom.css";
 
 @import "tailwindcss";
+@source not "./locales/";
 @import "tw-animate-css";
 
 @source "routes/(custom)/**/*.{js,ts,svelte}";

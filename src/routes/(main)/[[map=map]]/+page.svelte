@@ -14,7 +14,7 @@
 	import Home from "@/components/custom/Home.svelte";
 	import { isWebglSupported } from "@/lib/map/utils";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import Button from "@/components/ui/input/Button.svelte";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
 	import { startLogin } from "@/lib/services/user/login";
@@ -52,11 +52,15 @@
 {:else if !isWebglSupported()}
 	<ErrorPageWebGl />
 {:else if hasLoadedFeature(LoadedFeature.SUPPORTED_FEATURES) && isSupportedFeature("showFullscreenLogin")}
-	<ErrorPage error={m.discord_block_title()} description={m.discord_block_desc()} href={errorHref}>
+	<ErrorPage
+		error="Discord Link required"
+		description="You have to link your Discord account before accessing the map"
+		href={errorHref}
+	>
 		{#snippet extraButtons()}
 			<Button onclick={() => startLogin()}>
 				<DiscordIcon class="w-3.5 shrink-0" />
-				<span>{m.discord_block_button()}</span>
+				<span>Link Discord</span>
 			</Button>
 		{/snippet}
 	</ErrorPage>

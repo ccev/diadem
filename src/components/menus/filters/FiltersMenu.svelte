@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
 	import FilterSection from "@/components/menus/filters/FilterSection.svelte";
 	import SignInButton from "@/components/ui/user/SignInButton.svelte";
 	import { mapObjectLabels } from "@/lib/mapObjects/mapObjectLabels";
@@ -28,38 +27,38 @@
 		isFilterable={false}
 		subCategories={[
 			{
-				title: m.plain_pokestops(),
+				title: "Plain Pokéstops",
 				category: "pokestopPlain",
 				requiredPermission: Features.POKESTOP,
 				filterable: false
 			},
 			{
-				title: m.pogo_quests(),
+				title: "Quests",
 				category: "quest",
 				requiredPermission: Features.QUEST,
 				filterModal: "filtersetQuest"
 			},
 			{
-				title: m.pogo_invasion(),
+				title: "Team Rocket",
 				category: "invasion",
 				requiredPermission: Features.INVASION,
 				filterModal: "filtersetInvasion"
 			},
-			{ title: m.lures(), category: "lure", requiredPermission: Features.LURE, filterable: false },
+			{ title: "Lures", category: "lure", requiredPermission: Features.LURE, filterable: false },
 			{
-				title: m.contests(),
+				title: "Showcases",
 				category: "contest",
 				requiredPermission: Features.CONTEST,
 				filterable: false
 			},
 			{
-				title: m.kecleon(),
+				title: "Kecleon",
 				category: "kecleon",
 				requiredPermission: Features.KECLEON,
 				filterable: false
 			},
 			{
-				title: m.golden_pokestops(),
+				title: "Golden Pokéstops",
 				category: "goldPokestop",
 				requiredPermission: Features.GOLDEN_POKESTOP,
 				filterable: false
@@ -75,13 +74,13 @@
 		isFilterable={false}
 		subCategories={[
 			{
-				title: m.plain_gyms(),
+				title: "Plain Gyms",
 				category: "gymPlain",
 				requiredPermission: Features.GYM,
 				filterable: false
 			},
 			{
-				title: m.raids(),
+				title: "Raids",
 				category: "raid",
 				requiredPermission: Features.RAID,
 				filterModal: "filtersetRaid"
@@ -91,7 +90,7 @@
 
 	<FilterSection
 		requiredPermission={Features.ROUTE}
-		title={m.routes()}
+		title="Routes"
 		category="route"
 		mapObject={MapObjectType.ROUTE}
 		isFilterable={false}
@@ -105,13 +104,13 @@
 		isFilterable={false}
 		subCategories={[
 			{
-				title: m.plain_stations(),
+				title: "Plain Power Spots",
 				category: "stationPlain",
 				requiredPermission: Features.STATION,
 				filterable: false
 			},
 			{
-				title: m.max_battles(),
+				title: "Max Battles",
 				category: "maxBattle",
 				requiredPermission: Features.MAX_BATTLE,
 				filterModal: "filtersetMaxBattle"

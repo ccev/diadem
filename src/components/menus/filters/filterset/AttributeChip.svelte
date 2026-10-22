@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import { X } from "@lucide/svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import { filterColors } from "@/lib/features/filters/colors";
 
@@ -38,7 +38,7 @@
 >
 	<span class="py-1">
 		{#if isEmpty}
-			{m.any()}
+			Any
 		{:else}
 			{label}
 		{/if}

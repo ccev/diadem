@@ -1,11 +1,11 @@
 <script lang="ts">
 	import favicon from "/static/favicon.svg?inline";
 	import { getClientConfig } from "@/lib/services/config/config.server";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { mPokemon } from "@/lib/services/ingameLocale";
 	import { getStationTitle } from "@/lib/utils/stationUtils";
-	import { mAny } from "@/lib/utils/anyMessage";
+	import { mapObjectLabel } from "@/lib/mapObjects/mapObjectLabels";
 	import type { StationData } from "@/lib/types/mapObjectData/station";
 	import type { NestData } from "@/lib/types/mapObjectData/nest";
 	import type { SpawnpointData } from "@/lib/types/mapObjectData/spawnpoint";
@@ -32,19 +32,19 @@
 			case MapObjectType.POKEMON:
 				return mPokemon(data);
 			case MapObjectType.POKESTOP:
-				return data.name ?? m.pogo_pokestop();
+				return data.name ?? "Pokéstop";
 			case MapObjectType.GYM:
-				return data.name ?? m.pogo_gym();
+				return data.name ?? "Gym";
 			case MapObjectType.STATION:
 				return getStationTitle(data as StationData);
 			case MapObjectType.NEST:
-				return m.pokemon_nest({ pokemon: mPokemon(data as NestData) });
+				return `${mPokemon(data as NestData)} Nest`;
 			case MapObjectType.TAPPABLE:
 				return getTappableName(data as TappableData);
 			case MapObjectType.SPAWNPOINT:
-				return m.pogo_spawnpoint();
+				return "Spawnpoint";
 			case MapObjectType.ROUTE:
-				return data.name ?? m.pogo_route();
+				return data.name ?? "Route";
 			default:
 				return (data as { name?: string }).name ?? data.type;
 		}
@@ -65,7 +65,7 @@
 				/>
 			{/if}
 			<p class="text-zinc-500 font-bold text-lg uppercase my-0 mt-2">
-				{mAny("pogo_" + data.type)}
+				{mapObjectLabel(data.type)}
 			</p>
 
 			<p

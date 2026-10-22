@@ -2,7 +2,7 @@ import { POKEMON_MIN_RANK } from "@/lib/constants";
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import type { FilterPokemon } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import type { PokemonData, PvpStats } from "@/lib/types/mapObjectData/pokemon";
@@ -203,23 +203,23 @@ export function getPokemonSize(size: number) {
 
 export function getGenderLabel(gender: number) {
 	if (gender === 1) {
-		return m.pokemon_gender_male();
+		return "Male";
 	} else if (gender === 2) {
-		return m.pokemon_gender_female();
+		return "Female";
 	} else {
-		return m.pokemon_gender_neutral();
+		return /* @wc-context: Pokémon gender */ "Neutral";
 	}
 }
 
 export function getRarityLabel(count: number, totalSpawns: number) {
-	if (totalSpawns === 0) return m.rarity_legendary();
+	if (totalSpawns === 0) return "Off the charts";
 	const ratio = count / totalSpawns;
-	if (ratio > 0.01) return m.rarity_common();
-	if (ratio > 0.001) return m.rarity_uncommon();
-	if (ratio > 0.0001) return m.rarity_rare();
-	if (ratio > 0.00001) return m.rarity_very_rare();
-	if (ratio > 0.000001) return m.rarity_extremely_rare();
-	return m.rarity_legendary();
+	if (ratio > 0.01) return "Common";
+	if (ratio > 0.001) return "Uncommon";
+	if (ratio > 0.0001) return "Rare";
+	if (ratio > 0.00001) return "Very Rare";
+	if (ratio > 0.000001) return "Elusive";
+	return "Off the charts";
 }
 
 export function typeIdToText(typeId: number | undefined) {

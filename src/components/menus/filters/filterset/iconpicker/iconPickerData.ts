@@ -1,5 +1,5 @@
 import { IconCategory } from "@/lib/features/filters/icons";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mCharacter, mItem, mPokemon, mRaid, mType } from "@/lib/services/ingameLocale";
 import { getAllPokemon, getMasterFile } from "@/lib/services/masterfile";
 import {
@@ -203,16 +203,18 @@ export type IconPickerItem = {
 	params: Record<string, any>;
 };
 
-export const PICKER_TABS: { id: IconPickerTab; labelKey: keyof typeof m }[] = [
-	{ id: "emoji", labelKey: "icon_picker_emoji" },
-	{ id: "pokemon", labelKey: "pogo_pokemon" },
-	{ id: "raid", labelKey: "icon_picker_raid" },
-	{ id: "invasion", labelKey: "icon_picker_invasion" },
-	{ id: "poi", labelKey: "icon_picker_poi" },
-	{ id: "item", labelKey: "icon_picker_item" },
-	{ id: "type", labelKey: "icon_picker_type" },
-	{ id: "misc", labelKey: "icon_picker_misc" }
-];
+export function getPickerTabs(): { id: IconPickerTab; label: string }[] {
+	return [
+		{ id: "emoji", label: "Emoji" },
+		{ id: "pokemon", label: "Pokémon" },
+		{ id: "raid", label: "Raids" },
+		{ id: "invasion", label: "Grunts" },
+		{ id: "poi", label: "POIs" },
+		{ id: "item", label: "Items" },
+		{ id: "type", label: "Types" },
+		{ id: "misc", label: "Misc" }
+	];
+}
 
 const TYPE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
@@ -226,28 +228,28 @@ const LEAGUE_VALUES: League[] = [League.LITTLE, League.GREAT, League.ULTRA, Leag
 function getLeagueLabel(league: League): string {
 	switch (league) {
 		case League.LITTLE:
-			return m.little_league();
+			return "Little League";
 		case League.GREAT:
-			return m.great_league();
+			return "Great League";
 		case League.ULTRA:
-			return m.ultra_league();
+			return "Ultra League";
 		case League.MASTER:
-			return m.master_league();
+			return "Master League";
 	}
 }
 
 function getTeamLabel(teamId: number): string {
 	switch (teamId) {
 		case 0:
-			return m.team_neutral();
+			return "Neutral";
 		case 1:
-			return m.team_mystic();
+			return "Mystic";
 		case 2:
-			return m.team_valor();
+			return "Valor";
 		case 3:
-			return m.team_instinct();
+			return "Instinct";
 		default:
-			return m.team_neutral();
+			return "Neutral";
 	}
 }
 
@@ -363,7 +365,7 @@ export function getMiscIcons(): IconPickerItem[] {
 	items.push({
 		key: "misc-stardust",
 		iconUrl: getIconReward(RewardType.STARDUST, { amount: 0 }),
-		label: m.stardust(),
+		label: "Stardust",
 		category: IconCategory.MISC,
 		params: { misc_type: "stardust" }
 	});
@@ -372,7 +374,7 @@ export function getMiscIcons(): IconPickerItem[] {
 	items.push({
 		key: "misc-candy",
 		iconUrl: getIconReward(RewardType.CANDY, { pokemon_id: 25 }),
-		label: m.candy(),
+		label: "Candy",
 		category: IconCategory.MISC,
 		params: { misc_type: "candy", pokemon_id: 25 }
 	});
@@ -381,7 +383,7 @@ export function getMiscIcons(): IconPickerItem[] {
 	items.push({
 		key: "misc-xl-candy",
 		iconUrl: getIconReward(RewardType.XL_CANDY, { pokemon_id: 25 }),
-		label: m.xl_candy(),
+		label: "Candy XL",
 		category: IconCategory.MISC,
 		params: { misc_type: "xl_candy", pokemon_id: 25 }
 	});
@@ -390,7 +392,7 @@ export function getMiscIcons(): IconPickerItem[] {
 	items.push({
 		key: "misc-mega-resource",
 		iconUrl: getIconReward(RewardType.MEGA_ENERGY, { amount: 0 }),
-		label: m.mega_energy(),
+		label: "Mega Energy",
 		category: IconCategory.MISC,
 		params: { misc_type: "mega_resource" }
 	});
@@ -411,35 +413,35 @@ export function getPoiIcons(): IconPickerItem[] {
 	}[] = [
 		{
 			key: "pokestop-base",
-			label: m.pogo_pokestop(),
+			label: "Pokéstop",
 			lure_id: 0,
 			display_type: false,
 			quest_active: false
 		},
 		{
 			key: "pokestop-invasion",
-			label: m.poi_pokestop_invasion(),
+			label: "Pokéstop (Team Rocket)",
 			lure_id: 0,
 			display_type: 1,
 			quest_active: false
 		},
 		{
 			key: "pokestop-gold",
-			label: m.poi_pokestop_gold(),
+			label: "Golden Pokéstop",
 			lure_id: 0,
 			display_type: 7,
 			quest_active: false
 		},
 		{
 			key: "pokestop-kecleon",
-			label: m.poi_pokestop_kecleon(),
+			label: "Pokéstop (Kecleon)",
 			lure_id: 0,
 			display_type: 8,
 			quest_active: false
 		},
 		{
 			key: "pokestop-contest",
-			label: m.poi_pokestop_contest(),
+			label: "Pokéstop (Showcase)",
 			lure_id: 0,
 			display_type: 9,
 			quest_active: false
@@ -450,7 +452,7 @@ export function getPoiIcons(): IconPickerItem[] {
 	for (const lureId of ALL_LURE_IDS) {
 		pokestopVariants.push({
 			key: `pokestop-lure-${lureId}`,
-			label: m.poi_pokestop_lured({ lure: mItem(lureId) }),
+			label: `Pokéstop (${mItem(lureId)})`,
 			lure_id: lureId,
 			display_type: false,
 			quest_active: false
@@ -476,7 +478,7 @@ export function getPoiIcons(): IconPickerItem[] {
 		items.push({
 			key: `gym-${i}`,
 			iconUrl: getIconGymDirect(i),
-			label: m.poi_gym_team({ team: getTeamLabel(i) }),
+			label: `Gym (${getTeamLabel(i)})`,
 			category: IconCategory.GYM,
 			params: { team_id: i }
 		});
@@ -486,14 +488,14 @@ export function getPoiIcons(): IconPickerItem[] {
 	items.push({
 		key: "station-inactive",
 		iconUrl: getIconStation(false),
-		label: m.poi_station_inactive(),
+		label: "Power Spot (Inactive)",
 		category: IconCategory.STATION,
 		params: { active: false }
 	});
 	items.push({
 		key: "station-active",
 		iconUrl: getIconStation(true),
-		label: m.poi_station_active(),
+		label: "Power Spot (Active)",
 		category: IconCategory.STATION,
 		params: { active: true }
 	});

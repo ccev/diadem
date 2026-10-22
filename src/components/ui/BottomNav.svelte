@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { CircleUserRound, PocketKnife, Settings2 } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 	import { closeMenu, getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte.js";
@@ -28,21 +28,21 @@
 	}[] = [];
 
 	buttons.push({
-		text: m.nav_filters(),
+		text: "Filters",
 		icon: Settings2,
 		type: Menu.FILTERS
 	});
 
 	if (getConfig().tools?.showToolsMenu) {
 		buttons.push({
-			text: m.nav_tools(),
+			text: "Tools",
 			icon: PocketKnife,
 			type: Menu.TOOLS
 		});
 	}
 
 	buttons.push({
-		text: m.nav_profile(),
+		text: "Profile",
 		icon: CircleUserRound,
 		type: Menu.PROFILE
 	});

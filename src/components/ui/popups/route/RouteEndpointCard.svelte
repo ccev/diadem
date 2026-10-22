@@ -4,7 +4,7 @@
 	import { openPopup } from "@/lib/mapObjects/interact";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { getRouteEndpointFort } from "@/lib/utils/routeUtils";
 	import { ArrowRight, MapPinned } from "@lucide/svelte";
@@ -23,7 +23,7 @@
 	let routeEndpoint = $derived(isEnd ? route.end : route.start);
 	let fortName = $derived(
 		routeEndpoint.name ??
-			(routeEndpoint.type === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
+			(routeEndpoint.type === MapObjectType.GYM ? "Unknown Gym" : "Unknown Pokéstop")
 	);
 	let fort = $derived(
 		getMapObjects()[`${routeEndpoint.type}-${routeEndpoint.id}`] ??
@@ -51,7 +51,7 @@
 
 	<div class="min-w-0">
 		<p class="text-sm font-semibold text-muted-foreground">
-			{label === "end" ? m.end() : m.start()}
+			{label === "end" ? "End" : "Start"}
 		</p>
 		<p class="wrap-break-word font-semibold text-lg">{fortName}</p>
 	</div>

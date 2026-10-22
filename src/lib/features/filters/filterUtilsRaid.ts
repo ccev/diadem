@@ -1,25 +1,25 @@
 import type { FiltersetRaid, FiltersetTitle } from "@/lib/features/filters/filtersets";
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 
 export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid {
 	const title: FiltersetTitle = {
 		title: filter.title.title,
-		message: "filter_template_raids_fallback"
+		message: /* @wc-ignore */ "Raid Filter"
 	};
 	setFilterIcon(filter, {
 		uicon: { category: IconCategory.RAID, params: { level: RaidLevel.STAR_1 } }
 	});
 
 	if ((filter.levels && filter.levels.length > 0) || filter.show) {
-		let kind: keyof typeof m = "filter_template_raids_raids";
+		let kind: string = /* @wc-ignore */ "Raids";
 		if (filter.show && filter.show.includes("egg")) {
-			kind = "filter_template_raids_eggs";
+			kind = /* @wc-ignore */ "Eggs";
 		} else if (filter.show && filter.show.includes("boss")) {
-			kind = "filter_template_raids_bosses";
+			kind = /* @wc-ignore */ "Bosses";
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.RAID, params: { level: RaidLevel.STAR_1, hatched: 1 } }
 			});
@@ -28,53 +28,53 @@ export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid 
 		title.params = { kind };
 
 		if (!filter.levels || filter.levels.length === 0) {
-			title.message = "filter_template_raids_all";
+			title.message = /* @wc-ignore */ "All {kind}";
 		} else if (filter.levels.length > 1) {
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.RAID, params: { level: filter.levels[0] } }
 			});
-			title.message = "filter_template_levels_various";
+			title.message = /* @wc-ignore */ "Various {kind}";
 		} else {
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.RAID, params: { level: filter.levels[0] } }
 			});
 			switch (filter.levels[0]) {
 				case RaidLevel.STAR_1:
-					title.message = "filter_template_levels_1_star";
+					title.message = /* @wc-ignore */ "★ {kind}";
 					break;
 				case RaidLevel.SHADOW_STAR_1:
-					title.message = "filter_template_levels_1_star_shadow";
+					title.message = /* @wc-ignore */ "Shadow ★ {kind}";
 					break;
 				case RaidLevel.STAR_3:
-					title.message = "filter_template_levels_3_star";
+					title.message = /* @wc-ignore */ "★★★ {kind}";
 					break;
 				case RaidLevel.SHADOW_STAR_3:
-					title.message = "filter_template_levels_3_star_shadow";
+					title.message = /* @wc-ignore */ "Shadow ★★★ {kind}";
 					break;
 				case RaidLevel.LEGENDARY:
-					title.message = "filter_template_levels_legendary";
+					title.message = /* @wc-ignore */ "Legendary {kind}";
 					break;
 				case RaidLevel.SHADOW_LEGENDARY:
-					title.message = "filter_template_levels_legendary_shadow";
+					title.message = /* @wc-ignore */ "Legendary Shadow {kind}";
 					break;
 				case RaidLevel.MEGA:
-					title.message = "filter_template_levels_mega";
+					title.message = /* @wc-ignore */ "Mega {kind}";
 					break;
 				case RaidLevel.MEGA_LEGENDARY:
-					title.message = "filter_template_levels_mega_legendary";
+					title.message = /* @wc-ignore */ "Mega Legendary {kind}";
 					break;
 				case RaidLevel.PRIMAL:
-					title.message = "filter_template_levels_primal";
+					title.message = /* @wc-ignore */ "Primal {kind}";
 					break;
 				case RaidLevel.ULTRA_BEAST:
-					title.message = "filter_template_levels_ultra_beast";
+					title.message = /* @wc-ignore */ "Ultra Beast {kind}";
 					break;
 				case RaidLevel.ELITE:
-					title.message = "filter_template_levels_elite";
+					title.message = /* @wc-ignore */ "Elite {kind}";
 					break;
 				case RaidLevel.MEGA_SUPER:
 				case RaidLevel.MEGA_SUPER_LEGENDARY:
-					title.message = "filter_template_levels_super_mega";
+					title.message = /* @wc-ignore */ "Super Mega {kind}";
 					break;
 			}
 		}
@@ -84,7 +84,7 @@ export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid 
 				uicon: { category: IconCategory.POKEMON, params: filter.bosses[0] }
 			});
 
-			title.message = "filter_template_pokemon_raids";
+			title.message = /* @wc-ignore */ "{pokemon} Raids";
 			// TODO: this shuld be called in filterTitle, not here. for proper i18n
 			title.params = { pokemon: mPokemon(filter.bosses[0]) };
 		} else {
@@ -92,7 +92,7 @@ export function generateRaidFilterDetails(filter: FiltersetRaid): FiltersetRaid 
 				uicon: { category: IconCategory.RAID, params: { level: RaidLevel.STAR_1, hatched: 1 } }
 			});
 
-			title.message = "count_pokemon";
+			title.message = /* @wc-ignore */ "{count} Pokémon";
 			title.params = { count: filter.bosses.length.toString() };
 		}
 	}

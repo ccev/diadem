@@ -3,7 +3,7 @@
 	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
 	import Attribute from "@/components/menus/filters/filterset/Attribute.svelte";
 	import AttributesOverview from "@/components/menus/filters/filterset/AttributesOverview.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { FiltersetQuest } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import {
@@ -40,10 +40,10 @@
 	mapObject={MapObjectType.POKESTOP}
 	majorCategory="pokestop"
 	subCategory="quest"
-	titleBase={m.quest_filter()}
-	titleShared={m.shared_quest_filter()}
-	titleNew={m.new_quest_filter()}
-	titleEdit={m.edit_quest_filter()}
+	titleBase="Quest Filter"
+	titleShared="Shared Quest Filter"
+	titleNew="New Quest Filter"
+	titleEdit="Edit Quest Filter"
 >
 	{#snippet base()}
 		{#if data}
@@ -232,7 +232,7 @@
 			</AttributesOverview>
 
 			<AttributesOverview>
-				<Attribute label={m.tasks()}>
+				<Attribute label="Tasks">
 					<AttributeChip
 						label={makeAttributeTaskLabel(data.tasks ?? [])}
 						isEmpty={!data.tasks}

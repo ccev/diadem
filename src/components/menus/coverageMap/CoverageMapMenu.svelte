@@ -7,13 +7,13 @@
 	import { SvelteSet } from "svelte/reactivity";
 	import { slide } from "svelte/transition";
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type * as icons from "@lucide/svelte";
 
 	let expandedAreas: Set<number> = new SvelteSet();
 
 	function getAreaIcon(area: KojiFeature): keyof typeof icons {
-		return (area.properties.lucideIcon ?? "Globe") as keyof typeof icons;
+		return (area.properties.lucideIcon ?? /* @wc-ignore */ "Globe") as keyof typeof icons;
 	}
 </script>
 
@@ -29,7 +29,7 @@
 		variant="secondary"
 		onclick={() => selectCoverageMapArea(area)}
 	>
-		{m.coveragemap_view()}
+		View
 	</Button>
 {/snippet}
 

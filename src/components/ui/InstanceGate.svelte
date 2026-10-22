@@ -5,7 +5,6 @@
 	import { fetchInstanceMapName, setInstanceUrl } from "@/lib/native/runtime";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { fly } from "svelte/transition";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	// makes sure this is loadable before anything else
 	let { initial = "", onCancel }: { initial?: string; onCancel?: () => void } = $props();
@@ -120,7 +119,7 @@
 			</h1>
 
 			<p class="mt-6 max-w-xs text-xl font-medium text-sky-100">
-				{m.instance_gate_prompt()}
+				Enter an URL below to connect to a Diadem Map
 			</p>
 
 			<div class="w-full mt-10">
@@ -146,13 +145,13 @@
 					>
 						{#if checking}
 							<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
-							{m.connection_checking()}
+							Checking...
 						{:else if mapName}
 							<CircleCheck class="size-4 stroke-[2.5] mt-0.5" />
-							{m.connecting_to_name({ name: mapName })}
+							Connecting to {mapName}
 						{:else if failed}
 							<CircleX class="size-4 stroke-[2.5]" />
-							{m.connection_failed()}
+							Connection failed
 						{/if}
 					</div>
 				{/if}
@@ -166,7 +165,7 @@
 				disabled={!mapName}
 				class="disabled:opacity-50 bg-linear-0 from-sky-100/50 from-5% via-sky-50/75 to-95% to-white/90 w-full max-w-sm h-16 rounded-md outline-sky-100/75 outline-2 text-indigo-900/90 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"
 			>
-				{m.connect()}
+				Connect
 				<ArrowRight class="size-4 stroke-[2.5]" />
 			</Button>
 			<!--			<Button-->

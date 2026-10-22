@@ -157,7 +157,7 @@ export function getNewFilterset(): BaseFilterset {
 	return {
 		id: getId(),
 		title: {
-			message: "unknown_filter",
+			message: /* @wc-ignore */ "Unknown Filter",
 			title: undefined
 		},
 		icon: {

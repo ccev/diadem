@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { mPokemon } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 	import { MapObjectType } from "$lib/mapObjects/mapObjectTypes";
@@ -40,7 +40,7 @@
 	export function getPopupPropsTappable(data: MapData) {
 		data = data as TappableData;
 		return {
-			type: m.pogo_tappable(),
+			type: "Ground Item",
 			title: getTappableName(data),
 			image,
 			main
@@ -66,11 +66,11 @@
 		expire={data?.expire_timestamp ?? 0}
 		fallbackExpire={data.updated}
 		useFallback={!hasTimer(data)}
-		fallbackTitle={m.last_seen()}
-		fallbackExplanation={m.unknown_spawnpoint_notice()}
+		fallbackTitle="Last seen"
+		fallbackExplanation="This spawnpoint's disappear time is not yet known. It will be learned over time"
 	/>
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_tappable()}>
+	<TitledMainSection Icon={CircleDot} title="Access this Ground item">
 		<MainAccessMap
 			lat={data.lat}
 			lon={data.lon}

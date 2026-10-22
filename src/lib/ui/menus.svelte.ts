@@ -54,6 +54,23 @@ export function getOpenedMenu() {
 	return openedMenu;
 }
 
+export function getOpenedMenuTitle() {
+	switch (openedMenu) {
+		case Menu.PROFILE:
+			return "Profile";
+		case Menu.FILTERS:
+			return "Filters";
+		case Menu.SCOUT:
+			return "Scout";
+		case Menu.TOOLS:
+			return "Tools";
+		case Menu.COVERAGE_MAP:
+			return "Coverage Map";
+		default:
+			return "";
+	}
+}
+
 export function setJustChangedMenus() {
 	justChangedMenus = true;
 }

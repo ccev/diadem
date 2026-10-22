@@ -2,7 +2,6 @@
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
 	import type { FiltersetPokemon, MinMax } from "@/lib/features/filters/filtersets";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		data,
@@ -18,7 +17,7 @@
 <SliderRange
 	min={percBounds.min}
 	max={percBounds.max}
-	title={m.iv_product_label()}
+	title={/* @wc-include */ "IV %"}
 	valueMin={data.iv?.min ?? percBounds.min}
 	valueMax={data.iv?.max ?? percBounds.max}
 	onchange={([min, max]) =>
@@ -27,7 +26,7 @@
 <SliderRange
 	min={ivBounds.min}
 	max={ivBounds.max}
-	title={m.attack_iv()}
+	title="Attack IV"
 	valueMin={data.ivAtk?.min ?? ivBounds.min}
 	valueMax={data.ivAtk?.max ?? ivBounds.max}
 	onchange={([min, max]) =>
@@ -36,7 +35,7 @@
 <SliderRange
 	min={ivBounds.min}
 	max={ivBounds.max}
-	title={m.defense_iv()}
+	title="Defense IV"
 	valueMin={data.ivDef?.min ?? ivBounds.min}
 	valueMax={data.ivDef?.max ?? ivBounds.max}
 	onchange={([min, max]) =>
@@ -45,7 +44,7 @@
 <SliderRange
 	min={ivBounds.min}
 	max={ivBounds.max}
-	title={m.stamina_iv()}
+	title={/* @wc-include */ "HP IV"}
 	valueMin={data.ivSta?.min ?? ivBounds.min}
 	valueMax={data.ivSta?.max ?? ivBounds.max}
 	onchange={([min, max]) =>

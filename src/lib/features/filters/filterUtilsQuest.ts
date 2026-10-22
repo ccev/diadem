@@ -9,7 +9,7 @@ import {
 	makeAttributeRewardPokemonLabel
 } from "@/lib/features/filters/makeAttributeChipLabel";
 import { getActiveQuestRewards, getQuestStats } from "@/lib/features/masterStats.svelte";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mQuest } from "@/lib/services/ingameLocale";
 import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { RewardType } from "@/lib/utils/pokestopUtils";
@@ -51,7 +51,7 @@ export function getAttributeLabelXp(xp: MinMax | undefined) {
 export function generateQuestFilterDetails(filter: FiltersetQuest) {
 	const title: FiltersetTitle = {
 		title: filter.title.title,
-		message: "filter_template_quest_fallback"
+		message: /* @wc-ignore */ "Quest Filter"
 	};
 	setFilterIcon(filter, { emoji: "🔍" });
 
@@ -90,7 +90,7 @@ export function generateQuestFilterDetails(filter: FiltersetQuest) {
 	}
 
 	if (filter.candy?.length) {
-		parts.push(m.pokemon_candy({ pokemon: makeAttributeRewardPokemonLabel(filter.candy) }));
+		parts.push(`${makeAttributeRewardPokemonLabel(filter.candy)} Candy`);
 		setIconOnce({
 			uicon: {
 				category: IconCategory.MISC,
@@ -100,7 +100,7 @@ export function generateQuestFilterDetails(filter: FiltersetQuest) {
 	}
 
 	if (filter.xlCandy?.length) {
-		parts.push(m.pokemon_xl_candy({ pokemon: makeAttributeRewardPokemonLabel(filter.xlCandy) }));
+		parts.push(`${makeAttributeRewardPokemonLabel(filter.xlCandy)} Candy XL`);
 		setIconOnce({
 			uicon: {
 				category: IconCategory.MISC,
@@ -110,33 +110,33 @@ export function generateQuestFilterDetails(filter: FiltersetQuest) {
 	}
 
 	if (filter.stardust) {
-		parts.push(m.count_stardust({ count: getAttributeLabelStardust(filter.stardust) }));
+		parts.push(`${getAttributeLabelStardust(filter.stardust)} Stardust`);
 		setIconOnce({
 			uicon: { category: IconCategory.MISC, params: { misc_type: "stardust" } }
 		});
 	}
 
 	if (filter.pokecoins) {
-		parts.push(m.count_pokecoins({ count: getAttributeLabelPokecoins(filter.pokecoins) }));
+		parts.push(`${getAttributeLabelPokecoins(filter.pokecoins)} Pokécoins`);
 		setIconOnce({
 			uicon: { category: IconCategory.MISC, params: { misc_type: "pokecoin" } }
 		});
 	}
 
 	if (filter.xp) {
-		parts.push(m.count_xp({ count: getAttributeLabelXp(filter.xp) }));
+		parts.push(/* @wc-include */ `${getAttributeLabelXp(filter.xp)} XP`);
 		setIconOnce({ emoji: "✨" });
 	}
 
 	if (parts.length > 0) {
-		title.message = "filter_template_quest_reward";
+		title.message = /* @wc-ignore */ "{reward} Quests";
 		title.params = { reward: parts.join(", ") };
 	} else if (filter.tasks) {
 		if (filter.tasks.length === 1) {
-			title.message = "filter_template_quest_task";
+			title.message = /* @wc-ignore */ "{task}";
 			title.params = { task: mQuest(filter.tasks[0].title, filter.tasks[0].target) };
 		} else if (filter.tasks.length > 1) {
-			title.message = "count_tasks";
+			title.message = /* @wc-ignore */ "{count} Tasks";
 			title.params = { count: filter.tasks.length.toString() };
 		}
 	}
@@ -223,7 +223,7 @@ function questFiltersetFromReward(reward: PremadeQuestReward): FiltersetQuest {
 			isUserSelected: false
 		},
 		title: {
-			message: "filter_template_quest_fallback"
+			message: /* @wc-ignore */ "Quest Filter"
 		},
 		enabled: true,
 		rewardType: reward.type

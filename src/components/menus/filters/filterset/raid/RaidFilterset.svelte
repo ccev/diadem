@@ -3,7 +3,7 @@
 	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
 	import Attribute from "@/components/menus/filters/filterset/Attribute.svelte";
 	import AttributesOverview from "@/components/menus/filters/filterset/AttributesOverview.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import {
@@ -33,10 +33,10 @@
 	mapObject={MapObjectType.GYM}
 	majorCategory="gym"
 	subCategory="raid"
-	titleBase={m.raid_filter()}
-	titleShared={m.shared_raid_filter()}
-	titleNew={m.new_raid_filter()}
-	titleEdit={m.edit_raid_filter()}
+	titleBase="Raid Filter"
+	titleShared="Shared Raid Filter"
+	titleNew="New Raid Filter"
+	titleEdit="Edit Raid Filter"
 >
 	{#snippet base()}
 		{#if data}
@@ -51,7 +51,7 @@
 
 			{#if filterType === "level"}
 				<AttributesOverview>
-					<Attribute label={m.raid_levels()}>
+					<Attribute label="Levels">
 						<AttributeChip
 							label={makeAttributeRaidLevelLabel(data.levels ?? [])}
 							isEmpty={!data.levels}
@@ -64,7 +64,7 @@
 					<!--				</AttributesOverview>-->
 					<!--				<AttributesOverview>-->
 					<AttributeToggle
-						label={m.only_show_hatched()}
+						label="Only show hatched"
 						value={!!data.show?.includes("boss")}
 						onchange={(onlyShowHatched) => {
 							if (onlyShowHatched) {
@@ -77,7 +77,7 @@
 				</AttributesOverview>
 			{:else}
 				<AttributesOverview>
-					<Attribute label={m.raid_bosses()}>
+					<Attribute label="Bosses">
 						<AttributeChip
 							label={makeAttributePokemonLabel(data.bosses ?? [])}
 							isEmpty={!data.bosses}

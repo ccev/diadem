@@ -1,7 +1,7 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import type { FilterPokestop } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mAlignment, mGeneration, mItem, mPokemon, mType } from "@/lib/services/ingameLocale";
 import { getIconContest, getIconPokemon, getIconType } from "@/lib/services/uicons.svelte";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
@@ -149,48 +149,39 @@ export function stripContestFields(data: Partial<PokestopData>) {
 export function getRewardText(reward: QuestReward) {
 	switch (reward.type) {
 		case RewardType.XP:
-			if (!reward.info.amount) return m.xp();
-			return m.quest_xp({ count: reward.info.amount });
+			if (!reward.info.amount) return /* @wc-include */ "XP";
+			return /* @wc-include */ `${reward.info.amount} XP`;
 		case RewardType.ITEM:
 			if (!reward.info.amount) return mItem(reward.info.item_id);
-			return m.quest_item({ count: reward.info.amount, item: mItem(reward.info.item_id) });
+			return /* @wc-include */ `${reward.info.amount}x ${mItem(reward.info.item_id)}`;
 		case RewardType.STARDUST:
-			if (!reward.info.amount) return m.stardust();
-			return m.quest_stardust({ count: reward.info.amount });
+			if (!reward.info.amount) return "Stardust";
+			return `${reward.info.amount} Stardust`;
 		case RewardType.POKECOINS:
-			if (!reward.info.amount) return m.reward_pokecoins();
-			return m.quest_pokecoins({ count: reward.info.amount });
+			if (!reward.info.amount) return "Pokécoins";
+			return `${reward.info.amount} Pokécoins`;
 		case RewardType.CANDY:
-			if (!reward.info.amount) return m.pokemon_candy({ pokemon: mPokemon(reward.info) });
-			return m.quest_candy({ count: reward.info.amount, pokemon: mPokemon(reward.info) });
+			if (!reward.info.amount) return `${mPokemon(reward.info)} Candy`;
+			return `${reward.info.amount} ${mPokemon(reward.info)} Candy`;
 		case RewardType.POKEMON:
 			return mPokemon(reward.info);
 		case RewardType.XL_CANDY:
-			if (!reward.info.amount) return m.pokemon_xl_candy({ pokemon: mPokemon(reward.info) });
-			return m.quest_xl_candy({
-				count: reward.info.amount,
-				pokemon: mPokemon(reward.info)
-			});
+			if (!reward.info.amount) return `${mPokemon(reward.info)} Candy XL`;
+			return `${reward.info.amount} ${mPokemon(reward.info)} Candy XL`;
 		case RewardType.MEGA_ENERGY:
-			if (!reward.info.amount) return m.pokemon_mega_resource({ pokemon: mPokemon(reward.info) });
-			return m.quest_mega_resource({
-				count: reward.info.amount,
-				pokemon: mPokemon(reward.info)
-			});
+			if (!reward.info.amount) return `${mPokemon(reward.info)} Mega Energy`;
+			return `${reward.info.amount} ${mPokemon(reward.info)} Mega Energy`;
 		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
-			if (!reward.info.pokemon_id) return m.mega_energy();
+			if (!reward.info.pokemon_id) return "Mega Energy";
 			const pokemon: PokemonVisual = {
 				pokemon_id: reward.info.pokemon_id,
 				form: 0,
 				temp_evolution_id: reward.info.temp_evolution
 			};
 
-			if (!reward.info.amount) return m.pokemon_mega_resource({ pokemon: mPokemon(pokemon) });
+			if (!reward.info.amount) return `${mPokemon(pokemon)} Mega Energy`;
 
-			return m.quest_mega_resource({
-				count: reward.info.amount,
-				pokemon: mPokemon(pokemon)
-			});
+			return `${reward.info.amount} ${mPokemon(pokemon)} Mega Energy`;
 		default:
 			return rewardTypeLabel(reward.type);
 	}
@@ -199,58 +190,54 @@ export function getRewardText(reward: QuestReward) {
 export function rewardTypeLabel(rewardType: RewardType) {
 	switch (rewardType) {
 		case RewardType.XP:
-			return m.xp();
+			return /* @wc-include */ "XP";
 		case RewardType.ITEM:
-			return m.items();
+			return "Items";
 		case RewardType.STARDUST:
-			return m.stardust();
+			return "Stardust";
 		case RewardType.CANDY:
-			return m.candy();
+			return "Candy";
 		case RewardType.AVATAR_CLOTHING:
-			return m.reward_avatar_clothing();
+			return "Avatar Clothing";
 		case RewardType.QUEST:
-			return m.reward_quest();
+			return "Quest";
 		case RewardType.POKEMON:
-			return m.pogo_pokemon();
+			return "Pokémon";
 		case RewardType.POKECOINS:
-			return m.reward_pokecoins();
+			return "Pokécoins";
 		case RewardType.XL_CANDY:
-			return m.xl_candy();
+			return "Candy XL";
 		case RewardType.LEVEL_CAP:
-			return m.reward_level_cap();
+			return "Level Cap";
 		case RewardType.STICKER:
-			return m.reward_sticker();
+			return "Sticker";
 		case RewardType.MEGA_ENERGY:
-			return m.mega_energy();
+			return "Mega Energy";
 		case RewardType.INCIDENT:
-			return m.reward_incident();
+			return "Incident";
 		case RewardType.PLAYER_ATTRIBUTE:
-			return m.reward_player_attribute();
+			return "Player Attribute";
 		case RewardType.EVENT_BADGE:
-			return m.reward_event_badge();
+			return "Event Badge";
 		case RewardType.POKEMON_EGG:
-			return m.reward_egg();
+			return "Egg";
 		case RewardType.TEMP_EVO_BRANCH_RESOURCE:
-			return m.mega_energy();
+			return "Mega Energy";
 		default:
 			return "";
 	}
 }
 
 export function getQuestKey(questReward: string, questTitle: string, questTarget: number) {
-	return `${questReward}/${questTitle}/${questTarget}`;
+	return /* @wc-ignore */ `${questReward}/${questTitle}/${questTarget}`;
 }
 
 export function getContestText(rankingStandard: number, focus: ContestFocus) {
-	let metric = m.contest_biggest;
+	let metric = ({ name }: { name: string | number }) => `Biggest ${name}`;
 	let name = "";
 
-	// if ((data?.showcase_expiry ?? 0) < currentTimestamp()) {
-	// 	return m.unknown_contest();
-	// }
-
 	if (rankingStandard === 1) {
-		metric = m.contest_smallest;
+		metric = ({ name }: { name: string | number }) => `Smallest ${name}`;
 	}
 
 	if (!focus) return metric({ name });
@@ -259,31 +246,29 @@ export function getContestText(rankingStandard: number, focus: ContestFocus) {
 		name = mPokemon({ pokemon_id: focus.pokemon_id, form: focus.pokemon_form });
 	} else if (focus.type === "type") {
 		if (focus.pokemon_type_2) {
-			name = m.connected_and({
-				first: mType(focus.pokemon_type_1),
-				second: m.x_type({ type: mType(focus.pokemon_type_2) })
-			});
+			name = `${mType(focus.pokemon_type_1)}- and ${mType(focus.pokemon_type_2)}-Type`;
 		} else {
-			name = m.x_type({ type: mType(focus.pokemon_type_1) });
+			name = /* @wc-include */ `${mType(focus.pokemon_type_1)}-Type`;
 		}
 	} else if (focus.type === "buddy") {
-		name = m.contest_buddy_min_level({ level: focus.min_level });
+		name = `Buddy (Level ${focus.min_level}+)`;
 	} else if (focus.type === "alignment") {
 		name = mAlignment(focus.pokemon_alignment);
 	} else if (focus.type === "class") {
-		// @ts-ignore
-		const func = m["pokemon_class_" + focus.pokemon_class];
-		name = func ? func() : "?";
+		name =
+			({ 1: "Legendary", 2: "Mythic", 3: "Ultra Beast" } as Record<number, string>)[
+				focus.pokemon_class
+			] ?? "?";
 	} else if (focus.type === "family") {
-		name = m.contest_pokemon_family({ pokemon: mPokemon({ pokemon_id: focus.pokemon_family }) });
+		name = `${mPokemon({ pokemon_id: focus.pokemon_family })} (Evolution line)`;
 	} else if (focus.type === "generation") {
-		name = mGeneration(focus.generation) + " " + m.pogo_pokemon();
+		name = mGeneration(focus.generation) + " " + "Pokémon";
 	} else if (focus.type === "hatched") {
-		name = focus.hatched ? m.contest_hatched() : m.contest_not_hatched();
+		name = focus.hatched ? "Hatched Pokémon" : "Non-hatched Pokémon";
 	} else if (focus.type === "mega") {
-		name = focus.restriction === 1 ? m.contest_mega_evolution() : m.contest_not_mega_evolution();
+		name = focus.restriction === 1 ? "Mega Evolution" : "Non-Mega Evolution";
 	} else if (focus.type === "shiny") {
-		name = focus.shiny ? m.contest_shiny() : m.contest_not_shiny();
+		name = focus.shiny ? "Shiny" : "Non-Shiny";
 	}
 
 	return metric({ name });

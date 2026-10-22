@@ -7,7 +7,7 @@
 	import type { FiltersetPokemon } from "@/lib/features/filters/filtersets";
 	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import AppearanceAttribute from "@/components/menus/filters/filterset/pokemon/AppearanceAttribute.svelte";
 	import { changeAttributeMinMax } from "@/lib/features/filters/filtersetUtils.svelte";
 	import AppearanceChips from "@/components/menus/filters/filterset/pokemon/AppearanceChips.svelte";
@@ -38,10 +38,10 @@
 	modalType="filtersetPokemon"
 	mapObject={MapObjectType.POKEMON}
 	majorCategory="pokemon"
-	titleBase={m.pokemon_filter()}
-	titleShared={m.shared_pokemon_filter()}
-	titleNew={m.filterset_title_new_pokemon()}
-	titleEdit={m.filterset_title_edit_pokemon()}
+	titleBase="Pokémon Filter"
+	titleShared="Shared Pokémon Filter"
+	titleNew="New Pokémon Filter"
+	titleEdit="Edit Pokémon Filter"
 >
 	{#snippet base()}
 		{#if data}
@@ -51,7 +51,7 @@
 	{#snippet overview()}
 		{#if data}
 			<AttributesOverview>
-				<Attribute label={m.species()}>
+				<Attribute label="Species">
 					<AttributeChip
 						label={makeAttributePokemonLabel(data.pokemon ?? [])}
 						isEmpty={!data.pokemon}
@@ -66,7 +66,7 @@
 						/>
 					{/snippet}
 				</Attribute>
-				<Attribute label={m.pokemon_looks()}>
+				<Attribute label="Cosmetics">
 					<AppearanceChips {data} sizeBounds={pokemonBounds.size} showSize={canIv} />
 					{#snippet page(thisData: FiltersetPokemon)}
 						<AppearanceAttribute data={thisData} sizeBounds={pokemonBounds.size} showSize={canIv} />
@@ -75,7 +75,7 @@
 			</AttributesOverview>
 			{#if canIv}
 				<AttributesOverview>
-					<Attribute label={m.pogo_ivs()}>
+					<Attribute label="IVs">
 						<IvChips {data} ivBounds={pokemonBounds.iv} percBounds={pokemonBounds.ivProduct} />
 						{#snippet page(thisData: FiltersetPokemon)}
 							<IvAttribute
@@ -85,7 +85,7 @@
 							/>
 						{/snippet}
 					</Attribute>
-					<Attribute label={m.cp()}>
+					<Attribute label={/* @wc-include */ "CP"}>
 						<AttributeChip
 							label={getAttributeLabelCp(data?.cp)}
 							isEmpty={!data.cp}
@@ -95,7 +95,7 @@
 							<SliderRange
 								min={pokemonBounds.cp.min}
 								max={pokemonBounds.cp.max}
-								title={m.cp()}
+								title={/* @wc-include */ "CP"}
 								valueMin={thisData.cp?.min ?? pokemonBounds.cp.min}
 								valueMax={thisData.cp?.max ?? pokemonBounds.cp.max}
 								onchange={([min, max]) =>
@@ -110,7 +110,7 @@
 							/>
 						{/snippet}
 					</Attribute>
-					<Attribute label={m.level()}>
+					<Attribute label="Level">
 						<AttributeChip
 							label={getAttributeLabelLevel(data?.level)}
 							isEmpty={!data.level}
@@ -120,7 +120,7 @@
 							<SliderRange
 								min={pokemonBounds.level.min}
 								max={pokemonBounds.level.max}
-								title={m.level()}
+								title="Level"
 								valueMin={thisData.level?.min ?? pokemonBounds.level.min}
 								valueMax={thisData.level?.max ?? pokemonBounds.level.max}
 								onchange={([min, max]) =>
@@ -140,7 +140,7 @@
 
 			{#if canPvp}
 				<AttributesOverview>
-					<Attribute label={m.little_league()}>
+					<Attribute label="Little League">
 						<AttributeChip
 							label={getAttributeLabelRank(data?.pvpRankLittle)}
 							isEmpty={!data.pvpRankLittle}
@@ -150,7 +150,7 @@
 							<SliderRange
 								min={pokemonBounds.rank.min}
 								max={pokemonBounds.rank.max}
-								title={m.little_league_rank()}
+								title="Little League Rank"
 								valueMin={thisData.pvpRankLittle?.min ?? pokemonBounds.rank.min}
 								valueMax={thisData.pvpRankLittle?.max ?? pokemonBounds.rank.max}
 								onchange={([min, max]) =>
@@ -165,7 +165,7 @@
 							/>
 						{/snippet}
 					</Attribute>
-					<Attribute label={m.great_league()}>
+					<Attribute label="Great League">
 						<AttributeChip
 							label={getAttributeLabelRank(data?.pvpRankGreat)}
 							isEmpty={!data.pvpRankGreat}
@@ -175,7 +175,7 @@
 							<SliderRange
 								min={pokemonBounds.rank.min}
 								max={pokemonBounds.rank.max}
-								title={m.great_league_rank()}
+								title="Great League Rank"
 								valueMin={thisData.pvpRankGreat?.min ?? pokemonBounds.rank.min}
 								valueMax={thisData.pvpRankGreat?.max ?? pokemonBounds.rank.max}
 								onchange={([min, max]) =>
@@ -190,7 +190,7 @@
 							/>
 						{/snippet}
 					</Attribute>
-					<Attribute label={m.ultra_league()}>
+					<Attribute label="Ultra League">
 						<AttributeChip
 							label={getAttributeLabelRank(data?.pvpRankUltra)}
 							isEmpty={!data.pvpRankUltra}
@@ -200,7 +200,7 @@
 							<SliderRange
 								min={pokemonBounds.rank.min}
 								max={pokemonBounds.rank.max}
-								title={m.ultra_league_rank()}
+								title="Ultra League Rank"
 								valueMin={thisData.pvpRankUltra?.min ?? pokemonBounds.rank.min}
 								valueMax={thisData.pvpRankUltra?.max ?? pokemonBounds.rank.max}
 								onchange={([min, max]) =>

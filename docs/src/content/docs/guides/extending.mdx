@@ -20,6 +20,9 @@ For advanced extensions, you can use the designated `custom*` directories.
 			- custom
 				- Home.svelte
 				- ... Add your own components
+		- locales
+			- en.po
+			- ... Translation catalogs
 		- routes
 			- (custom)
 				- ... Add your own routes
@@ -27,9 +30,6 @@ For advanced extensions, you can use the designated `custom*` directories.
 	- static
 		- custom
 			- ... Add your own assets (fonts, images, ...)
-	- messages
-		- en.json
-		- ...
 </FileTree>
 
 ## Custom home page
@@ -75,25 +75,36 @@ Refer to the [SvelteKit documentation](https://svelte.dev/docs/kit/introduction)
 
 ## Add your own translations
 
-Diadem uses [Wuchale](https://wuchale.dev/) for localization. English source messages live in
-`src/lib/i18n/messages.svelte.ts`. Add a function with a unique name and matching context:
+Diadem uses [Wuchale's Svelte adapter](https://wuchale.dev/adapters/svelte/) for localization.
+Write English directly in your components, including interpolation and nested markup:
 
-```ts
-export function dm_hello() {
-    // @wc-context: dm_hello
-    return "Hello";
-}
+```svelte
+<script lang="ts">
+    let { name }: { name: string } = $props();
+</script>
+
+<p>Hello <strong>{name}</strong>!</p>
+<button title="Open the map">Map</button>
 ```
 
-Use it with `import * as m from "@/lib/i18n/messages.svelte"` and `{m.dm_hello()}` in a component.
-For parameters, accept a typed object and return a template literal. Wuchale extracts the English text
-and placeholders when you run `pnpm i18n:extract`, or start the dev server/build.
+There are no translation imports or message keys. In TypeScript utilities, write ordinary strings
+and template literals inside functions; the Vanilla adapter extracts those too. Wuchale updates the
+catalogs when you run `pnpm i18n:extract`, or start the dev server/build. Both adapters share the PO
+catalogs, and the client layout and server locale hook load their compiled catalogs.
+
+The [default extraction rules](https://wuchale.dev/guides/rules/) recognize most user-facing text.
+Use `/* @wc-include */` before an abbreviation or lowercase string in script when needed, and
+`/* @wc-ignore */` before a technical string. Markup uses HTML comments with the same directives.
+Use a descriptive `@wc-context` only when identical English text has different meanings.
 
 Commit the source and `src/locales/*.po` catalogs. Translate `msgstr` entries in those catalogs;
 leave `msgid`, `msgctxt`, and numbered placeholders unchanged. Missing translations fall back to English.
 Generated loaders and compiled catalogs are ignored by git.
 
-Keep existing message function names stable: saved and shared filters store these identifiers.
+Saved/shared filter titles are a special case: their English templates and parameters are serialized
+and localized at display time by `src/lib/features/filters/filterTitle.ts`. The adjacent
+`legacyFilterTitles.ts` only reads retired identifiers from older filters. New UI text belongs at
+its point of use, not in that compatibility mapping.
 
 :::note
 Diadem is licensed under [GNU Affero General Public License v3.0](https://github.com/ccev/diadem/blob/main/LICENSE).

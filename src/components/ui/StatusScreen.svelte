@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { Unplug } from "@lucide/svelte";
 	import {
 		getInstanceUrl,
@@ -34,14 +34,12 @@
 <ErrorPage error={title} {description} href="" linkLabel="">
 	{#snippet extraButtons()}
 		<Button onclick={retry} disabled={retrying}>
-			{retrying ? m.connecting() : m.error_retry()}
+			{retrying ? "Connecting" : "Retry"}
 		</Button>
 		{#if canDisconnect}
 			<Button variant="ghost" onclick={disconnect} disabled={disconnecting}>
 				<Unplug class="size-3.5" />
-				{m.disconnect_from_name({
-					name: getConfig()?.general?.mapName || getInstanceUrl() || m.diadem_map()
-				})}
+				Disconnect from {getConfig()?.general?.mapName || getInstanceUrl() || "Diadem Map"}
 			</Button>
 		{/if}
 	{/snippet}

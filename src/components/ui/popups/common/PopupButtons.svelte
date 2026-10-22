@@ -22,7 +22,7 @@
 		TimerOff,
 		Scan
 	} from "@lucide/svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { getMapsUrl } from "@/lib/utils/mapUrl";
 	import { Coords } from "@/lib/utils/coordinates";
 	import { getShareTitle } from "@/lib/features/shareTexts";
@@ -66,7 +66,7 @@
 	<PopupButton
 		variant="default"
 		Icon={Navigation}
-		label={m.popup_navigate()}
+		label="Navigate"
 		tag="a"
 		href={getMapsUrl(new Coords(lat, lon), getShareTitle(getCurrentSelectedData()))}
 		target="_blank"
@@ -74,7 +74,7 @@
 	{#if data.type === ClientMapObjectType.LOCATION && getConfig().tools.scout && hasFeatureAnywhere(getUserDetails().permissions, Features.SCOUT)}
 		<PopupButton
 			Icon={Binoculars}
-			label={m.scout_location()}
+			label="Scout location"
 			onclick={() => {
 				const coords = new Coords(lat, lon);
 				setCurrentScoutCoords([coords]);
@@ -86,9 +86,9 @@
 	{#if supportsPopupAction(selectedType, PopupAction.FOCUS_ROUTE) && getUserSettings().filters.route.enabled}
 		<PopupButton
 			Icon={Focus}
-			label={m.focus_route()}
+			label="Focus Route"
 			IconActive={Scan}
-			labelActive={m.unfocus_route()}
+			labelActive="Unfocus Route"
 			active={routeFocused}
 			onclick={() => {
 				setFocusedRouteMapId(routeFocused ? null : selectedMapId);
@@ -99,9 +99,9 @@
 	{#if supportsPopupAction(selectedType, PopupAction.DIMMED)}
 		<PopupButton
 			Icon={EyeClosed}
-			label={m.popup_action_dim()}
+			label="Dim"
 			IconActive={Eye}
-			labelActive={m.popup_action_undim()}
+			labelActive="Undim"
 			active={isPopupActionActive(selectedType, selectedMapId, PopupAction.DIMMED)}
 			onclick={() => togglePopupAction(selectedType, selectedMapId, PopupAction.DIMMED)}
 			actions={getPopupActions(selectedType, PopupAction.DIMMED)}
@@ -110,9 +110,9 @@
 	{#if supportsPopupAction(selectedType, PopupAction.RADIUS)}
 		<PopupButton
 			Icon={CircleDot}
-			label={m.popup_action_show_radius()}
+			label="Show range"
 			IconActive={CircleOff}
-			labelActive={m.popup_action_hide_radius()}
+			labelActive="Hide range"
 			active={isPopupActionActive(selectedType, selectedMapId, PopupAction.RADIUS)}
 			onclick={() => togglePopupAction(selectedType, selectedMapId, PopupAction.RADIUS)}
 			actions={getPopupActions(selectedType, PopupAction.RADIUS)}
@@ -121,9 +121,9 @@
 	{#if supportsPopupAction(selectedType, PopupAction.TIMER)}
 		<PopupButton
 			Icon={Timer}
-			label={m.popup_action_show_timer()}
+			label="Show timer"
 			IconActive={TimerOff}
-			labelActive={m.popup_action_hide_timer()}
+			labelActive="Hide timer"
 			active={isPopupActionActive(selectedType, selectedMapId, PopupAction.TIMER)}
 			onclick={() => togglePopupAction(selectedType, selectedMapId, PopupAction.TIMER)}
 			actions={getPopupActions(selectedType, PopupAction.TIMER)}

@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { mPokemon } from "$lib/services/ingameLocale";
 	import type { MapData } from "$lib/mapObjects/mapObjectTypes";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
@@ -31,8 +31,8 @@
 	export function getPopupPropsNest(data: MapData) {
 		data = data as NestData;
 		return {
-			type: m.pogo_nest(),
-			title: m.pokemon_nest({ pokemon: mPokemon(data) }),
+			type: "Nest",
+			title: `${mPokemon(data)} Nest`,
 			image,
 			overview,
 			main
@@ -51,51 +51,47 @@
 	{@const data = d as NestData}
 
 	{#if data.name}
-		<OverviewCard Icon={Trees} title={m.park_name()} value={data.name} />
+		<OverviewCard Icon={Trees} title="Park Name" value={data.name} />
 	{/if}
 
 	<OverviewCard
 		Icon={RotateCcw}
-		title={m.nest_avg()}
-		value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
+		title="Spawn Rate"
+		value={/* @wc-include */ `~${formatDecimal(data.pokemon_avg)}/hour`}
 	/>
-	<OverviewCard Icon={MapPinned} title={m.spawnpoints()} value={formatNumber(data.spawnpoints)} />
+	<OverviewCard Icon={MapPinned} title="Spawnpoints" value={formatNumber(data.spawnpoints)} />
 {/snippet}
 
 {#snippet main(d: MapData)}
 	{@const data = d as NestData}
 
-	<TitledMainSection Icon={Info} title={m.about_this_nest()}>
+	<TitledMainSection Icon={Info} title="About this Nest">
 		<StatsMainCard>
-			<StatsMainCardEntry
-				Icon={Trees}
-				name={m.park_name()}
-				value={data.name ? data.name : m.unknown()}
-			/>
+			<StatsMainCardEntry Icon={Trees} name="Park Name" value={data.name ? data.name : "Unknown"} />
 			<StatsMainCardEntry
 				Icon={RotateCcw}
-				name={m.nest_avg()}
-				value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
+				name="Spawn Rate"
+				value={/* @wc-include */ `~${formatDecimal(data.pokemon_avg)}/hour`}
 			/>
 			<StatsMainCardEntry
 				Icon={MapPinned}
-				name={m.nest_spawnpoint_count()}
+				name="Total Spawnpoints"
 				value={formatNumber(data.spawnpoints)}
 			/>
 			<StatsMainCardEntry
 				Icon={CircleSlash2}
-				name={m.nest_ratio()}
+				name="Spawn Ratio"
 				value={formatPercentage((data.pokemon_ratio ?? 0) / 100)}
 			/>
 			<StatsMainCardEntry
 				Icon={VectorSquare}
-				name={m.nest_size()}
-				value={m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}
+				name={/* @wc-context: Surface area */ "Area"}
+				value={/* @wc-include */ `${formatNumber(data.m2, { maximumFractionDigits: 0 })}m²`}
 			/>
 			<UpdatedTimes updated={data.updated ?? undefined} />
 			<QuickSearchButton
 				class="mt-0!"
-				label={m.find_wild_name({ name: mPokemon(data) })}
+				label="Find wild {mPokemon(data)}"
 				onclick={() =>
 					setActiveSearchPokemon({ pokemon_id: data.pokemon_id ?? 0, form: data.form ?? 0 })}
 			/>
@@ -104,7 +100,7 @@
 
 	<PokemonStatsCard data={{ pokemon_id: data.pokemon_id ?? 0, form: data.form ?? 0 }} />
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_nest()}>
+	<TitledMainSection Icon={CircleDot} title="View the Nest">
 		<AccessPolygonMap
 			polygon={data.polygon}
 			fillColor="rgba(152, 248, 163, 0.4)"

@@ -17,7 +17,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 	pokemon: [
 		filterset<FiltersetPokemon>({
 			emoji: "💯",
-			title: "filter_template_hundo",
+			title: /* @wc-ignore */ "100% IV",
 			iv: { min: 100, max: 100 },
 			modifiers: {
 				glow: {
@@ -33,7 +33,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 					league: League.GREAT
 				}
 			},
-			title: "filter_template_rank1_great",
+			title: /* @wc-ignore */ "Rank 1 Great League",
 			pvpRankGreat: { min: 1, max: 1 },
 			modifiers: {
 				glow: {
@@ -50,7 +50,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 					league: League.ULTRA
 				}
 			},
-			title: "filter_template_rank1_ultra",
+			title: /* @wc-ignore */ "Rank 1 Ultra League",
 			pvpRankUltra: { min: 1, max: 1 },
 			modifiers: {
 				glow: {
@@ -61,7 +61,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 		}),
 		filterset<FiltersetPokemon>({
 			emoji: "🗑️",
-			title: "filter_template_nundo",
+			title: /* @wc-ignore */ "0% IV",
 			iv: { min: 0, max: 0 },
 			modifiers: {
 				rotation: 180
@@ -69,7 +69,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 		}),
 		filterset<FiltersetPokemon>({
 			emoji: "📏",
-			title: "filter_template_xxl",
+			title: /* @wc-ignore */ "All XXL",
 			size: { min: 5, max: 5 }
 		}),
 		filterset<FiltersetPokemon>({
@@ -77,7 +77,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.POKEMON,
 				params: { pokemon_id: 201, form: 6 }
 			},
-			title: "filter_template_unown",
+			title: /* @wc-ignore */ "Unown",
 			pokemon: Array.from({ length: 28 }, (_, i) => i + 1).map((i) => ({
 				pokemon_id: 201,
 				form: i
@@ -88,7 +88,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.POKEMON,
 				params: { pokemon_id: 480, form: 0 }
 			},
-			title: "filter_template_sea_trio",
+			title: /* @wc-ignore */ "Lake Trio",
 			pokemon: [
 				{ pokemon_id: 480, form: 0 },
 				{ pokemon_id: 481, form: 0 },
@@ -102,7 +102,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.LEGENDARY }
 			},
-			title: "filter_template_raids_5",
+			title: /* @wc-ignore */ "Legendary Raids",
 			levels: [RaidLevel.LEGENDARY]
 		}),
 		filterset<FiltersetRaid>({
@@ -110,7 +110,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.SHADOW_LEGENDARY }
 			},
-			title: "filter_template_raids_5_shadow",
+			title: /* @wc-ignore */ "Legendary Shadow Raids",
 			levels: [RaidLevel.SHADOW_LEGENDARY]
 		}),
 		filterset<FiltersetRaid>({
@@ -118,7 +118,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.ULTRA_BEAST }
 			},
-			title: "filter_template_raids_ultra_beast",
+			title: /* @wc-ignore */ "Ultra Beast Raids",
 			levels: [RaidLevel.ULTRA_BEAST]
 		}),
 		filterset<FiltersetRaid>({
@@ -126,7 +126,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.MEGA }
 			},
-			title: "filter_template_raids_mega",
+			title: /* @wc-ignore */ "Mega Raids",
 			levels: [RaidLevel.MEGA]
 		}),
 		filterset<FiltersetRaid>({
@@ -134,7 +134,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.MEGA_LEGENDARY }
 			},
-			title: "filter_template_raids_mega_legendary",
+			title: /* @wc-ignore */ "Mega Legendary Raids",
 			levels: [RaidLevel.MEGA_LEGENDARY]
 		}),
 		filterset<FiltersetRaid>({
@@ -142,7 +142,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.PRIMAL }
 			},
-			title: "filter_template_raids_primal",
+			title: /* @wc-ignore */ "Primal Raids",
 			levels: [RaidLevel.PRIMAL]
 		}),
 		filterset<FiltersetRaid>({
@@ -150,7 +150,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.ELITE }
 			},
-			title: "filter_template_raids_elite",
+			title: /* @wc-ignore */ "Elite Raids",
 			levels: [RaidLevel.ELITE]
 		}),
 		filterset<FiltersetRaid>({
@@ -158,7 +158,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.MEGA_SUPER }
 			},
-			title: "super_mega_raids",
+			title: /* @wc-ignore */ "Super Mega Raids",
 			levels: [RaidLevel.MEGA_SUPER]
 		}),
 		filterset<FiltersetRaid>({
@@ -166,7 +166,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.MEGA_SUPER_LEGENDARY }
 			},
-			title: "legendary_super_mega_raids",
+			title: /* @wc-ignore */ "Legendary Super Mega Raids",
 			levels: [RaidLevel.MEGA_SUPER_LEGENDARY]
 		}),
 		filterset<FiltersetRaid>({
@@ -174,7 +174,7 @@ export const premadeFiltersets: { [key in FilterCategory]?: AnyFilterset[] } = {
 				category: IconCategory.RAID,
 				params: { level: RaidLevel.SHADOW_STAR_3 }
 			},
-			title: "filter_template_raids_shadow",
+			title: /* @wc-ignore */ "Shadow Raids",
 			levels: [RaidLevel.SHADOW_STAR_1, RaidLevel.SHADOW_STAR_3, RaidLevel.SHADOW_LEGENDARY]
 		})
 	]

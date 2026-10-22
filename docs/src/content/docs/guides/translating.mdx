@@ -13,9 +13,9 @@ Machine translations are not accepted. All translations have to be made by human
 Diadem uses [Wuchale](https://wuchale.dev/) and gettext PO catalogs in `src/locales/`.
 
 1. Fork the repository and install dependencies with `pnpm install`.
-2. Run `pnpm i18n:extract` to update the catalogs from the English message functions.
+2. Run `bash setup.sh`, then `pnpm i18n:extract` to update the catalogs from the English text in components and utilities.
 3. Open your language's `.po` file in a gettext editor or text editor and translate its `msgstr` entries.
-4. Keep `msgid`, `msgctxt`, and placeholders such as `{0}` unchanged. The comments above a message explain each placeholder. Empty translations fall back to English.
+4. Keep `msgid`, any `msgctxt`, and placeholders such as `{0}`, `<0/>`, and `<0>…</0>` unchanged. Numbered tags represent nested Svelte markup; keep the tags intact when reordering the sentence. The comments above a message explain each placeholder. Empty translations fall back to English.
 5. Run `pnpm check`, `pnpm test`, and `pnpm build`, then submit a pull request with your `.po` changes.
 
 To add a language, add its code to `src/lib/i18n/locales.ts` and its selector label to

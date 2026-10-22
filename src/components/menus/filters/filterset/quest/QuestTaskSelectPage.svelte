@@ -4,7 +4,7 @@
 	import { mQuest } from "@/lib/services/ingameLocale";
 	import { getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
 	import type { QuestReward } from "@/lib/types/mapObjectData/pokestop";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import MultiSelect from "@/components/menus/filters/filterset/multiselect/MultiSelect.svelte";
 	import MultiSelectItem from "@/components/menus/filters/filterset/multiselect/MultiSelectItem.svelte";
@@ -162,9 +162,7 @@
 			}}
 		>
 			<Switch checked={onlyMatchingRewards} aria-hidden="true" tabindex={-1} />
-			<span>
-				{m.quest_tasks_only_matching_rewards()}
-			</span>
+			<span> Matching rewards </span>
 		</Button>
 	</div>
 {/if}

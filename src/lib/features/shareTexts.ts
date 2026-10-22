@@ -1,5 +1,5 @@
 import { ClientMapObjectType, type MapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mCharacter, mItem, mPokemon, mQuest, mRaid } from "@/lib/services/ingameLocale";
 import type { GymData } from "@/lib/types/mapObjectData/gym";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
@@ -18,7 +18,7 @@ import {
 	isRaidHatched
 } from "@/lib/utils/gymUtils";
 import { formatDecimal } from "@/lib/utils/numberFormat";
-import { mAny } from "@/lib/utils/anyMessage";
+import { mapObjectLabel } from "@/lib/mapObjects/mapObjectLabels";
 import {
 	getBestRank,
 	hasTimer,
@@ -78,24 +78,24 @@ export function getShareTitle(data: MapData | null | undefined) {
 	} else if (data.type === MapObjectType.STATION) {
 		let title = "";
 		if (data.battle_pokemon_id && isMaxBattleActive(data)) {
-			title = m.pogo_max_battle();
+			title = "Max Battle";
 		} else {
-			title = m.pogo_station();
+			title = "Power Spot";
 		}
 		if (data.id) title += " | " + getStationTitle(data);
 		return title;
 	} else if (data.type === MapObjectType.GYM || data.type === MapObjectType.POKESTOP) {
-		let title = mAny(`pogo_${data.type}`);
+		let title = mapObjectLabel(data.type);
 		if (data.name) title += ` | ${data.name}`;
 		return title;
 	} else if (data.type === MapObjectType.NEST) {
-		return m.pokemon_nest({ pokemon: mPokemon(data) });
+		return `${mPokemon(data)} Nest`;
 	} else if (data.type === MapObjectType.SPAWNPOINT) {
-		return m.pogo_spawnpoint();
+		return "Spawnpoint";
 	} else if (data.type === MapObjectType.ROUTE) {
-		return data.name || m.pogo_route();
+		return data.name || "Route";
 	} else if (data.type === MapObjectType.TAPPABLE) {
-		return getTappableName(data) + ` (${m.pogo_tappable()})`;
+		return getTappableName(data) + /* @wc-include */ ` (Ground Item)`;
 	}
 	return "";
 }
@@ -104,29 +104,29 @@ function getPokemonShareText(data: PokemonData) {
 	let text = "";
 
 	if (hasTimer(data as Parameters<typeof hasTimer>[0])) {
-		text += `🕜 ${m.popup_despawns()} ${timestampToLocalTime(data.expire_timestamp)}\n`;
+		text += /* @wc-include */ `🕜 Despawns ${timestampToLocalTime(data.expire_timestamp)}\n`;
 	} else {
-		text += `🕜 ${m.popup_found()} ${timestampToLocalTime(data.first_seen_timestamp)}\n`;
+		text += /* @wc-include */ `🕜 Found ${timestampToLocalTime(data.first_seen_timestamp)}\n`;
 	}
 
 	if (data.cp != null && data.level != null) {
-		text += `📈 ${m.pogo_cp({ cp: data.cp })} (${m.pogo_level({ level: data.level })})\n`;
+		text += /* @wc-include */ `📈 ${data.cp} CP (Level ${data.level})\n`;
 	}
 
 	if (data.iv != null) {
-		text += `📚 ${m.pogo_ivs()}: ${data.iv.toFixed(1)}% (${data.atk_iv ?? "?"}/${data.def_iv ?? "?"}/${data.sta_iv ?? "?"})\n`;
+		text += /* @wc-include */ `📚 IVs: ${data.iv.toFixed(1)}% (${data.atk_iv ?? /* @wc-ignore */ "?"}/${data.def_iv ?? /* @wc-ignore */ "?"}/${data.sta_iv ?? /* @wc-ignore */ "?"})\n`;
 	}
 
 	if (showLittle(data, true)) {
-		text += `🏆 ${m.league_rank({ league: m.little_league() })}: ${getBestRank(data, League.LITTLE)}\n`;
+		text += /* @wc-include */ `🏆 Little League Rank: ${getBestRank(data, League.LITTLE)}\n`;
 	}
 
 	if (showGreat(data, true)) {
-		text += `🏆 ${m.league_rank({ league: m.great_league() })}: ${getBestRank(data, League.GREAT)}\n`;
+		text += /* @wc-include */ `🏆 Great League Rank: ${getBestRank(data, League.GREAT)}\n`;
 	}
 
 	if (showUltra(data, true)) {
-		text += `🏆 ${m.league_rank({ league: m.ultra_league() })}: ${getBestRank(data, League.ULTRA)}\n`;
+		text += /* @wc-include */ `🏆 Ultra League Rank: ${getBestRank(data, League.ULTRA)}\n`;
 	}
 
 	return text;
@@ -186,14 +186,14 @@ function getGymShareText(data: GymData) {
 
 		if (data.raid_pokemon_id) text += `· ${mPokemon(getRaidPokemon(data))} `;
 		if (isRaidHatched(data)) {
-			text += `(${m.raid_ends()} ${timestampToLocalTime(data.raid_end_timestamp)})\n`;
+			text += /* @wc-include */ `(Ends ${timestampToLocalTime(data.raid_end_timestamp)})\n`;
 		} else {
-			text += `(${m.raid_starts()} ${timestampToLocalTime(data.raid_battle_timestamp)})\n`;
+			text += /* @wc-include */ `(Starts ${timestampToLocalTime(data.raid_battle_timestamp)})\n`;
 		}
 	}
 
 	if (!isFortOutdated(data.updated)) {
-		text += `👥 ${m.gym_members()}: ${GYM_SLOTS - (data.availble_slots ?? 0)}/${GYM_SLOTS}\n`;
+		text += /* @wc-include */ `👥 Defenders: ${GYM_SLOTS - (data.availble_slots ?? 0)}/${GYM_SLOTS}\n`;
 	}
 	return text;
 }
@@ -202,13 +202,13 @@ function getStationShareText(data: StationData) {
 	let text = "";
 
 	if (data.battle_pokemon_id && isMaxBattleActive(data)) {
-		text += `📍 ${m.pogo_station()}: ${data.name}\n`;
+		text += /* @wc-include */ `📍 Power Spot: ${data.name}\n`;
 	}
 	if (data.start_time && isMaxBattleActive(data)) {
-		text += `🕜 ${m.start()}: ${timestampToLocalTime(data.start_time, { showDate: true })}\n`;
+		text += /* @wc-include */ `🕜 Start: ${timestampToLocalTime(data.start_time, { showDate: true })}\n`;
 	}
 	if (data.end_time && isMaxBattleActive(data)) {
-		text += `🕜 ${m.end()}: ${timestampToLocalTime(data.end_time, { showDate: true })}\n`;
+		text += /* @wc-include */ `🕜 End: ${timestampToLocalTime(data.end_time, { showDate: true })}\n`;
 	}
 
 	return text;
@@ -218,10 +218,10 @@ function getNestShareText(data: NestData) {
 	let text = "";
 
 	if (data.name) {
-		text += `🌳 ${m.park_name()}: ${data.name}\n`;
+		text += /* @wc-include */ `🌳 Park Name: ${data.name}\n`;
 	}
 
-	text += `🔄 ${m.nest_avg()}: ${m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}\n`;
+	text += /* @wc-include */ `🔄 Spawn Rate: ~${formatDecimal(data.pokemon_avg)}/hour\n`;
 
 	return text;
 }
@@ -230,9 +230,9 @@ function getSpawnpointShareText(data: SpawnpointData) {
 	let text = "";
 
 	if (data.despawn_sec) {
-		text += `🕜 ${m.spawnpoint_despawns()}: ${getMmSsFromSeconds(data.despawn_sec)}\n`;
+		text += /* @wc-include */ `🕜 Despawns: ${getMmSsFromSeconds(data.despawn_sec)}\n`;
 	} else {
-		text += `🕜 ${m.spawnpoint_unknown()}\n`;
+		text += /* @wc-include */ `🕜 Unknown despawn time\n`;
 	}
 	return text;
 }
@@ -244,10 +244,10 @@ function getRouteShareText(data: RouteData) {
 function getTappableShareText(data: TappableData) {
 	let text = "";
 
-	text += `🕜 ${m.popup_despawns()}: ${timestampToLocalTime(data.expire_timestamp, { showDate: true })}\n`;
+	text += /* @wc-include */ `🕜 Despawns: ${timestampToLocalTime(data.expire_timestamp, { showDate: true })}\n`;
 
 	if (!hasTimer(data)) {
-		text += `⚠️ ${m.time_is_estimated()}\n`;
+		text += /* @wc-include */ `⚠️ Time is estimated\n`;
 	}
 
 	return text;

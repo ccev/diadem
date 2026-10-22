@@ -5,7 +5,7 @@
 	import { openPopup } from "@/lib/mapObjects/interact";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { getPopupFitPadding } from "@/lib/mapObjects/popupVisibility.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { formatDistance, formatDuration } from "@/lib/utils/numberFormat";
 	import { getRouteBounds, getRouteColor } from "@/lib/utils/routeUtils";
@@ -23,17 +23,17 @@
 	let reverseDirection = $derived(route.reversible && originFortId === route.end.id);
 	let end = $derived(reverseDirection ? route.start : route.end);
 	let endName = $derived(
-		end.name ?? (end.type === MapObjectType.GYM ? m.unknown_gym() : m.unknown_pokestop())
+		end.name ?? (end.type === MapObjectType.GYM ? "Unknown Gym" : "Unknown Pokéstop")
 	);
 	let routeMetrics: { Icon: LucideIcon; title: string; value: string }[] = $derived([
 		{
 			Icon: Ruler,
-			title: m.route_distance(),
+			title: "Distance",
 			value: formatDistance(route.distance_meters)
 		},
 		{
 			Icon: Clock,
-			title: m.route_duration(),
+			title: "Duration",
 			value: formatDuration(route.duration_seconds)
 		}
 	]);
@@ -51,7 +51,7 @@
 </script>
 
 <h3 class="font-semibold wrap-break-word text-lg">
-	{route.name || m.unknown_route()}
+	{route.name || "Unknown Route"}
 </h3>
 
 <div class="mt-3 grid grid-cols-2 gap-3">
@@ -87,9 +87,7 @@
 		{/if}
 
 		<div class="min-w-0">
-			<p class="text-sm font-medium text-muted-foreground">
-				{m.route_leads_to()}
-			</p>
+			<p class="text-sm font-medium text-muted-foreground">Leads to</p>
 			<p class="font-medium text-base line-clamp-2">{endName}</p>
 		</div>
 	</div>
@@ -97,5 +95,5 @@
 
 <Button variant="link" class="mb-2 w-full mt-auto" onclick={showRoutePopup}>
 	<MapPinned class="size-3.5" />
-	{m.show_route()}
+	Show Route
 </Button>

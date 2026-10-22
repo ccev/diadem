@@ -1,4 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
 import { getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isNative } from "@/lib/native/runtime";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
@@ -30,14 +29,14 @@ export function copyToClipboard(content: string) {
 	if (isNative()) {
 		void import("@capacitor/clipboard")
 			.then(({ Clipboard }) => Clipboard.write({ string: content }))
-			.then(() => openToast(m.clipboard_copied()))
-			.catch(() => openToast(m.clipboard_error()));
+			.then(() => openToast("Copied to clipboard"))
+			.catch(() => openToast("Couldn't copy to clipboard"));
 		return;
 	}
 	navigator.clipboard
 		.writeText(content)
-		.then(() => openToast(m.clipboard_copied()))
-		.catch((e) => openToast(m.clipboard_error()));
+		.then(() => openToast("Copied to clipboard"))
+		.catch((e) => openToast("Couldn't copy to clipboard"));
 }
 
 export function canBackupShare(shareData: ShareData) {
@@ -72,6 +71,6 @@ export function hasTouch() {
 export function isMobileWebKit() {
 	return (
 		/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-		(navigator.userAgent.includes("Mac") && navigator.maxTouchPoints > 1)
+		(navigator.userAgent.includes(/* @wc-ignore */ "Mac") && navigator.maxTouchPoints > 1)
 	);
 }

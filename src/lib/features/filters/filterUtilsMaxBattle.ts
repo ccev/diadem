@@ -6,7 +6,7 @@ import { mPokemon } from "@/lib/services/ingameLocale";
 export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): FiltersetMaxBattle {
 	const title: FiltersetTitle = {
 		title: filter.title.title,
-		message: "filter_template_max_battle_fallback"
+		message: /* @wc-ignore */ "Max Battle Filter"
 	};
 
 	setFilterIcon(filter, {
@@ -15,7 +15,7 @@ export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): Filt
 
 	if (filter.bosses && filter.bosses.length > 0) {
 		if (filter.bosses.length === 1) {
-			title.message = "filter_template_pokemon_max_battles";
+			title.message = /* @wc-ignore */ "{pokemon} Max Battles";
 			title.params = {
 				pokemon: mPokemon({ pokemon_id: filter.bosses[0].pokemon_id, form: filter.bosses[0].form })
 			};
@@ -24,7 +24,7 @@ export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): Filt
 				uicon: { category: IconCategory.POKEMON, params: filter.bosses[0] }
 			});
 		} else {
-			title.message = "count_pokemon";
+			title.message = /* @wc-ignore */ "{count} Pokémon";
 			title.params = { count: filter.bosses.length.toString() };
 
 			setFilterIcon(filter, {
@@ -32,7 +32,7 @@ export function generateMaxBattleFilterDetails(filter: FiltersetMaxBattle): Filt
 			});
 		}
 	} else if (filter.isActive !== undefined) {
-		title.message = filter.isActive ? "max_battle_active" : "max_battle_inactive";
+		title.message = filter.isActive ? /* @wc-ignore */ "Active" : /* @wc-ignore */ "Inactive";
 	}
 
 	filter.title = title;

@@ -2,7 +2,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 	import { getLoginLink } from "@/lib/services/user/login";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import LogOutButton from "@/components/ui/user/LogOutButton.svelte";
 	// noinspection ES6UnusedImports
 	import { Avatar } from "bits-ui";
@@ -43,14 +43,14 @@
 			<div class="flex justify-end flex-1">
 				{#if getUserDetails().isGuildMember === false}
 					<Button tag="a" href={getConfig().discord.serverLink} class="mr-2 basis-full">
-						{m.join_server()}
+						Join Server
 					</Button>
 				{/if}
 				<LogOutButton
 					class="shrink-0"
 					size="icon"
 					variant="outline"
-					title={m.signout()}
+					title="Unlink Discord"
 					bind:isLoggingOut
 				>
 					<Link2Off size="16" />

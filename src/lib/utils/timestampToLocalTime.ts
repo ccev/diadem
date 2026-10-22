@@ -1,4 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
 import { time } from "@/lib/utils/time";
 import { getLocale } from "$lib/i18n/locale";
 
@@ -41,23 +40,19 @@ export function timestampToLocalTime(
 		const today = new Date();
 
 		if (time(today, date)) {
-			return dayLowerCase
-				? m.today_time_lower({ time: timeString })
-				: m.today_time({ time: timeString });
+			return dayLowerCase ? /* @wc-include */ `today, ${timeString}` : `Today, ${timeString}`;
 		}
 
 		today.setDate(today.getDate() - 1);
 		if (time(today, date)) {
 			return dayLowerCase
-				? m.yesterday_time_lower({ time: timeString })
-				: m.yesterday_time({ time: timeString });
+				? /* @wc-include */ `yesterday, ${timeString}`
+				: `Yesterday, ${timeString}`;
 		}
 
 		today.setDate(today.getDate() + 2);
 		if (time(today, date)) {
-			return dayLowerCase
-				? m.tomorrow_time_lower({ time: timeString })
-				: m.tomorrow_time({ time: timeString });
+			return dayLowerCase ? /* @wc-include */ `tomorrow, ${timeString}` : `Tomorrow, ${timeString}`;
 		}
 
 		const dateParams: Intl.DateTimeFormatOptions = {

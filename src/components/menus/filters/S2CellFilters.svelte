@@ -3,7 +3,7 @@
 	import Select from "@/components/ui/input/Select.svelte";
 	import Slider from "@/components/ui/input/slider/Slider.svelte";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { updateMapObject } from "@/lib/mapObjects/updateMapObject";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
@@ -19,7 +19,7 @@
 <div class="py-2 -mr-4">
 	<!--	<div class="flex items-center justify-between px-4 mb-2">-->
 	<!--		<p class="font-semibold">-->
-	<!--			{m.wayfarer_cells()}-->
+	<!-- Wayfarer cells -->
 	<!--		</p>-->
 	<!--		<Switch-->
 	<!--			class=""-->
@@ -35,7 +35,7 @@
 		<Slider
 			min={0}
 			max={20}
-			title={m.cell_level()}
+			title="S2 Cell Level"
 			value={getUserSettings().filters.s2cell.level ?? 17}
 			onchange={debounce((level) => {
 				getUserSettings().filters.s2cell.level = level;

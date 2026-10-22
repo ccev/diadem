@@ -3,7 +3,7 @@
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import type { RaidFilterType } from "@/lib/utils/gymUtils";
 	import type { FiltersetRaid } from "@/lib/features/filters/filtersets";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 
 	let {
@@ -16,9 +16,7 @@
 </script>
 
 <div>
-	<div class="text-base font-semibold mb-2">
-		{m.raid_filter_by()}
-	</div>
+	<div class="text-base font-semibold mb-2">Filter by</div>
 
 	<RadioGroup
 		value={filterType}
@@ -36,11 +34,7 @@
 		}}
 		class="w-full"
 	>
-		<SelectGroupItem type="radio" value="level" class="p-2 flex-1">
-			{m.raid_filter_by_level()}
-		</SelectGroupItem>
-		<SelectGroupItem type="radio" value="boss" class="p-2 flex-1">
-			{m.raid_filter_by_boss()}
-		</SelectGroupItem>
+		<SelectGroupItem type="radio" value="level" class="p-2 flex-1">Raid Level</SelectGroupItem>
+		<SelectGroupItem type="radio" value="boss" class="p-2 flex-1">Raid Boss</SelectGroupItem>
 	</RadioGroup>
 </div>

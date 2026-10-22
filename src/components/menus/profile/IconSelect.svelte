@@ -2,7 +2,7 @@
 	import { getDefaultIconSet, getUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { getConfig } from "@/lib/services/config/config";
 	import MenuGeneric from "@/components/menus/MenuGeneric.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import { onIconChange } from "@/lib/services/settings";
 	import { getIconForMap } from "@/lib/services/uicons.svelte";
@@ -32,7 +32,7 @@
 				value: s.id,
 				label:
 					s.id === defaultSetId.id
-						? m.default_()
+						? "Default"
 						: ((typeof s[type] === "object" && s[type] !== null
 								? (s[type] as { name?: string }).name
 								: undefined) ?? s.name)

@@ -32,7 +32,7 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 - **MapLibre GL** + `svelte-maplibre` for maps
 - **Drizzle ORM** with MySQL (internal DB for users/sessions)
 - **Raw SQL queries** via mysql2 for external Golbat DB
-- **Wuchale** for i18n — English source in `src/lib/i18n/messages.svelte.ts`, translation catalogs in `src/locales/*.po`
+- **Wuchale** for i18n — English text in Svelte components and TypeScript utilities, translation catalogs in `src/locales/*.po`
 - **bits-ui** for headless UI components
 - **runed** for Svelte reactivity utilities
 - **zod** for validation
@@ -78,10 +78,10 @@ Tests must always be passing. Run `pnpm test` after making changes to verify. No
 
 ### i18n
 
-- Import translations: `import * as m from "@/lib/i18n/messages.svelte"`
-- Use: `m.key_name()`
-- Add English message functions to `src/lib/i18n/messages.svelte.ts`, with a unique `@wc-context` matching the function name. Run `pnpm i18n:extract` and commit the updated `src/locales/*.po` catalogs; do not add translations.
-- Keep existing message function names stable: saved/shared filter titles contain these identifiers.
+- Write English text directly in Svelte markup/attributes and ordinary strings/template literals in functions. Wuchale extracts it automatically; do not introduce message IDs or translation wrappers.
+- Use `@wc-include` for text the default heuristic skips (such as `CP` or lowercase text in script) and `@wc-ignore` for technical values. Use a descriptive `@wc-context` only to distinguish genuinely different meanings of identical text.
+- Run `pnpm i18n:extract` and commit the updated `src/locales/*.po` catalogs; do not add translations. Keep complete sentences together, including Svelte interpolation and nested markup.
+- Saved/shared filter titles use English source templates resolved in `src/lib/features/filters/filterTitle.ts`. `legacyFilterTitles.ts` is read compatibility for old filters, not a message registry for new code.
 - Use `getLocale()` from `@/lib/i18n/locale`. Locale-prefixed links set a browser-session override and redirect to the unprefixed URL; only explicit language selection persists a preference.
 - Path alias `@` maps to `./src`
 

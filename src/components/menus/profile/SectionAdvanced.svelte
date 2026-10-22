@@ -4,22 +4,22 @@
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 	import Toggle from "@/components/ui/input/Toggle.svelte";
 	import NumberInput from "@/components/ui/input/NumberInput.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { onSettingsChange } from "@/lib/services/settings";
 	import { getMap, handleRotatePitchDisable, resetMap } from "@/lib/map/map.svelte";
 </script>
 
-<MenuCard title={m.settings_advanced()} Icon={Wrench}>
+<MenuCard title="Advanced" Icon={Wrench}>
 	<Toggle
-		title={m.settings_show_debug_title()}
-		description={m.settings_show_debug_description()}
+		title="Show Map Debug Menu"
+		description="Display in-depth information about the app"
 		onclick={() => onSettingsChange("showDebugMenu", !getUserSettings().showDebugMenu)}
 		value={getUserSettings().showDebugMenu}
 	/>
 
 	<Toggle
-		title={m.settings_rotate_pitch_title()}
-		description={m.settings_rotate_pitch_description()}
+		title="Lock map rotate &amp; pitch"
+		description="Disables rotation and pitching of the map"
 		onclick={() => {
 			const newValue = !getUserSettings().enableRotatePitch;
 
@@ -35,16 +35,16 @@
 	/>
 
 	<Toggle
-		title={m.settings_load_map_objects_while_moving_title()}
-		description={m.settings_load_map_objects_while_moving_description()}
+		title="Aggressive Map Updates"
+		description={/* @wc-include */ "⚠ Major performance impact! Fetch data while moving the map"}
 		onclick={() =>
 			onSettingsChange("loadMapObjectsWhileMoving", !getUserSettings().loadMapObjectsWhileMoving)}
 		value={getUserSettings().loadMapObjectsWhileMoving}
 	/>
 
 	<NumberInput
-		title={m.settings_load_map_objects_padding_title()}
-		description={m.settings_load_map_objects_padding_description()}
+		title="Map Update Padding"
+		description="Additional pixels to fetch around the map's bounding box"
 		value={getUserSettings().loadMapObjectsPadding}
 		onchange={(e) =>
 			onSettingsChange(

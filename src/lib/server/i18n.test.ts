@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { Handle, RequestEvent } from "@sveltejs/kit";
 import { handleLocale } from "./i18n";
 import { getLocale } from "@/lib/i18n/locale";
-import * as m from "@/lib/i18n/messages.svelte";
+import { mapObjectLabel } from "@/lib/mapObjects/mapObjectLabels";
+import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
+import { localizeFilterTitle } from "@/lib/features/filters/filterTitle";
+import { formatDistance } from "@/lib/utils/numberFormat";
 import { sessionLocaleCookie } from "@/lib/i18n/locales";
 
 vi.mock("@/lib/services/config/config.server", () => ({
@@ -25,20 +28,21 @@ function request(path: string, locale?: string) {
 }
 
 describe("Wuchale server localization", () => {
-	it.each(["en", "de", "es", "pt", "pl"])(
-		"preserves optional sign-in text in %s",
-		async (locale) => {
-			await handleLocale({
-				event: request("/map", locale),
-				resolve: async () => {
-					expect(m.signin_prompt_part_1()).toBe(
-						locale === "pt" ? "Para desbloquear mais funcionalidades," : ""
-					);
-					return new Response();
-				}
-			});
-		}
-	);
+	it.each([
+		["en", "Gym"],
+		["de", "Arena"],
+		["es", "Gimnasio"],
+		["pt", "Ginasio"],
+		["pl", "Gym"]
+	])("translates source-text labels in %s", async (locale, label) => {
+		await handleLocale({
+			event: request("/map", locale),
+			resolve: async () => {
+				expect(mapObjectLabel(MapObjectType.GYM)).toBe(label);
+				return new Response();
+			}
+		});
+	});
 	it("redirects before resolving, setting a session-only cookie and disabling caching", async () => {
 		const event = request("/de/map?lat=1&lon=2");
 		const resolve = vi.fn();
@@ -70,17 +74,23 @@ describe("Wuchale server localization", () => {
 				await new Promise((done) => setTimeout(done, locale === "de" ? 10 : 1));
 				if (locale === "de") {
 					// The source is just the placeholder; German intentionally adds a noun.
-					expect(m.filter_template_invasion_one_grunt({ type: "Feuer" })).toBe("Feuer Rüpel");
+					expect(localizeFilterTitle({ message: "{type}", params: { type: "Feuer" } })).toBe(
+						"Feuer Rüpel"
+					);
 				}
-				const html = `<html lang="%lang%">${getLocale()}: ${m.pogo_level({ level: 42 })}</html>`;
+				const title = localizeFilterTitle({
+					message: "Legendary {kind}",
+					params: { kind: "Raids" }
+				});
+				const html = `<html lang="%lang%">${getLocale()}: ${title}</html>`;
 				return new Response(await options!.transformPageChunk!({ html, done: true }));
 			};
 			return (await handleLocale({ event, resolve })).text();
 		};
 		expect(await Promise.all([render("de"), render("es"), render("en")])).toEqual([
-			'<html lang="de">de: Level 42</html>',
-			'<html lang="es">es: Nivel 42</html>',
-			'<html lang="en">en: Level 42</html>'
+			'<html lang="de">de: Legendäre Raids</html>',
+			'<html lang="es">es: Incursiones Legendarias</html>',
+			'<html lang="en">en: Legendary Raids</html>'
 		]);
 	});
 	it("falls back to English for missing translations and validates HTML language", async () => {
@@ -96,7 +106,27 @@ describe("Wuchale server localization", () => {
 		await handleLocale({
 			event: request("/map", "pt"),
 			resolve: async () => {
-				expect(m.format_distance_meters({ distance: 25 })).toBe("25 m");
+				expect(formatDistance(25)).toBe("25 m");
+				return new Response();
+			}
+		});
+	});
+	it("reads old shared filter titles and parameters while preserving user text", async () => {
+		await handleLocale({
+			event: request("/map", "de"),
+			resolve: async () => {
+				expect(
+					localizeFilterTitle({
+						message: "filter_template_levels_legendary",
+						params: { kind: "filter_template_raids_raids" }
+					})
+				).toBe("Legendäre Raids");
+				expect(
+					localizeFilterTitle({ message: "{task}", params: { task: "Catch 5 Pokémon" } })
+				).toBe("Catch 5 Pokémon");
+				expect(localizeFilterTitle({ title: "My raids", message: "Raid Filter" })).toBe("My raids");
+				expect(localizeFilterTitle({ message: "My custom filter" })).toBe("My custom filter");
+				expect(localizeFilterTitle({ message: "constructor" })).toBe("constructor");
 				return new Response();
 			}
 		});

@@ -9,7 +9,7 @@
 	import { getMap } from "@/lib/map/map.svelte";
 	import { ArrowBigUpDash, Clock } from "@lucide/svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { getWeatherIcon } from "@/lib/utils/weatherIcons.js";
 	import { closePopup } from "@/lib/mapObjects/interact";
 	import { slide, fade } from "svelte/transition";
@@ -92,9 +92,7 @@
 
 			{#if isClicked}
 				<div class="mt-2" transition:slide={{ duration: 70 }}>
-					<IconValue Icon={ArrowBigUpDash}>
-						{m.boosted()}:
-					</IconValue>
+					<IconValue Icon={ArrowBigUpDash}>Boosted:</IconValue>
 					{#each boostedTypes as typeId}
 						<div class="flex gap-2 mt-1 items-center">
 							<div class="w-4 h-4 shrink-0">
@@ -110,7 +108,7 @@
 					<div class="h-3"></div>
 
 					<IconValue Icon={Clock}>
-						{m.last_changed()}: <b>{timestampToLocalTime(getCurrentWeather()?.updated)}</b>
+						Last changed: <b>{timestampToLocalTime(getCurrentWeather()?.updated)}</b>
 					</IconValue>
 				</div>
 			{/if}

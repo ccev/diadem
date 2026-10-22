@@ -8,7 +8,6 @@
 	import WayfarerBasePopup from "@/components/ui/popups/WayfarerBasePopup.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
 	import { Circle, Diamond, TriangleAlert } from "@lucide/svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let data = $derived(getClickedL14Cell());
 	let highlight = $derived(data ? getWayfarerCellHighlight(data.fortCount, data.gymCount) : "");
@@ -46,21 +45,17 @@
 		{/snippet}
 
 		{#snippet title()}
-			<div class="text-lg font-semibold tracking-tight">
-				{m.wayfarer_cell_title()}
-			</div>
+			<div class="text-lg font-semibold tracking-tight">Level 14 Cell</div>
 		{/snippet}
 
 		{#snippet content()}
 			<p class="mb-1">
 				{#if data.gymCount >= 3}
-					<IconValue Icon={TriangleAlert}>
-						{m.wayfarer_gym_limit_reached()}
-					</IconValue>
+					<IconValue Icon={TriangleAlert}>Cell has reached its Gym limit</IconValue>
 				{:else}
-					{@html m.wayfarer_pokestops_required_for_gym({
-						count: getPokestopsRequiredForNewGym(data.fortCount, data.gymCount)
-					})}
+					New Pokéstops required for next Gym: <b
+						>{getPokestopsRequiredForNewGym(data.fortCount, data.gymCount)}</b
+					>
 				{/if}
 			</p>
 
@@ -68,13 +63,13 @@
 				Icon={Circle}
 				class="*:fill-(--wayfarer-fort-pokestop) *:stroke-(--wayfarer-fort-pokestop-stroke)"
 			>
-				{@html m.wayfarer_pokestops_count({ count: data.fortCount - data.gymCount })}
+				Pokéstops: <b>{data.fortCount - data.gymCount}</b>
 			</IconValue>
 			<IconValue
 				Icon={Diamond}
 				class="*:fill-(--wayfarer-fort-gym) *:stroke-(--wayfarer-fort-gym-stroke)"
 			>
-				{@html m.wayfarer_gyms_count({ count: data.gymCount })}
+				Gyms: <b>{data.gymCount}</b>
 			</IconValue>
 		{/snippet}
 	</WayfarerBasePopup>

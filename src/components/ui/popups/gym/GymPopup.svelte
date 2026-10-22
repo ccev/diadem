@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { mMove, mPokemon, mRaid, mTeam } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { GymData, GymDefender } from "$lib/types/mapObjectData/gym";
@@ -66,8 +66,8 @@
 	export function getPopupPropsGym(data: MapData) {
 		data = data as GymData;
 		return {
-			type: m.pogo_gym(),
-			title: data.name ?? m.unknown_gym(),
+			type: "Gym",
+			title: data.name ?? "Unknown Gym",
 			image,
 			overview,
 			main
@@ -119,7 +119,7 @@
 {#snippet image(d: MapData)}
 	{@const data = d as GymData}
 	<FortImage
-		alt={data.name ?? m.pogo_gym()}
+		alt={data.name ?? "Gym"}
 		fortUrl={data.url}
 		fortIcon={getIconGym(data)}
 		fortName={data.name}
@@ -134,7 +134,7 @@
 		{@const activeRaid = isActiveRaid(data)}
 
 		{#if activeRaid}
-			<OverviewCard Icon={RaidIcon} title={m.raid()}>
+			<OverviewCard Icon={RaidIcon} title="Raid">
 				<BigIconOverview>
 					{#snippet image()}
 						<ImagePopup class="h-12" src={getRaidIcon(data)} alt={getRaidTitle(data)} />
@@ -155,7 +155,7 @@
 		{/if}
 
 		{#if data.team_id && data.team_id !== 0 && !isFortOutdated(data.updated)}
-			<OverviewCard Icon={Shield} title={m.defending()}>
+			<OverviewCard Icon={Shield} title="Defending">
 				<BigIconOverview>
 					{#snippet image()}
 						<ImagePopup
@@ -166,11 +166,11 @@
 					{/snippet}
 
 					{#snippet title()}
-						{m.gym_team({ team: mTeam(data.team_id) })}
+						Team {mTeam(data.team_id)}
 					{/snippet}
 
 					{#snippet extra()}
-						{m.gym_slots({ occupied: getOccupiedSlots(data), total: GYM_SLOTS })}
+						Slots: {getOccupiedSlots(data)}/{GYM_SLOTS}
 					{/snippet}
 				</BigIconOverview>
 			</OverviewCard>
@@ -186,29 +186,25 @@
 		{#if isFortOutdated(data.updated)}
 			<BasicMainCard class="font-medium">
 				<IconValue Icon={CircleAlert}>
-					{m.gym_outdated_notice({
-						time: timestampToLocalTime(data.updated, {
-							showDate: true,
-							showSeconds: false,
-							showTime: false,
-							longMonth: true
-						})
+					This Gym is outdated! It was last seen {timestampToLocalTime(data.updated, {
+						showDate: true,
+						showSeconds: false,
+						showTime: false,
+						longMonth: true
 					})}
 				</IconValue>
 			</BasicMainCard>
 		{:else}
-			<TitledMainSection Icon={RaidIcon} title={m.raid()} disabled={!activeRaid}>
+			<TitledMainSection Icon={RaidIcon} title="Raid" disabled={!activeRaid}>
 				<BasicMainCard>
 					{#if !hasRaidData(data)}
-						{m.no_raid_at_gym()}
+						This Gym is not hosting a Raid
 					{:else if !activeRaid}
 						<IconValue Icon={Clock}>
-							{m.last_raid_ended({
-								time: timestampToLocalTime(data.raid_end_timestamp, {
-									showDate: true,
-									showSeconds: false,
-									longMonth: true
-								})
+							Last Raid ended {timestampToLocalTime(data.raid_end_timestamp, {
+								showDate: true,
+								showSeconds: false,
+								longMonth: true
 							})}
 						</IconValue>
 					{:else}
@@ -221,17 +217,14 @@
 						<div class="space-y-5">
 							<!--Expiration-->
 							<div>
-								<IconValue class="mb-1" Icon={Clock}>
-									{m.battle_time()}
-								</IconValue>
+								<IconValue class="mb-1" Icon={Clock}>Battle Time</IconValue>
 
 								<div
 									class="mt-2 border-2 border-accent-highlight rounded-md px-3 py-2 text-center font-semibold"
 								>
-									{m.range_to({
-										x: timestampToLocalTime(data.raid_battle_timestamp),
-										y: timestampToLocalTime(data.raid_end_timestamp)
-									})}
+									{timestampToLocalTime(data.raid_battle_timestamp)} – {timestampToLocalTime(
+										data.raid_end_timestamp
+									)}
 								</div>
 							</div>
 
@@ -242,9 +235,9 @@
 									<div>
 										<IconValue class="" Icon={BadgeCheck}>
 											{#if possibleBosses.length === 1}
-												{m.possible_hatch()}
+												Possible Hatch
 											{:else}
-												{m.possible_hatches()}
+												Possible Hatches
 											{/if}
 										</IconValue>
 
@@ -261,9 +254,7 @@
 							<!--RSVPs-->
 							{#if data?.rsvps?.length}
 								<div>
-									<IconValue Icon={UserRoundCheck}>
-										{m.rsvp()}
-									</IconValue>
+									<IconValue Icon={UserRoundCheck}>RSVP</IconValue>
 									<div class="mt-1 space-y-3 rounded-md bg-accent-highlight py-3 px-5">
 										{#each data.rsvps as rsvp (rsvp.timeslot)}
 											<div
@@ -272,10 +263,7 @@
 											>
 												<b>{timestampToLocalTime(rsvp.timeslot / 1000, { showSeconds: false })}</b>
 												<span class="text-right"
-													>{m.rsvp_entry({
-														going: rsvp.going_count,
-														maybe: rsvp.maybe_count
-													})}</span
+													>{rsvp.going_count} going · {rsvp.maybe_count} maybe</span
 												>
 											</div>
 										{/each}
@@ -286,16 +274,16 @@
 							<!--Raid Attributes-->
 							{#if data.raid_pokemon_id}
 								<div class="space-y-3">
-									<StatsMainCardEntry Icon={Star} name={m.tier()} value={mRaid(data.raid_level)} />
+									<StatsMainCardEntry Icon={Star} name="Tier" value={mRaid(data.raid_level)} />
 
 									{#if data.raid_pokemon_cp != null}
 										<StatsMainCardEntry
 											Icon={ShieldHalf}
-											name={m.cp()}
+											name={/* @wc-include */ "CP"}
 											value={data.raid_pokemon_cp}
 										/>
 									{/if}
-									<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
+									<StatsMainCardEntry Icon={Swords} name="Moves">
 										{#snippet value()}
 											<p class="flex gap-2">
 												{#if data.raid_pokemon_move_1 && data.raid_pokemon_move_2}
@@ -303,7 +291,7 @@
 													<span>·</span>
 													<span>{mMove(data.raid_pokemon_move_2)}</span>
 												{:else}
-													{m.unknown()}
+													Unknown
 												{/if}
 											</p>
 										{/snippet}
@@ -317,12 +305,12 @@
 
 			<TitledMainSection
 				Icon={Shield}
-				title={m.gym_members()}
+				title="Defenders"
 				disabled={!data.team_id || data.team_id === 0}
 			>
 				<BasicMainCard>
 					{#if !data.team_id || data.team_id === 0}
-						{m.no_defenders_at_gym()}
+						There are no defenders in this Gym
 					{:else}
 						<MainCardBigIcon
 							src={getIconTeam(data.team_id)}
@@ -333,7 +321,7 @@
 						<div class="mt-4 space-y-3">
 							<StatsMainCardEntry
 								Icon={UsersRound}
-								name={m.slots_occupied()}
+								name="Slots occupied"
 								value="{getOccupiedSlots(data)}/{GYM_SLOTS}"
 							/>
 						</div>
@@ -354,7 +342,7 @@
 														<ImagePopup
 															class="absolute size-12 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
 															src={resize(getIconBackground(defender.background), { width: 64 })}
-															alt={m.background()}
+															alt="Background"
 														/>
 													{/if}
 												</div>
@@ -388,7 +376,7 @@
 											</div>
 
 											<div class="space-y-1 mt-4">
-												<StatsMainCardEntry Icon={SquareEqual} name={m.cp()}>
+												<StatsMainCardEntry Icon={SquareEqual} name={/* @wc-include */ "CP"}>
 													{#snippet value()}
 														<p>
 															<span>
@@ -400,22 +388,14 @@
 														</p>
 													{/snippet}
 												</StatsMainCardEntry>
-												<StatsMainCardEntry
-													Icon={Swords}
-													name={m.won()}
-													value={defender.battles_won}
-												/>
+												<StatsMainCardEntry Icon={Swords} name="Won" value={defender.battles_won} />
 												<StatsMainCardEntry
 													Icon={Shield}
-													name={m.lost()}
+													name="Lost"
 													value={defender.battles_lost}
 												/>
-												<StatsMainCardEntry
-													Icon={Candy}
-													name={m.fed()}
-													value={defender.times_fed}
-												/>
-												<StatsMainCardEntry Icon={Clock} name={m.defender_placed()}>
+												<StatsMainCardEntry Icon={Candy} name="Fed" value={defender.times_fed} />
+												<StatsMainCardEntry Icon={Clock} name="Placed">
 													{#snippet value()}
 														{#if defender.deployed_time < currentTimestamp() - 60 * 60 * 24}
 															{timestampToLocalTime(defender.deployed_time, {
@@ -442,7 +422,7 @@
 
 	<RoutesStartingHere fortId={data.id} />
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_gym()}>
+	<TitledMainSection Icon={CircleDot} title="Access this Gym">
 		<MainAccessMap
 			lat={data.lat}
 			lon={data.lon}
@@ -455,12 +435,12 @@
 	</TitledMainSection>
 
 	{#if showMatchingFiltersets()}
-		<TitledMainSection Icon={SlidersHorizontal} title={m.matching_filtersets()}>
+		<TitledMainSection Icon={SlidersHorizontal} title="Matching Filters">
 			<BasicMainCard>
 				{@const filtersets = getMatchingFiltersets(data)}
 
 				{#if filtersets.length === 0}
-					<p>{m.filters_dont_match_gym()}</p>
+					<p>None of your filters match this Gym</p>
 				{/if}
 				<div class="flex flex-wrap gap-3">
 					{#each filtersets as filterset (filterset.id)}
@@ -477,13 +457,13 @@
 	{/if}
 
 	<AboutFort
-		title={m.about_this_gym()}
+		title="About this Gym"
 		name={data.name}
 		description={data.description}
 		imageUrl={data.url}
 		sponsorId={data.sponsor_id}
 		partnerId={data.partner_id}
-		defaultName={m.pogo_gym()}
+		defaultName="Gym"
 		updated={data.updated}
 		lastModified={data.last_modified_timestamp}
 		firstSeen={data.first_seen_timestamp}

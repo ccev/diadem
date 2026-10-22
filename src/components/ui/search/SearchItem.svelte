@@ -2,10 +2,13 @@
 	import LucideIcon from "@/components/utils/LucideIcon.svelte";
 	import type { Snippet } from "svelte";
 	import type { FuzzyMatches, FuzzyResult } from "@nozbe/microfuzz";
-	import { type AnySearchEntry, highlightSearchMatches } from "@/lib/services/search.svelte";
+	import {
+		type AnySearchEntry,
+		highlightSearchMatches,
+		searchCategoryLabel
+	} from "@/lib/services/search.svelte";
 	import { Command } from "bits-ui";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
-	import { mAny } from "@/lib/utils/anyMessage";
 
 	let {
 		onselect,
@@ -60,7 +63,7 @@
 			class="text-muted-foreground shrink-0 ml-auto overflow-x-hidden text-right font-normal!"
 			{@attach highlightSearchMatches(result.matches[1])}
 		>
-			{mAny(result.item.category)}
+			{searchCategoryLabel(result.item.type)}
 		</span>
 	</div>
 </Command.Item>

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "$lib/i18n/messages.svelte";
 	import { Clock } from "@lucide/svelte";
 	import { hasTimer } from "$lib/utils/pokemonUtils";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
@@ -27,7 +26,7 @@
 		{#if useFallback}
 			{fallbackTitle}
 		{:else}
-			{m.disappear_time()}
+			Disappear Time
 		{/if}
 	</p>
 

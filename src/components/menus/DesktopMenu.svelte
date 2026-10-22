@@ -3,7 +3,7 @@
 	import MenuContainer from "@/components/menus/MenuContainer.svelte";
 	import CloseButton from "@/components/ui/CloseButton.svelte";
 	import { fly } from "svelte/transition";
-	import { mAny } from "@/lib/utils/anyMessage";
+	import { getOpenedMenuTitle } from "@/lib/ui/menus.svelte";
 	import CoverageMapTitle from "@/components/menus/coverageMap/CoverageMapTitle.svelte";
 </script>
 
@@ -16,7 +16,7 @@
 		class="mx-2 rounded-lg py-1 sticky top-[7px] flex items-center justify-between z-10 bg-card border border-b-border mt-2"
 	>
 		<h1 class="font-bold text-base tracking-tight mx-4">
-			{mAny("nav_" + getOpenedMenu())}
+			{getOpenedMenuTitle()}
 		</h1>
 		<CloseButton onclick={closeMenu} class="mr-2" />
 	</div>

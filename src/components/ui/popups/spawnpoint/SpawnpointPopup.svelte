@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { SpawnpointData } from "$lib/types/mapObjectData/spawnpoint";
 	import { SPAWNPOINT_OUTDATED_SECONDS } from "$lib/constants";
@@ -31,8 +31,8 @@
 	export function getPopupPropsSpawnpoint(data: MapData) {
 		data = data as SpawnpointData;
 		return {
-			type: m.pogo_spawnpoint(),
-			title: m.pogo_spawnpoint(),
+			type: "Spawnpoint",
+			title: "Spawnpoint",
 			image,
 			overview,
 			main
@@ -64,12 +64,12 @@
 
 {#snippet overview(d: MapData)}
 	{@const data = d as SpawnpointData}
-	<OverviewCard Icon={Timer} title={m.disappear_time()}>
+	<OverviewCard Icon={Timer} title="Disappear Time">
 		{#snippet value()}
 			{#if data.despawn_sec != null}
 				{getMmSsFromSeconds(data.despawn_sec)}
 			{:else}
-				{m.unknown()}
+				Unknown
 			{/if}
 		{/snippet}
 	</OverviewCard>
@@ -84,31 +84,29 @@
 	{#if outdated}
 		<BasicMainCard class="font-medium">
 			<IconValue Icon={CircleAlert}>
-				{m.spawnpoint_outdated_notice({
-					time: timestampToLocalTime(data.last_seen, {
-						showDate: true,
-						showSeconds: false,
-						showTime: false,
-						longMonth: true
-					})
+				This Spawnpoint is outdated! It was last seen {timestampToLocalTime(data.last_seen, {
+					showDate: true,
+					showSeconds: false,
+					showTime: false,
+					longMonth: true
 				})}
 			</IconValue>
 		</BasicMainCard>
 	{/if}
 
-	<TitledMainSection Icon={Info} title={m.about_this_spawnpoint()}>
+	<TitledMainSection Icon={Info} title="About this Spawnpoint">
 		<StatsMainCard>
 			<StatsMainCardEntry
 				Icon={Timer}
-				name={m.disappear_time()}
-				value={data.despawn_sec != null ? getMmSsFromSeconds(data.despawn_sec) : m.unknown()}
+				name="Disappear Time"
+				value={data.despawn_sec != null ? getMmSsFromSeconds(data.despawn_sec) : "Unknown"}
 			/>
-			<StatsMainCardEntry Icon={FingerprintPattern} name={m.s2_cell_id()} value={data.id} />
+			<StatsMainCardEntry Icon={FingerprintPattern} name="S2 Cell ID" value={data.id} />
 			<UpdatedTimes updated={data.last_seen} firstSeen={data.first_seen} />
 		</StatsMainCard>
 	</TitledMainSection>
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_spawnpoint()}>
+	<TitledMainSection Icon={CircleDot} title="Access this Spawnpoint">
 		<div class="relative">
 			<MainAccessMap
 				lat={data.lat}
@@ -129,10 +127,10 @@
 			>
 				{#if mapExpandedRadius}
 					<Shrink class="size-3.5" />
-					{m.normal()}
+					Normal
 				{:else}
 					<Expand class="size-3.5" />
-					{m.popup_action_spacial_rend()}
+					Spacial Rend
 				{/if}
 			</Button>
 		</div>

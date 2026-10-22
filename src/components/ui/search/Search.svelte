@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { MapPin, Nut, Search, Spotlight, Squirrel, X } from "@lucide/svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { closeSearchModal } from "@/lib/ui/modal.svelte.js";
 	import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
@@ -59,7 +59,7 @@
 			<Command.Input
 				bind:value={getCurrentSearchQuery, setCurrentSearchQuery}
 				ref={input}
-				placeholder={m.search_placeholder()}
+				placeholder="Search..."
 				autocomplete="off"
 				spellcheck="false"
 				type="search"
@@ -78,7 +78,7 @@
 						<Command.GroupHeading
 							class="text-muted-foreground p-1 px-2 py-1.5 text-xs font-medium self-starts"
 						>
-							{m.search_recent()}
+							Recent
 						</Command.GroupHeading>
 						<Command.GroupItems>
 							<MainSearchResults results={recentSearches} />
@@ -100,20 +100,20 @@
 								<div>
 									<p class="font-semibold">
 										{#if getCurrentSearchQuery()}
-											{m.nothing_found()}
+											Nothing came up
 										{:else}
-											{m.nothing_to_see_here()}
+											Here you can search for anything
 										{/if}
 									</p>
 									<p>
 										{#if isSupportedFeature("koji") && isSupportedFeature("geocoding")}
-											{m.search_hint()}
+											Try searching for Pokémon, areas, addresses, Gyms or Quests
 										{:else if isSupportedFeature("koji")}
-											{m.search_hint_no_area()}
+											Try searching for Pokémon, addresses, Gyms or Quests
 										{:else if isSupportedFeature("geocoding")}
-											{m.search_hint_no_address()}
+											Try searching for Pokémon, areas, Gyms or Quests
 										{:else}
-											{m.search_hint_no_area_address()}
+											Try searching for Pokémon, Pokéstops, Gyms or Quests
 										{/if}
 									</p>
 								</div>
@@ -150,7 +150,7 @@
 					>
 						<MapPin class="shrink-0" size="16" />
 
-						<span>{m.searching_for_addresses()}</span>
+						<span>Looking for addresses</span>
 					</div>
 				{/if}
 			</Command.Viewport>

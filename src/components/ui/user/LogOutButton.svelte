@@ -9,7 +9,6 @@
 	import { isNative } from "@/lib/native/runtime";
 	import { nativeLogout } from "@/lib/native/auth";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let { isLoggingOut = $bindable(), children, ...rest } = $props();
 
@@ -23,7 +22,7 @@
 			} else {
 				const response = await fetch("/logout", { method: "POST" });
 				if (!response.ok) {
-					openToast(m.signout_toast_error(), 10000);
+					openToast("Error while signing out, please try again", 10000);
 					return;
 				}
 			}

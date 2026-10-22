@@ -14,7 +14,7 @@
 
 <script lang="ts">
 	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import PopupButtons from "@/components/ui/popups/common/PopupButtons.svelte";
 	import {
 		backupShareUrl,
@@ -71,7 +71,7 @@
 				variant="ghost"
 				size=""
 				class="rounded-full p-2 size-9 bg-accent/50"
-				title={m.popup_share()}
+				title="Share"
 				onclick={() => backupShareUrl(getShareUrl())}
 			>
 				<Share2 class="size-3.5" />
@@ -81,7 +81,7 @@
 				variant="ghost"
 				size=""
 				class="rounded-full p-2 size-9 bg-accent/50"
-				title={m.copy_link()}
+				title="Copy link"
 				onclick={() => copyToClipboard(getShareUrl())}
 			>
 				<Copy class="size-3.5" />
@@ -92,7 +92,7 @@
 			variant="ghost"
 			size=""
 			class="rounded-full p-2 size-9 bg-accent/50"
-			title={m.close()}
+			title="Close"
 			onclick={() => closePopup()}
 		>
 			<X class="size-4.5" />
@@ -116,7 +116,7 @@
 			class="mx-4 w-full"
 			variant="default"
 			Icon={Navigation}
-			label={m.popup_navigate()}
+			label="Navigate"
 			tag="a"
 			href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
 			target="_blank"

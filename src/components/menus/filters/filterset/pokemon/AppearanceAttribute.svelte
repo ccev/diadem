@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SliderRange from "@/components/ui/input/slider/SliderRange.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { pokemonSizes } from "@/lib/utils/pokemonUtils";
 	import ToggleGroup from "@/components/ui/input/selectgroup/ToggleGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
@@ -25,7 +25,7 @@
 	<SliderRange
 		min={sizeBounds.min}
 		max={sizeBounds.max}
-		title={m.pokemon_size()}
+		title="Size"
 		valueMin={data.size?.min ?? sizeBounds.min}
 		valueMax={data.size?.max ?? sizeBounds.max}
 		onchange={([min, max]) =>
@@ -35,9 +35,7 @@
 {/if}
 
 <div class:mt-4={showSize}>
-	<div class="text-base font-semibold mb-2">
-		{m.pokemon_gender()}
-	</div>
+	<div class="text-base font-semibold mb-2">Gender</div>
 
 	<ToggleGroup
 		values={thisValues}
@@ -53,15 +51,15 @@
 	>
 		<SelectGroupItem type="toggle" value="2" class="p-2 flex-1">
 			<Venus size="20" />
-			{m.pokemon_gender_female()}
+			Female
 		</SelectGroupItem>
 		<SelectGroupItem type="toggle" value="1" class="p-2 flex-1">
 			<Mars size="20" />
-			{m.pokemon_gender_male()}
+			Male
 		</SelectGroupItem>
 		<SelectGroupItem type="toggle" value="3" class="p-2 flex-1">
 			<CircleSmall size="20" />
-			{m.pokemon_gender_neutral()}
+			{/* @wc-context: Pokémon gender */ "Neutral"}
 		</SelectGroupItem>
 	</ToggleGroup>
 </div>

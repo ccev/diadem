@@ -1,4 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
 
 let countdowns = new Map<
@@ -33,31 +32,31 @@ function updateAllCountdowns() {
 			const days = Math.floor(absRemainingTime / (3600 * 24));
 			const hours = Math.floor((absRemainingTime % (3600 * 24)) / 3600);
 			if (isPast) {
-				formattedTimeValue = m.time_format_d_h_m_ago({ d: days, h: hours, m: minutes });
+				formattedTimeValue = `${days}d ${hours}h ${minutes}m ago`;
 			} else {
-				formattedTimeValue = m.time_format_d_h_m({ d: days, h: hours, m: minutes });
+				formattedTimeValue = /* @wc-include */ `${days}d ${hours}h ${minutes}m`;
 			}
 		} else if (countdown.showHours || absRemainingTime >= 60 * 60) {
 			const hours = Math.floor(absRemainingTime / 3600);
 			if (absRemainingTime >= 60 * 60) {
 				if (isPast) {
-					formattedTimeValue = m.time_format_h_m_ago({ h: hours, m: minutes });
+					formattedTimeValue = `${hours}h ${minutes}m ago`;
 				} else {
-					formattedTimeValue = m.time_format_h_m({ h: hours, m: minutes });
+					formattedTimeValue = /* @wc-include */ `${hours}h ${minutes}m`;
 				}
 			} else {
 				if (isPast) {
-					formattedTimeValue = m.time_format_h_m_s_ago({ h: hours, m: minutes, s: seconds });
+					formattedTimeValue = `${hours}h ${minutes}m ${seconds}s ago`;
 				} else {
-					formattedTimeValue = m.time_format_h_m_s({ h: hours, m: minutes, s: seconds });
+					formattedTimeValue = /* @wc-include */ `${hours}h ${minutes}m ${seconds}s`;
 				}
 			}
 		} else {
 			minutes = Math.floor(absRemainingTime / 60);
 			if (isPast) {
-				formattedTimeValue = m.time_format_m_s_ago({ m: minutes, s: seconds });
+				formattedTimeValue = `${minutes}m ${seconds}s ago`;
 			} else {
-				formattedTimeValue = m.time_format_m_s({ m: minutes, s: seconds });
+				formattedTimeValue = /* @wc-include */ `${minutes}m ${seconds}s`;
 			}
 		}
 

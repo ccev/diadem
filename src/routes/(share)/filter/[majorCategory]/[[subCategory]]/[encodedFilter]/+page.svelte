@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from "./$types";
 	import { browser } from "$app/environment";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import {
 		getAttributeLabelCp,
 		getAttributeLabelIvProduct,
@@ -34,9 +34,9 @@
 		let title = "";
 
 		if (data.majorCategory === "pokemon") {
-			title += m.pokemon_filter();
+			title += "Pokémon Filter";
 		} else if (data.majorCategory === "gym" && data.subCategory === "raid") {
-			title += m.raid_filter();
+			title += "Raid Filter";
 		}
 
 		if (title) title += " | " + filterTitle(data.filterset);
@@ -52,10 +52,10 @@
 			const filterset = data.filterset as FiltersetPokemon;
 
 			if (filterset.pokemon) {
-				text += `${m.species()}: ${makeAttributePokemonLabel(filterset.pokemon)}\n`;
+				text += `Species: ${makeAttributePokemonLabel(filterset.pokemon)}\n`;
 			}
 			if (filterset.iv || filterset.ivAtk || filterset.ivDef || filterset.ivSta) {
-				text += m.pogo_ivs() + ": ";
+				text += "IVs" + ": ";
 
 				let valueText = "";
 				if (filterset.ivAtk || filterset.ivDef || filterset.ivSta) {
@@ -72,46 +72,46 @@
 				text += "\n";
 			}
 			if (filterset.cp) {
-				text += `${m.cp()}: ${getAttributeLabelCp(filterset.cp)}\n`;
+				text += `CP: ${getAttributeLabelCp(filterset.cp)}\n`;
 			}
 			if (filterset.level) {
-				text += `${m.level()}: ${getAttributeLabelLevel(filterset.level)}\n`;
+				text += `Level: ${getAttributeLabelLevel(filterset.level)}\n`;
 			}
 			if (filterset.pvpRankLittle) {
-				text += `${m.little_league()}: ${getAttributeLabelRank(filterset.pvpRankLittle)}\n`;
+				text += `Little League: ${getAttributeLabelRank(filterset.pvpRankLittle)}\n`;
 			}
 			if (filterset.pvpRankGreat) {
-				text += `${m.great_league()}: ${getAttributeLabelRank(filterset.pvpRankGreat)}\n`;
+				text += `Great League: ${getAttributeLabelRank(filterset.pvpRankGreat)}\n`;
 			}
 			if (filterset.pvpRankUltra) {
-				text += `${m.ultra_league()}: ${getAttributeLabelRank(filterset.pvpRankUltra)}\n`;
+				text += `Ultra League: ${getAttributeLabelRank(filterset.pvpRankUltra)}\n`;
 			}
 			if (filterset.size) {
-				text += `${m.pokemon_size()}: ${getAttributeLabelSize(filterset.size)}\n`;
+				text += `Size: ${getAttributeLabelSize(filterset.size)}\n`;
 			}
 			if (filterset.gender) {
-				text += `${m.pokemon_gender()}: ${filterset.gender.map(getGenderLabel).join(", ")}\n`;
+				text += `Gender: ${filterset.gender.map(getGenderLabel).join(", ")}\n`;
 			}
 		} else if (data.majorCategory === "gym" && data.subCategory === "raid") {
 			const filterset = data.filterset as FiltersetRaid;
 			if (filterset.bosses) {
-				text += `${m.raid_bosses_long()}: ${makeAttributePokemonLabel(filterset.bosses)}\n`;
+				text += `Raid Bosses: ${makeAttributePokemonLabel(filterset.bosses)}\n`;
 			}
 			if (filterset.levels) {
-				text += `${m.raid_levels_long()}: ${makeAttributeRaidLevelLabel(filterset.levels)}\n`;
+				text += `Raid Levels: ${makeAttributeRaidLevelLabel(filterset.levels)}\n`;
 			}
 			if (filterset.show) {
 				for (const show of filterset.show) {
-					text += `${m.raid_show()}: ${makeAttributeRaidShowLabel(show)}\n`;
+					text += `Show: ${makeAttributeRaidShowLabel(show)}\n`;
 				}
 			}
 		} else if (data.majorCategory === "pokestop" && data.subCategory === "invasion") {
 			const filterset = data.filterset as FiltersetInvasion;
 			if (filterset.characters) {
-				text += `${m.grunts()}: ${makeAttributeCharacterLabel(filterset.characters)}\n`;
+				text += `Grunts: ${makeAttributeCharacterLabel(filterset.characters)}\n`;
 			}
 			if (filterset.rewards) {
-				text += `${m.rewards()}: ${makeAttributePokemonLabel(filterset.rewards)}\n`;
+				text += `Rewards: ${makeAttributePokemonLabel(filterset.rewards)}\n`;
 			}
 		}
 		return text;

@@ -1,9 +1,8 @@
 import { updateDimmedFeatures, updateRadiusFeatures } from "@/lib/map/featuresGen.svelte";
 import { ClientMapObjectType, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 import type { LucideIcon } from "@/lib/types/lucide";
-import { mAny } from "@/lib/utils/anyMessage";
 import { Expand, Eye, SquareStack } from "@lucide/svelte";
 
 export enum PopupAction {
@@ -39,11 +38,20 @@ export function getPopupActions(
 	action: PopupAction
 ): PopupActionDropdown[] | undefined {
 	if (!mapObject) return;
+	const labels: Partial<Record<MapObjectType, { undim: string; show: string }>> = {
+		[MapObjectType.POKEMON]: { undim: "Undim all Pokémon", show: "Show on every Pokémon" },
+		[MapObjectType.POKESTOP]: { undim: "Undim all Pokéstops", show: "Show on every Pokéstop" },
+		[MapObjectType.GYM]: { undim: "Undim all Gyms", show: "Show on every Gym" },
+		[MapObjectType.STATION]: { undim: "Undim all Power Spots", show: "Show on every Power Spot" },
+		[MapObjectType.TAPPABLE]: { undim: "Undim all Ground Items", show: "Show on every Ground Item" }
+	};
+	const label = labels[mapObject];
+	if (!label) return;
 
 	if (action === PopupAction.DIMMED) {
 		return [
 			{
-				label: mAny("popup_action_undim_all_" + mapObject),
+				label: label.undim,
 				Icon: Eye,
 				onclick: () => clearPopupAction(mapObject, PopupAction.DIMMED)
 			}
@@ -51,7 +59,7 @@ export function getPopupActions(
 	} else if (action === PopupAction.RADIUS) {
 		const actions: PopupActionDropdown[] = [
 			{
-				label: mAny("popup_action_show_on_every_" + mapObject),
+				label: label.show,
 				Icon: SquareStack,
 				getActive: () => isPopupActionAllActive(mapObject, PopupAction.RADIUS),
 				onclick: () => togglePopupActionAll(mapObject, PopupAction.RADIUS)
@@ -59,7 +67,7 @@ export function getPopupActions(
 		];
 		if (mapObject === MapObjectType.POKEMON) {
 			actions.unshift({
-				label: m.popup_action_spacial_rend(),
+				label: "Spacial Rend",
 				Icon: Expand,
 				getActive: () => isExtraRadiusActive(mapObject),
 				onclick: () => toggleExtraRadius(mapObject)
@@ -69,7 +77,7 @@ export function getPopupActions(
 	} else if (action === PopupAction.TIMER) {
 		return [
 			{
-				label: mAny("popup_action_show_on_every_" + mapObject),
+				label: label.show,
 				Icon: SquareStack,
 				getActive: () => isPopupActionAllActive(mapObject, PopupAction.TIMER),
 				onclick: () => togglePopupActionAll(mapObject, PopupAction.TIMER)

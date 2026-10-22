@@ -3,7 +3,7 @@
 	import AttributeChip from "@/components/menus/filters/filterset/AttributeChip.svelte";
 	import Attribute from "@/components/menus/filters/filterset/Attribute.svelte";
 	import AttributesOverview from "@/components/menus/filters/filterset/AttributesOverview.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { FiltersetMaxBattle } from "@/lib/features/filters/filtersets";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 	import { makeAttributePokemonLabel } from "@/lib/features/filters/makeAttributeChipLabel";
@@ -21,10 +21,10 @@
 	mapObject={MapObjectType.STATION}
 	majorCategory="station"
 	subCategory="maxBattle"
-	titleBase={m.max_battle_filter()}
-	titleShared={m.shared_max_battle_filter()}
-	titleNew={m.new_max_battle_filter()}
-	titleEdit={m.edit_max_battle_filter()}
+	titleBase="Max Battle Filter"
+	titleShared="Shared Max Battle Filter"
+	titleNew="New Max Battle Filter"
+	titleEdit="Edit Max Battle Filter"
 >
 	{#snippet base()}
 		{#if data}
@@ -34,7 +34,7 @@
 	{#snippet overview()}
 		{#if data}
 			<AttributesOverview>
-				<Attribute label={m.raid_bosses()}>
+				<Attribute label="Bosses">
 					<AttributeChip
 						label={makeAttributePokemonLabel(data.bosses ?? [])}
 						isEmpty={!data.bosses}
@@ -47,12 +47,12 @@
 			</AttributesOverview>
 			<AttributesOverview>
 				<AttributeToggle
-					label={m.max_battle_only_show_active()}
+					label="Only show active"
 					value={data.isActive ?? false}
 					onchange={(v) => (data.isActive = v)}
 				/>
 				<AttributeToggle
-					label={m.max_battle_has_gmax()}
+					label="Has Gigantamax"
 					value={data.hasGmax ?? false}
 					onchange={(v) => (data.hasGmax = v)}
 				/>

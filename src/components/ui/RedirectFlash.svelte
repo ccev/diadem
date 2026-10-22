@@ -2,7 +2,7 @@
 	import { browser } from "$app/environment";
 	import { getMapPath } from "@/lib/utils/getMapPath";
 	import { getConfig } from "@/lib/services/config/config";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import ErrorPage from "@/components/ui/ErrorPage.svelte";
@@ -29,11 +29,9 @@
 </script>
 
 {#if browser}
-	<ErrorPage error={m.redirect_title({ goal })} href="" linkLabel="">
+	<ErrorPage error="Bringing you to {goal}" href="" linkLabel="">
 		{#snippet extraButtons()}
-			<Button variant="outline" tag="a" {href} {onclick}>
-				{m.redirect_button()}
-			</Button>
+			<Button variant="outline" tag="a" {href} {onclick}>Click here if that didn't work</Button>
 		{/snippet}
 	</ErrorPage>
 {/if}

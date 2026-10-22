@@ -3,7 +3,6 @@
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
 	import FilterDisplay from "@/components/menus/filters/filterset/display/FilterDisplay.svelte";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		data
@@ -14,12 +13,12 @@
 
 <FilterDisplay>
 	{#if data.bosses}
-		<PokemonDisplay label={m.raid_bosses()} pokemon={data.bosses} />
+		<PokemonDisplay label="Bosses" pokemon={data.bosses} />
 	{/if}
 	{#if data.isActive}
-		<AttributeDisplay label={m.max_battle_only_show()} value={m.max_battle_active()} />
+		<AttributeDisplay label="Only show" value="Active" />
 	{/if}
 	{#if data.hasGmax}
-		<AttributeDisplay label={m.max_battle_power_spot_has()} value={m.max_battle_gmax()} />
+		<AttributeDisplay label="Power spot has" value="Gigantamax" />
 	{/if}
 </FilterDisplay>

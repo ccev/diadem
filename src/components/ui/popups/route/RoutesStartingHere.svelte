@@ -4,7 +4,7 @@
 	import RouteCard from "@/components/ui/popups/route/RouteCard.svelte";
 	import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { hasFeatureAnywhere } from "@/lib/services/user/checkPerm";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
@@ -24,9 +24,9 @@
 </script>
 
 {#if hasFeatureAnywhere(getUserDetails().permissions, Features.ROUTE)}
-	<TitledMainSection Icon={Signpost} title={m.routes_from_here()} disabled={routes.length === 0}>
+	<TitledMainSection Icon={Signpost} title="Routes from here" disabled={routes.length === 0}>
 		{#if routes.length === 0}
-			<BasicMainCard>{m.no_routes_starting_here()}</BasicMainCard>
+			<BasicMainCard>No routes start here</BasicMainCard>
 		{:else}
 			<div class="-mx-4">
 				<div class="flex w-full gap-3 overflow-x-auto px-4 *:shrink-0">

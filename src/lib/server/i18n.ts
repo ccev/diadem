@@ -1,6 +1,7 @@
 import type { Handle } from "@sveltejs/kit";
 import { loadLocales, runWithLocale } from "wuchale/load-utils/server";
 import * as main from "../../locales/main.loader.server.svelte.js";
+import * as js from "../../locales/js.loader.server.js";
 import {
 	baseLocale,
 	isLocale,
@@ -10,7 +11,10 @@ import {
 } from "@/lib/i18n/locales";
 import { getClientConfig } from "@/lib/services/config/config.server";
 
-const catalogsReady = loadLocales(main.key, main.loadCount, main.loadCatalog, [...locales]);
+const catalogsReady = Promise.all([
+	loadLocales(main.key, main.loadCount, main.loadCatalog, [...locales]),
+	loadLocales(js.key, js.loadCount, js.loadCatalog, [...locales])
+]);
 
 export const handleLocale: Handle = async ({ event, resolve }) => {
 	const localized = localeRedirect(event.url);

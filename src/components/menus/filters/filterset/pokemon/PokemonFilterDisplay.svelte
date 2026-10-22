@@ -8,7 +8,7 @@
 		getAttributeLabelRank,
 		getAttributeLabelSize
 	} from "@/lib/features/filters/filterUtilsPokemon";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { getGenderLabel } from "@/lib/utils/pokemonUtils";
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import PokemonDisplay from "@/components/menus/filters/filterset/display/PokemonDisplay.svelte";
@@ -23,43 +23,37 @@
 
 <FilterDisplay class="max-h-96">
 	{#if data.pokemon}
-		<PokemonDisplay label={m.species()} pokemon={data.pokemon} />
+		<PokemonDisplay label="Species" pokemon={data.pokemon} />
 	{/if}
 
 	{#if data.iv}
-		<AttributeDisplay
-			label={m.iv_product_label_long()}
-			value={getAttributeLabelIvProduct(data.iv)}
-		/>
+		<AttributeDisplay label="Total IV" value={getAttributeLabelIvProduct(data.iv)} />
 	{/if}
 	{#if data.ivAtk || data.ivDef || data.ivSta}
 		<AttributeDisplay
-			label={m.pogo_ivs()}
+			label="IVs"
 			value={getAttributeLabelIvValues(data.ivAtk, data.ivDef, data.ivSta)}
 		/>
 	{/if}
 	{#if data.cp}
-		<AttributeDisplay label={m.cp()} value={getAttributeLabelCp(data.cp)} />
+		<AttributeDisplay label={/* @wc-include */ "CP"} value={getAttributeLabelCp(data.cp)} />
 	{/if}
 	{#if data.level}
-		<AttributeDisplay label={m.level()} value={getAttributeLabelLevel(data.level)} />
+		<AttributeDisplay label="Level" value={getAttributeLabelLevel(data.level)} />
 	{/if}
 	{#if data.pvpRankLittle}
-		<AttributeDisplay label={m.little_league()} value={getAttributeLabelRank(data.pvpRankLittle)} />
+		<AttributeDisplay label="Little League" value={getAttributeLabelRank(data.pvpRankLittle)} />
 	{/if}
 	{#if data.pvpRankGreat}
-		<AttributeDisplay label={m.great_league()} value={getAttributeLabelRank(data.pvpRankGreat)} />
+		<AttributeDisplay label="Great League" value={getAttributeLabelRank(data.pvpRankGreat)} />
 	{/if}
 	{#if data.pvpRankUltra}
-		<AttributeDisplay label={m.ultra_league()} value={getAttributeLabelRank(data.pvpRankUltra)} />
+		<AttributeDisplay label="Ultra League" value={getAttributeLabelRank(data.pvpRankUltra)} />
 	{/if}
 	{#if data.size}
-		<AttributeDisplay label={m.pokemon_size()} value={getAttributeLabelSize(data.size)} />
+		<AttributeDisplay label="Size" value={getAttributeLabelSize(data.size)} />
 	{/if}
 	{#if data.gender}
-		<AttributeDisplay
-			label={m.pokemon_gender()}
-			value={data.gender.map(getGenderLabel).join(", ")}
-		/>
+		<AttributeDisplay label="Gender" value={data.gender.map(getGenderLabel).join(", ")} />
 	{/if}
 </FilterDisplay>

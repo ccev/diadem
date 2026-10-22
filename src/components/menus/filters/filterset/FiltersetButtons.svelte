@@ -23,7 +23,7 @@
 		hasClipboardWrite
 	} from "@/lib/utils/device";
 	import { getRootOrigin } from "@/lib/native/runtime";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { isOpenModal, type ModalType } from "@/lib/ui/modal.svelte";
 	import { closeModal } from "@/lib/ui/modal.svelte.js";
 
@@ -75,17 +75,13 @@
 		{#if existsCurrentSelectedFilterset()}
 			<Button class="mr-auto" variant="secondary" onclick={ondelete}>
 				<Trash size="14" />
-				<span>
-					{m.delete()}
-				</span>
+				<span> Delete </span>
 			</Button>
 
 			{#if canBackupShare({ url: getShareUrl() })}
 				<Button class="" variant="secondary" onclick={() => backupShareUrl(getShareUrl())}>
 					<Share2 size="14" />
-					<span>
-						{m.popup_share()}
-					</span>
+					<span> Share </span>
 				</Button>
 			{/if}
 		{/if}
@@ -96,15 +92,13 @@
 			onclick={() => filtersetPageEdit()}
 		>
 			<Pencil size="14" />
-			<span>
-				{m.edit()}
-			</span>
+			<span> Edit </span>
 		</Button>
 	{/if}
 
 	{#if showProgressButtons}
 		<Button class="" variant="secondary" onclick={() => filtersetPageClose(modalType)}>
-			{m.cancel()}
+			Cancel
 		</Button>
 		<Button
 			class=""
@@ -112,7 +106,7 @@
 			onclick={() => filtersetPageSave(modalType, mapObject)}
 			disabled={getCurrentSelectedFiltersetIsEmpty() && getCurrentFiltersetPage() !== "attribute"}
 		>
-			{m.save()}
+			Save
 		</Button>
 	{/if}
 </div>

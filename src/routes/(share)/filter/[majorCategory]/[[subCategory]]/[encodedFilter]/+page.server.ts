@@ -6,7 +6,7 @@ import {
 	FiltersetPokemonSchema,
 	FiltersetRaidSchema
 } from "@/lib/features/filters/filtersetSchemas";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { setConfig } from "@/lib/services/config/config";
 import type { ClientConfig } from "@/lib/services/config/configTypes";
 import { loadRemoteLocale } from "@/lib/services/ingameLocale";
@@ -44,14 +44,7 @@ function decodeFilterset(
 		return undefined;
 	}
 
-	const safe = zodResult.data;
-
-	if (safe?.title?.message && !Object.keys(m).includes(safe.title.message)) {
-		log.crit("Tried to send invalid message!!", safe.title.message);
-		return undefined;
-	}
-
-	return safe;
+	return zodResult.data;
 }
 
 export const load: PageServerLoad = async ({ params, fetch }) => {

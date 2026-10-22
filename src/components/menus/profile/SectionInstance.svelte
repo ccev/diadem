@@ -4,15 +4,15 @@
 	import { getConfig } from "@/lib/services/config/config";
 	import { clearStoredToken } from "@/lib/native/auth";
 	import { setInstanceUrl } from "@/lib/native/runtime";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import MenuCard from "@/components/menus/MenuCard.svelte";
 
 	const mapName = getConfig().general.mapName;
 </script>
 
-<MenuCard title={m.diadem_connection()} Icon={Server}>
+<MenuCard title="Diadem Connection" Icon={Server}>
 	<p class="font-normal text-sm px-4">
-		{m.app_connected_to_name({ name: mapName })}
+		Your Diadem App is connected to {mapName}
 	</p>
 	<div class="px-4 mt-2 mb-2">
 		<Button
@@ -25,7 +25,7 @@
 			class="w-full justify-center"
 		>
 			<Unplug class="size-4" />
-			{m.disconnect_from_name({ name: mapName })}
+			Disconnect from {mapName}
 		</Button>
 	</div>
 </MenuCard>

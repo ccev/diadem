@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "$lib/i18n/messages.svelte";
 	import { openWayfarerMap } from "$lib/features/wayfarerMap.svelte";
 	import { openFortDetailsModal } from "@/components/ui/popups/common/FortDetailsModal.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
@@ -42,9 +41,7 @@
 	{#if !isRouteEndpoint}
 		<BasicMainCard>
 			{#if !name}
-				<p class="-mb-2 text-muted-foreground">
-					{m.unknown_details()}
-				</p>
+				<p class="-mb-2 text-muted-foreground">Unknown details</p>
 			{:else}
 				<p class="mb-2 font-semibold">
 					{name}
@@ -54,9 +51,7 @@
 			{/if}
 
 			{#if sponsorId || partnerId}
-				<IconValue class="mt-2" Icon={BadgeEuro}>
-					{m.wayfarer_sponsored()}
-				</IconValue>
+				<IconValue class="mt-2" Icon={BadgeEuro}>Sponsored</IconValue>
 			{/if}
 
 			{#if imageUrl}
@@ -67,7 +62,7 @@
 							if (!imageUrl) return;
 
 							openFortDetailsModal({
-								alt: m.cover_photo_of({ name: name ?? defaultName }),
+								alt: `Cover Photo of ${name ?? defaultName}`,
 								fortUrl: imageUrl,
 								fortName: name ?? defaultName,
 								fortDescription: description ?? undefined
@@ -75,19 +70,19 @@
 						}}
 					>
 						<div class="rounded-md bg-neutral-800/90 px-4 py-2 text-neutral-50">
-							{m.view_full_image()}
+							View full image
 						</div>
 					</button>
 					<img
 						class="absolute size-full object-cover"
-						alt={m.cover_photo_of({ name: name ?? defaultName })}
+						alt="Cover Photo of {name ?? defaultName}"
 						src={imageUrl}
 					/>
 				</div>
 			{/if}
 
 			<Button class="mt-3 mb-2 w-full" variant="link" onclick={openWayfarerMap}>
-				{m.go_to_wayfarer_map()}
+				Go to Wayfarer Map
 				<ArrowRight class="size-3.5" />
 			</Button>
 		</BasicMainCard>

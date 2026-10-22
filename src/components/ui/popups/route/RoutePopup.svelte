@@ -8,7 +8,7 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import RouteFollowSection from "@/components/ui/popups/route/RouteFollowSection.svelte";
 	import { type MapData } from "@/lib/mapObjects/mapObjectTypes";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import type { RouteData } from "@/lib/types/mapObjectData/route";
 	import { Hash, Info, Signpost } from "@lucide/svelte";
 	import { mRouteTag } from "$lib/services/ingameLocale";
@@ -19,8 +19,8 @@
 	export function getPopupPropsRoute(data: MapData) {
 		data = data as RouteData;
 		return {
-			type: m.pogo_route(),
-			title: data.name || m.unknown_route(),
+			type: "Route",
+			title: data.name || "Unknown Route",
 			image,
 			main
 		} as MapObjectPopupProps;
@@ -32,7 +32,7 @@
 	{#if data.image}
 		<ImagePopup
 			src={data.image}
-			alt={data.name || m.pogo_route()}
+			alt={data.name || "Route"}
 			class="size-12 rounded-full object-cover outline-offset-2 outline-3 ml-2"
 			style="outline-color: {getRouteColor(data)}"
 		/>
@@ -50,7 +50,7 @@
 		<RouteFollowSection route={data} />
 	{/key}
 
-	<TitledMainSection Icon={Info} title={m.about_this_route()}>
+	<TitledMainSection Icon={Info} title="About this Route">
 		<BasicMainCard>
 			<ExpandableDescription description={data.description} class="whitespace-pre-line" />
 
@@ -64,17 +64,12 @@
 						{/each}
 					</div>
 				{:else}
-					<p class="">{m.unavailable()}</p>
+					<p class="">Unavailable</p>
 				{/if}
 			</div>
 
 			{#if data.shortcode}
-				<StatsMainCardEntry
-					class="mb-3"
-					Icon={Hash}
-					name={m.route_shortcode()}
-					value={data.shortcode}
-				/>
+				<StatsMainCardEntry class="mb-3" Icon={Hash} name="Share Code" value={data.shortcode} />
 			{/if}
 			<UpdatedTimes updated={data.updated} />
 		</BasicMainCard>

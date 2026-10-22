@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import MapCoverage from "@/components/map/MapCoverage.svelte";
 	import { closeMenu, Menu, openMenu } from "@/lib/ui/menus.svelte.js";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
@@ -25,7 +25,7 @@
 
 	let map: maplibre.Map | undefined = $state(undefined);
 	openMenu(Menu.COVERAGE_MAP, false);
-	useMetadata(() => ({ title: m.nav_coveragemap() }));
+	useMetadata(() => ({ title: "Coverage Map" }));
 
 	onMount(async () => {
 		await tick();

@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import type { MapObjectPopupProps } from "@/components/ui/popups/common/PopupBaseStatic.svelte";
-	import * as m from "$lib/i18n/messages.svelte";
+
 	import { mMove, mPokemon } from "$lib/services/ingameLocale";
 	import { type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import type { StationData } from "$lib/types/mapObjectData/station";
@@ -50,7 +50,7 @@
 		const active = hasActiveMaxBattle(data);
 
 		return {
-			type: active ? m.pogo_max_battle() : m.pogo_station(),
+			type: active ? "Max Battle" : "Power Spot",
 			title: active ? mPokemon(getStationPokemon(data)) : data.name,
 			image,
 			overview,
@@ -95,7 +95,7 @@
 				class="size-14"
 			/>
 		{:else}
-			<ImagePopup alt={m.pogo_station()} src={getIconStation(data)} class="size-14" />
+			<ImagePopup alt="Power Spot" src={getIconStation(data)} class="size-14" />
 		{/if}
 	</div>
 {/snippet}
@@ -104,18 +104,15 @@
 	{@const data = d as StationData}
 
 	{#if hasActiveMaxBattle(data)}
-		<OverviewCard Icon={Clock} title={m.end()}>
+		<OverviewCard Icon={Clock} title="End">
 			{#snippet value()}
 				<Countdown expireTime={data.end_time} />
 			{/snippet}
 		</OverviewCard>
 		<OverviewCard
 			Icon={UsersRound}
-			title={m.stationed()}
-			value={m.station_overview_count({
-				total: data.total_stationed_pokemon ?? 0,
-				gmax: data.total_stationed_gmax ?? 0
-			})}
+			title="Stationed"
+			value="{data.total_stationed_pokemon ?? 0} Total · {data.total_stationed_gmax ?? 0} Gmax"
 		/>
 	{/if}
 {/snippet}
@@ -127,13 +124,13 @@
 	{@const pokemonName = mPokemon(pokemon)}
 
 	{#if active}
-		<TitledMainSection Icon={DynamaxIcon} title={m.pogo_max_battle()}>
+		<TitledMainSection Icon={DynamaxIcon} title="Max Battle">
 			<BasicMainCard>
 				<IconValue Icon={Clock} class="font-semibold mb-1">
 					{#if (data?.start_time ?? 0) > currentTimestamp()}
-						{m.raid_starts()}
+						Starts
 					{:else}
-						{m.raid_ends()}
+						Ends
 					{/if}
 				</IconValue>
 				<BigExpireTime
@@ -148,7 +145,7 @@
 						{#if data.start_time}
 							<StatsMainCardEntry
 								Icon={Timer}
-								name={m.started()}
+								name="Started"
 								value={timestampToLocalTime(data.start_time, {
 									showDate: true,
 									showSeconds: false,
@@ -161,7 +158,7 @@
 						{#if data.end_time}
 							<StatsMainCardEntry
 								Icon={Timer}
-								name={m.raid_ends()}
+								name="Ends"
 								value={timestampToLocalTime(data.end_time, {
 									showDate: true,
 									showSeconds: false,
@@ -171,7 +168,7 @@
 							/>
 						{/if}
 					{/if}
-					<StatsMainCardEntry Icon={Swords} name={m.popup_pokemon_moves()}>
+					<StatsMainCardEntry Icon={Swords} name="Moves">
 						{#snippet value()}
 							<p class="flex gap-2">
 								{#if data.battle_pokemon_move_1 && data.battle_pokemon_move_2}
@@ -179,34 +176,34 @@
 									<span>·</span>
 									<span>{mMove(data.battle_pokemon_move_2)}</span>
 								{:else}
-									{m.unknown()}
+									Unknown
 								{/if}
 							</p>
 						{/snippet}
 					</StatsMainCardEntry>
-					<StatsMainCardEntry Icon={Star} name={m.tier()} value={data.battle_level ?? 0} />
+					<StatsMainCardEntry Icon={Star} name="Tier" value={data.battle_level ?? 0} />
 					<StatsMainCardEntry
 						Icon={SquareEqual}
-						name={m.cp()}
+						name={/* @wc-include */ "CP"}
 						value={calculateMaxBattleCp(data) ?? 0}
 					/>
 					<StatsMainCardEntry
 						Icon={Heart}
-						name={m.stamina()}
+						name={/* @wc-include */ "HP"}
 						value={formatNumber(data.battle_pokemon_stamina)}
 					/>
 					<StatsMainCardEntry
 						Icon={Calculator}
-						name={m.cpm()}
+						name="CP Multiplier"
 						value={formatNumber(data.battle_pokemon_cp_multiplier)}
 					/>
 				</div>
 
 				<QuickSearchButton
-					label={m.find_more_x({ x: m.pokemon_max_battles({ pokemon: pokemonName }) })}
+					label="Find more {pokemonName} Max Battles"
 					onclick={() =>
 						setActiveSearchMaxBattleBoss(
-							m.pokemon_max_battles({ pokemon: pokemonName }),
+							`${pokemonName} Max Battles`,
 							data.battle_pokemon_id ?? 0,
 							data.battle_pokemon_form ?? 0,
 							data.battle_pokemon_bread_mode ?? 0
@@ -215,22 +212,22 @@
 			</BasicMainCard>
 		</TitledMainSection>
 
-		<TitledMainSection Icon={UsersRound} title={m.stationed_pokemon()}>
+		<TitledMainSection Icon={UsersRound} title="Stationed Pokémon">
 			<BasicMainCard>
 				<div class="space-y-3">
 					<StatsMainCardEntry
 						Icon={Swords}
-						name={m.total_stationed()}
+						name="Total Stationed"
 						value="{data.total_stationed_pokemon ?? 0}/{STATION_SLOTS}"
 					/>
 					<StatsMainCardEntry
 						Icon={Sword}
-						name={m.max_battle_gmax()}
+						name="Gigantamax"
 						value={data.total_stationed_gmax ?? 0}
 					/>
 					<StatsMainCardEntry
 						Icon={HandFist}
-						name={m.attack_bonus()}
+						name="Attack Bonus"
 						value={formatPercentage(getStationAttackBonus(data.total_stationed_pokemon ?? 0), {
 							minDecimals: 0,
 							maxDecimals: 1
@@ -252,7 +249,7 @@
 											<ImagePopup
 												class="absolute size-10 mask-[radial-gradient(circle,black_35%,transparent_70%)]"
 												src={resize(getIconBackground(defender.background), { width: 64 })}
-												alt={m.background()}
+												alt="Background"
 											/>
 										{/if}
 									</div>
@@ -264,7 +261,7 @@
 			</BasicMainCard>
 		</TitledMainSection>
 	{:else}
-		<TitledMainSection Icon={DynamaxIcon} disabled={true} title={m.pogo_max_battle()}>
+		<TitledMainSection Icon={DynamaxIcon} disabled={true} title="Max Battle">
 			<BasicMainCard>
 				{#if hasLastMaxBattle(data)}
 					<MainCardBigIcon
@@ -273,21 +270,19 @@
 						title={mPokemon(getStationPokemon(data))}
 					/>
 					<IconValue class="mt-1" Icon={Clock}>
-						{m.last_max_battle_notice({
-							time: timestampToLocalTime(data.end_time, {
-								showDate: true,
-								showSeconds: false
-							})
+						Last Max Battle ended {timestampToLocalTime(data.end_time, {
+							showDate: true,
+							showSeconds: false
 						})}
 					</IconValue>
 				{:else}
-					{m.power_spot_never_had_max_battle()}
+					This Power Spot is not hosting a Max Battle
 				{/if}
 			</BasicMainCard>
 		</TitledMainSection>
 	{/if}
 
-	<TitledMainSection Icon={CircleDot} title={m.access_this_power_spot()}>
+	<TitledMainSection Icon={CircleDot} title="Access this Power Spot">
 		<MainAccessMap
 			lat={data.lat}
 			lon={data.lon}
@@ -299,9 +294,9 @@
 		/>
 	</TitledMainSection>
 
-	<TitledMainSection Icon={Info} title={m.about_this_sation()}>
+	<TitledMainSection Icon={Info} title="About this Power Spot">
 		<StatsMainCard>
-			<StatsMainCardEntry Icon={MapPinned} name={m.name()} value={data.name} />
+			<StatsMainCardEntry Icon={MapPinned} name="Name" value={data.name} />
 			<UpdatedTimes updated={data.updated} />
 		</StatsMainCard>
 	</TitledMainSection>

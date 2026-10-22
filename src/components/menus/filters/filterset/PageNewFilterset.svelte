@@ -19,7 +19,6 @@
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 	import { Features } from "@/lib/utils/features";
 	import { getId } from "@/lib/utils/uuid";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		majorCategory,
@@ -48,12 +47,10 @@
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
 	<Button variant="secondary" size="lg" class="w-full" onclick={filtersetPageNew}>
 		<CirclePlus size="18" />
-		<span>
-			{m.create_new()}
-		</span>
+		<span> Create new </span>
 	</Button>
 
-	<Separator class="my-3" text={m.or_select_suggested_filter()} />
+	<Separator class="my-3" text={/* @wc-include */ "or select suggested filter"} />
 
 	<div class="-mx-4 px-4">
 		<div class="flex flex-col gap-1">

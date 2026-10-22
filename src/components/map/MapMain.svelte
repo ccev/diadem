@@ -9,7 +9,7 @@
 	} from "@/lib/features/directLinks.svelte.js";
 	import { clickMapHandler, openLocationPopup, updateCurrentPath } from "@/lib/mapObjects/interact";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import {
 		clearUpdateMapObjectsInterval,
 		resetUpdateMapObjectsInterval
@@ -39,7 +39,7 @@
 	import { filtersetPageReset } from "@/lib/features/filters/filtersetPages.svelte";
 	import { getOpenedMenu, Menu, openMenu } from "@/lib/ui/menus.svelte";
 	import { MapObjectLayerId, MapSourceId } from "@/lib/map/layers";
-	import { mAny } from "@/lib/utils/anyMessage";
+	import { mapObjectLabel } from "@/lib/mapObjects/mapObjectLabels";
 	import MarkerSearchedLocation from "@/components/map/MarkerSearchedLocation.svelte";
 	import MapObjectIconLayer from "@/components/map/MapObjectIconLayer.svelte";
 	import { FeatureTypes } from "@/lib/map/render/featureTypes";
@@ -110,19 +110,9 @@
 				if (directLinkData.id) {
 					openMapObject(directLinkData);
 				} else if ("noPermission" in directLinkData && directLinkData.noPermission) {
-					openToast(
-						m.direct_link_no_permission({
-							type: mAny("pogo_" + directLinkData.type)
-						}),
-						5000
-					);
+					openToast(`No permission to view this ${mapObjectLabel(directLinkData.type)}`, 5000);
 				} else {
-					openToast(
-						m.direct_link_not_found({
-							type: mAny("pogo_" + directLinkData.type)
-						}),
-						5000
-					);
+					openToast(`Didn't find ${mapObjectLabel(directLinkData.type)}`, 5000);
 				}
 			}
 

@@ -2,7 +2,7 @@ import type { FiltersetInvasion, FiltersetTitle } from "@/lib/features/filters/f
 import { setFilterIcon } from "@/lib/features/filters/filtersetUtils.svelte";
 import { IconCategory } from "@/lib/features/filters/icons";
 import { getActiveCharacters, getInvasionCatchable } from "@/lib/features/masterStats.svelte";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mCharacter, mPokemon } from "@/lib/services/ingameLocale";
 import { INVASION_CHARACTER_LEADERS } from "@/lib/utils/pokestopUtils";
 import { getId } from "@/lib/utils/uuid";
@@ -19,15 +19,15 @@ export function makeAttributeCharacterLabel(characters: number[]) {
 	if (onlyGiovanni) return mCharacter(44);
 
 	const onlyLeaders = characters.every((c) => INVASION_CHARACTER_LEADERS.includes(c));
-	if (onlyLeaders) return m.count_leaders({ count: characters.length });
+	if (onlyLeaders) return `${characters.length} Leaders`;
 
-	return m.count_characters({ count: characters.length });
+	return `${characters.length} Grunts`;
 }
 
 export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 	const title: FiltersetTitle = {
 		title: filter.title.title,
-		message: "filter_template_invasion_fallback"
+		message: /* @wc-ignore */ "Team Rocket Filter"
 	};
 	setFilterIcon(filter, {
 		uicon: { category: IconCategory.INVASION, params: { character: 4 } }
@@ -35,14 +35,14 @@ export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 
 	if (filter.rewards?.length) {
 		if (filter.rewards.length === 1) {
-			title.message = "filter_template_pokemon_invasion";
+			title.message = /* @wc-ignore */ "{pokemon} Grunts";
 			title.params = { pokemon: mPokemon(filter.rewards[0]) };
 
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.POKEMON, params: filter.rewards[0] }
 			});
 		} else {
-			title.message = "count_pokemon";
+			title.message = /* @wc-ignore */ "{count} Pokémon";
 			title.params = { count: filter.rewards.length.toString() };
 
 			setFilterIcon(filter, {
@@ -57,7 +57,7 @@ export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 			) {
 				title.message = mCharacter(filter.characters[0]);
 			} else {
-				title.message = "filter_template_invasion_one_grunt";
+				title.message = /* @wc-ignore */ "{type}";
 				title.params = { type: mCharacter(filter.characters[0]) };
 			}
 
@@ -65,18 +65,18 @@ export function generateInvasionFilterDetails(filter: FiltersetInvasion) {
 				uicon: { category: IconCategory.INVASION, params: { character: filter.characters[0] } }
 			});
 		} else if (filter.characters.every((c) => [44, 46].includes(c))) {
-			title.message = "filter_template_invasion_giovanni";
+			title.message = /* @wc-ignore */ "Giovanni";
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.INVASION, params: { character: 44 } }
 			});
 		} else if (filter.characters.every((c) => INVASION_CHARACTER_LEADERS.includes(c))) {
-			title.message = "count_leaders";
+			title.message = /* @wc-ignore */ "{count} Leaders";
 			title.params = { count: filter.characters.length.toString() };
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.INVASION, params: { character: filter.characters[0] } }
 			});
 		} else {
-			title.message = "count_characters";
+			title.message = /* @wc-ignore */ "{count} Grunts";
 			title.params = { count: filter.characters.length.toString() };
 			setFilterIcon(filter, {
 				uicon: { category: IconCategory.INVASION, params: { character: filter.characters[0] } }
@@ -96,7 +96,7 @@ export function getPremadeInvasionFiltersets(): FiltersetInvasion[] | undefined 
 
 	filters.push(
 		createInvasionPremadeFilterset({
-			message: m.filter_template_invasion_leaders(),
+			message: /* @wc-ignore */ "Team Rocket Leaders",
 			characters: [...INVASION_CHARACTER_LEADERS]
 		})
 	);
@@ -155,7 +155,7 @@ function createInvasionPremadeFilterset(params: {
 			isUserSelected: false
 		},
 		title: {
-			message: params.message ?? "filter_template_invasion_fallback"
+			message: params.message ?? /* @wc-ignore */ "Team Rocket Filter"
 		},
 		enabled: true,
 		characters: params.characters,

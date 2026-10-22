@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
 	import Card from "@/components/ui/Card.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
 	import MenuTitle from "@/components/menus/MenuTitle.svelte";
@@ -51,9 +50,9 @@
 		closeMenu();
 
 		if (success) {
-			openToast(m.scout_toast_success());
+			openToast("Started scouting, please wait a few seconds");
 		} else {
-			openToast(m.scout_toast_error());
+			openToast("There was an error while scouting, please try again");
 		}
 	}
 
@@ -69,7 +68,7 @@
 
 <Card class="py-4 px-2">
 	<div class="flex flex-col gap-2">
-		<MenuTitle title={m.scout_area_size()} />
+		<MenuTitle title="Area Size" />
 		<div data-base-ui-swipe-ignore>
 			<SliderSteps
 				value={size}
@@ -86,11 +85,9 @@
 
 	<div class="w-full text-center my-2 text-sm">
 		<p>
-			{m.scout_queue_position()}: {queuePosition ?? ""}
+			Position in queue: {queuePosition ?? ""}
 		</p>
 	</div>
 
-	<Button variant="default" size="lg" class="w-full" onclick={scoutButton}>
-		{m.scout_start()}
-	</Button>
+	<Button variant="default" size="lg" class="w-full" onclick={scoutButton}>Start scout</Button>
 </Card>

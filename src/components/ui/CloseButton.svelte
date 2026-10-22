@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { X } from "@lucide/svelte";
 	import Button, { type ButtonProps } from "@/components/ui/input/Button.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	let {
 		onclick,
@@ -13,13 +12,6 @@
 	} & ButtonProps = $props();
 </script>
 
-<Button
-	variant="ghost"
-	size=""
-	class="rounded-sm p-2 {class_}"
-	title={m.close()}
-	{onclick}
-	{...props}
->
+<Button variant="ghost" size="" class="rounded-sm p-2 {class_}" title="Close" {onclick} {...props}>
 	<X size="20" />
 </Button>

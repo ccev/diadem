@@ -10,7 +10,7 @@
 	} from "@/lib/features/filters/filtersetPages.svelte.js";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte.js";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import EditDetails from "@/components/menus/filters/filterset/EditDetails.svelte";
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
@@ -51,7 +51,7 @@
 			class="w-full! h-full! justify-start py-3! px-4! gap-2 group rounded-none!"
 			variant="ghost"
 			onclick={() => {
-				setCurrentAttributePage(editDetailsPage, m.details());
+				setCurrentAttributePage(editDetailsPage, "Details");
 				filtersetPageEditAttribute();
 			}}
 		>
@@ -74,7 +74,7 @@
 			class="w-full! h-fit! block! justify-start p-0! gap-2 group rounded-none! relative"
 			variant="ghost"
 			onclick={() => {
-				setCurrentAttributePage(editVisualPage, m.modifier_visual());
+				setCurrentAttributePage(editVisualPage, "Visual");
 				filtersetPageEditAttribute();
 			}}
 		>

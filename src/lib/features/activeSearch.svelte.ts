@@ -22,7 +22,7 @@ import {
 	openOverlay,
 	registerOverlayHandler
 } from "@/lib/ui/overlays.svelte";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mPokemon } from "$lib/services/ingameLocale";
 
 export type ActiveSearchParams = {
@@ -74,7 +74,7 @@ export function setActiveSearchPokemon(pokemon: { pokemon_id: number; form?: num
 				{
 					id: "searchOverwrite",
 					enabled: true,
-					title: { message: "unknown_filter" },
+					title: { message: /* @wc-ignore */ "Unknown Filter" },
 					icon: { isUserSelected: false },
 					pokemon: [
 						{
@@ -92,7 +92,7 @@ export function setActiveSearchQuest(name: string, reward: QuestReward) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		rewardType: reward.type
 	} as FiltersetQuest;
@@ -143,7 +143,7 @@ export function setActiveSearchKecleon() {
 	filter.enabled = true;
 
 	setActiveSearch({
-		name: m.kecleon_pokestops(),
+		name: "Kecleon Pokéstops",
 		mapObject: MapObjectType.POKESTOP,
 		filter: filter
 	});
@@ -153,7 +153,7 @@ export function setActiveSearchContest(name: string, rankingStandard: number, fo
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		rankingStandard,
 		focus
@@ -175,7 +175,7 @@ export function setActiveSearchLure(name: string, itemId: number) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		items: [itemId]
 	} as FiltersetLure;
@@ -196,7 +196,7 @@ export function setActiveSearchInvasion(name: string, characterId: number) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		characters: [characterId]
 	} as FiltersetInvasion;
@@ -222,7 +222,7 @@ export function setActiveSearchRaidBoss(
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		bosses: [
 			{
@@ -251,7 +251,7 @@ export function setActiveSearchRaidLevel(name: string, level: number) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		levels: [level]
 	} as FiltersetRaid;
@@ -280,7 +280,7 @@ export function setActiveSearchMaxBattleBoss(
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		bosses: [pokemon]
 	} as FiltersetMaxBattle;
@@ -305,7 +305,7 @@ export function setActiveSearchNest(pokemon_id: number, form: number) {
 	const filterset = {
 		id: "searchOverwrite",
 		enabled: true,
-		title: { message: "unknown_filter" },
+		title: { message: /* @wc-ignore */ "Unknown Filter" },
 		icon: { isUserSelected: false },
 		pokemon: [pokemon]
 	} as FiltersetNest;
@@ -313,7 +313,7 @@ export function setActiveSearchNest(pokemon_id: number, form: number) {
 	filter.filters.push(filterset);
 
 	setActiveSearch({
-		name: m.pokemon_nests({ pokemon: mPokemon({ pokemon_id, form }) }),
+		name: `${mPokemon({ pokemon_id, form })} Nests`,
 		mapObject: MapObjectType.NEST,
 		filter: filter
 	});

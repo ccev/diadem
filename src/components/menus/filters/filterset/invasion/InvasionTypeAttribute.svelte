@@ -2,7 +2,7 @@
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
 	import SelectGroupItem from "@/components/ui/input/selectgroup/SelectGroupItem.svelte";
 	import type { FiltersetInvasion } from "@/lib/features/filters/filtersets";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { updateDetailsCurrentSelectedFilterset } from "@/lib/features/filters/filtersetPageData.svelte";
 
 	import { InvasionFilterType } from "@/lib/features/filters/filterUtilsInvasion";
@@ -17,9 +17,7 @@
 </script>
 
 <div>
-	<div class="text-base font-semibold mb-2">
-		{m.invasion_filter_by()}
-	</div>
+	<div class="text-base font-semibold mb-2">Filter by</div>
 
 	<RadioGroup
 		value={filterType}
@@ -37,10 +35,10 @@
 		class="w-full"
 	>
 		<SelectGroupItem type="radio" value={InvasionFilterType.CHARACTERS} class="p-2 flex-1">
-			{m.invasion_filter_by_character()}
+			{/* @wc-context: Filter by grunts */ "Grunts"}
 		</SelectGroupItem>
 		<SelectGroupItem type="radio" value={InvasionFilterType.REWARDS} class="p-2 flex-1">
-			{m.invasion_filter_by_reward()}
+			Rewards
 		</SelectGroupItem>
 	</RadioGroup>
 </div>

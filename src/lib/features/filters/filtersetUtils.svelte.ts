@@ -13,7 +13,7 @@ import { generateMaxBattleFilterDetails } from "@/lib/features/filters/filterUti
 import { generatePokemonFilterDetails } from "@/lib/features/filters/filterUtilsPokemon";
 import { generateQuestFilterDetails } from "@/lib/features/filters/filterUtilsQuest";
 import { generateRaidFilterDetails } from "@/lib/features/filters/filterUtilsRaid";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import {
 	getIconInvasion,
 	getIconPokemon,
@@ -21,7 +21,7 @@ import {
 	getIconReward
 } from "@/lib/services/uicons.svelte";
 import { RaidLevel } from "@/lib/utils/gymUtils";
-import { mAny } from "@/lib/utils/anyMessage";
+import { localizeFilterTitle } from "@/lib/features/filters/filterTitle";
 import { RewardType } from "@/lib/utils/pokestopUtils";
 
 export function changeAttributeMinMax(
@@ -40,29 +40,7 @@ export function changeAttributeMinMax(
 }
 
 export function filterTitle(filterset: AnyFilterset | undefined) {
-	if (!filterset) return m.unknown_filter();
-
-	if (filterset.title.title) {
-		return filterset.title.title;
-	}
-
-	if (filterset.title.message in m) {
-		const params = $state.snapshot(filterset.title.params) as Record<string, unknown> | undefined;
-		if (params) {
-			for (const [key, value] of Object.entries(params)) {
-				if (typeof value === "string" && Object.hasOwn(m, value)) {
-					params[key] = mAny(value);
-				}
-			}
-		}
-
-		return mAny(filterset.title.message, params);
-	}
-	if (filterset.title.message) {
-		return filterset.title.message;
-	}
-
-	return m.unknown_filter();
+	return localizeFilterTitle(filterset?.title);
 }
 
 export function generateFilterDetails(

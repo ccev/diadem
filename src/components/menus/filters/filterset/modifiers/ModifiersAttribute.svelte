@@ -4,7 +4,7 @@
 	import Switch from "@/components/ui/input/Switch.svelte";
 	import SliderSteps from "@/components/ui/input/slider/SliderSteps.svelte";
 	import Input from "@/components/ui/input/Input.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import ColorSwatches from "@/components/menus/filters/filterset/modifiers/ColorSwatches.svelte";
 	import ModifierPreview from "@/components/menus/filters/filterset/modifiers/ModifierPreview.svelte";
 	import RadioGroup from "@/components/ui/input/selectgroup/RadioGroup.svelte";
@@ -70,7 +70,7 @@
 <div class="divide-y divide-border *:py-6 *:px-1">
 	<div>
 		<div class="flex items-center justify-between gap-2">
-			<MenuTitle title={m.modifier_show_badge()} />
+			<MenuTitle title="Show Badge" />
 			<Switch
 				checked={data.modifiers?.showBadge ?? false}
 				onCheckedChange={(enabled) =>
@@ -78,7 +78,7 @@
 			/>
 		</div>
 		<div class="flex items-center justify-between gap-2 mt-4">
-			<MenuTitle title={m.modifier_show_label()} />
+			<MenuTitle title="Show Label" />
 			<Switch
 				checked={!!data.modifiers?.showLabel}
 				onCheckedChange={(enabled) =>
@@ -106,7 +106,7 @@
 	</div>
 
 	<div>
-		<MenuTitle title={m.modifier_background()} />
+		<MenuTitle title="Background" />
 		<RadioGroup
 			value={visualMode}
 			onValueChange={(mode) => {
@@ -127,15 +127,9 @@
 			}}
 			class="w-full mt-3"
 		>
-			<SelectGroupItem class="p-2 flex-1" value="none">
-				{m.modifier_none()}
-			</SelectGroupItem>
-			<SelectGroupItem class="p-2 flex-1" value="glow">
-				{m.modifier_glow()}
-			</SelectGroupItem>
-			<SelectGroupItem class="p-2 flex-1" value="background"
-				>{m.modifier_background_circle()}</SelectGroupItem
-			>
+			<SelectGroupItem class="p-2 flex-1" value="none">None</SelectGroupItem>
+			<SelectGroupItem class="p-2 flex-1" value="glow">Glow</SelectGroupItem>
+			<SelectGroupItem class="p-2 flex-1" value="background">Circle</SelectGroupItem>
 		</RadioGroup>
 		{#if visualMode !== "none"}
 			<div class="pt-3 space-y-2" transition:slide={{ duration: 70 }}>
@@ -150,7 +144,7 @@
 					}}
 				/>
 				{#if data.modifiers?.glow}
-					<MenuTitle title={m.modifier_glow_intensity()} />
+					<MenuTitle title="Glow intensity" />
 					<SliderSteps
 						value={data.modifiers.glow.opacity ?? MODIFIER_GLOW_OPACITY}
 						onchange={(value) => {
@@ -168,7 +162,7 @@
 					/>
 				{/if}
 				{#if data.modifiers?.background}
-					<MenuTitle title={m.modifier_background_intensity()} />
+					<MenuTitle title="Circle intensity" />
 					<SliderSteps
 						value={data.modifiers.background.opacity ?? MODIFIER_BACKGROUND_OPACITY}
 						onchange={(value) => {
@@ -190,7 +184,7 @@
 	</div>
 
 	<div>
-		<MenuTitle class="mb-2" title={m.modifier_scale()} />
+		<MenuTitle class="mb-2" title="Scale" />
 		<SliderSteps
 			value={data.modifiers?.scale ?? 1}
 			onchange={(value) => {
@@ -205,7 +199,7 @@
 				1.6: "XL"
 			}}
 		/>
-		<MenuTitle class="mt-4 mb-2" title={m.modifier_rotation()} />
+		<MenuTitle class="mt-4 mb-2" title="Rotation" />
 		<SliderSteps
 			value={data.modifiers?.rotation ?? 0}
 			onchange={(value) => {

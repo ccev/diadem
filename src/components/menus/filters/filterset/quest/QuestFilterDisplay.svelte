@@ -7,7 +7,7 @@
 	import { resize } from "@/lib/services/assets";
 	import { getIconItem, getIconReward } from "@/lib/services/uicons.svelte";
 	import { mItem, mPokemon, mQuest } from "@/lib/services/ingameLocale";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import AttributeDisplay from "@/components/menus/filters/filterset/display/AttributeDisplay.svelte";
 	import {
 		getAttributeLabelPokecoins,
@@ -25,7 +25,7 @@
 
 <FilterDisplay>
 	{#if data.tasks}
-		<AttributeDisplay label={data.tasks.length === 1 ? m.task() : m.tasks()}>
+		<AttributeDisplay label={data.tasks.length === 1 ? "Task" : "Tasks"}>
 			<ul>
 				{#each data.tasks as task (`${task.title}-${task.target}`)}
 					<li class="text-base font-semibold">
@@ -37,14 +37,14 @@
 	{/if}
 
 	{#if data.pokemon}
-		<PokemonDisplay label={m.pogo_pokemon()} pokemon={data.pokemon} />
+		<PokemonDisplay label="Pokémon" pokemon={data.pokemon} />
 	{/if}
 
 	{#if data.item}
-		<HorizontalScrollDisplay label={m.items()}>
+		<HorizontalScrollDisplay label="Items">
 			{#each data.item as item (`${item.id}-${item.amount ?? 0}`)}
 				{@const name = item.amount
-					? m.quest_item({ count: item.amount, item: mItem(item.id) })
+					? /* @wc-include */ `${item.amount}x ${mItem(item.id)}`
 					: mItem(item.id)}
 				<HorizontalScrollElement>
 					<img
@@ -59,17 +59,14 @@
 	{/if}
 
 	{#if data.megaResource}
-		<HorizontalScrollDisplay label={m.mega_energy()}>
+		<HorizontalScrollDisplay label="Mega Energy">
 			{#each data.megaResource as megaResource (`${megaResource.id}-${megaResource.amount ?? 0}`)}
 				{@const pokemonName = mPokemon({
 					pokemon_id: Number(megaResource.id)
 				})}
 				{@const name = megaResource.amount
-					? m.quest_mega_resource({
-							count: megaResource.amount,
-							pokemon: pokemonName
-						})
-					: m.pokemon_mega_resource({ pokemon: pokemonName })}
+					? `${megaResource.amount} ${pokemonName} Mega Energy`
+					: `${pokemonName} Mega Energy`}
 				<HorizontalScrollElement>
 					<img
 						class="w-7"
@@ -89,15 +86,12 @@
 	{/if}
 
 	{#if data.candy}
-		<HorizontalScrollDisplay label={m.candy()}>
+		<HorizontalScrollDisplay label="Candy">
 			{#each data.candy as candy (`${candy.id}-${candy.amount ?? 0}`)}
 				{@const pokemonName = mPokemon({ pokemon_id: Number(candy.id) })}
 				{@const name = candy.amount
-					? m.quest_candy({
-							count: candy.amount,
-							pokemon: pokemonName
-						})
-					: m.pokemon_candy({ pokemon: pokemonName })}
+					? `${candy.amount} ${pokemonName} Candy`
+					: `${pokemonName} Candy`}
 				<HorizontalScrollElement>
 					<img
 						class="w-7"
@@ -117,15 +111,12 @@
 	{/if}
 
 	{#if data.xlCandy}
-		<HorizontalScrollDisplay label={m.xl_candy()}>
+		<HorizontalScrollDisplay label="Candy XL">
 			{#each data.xlCandy as candy (`${candy.id}-${candy.amount ?? 0}`)}
 				{@const pokemonName = mPokemon({ pokemon_id: Number(candy.id) })}
 				{@const name = candy.amount
-					? m.quest_xl_candy({
-							count: candy.amount,
-							pokemon: pokemonName
-						})
-					: m.pokemon_xl_candy({ pokemon: pokemonName })}
+					? `${candy.amount} ${pokemonName} Candy XL`
+					: `${pokemonName} Candy XL`}
 				<HorizontalScrollElement>
 					<img
 						class="w-7"
@@ -145,17 +136,14 @@
 	{/if}
 
 	{#if data.stardust}
-		<AttributeDisplay label={m.stardust()} value={getAttributeLabelStardust(data.stardust)} />
+		<AttributeDisplay label="Stardust" value={getAttributeLabelStardust(data.stardust)} />
 	{/if}
 
 	{#if data.pokecoins}
-		<AttributeDisplay
-			label={m.reward_pokecoins()}
-			value={getAttributeLabelPokecoins(data.pokecoins)}
-		/>
+		<AttributeDisplay label="Pokécoins" value={getAttributeLabelPokecoins(data.pokecoins)} />
 	{/if}
 
 	{#if data.xp}
-		<AttributeDisplay label={m.xp()} value={getAttributeLabelXp(data.xp)} />
+		<AttributeDisplay label={/* @wc-include */ "XP"} value={getAttributeLabelXp(data.xp)} />
 	{/if}
 </FilterDisplay>

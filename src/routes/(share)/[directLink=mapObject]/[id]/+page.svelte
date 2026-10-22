@@ -3,7 +3,7 @@
 	import type { PageProps } from "./$types";
 	import RedirectFlash from "@/components/ui/RedirectFlash.svelte";
 	import { getConfig } from "@/lib/services/config/config";
-	import { mAny } from "@/lib/utils/anyMessage";
+	import { mapObjectLabel } from "@/lib/mapObjects/mapObjectLabels";
 	import Metadata from "@/components/utils/Metadata.svelte";
 
 	let { data }: PageProps = $props();
@@ -16,4 +16,4 @@
 	/>
 {/if}
 
-<RedirectFlash goal={data.title ?? mAny("pogo_" + data.type)} />
+<RedirectFlash goal={data.title ?? mapObjectLabel(data.type)} />

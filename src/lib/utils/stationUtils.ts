@@ -1,7 +1,7 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte";
 import type { FilterStation } from "@/lib/features/filters/filters";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mPokemon } from "@/lib/services/ingameLocale";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
@@ -34,7 +34,7 @@ const ATTACK_BONUSES: Record<string, number> = {
 
 export function getStationTitle(data: StationData) {
 	if (isMaxBattleActive(data) && data.battle_pokemon_id) return mPokemon(getStationPokemon(data));
-	return data.name ?? m.pogo_station();
+	return data.name ?? "Power Spot";
 }
 
 export function isMaxBattleActive(data: Partial<StationData>) {

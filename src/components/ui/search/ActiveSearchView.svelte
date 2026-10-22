@@ -2,7 +2,7 @@
 	import { Search, X } from "@lucide/svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { closeOverlay } from "@/lib/ui/overlays.svelte";
 </script>
 
@@ -12,7 +12,7 @@
 >
 	<Search size="18" class="ml-4 shrink-0" />
 	<span class="my-4">
-		{m.searching_for()}
+		Searching for
 		<b>{getActiveSearch()?.name}</b>
 	</span>
 	<Button

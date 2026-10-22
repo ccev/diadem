@@ -5,7 +5,7 @@ import {
 } from "@/lib/map/featuresGen.svelte";
 import { getMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { getConfig } from "@/lib/services/config/config";
 import { getUiconSetDetails } from "@/lib/services/uicons.svelte";
 import {
@@ -17,34 +17,34 @@ import {
 
 export const getAvailableLanguages = () => [
 	{
-		label: m.language_english(),
+		label: "English",
 		value: "en"
 	},
 	{
-		label: m.language_german(),
+		label: "German",
 		value: "de"
 	},
 	{
-		label: m.language_spanish(),
+		label: "Spanish",
 		value: "es"
 	},
 	{
-		label: m.language_portuguese(),
+		label: "Portuguese",
 		value: "pt"
 	},
 	{
-		label: m.language_polish(),
+		label: "Polish",
 		value: "pl"
 	}
 ];
 
 export const getAvailableMapProviders = () => [
 	{
-		label: m.google_maps(),
+		label: "Google Maps",
 		value: ExternalMapProvider.GOOGLE
 	},
 	{
-		label: m.apple_maps(),
+		label: "Apple Maps",
 		value: ExternalMapProvider.APPLE
 	}
 ];

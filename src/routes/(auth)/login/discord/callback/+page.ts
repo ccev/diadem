@@ -1,4 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
 import { getConfig } from "@/lib/services/config/config";
 import { openToast } from "@/lib/ui/toasts.svelte.js";
 import { getMapPath } from "@/lib/utils/getMapPath";
@@ -7,9 +6,9 @@ import type { PageLoad } from "./$types";
 
 export const load: PageLoad = (event) => {
 	if (event.data.error) {
-		openToast(m.signin_toast_error(), 10000);
+		openToast("Error while signing in, please try again", 10000);
 	} else {
-		openToast(m.signin_toast_success({ name: event.data.name ?? "" }), 10000);
+		openToast(`Signed in as ${event.data.name ?? ""}`, 10000);
 	}
 
 	return redirect(302, event.data.redir ?? getMapPath(getConfig()));

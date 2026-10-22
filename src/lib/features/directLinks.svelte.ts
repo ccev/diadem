@@ -2,10 +2,10 @@ import { getMap } from "@/lib/map/map.svelte";
 import { openPopup } from "@/lib/mapObjects/interact";
 import { addMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte";
 import { type QueryableMapData, MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
-import { mAny } from "@/lib/utils/anyMessage";
+import { mapObjectLabel } from "@/lib/mapObjects/mapObjectLabels";
 import { Coords } from "@/lib/utils/coordinates";
 import { type KojiFeature } from "@/lib/features/koji";
 import { getHeaders, parseResponse } from "@/lib/utils/requests";
@@ -53,12 +53,7 @@ export function openMapObject(data: QueryableMapData, alwaysFly: boolean = false
 export async function openMapObjectFromId(type: MapObjectType, id: string) {
 	const response = await fetch("/api/" + type + "/" + id, { headers: getHeaders() });
 	if (!response.ok) {
-		openToast(
-			m.direct_link_not_found({
-				type: mAny("pogo_" + type)
-			}),
-			1000
-		);
+		openToast(`Didn't find ${mapObjectLabel(type)}`, 1000);
 		return;
 	}
 	const data = await parseResponse<QueryableMapData>(response);

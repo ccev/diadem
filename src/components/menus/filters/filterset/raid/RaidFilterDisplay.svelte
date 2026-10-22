@@ -9,7 +9,7 @@
 	import { getIconRaidEgg } from "@/lib/services/uicons.svelte";
 	import { mRaid } from "@/lib/services/ingameLocale";
 	import { makeAttributeRaidShowLabel } from "@/lib/features/filters/makeAttributeChipLabel";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	let {
 		data
 	}: {
@@ -19,10 +19,10 @@
 
 <FilterDisplay>
 	{#if data.bosses}
-		<PokemonDisplay label={m.raid_bosses_long()} pokemon={data.bosses} />
+		<PokemonDisplay label="Raid Bosses" pokemon={data.bosses} />
 	{/if}
 	{#if data.levels}
-		<HorizontalScrollDisplay label={m.raid_levels_long()}>
+		<HorizontalScrollDisplay label="Raid Levels">
 			{#each data.levels as raidLevel (raidLevel)}
 				<HorizontalScrollElement>
 					<img
@@ -37,7 +37,7 @@
 	{/if}
 	{#if data.show}
 		{#each data.show as show}
-			<AttributeDisplay label={m.raid_show()} value={makeAttributeRaidShowLabel(show)} />
+			<AttributeDisplay label="Show" value={makeAttributeRaidShowLabel(show)} />
 		{/each}
 	{/if}
 </FilterDisplay>

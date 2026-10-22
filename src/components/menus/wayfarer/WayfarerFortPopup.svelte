@@ -2,7 +2,7 @@
 	import { getClickedFort, setClickedFort } from "@/lib/features/wayfarerMap.svelte";
 	import { getIconGym, getIconPokestop } from "@/lib/services/uicons.svelte";
 	import { BadgeEuro, Clock, ClockAlert, MapPin, Search } from "@lucide/svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import WayfarerBasePopup from "@/components/ui/popups/WayfarerBasePopup.svelte";
 	import { isFortOutdated } from "$lib/utils/gymUtils";
 	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
@@ -23,7 +23,7 @@
 	>
 		{#snippet image()}
 			<FortImage
-				alt={data.name ?? m.pogo_pokestop()}
+				alt={data.name ?? "Pokéstop"}
 				fortUrl={data.url}
 				fortIcon={data.type === "g" ? getIconGym({ team_id: 0 }) : getIconPokestop({})}
 				fortName={data.name}
@@ -37,11 +37,11 @@
 					{#if data.name}
 						{data.name}
 					{:else if data.type === "g"}
-						{m.unknown_gym()}
+						Unknown Gym
 					{:else if data.type === "p"}
-						{m.unknown_pokestop()}
+						Unknown Pokéstop
 					{:else}
-						{m.unknown_poi()}
+						Unknown POI
 					{/if}
 				</span>
 			</div>
@@ -59,32 +59,30 @@
 
 			<IconValue Icon={MapPin}>
 				{#if data.type === "g"}
-					{m.is_a_gym()}
+					Is a Gym
 				{:else if data.type === "p"}
-					{m.is_a_pokestop()}
+					Is a Pokéstop
 				{:else}
-					{m.not_in_game()}
+					Not available in-game
 				{/if}
 			</IconValue>
 
 			{#if data.partner_id || data.sponsor_id}
-				<IconValue Icon={BadgeEuro}>
-					{m.wayfarer_sponsored()}
-				</IconValue>
+				<IconValue Icon={BadgeEuro}>Sponsored</IconValue>
 			{/if}
 
 			{#if data.updated}
 				<IconValue Icon={isFortOutdated(data.updated) ? ClockAlert : Clock}>
-					{m.last_seen()}: <b><Countdown expireTime={data.updated} /></b>
+					Last seen: <b><Countdown expireTime={data.updated} /></b>
 					{#if isFortOutdated(data.updated)}
-						({m.outdated()})
+						(outdated)
 					{/if}
 				</IconValue>
 			{/if}
 
 			{#if data.first_seen_timestamp}
 				<IconValue Icon={Search}>
-					{m.first_seen()}:
+					First seen:
 					<b>{timestampToLocalTime(data.first_seen_timestamp, { showDate: true })}</b>
 				</IconValue>
 			{/if}

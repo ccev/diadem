@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowLeft } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
@@ -12,14 +11,12 @@
 <div
 	class="pl-4 pr-2 py-2 flex flex-wrap gap-2 items-center justify-between bg-card rounded-lg border border-border"
 >
-	<h1 class="font-semibold">
-		{m.nav_wayfarer()}
-	</h1>
+	<h1 class="font-semibold">Wayfarer Map</h1>
 
 	{#if getConfig().general.customHome && !getWayfarerInvokedFromMap()}
 		<Button size="sm" variant="outline" tag="a" href="/" onclick={() => closeMenu()}>
 			<ArrowLeft class="size-4" />
-			<span>{m.error_back_to_website()}</span>
+			<span>Back to site</span>
 		</Button>
 	{:else}
 		<Button
@@ -30,7 +27,7 @@
 			}}
 		>
 			<ArrowLeft class="size-4" />
-			<span>{m.back_to_map()}</span>
+			<span>Back to map</span>
 		</Button>
 	{/if}
 </div>

@@ -1,5 +1,6 @@
 import { loadLocale } from "wuchale/load-utils";
 import "../../locales/main.loader.svelte.js";
+import "../../locales/js.loader.js";
 import {
 	isLocale,
 	localePreferenceKey,

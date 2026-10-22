@@ -13,7 +13,7 @@ import {
 import { getMap } from "@/lib/map/map.svelte";
 import { getFixedBounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
-import * as m from "@/lib/i18n/messages.svelte";
+
 import { mCharacter, mItem, mPokemon, mRaid } from "@/lib/services/ingameLocale";
 import { getAllLureModuleIds } from "@/lib/services/masterfile";
 import { isSupportedFeature } from "@/lib/services/supportedFeatures";
@@ -22,7 +22,6 @@ import { featureFamily, Features } from "@/lib/utils/features";
 import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { openModal } from "@/lib/ui/modal.svelte";
-import { mAny } from "@/lib/utils/anyMessage";
 import type { Coords } from "@/lib/utils/coordinates";
 import { getContestText, getRewardText, RewardType } from "@/lib/utils/pokestopUtils";
 import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
@@ -42,7 +41,7 @@ export const createFuzzySearch: typeof microfuzz = (microfuzz as any)?.default ?
 
 const searchLimit = 20;
 const highlightKey = "search-highlight";
-const areaIcon = "Globe";
+const areaIcon = /* @wc-ignore */ "Globe";
 
 export enum SearchableType {
 	POKEMON = "pokemon",
@@ -66,12 +65,50 @@ export enum SearchableType {
 
 export type SearchEntry = {
 	name: string;
-	category: keyof typeof m;
 	key: string;
 	icon?: string;
 	imageUrl?: string;
 	type: SearchableType;
 };
+
+// Derive this from the stable search type, including for previously saved recents.
+export function searchCategoryLabel(type: SearchableType): string {
+	switch (type) {
+		case SearchableType.POKEMON:
+			return "Pokémon";
+		case SearchableType.AREA:
+			return "Area";
+		case SearchableType.ADDRESS:
+			return "Address";
+		case SearchableType.COORDINATES:
+			return "Coordinates";
+		case SearchableType.GYM:
+			return "Gym";
+		case SearchableType.POKESTOP:
+			return "Pokéstop";
+		case SearchableType.STATION:
+			return "Power Spot";
+		case SearchableType.QUEST:
+			return "Quests";
+		case SearchableType.KECLEON:
+		case SearchableType.LURE:
+			return "Pokéstops";
+		case SearchableType.CONTEST:
+			return "Showcases";
+		case SearchableType.INVASION:
+			return "Team Rocket";
+		case SearchableType.RAID_BOSS:
+		case SearchableType.RAID_LEVEL:
+			return "Raids";
+		case SearchableType.MAX_BATTLE_BOSS:
+		case SearchableType.MAX_BATTLE_LEVEL:
+			return "Max Battles";
+		case SearchableType.NEST:
+			return "Nests";
+		default:
+			return "";
+	}
+}
 
 export type AreaSearchEntry = SearchEntry & {
 	icon: string;
@@ -286,7 +323,6 @@ function getAreaSearchEntries() {
 	return getKojiGeofences().map((k) => {
 		return {
 			name: k.properties.name,
-			category: "area",
 			key: "area-" + k.properties.name,
 			type: SearchableType.AREA,
 			icon: k.properties.lucideIcon ?? areaIcon,
@@ -299,7 +335,7 @@ export function getActiveSearchQuestParams(reward: QuestReward) {
 	const reward2 = { type: reward.type, info: { ...reward.info, amount: 0 } } as QuestReward;
 	let rewardName = getRewardText(reward2);
 	if (reward2.type === RewardType.POKEMON) {
-		rewardName = m.x_quests({ x: rewardName });
+		rewardName = `${rewardName} Quests`;
 	}
 
 	return {
@@ -319,7 +355,6 @@ export function initSearch(searchOptions: SearchOptions) {
 		pokemonEntries = getSpawnablePokemon().map((p) => {
 			return {
 				name: mPokemon(p),
-				category: "pogo_pokemon",
 				id: p.pokemon_id,
 				form: p.form,
 				key: "pokemon-" + p.pokemon_id + "-" + p.form,
@@ -343,7 +378,6 @@ export function initSearch(searchOptions: SearchOptions) {
 			const key = "quest-" + JSON.stringify(reward);
 
 			uniqueRewards[key] = {
-				category: "pogo_quests",
 				key,
 				type: SearchableType.QUEST,
 				name,
@@ -360,8 +394,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	) {
 		kecleonEntries = [
 			{
-				name: m.kecleon_pokestops(),
-				category: "pogo_pokestops",
+				name: "Kecleon Pokéstops",
 				key: "kecleon",
 				type: SearchableType.KECLEON
 			}
@@ -376,7 +409,6 @@ export function initSearch(searchOptions: SearchOptions) {
 		contestEntries = getActiveContests().map((contest) => {
 			return {
 				name: getContestText(contest.ranking_standard, contest.focus),
-				category: "pogo_contests",
 				key: "contest-" + contest.ranking_standard + "-" + JSON.stringify(contest.focus),
 				type: SearchableType.CONTEST,
 				rankingStandard: contest.ranking_standard,
@@ -393,7 +425,6 @@ export function initSearch(searchOptions: SearchOptions) {
 		lureEntries = getAllLureModuleIds().map((lure) => {
 			return {
 				name: mItem(lure),
-				category: "pogo_pokestops",
 				key: "lure-" + lure,
 				type: SearchableType.LURE,
 				itemId: lure
@@ -409,7 +440,6 @@ export function initSearch(searchOptions: SearchOptions) {
 		invasionEntries = getActiveCharacters().map((character) => {
 			return {
 				name: mCharacter(character.character),
-				category: "pogo_invasion",
 				key: "invasion-" + character.character,
 				type: SearchableType.INVASION,
 				characterId: character.character
@@ -434,7 +464,6 @@ export function initSearch(searchOptions: SearchOptions) {
 					processedRaidLevels.add(raidBoss.level);
 					raidLevelEntries.push({
 						name: mRaid(raidBoss.level, true),
-						category: "raids",
 						key: "raidlevel-" + raidBoss.level,
 						type: SearchableType.RAID_LEVEL,
 						level: raidBoss.level
@@ -444,8 +473,7 @@ export function initSearch(searchOptions: SearchOptions) {
 				if (!shouldSearchType(SearchableType.RAID_BOSS, searchOptions)) return undefined;
 
 				return {
-					name: m.pokemon_raids({ pokemon: mPokemon(raidBoss) }),
-					category: "raids",
+					name: `${mPokemon(raidBoss)} Raids`,
 					key:
 						"raidboss- " +
 						raidBoss.pokemon_id +
@@ -469,8 +497,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	) {
 		maxBattleBossEntries = getActiveMaxBattles().map((maxBattle) => {
 			return {
-				name: m.pokemon_max_battles({ pokemon: mPokemon(maxBattle) }),
-				category: "max_battles",
+				name: `${mPokemon(maxBattle)} Max Battles`,
 				key:
 					"raidboss- " + maxBattle.pokemon_id + "-" + maxBattle.form + "-" + maxBattle.bread_mode,
 				type: SearchableType.MAX_BATTLE_BOSS,
@@ -488,8 +515,7 @@ export function initSearch(searchOptions: SearchOptions) {
 	) {
 		nestEntries = getActiveNests().map((nest) => {
 			return {
-				name: m.pokemon_nests({ pokemon: mPokemon(nest) }),
-				category: "nests",
+				name: `${mPokemon(nest)} Nests`,
 				key: "nest-" + nest.pokemon_id + "-" + nest.form,
 				type: SearchableType.NEST,
 				pokemon_id: nest.pokemon_id,
@@ -513,7 +539,6 @@ export function initSearch(searchOptions: SearchOptions) {
 					imageUrl: fort.url,
 					type: SearchableType.GYM,
 					key: fort.id,
-					category: "pogo_gym",
 					lat: fort.lat,
 					lon: fort.lon
 				} as GymSearchEntry;
@@ -524,7 +549,6 @@ export function initSearch(searchOptions: SearchOptions) {
 				imageUrl: fort.url,
 				type: SearchableType.POKESTOP,
 				key: fort.id,
-				category: "pogo_pokestop",
 				lat: fort.lat,
 				lon: fort.lon
 			} as PokestopSearchEntry;
@@ -547,7 +571,7 @@ export function initSearch(searchOptions: SearchOptions) {
 		...fortEntries
 	];
 	fuzzy = createFuzzySearch(allSearchResults, {
-		getText: (e) => [e.name, mAny(e.category)]
+		getText: (e) => [e.name, searchCategoryLabel(e.type)]
 	});
 }
 
@@ -573,7 +597,6 @@ export function search(query: string, limit: boolean, searchOptions: SearchOptio
 		if (coords) {
 			const entry: CoordinatesSearchEntry = {
 				name: `${coords.lat}, ${coords.lon}`,
-				category: "coordinates",
 				key: `coordinates-${coords.lat}-${coords.lon}`,
 				icon: "MapPin",
 				type: SearchableType.COORDINATES,
@@ -598,7 +621,6 @@ export function addAddressSearchResults(data: AddressData[], query: string) {
 
 		const item = {
 			name: address.name,
-			category: "address",
 			key: address.id,
 			icon: "MapPin",
 			point: address.center,

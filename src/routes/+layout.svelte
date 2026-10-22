@@ -5,7 +5,7 @@
 	import Metadata from "@/components/utils/Metadata.svelte";
 	import StatusScreen from "@/components/ui/StatusScreen.svelte";
 	import InstanceGate from "@/components/ui/InstanceGate.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { onMount } from "svelte";
 	import { getConfig } from "$lib/services/config/config";
 	import { getInstanceUrl } from "$lib/native/runtime";
@@ -20,13 +20,14 @@
 	<InstanceGate />
 {:else if data?.configError}
 	{#if data.offline}
-		<StatusScreen title={m.status_offline_title()} description={m.status_offline_desc()} />
+		<StatusScreen
+			title="You're offline"
+			description="Check your internet connection and try again"
+		/>
 	{:else}
 		<StatusScreen
-			title={m.status_unreachable_title({
-				name: getConfig()?.general?.mapName || getInstanceUrl() || m.diadem_map()
-			})}
-			description={m.status_unreachable_desc()}
+			title="Can't reach {getConfig()?.general?.mapName || getInstanceUrl() || 'Diadem Map'}"
+			description="Check that it's online and try again"
 		/>
 	{/if}
 {:else}

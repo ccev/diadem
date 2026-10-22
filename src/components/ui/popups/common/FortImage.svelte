@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as m from "@/lib/i18n/messages.svelte";
 	import { openFortDetailsModal } from "@/components/ui/popups/common/FortDetailsModal.svelte";
 	import ImagePopup from "@/components/ui/popups/common/ImagePopup.svelte";
 
@@ -28,7 +27,7 @@
 
 			openFortDetailsModal({ alt, fortUrl, fortName, fortDescription });
 		}}
-		title={m.view_full_image()}
+		title="View full image"
 	>
 		<ImagePopup
 			{alt}

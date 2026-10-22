@@ -5,7 +5,6 @@
 	import { getInvasionPokemon } from "$lib/features/masterStats.svelte";
 	import type { InvasionPokemonStats } from "$lib/server/api/queryStats";
 	import type { PokemonVisual } from "$lib/types/mapObjectData/pokemon";
-	import * as m from "$lib/i18n/messages.svelte";
 
 	let {
 		position,
@@ -56,7 +55,7 @@
 		<p
 			class="w-full text-center px-2 py-1 my-1 text-sm font-medium rounded-b-md outline bg-indigo-200 text-indigo-900 outline-indigo-400 dark:text-indigo-200 dark:bg-indigo-950 dark:outline-indigo-800"
 		>
-			{m.catchable()}
+			Catchable
 		</p>
 	{/if}
 </div>

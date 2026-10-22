@@ -1,5 +1,4 @@
 import type { IconCategory } from "@/lib/features/filters/icons";
-import * as m from "@/lib/i18n/messages.svelte";
 import type { ContestFocus } from "@/lib/types/mapObjectData/pokestop";
 import type { RewardType } from "@/lib/utils/pokestopUtils";
 
@@ -16,16 +15,13 @@ export type AnyFilterset =
 
 // remember to update zod schemas when editing filterset types!
 
-// auto-generated, localized name
-interface Message<K extends keyof typeof m = keyof typeof m> {
-	message: K | string;
-	params?: Parameters<(typeof m)[K]> | Record<string, string>;
-}
-
 export type FiltersetTitle = {
 	// a user-selected name
 	title?: string;
-} & Message;
+	// English source template; older saved filters may contain a retired message ID.
+	message: string;
+	params?: Record<string, string>;
+};
 
 export type FiltersetModifiers = {
 	glow?: {

@@ -10,14 +10,13 @@
 	import {
 		type IconPickerTab,
 		type IconPickerItem,
-		PICKER_TABS,
+		getPickerTabs,
 		getAllIconsByTab,
 		getAllSearchableEmojis,
 		isValidSingleEmoji
 	} from "./iconPickerData";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { fly } from "svelte/transition";
-	import { mAny } from "@/lib/utils/anyMessage";
 	import SearchBar from "@/components/ui/input/SearchBar.svelte";
 
 	let {
@@ -41,8 +40,8 @@
 		// Search across all categories in tab order, emojis last
 		const results: IconPickerItem[] = [];
 
-		// Non-emoji tabs first, in PICKER_TABS order
-		for (const tab of PICKER_TABS) {
+		// Non-emoji tabs first, in picker order
+		for (const tab of getPickerTabs()) {
 			if (tab.id === "emoji") continue;
 			for (const item of allIcons[tab.id]) {
 				if (item.label.toLowerCase().includes(query)) {
@@ -86,11 +85,11 @@
 </script>
 
 <div in:fly={getFiltersetPageTransition().in} out:fly={getFiltersetPageTransition().out}>
-	<SearchBar class="mb-2 mt-1" placeholder={m.icon_search_placeholder()} bind:query={searchQuery} />
+	<SearchBar class="mb-2 mt-1" placeholder="Search for an icon" bind:query={searchQuery} />
 
 	{#if !searchQuery.trim()}
 		<Tabs
-			tabs={PICKER_TABS.map((t) => ({ value: t.id, label: mAny(t.labelKey) }))}
+			tabs={getPickerTabs().map((t) => ({ value: t.id, label: t.label }))}
 			bind:value={activeTab}
 		/>
 	{/if}

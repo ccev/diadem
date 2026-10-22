@@ -4,6 +4,7 @@ import { loadLocale } from "wuchale/load-utils";
 import { localePreferenceKey, sessionLocaleCookie } from "./locales";
 
 vi.mock("../../locales/main.loader.svelte.js", () => ({}));
+vi.mock("../../locales/js.loader.js", () => ({}));
 vi.mock("wuchale/load-utils", () => ({ loadLocale: vi.fn(async () => {}) }));
 
 describe("client language selection", () => {

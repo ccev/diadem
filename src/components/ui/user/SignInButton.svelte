@@ -3,7 +3,7 @@
 	import { startLogin } from "@/lib/services/user/login";
 	import DiscordIcon from "@/components/icons/DiscordIcon.svelte";
 	import { X } from "@lucide/svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 	import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 	import { getUserDetails } from "@/lib/services/user/userDetails.svelte";
@@ -23,12 +23,8 @@
 		onclick={() => startLogin()}
 	>
 		<DiscordIcon class="w-4 shrink-0" />
-		<p class="">
-			{m.signin_prompt_part_1()}
-			<span class="font-semibold underline">
-				{m.signin_prompt_bold()}
-			</span>
-			{m.signin_prompt_part_2()}
+		<p>
+			<span class="font-semibold underline">Link your Discord account</span> to access more features
 		</p>
 	</Button>
 {/if}

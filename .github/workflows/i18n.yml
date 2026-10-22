@@ -4,11 +4,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/i18n.yml"
-      - "src/lib/i18n/**"
-      - "src/lib/server/i18n*"
-      - "src/locales/**"
-      - "src/params/locale.ts"
-      - "src/routes/**"
+      - "src/**"
+      - "config/Home.example.svelte"
       - "wuchale.config.js"
       - "vite.config.ts"
       - "vitest.config.ts"
@@ -28,6 +25,7 @@ jobs:
           node-version: 24
       - run: corepack enable && corepack prepare pnpm@11.25.0 --activate
       - run: pnpm install --frozen-lockfile
+      - run: bash setup.sh
       - run: pnpm i18n:extract
       - run: git diff --exit-code -- src/locales
       - run: pnpm test

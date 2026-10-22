@@ -1,4 +1,3 @@
-import * as m from "@/lib/i18n/messages.svelte";
 import { getLocale } from "@/lib/i18n/locale";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
@@ -45,7 +44,7 @@ function mIngame(key: string): string {
  * Base method to translate basic IDs
  *  - if no ID is given, return "unknown X"
  *  - if translation is missing, return "unknown X" or defaultName if given
- * @param name name, from the prefixes object. an "unknown_{name}" UI message must exist
+ * @param name name, from the prefixes object
  * @param id the ID to translate, can be nullish
  * @param defaultName placeholder for missing translations, defaults to "unknown X"
  * @param plural I true, append "_plural"
@@ -56,17 +55,24 @@ function mBasicId(
 	defaultName?: string | null,
 	plural: boolean = false
 ): string {
-	// @ts-ignore dynamic message
-	if (!id) return defaultName ?? m["unknown_" + name]();
-
 	const suffix = plural ? "_plural" : "";
-
-	const localeString = mIngame(prefixes[name] + id + suffix);
-
-	// @ts-ignore dynamic message
-	if (!localeString) return defaultName ?? m["unknown_" + name]();
-
-	return localeString;
+	const localeString = id ? mIngame(prefixes[name] + id + suffix) : "";
+	if (localeString) return localeString;
+	if (defaultName != null) return defaultName;
+	return {
+		pokemon: "Unknown Pokémon",
+		form: "Unknown Form",
+		weather: "Unknown Weather",
+		type: "Unknown Type",
+		item: "Unknown Item",
+		raid: "Unknown Raid",
+		move: "Unknown Move",
+		alignment: "Unknown Alignment",
+		generation: "Unknown Generation",
+		quest: "Unknown Quest",
+		character: "Unknown Grunt",
+		routetag: "Unknown Route Tag"
+	}[name];
 }
 
 /**
@@ -81,7 +87,7 @@ export function mPokemon(data: {
 	bread_mode?: number | null | undefined;
 	shiny?: number | boolean | null | undefined;
 }) {
-	if (!data.pokemon_id) return m.unknown_pokemon();
+	if (!data.pokemon_id) return "Unknown Pokémon";
 
 	// base pokemon name
 	let key = prefixes.pokemon + data.pokemon_id;
@@ -94,7 +100,7 @@ export function mPokemon(data: {
 	const newName = mIngame(key);
 	if (newName) name = newName;
 
-	if (!name) return m.unknown_pokemon();
+	if (!name) return "Unknown Pokémon";
 
 	// add sparkles if shiny
 	if (data.shiny) name += " ✨";
@@ -103,12 +109,12 @@ export function mPokemon(data: {
 	const masterPokemon = getMasterPokemon(data.pokemon_id, data.form, data.temp_evolution_id);
 
 	if (masterPokemon && data.form) {
-		if (masterPokemon.name === "Alola") {
-			name = m.alolan_pokemon({ name });
-		} else if (masterPokemon.name === "Galarian") {
-			name = m.galarian_pokemon({ name });
-		} else if (masterPokemon.name === "Hisuian") {
-			name = m.hisuian_pokemon({ name });
+		if (masterPokemon.name === /* @wc-ignore */ "Alola") {
+			name = `Alolan ${name}`;
+		} else if (masterPokemon.name === /* @wc-ignore */ "Galarian") {
+			name = `Galarian ${name}`;
+		} else if (masterPokemon.name === /* @wc-ignore */ "Hisuian") {
+			name = `Hisuian ${name}`;
 		} else {
 			const formName = data.form ? mIngame(prefixes.form + data.form) : "";
 			if (formName) name += " (" + formName + ")";
@@ -123,9 +129,9 @@ export function mPokemon(data: {
 
 	// get dynamax/gigantamax names
 	if (data.bread_mode === 1) {
-		name = m.pogo_dynamax_pokemon({ pokemon: name });
+		name = `Dynamax ${name}`;
 	} else if (data.bread_mode === 2) {
-		name = m.pogo_gigantamax_pokemon({ pokemon: name });
+		name = `Gigantamax ${name}`;
 	}
 
 	return name;
@@ -141,7 +147,7 @@ export function mQuest(questTitle?: string | null, target?: number | null) {
 	let questText = mBasicId(
 		"quest",
 		questTitle?.toLowerCase(),
-		questTitle?.toLowerCase()?.replaceAll("_", " ") ?? m.unknown_quest()
+		questTitle?.toLowerCase()?.replaceAll("_", " ") ?? "Unknown Quest"
 	);
 
 	const formattedNumber = target ? formatNumber(target) : "";
@@ -188,19 +194,17 @@ export function mRaid(raidLevel?: number | string | null, plural: boolean = fals
 	if (raidLevel) {
 		raidLevel = Number(raidLevel) as RaidLevel;
 		if (raidLevel === RaidLevel.SHADOW_LEGENDARY) {
-			return plural ? m.legendary_shadow_raids() : m.legendary_shadow_raid();
+			return plural ? "Legendary Shadow Raids" : "Legendary Shadow Raid";
 		} else if (raidLevel >= RaidLevel.STAR_1 && raidLevel < RaidLevel.LEGENDARY) {
-			return plural ? m.x_star_raids({ level: raidLevel }) : m.x_star_raid({ level: raidLevel });
+			return plural ? `${raidLevel}-Star Raids` : `${raidLevel}-Star Raid`;
 		} else if (raidLevel >= RaidLevel.SHADOW_STAR_1 && raidLevel < RaidLevel.SHADOW_LEGENDARY) {
-			return plural
-				? m.x_star_shadow_raids({ level: raidLevel - 10 })
-				: m.x_star_shadow_raid({ level: raidLevel - 10 });
+			return plural ? `${raidLevel - 10}-Star Shadow Raids` : `${raidLevel - 10}-Star Shadow Raid`;
 		} else if (raidLevel === RaidLevel.MEGA_SUPER) {
-			return plural ? m.super_mega_raids() : m.super_mega_raid();
+			return plural ? "Super Mega Raids" : "Super Mega Raid";
 		} else if (raidLevel === RaidLevel.MEGA_SUPER_LEGENDARY) {
-			return plural ? m.legendary_super_mega_raids() : m.legendary_super_mega_raid();
+			return plural ? "Legendary Super Mega Raids" : "Legendary Super Mega Raid";
 		} else if (raidLevel === RaidLevel.UNITY_1 || raidLevel === RaidLevel.UNITY_2) {
-			return plural ? m.unity_raids() : m.unity_raid();
+			return plural ? "Unity Raids" : "Unity Raid";
 		}
 	}
 
@@ -240,17 +244,17 @@ export function mCharacter(
 		  }
 		| undefined = undefined
 ) {
-	if (!characterId) return m.unknown_character();
+	if (!characterId) return "Unknown Grunt";
 
 	characterId = Number(characterId);
 	if (characterId === Character.GRUNT_MALE) {
-		return options?.plural ? m.male_grunts() : m.male_grunt();
+		return options?.plural ? "Male Grunts" : "Male Grunt";
 	} else if (characterId === Character.GRUNT_FEMALE) {
-		return options?.plural ? m.female_grunts() : m.female_grunt();
+		return options?.plural ? "Female Grunts" : "Female Grunt";
 	}
 
 	if (characterId === 44 && !options?.confirmed) {
-		return m.giovanni_or_decoy();
+		return "Giovanni or Decoy";
 	}
 
 	let character = mBasicId("character", characterId);
@@ -264,36 +268,38 @@ export function mCharacter(
 	}
 
 	if (character.includes(" ♀")) {
-		character = m.female_type({ type: character.replace("♀", "") });
+		character = `Female ${character.replace("♀", "")}`;
 	} else if (character.includes(" ♂")) {
-		character = m.male_type({ type: character.replace("♂", "") });
+		character = `Male ${character.replace("♂", "")}`;
 	}
 
 	if (characterId === Character.DECOY_FEMALE || characterId === Character.DECOY_MALE) {
-		character = m.decoy();
+		character = "Decoy";
 	}
 
-	return options?.plural ? m.character_grunts({ character }) : m.character_grunt({ character });
+	return options?.plural
+		? /* @wc-context: Grunt type */ `${character} Grunts`
+		: `${character} Grunt`;
 }
 
 export function mLeague(league: League) {
-	if (league === League.LITTLE) return m.little_league();
-	if (league === League.GREAT) return m.great_league();
-	if (league === League.ULTRA) return m.ultra_league();
-	if (league === League.MASTER) return m.master_league();
-	return m.unknown_league();
+	if (league === League.LITTLE) return "Little League";
+	if (league === League.GREAT) return "Great League";
+	if (league === League.ULTRA) return "Ultra League";
+	if (league === League.MASTER) return "Master League";
+	return "Unknown League";
 }
 
 export function mTeam(teamId: number | undefined) {
 	switch (teamId) {
 		case 1:
-			return m.team_mystic();
+			return "Mystic";
 		case 2:
-			return m.team_valor();
+			return "Valor";
 		case 3:
-			return m.team_instinct();
+			return "Instinct";
 		default:
-			return m.team_neutral();
+			return "Neutral";
 	}
 }
 

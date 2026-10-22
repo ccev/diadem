@@ -19,12 +19,11 @@
 	} from "@/lib/features/filters/filtersetPageData.svelte";
 	import { getUserSettings, updateUserSettings } from "@/lib/services/userSettings.svelte";
 	import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { getMapObjectCounts } from "@/lib/mapObjects/mapObjectsState.svelte";
 	import { formatNumberCompact } from "@/lib/utils/numberFormat";
 	import { tick } from "svelte";
 	import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
-	import { mAny } from "@/lib/utils/anyMessage";
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import S2CellFilters from "@/components/menus/filters/S2CellFilters.svelte";
 
@@ -56,6 +55,22 @@
 	} = $props();
 
 	let isEnabled: boolean = $derived(filter.enabled);
+	const addFilterLabel = $derived.by(() => {
+		switch (subCategory ?? majorCategory) {
+			case "pokemon":
+				return "Add Pokémon filter";
+			case "quest":
+				return "Add Quest filter";
+			case "invasion":
+				return "Add Team Rocket filter";
+			case "raid":
+				return "Add Raid filter";
+			case "maxBattle":
+				return "Add Max Battle filter";
+			default:
+				return "Add filter";
+		}
+	});
 	let filtersets = $derived((filter as { filters?: AnyFilterset[] }).filters);
 	let hasAnyFilterset: boolean = $derived((filtersets?.length ?? 0) > 0);
 	let allFiltersetsDisabled: boolean = $derived(
@@ -97,12 +112,9 @@
 		{@const { showing, examined } = getMapObjectCounts(mapObject)}
 		<p class="text-sm text-muted-foreground font-semibold">
 			{#if showing === examined}
-				{m.showing_showing({ showing })}
+				Showing {showing}
 			{:else}
-				{m.showing_showing_of_examined({
-					showing: formatNumberCompact(showing),
-					examined: formatNumberCompact(examined)
-				})}
+				Showing {formatNumberCompact(showing)} of {formatNumberCompact(examined)}
 			{/if}
 		</p>
 	{/if}
@@ -120,7 +132,7 @@
 					{#if isFilterable && !hasAnyFilterset}
 						<Button class="-ml-2" variant="ghost" size="sm" onclick={onAddFilter}>
 							<FunnelPlus size="14" />
-							<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
+							<span>{addFilterLabel}</span>
 						</Button>
 					{/if}
 				{/if}
@@ -176,16 +188,16 @@
 			<div class="flex justify-between ml-2" class:mb-0.5={hasAnyFilterset}>
 				<Button class="" variant="ghost" size="sm" onclick={onAddFilter}>
 					<FunnelPlus size="14" />
-					<span>{mAny(`add_filter_${majorCategory}_${subCategory}`)}</span>
+					<span>{addFilterLabel}</span>
 				</Button>
 				{#if hasAnyFilterset}
 					<Button class="" variant="ghost" size="sm" onclick={onToggleAll}>
 						{#if allFiltersetsDisabled}
 							<Eye size="16" />
-							<span>{m.enable_filters()}</span>
+							<span>Enable filters</span>
 						{:else}
 							<EyeClosed size="16" />
-							<span>{m.disable_filters()}</span>
+							<span>Disable filters</span>
 						{/if}
 					</Button>
 				{/if}

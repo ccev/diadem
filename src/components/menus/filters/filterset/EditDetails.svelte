@@ -9,7 +9,7 @@
 		filtersetPageEditAttribute,
 		setCurrentAttributePage
 	} from "@/lib/features/filters/filtersetPages.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
+
 	import { Pencil } from "@lucide/svelte";
 	import IconPicker from "@/components/menus/filters/filterset/iconpicker/IconPicker.svelte";
 
@@ -21,7 +21,7 @@
 
 	function openIconPicker() {
 		filtersetPageEditAttribute();
-		setCurrentAttributePage(iconPickerPage, m.details());
+		setCurrentAttributePage(iconPickerPage, "Details");
 	}
 </script>
 
@@ -30,7 +30,7 @@
 {/snippet}
 
 <div>
-	<MenuTitle title={m.filter_icon()} />
+	<MenuTitle title="Icon" />
 	<div class="flex justify-center">
 		<div class="relative">
 			<button
@@ -51,7 +51,7 @@
 
 	<TextInput
 		class="z-50 relative"
-		title={m.filter_name()}
+		title="Name"
 		value={filterTitle($state.snapshot(data))}
 		onchange={(e) => {
 			data.title.title = (e.target as HTMLInputElement)?.value ?? "";

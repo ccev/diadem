@@ -85,8 +85,8 @@ export function getAllPokemon(onlyActive: boolean = false): { pokemon_id: number
 			const formId = Number(formIdRaw);
 			if (
 				form.name !== "Normal" &&
-				form.name !== "Unset" &&
-				!form.name.includes("Costume") &&
+				form.name !== /* @wc-ignore */ "Unset" &&
+				!form.name.includes(/* @wc-ignore */ "Costume") &&
 				!form.name.includes("20") && // gets rid of year-specific forms
 				!(form.isCostume ?? false) &&
 				!form.unreleased &&

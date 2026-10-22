@@ -2,7 +2,6 @@
 	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "@lucide/svelte";
 	import Countdown from "@/components/utils/Countdown.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
-	import * as m from "@/lib/i18n/messages.svelte";
 
 	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
 	import { isFortOutdated } from "@/lib/utils/gymUtils";
@@ -22,7 +21,7 @@
 </script>
 
 {#if updated}
-	<StatsMainCardEntry Icon={Clock} name={m.last_seen()}>
+	<StatsMainCardEntry Icon={Clock} name="Last seen">
 		{#snippet value()}
 			{#if currentTimestamp() - updated > 60 * 60 * 24}
 				{timestampToLocalTime(updated, { showDate: true, showSeconds: false, showTime: false })}
@@ -34,7 +33,7 @@
 {/if}
 
 {#if lastModified}
-	<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_updated()}>
+	<StatsMainCardEntry Icon={ClockArrowUp} name="Last updated">
 		{#snippet value()}
 			{#if currentTimestamp() - lastModified > 60 * 60 * 24}
 				{timestampToLocalTime(lastModified, {
@@ -50,7 +49,7 @@
 {/if}
 
 {#if firstSeen}
-	<StatsMainCardEntry Icon={Search} name={m.first_seen()}>
+	<StatsMainCardEntry Icon={Search} name="First seen">
 		{#snippet value()}
 			{#if currentTimestamp() - firstSeen > 60 * 60 * 24}
 				{timestampToLocalTime(firstSeen, { showDate: true, showSeconds: false, showTime: false })}

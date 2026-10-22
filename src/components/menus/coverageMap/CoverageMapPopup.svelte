@@ -15,7 +15,7 @@
 				<div class="flex items-center gap-2 font-semibold">
 					<LucideIcon
 						class="size-4.5 ml-2"
-						name={(area.properties.lucideIcon ?? "Globe") as keyof typeof icons}
+						name={(area.properties.lucideIcon ?? /* @wc-ignore */ "Globe") as keyof typeof icons}
 					/>
 					<p>
 						<span>{area.properties.name}</span>
