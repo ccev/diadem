@@ -18,7 +18,7 @@
 		fallbackExpire: number;
 		useFallback: boolean;
 		fallbackTitle: string;
-		fallbackExplanation: string;
+		fallbackExplanation?: string;
 	} = $props();
 </script>
 
@@ -48,8 +48,8 @@
 		</div>
 	</div>
 
-	{#if useFallback}
-		<p class="text-muted-foreground mt-4 text-sm px-1">
+	{#if useFallback && fallbackExplanation}
+		<p class="text-muted-foreground mt-4 text-base px-1 text-center w-full">
 			{fallbackExplanation}
 		</p>
 	{/if}

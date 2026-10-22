@@ -237,7 +237,7 @@ describe("fromStationScanResponse", () => {
 });
 
 describe("fromPokemonScanResponse", () => {
-	it("keys pvp by league, omits empty leagues, drops spawn_id and cell_id", () => {
+	it("keys pvp by league, omits empty leagues, and drops spawn_id", () => {
 		const great = {
 			pokemon: 26,
 			form: 0,
@@ -284,7 +284,7 @@ describe("fromPokemonScanResponse", () => {
 		expect(mon.iv).toBe(82.2);
 		expect(mon.pvp).toEqual({ great: [great], ultra: [ultra] });
 		expect(mon).not.toHaveProperty("spawn_id");
-		expect(mon).not.toHaveProperty("cell_id");
+		expect(mon.cell_id).toBe("456");
 	});
 
 	it("omits pvp entirely when every league is empty or unset", () => {
