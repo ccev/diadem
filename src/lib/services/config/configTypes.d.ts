@@ -139,6 +139,14 @@ export type ClientConfig = {
 };
 
 export type ServerConfig = {
+	encounterIdObfuscation?: {
+		enabled?: boolean;
+		secret?: string;
+	};
+	biomes?: {
+		url?: string;
+		secret?: string;
+	};
 	golbat: {
 		url: string;
 		auth?: string;
@@ -147,6 +155,7 @@ export type ServerConfig = {
 		grpc?: string;
 		fortApi?: boolean;
 	};
+	talonflame?: { url: string };
 	dragonite: {
 		// TODO: this should be optional and scout disabled
 		url: string;

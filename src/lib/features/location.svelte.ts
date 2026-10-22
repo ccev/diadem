@@ -1,8 +1,7 @@
-import { SPAWNPOINT_OUTDATED_SECONDS } from "$lib/constants";
+import { RANGE_FORTS, RANGE_POKEMON, SPAWNPOINT_OUTDATED_SECONDS } from "$lib/constants";
 import type { AnyFilter } from "$lib/features/filters/filters";
 import { getLocale } from "$lib/paraglide/runtime";
 import { getMap } from "$lib/map/map.svelte";
-import { type Bounds } from "$lib/mapObjects/mapBounds";
 import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 import { ClientMapObjectType, type MapData, MapObjectType } from "$lib/mapObjects/mapObjectTypes";
 import { fetchMapObjects } from "$lib/mapObjects/updateMapObject";
@@ -17,7 +16,7 @@ import { getMapPath } from "$lib/utils/getMapPath";
 import { getDefaultPokestopFilter } from "$lib/utils/pokestopUtils";
 import { getHeaders, parseResponse } from "$lib/utils/requests";
 import { getDefaultStationFilter } from "$lib/utils/stationUtils";
-import { bbox, buffer, distance, point } from "@turf/turf";
+import { isWithinRange, rangeBounds, rangeDistanceMeters } from "@/lib/utils/rangeGeometry";
 import type { LocationData, NearbyLocationObject } from "$lib/types/mapObjectData/location";
 
 let detailsController: AbortController | undefined;
@@ -36,17 +35,6 @@ export function abortLocationDetails() {
 
 export function formattedCoordinates(data: { lat: number; lon: number }) {
 	return `${data.lat.toFixed(6)}, ${data.lon.toFixed(6)}`;
-}
-
-function getLocationBounds(coords: Coords, radius: number): Bounds {
-	const area = buffer(point(coords.geojson()), radius / 1000, { units: "kilometers" });
-	const bounds = area ? bbox(area) : [coords.lon, coords.lat, coords.lon, coords.lat];
-	return {
-		minLon: bounds[0],
-		minLat: bounds[1],
-		maxLon: bounds[2],
-		maxLat: bounds[3]
-	};
 }
 
 export async function loadLocationDetails(data: LocationData) {
@@ -84,7 +72,7 @@ export async function loadLocationDetails(data: LocationData) {
 	);
 	const nearbyPromise = Promise.all(
 		nearbyPermissions.map(async (type) => {
-			const radius = type === MapObjectType.SPAWNPOINT ? 40 : 80;
+			const radius = type === MapObjectType.SPAWNPOINT ? RANGE_POKEMON : RANGE_FORTS;
 			let filter: AnyFilter = { category: "spawnpoint", enabled: true, filters: [] };
 			if (type === MapObjectType.POKESTOP) {
 				const pokestopFilter = getDefaultPokestopFilter();
@@ -102,8 +90,14 @@ export async function loadLocationDetails(data: LocationData) {
 				filter = stationFilter;
 			}
 			return (
-				(await fetchMapObjects(type, getLocationBounds(coords, radius), filter, controller.signal))
-					?.data ?? []
+				(
+					await fetchMapObjects(
+						type,
+						rangeBounds(coords.geojson(), radius),
+						filter,
+						controller.signal
+					)
+				)?.data ?? []
 			);
 		})
 	).catch((error) => {
@@ -120,19 +114,19 @@ export async function loadLocationDetails(data: LocationData) {
 
 	const nearby = nearbyResults.flat().map((mapObject) => ({
 		...mapObject,
-		distance: distance(coords.geojson(), [mapObject.lon, mapObject.lat], { units: "meters" })
+		distance: rangeDistanceMeters(coords.geojson(), [mapObject.lon, mapObject.lat])
 	}));
 	const spawnpointCutoff = currentTimestamp() - SPAWNPOINT_OUTDATED_SECONDS;
 	const spawnpoints = nearby.filter(
 		(mapObject) =>
 			mapObject.type === MapObjectType.SPAWNPOINT &&
-			mapObject.distance <= 40 &&
+			isWithinRange(coords.geojson(), [mapObject.lon, mapObject.lat], RANGE_POKEMON) &&
 			mapObject.last_seen >= spawnpointCutoff
 	).length;
 	const nearbyObjects = nearby
 		.filter(
 			(mapObject): mapObject is NearbyLocationObject =>
-				mapObject.distance <= 80 &&
+				isWithinRange(coords.geojson(), [mapObject.lon, mapObject.lat], RANGE_FORTS) &&
 				(mapObject.type === MapObjectType.POKESTOP ||
 					mapObject.type === MapObjectType.GYM ||
 					mapObject.type === MapObjectType.STATION)

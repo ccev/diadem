@@ -10,7 +10,7 @@
 	import {
 		calculateMaxBattleCp,
 		getStationPokemon,
-		isMaxBattleActive,
+		hasMaxBattle,
 		STATION_SLOTS
 	} from "$lib/utils/stationUtils";
 	import { getIconPokemon, getIconStation } from "$lib/services/uicons.svelte";
@@ -47,19 +47,15 @@
 
 	export function getPopupPropsStation(data: MapData) {
 		data = data as StationData;
-		const active = hasActiveMaxBattle(data);
+		const battleVisible = hasMaxBattle(data);
 
 		return {
-			type: active ? m.pogo_max_battle() : m.pogo_station(),
-			title: active ? mPokemon(getStationPokemon(data)) : data.name,
+			type: battleVisible ? m.pogo_max_battle() : m.pogo_station(),
+			title: battleVisible ? mPokemon(getStationPokemon(data)) : data.name,
 			image,
 			overview,
 			main
 		} as MapObjectPopupProps;
-	}
-
-	function hasActiveMaxBattle(data: StationData) {
-		return Boolean(data.battle_pokemon_id && isMaxBattleActive(data));
 	}
 
 	function hasLastMaxBattle(data: StationData) {
@@ -88,7 +84,7 @@
 {#snippet image(d: MapData)}
 	{@const data = d as StationData}
 	<div class="size-14 shrink-0">
-		{#if hasActiveMaxBattle(data)}
+		{#if hasMaxBattle(data)}
 			<ImagePopup
 				alt={mPokemon(getStationPokemon(data))}
 				src={getIconPokemon(getStationPokemon(data))}
@@ -103,7 +99,7 @@
 {#snippet overview(d: MapData)}
 	{@const data = d as StationData}
 
-	{#if hasActiveMaxBattle(data)}
+	{#if hasMaxBattle(data)}
 		<OverviewCard Icon={Clock} title={m.end()}>
 			{#snippet value()}
 				<Countdown expireTime={data.end_time} />
@@ -122,11 +118,11 @@
 
 {#snippet main(d: MapData)}
 	{@const data = d as StationData}
-	{@const active = hasActiveMaxBattle(data)}
+	{@const battleVisible = hasMaxBattle(data)}
 	{@const pokemon = getStationPokemon(data)}
 	{@const pokemonName = mPokemon(pokemon)}
 
-	{#if active}
+	{#if battleVisible}
 		<TitledMainSection Icon={DynamaxIcon} title={m.pogo_max_battle()}>
 			<BasicMainCard>
 				<IconValue Icon={Clock} class="font-semibold mb-1">

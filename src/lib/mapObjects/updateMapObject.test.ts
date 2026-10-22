@@ -1,8 +1,16 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { isSupportedFeature } from "@/lib/services/supportedFeatures";
+import { deleteAllFeaturesOfType } from "@/lib/map/featuresGen.svelte";
+import { clearMapObjects } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+
+vi.mock("@/lib/services/supportedFeatures", () => ({ isSupportedFeature: vi.fn() }));
 
 vi.mock("@/lib/features/activeSearch.svelte.js", () => ({ getActiveSearch: () => undefined }));
-vi.mock("@/lib/map/featuresGen.svelte", () => ({ updateFeatures: vi.fn() }));
+vi.mock("@/lib/map/featuresGen.svelte", () => ({
+	updateFeatures: vi.fn(),
+	deleteAllFeaturesOfType: vi.fn()
+}));
 vi.mock("@/lib/map/map.svelte", () => ({ getMap: () => ({ getZoom: () => 15 }) }));
 vi.mock("@/lib/mapObjects/dataLimitState.svelte", () => ({
 	clearAllDataLimits: vi.fn(),
@@ -32,7 +40,8 @@ vi.mock("@/lib/services/userSettings.svelte.js", () => ({
 		filters: {
 			gym: { enabled: true, category: "gym" },
 			pokestop: { enabled: true, category: "pokestop" },
-			station: { enabled: false, category: "station" }
+			station: { enabled: false, category: "station" },
+			biome: { enabled: true, category: "biome", filters: [] }
 		}
 	})
 }));
@@ -55,6 +64,9 @@ const jsonResponse = (body: unknown) =>
 let fetchMock: ReturnType<typeof vi.fn>;
 beforeEach(() => {
 	fetchMock = vi.fn();
+	vi.mocked(isSupportedFeature).mockReset().mockReturnValue(true);
+	vi.mocked(clearMapObjects).mockClear();
+	vi.mocked(deleteAllFeaturesOfType).mockClear();
 	vi.stubGlobal("fetch", fetchMock);
 	state.replace.mockReset();
 	state.add.mockReset();
@@ -64,6 +76,46 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("planMapObjectRequest", () => {
+	it("replaces idle-refresh snapshots so withdrawn nests disappear", () => {
+		applyMapObjectResponse(
+			{
+				type: MapObjectType.NEST,
+				filter: { enabled: true, filters: [] } as never,
+				isDelta: true,
+				removeOld: false
+			},
+			{ data: [], examined: 0, snapshot: true, revision: "withdrawn" }
+		);
+		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.NEST, 0, false);
+		expect(state.add).not.toHaveBeenCalled();
+	});
+
+	it("ignores enabled saved biome filters and filter overrides when biomes are unsupported", () => {
+		vi.mocked(isSupportedFeature).mockReturnValue(false);
+		expect(planMapObjectRequest(MapObjectType.BIOME)).toBeUndefined();
+		expect(
+			planMapObjectRequest(MapObjectType.BIOME, true, {
+				category: "biome",
+				enabled: true,
+				filters: []
+			})
+		).toBeUndefined();
+		expect(clearMapObjects).toHaveBeenCalledWith(MapObjectType.BIOME);
+		expect(deleteAllFeaturesOfType).toHaveBeenCalledWith(MapObjectType.BIOME);
+		expect(fetchMock).not.toHaveBeenCalled();
+		expect(planMapObjectRequest(MapObjectType.GYM)).toBeDefined();
+	});
+
+	it("treats biome refreshes as full snapshots, including vanished discoveries", () => {
+		planMapObjectRequest(MapObjectType.BIOME);
+		const plan = planMapObjectRequest(MapObjectType.BIOME, true, undefined, true)!;
+		expect(plan.since).toBeUndefined();
+		expect(plan.isDelta).toBe(false);
+		applyMapObjectResponse(plan, { data: [], examined: 1 });
+		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.BIOME, 1);
+		expect(state.add).not.toHaveBeenCalled();
+	});
+
 	it("plans enabled types and skips disabled ones", () => {
 		expect(planMapObjectRequest(MapObjectType.GYM)).toMatchObject({
 			type: MapObjectType.GYM,

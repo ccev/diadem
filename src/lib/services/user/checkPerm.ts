@@ -11,6 +11,7 @@ import {
 	bbox,
 	booleanIntersects,
 	booleanPointInPolygon,
+	difference,
 	featureCollection,
 	intersect,
 	feature as makeFeature,
@@ -130,6 +131,7 @@ export function checkFeaturesInBounds(
 	}
 
 	const result = bbox(combinedIntersection);
+	combinedIntersection.bbox = result;
 
 	return {
 		bounds: {
@@ -175,9 +177,6 @@ export function isPointInAllowedArea(
 	return isAllowed;
 }
 
-// Precomputes, for a fixed set of features, whether each is granted everywhere and the polygons
-// granting it, so the query layer can strip per object: "everywhere" needs no geometry, otherwise
-// a point-in-polygon test.
 export class FeaturePermissionContext {
 	private readonly everywhere = new Set<FeaturesKey>();
 	private readonly areaPolygons = new Map<FeaturesKey, Feature<Polygon>[]>();
@@ -186,16 +185,21 @@ export class FeaturePermissionContext {
 		for (const feature of features) {
 			if (isFeatureInFeatureList(perms.everywhere, feature)) {
 				this.everywhere.add(feature);
-				continue;
 			}
+		}
 
-			const polygons: Feature<Polygon>[] = [];
-			for (const area of perms.areas ?? []) {
-				if (isFeatureInFeatureList(area.features, feature) && area.polygon) {
-					polygons.push(makeFeature(area.polygon));
-				}
-			}
-			if (polygons.length > 0) {
+		const restricted = features.filter((feature) => !this.everywhere.has(feature));
+		if (restricted.length === 0) return;
+		for (const area of perms.areas ?? []) {
+			const granted = restricted.filter((feature) =>
+				isFeatureInFeatureList(area.features, feature)
+			);
+			if (!area.polygon || granted.length === 0) continue;
+			const polygon = makeFeature(area.polygon);
+			polygon.bbox = bbox(polygon);
+			for (const feature of granted) {
+				const polygons = this.areaPolygons.get(feature) ?? [];
+				polygons.push(polygon);
 				this.areaPolygons.set(feature, polygons);
 			}
 		}
@@ -205,14 +209,29 @@ export class FeaturePermissionContext {
 		return this.everywhere.has(feature);
 	}
 
+	allowedThroughout(feature: FeaturesKey, area: PermittedPolygon): boolean {
+		if (this.everywhere.has(feature)) return true;
+		const polygons = this.areaPolygons.get(feature);
+		if (!area || !polygons) return false;
+		const [minLon, minLat, maxLon, maxLat] = bbox(area);
+		let remaining: PermittedPolygon = area;
+		for (const permitted of polygons) {
+			const [west, south, east, north] = permitted.bbox!;
+			if (east < minLon || west > maxLon || north < minLat || south > maxLat) continue;
+			remaining = difference(featureCollection([remaining, permitted]));
+			if (!remaining) return true;
+		}
+		return false;
+	}
+
 	isAllowedAt(feature: FeaturesKey, lat: number, lon: number): boolean {
 		if (this.everywhere.has(feature)) return true;
 
 		const polygons = this.areaPolygons.get(feature);
 		if (!polygons) return false;
 
-		const turfPoint = point([lon, lat]);
-		return polygons.some((poly) => booleanPointInPolygon(turfPoint, poly));
+		const coordinates = [lon, lat];
+		return polygons.some((poly) => booleanPointInPolygon(coordinates, poly));
 	}
 
 	isAllowedGeometry(feature: FeaturesKey, geometry: Feature<Geometry>): boolean {

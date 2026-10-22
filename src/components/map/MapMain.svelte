@@ -15,7 +15,12 @@
 		resetUpdateMapObjectsInterval
 	} from "@/lib/map/mapObjectsInterval";
 	import { getMap, setMap } from "@/lib/map/map.svelte";
-	import { clearPressTimer, onLocationContext } from "$lib/map/locationEvents";
+	import {
+		clearPressTimer,
+		onLocationContext,
+		onMapTouchEnd,
+		resetMapPress
+	} from "$lib/map/locationEvents";
 	import { clearLoadMapObjectsInterval } from "@/lib/map/loadMapObjects";
 	import {
 		onMapDragStart,
@@ -56,6 +61,8 @@
 	import { jumpTo } from "$lib/map/utils";
 	import { setSearchedGeometry } from "$lib/services/search.svelte";
 	import MapAttribution from "@/components/map/MapAttribution.svelte";
+	import QuickActions from "@/components/ui/QuickActions.svelte";
+	import { closeQuickActions } from "@/lib/ui/quickActions.svelte";
 	import { isUiLeft } from "$lib/utils/device";
 
 	let {
@@ -73,9 +80,9 @@
 		map.on("moveend", onMapMoveEnd);
 		map.on("contextmenu", onLocationContext);
 		map.on("touchstart", onTouchStart);
-		map.on("touchend", clearPressTimer);
+		map.on("touchend", onMapTouchEnd);
 		map.on("touchmove", clearPressTimer);
-		map.on("touchcancel", clearPressTimer);
+		map.on("touchcancel", onMapTouchEnd);
 		map.on("dragstart", onMapDragStart);
 		map.on("movestart", onMapMoveStart);
 
@@ -95,6 +102,7 @@
 				LoadedFeature.MASTER_FILE,
 				LoadedFeature.ICON_SETS,
 				LoadedFeature.USER_DETAILS,
+				LoadedFeature.SUPPORTED_FEATURES,
 				LoadedFeature.SERVER_USER_SETTINGS
 			)
 		) {
@@ -154,6 +162,8 @@
 	});
 
 	onDestroy(() => {
+		resetMapPress();
+		closeQuickActions();
 		clearUpdateMapObjectsInterval();
 		clearLoadMapObjectsInterval();
 		setMap(undefined);
@@ -163,6 +173,7 @@
 <svelte:window onfocus={onWindowFocus} onblur={clearUpdateMapObjectsInterval} />
 
 <DebugMenu />
+<QuickActions />
 
 <MapCommon
 	bind:map
@@ -199,7 +210,12 @@
 			id={MapObjectLayerId.RADIUS_FILL}
 			filter={["==", ["get", "isActionRadius"], true]}
 			paint={{
-				"fill-color": ["coalesce", ["get", "fillColor"], "transparent"]
+				"fill-color": [
+					"case",
+					["coalesce", ["get", "isSelected"], false],
+					["coalesce", ["get", "selectedFill"], "transparent"],
+					["coalesce", ["get", "fillColor"], "transparent"]
+				]
 			}}
 		/>
 		<LineLayer
@@ -210,20 +226,38 @@
 		/>
 		<FillLayer
 			id={MapObjectLayerId.POLYGON_FILL}
-			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.POLYGON],
+				["!=", ["get", "isActionRadius"], true]
+			]}
 			paint={{
 				"fill-color": [
 					"case",
 					["coalesce", ["get", "isSelected"], false],
 					["coalesce", ["get", "selectedFill"], "transparent"],
 					["coalesce", ["get", "fillColor"], "transparent"]
+				],
+				"fill-outline-color": [
+					"coalesce",
+					["get", "fillOutlineColor"],
+					[
+						"case",
+						["coalesce", ["get", "isSelected"], false],
+						["coalesce", ["get", "selectedFill"], "transparent"],
+						["coalesce", ["get", "fillColor"], "transparent"]
+					]
 				]
 			}}
 			hoverCursor="pointer"
 		/>
 		<LineLayer
 			id={MapObjectLayerId.POLYGON_STROKE}
-			filter={["==", ["get", "type"], FeatureTypes.POLYGON]}
+			filter={[
+				"all",
+				["==", ["get", "type"], FeatureTypes.POLYGON],
+				["!=", ["get", "isActionRadius"], true]
+			]}
 			layout={{ "line-cap": "round", "line-join": "round" }}
 			paint={{ "line-color": ["coalesce", ["get", "strokeColor"], "transparent"], "line-width": 1 }}
 			hoverCursor="pointer"
