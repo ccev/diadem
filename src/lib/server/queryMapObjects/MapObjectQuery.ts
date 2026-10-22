@@ -9,6 +9,9 @@ export type MapObjectResponse<T> = {
 	data: T[];
 	/** True when more objects matched than the request limit allows. No data is returned in that case. */
 	limitReached?: boolean;
+	/** Complete current result, including removals; replace even on an idle refresh. */
+	snapshot?: boolean;
+	revision?: string;
 };
 
 export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
@@ -70,11 +73,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		context?: FeaturePermissionContext
 	): MapObjectResponse<MapObject> {
 		if (result.limitReached) {
-			return {
-				examined: result.examined,
-				data: [],
-				limitReached: true
-			};
+			return { ...result, data: [] };
 		}
 
 		for (const item of result.data) {
@@ -88,7 +87,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 			}
 		}
 
-		return { examined: result.examined, data };
+		return { ...result, data };
 	}
 
 	public async getSingle(id: string, thisFetch?: typeof fetch, context?: FeaturePermissionContext) {

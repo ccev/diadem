@@ -1,7 +1,7 @@
 import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from "@/lib/constants";
 import { Coords, type LatLon } from "@/lib/utils/coordinates";
 import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
-import { destination, circle as makeCrircle, point } from "@turf/turf";
+import { rangeCircle, rangeDestination } from "@/lib/utils/rangeGeometry";
 import type { Feature, FeatureCollection, Polygon } from "geojson";
 
 export type ScoutRequest = {
@@ -98,7 +98,7 @@ export function getCoords(center: Coords, size: 0 | 1 | 2) {
 
 	return coords.concat(
 		[0, 60, 120, 180, 240, 300].map((bearing) => {
-			const coords = destination(point(start), distance / 1000, bearing).geometry.coordinates;
+			const coords = rangeDestination(start, distance, bearing);
 			return Coords.infer(coords);
 		})
 	);
@@ -108,22 +108,16 @@ export function getScoutGeojsons(coords: Coords[], size: 0 | 1 | 2) {
 	const smallPoints: Feature<Polygon, ScoutGeoProperties>[] = [];
 	const bigPoints: Feature<Polygon, ScoutGeoProperties>[] = [];
 	coords.forEach((c) => {
-		const smallCircle = makeCrircle([c.lon, c.lat], RADIUS_POKEMON / 1000) as Feature<
-			Polygon,
-			ScoutGeoProperties
-		>;
-		smallCircle.properties.fillColor = "#DAB2FFFF";
-		smallCircle.properties.strokeColor = "#DAB2FFFF";
+		const smallCircle = rangeCircle([c.lon, c.lat], RADIUS_POKEMON, {
+			properties: { fillColor: "#DAB2FFFF", strokeColor: "#DAB2FFFF" }
+		});
 		smallPoints.push(smallCircle);
 
 		if (size === 1 && bigPoints.length > 0) return; // only draw the middle circle in M
 
-		const bigCircle = makeCrircle([c.lon, c.lat], RADIUS_SCOUT_GMO / 1000) as Feature<
-			Polygon,
-			ScoutGeoProperties
-		>;
-		bigCircle.properties.fillColor = "#DFF2FEFF";
-		bigCircle.properties.strokeColor = "#DFF2FEFF";
+		const bigCircle = rangeCircle([c.lon, c.lat], RADIUS_SCOUT_GMO, {
+			properties: { fillColor: "#DFF2FEFF", strokeColor: "#DFF2FEFF" }
+		});
 		bigPoints.push(bigCircle);
 	});
 

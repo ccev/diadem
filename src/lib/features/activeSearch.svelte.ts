@@ -1,5 +1,11 @@
-import type { AnyFilter, FilterNest, FilterPokemon } from "@/lib/features/filters/filters";
 import type {
+	AnyFilter,
+	FilterCategory,
+	FilterNest,
+	FilterPokemon
+} from "@/lib/features/filters/filters";
+import type {
+	AnyFilterset,
 	FiltersetContest,
 	FiltersetInvasion,
 	FiltersetLure,
@@ -11,7 +17,8 @@ import type {
 import { deleteAllFeatures } from "@/lib/map/featuresGen.svelte";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import { updateAllMapObjects } from "@/lib/mapObjects/updateMapObject";
-import { defaultFilter } from "@/lib/services/userSettings.svelte";
+import { defaultFilter, getUserSettings } from "@/lib/services/userSettings.svelte";
+import { resolveSearchFilter } from "@/lib/features/filters/searchFilter";
 import type { ContestFocus, QuestReward } from "@/lib/types/mapObjectData/pokestop";
 import { getDefaultGymFilter } from "@/lib/utils/gymUtils";
 import { getDefaultPokestopFilter, RewardType } from "@/lib/utils/pokestopUtils";
@@ -26,19 +33,35 @@ import { m } from "@/lib/paraglide/messages";
 import { mPokemon } from "$lib/services/ingameLocale";
 
 export type ActiveSearchParams = {
-	filter: AnyFilter;
+	filter: AnyFilter | AnyFilterset;
+	subCategory?: FilterCategory;
 	mapObject: MapObjectType;
 	name: string;
 };
 
 let activeSearchSvelte: ActiveSearchParams | undefined = $state(undefined);
 
+const activeSearch = $derived.by(() => {
+	if (!activeSearchSvelte) return;
+	return {
+		...activeSearchSvelte,
+		filter:
+			"category" in activeSearchSvelte.filter
+				? activeSearchSvelte.filter
+				: resolveSearchFilter(
+						getUserSettings().filters[activeSearchSvelte.mapObject],
+						activeSearchSvelte.filter,
+						activeSearchSvelte.subCategory
+					)
+	};
+});
+
 registerOverlayHandler("active-search", (entries) => {
 	if (entries.length === 0 && activeSearchSvelte) resetActiveSearchFilter();
 });
 
 export function getActiveSearch() {
-	return activeSearchSvelte;
+	return activeSearch;
 }
 
 export function isSearchViewActive() {

@@ -1,6 +1,6 @@
 import { getActiveSearch } from "@/lib/features/activeSearch.svelte.js";
 import type { AnyFilter, FilterS2Cell } from "@/lib/features/filters/filters";
-import { updateFeatures } from "@/lib/map/featuresGen.svelte";
+import { deleteAllFeaturesOfType, updateFeatures } from "@/lib/map/featuresGen.svelte";
 import { getMap } from "@/lib/map/map.svelte";
 import {
 	clearAllDataLimits,
@@ -40,6 +40,7 @@ import { getFilterHash } from "@/lib/utils/filterHash";
 import { encodeRequestBody, getHeaders, parseResponse } from "@/lib/utils/requests";
 import { SvelteMap } from "svelte/reactivity";
 import { getCurrentSelectedData } from "@/lib/mapObjects/currentSelectedState.svelte";
+import { isSupportedFeature } from "@/lib/services/supportedFeatures";
 
 export type MapObjectRequestData = Bounds & {
 	filter?: AnyFilter;
@@ -213,6 +214,13 @@ export function planMapObjectRequest(
 	onlyChanged: boolean = false,
 	signal?: AbortSignal
 ): MapObjectPlan | undefined {
+	if (type === MapObjectType.BIOME && !isSupportedFeature("biomes")) {
+		clearMapObjects(type);
+		deleteAllFeaturesOfType(type);
+		clearDataLimit(type);
+		if (!signal) updateFeatures(getMapObjects());
+		return;
+	}
 	if (!hasAnyFeatureAnywhere(getUserDetails().permissions, featureFamily[type])) return;
 
 	let filter: AnyFilter | undefined = undefined;
@@ -230,6 +238,8 @@ export function planMapObjectRequest(
 			filter = getUserSettings().filters.station;
 		} else if (type === MapObjectType.NEST) {
 			filter = getUserSettings().filters.nest;
+		} else if (type === MapObjectType.BIOME) {
+			filter = getUserSettings().filters.biome;
 		} else if (type === MapObjectType.SPAWNPOINT) {
 			filter = getUserSettings().filters.spawnpoint;
 		} else if (type === MapObjectType.ROUTE) {
@@ -265,7 +275,9 @@ export function planMapObjectRequest(
 		if (!zoomedIn && !filterChanged) return;
 	}
 
-	const since = onlyChanged ? lastQueryTimestamps.get(type) : undefined;
+	// The biome service exposes current snapshots, not deltas (a profile can become unresolved).
+	const since =
+		onlyChanged && type !== MapObjectType.BIOME ? lastQueryTimestamps.get(type) : undefined;
 	const isDelta = onlyChanged && since !== undefined;
 	lastQueryTimestamps.set(type, currentTimestamp());
 
@@ -303,7 +315,10 @@ export function applyMapObjectResponse(
 	}
 
 	try {
-		if (removeOld && !isDelta) {
+		if (type === MapObjectType.BIOME) deleteAllFeaturesOfType(type);
+		if (response?.snapshot) {
+			replaceMapObjects(data, type, examined, false);
+		} else if (removeOld && !isDelta) {
 			replaceMapObjects(data, type, examined);
 		} else {
 			addMapObjects(data, type, examined, isDelta);

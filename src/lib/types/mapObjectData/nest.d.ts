@@ -20,4 +20,5 @@ export type NestData = {
 	pokemon_count: number | null;
 	discarded: string | null;
 	updated: number | null;
+	last_changed?: number | null;
 };
