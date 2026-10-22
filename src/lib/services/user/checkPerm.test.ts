@@ -1,6 +1,6 @@
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { Features } from "@/lib/utils/features";
-import { bboxPolygon, lineString, multiPolygon } from "@turf/turf";
+import { bboxPolygon, lineString, multiPolygon, polygon } from "@turf/turf";
 import { describe, expect, it } from "vitest";
 
 const permissions = {
@@ -103,5 +103,20 @@ describe("permission coverage for query filters", () => {
 			Features.POKEMON_IV
 		]);
 		expect(context.allowedThroughout(Features.POKEMON_IV, null)).toBe(true);
+	});
+	it("does not treat a tier's polygon holes as covered", () => {
+		const ring = polygon([
+			box.geometry.coordinates[0],
+			bboxPolygon([0.5, 0.5, 1.5, 1.5]).geometry.coordinates[0]
+		]);
+		const context = new FeaturePermissionContext(
+			{
+				everywhere: [],
+				areas: [{ name: "ring", features: [Features.POKEMON_IV], polygon: ring.geometry }]
+			},
+			[Features.POKEMON_IV]
+		);
+		expect(context.allowedThroughout(Features.POKEMON_IV, box)).toBe(false);
+		expect(context.allowedThroughout(Features.POKEMON_IV, ring)).toBe(true);
 	});
 });

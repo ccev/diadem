@@ -21,7 +21,7 @@ import { Features } from "@/lib/utils/features";
 import { round } from "@/lib/utils/numberFormat";
 import { getNormalizedForm, League, showPvp } from "@/lib/utils/pokemonUtils";
 import { error } from "@sveltejs/kit";
-import { bboxPolygon, booleanIntersects, booleanPointInPolygon, point } from "@turf/turf";
+import { bboxPolygon, booleanPointInPolygon } from "@turf/turf";
 
 export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
@@ -35,80 +35,38 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		limit?: number,
 		context?: FeaturePermissionContext
 	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
-		const golbatQueries = this.buildGolbatQueries(filter, context, polygon);
-
+		if (filter && !filter.enabled) return { data: [], examined: 0 };
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
+		const body: PokemonScanBody = {
+			min: { latitude: bounds.minLat, longitude: bounds.minLon },
+			max: { latitude: bounds.maxLat, longitude: bounds.maxLon },
+			// Use Golbat's cap; the display limit applies after local filtering.
+			limit: 0,
+			filters: this.buildGolbatQueries(filter, bounds, polygon, context)
+		};
+		const result = await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
+		if (!result) error(500);
 
-		const pending = [{ bounds, depth: 0 }];
-		const matches = new Map<string, PokemonData>();
-		let examined = 0;
-		let scans = 0;
-
-		while (pending.length) {
-			const { bounds: scanBounds, depth } = pending.pop()!;
-			if (
-				polygon &&
-				!booleanIntersects(
-					polygon,
-					bboxPolygon([scanBounds.minLon, scanBounds.minLat, scanBounds.maxLon, scanBounds.maxLat])
-				)
-			)
-				continue;
-
-			// Golbat cannot apply permission polygons. Bound retries so a dense or
-			// unresponsive scanner cannot cause unbounded work for a single request.
-			if (++scans > 256) error(503, "Pokemon scan could not be completed");
-			const body: PokemonScanBody = {
-				min: { latitude: scanBounds.minLat, longitude: scanBounds.minLon },
-				max: { latitude: scanBounds.maxLat, longitude: scanBounds.maxLon },
-				limit: actualLimit + 1,
-				filters: golbatQueries
-			};
-			const result = await scanViaGrpcOrHttp("pokemon", body, grpcScanPokemon, getMultiplePokemon);
-			if (!result) error(500);
-
-			for (const p of result.pokemon) {
-				if (polygon && !booleanPointInPolygon(point([p.lon, p.lat]), polygon)) continue;
-				const pokemon = this.makePokemon(p, filter, context);
-				// Strip unavailable stats before matching, including PvP mega evolutions.
-				if (filter && !shouldDisplayPokemon(pokemon, filter)) continue;
-				matches.set(p.id, pokemon);
-				if (matches.size > actualLimit) {
-					return { data: [], examined: actualLimit, limitReached: true };
-				}
-			}
-
-			if (!result.limit_reached && result.pokemon.length < body.limit) {
-				examined += result.examined;
+		const data: PokemonData[] = [];
+		let examined = result.examined;
+		let matched = 0;
+		for (const p of result.pokemon) {
+			if (polygon && !booleanPointInPolygon([p.lon, p.lat], polygon)) {
+				examined -= 1;
 				continue;
 			}
+			const pokemon = this.makePokemon(p, filter, context);
+			if (filter && !shouldDisplayPokemon(pokemon, filter)) continue;
 
-			// A capped bbox may mostly contain inaccessible or locally filtered mons.
-			// Scan both halves instead of treating its cap as the user's display limit.
-			// Inclusive split boundaries are deduplicated by encounter id above.
-			if (depth >= 24) error(503, "Pokemon scan could not be completed");
-			if (scanBounds.maxLon - scanBounds.minLon >= scanBounds.maxLat - scanBounds.minLat) {
-				const middle = (scanBounds.minLon + scanBounds.maxLon) / 2;
-				if (middle === scanBounds.minLon || middle === scanBounds.maxLon) error(503);
-				pending.push(
-					{ bounds: { ...scanBounds, maxLon: middle }, depth: depth + 1 },
-					{ bounds: { ...scanBounds, minLon: middle }, depth: depth + 1 }
-				);
-			} else {
-				const middle = (scanBounds.minLat + scanBounds.maxLat) / 2;
-				if (middle === scanBounds.minLat || middle === scanBounds.maxLat) error(503);
-				pending.push(
-					{ bounds: { ...scanBounds, maxLat: middle }, depth: depth + 1 },
-					{ bounds: { ...scanBounds, minLat: middle }, depth: depth + 1 }
-				);
+			// Unchanged matches still count toward the limit on delta refreshes.
+			if (++matched > actualLimit) {
+				return { data: [], examined: actualLimit, limitReached: true };
 			}
+			if (since !== undefined && (pokemon.updated ?? 0) < since) continue;
+			data.push(pokemon);
 		}
 
-		// Limits count the full permitted result, including on a delta refresh.
-		const data = [...matches.values()].filter(
-			(p) => since === undefined || (p.updated ?? 0) >= since
-		);
-		return { data, examined };
+		return { data, examined: Math.max(0, examined) };
 	}
 
 	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
@@ -220,20 +178,31 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 
 	private buildGolbatQueries(
 		filter: FilterPokemon | undefined,
-		context?: FeaturePermissionContext,
-		polygon: PermittedPolygon = null
+		bounds: Bounds,
+		polygon: PermittedPolygon,
+		context?: FeaturePermissionContext
 	): GolbatPokemonQuery[] {
-		// Push numeric constraints when the tier covers the whole permitted query area.
-		// Mixed tiers still use per-object stripping and matching before the display limit.
-		const ivConstraintsAllowed =
-			!context || context.allowedThroughout(Features.POKEMON_IV, polygon);
-		const pvpConstraintsAllowed =
-			!context || context.allowedThroughout(Features.POKEMON_PVP, polygon);
-
 		const enabledFilters = filter?.filters?.filter((f) => f.enabled) ?? [];
 		if (enabledFilters.length === 0) {
 			return [{ pokemon: [] }];
 		}
+
+		const area =
+			polygon ?? bboxPolygon([bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]);
+		const ivConstraintsAllowed =
+			enabledFilters.some(
+				(f) => f.iv || f.ivAtk || f.ivDef || f.ivSta || f.size || f.level || f.cp
+			) &&
+			(!context || context.allowedThroughout(Features.POKEMON_IV, area));
+		const pvpConstraintsAllowed =
+			enabledFilters.some(
+				(f) =>
+					f.pvpRankLittle ||
+					f.pvpRankGreat ||
+					f.pvpRankUltra ||
+					(!ivConstraintsAllowed && (f.level || f.cp))
+			) &&
+			(!context || context.allowedThroughout(Features.POKEMON_PVP, area));
 
 		return enabledFilters.map((filter) => {
 			const query: GolbatPokemonQuery = {};

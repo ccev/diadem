@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bboxPolygon, multiPolygon, polygon as turfPolygon } from "@turf/turf";
 import { PokemonQuery } from "@/lib/server/queryMapObjects/queryPokemon";
 import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
@@ -56,7 +56,7 @@ const mon = (id: string, lon: number, iv = 100): MinMapObject<PokemonData> => ({
 beforeEach(() => {
 	vi.clearAllMocks();
 	records = [];
-	scannerCap = Infinity;
+	scannerCap = 10000;
 	vi.mocked(scanViaGrpcOrHttp).mockImplementation(async (_type, scan) => {
 		const body = scan as PokemonScanBody;
 		const inBounds = records.filter(
@@ -69,7 +69,7 @@ beforeEach(() => {
 		const matched = inBounds.filter((p) =>
 			body.filters.some((f) => !f.iv || (p.iv! >= f.iv.min && p.iv! <= f.iv.max))
 		);
-		const cap = Math.min(body.limit, scannerCap);
+		const cap = Math.min(body.limit || scannerCap, scannerCap);
 		return {
 			pokemon: matched.slice(0, cap),
 			examined: inBounds.length,
@@ -80,26 +80,40 @@ beforeEach(() => {
 	});
 });
 
+afterEach(() => {
+	expect(vi.mocked(scanViaGrpcOrHttp).mock.calls.length).toBeLessThanOrEqual(1);
+});
+
 describe("permission-aware Pokemon limits", () => {
-	it("pushes hundo constraints for a user whose IV permission covers their area (#187)", async () => {
-		const context = new FeaturePermissionContext(
-			{
-				everywhere: [],
-				areas: [{ name: "area", polygon: area.geometry, features: [Features.POKEMON_IV] }]
-			},
-			featureFamily[MapObjectType.POKEMON]
-		);
-		records = [
-			mon("hundo", 1),
-			...Array.from({ length: 20 }, (_, i) => mon(String(i), i / 10, 50))
-		];
-		const result = await new PokemonQuery().query(bounds, hundoFilter, area, undefined, 2, context);
-		expect(result.data.map((p) => p.id)).toEqual(["hundo"]);
-		expect(scanViaGrpcOrHttp).toHaveBeenCalledOnce();
-		expect(vi.mocked(scanViaGrpcOrHttp).mock.calls[0][1]).toMatchObject({
-			filters: [{ iv: { min: 100, max: 100 } }]
-		});
-	});
+	it.each([false, true])(
+		"pushes hundo constraints with global base access: %s (#187)",
+		async (globalBase) => {
+			const context = new FeaturePermissionContext(
+				{
+					everywhere: globalBase ? [Features.POKEMON] : [],
+					areas: [{ name: "area", polygon: area.geometry, features: [Features.POKEMON_IV] }]
+				},
+				featureFamily[MapObjectType.POKEMON]
+			);
+			records = [
+				mon("hundo", 1),
+				...Array.from({ length: 20 }, (_, i) => mon(String(i), i / 10, 50))
+			];
+			const result = await new PokemonQuery().query(
+				bounds,
+				hundoFilter,
+				globalBase ? null : area,
+				undefined,
+				2,
+				context
+			);
+			expect(result.data.map((p) => p.id)).toEqual(["hundo"]);
+			expect(scanViaGrpcOrHttp).toHaveBeenCalledOnce();
+			expect(vi.mocked(scanViaGrpcOrHttp).mock.calls[0][1]).toMatchObject({
+				filters: [{ iv: { min: 100, max: 100 } }]
+			});
+		}
+	);
 
 	it("does not count records in gaps between permitted areas (#182)", async () => {
 		const permitted = multiPolygon([
@@ -110,7 +124,45 @@ describe("permission-aware Pokemon limits", () => {
 		const result = await new PokemonQuery().query(bounds, undefined, permitted, undefined, 2);
 		expect(result.limitReached).toBeUndefined();
 		expect(result.data.map((p) => p.id).sort()).toEqual(["left", "right"]);
-		expect(vi.mocked(scanViaGrpcOrHttp).mock.calls.length).toBeGreaterThan(1);
+		expect(result.examined).toBe(2);
+		expect(scanViaGrpcOrHttp).toHaveBeenCalledOnce();
+		expect(vi.mocked(scanViaGrpcOrHttp).mock.calls[0][1]).toMatchObject({ limit: 0 });
+	});
+
+	it("does not charge for returned records outside the permitted polygon", async () => {
+		records = [mon("visible", 1), mon("outside", 9)];
+		const result = await new PokemonQuery().query(
+			bounds,
+			undefined,
+			bboxPolygon([0, 0, 2, 2]),
+			undefined,
+			5
+		);
+		expect(result.data.map((p) => p.id)).toEqual(["visible"]);
+		expect(result.examined).toBe(1);
+	});
+
+	it.each([
+		undefined,
+		{ ...hundoFilter, filters: [{ ...hundoFilter.filters[0], iv: undefined, gender: [1] }] }
+	])("skips coverage geometry for non-stat filter %#", async (filter) => {
+		const context = new FeaturePermissionContext(
+			{
+				everywhere: [],
+				areas: [{ name: "area", polygon: area.geometry, features: [Features.POKEMON_ALL] }]
+			},
+			featureFamily[MapObjectType.POKEMON]
+		);
+		const coverage = vi.spyOn(context, "allowedThroughout");
+		await new PokemonQuery().query(bounds, filter, area, undefined, 2, context);
+		expect(coverage).not.toHaveBeenCalled();
+	});
+
+	it("does not scan for a disabled filter", async () => {
+		expect(
+			await new PokemonQuery().query(bounds, { ...hundoFilter, enabled: false }, area, undefined, 2)
+		).toEqual({ data: [], examined: 0 });
+		expect(scanViaGrpcOrHttp).not.toHaveBeenCalled();
 	});
 
 	it("strips stats and rechecks filters before counting mixed permission tiers", async () => {
@@ -144,11 +196,45 @@ describe("permission-aware Pokemon limits", () => {
 		expect(result.data.map((p) => p.id)).toEqual(["visible"]);
 	});
 
-	it("deduplicates split boundaries and handles a lower scanner cap", async () => {
+	it("filters a scanner-capped response without retrying or falsely hiding it", async () => {
 		scannerCap = 2;
-		records = [mon("left", 1), mon("boundary", 5), mon("right", 9)];
-		const result = await new PokemonQuery().query(bounds, undefined, null, undefined, 3);
-		expect(result.data.map((p) => p.id).sort()).toEqual(["boundary", "left", "right"]);
+		records = [mon("outside", 5), mon("visible", 1), mon("beyond-cap", 1.5)];
+		const result = await new PokemonQuery().query(
+			bounds,
+			undefined,
+			bboxPolygon([0, 0, 2, 2]),
+			undefined,
+			1
+		);
+		expect(result.data.map((p) => p.id)).toEqual(["visible"]);
+		expect(result.limitReached).toBeUndefined();
+	});
+
+	it("filters mega-only PvP matches before counting the display limit", async () => {
+		const pvpFilter: FilterPokemon = {
+			...hundoFilter,
+			filters: [{ ...hundoFilter.filters[0], iv: undefined, pvpRankGreat: { min: 1, max: 10 } }]
+		};
+		const rank = {
+			pokemon: 25,
+			pokemon_id: 25,
+			form: 0,
+			rank: 1,
+			cap: 50,
+			cp: 1500,
+			level: 30,
+			percentage: 100,
+			value: 1
+		};
+		records = [
+			{ ...mon("visible", 1), pvp: { great: [rank] } },
+			...[3, 5, 7].map((lon) => ({
+				...mon(`mega-${lon}`, lon),
+				pvp: { great: [{ ...rank, evolution: 1 }] }
+			}))
+		];
+		const result = await new PokemonQuery().query(bounds, pvpFilter, area, undefined, 1);
+		expect(result.data.map((p) => p.id)).toEqual(["visible"]);
 		expect(result.limitReached).toBeUndefined();
 	});
 
@@ -167,7 +253,7 @@ describe("permission-aware Pokemon limits", () => {
 		expect(result.data.map((p) => p.id)).toEqual(["fresh"]);
 	});
 
-	it("fails instead of returning incomplete data when a cap cannot be resolved", async () => {
+	it("does not retry an empty scanner-capped response", async () => {
 		vi.mocked(scanViaGrpcOrHttp).mockResolvedValue({
 			pokemon: [],
 			examined: 0,
@@ -175,9 +261,10 @@ describe("permission-aware Pokemon limits", () => {
 			skipped: 0,
 			limit_reached: true
 		} as never);
-		await expect(
-			new PokemonQuery().query(bounds, undefined, null, undefined, 2)
-		).rejects.toMatchObject({ status: 503 });
-		expect(vi.mocked(scanViaGrpcOrHttp).mock.calls.length).toBeLessThanOrEqual(256);
+		expect(await new PokemonQuery().query(bounds, undefined, null, undefined, 2)).toEqual({
+			data: [],
+			examined: 0
+		});
+		expect(scanViaGrpcOrHttp).toHaveBeenCalledOnce();
 	});
 });
