@@ -1,6 +1,5 @@
 import * as m from "@/lib/paraglide/messages";
 import { time } from "@/lib/utils/time";
-import { getLocale } from "$lib/paraglide/runtime";
 
 export type LocalTimeOptions = {
 	showDate?: boolean;
@@ -35,7 +34,7 @@ export function timestampToLocalTime(
 		params.second = "2-digit";
 	}
 
-	const timeString = date.toLocaleTimeString(getLocale(), params);
+	const timeString = date.toLocaleTimeString(undefined, params);
 
 	if (showDate) {
 		const today = new Date();
@@ -72,7 +71,7 @@ export function timestampToLocalTime(
 			dateParams.month = "long";
 		}
 
-		return date.toLocaleString(getLocale(), dateParams);
+		return date.toLocaleString(undefined, dateParams);
 	}
 
 	return timeString;
