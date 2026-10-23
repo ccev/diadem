@@ -316,7 +316,7 @@ describe("Pokémon encounter IDs at the client boundary", () => {
 			const delta = await query.getMultiple(bounds, filter, null, 99);
 			const token = result.data[0].id;
 
-			expect(token).toMatch(/^pid_[A-Za-z0-9_-]{32}$/);
+			expect(token).toMatch(/^pid_[A-Za-z0-9_-]{22}$/);
 			expect(result.data[0].mapId).toBe(`pokemon-${token}`);
 			expect(delta.data[0].id).toBe(token);
 			expect(delta.data[0].mapId).toBe(result.data[0].mapId);
@@ -347,6 +347,30 @@ describe("Pokémon encounter IDs at the client boundary", () => {
 		expect(single).toEqual(bulk.data[0]);
 		expect(JSON.stringify(single)).not.toContain(pokemon.id);
 	});
+
+	it.each(["filter", "delta", "limit"])(
+		"does not encode IDs discarded by %s checks",
+		async (reason) => {
+			const codec = await import("../encounterIds");
+			const encode = vi.spyOn(codec, "encodeEncounterId");
+			const { PokemonQuery } = await import("./queryPokemon");
+			const query = new PokemonQuery();
+			const activeFilter =
+				reason === "filter"
+					? { ...filter, filters: [{ ...hundoFilter.filters[0], iv: { min: 0, max: 0 } }] }
+					: filter;
+			const result = await query.getMultiple(
+				bounds,
+				activeFilter,
+				null,
+				reason === "delta" ? 101 : undefined,
+				reason === "limit" ? 0 : undefined
+			);
+			expect(result.data).toEqual([]);
+			expect(encode).not.toHaveBeenCalled();
+			encode.mockRestore();
+		}
+	);
 
 	it("ignores raw and tampered IDs without contacting Golbat", async () => {
 		const { PokemonQuery } = await import("./queryPokemon");
