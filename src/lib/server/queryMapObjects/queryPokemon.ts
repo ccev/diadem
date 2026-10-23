@@ -28,6 +28,11 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 	protected readonly type = MapObjectType.POKEMON;
 	protected readonly limit = requestLimits[MapObjectType.POKEMON];
 
+	makeMapObject(data: MinMapObject<PokemonData>): PokemonData {
+		// Only encode records that survive filtering, limits, and delta checks.
+		return super.makeMapObject({ ...data, id: encodeEncounterId(data.id) });
+	}
+
 	async query(
 		bounds: Bounds,
 		filter: FilterPokemon | undefined,
@@ -109,7 +114,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const statsAllowed = ivAllowed || pvpAllowed;
 
 		const pokemon = {
-			id: encodeEncounterId(p.id),
+			id: p.id,
 			lat: round(p.lat, 6),
 			lon: round(p.lon, 6),
 			pokemon_id: p.pokemon_id,
