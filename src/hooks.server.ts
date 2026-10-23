@@ -1,6 +1,7 @@
-import type { Handle, ServerInit } from "@sveltejs/kit";
+import { error as httpError, type Handle, type ServerInit } from "@sveltejs/kit";
 
 import { getUserByDiscordId } from "@/lib/server/auth/auth";
+import { DiscordGuildLookupError } from "@/lib/server/auth/discordDetails";
 import {
 	AUTH_BASE_PATH,
 	auth,
@@ -124,6 +125,13 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 			permissionCache.set(user.id, perms);
 		} catch (error) {
 			authLog.warning(`Failed to update permissions for user ${user.id}: ${error}`);
+			if (error instanceof DiscordGuildLookupError) {
+				event.setHeaders({ "Retry-After": String(error.retryAfter) });
+				httpError(
+					503,
+					"Discord permissions are temporarily unavailable. Please try again shortly."
+				);
+			}
 			perms = event.locals.perms;
 		}
 	}

@@ -1,6 +1,10 @@
 import { type KojiFeatures } from "@/lib/features/koji";
 import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
-import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
+import {
+	type DiscordGuildData,
+	DiscordGuildLookupError,
+	getGuildMemberInfo
+} from "@/lib/server/auth/discordDetails";
 import type { User } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
@@ -91,20 +95,12 @@ export async function updatePermissions(user: User, accessToken: string, thisFet
 
 			if (!ruleApplies && rule.guildId) {
 				if (!canCheckGuildRules) {
-					continue;
+					throw new DiscordGuildLookupError("Discord access token is unavailable", 5);
 				}
 
 				let guild = guildCache[rule.guildId];
 				if (!guild) {
-					const lookup = await getGuildMemberInfo(rule.guildId, accessToken);
-					if (!lookup) {
-						log.warning(
-							`discord guild lookup failed for user ${user.id}; treating guild ${rule.guildId} as non-member`
-						);
-						guild = { roles: [] };
-					} else {
-						guild = lookup;
-					}
+					guild = await getGuildMemberInfo(rule.guildId, accessToken);
 					guildCache[rule.guildId] = guild;
 				}
 

@@ -1,3 +1,5 @@
+import { getDiscordGuildMember } from "../../../../scripts/cluster/discord.mjs";
+
 type DiscordUserData = {
 	id: string;
 	username: string;
@@ -52,18 +54,23 @@ export async function getUserInfoResult(accessToken: string): Promise<DiscordUse
 }
 
 export async function getGuildMemberInfo(guildId: string, accessToken: string) {
-	const response = await fetch(
-		`${endpoint}/guilds/${guildId}/member`,
-		getFetchOptions(accessToken)
-	);
-	if (response.status === 404) {
-		return { roles: [] } as DiscordGuildData;
+	const result = await getDiscordGuildMember(guildId, accessToken);
+	if ((result.status !== 200 && result.status !== 404) || !result.data) {
+		throw new DiscordGuildLookupError(
+			`Discord guild lookup failed (HTTP ${result.status})`,
+			result.retryAfter ?? 5
+		);
 	}
-	if (!response.ok) {
-		return undefined;
+	return result.data;
+}
+
+export class DiscordGuildLookupError extends Error {
+	constructor(
+		message: string,
+		public readonly retryAfter: number
+	) {
+		super(message);
 	}
-	const guildMember: DiscordGuildData = await response.json();
-	return guildMember;
 }
 
 export async function isGuildMember(guildId: string, accessToken: string) {
