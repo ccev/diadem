@@ -108,9 +108,17 @@ sudo systemctl daemon-reload
 sudo systemctl restart diadem
 ```
 
-Cluster mode starts multiple Diadem processes. Each worker has its own in-memory caches, rate
-limit counters, and MySQL pools. If strict rate limits matter, account for the worker count or use
-one worker until rate limiting is backed by shared storage.
+Cluster mode starts multiple Diadem processes. Discord guild membership requests are coordinated
+by the primary process: concurrent lookups for the same access token and guild share one request,
+and results are cached for 30 seconds. Discord's rate-limit retry delay is also shared across
+workers. Temporary Discord failures return HTTP 503 with `Retry-After` instead of caching the
+user as a non-member. A confirmed Discord 404 still removes guild-based access.
+
+Keep `scripts/cluster/discord.mjs` alongside `cluster.mjs` when deploying a build manually;
+the Docker runtime includes it. This coordination applies to workers of the same `cluster.mjs`
+process. Other caches, application rate-limit counters, and MySQL pools remain per worker.
+If strict application rate limits matter, account for the worker count or use one worker until
+rate limiting is backed by shared storage.
 
 ## Updating
 
