@@ -17,6 +17,8 @@ type KojiProperties = {
 
 export type KojiFeature = Feature<Polygon, KojiProperties>;
 export type KojiFeatures = KojiFeature[];
+export type KojiSidebarEntry =
+	KojiFeature | { properties: Pick<KojiProperties, "name" | "lucideIcon" | "children"> };
 let geofences: KojiFeatures = [];
 
 export async function loadKojiGeofences() {
@@ -53,4 +55,28 @@ export async function loadKojiGeofences() {
 
 export function getKojiGeofences() {
 	return geofences;
+}
+
+// Virtual parents belong only to the sidebar, never to the geospatial data.
+export function getKojiSidebarEntries(): KojiSidebarEntry[] {
+	const names = new Set(geofences.map((area) => area.properties.name));
+	const groups = new Map<string, KojiSidebarEntry>();
+	const entries: KojiSidebarEntry[] = [];
+
+	for (const area of geofences) {
+		const parent = area.properties.parent;
+		if (!parent) {
+			entries.push(area);
+		} else if (!names.has(parent)) {
+			let group = groups.get(parent);
+			if (!group) {
+				group = { properties: { name: parent, children: [] } };
+				groups.set(parent, group);
+				entries.push(group);
+			}
+			group.properties.children.push(area);
+		}
+	}
+
+	return entries;
 }
