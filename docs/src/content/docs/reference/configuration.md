@@ -297,18 +297,6 @@ secret = ""
   openssl rand -hex 32
   ```
 
-IDs use native AES-256-KWP with a purpose-specific key derived from the configured secret.
-Each 8-byte encounter ID becomes a deterministic, URL-safe 26-character token, including
-the `pid_` prefix. The fixed-length format provides a 64-bit integrity check; malformed,
-tampered, and wrong-key tokens are rejected before querying Golbat. Deterministic tokens
-reveal equality, and visible Pokémon data can still be correlated.
-
-Use the same secret on every instance and retain it across restarts. Older 36-character
-AES-SIV links remain readable with that secret, but outgoing IDs use the compact format.
-Upgrade all replicas together and reload open maps so clients replace their old map keys.
-Enabling encryption invalidates raw-ID links; rotating the secret invalidates all previous
-encrypted links.
-
 ## `server.db` and `server.internalDb`
 
 ```toml
