@@ -62,6 +62,17 @@ type Auth = {
 	secret?: string;
 	baseUrl?: string;
 	discord?: AuthDiscord;
+	sessions?: AuthSessions;
+};
+
+type AuthSessions = {
+	/** Max active sessions per user when no rule in `limits` applies. 0 = unlimited */
+	maxPerUser?: number;
+	limits?: SessionLimit[];
+};
+
+export type SessionLimit = RuleRequirements & {
+	maxPerUser: number;
 };
 
 type AuthDiscord = {
@@ -74,11 +85,17 @@ type ClientDiscord = {
 	serverId: string;
 };
 
-export type Permissions = {
+/** Who a permission or session limit rule applies to. A user must fulfill every requirement. */
+export type RuleRequirements = {
 	everyone?: boolean;
 	loggedIn?: boolean;
 	guildId?: string;
 	roleId?: string;
+	/** Discord user ids */
+	userIds?: string[];
+};
+
+export type Permissions = RuleRequirements & {
 	areas?: string[];
 	features?: FeaturesKey[];
 };

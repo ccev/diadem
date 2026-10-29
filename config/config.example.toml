@@ -62,6 +62,24 @@ baseUrl = "https://map.co"
 clientId = ""
 clientSecret = ""
 
+# Limit how many active sessions (logged-in devices) a user can have.
+# When a new session would exceed the limit, the user's oldest session is closed.
+# 0 or leaving this out = unlimited
+#[server.auth.sessions]
+#maxPerUser = 2
+
+# Raise the limit for some users. Rules use the same requirements as permissions below.
+# If several rules apply, the highest limit wins (0 = unlimited).
+# Roles are checked when a session is created.
+#[[server.auth.sessions.limits]]
+#guildId = "1359028304128245934"
+#roleId = "1483326963558653982"
+#maxPerUser = 5
+#
+#[[server.auth.sessions.limits]]
+#userIds = ["123456789012345678"]
+#maxPerUser = 0
+
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
 serverId = "1359028304128245934"
@@ -76,6 +94,7 @@ serverId = "1359028304128245934"
 #   - loggedIn: bool
 #   - guildId:  id
 #   - roleId:   id
+#   - userIds:  id[]  (Discord user ids)
 #
 # Allows access to:
 #   - areas:    name[]    (area name, as configured in koji)
@@ -126,6 +145,11 @@ features = ["*"]
 #roleId = "1483326963558653982"
 #areas = ["Tokyo"]
 #features = ["*"]
+
+# These specific Discord users get access to scout everywhere
+#[[server.permissions]]
+#userIds = ["123456789012345678", "234567890123456789"]
+#features = ["scout"]
 
 # Rate limits can be used to limit the data clients can fetch from your server
 # Abuse may be rare, but can happen. If you notice abuse, you can enable rate limits.

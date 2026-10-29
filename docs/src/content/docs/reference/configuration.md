@@ -179,6 +179,30 @@ Currently, only Discord auth is supported.
 Get your client ID and secret by setting up an application in the [Discord Developer Portal](https://discord.com/developers/applications)
 and enabling OAuth2. The callback URL is `<baseUrl>/api/auth/callback/discord` — register this exact URL in the Discord OAuth app's redirect list.
 
+### Session limits
+
+```toml
+[server.auth.sessions]
+maxPerUser = 2
+
+[[server.auth.sessions.limits]]
+guildId = "123..."
+roleId = "123..."
+maxPerUser = 5
+
+[[server.auth.sessions.limits]]
+userIds = ["123..."]
+maxPerUser = 0
+```
+
+- `maxPerUser`: How many active sessions (logged-in devices) a user can have. `0` or leaving it out means unlimited.
+- `limits`: Rules that raise the limit for some users. They use the same match fields as [`server.permissions`](#serverpermissions).
+  If several rules apply, the highest `maxPerUser` wins, and `0` means unlimited.
+
+The limit is checked whenever a user logs in. If they now have more sessions than allowed,
+their oldest sessions are closed and those devices have to log in again. Roles are only checked at login,
+so lowering someone's limit takes effect on their next login.
+
 ## `client.discord`
 
 ```toml
@@ -199,6 +223,7 @@ Permission rules are an array of sets:
 # loggedIn = true
 # guildId = "123..."
 # roleId = "123..."
+# userIds = ["123..."]
 # areas = ["London"]
 features = ["gym*", "quest"]
 ```
@@ -210,7 +235,11 @@ Rule match fields:
 - `everyone` (bool)
 - `loggedIn` (bool)
 - `guildId` (Discord guild id)
-- `roleId` (Discord role id)
+- `roleId` (Discord role id, together with `guildId`)
+- `userIds` (list of Discord user ids)
+
+A user has to fulfill every match field of a rule. For example, a rule with `userIds` and `roleId`
+only applies to those users while they have that role.
 
 Grant fields:
 
