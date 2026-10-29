@@ -62,6 +62,18 @@ type Auth = {
 	secret?: string;
 	baseUrl?: string;
 	discord?: AuthDiscord;
+	sessions?: AuthSessions;
+};
+
+/**
+ * Max active sessions per user. 0 = unlimited. The most specific matching limit applies:
+ * users, then roles, then guilds, then the default maxPerUser.
+ */
+export type AuthSessions = {
+	maxPerUser?: number;
+	users?: { userIds: string[]; maxPerUser: number }[];
+	roles?: { guildId: string; roleId: string; maxPerUser: number }[];
+	guilds?: { guildId: string; maxPerUser: number }[];
 };
 
 type AuthDiscord = {

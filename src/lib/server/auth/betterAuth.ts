@@ -7,6 +7,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { db } from "@/lib/server/db/internal";
 import { account, session, user, verification } from "@/lib/server/db/internal/schema";
 import { generateUserId } from "@/lib/server/auth/auth";
+import { enforceSessionLimit } from "@/lib/server/auth/sessionLimits";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getServerLogger } from "@/lib/server/logging";
 
@@ -48,6 +49,24 @@ export const auth = IS_AUTH_ENABLED
 			session: {
 				expiresIn: 60 * 60 * 24 * 30,
 				updateAge: 60 * 60 * 24 * 15
+			},
+			databaseHooks: {
+				session: {
+					create: {
+						// Close the user's oldest sessions once they exceed server.auth.sessions limits
+						after: async (newSession) => {
+							try {
+								await enforceSessionLimit(newSession.userId, newSession.id, () =>
+									getDiscordAccessTokenForUser(newSession.userId)
+								);
+							} catch (error) {
+								log.warning(
+									`Failed to enforce session limit for user ${newSession.userId}: ${error}`
+								);
+							}
+						}
+					}
+				}
 			},
 			account: {
 				encryptOAuthTokens: true,
@@ -209,6 +228,17 @@ export async function getDiscordAccessToken(event: RequestEvent): Promise<string
 		return result.response.accessToken || null;
 	} catch (error) {
 		log.warning(`Failed to fetch Discord access token from Better Auth: ${error}`);
+		return null;
+	}
+}
+
+async function getDiscordAccessTokenForUser(userId: string): Promise<string | null> {
+	if (!auth) return null;
+	try {
+		const result = await auth.api.getAccessToken({ body: { providerId: "discord", userId } });
+		return result.accessToken || null;
+	} catch (error) {
+		log.warning(`Failed to fetch Discord access token for user ${userId}: ${error}`);
 		return null;
 	}
 }

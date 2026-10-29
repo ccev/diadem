@@ -11,7 +11,7 @@ import {
 import { TTLCache } from "@isaacs/ttlcache";
 import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissions";
 import type { User } from "@/lib/server/db/internal/schema";
-import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
+import { PERMISSION_UPDATE_INTERVAL, SESSION_ENDED_HEADER } from "@/lib/constants";
 import type { Perms } from "@/lib/utils/features";
 import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
@@ -99,9 +99,22 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
+	// checked before the lookup, which clears the cookie of a closed session
+	const hadSession =
+		event.cookies.getAll().some((c) => c.name.includes("session_token")) ||
+		!!event.request.headers.get("authorization")?.startsWith("Bearer ");
 	const authSession = await getAuthSession(event);
 	if (!authSession?.session || !authSession.user) {
-		return resolve(event);
+		const response = await resolve(event);
+		// lets an open app notice its session was closed (e.g. by the session limit) without a reload
+		if (hadSession) {
+			try {
+				response.headers.set(SESSION_ENDED_HEADER, "1");
+			} catch {
+				// proxied responses have immutable headers
+			}
+		}
+		return response;
 	}
 
 	const discordId = authSession.user.discordId;

@@ -62,6 +62,31 @@ baseUrl = "https://map.co"
 clientId = ""
 clientSecret = ""
 
+# Limit how many active sessions (logged-in devices) a user can have.
+# When a new session would exceed the limit, the user's oldest session is closed.
+# 0 = unlimited. Leaving this section out means no limits.
+#
+# Limits can be set per user, role or guild. The most specific one applies:
+#   users > roles > guilds > maxPerUser
+# A user limit applies no matter which roles or guilds the user has.
+# If several limits of the same kind match, the highest wins.
+# Roles and guilds are checked when a session is created.
+#[server.auth.sessions]
+#maxPerUser = 2
+#
+#[[server.auth.sessions.guilds]]
+#guildId = "1359028304128245934"
+#maxPerUser = 3
+#
+#[[server.auth.sessions.roles]]
+#guildId = "1359028304128245934"
+#roleId = "1483326963558653982"
+#maxPerUser = 5
+#
+#[[server.auth.sessions.users]]
+#userIds = ["123456789012345678", "234567890123456789"]
+#maxPerUser = 0
+
 [client.discord]
 serverLink = "https://discord.com/invite/VGgsQN2hYG"
 serverId = "1359028304128245934"

@@ -44,6 +44,11 @@ export const SELECTED_MAP_OBJECT_SCALE = 2;
 export const PERMISSION_UPDATE_INTERVAL = 5 * 60;
 
 /**
+ * Response header set when a request carried a session that no longer exists
+ */
+export const SESSION_ENDED_HEADER = "X-Session-Ended";
+
+/**
  * How long to keep a shiny rate for a pokemon (in seconds)
  */
 export const SHINY_RATE_CACHE_DURATION = 60 * 60;
