@@ -88,10 +88,11 @@ export function addMapObjects(
 export function replaceMapObjects(
 	mapObjects: QueryableMapData[],
 	type: MapObjectType,
-	examined: number
+	examined: number,
+	preserveSelected = true
 ) {
 	const selected = getCurrentSelectedData();
-	const selectedMapId = selected?.mapId;
+	const selectedMapId = preserveSelected ? selected?.mapId : undefined;
 	const prefix = type + "-";
 	let nextMapObjects: MapObjectsStateType | undefined;
 	const incomingMapIds = new Set(mapObjects.map((mapObject) => mapObject.mapId));

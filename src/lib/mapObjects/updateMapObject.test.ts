@@ -132,6 +132,21 @@ afterEach(() => {
 });
 
 describe("planMapObjectRequest", () => {
+	it("replaces idle-refresh snapshots so withdrawn nests disappear", () => {
+		applyMapObjectResponse(
+			{
+				type: MapObjectType.NEST,
+				filter: { enabled: true, filters: [] } as never,
+				isDelta: true,
+				queryTimestamp: 100,
+				removeOld: false
+			},
+			{ data: [], examined: 0, snapshot: true, revision: "withdrawn" }
+		);
+		expect(state.replace).toHaveBeenCalledWith([], MapObjectType.NEST, 0, false);
+		expect(state.add).not.toHaveBeenCalled();
+	});
+
 	it("ignores enabled saved biome filters and filter overrides when biomes are unsupported", () => {
 		scene.filters.biome = { enabled: true, category: "biome" };
 		vi.mocked(isSupportedFeature).mockReturnValue(false);

@@ -50,7 +50,7 @@ const gym = {
 } satisfies Golbat.GolbatGymResult;
 
 describe("fort API adapters", () => {
-	it("forwards a conservative Pokemon cutoff without changing its inclusive local boundary", async () => {
+	it("counts the full Pokemon scan while retaining the inclusive local delta boundary", async () => {
 		const cutoff = vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
 		const scan = vi.spyOn(golbat, "getMultiplePokemon").mockResolvedValue({
 			pokemon: [99, 100, 101].map((updated) => ({
@@ -72,13 +72,14 @@ describe("fort API adapters", () => {
 			null,
 			100
 		);
-		expect(cutoff).toHaveBeenCalledWith(100);
-		expect(scan.mock.calls[0][0].updated_after).toBe(99);
+		expect(cutoff).not.toHaveBeenCalled();
+		expect(scan.mock.calls[0][0].updated_after).toBeUndefined();
+		expect(scan.mock.calls[0][0].limit).toBe(0);
 		expect(result.data.map((p) => p.id)).toEqual(["100", "101"]);
 		expect(result.examined).toBe(1000);
 	});
 
-	it("keeps a capped empty Pokemon delta limited", async () => {
+	it("does not hide an empty Pokemon delta solely because the scanner cap was reached", async () => {
 		vi.spyOn(golbat, "getUpdatedAfter").mockReturnValue(99);
 		vi.spyOn(golbat, "getMultiplePokemon").mockResolvedValue({
 			pokemon: [],
@@ -94,7 +95,7 @@ describe("fort API adapters", () => {
 				null,
 				100
 			)
-		).toEqual({ data: [], examined: 1000, limitReached: true });
+		).toEqual({ data: [], examined: 1000 });
 	});
 
 	it("forwards a gym cutoff while retaining exclusive local filtering", async () => {
