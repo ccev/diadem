@@ -282,7 +282,7 @@ Available keys:
 
 ## `server.encounterIdObfuscation`
 
-Encrypts encounter IDs before sending them to clients, and decrypts incoming IDs on the server. 
+Encrypts encounter IDs before sending them to clients, and decrypts incoming IDs on the server.
 
 ```toml
 [server.encounterIdObfuscation]
