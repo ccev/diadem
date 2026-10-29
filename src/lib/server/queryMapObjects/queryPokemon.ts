@@ -72,6 +72,8 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			data.push(pokemon);
 		}
 
+		// Encrypt only records that survived filtering, limits, and delta checks.
+		if (data.length === 0) return { data, examined: Math.max(0, examined) };
 		const ids = await encodeEncounterIds(
 			data.map((pokemon) => pokemon.id),
 			signal

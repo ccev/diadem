@@ -1,5 +1,5 @@
 import { building, dev } from "$app/environment";
-import { deriveEncounterIdKey } from "@/lib/server/encounterIdCrypto.mjs";
+import { deriveEncounterIdKeys } from "@/lib/server/encounterIdCrypto.mjs";
 import { getServerConfig } from "@/lib/services/config/config.server";
 import { getLogger } from "@/lib/utils/logger";
 import { resolve } from "node:path";
@@ -7,9 +7,11 @@ import { CpuWorkerError, CpuWorkerPool } from "./pool";
 
 const config = getServerConfig();
 // Validate at startup, including when the pool is disabled. Workers receive only this derived key.
-export const encounterIdKey = config.encounterIdObfuscation?.enabled
-	? deriveEncounterIdKey(config.encounterIdObfuscation.secret)
+const keys = config.encounterIdObfuscation?.enabled
+	? deriveEncounterIdKeys(config.encounterIdObfuscation.secret)
 	: undefined;
+export const encounterIdKey = keys?.key;
+export const legacyEncounterIdKey = keys?.legacyKey;
 
 let pool: CpuWorkerPool | undefined;
 let stopped = false;

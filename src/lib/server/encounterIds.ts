@@ -1,5 +1,5 @@
 import { decryptEncounterId, encryptEncounterId } from "@/lib/server/encounterIdCrypto.mjs";
-import { encounterIdKey, getCpuWorkerPool } from "@/lib/server/workers/cpu";
+import { encounterIdKey, legacyEncounterIdKey, getCpuWorkerPool } from "@/lib/server/workers/cpu";
 import { CpuWorkerError } from "@/lib/server/workers/pool";
 import { TTLCache } from "@isaacs/ttlcache";
 
@@ -20,7 +20,7 @@ export async function encodeEncounterIds(
 ): Promise<string[]> {
 	if (signal?.aborted) throw new CpuWorkerError("aborted");
 	const key = encounterIdKey;
-	if (!key || !encodedIds) return [...ids];
+	if (!key || !encodedIds || ids.length === 0) return [...ids];
 	const tokens = new Map<string, string | undefined>();
 	const missing: string[] = [];
 	for (const id of ids) {
@@ -46,8 +46,8 @@ export async function encodeEncounterIds(
 					!result.every(
 						(token) =>
 							typeof token === "string" &&
-							token.length === 36 &&
-							/^pid_[A-Za-z0-9_-]{32}$/.test(token)
+							token.length === 26 &&
+							/^pid_[A-Za-z0-9_-]{22}$/.test(token)
 					)
 				)
 					throw new Error("Invalid encounter ID worker output");
@@ -74,5 +74,5 @@ export async function encodeEncounterId(id: string, signal?: AbortSignal): Promi
 
 /** Reject raw IDs and invalid tokens while enabled, before they reach Golbat. */
 export function decodeEncounterId(id: string): string | undefined {
-	return encounterIdKey ? decryptEncounterId(id, encounterIdKey) : id;
+	return encounterIdKey ? decryptEncounterId(id, encounterIdKey, legacyEncounterIdKey!) : id;
 }
