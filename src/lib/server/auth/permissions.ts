@@ -3,10 +3,7 @@ import { fetchKojiGeofences } from "@/lib/server/api/kojiApi";
 import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
 import type { User } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
-import type {
-	Permissions as ConfigRule,
-	RuleRequirements
-} from "@/lib/services/config/configTypes";
+import type { Permissions as ConfigRule } from "@/lib/services/config/configTypes";
 import type { FeaturesKey, PermArea, Perms } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 
@@ -68,7 +65,7 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 
 	const perms: Perms = { everywhere: [], areas: [] };
 	for (const rule of getServerConfig().permissions ?? []) {
-		if (rule.everyone && !rule.userIds) {
+		if (rule.everyone) {
 			handleRule(rule, perms, geofences);
 		}
 	}
@@ -77,42 +74,10 @@ export async function getEveryonePerms(thisFetch: typeof fetch, geofences?: Koji
 	return everyonePerms;
 }
 
-/**
- * Checks rule requirements (everyone, loggedIn, guildId, roleId, userIds) for a logged-in user.
- * Create one per user: guild lookups are cached, so each guild is only fetched once.
- */
-export function makeRuleMatcher(user: Pick<User, "id" | "discordId">, accessToken: string) {
-	const guildCache: { [key: string]: DiscordGuildData } = {};
-	const canCheckGuildRules = accessToken.trim().length > 0;
-
-	return async (rule: RuleRequirements): Promise<boolean> => {
-		if (rule.userIds && !rule.userIds.includes(user.discordId)) return false;
-		if (rule.loggedIn || rule.everyone) return true;
-		if (!rule.guildId) return !!rule.userIds;
-		if (!canCheckGuildRules) return false;
-
-		let guild = guildCache[rule.guildId];
-		if (!guild) {
-			const lookup = await getGuildMemberInfo(rule.guildId, accessToken);
-			if (!lookup) {
-				log.warning(
-					`discord guild lookup failed for user ${user.id}; treating guild ${rule.guildId} as non-member`
-				);
-				guild = { roles: [] };
-			} else {
-				guild = lookup;
-			}
-			guildCache[rule.guildId] = guild;
-		}
-
-		if (rule.roleId) return (guild.roles ?? []).includes(rule.roleId);
-		return !!guild.user;
-	};
-}
-
 export async function updatePermissions(user: User, accessToken: string, thisFetch: typeof fetch) {
+	const guildCache: { [key: string]: DiscordGuildData } = {};
 	const permConfig = getServerConfig().permissions;
-	const ruleApplies = makeRuleMatcher(user, accessToken);
+	const canCheckGuildRules = accessToken.trim().length > 0;
 
 	const geofences = await getGeofences(thisFetch);
 
@@ -122,7 +87,36 @@ export async function updatePermissions(user: User, accessToken: string, thisFet
 
 	if (permConfig) {
 		for (const rule of permConfig) {
-			if (await ruleApplies(rule)) {
+			let ruleApplies = !!rule.loggedIn || !!rule.everyone;
+
+			if (!ruleApplies && rule.guildId) {
+				if (!canCheckGuildRules) {
+					continue;
+				}
+
+				let guild = guildCache[rule.guildId];
+				if (!guild) {
+					const lookup = await getGuildMemberInfo(rule.guildId, accessToken);
+					if (!lookup) {
+						log.warning(
+							`discord guild lookup failed for user ${user.id}; treating guild ${rule.guildId} as non-member`
+						);
+						guild = { roles: [] };
+					} else {
+						guild = lookup;
+					}
+					guildCache[rule.guildId] = guild;
+				}
+
+				const roles = guild.roles ?? [];
+				if (!rule.roleId && guild.user) {
+					ruleApplies = true;
+				} else if (rule.roleId && roles.includes(rule.roleId)) {
+					ruleApplies = true;
+				}
+			}
+
+			if (ruleApplies) {
 				handleRule(rule, permissions, geofences);
 			}
 		}

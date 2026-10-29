@@ -1,32 +1,45 @@
 import { and, desc, eq, gt, inArray } from "drizzle-orm";
-import { makeRuleMatcher } from "@/lib/server/auth/permissions";
+import { type DiscordGuildData, getGuildMemberInfo } from "@/lib/server/auth/discordDetails";
 import { db } from "@/lib/server/db/internal";
 import { session, user } from "@/lib/server/db/internal/schema";
 import { getServerConfig } from "@/lib/services/config/config.server";
-import type { RuleRequirements, SessionLimit } from "@/lib/services/config/configTypes";
+import type { AuthSessions } from "@/lib/services/config/configTypes";
 import { getLogger } from "@/lib/utils/logger";
 
 const log = getLogger("sessions");
 
+/** Highest of the matched limits, where 0 (unlimited) beats everything */
+function highestLimit(limits: { maxPerUser: number }[]) {
+	if (limits.some((limit) => limit.maxPerUser === 0)) return 0;
+	return Math.max(...limits.map((limit) => limit.maxPerUser));
+}
+
 /**
- * The highest limit among the default and every rule the user matches. 0 = unlimited.
- * Rules that can't raise the current limit are skipped, so they cost no Discord lookups.
+ * The user's session limit (0 = unlimited). The most specific match wins: a user limit
+ * applies regardless of roles or guilds, then role limits, then guild limits, then the default.
+ * Discord is only asked for guild data when no user limit matched.
  */
 export async function resolveSessionLimit(
-	defaultLimit: number | undefined,
-	rules: SessionLimit[],
-	ruleApplies: (rule: RuleRequirements) => Promise<boolean>
+	config: AuthSessions,
+	discordId: string,
+	getGuild: (guildId: string) => Promise<DiscordGuildData | undefined>
 ): Promise<number> {
-	if (!defaultLimit || defaultLimit < 0) return 0;
+	const users = (config.users ?? []).filter((limit) => limit.userIds.includes(discordId));
+	if (users.length) return highestLimit(users);
 
-	let limit = defaultLimit;
-	for (const rule of rules) {
-		if (rule.maxPerUser !== 0 && rule.maxPerUser <= limit) continue;
-		if (!(await ruleApplies(rule))) continue;
-		if (rule.maxPerUser === 0) return 0;
-		limit = rule.maxPerUser;
+	const roles = [];
+	for (const limit of config.roles ?? []) {
+		if ((await getGuild(limit.guildId))?.roles?.includes(limit.roleId)) roles.push(limit);
 	}
-	return limit;
+	if (roles.length) return highestLimit(roles);
+
+	const guilds = [];
+	for (const limit of config.guilds ?? []) {
+		if ((await getGuild(limit.guildId))?.user) guilds.push(limit);
+	}
+	if (guilds.length) return highestLimit(guilds);
+
+	return config.maxPerUser ?? 0;
 }
 
 /** Sessions to close so at most `limit` remain. The current one is always kept. */
@@ -37,7 +50,7 @@ export function getSessionsToClose(
 ): string[] {
 	if (limit <= 0) return [];
 	const others = sessionIdsNewestFirst.filter((id) => id !== currentSessionId);
-	return others.slice(Math.max(limit - 1, 0));
+	return others.slice(limit - 1);
 }
 
 /**
@@ -50,22 +63,27 @@ export async function enforceSessionLimit(
 	getAccessToken: () => Promise<string | null>
 ) {
 	const config = getServerConfig().auth.sessions;
-	if (!config?.maxPerUser) return;
+	if (!config) return;
 
 	const [sessionUser] = await db
-		.select({ id: user.id, discordId: user.discordId })
+		.select({ discordId: user.discordId })
 		.from(user)
 		.where(eq(user.id, userId))
 		.limit(1);
 	if (!sessionUser) return;
 
-	const rules = config.limits ?? [];
-	const accessToken = rules.some((rule) => rule.guildId) ? ((await getAccessToken()) ?? "") : "";
-	const limit = await resolveSessionLimit(
-		config.maxPerUser,
-		rules,
-		makeRuleMatcher(sessionUser, accessToken)
-	);
+	let accessToken: Promise<string | null> | undefined;
+	const guildCache = new Map<string, DiscordGuildData | undefined>();
+	const limit = await resolveSessionLimit(config, sessionUser.discordId, async (guildId) => {
+		if (!guildCache.has(guildId)) {
+			accessToken ??= getAccessToken();
+			const token = await accessToken;
+			const guild = token ? await getGuildMemberInfo(guildId, token) : undefined;
+			if (!guild) log.warning(`discord guild lookup failed for user ${userId} in ${guildId}`);
+			guildCache.set(guildId, guild);
+		}
+		return guildCache.get(guildId);
+	});
 	if (!limit) return;
 
 	const active = await db

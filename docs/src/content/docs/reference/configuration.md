@@ -185,23 +185,34 @@ and enabling OAuth2. The callback URL is `<baseUrl>/api/auth/callback/discord` â
 [server.auth.sessions]
 maxPerUser = 2
 
-[[server.auth.sessions.limits]]
+[[server.auth.sessions.guilds]]
+guildId = "123..."
+maxPerUser = 3
+
+[[server.auth.sessions.roles]]
 guildId = "123..."
 roleId = "123..."
 maxPerUser = 5
 
-[[server.auth.sessions.limits]]
-userIds = ["123..."]
+[[server.auth.sessions.users]]
+userIds = ["123...", "456..."]
 maxPerUser = 0
 ```
 
-- `maxPerUser`: How many active sessions (logged-in devices) a user can have. `0` or leaving it out means unlimited.
-- `limits`: Rules that raise the limit for some users. They use the same match fields as [`server.permissions`](#serverpermissions).
-  If several rules apply, the highest `maxPerUser` wins, and `0` means unlimited.
+Limits how many active sessions (logged-in devices) a user can have. `0` means unlimited, and leaving the section out disables limits.
+
+- `maxPerUser`: The default limit, for users no other limit applies to.
+- `guilds`: Limit for members of a Discord guild.
+- `roles`: Limit for users with a Discord role in a guild.
+- `users`: Limit for specific Discord user ids.
+
+The most specific limit applies: `users`, then `roles`, then `guilds`, then `maxPerUser`. A user limit applies
+regardless of the user's roles and guilds, and a role limit can be lower than the guild limit.
+If several limits of the same kind match, the highest one wins.
 
 The limit is checked whenever a user logs in. If they now have more sessions than allowed,
-their oldest sessions are closed and those devices have to log in again. Roles are only checked at login,
-so lowering someone's limit takes effect on their next login.
+their oldest sessions are closed and those devices have to log in again. Roles and guilds are only checked at login,
+so a changed limit takes effect on the user's next login.
 
 ## `client.discord`
 
@@ -223,7 +234,6 @@ Permission rules are an array of sets:
 # loggedIn = true
 # guildId = "123..."
 # roleId = "123..."
-# userIds = ["123..."]
 # areas = ["London"]
 features = ["gym*", "quest"]
 ```
@@ -235,11 +245,7 @@ Rule match fields:
 - `everyone` (bool)
 - `loggedIn` (bool)
 - `guildId` (Discord guild id)
-- `roleId` (Discord role id, together with `guildId`)
-- `userIds` (list of Discord user ids)
-
-A user has to fulfill every match field of a rule. For example, a rule with `userIds` and `roleId`
-only applies to those users while they have that role.
+- `roleId` (Discord role id)
 
 Grant fields:
 
