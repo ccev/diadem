@@ -8,6 +8,7 @@ import { updateSupportedFeatures } from "@/lib/services/supportedFeatures";
 import { initAllIconSets } from "@/lib/services/uicons.svelte.js";
 import { getUserDetails, updateUserDetails } from "@/lib/services/user/userDetails.svelte.js";
 import { getUserSettingsFromServer } from "@/lib/services/userSettings.svelte.js";
+import { watchSessionEnded } from "@/lib/services/user/signedOut";
 
 export enum LoadedFeature {
 	ICON_SETS = "iconSets",
@@ -51,6 +52,7 @@ async function loadingWrapper<T>(func: Promise<T>, loadedFeature: LoadedFeature)
 }
 
 export async function load() {
+	if (browser) watchSessionEnded();
 	const userDetails = loadingWrapper(updateUserDetails(), LoadedFeature.USER_DETAILS);
 	const serverUserSettings = (async () => {
 		await userDetails;

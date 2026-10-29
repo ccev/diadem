@@ -1008,5 +1008,6 @@
 	"biome_name_tropical_hilly_waters": "Tropical Hilly Waters",
 	"biome_name_polar_waters": "Polar Waters",
 	"biome_name_polar_mountainous_waters": "Polar Mountainous Waters",
-	"biome_name_polar_hilly_waters": "Polar Hilly Waters"
+	"biome_name_polar_hilly_waters": "Polar Hilly Waters",
+	"session_ended_toast": "You were signed out because this session was closed, e.g. after signing in on another device"
 }
