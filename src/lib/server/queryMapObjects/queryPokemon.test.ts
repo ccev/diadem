@@ -15,7 +15,7 @@ import type { ServerConfig } from "@/lib/services/config/configTypes";
 
 const config = vi.hoisted(() => ({
 	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"],
-	cpuWorkers: {} as NonNullable<ServerConfig["cpuWorkers"]>
+	tuning: {} as NonNullable<ServerConfig["tuning"]>
 }));
 vi.mock("$app/environment", () => ({ building: false, dev: true }));
 vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => config }));
@@ -288,7 +288,7 @@ describe.each([0, 1])(
 	"Pokémon encounter IDs at the client boundary (%i worker threads)",
 	(threads) => {
 		beforeEach(() => {
-			config.cpuWorkers = { threads };
+			config.tuning = { cpuWorkers: threads };
 		});
 		const bounds = { minLat: 0, minLon: 0, maxLat: 5, maxLon: 5 };
 		const filter: FilterPokemon = { category: "pokemon", enabled: true, filters: [] };

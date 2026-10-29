@@ -2,22 +2,6 @@
 level = "info" # crit, error, warning, info, debug
 # file = "/var/log/diadem.log"
 
-# Optional shared CPU pool for permission geometry and encounter ID encryption.
-# Defaults shown; leave commented or keep threads = 0 for the original synchronous path.
-# To opt in, uncomment the whole block and start with threads = 1 on a spare core.
-# Thread count is explicit per Node process, not chosen from the CPU count.
-# [server.cpuWorkers]
-# threads = 0                 # Workers per Node process; >= 0 (0 disables the pool)
-# maxQueue = 8                # Queued jobs in addition to thread slots; >= 0
-# maxTaskBytes = 4194304       # Encoded JSON bytes per input OR output, not their sum; > 0
-# maxPendingBytes = 16777216   # Total admitted input bytes, running + queued; >= maxTaskBytes
-# timeoutMs = 5000            # Queue + execution deadline in ms; 1..2147483647
-# memoryMb = 128              # V8 old-generation heap MB per worker; >= 16
-# All values must be safe integers. Byte budgets do not cover all decoded/intermediate memory.
-# memoryMb is not process RSS or a hard total memory limit; Node flags may override it.
-# server.geometryWorkers is a legacy alias; cpuWorkers takes precedence when both are present.
-# Use trusted geometry inputs. See the configuration reference for tuning and limitations.
-
 [server.golbat]
 url = "http://127.0.0.1:9001"
 secret = ""
@@ -178,6 +162,9 @@ heavyFilterRatio = 0.2
 [server.encounterIdObfuscation]
 enabled = false
 secret = "" # Required when enabled. Generate a private key with: openssl rand -hex 32
+
+[server.tuning]
+cpuWorkers = 1 # Shared CPU pool for permission geometry and encounter ID encryption, set to 0 to disable
 
 # Connection to your Golbat DB, user should have SELECT permissions
 [server.db]

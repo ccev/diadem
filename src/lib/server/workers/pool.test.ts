@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { markAsUntransferable } from "node:worker_threads";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { CpuWorkersConfig } from "@/lib/services/config/configTypes";
+import type { CpuWorkerPoolOptions } from "./pool";
 import { CpuWorkerError, CpuWorkerPool } from "./pool";
 
 const filename = new URL("./test-fixtures/pool-worker.mjs", import.meta.url);
@@ -12,7 +12,7 @@ const workerConfig = { threads: 1, memoryMb: 32 };
 const pools: CpuWorkerPool[] = [];
 
 function createPool(
-	config: CpuWorkersConfig = workerConfig,
+	config: CpuWorkerPoolOptions = workerConfig,
 	workerFilename: string | URL = filename,
 	onError?: (error: unknown) => void
 ) {
@@ -97,7 +97,7 @@ describe("CpuWorkerPool integration", () => {
 
 	it("rejects non-table configuration before starting workers", () => {
 		for (const config of [null, [], 1, "workers", true]) {
-			expect(() => createPool(config as unknown as CpuWorkersConfig)).toThrow(TypeError);
+			expect(() => createPool(config as unknown as CpuWorkerPoolOptions)).toThrow(TypeError);
 		}
 	});
 
@@ -118,7 +118,7 @@ describe("CpuWorkerPool integration", () => {
 			{ ...workerConfig, maxQueue: Number.MAX_SAFE_INTEGER }
 		];
 		for (const config of invalid) {
-			expect(() => createPool(config as CpuWorkersConfig), JSON.stringify(config)).toThrow(
+			expect(() => createPool(config as CpuWorkerPoolOptions), JSON.stringify(config)).toThrow(
 				RangeError
 			);
 		}

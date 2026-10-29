@@ -73,27 +73,27 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		: undefined;
 	const since = requestSince(data);
 
-	const result = await queryMapObjects(
-		type,
-		resolved.permitted.bounds,
-		resolved.filter,
-		resolved.permitted.polygon,
-		since,
-		requestLimit,
-		resolved.context,
-		request.signal
-	).catch(async (e) => {
+	let result;
+	try {
+		result = await queryMapObjects(
+			type,
+			resolved.permitted.bounds,
+			resolved.filter,
+			resolved.permitted.polygon,
+			since,
+			requestLimit,
+			resolved.context,
+			request.signal
+		);
+	} catch (cause) {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
-		if (e instanceof CpuWorkerError) {
-			log.debug("[%s] CPU job rejected: %s", type, e.code);
-			if (e.code === "failed" || e.code === "too-large") {
-				log.warning("[%s] CPU job failed: %s", type, e.cause ?? e);
-			}
-			return undefined;
+		if (!(cause instanceof CpuWorkerError)) throw cause;
+		log.debug("[%s] CPU job rejected: %s", type, cause.code);
+		if (cause.code === "failed" || cause.code === "too-large") {
+			log.warning("[%s] CPU job failed: %s", type, cause.cause ?? cause);
 		}
-		throw e;
-	});
-	if (!result) return respond(request, { data: [] }, { status: 503, headers: extraHeaders });
+		return respond(request, { data: [] }, { status: 503, headers: extraHeaders });
+	}
 
 	const { charge, remainingPoints } = await settleTypeRequest(
 		type,

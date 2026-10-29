@@ -63,51 +63,48 @@ async function callGolbat<T>(
 				signal
 			});
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				if (attempt === 0 && response.status === 422 && body?.updated_after !== undefined) {
-					try {
-						const problem = JSON.parse(errorText);
-						if (
-							Array.isArray(problem?.errors) &&
-							problem.errors.some(
-								(error: { location?: unknown; message?: unknown } | null) =>
-									error?.location === "body.updated_after" &&
-									error.message === "unexpected property"
-							)
-						) {
-							body = { ...body };
-							delete body.updated_after;
-							updatedAfterSupported = false;
-							continue;
-						}
-					} catch {
-						// Malformed problem JSON follows the normal error path.
-					}
-				}
-
-				log.error(
-					"[%s] Golbat returned a bad status | %d (%s)",
-					url.toString(),
-					response.status,
-					errorText
+			if (response.ok) {
+				const fetched = performance.now();
+				const result = await response.json();
+				const done = performance.now();
+				log.debug(
+					"[%s] Request took %fms (parse %fms, in flight %d)",
+					url.pathname,
+					(done - start).toFixed(1),
+					(done - fetched).toFixed(1),
+					golbatInFlight.count - 1
 				);
-				return undefined;
+				return result;
 			}
 
-			const fetched = performance.now();
-			const result = await response.json();
-			const done = performance.now();
+			const errorText = await response.text();
+			if (attempt === 0 && response.status === 422 && body?.updated_after !== undefined) {
+				try {
+					const problem = JSON.parse(errorText);
+					const rejectsUpdatedAfter =
+						Array.isArray(problem?.errors) &&
+						problem.errors.some(
+							(error: { location?: unknown; message?: unknown } | null) =>
+								error?.location === "body.updated_after" && error.message === "unexpected property"
+						);
+					if (rejectsUpdatedAfter) {
+						body = { ...body };
+						delete body.updated_after;
+						updatedAfterSupported = false;
+						continue;
+					}
+				} catch {
+					// Malformed problem JSON follows the normal error path.
+				}
+			}
 
-			log.debug(
-				"[%s] Request took %fms (parse %fms, in flight %d)",
-				url.pathname,
-				(done - start).toFixed(1),
-				(done - fetched).toFixed(1),
-				golbatInFlight.count - 1
+			log.error(
+				"[%s] Golbat returned a bad status | %d (%s)",
+				url.toString(),
+				response.status,
+				errorText
 			);
-
-			return result;
+			return undefined;
 		}
 	} finally {
 		golbatInFlight.count -= 1;

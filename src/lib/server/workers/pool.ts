@@ -1,5 +1,14 @@
-import type { CpuWorkersConfig } from "@/lib/services/config/configTypes";
 import Piscina from "piscina";
+
+// Internal limits; overrides are used by pool integration tests, not server configuration.
+export type CpuWorkerPoolOptions = {
+	threads?: number;
+	maxQueue?: number;
+	maxTaskBytes?: number;
+	maxPendingBytes?: number;
+	timeoutMs?: number;
+	memoryMb?: number;
+};
 
 export class CpuWorkerError extends Error {
 	readonly code: "busy" | "too-large" | "timeout" | "aborted" | "unavailable" | "failed";
@@ -12,7 +21,7 @@ export class CpuWorkerError extends Error {
 }
 
 export class CpuWorkerPool {
-	readonly options: Readonly<Required<CpuWorkersConfig>>;
+	readonly options: Readonly<Required<CpuWorkerPoolOptions>>;
 	private readonly pool?: Piscina<ArrayBuffer, ArrayBuffer>;
 	private pendingTasks = 0;
 	private pendingBytes = 0;
@@ -23,12 +32,12 @@ export class CpuWorkerPool {
 
 	constructor(
 		filename: string | URL,
-		config: CpuWorkersConfig = {},
+		config: CpuWorkerPoolOptions = {},
 		onError?: (error: unknown) => void,
 		workerData: Record<string, unknown> = {}
 	) {
 		if (!config || typeof config !== "object" || Array.isArray(config)) {
-			throw new TypeError("server.cpuWorkers must be a table");
+			throw new TypeError("CPU worker pool options must be an object");
 		}
 		const options = {
 			threads: 0,
@@ -42,17 +51,17 @@ export class CpuWorkerPool {
 		for (const [name, value] of Object.entries(options)) {
 			const min = name === "threads" || name === "maxQueue" ? 0 : 1;
 			if (!Number.isSafeInteger(value) || value < min) {
-				throw new RangeError(`server.cpuWorkers.${name} must be an integer >= ${min}`);
+				throw new RangeError(`CPU worker pool ${name} must be an integer >= ${min}`);
 			}
 		}
 		if (options.timeoutMs > 2 ** 31 - 1 || options.memoryMb < 16) {
-			throw new RangeError("cpuWorkers requires timeoutMs <= 2147483647 and memoryMb >= 16");
+			throw new RangeError("CPU worker pool requires timeoutMs <= 2147483647 and memoryMb >= 16");
 		}
 		if (
 			options.maxPendingBytes < options.maxTaskBytes ||
 			!Number.isSafeInteger(options.threads + options.maxQueue)
 		) {
-			throw new RangeError("Invalid cpuWorkers byte budget or task capacity");
+			throw new RangeError("Invalid CPU worker pool byte budget or task capacity");
 		}
 		this.options = Object.freeze(options);
 		if (!this.enabled) return;
@@ -90,10 +99,8 @@ export class CpuWorkerPool {
 		if (!this.pool || this.stopping) {
 			throw new CpuWorkerError("unavailable", { cause: this.failure });
 		}
-		if (
-			this.pendingTasks >= this.options.threads + this.options.maxQueue ||
-			this.pendingBytes >= this.options.maxPendingBytes
-		) {
+		const { threads, maxQueue, maxTaskBytes, maxPendingBytes, timeoutMs } = this.options;
+		if (this.pendingTasks >= threads + maxQueue || this.pendingBytes >= maxPendingBytes) {
 			throw new CpuWorkerError("busy");
 		}
 
@@ -104,26 +111,23 @@ export class CpuWorkerPool {
 		const controller = new AbortController();
 		const abort = () => controller.abort(new CpuWorkerError("aborted"));
 		signal?.addEventListener("abort", abort, { once: true });
-		const timer = setTimeout(
-			() => controller.abort(new CpuWorkerError("timeout")),
-			this.options.timeoutMs
-		);
+		const timer = setTimeout(() => controller.abort(new CpuWorkerError("timeout")), timeoutMs);
 		timer.unref();
 		try {
 			const input = encode();
 			if (!(input instanceof ArrayBuffer)) throw new TypeError("Expected an owned ArrayBuffer");
-			if (input.byteLength > this.options.maxTaskBytes) throw new CpuWorkerError("too-large");
-			if (input.byteLength > this.options.maxPendingBytes - this.pendingBytes) {
+			if (input.byteLength > maxTaskBytes) throw new CpuWorkerError("too-large");
+			if (input.byteLength > maxPendingBytes - this.pendingBytes) {
 				throw new CpuWorkerError("busy");
 			}
 			reservedBytes = input.byteLength;
 			this.pendingBytes += reservedBytes;
-			if (performance.now() - started >= this.options.timeoutMs) {
+			if (performance.now() - started >= timeoutMs) {
 				controller.abort(new CpuWorkerError("timeout"));
 			}
 			if (controller.signal.aborted) throw controller.signal.reason;
 			// Piscina reorders its abortable-task queue. Reserve a FIFO slot before dispatch.
-			if (this.activeTasks >= this.options.threads) {
+			if (this.activeTasks >= threads) {
 				await new Promise<void>((resolve, reject) => {
 					const start = () => {
 						controller.signal.removeEventListener("abort", cancel);
@@ -149,7 +153,7 @@ export class CpuWorkerPool {
 				signal: controller.signal
 			});
 			if (controller.signal.aborted) throw controller.signal.reason;
-			if (!(output instanceof ArrayBuffer) || output.byteLength > this.options.maxTaskBytes) {
+			if (!(output instanceof ArrayBuffer) || output.byteLength > maxTaskBytes) {
 				throw new CpuWorkerError("failed");
 			}
 			return output;

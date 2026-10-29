@@ -56,19 +56,13 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 
 	if (!data) error(constants.HTTP_STATUS_NOT_FOUND);
 
-	let allowedForObject: boolean;
-	if (type === MapObjectType.ROUTE) {
-		allowedForObject = family.some((feature) =>
-			permissionContext.isAllowedGeometry(
-				feature,
-				lineString(getRouteCoordinates(data as RouteData))
-			)
-		);
-	} else {
-		allowedForObject = family.some((feature) =>
-			permissionContext.isAllowedAt(feature, data.lat, data.lon)
-		);
-	}
+	const routeGeometry =
+		type === MapObjectType.ROUTE ? lineString(getRouteCoordinates(data as RouteData)) : undefined;
+	const allowedForObject = family.some((feature) =>
+		routeGeometry
+			? permissionContext.isAllowedGeometry(feature, routeGeometry)
+			: permissionContext.isAllowedAt(feature, data.lat, data.lon)
+	);
 	if (!allowedForObject) error(constants.HTTP_STATUS_UNAUTHORIZED);
 
 	log.info(

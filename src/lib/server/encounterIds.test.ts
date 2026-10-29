@@ -5,8 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const config = vi.hoisted(() => ({
 	encounterIdObfuscation: undefined as ServerConfig["encounterIdObfuscation"],
-	cpuWorkers: {} as ServerConfig["cpuWorkers"],
-	geometryWorkers: undefined as ServerConfig["geometryWorkers"]
+	tuning: {} as ServerConfig["tuning"]
 }));
 vi.mock("$app/environment", () => ({ building: false, dev: true }));
 vi.mock("@/lib/services/config/config.server", () => ({ getServerConfig: () => config }));
@@ -25,8 +24,7 @@ beforeEach(() => {
 	vi.resetModules();
 	vi.clearAllMocks();
 	config.encounterIdObfuscation = { enabled: true, secret };
-	config.cpuWorkers = {};
-	config.geometryWorkers = undefined;
+	config.tuning = {};
 });
 
 afterEach(async () => {
@@ -210,7 +208,7 @@ describe("encounter ID encryption cache", () => {
 
 describe("encounter ID worker batches", () => {
 	beforeEach(() => {
-		config.cpuWorkers = { threads: 1 };
+		config.tuning = { cpuWorkers: 1 };
 	});
 
 	it("encrypts unique cache misses off-thread, preserves order, and retains existing token values", async () => {
@@ -251,7 +249,7 @@ describe("encounter ID worker batches", () => {
 	});
 
 	it("keeps the process-wide cache shared across workers and smaller than an individual batch", async () => {
-		config.cpuWorkers = { threads: 2 };
+		config.tuning = { cpuWorkers: 2 };
 		const { encodeEncounterIds, decodeEncounterId } = await import("./encounterIds");
 		const cache = vi.mocked(TTLCache).mock.results[0].value;
 		cache.max = 2;
@@ -274,37 +272,41 @@ describe("encounter ID worker batches", () => {
 	});
 
 	it("shares admission limits with geometry instead of creating a separate encryption pool", async () => {
-		config.cpuWorkers = { threads: 1, maxQueue: 0 };
+		config.tuning = { cpuWorkers: 1 };
 		const { encodeEncounterIds } = await import("./encounterIds");
 		const { checkFeaturesInBoundsServer } = await import("./workers/geometry");
 		const { Features } = await import("@/lib/utils/features");
-		const geometry = checkFeaturesInBoundsServer(
-			{
-				everywhere: [],
-				areas: [
-					{
-						name: "test",
-						features: [Features.GYM],
-						polygon: {
-							type: "Polygon",
-							coordinates: [
-								[
-									[0, 0],
-									[0, 2],
-									[2, 2],
-									[2, 0],
-									[0, 0]
+		const geometry = Array.from({ length: 9 }, () =>
+			checkFeaturesInBoundsServer(
+				{
+					everywhere: [],
+					areas: [
+						{
+							name: "test",
+							features: [Features.GYM],
+							polygon: {
+								type: "Polygon",
+								coordinates: [
+									[
+										[0, 0],
+										[0, 2],
+										[2, 2],
+										[2, 0],
+										[0, 0]
+									]
 								]
-							]
+							}
 						}
-					}
-				]
-			},
-			[Features.GYM],
-			{ minLat: 0, minLon: 0, maxLat: 1, maxLon: 1 }
+					]
+				},
+				[Features.GYM],
+				{ minLat: 0, minLon: 0, maxLat: 1, maxLon: 1 }
+			)
 		);
 		await expect(encodeEncounterIds(["0"])).rejects.toMatchObject({ code: "busy" });
-		expect((await geometry)?.polygon?.geometry.type).toBe("Polygon");
+		for (const result of await Promise.all(geometry)) {
+			expect(result?.polygon?.geometry.type).toBe("Polygon");
+		}
 		expect(await encodeEncounterIds(["0"])).toEqual(["pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA"]);
 	});
 
@@ -354,22 +356,21 @@ describe("encounter ID worker batches", () => {
 		{ maxTaskBytes: 16, ids: ["0"], code: "too-large" },
 		{ maxTaskBytes: 64, ids: ["0", "1"], code: "failed" }
 	])("bounds both encryption input and output: %j", async ({ maxTaskBytes, ids, code }) => {
-		config.cpuWorkers = { threads: 1, maxTaskBytes };
+		const cpu = await import("./workers/cpu");
+		const { CpuWorkerPool } = await import("./workers/pool");
+		const pool = new CpuWorkerPool(
+			new URL("./workers/cpu.worker.mjs", import.meta.url),
+			{ threads: 1, maxTaskBytes },
+			undefined,
+			{ encounterIdKey: cpu.encounterIdKey }
+		);
+		vi.spyOn(cpu, "getCpuWorkerPool").mockReturnValue(pool);
 		const { encodeEncounterIds } = await import("./encounterIds");
-		await expect(encodeEncounterIds(ids)).rejects.toMatchObject({ code });
-		expect(vi.mocked(TTLCache).mock.results[0].value.size).toBe(0);
-	});
-
-	it("supports the old geometryWorkers setting and lets cpuWorkers take precedence", async () => {
-		config.geometryWorkers = { threads: 1 };
-		config.cpuWorkers = { threads: 0 };
-		const first = await import("./workers/cpu");
-		expect(first.getCpuWorkerPool()).toBeUndefined();
-		await first.closeCpuWorkers();
-		config.cpuWorkers = undefined;
-		vi.resetModules();
-		const { encodeEncounterIds } = await import("./encounterIds");
-		expect(await encodeEncounterIds(["0"])).toEqual(["pid_kX69sdRS2ZEpaKctGwMSZS1w9uOgYRBA"]);
-		expect(aessiv).not.toHaveBeenCalled();
+		try {
+			await expect(encodeEncounterIds(ids)).rejects.toMatchObject({ code });
+			expect(vi.mocked(TTLCache).mock.results[0].value.size).toBe(0);
+		} finally {
+			await pool.close();
+		}
 	});
 });

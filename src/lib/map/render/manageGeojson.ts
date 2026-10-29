@@ -1,6 +1,10 @@
 import { MapSourceId } from "@/lib/map/layers";
 import { getMap } from "@/lib/map/map.svelte.js";
-import { isFeatureIcon, type MapObjectFeature } from "@/lib/map/render/featureTypes";
+import {
+	isFeatureIcon,
+	type MapObjectFeature,
+	type MapObjectIconProperties
+} from "@/lib/map/render/featureTypes";
 import { ensureMapImage, getMapImageId } from "@/lib/map/render/images";
 import type * as maplibre from "maplibre-gl";
 
@@ -64,17 +68,17 @@ export function refreshMapObjectsGeoJson() {
 
 function loadMapImages(map: maplibre.Map, version: number) {
 	nextImageRetry = Infinity;
-	const images = [
-		...new Map(
-			mapObjectFeatures
-				.filter(isFeatureIcon)
-				.map((f) => f.properties)
-				.filter((props) => props.imageId && props.imageUrl && !map.hasImage(getMapImageId(props)))
-				.map((props) => [getMapImageId(props), props])
-		).values()
-	];
+	const images = new Map<string, MapObjectIconProperties>();
+	for (const feature of mapObjectFeatures) {
+		if (!isFeatureIcon(feature)) continue;
+		const props = feature.properties;
+		const imageId = getMapImageId(props);
+		if (props.imageId && props.imageUrl && !map.hasImage(imageId)) {
+			images.set(imageId, props);
+		}
+	}
 
-	for (const props of images) {
+	for (const props of images.values()) {
 		void ensureMapImage(map, props)
 			.catch(() => undefined)
 			.then(() => {

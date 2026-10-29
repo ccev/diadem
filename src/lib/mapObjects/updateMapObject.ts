@@ -293,7 +293,7 @@ export function applyMapObjectResponse(
 
 	try {
 		if (type === MapObjectType.BIOME) deleteAllFeaturesOfType(type);
-		if (response?.snapshot) {
+		if (response.snapshot) {
 			replaceMapObjects(data, type, examined, false);
 		} else if (removeOld && !isDelta) {
 			replaceMapObjects(data, type, examined);
@@ -371,10 +371,10 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 			.filter((plan) => plan !== undefined);
 		const readyTypes = new Set<MapObjectType>();
 		const limitsToClear: MapObjectType[] = [];
-		let publication: Promise<void> | undefined;
+		let pendingPublication: Promise<void> | undefined;
 		const publish = (final = false) => {
-			publication ??= tick().then(() => {
-				publication = undefined;
+			pendingPublication ??= tick().then(() => {
+				pendingPublication = undefined;
 				if (controller.signal.aborted || getMap() !== map) return;
 				// Only regenerate completed families early; popup companions can have their own requests.
 				if (!onlyChanged || needsFeatureUpdate() || limitsToClear.length) {
@@ -382,7 +382,7 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 				}
 				for (const type of limitsToClear.splice(0)) clearDataLimit(type);
 			});
-			return publication;
+			return pendingPublication;
 		};
 		const markReady = (type: MapObjectType, recoveredLimit: MapObjectType | undefined) => {
 			readyTypes.add(type);
@@ -391,21 +391,24 @@ export async function updateAllMapObjects(removeOld: boolean = true, onlyChanged
 		const fortPlans = activeSearch
 			? []
 			: plans.filter((plan) => combinedGolbatFortTypes.some((type) => type === plan.type));
+		const combineForts = fortPlans.length >= 2;
 		const requests = plans
-			.filter((plan) => fortPlans.length < 2 || !fortPlans.includes(plan))
+			.filter((plan) => !combineForts || !fortPlans.includes(plan))
 			.map(async (plan) => {
 				const recoveredLimit = await runPlan(plan, controller.signal);
 				markReady(plan.type, recoveredLimit);
 				await publish();
 			});
-		if (fortPlans.length >= 2) {
+		if (combineForts) {
 			requests.push(
 				fetchForts(fortPlans, getBounds(), controller.signal).then((responses) => {
 					for (const plan of fortPlans) {
-						markReady(
-							plan.type,
-							applyMapObjectResponse(plan, responses.get(plan.type), controller.signal)
+						const recoveredLimit = applyMapObjectResponse(
+							plan,
+							responses.get(plan.type),
+							controller.signal
 						);
+						markReady(plan.type, recoveredLimit);
 					}
 					return publish();
 				})

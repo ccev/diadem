@@ -86,10 +86,8 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		signal?: AbortSignal
 	): Promise<MinMapObject<PokemonData>[]> {
 		const encounterId = decodeEncounterId(id);
-		let mon: PokemonData | undefined = undefined;
-		if (encounterId) {
-			mon = await getSinglePokemon(encounterId, thisFetch);
-		}
+		if (!encounterId) return [];
+		const mon = await getSinglePokemon(encounterId, thisFetch);
 		return mon
 			? [{ ...this.makePokemon(mon, undefined), id: await encodeEncounterId(mon.id, signal) }]
 			: [];

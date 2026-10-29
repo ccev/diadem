@@ -20,6 +20,7 @@ import { getLogger } from "@/lib/utils/logger";
 
 const FILTER_HASH_PATTERN = /^[0-9a-f]{64}$/;
 const DENIED_CHARGE = 100;
+const log = getLogger("cpu-workers");
 
 export type TypeRequestData = { filter?: AnyFilter; filterHash?: string; since?: number };
 
@@ -83,13 +84,9 @@ export async function resolveTypeRequest(
 	} catch (error) {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
 		if (!(error instanceof CpuWorkerError)) throw error;
-		getLogger("cpu-workers").debug("[%s] Permission job rejected: %s", type, error.code);
+		log.debug("[%s] Permission job rejected: %s", type, error.code);
 		if (error.code === "failed" || error.code === "too-large") {
-			getLogger("cpu-workers").warning(
-				"[%s] Permission job failed: %s",
-				type,
-				error.cause ?? error
-			);
+			log.warning("[%s] Permission job failed: %s", type, error.cause ?? error);
 		}
 		return { status: 503 };
 	}

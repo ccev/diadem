@@ -1,15 +1,15 @@
-import type { CpuWorkersConfig } from "@/lib/services/config/configTypes";
+import type { ServerTuningConfig } from "@/lib/services/config/configTypes";
 import { checkFeaturesInBounds } from "@/lib/services/user/checkPerm";
 import { Features, type Perms } from "@/lib/utils/features";
 import { bboxPolygon } from "@turf/turf";
 import type { EventEmitter } from "node:events";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const settings = vi.hoisted(() => ({ config: {} as CpuWorkersConfig }));
+const settings = vi.hoisted(() => ({ config: {} as ServerTuningConfig }));
 const environment = vi.hoisted(() => ({ building: false, dev: true }));
 vi.mock("$app/environment", () => environment);
 vi.mock("@/lib/services/config/config.server", () => ({
-	getServerConfig: () => ({ cpuWorkers: settings.config })
+	getServerConfig: () => ({ tuning: settings.config })
 }));
 
 const bounds = { minLat: 0, minLon: 0, maxLat: 8, maxLon: 8 };
@@ -27,7 +27,7 @@ const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 const lifecycle = process as EventEmitter;
 
-async function load(config: CpuWorkersConfig = { threads: 1 }) {
+async function load(config: ServerTuningConfig = { cpuWorkers: 1 }) {
 	settings.config = config;
 	return (geometry = { ...(await import("./cpu")), ...(await import("./geometry")) });
 }
@@ -47,8 +47,21 @@ afterEach(async () => {
 });
 
 describe("server permission geometry", () => {
+	it("uses fixed limits even if old tuning fields remain in the server config", async () => {
+		const oldConfig = { cpuWorkers: 1, maxQueue: 0, maxTaskBytes: 16, timeoutMs: -1 };
+		const { getCpuWorkerPool } = await load(oldConfig);
+		expect(getCpuWorkerPool()?.options).toEqual({
+			threads: 1,
+			maxQueue: 8,
+			maxTaskBytes: 4 * 1024 * 1024,
+			maxPendingBytes: 16 * 1024 * 1024,
+			timeoutMs: 5000,
+			memoryMb: 128
+		});
+	});
+
 	it("keeps the disabled inline path without dispatching or registering shutdown work", async () => {
-		const { checkFeaturesInBoundsServer, closeCpuWorkers } = await load({ threads: 0 });
+		const { checkFeaturesInBoundsServer, closeCpuWorkers } = await load({ cpuWorkers: 0 });
 		const { CpuWorkerPool } = await import("./pool");
 		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
 		expect(await checkFeaturesInBoundsServer(perms, features, bounds)).toEqual(
@@ -178,12 +191,14 @@ describe("server permission geometry", () => {
 	});
 
 	it("does not fall back inline after overload or a task byte-limit rejection", async () => {
-		const { checkFeaturesInBoundsServer } = await load({ threads: 1, maxTaskBytes: 16 });
+		const { checkFeaturesInBoundsServer } = await load();
+		const { CpuWorkerPool, CpuWorkerError } = await import("./pool");
+		const run = vi.spyOn(CpuWorkerPool.prototype, "run");
+		run.mockRejectedValue(new CpuWorkerError("too-large"));
 		await expect(checkFeaturesInBoundsServer(perms, features, bounds)).rejects.toMatchObject({
 			code: "too-large"
 		});
-		const { CpuWorkerPool, CpuWorkerError } = await import("./pool");
-		vi.spyOn(CpuWorkerPool.prototype, "run").mockRejectedValue(new CpuWorkerError("busy"));
+		run.mockRejectedValue(new CpuWorkerError("busy"));
 		await expect(checkFeaturesInBoundsServer(perms, features, bounds)).rejects.toMatchObject({
 			code: "busy"
 		});

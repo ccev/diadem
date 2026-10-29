@@ -16,6 +16,8 @@ import {
  * @returns {PermittedBounds | null}
  */
 export function intersectPermissionBounds(polygons, bounds) {
+	if (polygons.length === 0) return null;
+
 	const viewportPolygon = polygon([
 		[
 			[bounds.minLon, bounds.minLat],
@@ -26,37 +28,24 @@ export function intersectPermissionBounds(polygons, bounds) {
 		]
 	]);
 
-	const permittedPolygons = polygons.map((geometry) => makeFeature(geometry));
-	if (permittedPolygons.length === 0) {
-		return null;
-	}
-
 	/** @type {PermittedBounds['polygon']} */
 	let combinedIntersection = null;
-	for (const permittedPolygon of permittedPolygons) {
-		const areaIntersection = intersect(featureCollection([viewportPolygon, permittedPolygon]));
-		if (areaIntersection) {
-			if (!combinedIntersection) {
-				combinedIntersection = areaIntersection;
-			} else {
-				combinedIntersection = union(featureCollection([combinedIntersection, areaIntersection]));
-			}
-		}
+	for (const geometry of polygons) {
+		const areaIntersection = intersect(featureCollection([viewportPolygon, makeFeature(geometry)]));
+		if (!areaIntersection) continue;
+		combinedIntersection = combinedIntersection
+			? union(featureCollection([combinedIntersection, areaIntersection]))
+			: areaIntersection;
 	}
 
 	if (!combinedIntersection) {
 		return null;
 	}
 
-	const result = bbox(combinedIntersection);
+	const [minLon, minLat, maxLon, maxLat] = bbox(combinedIntersection);
 
 	return {
-		bounds: {
-			minLon: result[0],
-			minLat: result[1],
-			maxLon: result[2],
-			maxLat: result[3]
-		},
+		bounds: { minLon, minLat, maxLon, maxLat },
 		polygon: combinedIntersection
 	};
 }

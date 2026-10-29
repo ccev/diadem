@@ -25,36 +25,28 @@ export async function checkFeaturesInBoundsServer(
 	if (polygons === null) return { bounds, polygon: null };
 	if (polygons.length === 0) return null;
 
+	// Callers may pass the full request body as Bounds. Send only coordinates to the worker.
+	const { minLat, maxLat, minLon, maxLon } = bounds;
 	const result = await pool.run(
 		() =>
 			encoder.encode(
 				JSON.stringify({
 					type: "geometry",
 					polygons,
-					// Callers may pass the full request body as Bounds. Never send it to a worker.
-					bounds: {
-						minLat: bounds.minLat,
-						maxLat: bounds.maxLat,
-						minLon: bounds.minLon,
-						maxLon: bounds.maxLon
-					}
+					bounds: { minLat, maxLat, minLon, maxLon }
 				})
 			).buffer,
 		signal
 	);
 	try {
 		const permitted = JSON.parse(decoder.decode(result)) as PermittedBounds | null;
+		if (permitted === null) return null;
+		const { polygon, bounds: clipped } = permitted;
 		// A restricted geometry job can deny access, but must never grant unrestricted bounds.
 		if (
-			permitted !== null &&
-			(permitted?.polygon?.type !== "Feature" ||
-				!["Polygon", "MultiPolygon"].includes(permitted.polygon.geometry?.type) ||
-				![
-					permitted.bounds?.minLat,
-					permitted.bounds?.maxLat,
-					permitted.bounds?.minLon,
-					permitted.bounds?.maxLon
-				].every(Number.isFinite))
+			polygon?.type !== "Feature" ||
+			!["Polygon", "MultiPolygon"].includes(polygon.geometry?.type) ||
+			![clipped?.minLat, clipped?.maxLat, clipped?.minLon, clipped?.maxLon].every(Number.isFinite)
 		) {
 			throw new Error("Invalid geometry worker output");
 		}

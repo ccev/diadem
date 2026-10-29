@@ -29,9 +29,20 @@ export function initCpuWorkers() {
 	if (stopped) throw new CpuWorkerError("unavailable");
 	if (pool) return;
 	const log = getLogger("cpu-workers");
+	const settings = config.tuning;
+	if (
+		settings !== undefined &&
+		(!settings || typeof settings !== "object" || Array.isArray(settings))
+	) {
+		throw new TypeError("server.tuning must be a table");
+	}
+	const threads = settings?.cpuWorkers ?? 0;
+	if (!Number.isSafeInteger(threads) || threads < 0) {
+		throw new RangeError("server.tuning.cpuWorkers must be an integer >= 0");
+	}
 	pool = new CpuWorkerPool(
 		resolve(dev ? "src/lib/server/workers/cpu.worker.mjs" : "build/server/workers/cpu.worker.mjs"),
-		config.cpuWorkers ?? config.geometryWorkers,
+		{ threads },
 		(error) => log.error("CPU pool stopped after a worker error: %s", error),
 		{ encounterIdKey }
 	);
