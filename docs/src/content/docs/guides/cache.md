@@ -12,7 +12,6 @@ to set up your own Caching layer, to act as a CDN.
 
 Diadem serves your configured UIcons on `/assets/{id}`. Icons are optimized, converted to WebP, and optionally scaled
 to width 64. It sets caching headers, so clients will cache the icons locally.
-
 - `/assets/home/pokemon/25.png?w=64` returns the HOME icon for Pikachu, scaled to width 64 (cached by clients for 120 days)
 - `/assets/home/index.json` serves the UIcon index for the HOME icon set
 
@@ -46,4 +45,3 @@ This assumes you're already proxying Diadem through Cloudflare.
 
 You can set up similar rules for icon set indexes and the public resources listed above. Use an explicit allowlist;
 do not use a blanket Cache Everything rule for `/api/*`.
-

@@ -12,6 +12,7 @@ import {
 } from "@/lib/server/api/mapObjectRequest";
 import { respond } from "@/lib/server/api/respond";
 import { queryMapObjects } from "@/lib/server/queryMapObjects/queryMapObjects";
+import { CpuWorkerError } from "@/lib/server/workers/pool";
 import { getLogger } from "@/lib/utils/logger";
 import { error } from "@sveltejs/kit";
 import { constants } from "http2";
@@ -54,31 +55,45 @@ export const POST: RequestHandler = async ({ request, locals, params, getClientA
 		error(400);
 	}
 
-	const resolved = await resolveTypeRequest(type, locals, rateLimitKey, requestLimit, data, data);
+	const resolved = await resolveTypeRequest(
+		type,
+		locals,
+		rateLimitKey,
+		requestLimit,
+		data,
+		data,
+		request.signal
+	);
 	if (resolved.status !== 200) {
 		if (resolved.status === 400) error(400);
-		if (resolved.status === 401) {
-			return respond(request, { data: [] }, { status: constants.HTTP_STATUS_UNAUTHORIZED });
-		}
-		return respond(request, { data: [] }, { status: constants.HTTP_STATUS_CONFLICT });
+		return respond(request, { data: [] }, { status: resolved.status });
 	}
 	const extraHeaders = resolved.filterCached
 		? { "X-Filter-Cached": resolved.filterCached }
 		: undefined;
 	const since = requestSince(data);
 
-	const result = await queryMapObjects(
-		type,
-		resolved.permitted.bounds,
-		resolved.filter,
-		resolved.permitted.polygon,
-		since,
-		requestLimit,
-		resolved.context
-	).catch(async (e) => {
+	let result;
+	try {
+		result = await queryMapObjects(
+			type,
+			resolved.permitted.bounds,
+			resolved.filter,
+			resolved.permitted.polygon,
+			since,
+			requestLimit,
+			resolved.context,
+			request.signal
+		);
+	} catch (cause) {
 		await rateLimitReward(rateLimitKey, requestLimit, type);
-		throw e;
-	});
+		if (!(cause instanceof CpuWorkerError)) throw cause;
+		log.debug("[%s] CPU job rejected: %s", type, cause.code);
+		if (cause.code === "failed" || cause.code === "too-large") {
+			log.warning("[%s] CPU job failed: %s", type, cause.cause ?? cause);
+		}
+		return respond(request, { data: [] }, { status: 503, headers: extraHeaders });
+	}
 
 	const { charge, remainingPoints } = await settleTypeRequest(
 		type,

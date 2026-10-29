@@ -59,20 +59,22 @@ export async function queryMapObjects<Data extends MapData>(
 	polygon: PermittedPolygon = null,
 	since?: number,
 	limit?: number,
-	context?: FeaturePermissionContext
+	context?: FeaturePermissionContext,
+	signal?: AbortSignal
 ): Promise<MapObjectResponse<Data>> {
 	if (filter !== undefined && !filter.enabled) {
 		return { examined: 0, data: [] };
 	}
 
-	return getQuery(type).getMultiple(bounds, filter, polygon, since, limit, context);
+	return getQuery(type).getMultiple(bounds, filter, polygon, since, limit, context, signal);
 }
 
 export async function querySingleMapObject(
 	type: MapObjectType,
 	id: string,
 	thisFetch: typeof fetch = fetch,
-	context?: FeaturePermissionContext
+	context?: FeaturePermissionContext,
+	signal?: AbortSignal
 ) {
-	return getQuery(type).getSingle(id, thisFetch, context);
+	return getQuery(type).getSingle(id, thisFetch, context, signal);
 }
