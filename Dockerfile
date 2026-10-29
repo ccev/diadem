@@ -41,6 +41,7 @@ RUN groupadd --gid 1001 diadem && \
 COPY --from=builder --chown=diadem:diadem /app/build ./build
 COPY --from=builder --chown=diadem:diadem /app/package.json ./
 COPY --from=builder --chown=diadem:diadem /app/cluster.mjs ./
+COPY --from=builder --chown=diadem:diadem /app/scripts/cluster/discord.mjs ./scripts/cluster/discord.mjs
 COPY --from=deps --chown=diadem:diadem /app/node_modules ./node_modules
 
 # Files needed for drizzle-kit db:push at runtime
