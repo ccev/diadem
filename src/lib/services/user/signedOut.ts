@@ -10,13 +10,16 @@ import { getLoginLink, startLogin } from "@/lib/services/user/login";
 import { getUserDetails, updateUserDetails } from "@/lib/services/user/userDetails.svelte";
 import { openToast } from "@/lib/ui/toasts.svelte";
 
-/** Resets the app to the signed-out state, once the session is gone on the server */
-export async function applySignedOut() {
+/**
+ * Resets the app to the signed-out state, once the session is gone on the server.
+ * redirect: false keeps the current view (the login screen shows if auth is required).
+ */
+export async function applySignedOut(redirect = true) {
 	clearMap();
 	await Promise.all([updateSupportedFeatures(), updateUserDetails()]);
 
 	// Only redirect after logout when the app requires auth to keep using the current view.
-	if (isSupportedFeature("authRequired")) {
+	if (redirect && isSupportedFeature("authRequired")) {
 		if (getConfig().general.customHome) {
 			await goto("/");
 		} else if (isNative()) {
@@ -41,9 +44,14 @@ export function watchSessionEnded() {
 		const response = await originalFetch(...args);
 		if (response.headers.get(SESSION_ENDED_HEADER) && getUserDetails().details && !isApplying) {
 			isApplying = true;
-			openToast(m.session_ended_toast(), 10000);
+			// Never start a login here: Discord would sign in again without asking, and the
+			// new session would close the other one, looping between them.
 			(isNative() ? clearStoredToken() : Promise.resolve())
-				.then(applySignedOut)
+				.then(() => applySignedOut(false))
+				.then(() => {
+					// still signed in = another tab signed in meanwhile, nothing was lost
+					if (!getUserDetails().details) openToast(m.session_ended_toast(), 10000);
+				})
 				.finally(() => (isApplying = false));
 		}
 		return response;
