@@ -163,6 +163,9 @@ heavyFilterRatio = 0.2
 enabled = false
 secret = "" # Required when enabled. Generate a private key with: openssl rand -hex 32
 
+[server.tuning]
+cpuWorkers = 1 # Shared CPU pool for permission geometry and encounter ID encryption, set to 0 to disable
+
 # Connection to your Golbat DB, user should have SELECT permissions
 [server.db]
 host = "127.0.0.1"

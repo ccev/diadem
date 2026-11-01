@@ -4,12 +4,19 @@ import {
 	RANGE_POKEMON_EXTENDED,
 	SELECTED_MAP_OBJECT_SCALE
 } from "@/lib/constants";
-import { updateMapObjectsGeoJson } from "@/lib/map/render/manageGeojson";
+import {
+	needsMapObjectsGeoJsonUpdate,
+	refreshMapObjectsGeoJson,
+	updateMapObjectsGeoJson
+} from "@/lib/map/render/manageGeojson";
 import {
 	getCurrentSelectedData,
 	isCurrentSelectedOverwrite
 } from "@/lib/mapObjects/currentSelectedState.svelte.js";
-import { type MapObjectsStateType } from "@/lib/mapObjects/mapObjectsState.svelte.js";
+import {
+	getMapObjectsRevision,
+	type MapObjectsStateType
+} from "@/lib/mapObjects/mapObjectsState.svelte.js";
 
 import {
 	getPolygonFeature,
@@ -35,6 +42,7 @@ import { routeStartsAt } from "@/lib/utils/routeUtils";
 type FeatureEntry = {
 	lat: number;
 	lon: number;
+	data: MapData;
 	features: MapObjectFeature[];
 };
 
@@ -50,6 +58,17 @@ const RADIUS_FILL_SELECTED = "rgba(56, 189, 248, 0.2)";
 
 let features: Features = getEmptyFeatures();
 let selectedFeatures: MapObjectFeature[] = [];
+let nextFeatureExpiry = Infinity;
+let renderedRevision: number | undefined;
+let featuresDirty = false;
+
+export function needsFeatureUpdate() {
+	return (
+		renderedRevision !== getMapObjectsRevision() ||
+		nextFeatureExpiry < currentTimestamp() ||
+		needsMapObjectsGeoJsonUpdate()
+	);
+}
 
 function getEmptyFeatures(): Features {
 	return allMapObjectTypes.reduce((acc, val) => {
@@ -58,11 +77,17 @@ function getEmptyFeatures(): Features {
 	}, {} as Features);
 }
 
-function getFlattenedFeatures() {
+function publishFeatures() {
 	const flattened = Object.values(features)
-		.map((f) => Object.values(f))
-		.map((entries) => entries.map((entry) => entry.features))
-		.flat(2);
+		.flatMap((family) => Object.values(family))
+		.flatMap((entry) => entry.features);
+	nextFeatureExpiry = Infinity;
+	// Include route endpoints hidden by real forts; they can become visible again later.
+	for (const feature of flattened) {
+		if ("expires" in feature.properties && feature.properties.expires) {
+			nextFeatureExpiry = Math.min(nextFeatureExpiry, feature.properties.expires);
+		}
+	}
 	const actualForts = new Set(
 		flattened
 			.filter(
@@ -74,21 +99,33 @@ function getFlattenedFeatures() {
 			)
 			.map((feature) => feature.properties.id)
 	);
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- Local scratch set, never reactive state.
 	const routeEndpoints = new Set<string>();
-	return flattened.filter((feature) => {
-		if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
-		if (actualForts.has(feature.properties.id)) return false;
-		if (routeEndpoints.has(feature.properties.id)) return false;
-		routeEndpoints.add(feature.properties.id);
-		return true;
-	});
+	updateMapObjectsGeoJson(
+		flattened.filter((feature) => {
+			if (!isFeatureIcon(feature) || !feature.properties.routeEndpointFortId) return true;
+			if (actualForts.has(feature.properties.id) || routeEndpoints.has(feature.properties.id)) {
+				return false;
+			}
+			routeEndpoints.add(feature.properties.id);
+			return true;
+		})
+	);
 }
 
 export function deleteAllFeaturesOfType(type: MapObjectType) {
+	// Unsupported optional families can be cleared on every poll without changing the map.
+	if (Object.keys(features[type]).length === 0) return;
+	renderedRevision = undefined;
+	featuresDirty = true;
 	features[type] = {};
 }
 
 export function deleteAllFeatures() {
+	renderedRevision = undefined;
+	featuresDirty = true;
+	nextFeatureExpiry = Infinity;
+	selectedFeatures = [];
 	features = getEmptyFeatures();
 }
 
@@ -103,7 +140,7 @@ export function updateDimmedFeatures() {
 			}
 		}
 	}
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
 function getActionRadiusFeatures(
@@ -158,16 +195,14 @@ export function updateRadiusFeatures() {
 
 export function updateSelected(currentSelected: MapData | null) {
 	// TODO base the scale on original modifiers, not the current size
-	if (selectedFeatures) {
-		for (const feature of selectedFeatures) {
-			if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
-				feature.properties.selectedScale = 1;
-			} else if (isFeaturePolygon(feature)) {
-				feature.properties.isSelected = false;
-			}
+	for (const feature of selectedFeatures) {
+		if (isFeatureIcon(feature) || isFeatureCircle(feature)) {
+			feature.properties.selectedScale = 1;
+		} else if (isFeaturePolygon(feature)) {
+			feature.properties.isSelected = false;
 		}
-		selectedFeatures = [];
 	}
+	selectedFeatures = [];
 
 	if (currentSelected && currentSelected.type !== ClientMapObjectType.LOCATION) {
 		const thisFeatures = features[currentSelected.type][currentSelected.mapId]?.features ?? [];
@@ -185,7 +220,7 @@ export function updateSelected(currentSelected: MapData | null) {
 
 	syncRouteLineFeatures(currentSelected);
 
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
 function syncRouteLineFeatures(currentSelected: MapData | null) {
@@ -232,17 +267,16 @@ function syncRouteLineFeatures(currentSelected: MapData | null) {
 
 export function refreshRouteFeatures() {
 	syncRouteLineFeatures(getCurrentSelectedData());
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	publishFeatures();
 }
 
-export function updateFeatures(mapObjects: MapObjectsStateType) {
-	// TODO perf: only update if needed by storing a id: hash table
-	// TODO perf: when currentSelected is updated, only update what's needed and not the whole array
-	// TODO: when a gym is updated, it's not being shown on the map
-
+export function updateFeatures(
+	mapObjects: MapObjectsStateType,
+	readyTypes?: readonly MapObjectType[]
+) {
+	let changed = featuresDirty;
 	const selectedMapId = getCurrentSelectedData()?.mapId ?? "";
-	// const allCurrentMapIds = Object.keys(mapObjects);
-	// const allFeatureMapIds = flattenFeatures().map(f => f.properties.id)
+	const now = currentTimestamp();
 
 	const actions = getUserSettings().actions;
 	const focusedRouteMapId = getFocusedRouteMapId();
@@ -252,25 +286,28 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		const thisFeatures = features[type];
 		for (const [existingId, entry] of Object.entries(thisFeatures)) {
 			const obj = mapObjects[existingId];
-			// invalidate objects that changed positions and have expired
+			// Payload changes can alter an icon even when the object hasn't moved.
 			if (
-				entry.features.find(
+				entry.features.some(
 					(feature) =>
 						"expires" in feature.properties &&
 						feature.properties.expires &&
-						feature.properties.expires < currentTimestamp()
+						feature.properties.expires < now
 				) ||
 				!obj ||
+				entry.data !== obj ||
 				entry.lon !== obj.lon ||
 				entry.lat !== obj.lat
 			) {
 				selectedFeatures = selectedFeatures.filter((feature) => !entry.features.includes(feature));
 				delete features[type][existingId];
+				changed = true;
 			}
 		}
 	}
 
 	for (const obj of Object.values(mapObjects)) {
+		if (readyTypes && !readyTypes.includes(obj.type)) continue;
 		if (features[obj.type][obj.mapId]) continue;
 
 		const isSelectedOverwrite = isCurrentSelectedOverwrite(obj.mapId);
@@ -290,12 +327,23 @@ export function updateFeatures(mapObjects: MapObjectsStateType) {
 		);
 
 		features[obj.type][obj.mapId] = {
+			data: obj,
 			lat: obj.lat,
 			lon: obj.lon,
 			features: subFeatures
 		};
 		if (isSelected) selectedFeatures = [...selectedFeatures, ...subFeatures];
+		changed = true;
 	}
 	syncRouteLineFeatures(getCurrentSelectedData());
-	updateMapObjectsGeoJson(getFlattenedFeatures());
+	// Polling batches publish only actual changes. Explicit refreshes (e.g. a new map style)
+	// omit readyTypes and must replay the collection even if the payloads are unchanged.
+	if (changed || !readyTypes) publishFeatures();
+	else if (needsMapObjectsGeoJsonUpdate()) refreshMapObjectsGeoJson();
+	featuresDirty = false;
+	// A partial publication may defer invalidated or preserved popup companions until the batch settles.
+	renderedRevision =
+		!readyTypes || allMapObjectTypes.every((type) => readyTypes.includes(type))
+			? getMapObjectsRevision()
+			: undefined;
 }

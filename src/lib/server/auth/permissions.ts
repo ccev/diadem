@@ -96,7 +96,7 @@ export async function updatePermissions(user: User, accessToken: string, thisFet
 
 				let guild = guildCache[rule.guildId];
 				if (!guild) {
-					const lookup = await getGuildMemberInfo(rule.guildId, accessToken);
+					const lookup = await getGuildMemberInfo(rule.guildId, accessToken).catch(() => undefined);
 					if (!lookup) {
 						log.warning(
 							`discord guild lookup failed for user ${user.id}; treating guild ${rule.guildId} as non-member`

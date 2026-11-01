@@ -52,7 +52,8 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 				rateLimitKey,
 				admit.requestLimit,
 				data,
-				typeData
+				typeData,
+				request.signal
 			);
 			if (resolved.status !== 200) {
 				response[type] = { status: resolved.status };

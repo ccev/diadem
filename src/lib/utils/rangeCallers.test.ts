@@ -254,8 +254,7 @@ describe("geographic range callers", () => {
 				isFeatureCircle,
 				isFeaturePolygon,
 				syncRouteLineFeatures: () => {},
-				updateMapObjectsGeoJson: () => {},
-				getFlattenedFeatures: () => entry.features
+				publishFeatures: () => {}
 			});
 			const updateRadiusFeatures = producer(
 				"lib/map/featuresGen.svelte.ts",
