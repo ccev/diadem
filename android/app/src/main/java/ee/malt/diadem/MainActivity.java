@@ -16,21 +16,24 @@ public class MainActivity extends BridgeActivity {
 
         if (Build.VERSION.SDK_INT < 35 || getBridge() == null) return;
 
+        getWindow().setNavigationBarContrastEnforced(false);
+
         WebView webView = getBridge().getWebView();
         ViewCompat.setOnApplyWindowInsetsListener(webView, (view, windowInsets) -> {
             int types = WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout();
             Insets insets = windowInsets.getInsets(types);
             ViewGroup.MarginLayoutParams margins = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-            if (margins.leftMargin != insets.left || margins.topMargin != insets.top
-                || margins.rightMargin != insets.right || margins.bottomMargin != insets.bottom) {
-                margins.setMargins(insets.left, insets.top, insets.right, insets.bottom);
+            if (margins.leftMargin != insets.left || margins.topMargin != 0
+                || margins.rightMargin != insets.right || margins.bottomMargin != 0) {
+                margins.setMargins(insets.left, 0, insets.right, 0);
                 view.setLayoutParams(margins);
             }
 
-            // System bars are handled by the native margins. Keep IME insets flowing
-            // to WebView so the keyboard resizes its visual viewport (CONSUMED does not).
+            // Draw the map behind the status and navigation bars. Forward their
+            // safe areas to CSS; side cutouts still use native margins.
+            // Keep IME insets flowing so the keyboard resizes the visual viewport.
             WindowInsetsCompat remaining = new WindowInsetsCompat.Builder(windowInsets)
-                .setInsets(types, Insets.NONE).build();
+                .setInsets(types, Insets.of(0, insets.top, 0, insets.bottom)).build();
             return ViewCompat.onApplyWindowInsets(view, remaining);
         });
         ViewCompat.requestApplyInsets(webView);

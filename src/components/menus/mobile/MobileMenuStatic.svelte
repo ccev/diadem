@@ -29,11 +29,11 @@
 >
 	<Drawer.Portal>
 		<Drawer.Viewport class="drawer-viewport flex items-end z-0!">
-			<Drawer.Popup
-				class="drawer-popup flex flex-col w-full h-fit rounded-t-xl pb-[env(safe-area-inset-bottom)]"
-			>
+			<Drawer.Popup class="drawer-popup flex flex-col w-full h-fit rounded-t-xl">
 				<MobileTitle />
-				<Drawer.Content class="pb-20 content px-2 bg-card/60 backdrop-blur-sm pt-3">
+				<Drawer.Content
+					class="pb-[calc(5rem+env(safe-area-inset-bottom))] content px-2 bg-card/60 backdrop-blur-sm pt-3"
+				>
 					<MenuContainer />
 				</Drawer.Content>
 			</Drawer.Popup>

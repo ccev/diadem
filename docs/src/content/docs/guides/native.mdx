@@ -189,10 +189,12 @@ navigation where available:
 - Check an unreachable instance and a long instance name. Retry and disconnect
   actions must remain visible and text must wrap within the screen.
 
-On Android 15 and newer, `MainActivity` keeps the WebView inside the system bars
-and display cutout, and passes keyboard insets through to the WebView. Earlier
-Android versions keep the status bar outside the WebView. iOS uses CSS safe-area
-insets. Avoid adding the same system-bar padding in both native code and CSS.
+On Android 15 and newer, `MainActivity` keeps the WebView clear of side display
+cutouts. The map draws behind the transparent status and navigation bars; their
+safe areas and keyboard insets pass through to the WebView so controls remain
+clear. Earlier Android versions keep the status bar outside the WebView. iOS uses
+CSS safe-area insets. Avoid adding the same system-bar padding in both native code
+and CSS.
 Native overlays follow the visual viewport so the keyboard can reduce their
 available height without hiding controls.
 

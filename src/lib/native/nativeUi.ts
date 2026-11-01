@@ -7,8 +7,9 @@ import { Capacitor } from "@capacitor/core";
  *    `env(safe-area-inset-*)` resolves to the real notch/status/nav-bar insets.
  *    Done here (not in app.html) so the web build's viewport is untouched.
  *  - keep Android's status bar outside the WebView on older releases, where
- *    CSS safe-area insets are unreliable. MainActivity handles system-bar margins
- *    on Android 15+ while preserving keyboard insets. iOS uses CSS safe areas.
+ *    CSS safe-area insets are unreliable. On Android 15+, MainActivity handles
+ *    side margins and forwards the top/bottom safe areas and keyboard insets.
+ *    iOS uses CSS safe areas.
  */
 export function installNativeUi(): void {
 	if (!isNative()) return;
