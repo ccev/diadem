@@ -129,6 +129,75 @@ describe("progressive feature generation", () => {
 	});
 });
 
+describe("nearby pokemon scattering", () => {
+	it.each(["nearby_stop", "nearby_cell"])(
+		"keeps %s groups scattered without republishing unchanged polling batches",
+		(seen_type) => {
+			const first = { ...pokemon, seen_type };
+			const second = { ...first, id: "q", mapId: "pokemon-q" };
+			const objects = {
+				[first.mapId]: first,
+				[second.mapId]: second
+			} as unknown as MapObjectsStateType;
+
+			updateFeatures(objects, [MapObjectType.POKEMON]);
+			const features = vi.mocked(updateMapObjectsGeoJson).mock.lastCall![0];
+			const positions = features.map(
+				(feature) => (feature as MapObjectIconFeature).geometry.coordinates
+			);
+			expect(positions).toHaveLength(2);
+			expect(positions[0]).not.toEqual([first.lon, first.lat]);
+			expect(positions[1]).not.toEqual(positions[0]);
+			expect([first.lon, first.lat, second.lon, second.lat]).toEqual([0, 0, 0, 0]);
+
+			renderer.render.mockClear();
+			vi.mocked(updateMapObjectsGeoJson).mockClear();
+			updateFeatures(
+				{ [second.mapId]: second, [first.mapId]: first } as unknown as MapObjectsStateType,
+				[MapObjectType.POKEMON]
+			);
+			expect(renderer.render).not.toHaveBeenCalled();
+			expect(updateMapObjectsGeoJson).not.toHaveBeenCalled();
+			expect(
+				features.map((feature) => (feature as MapObjectIconFeature).geometry.coordinates)
+			).toEqual(positions);
+
+			updateFeatures({ [first.mapId]: first } as unknown as MapObjectsStateType, [
+				MapObjectType.POKEMON
+			]);
+			expect(renderer.render).not.toHaveBeenCalled();
+			expect(vi.mocked(updateMapObjectsGeoJson).mock.lastCall![0]).toHaveLength(1);
+			expect(vi.mocked(updateMapObjectsGeoJson).mock.lastCall![0][0].geometry).toMatchObject({
+				coordinates: [first.lon, first.lat]
+			});
+		}
+	);
+
+	it("waits for nearby pokemon data before generating scattered features", () => {
+		const first = { ...pokemon, seen_type: "nearby_stop" };
+		const second = { ...first, id: "q", mapId: "pokemon-q" };
+		const objects = {
+			[first.mapId]: first,
+			[second.mapId]: second,
+			[gym.mapId]: gym
+		} as unknown as MapObjectsStateType;
+
+		updateFeatures(objects, [MapObjectType.GYM]);
+		expect(renderer.render).toHaveBeenCalledExactlyOnceWith(gym, false, false);
+		expect(vi.mocked(updateMapObjectsGeoJson).mock.lastCall![0]).toHaveLength(1);
+
+		updateFeatures(objects, [MapObjectType.POKEMON]);
+		expect(renderer.render).toHaveBeenCalledTimes(3);
+		const features = vi.mocked(updateMapObjectsGeoJson).mock.lastCall![0];
+		expect(features).toHaveLength(3);
+		for (const feature of features.filter((feature) =>
+			feature.properties.id.startsWith("pokemon-")
+		)) {
+			expect(feature.geometry).not.toMatchObject({ coordinates: [first.lon, first.lat] });
+		}
+	});
+});
+
 it("refreshes payload changes without movement and reuses unchanged features", () => {
 	const objects = { [gym.mapId]: gym } as unknown as MapObjectsStateType;
 	updateFeatures(objects);
