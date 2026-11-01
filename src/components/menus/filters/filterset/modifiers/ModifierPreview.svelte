@@ -223,7 +223,9 @@
 				getIconFeature(`${PREVIEW_MAP_ID}-base`, previewCenter, {
 					id: PREVIEW_MAP_ID,
 					imageUrl: config.baseIconUrl,
-					imageSize: baseMod.scale,
+					imageSize:
+						baseMod.scale *
+						(config.type === MapObjectType.GYM ? (filterset?.modifiers?.scale ?? 1) : 1),
 					selectedScale: 1,
 					imageOffset: [baseMod.offsetX, baseMod.offsetY],
 					expires: null

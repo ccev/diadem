@@ -151,8 +151,7 @@ export function getIconGym(data: Partial<GymData>, options?: IconOptions) {
 	return iconSets[iconSet].gym({
 		teamId,
 		trainerCount: availableSlots,
-		inBattle: Boolean(data.in_battle),
-		ex: Boolean(data.ex_raid_eligible)
+		inBattle: Boolean(data.in_battle)
 	});
 }
 
