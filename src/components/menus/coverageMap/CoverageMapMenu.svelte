@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { getKojiGeofences, type KojiFeature } from "@/lib/features/koji";
+	import {
+		getKojiSidebarEntries,
+		type KojiFeature,
+		type KojiSidebarEntry
+	} from "@/lib/features/koji";
 	import Button from "@/components/ui/input/Button.svelte";
 	import LucideIcon from "@/components/utils/LucideIcon.svelte";
 	import { ChevronRight } from "@lucide/svelte";
@@ -10,14 +14,14 @@
 	import { m } from "@/lib/paraglide/messages";
 	import type * as icons from "@lucide/svelte";
 
-	let expandedAreas: Set<number> = new SvelteSet();
+	let expandedAreas: Set<number | string> = new SvelteSet();
 
-	function getAreaIcon(area: KojiFeature): keyof typeof icons {
+	function getAreaIcon(area: KojiSidebarEntry): keyof typeof icons {
 		return (area.properties.lucideIcon ?? "Globe") as keyof typeof icons;
 	}
 </script>
 
-{#snippet areaTitle(area: KojiFeature)}
+{#snippet areaTitle(area: KojiSidebarEntry)}
 	<LucideIcon class="size-4 ml-2" name={getAreaIcon(area)} />
 	<span class="min-w-0 truncate" title={area.properties.name}>{area.properties.name}</span>
 {/snippet}
@@ -33,7 +37,7 @@
 	</Button>
 {/snippet}
 
-{#snippet areaEntry(area: KojiFeature)}
+{#snippet areaEntry(area: KojiSidebarEntry)}
 	{@const isExpanded = expandedAreas.has(area.properties.id)}
 	<div class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium">
 		{#if area.properties.children.length === 0}
@@ -43,6 +47,7 @@
 				class="min-w-0 gap-3! pl-0!"
 				size="sm"
 				variant="ghost"
+				aria-expanded={isExpanded}
 				onclick={() => {
 					const existed = expandedAreas.delete(area.properties.id);
 					if (!existed) expandedAreas.add(area.properties.id);
@@ -57,7 +62,9 @@
 			</Button>
 		{/if}
 
-		{@render jumpButton(area)}
+		{#if "geometry" in area}
+			{@render jumpButton(area)}
+		{/if}
 	</div>
 
 	{#if isExpanded}
@@ -74,10 +81,8 @@
 
 <div class="overflow-hidden">
 	{#if hasLoadedFeature(LoadedFeature.KOJI)}
-		{#each getKojiGeofences() as area (area.properties.id)}
-			{#if !area.properties.parent}
-				{@render areaEntry(area)}
-			{/if}
+		{#each getKojiSidebarEntries() as area (area.properties.id)}
+			{@render areaEntry(area)}
 		{/each}
 	{/if}
 </div>
