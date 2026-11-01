@@ -62,18 +62,18 @@
 	{#if fortDetails}
 		<Card
 			class="relative mx-auto items-center flex flex-col rounded-md! shadow-none! overflow-hidden w-xl max-w-full"
-			style="max-height: calc(100vh - 6rem)"
+			style="max-height: calc(100dvh - 6rem)"
 		>
 			<div class="absolute top-0 right-0 z-10 m-2 p-1">
 				<CloseButton
-					class="bg-neutral-800/90! rounded-full! border-none! hover:bg-neutral-800 active:bg-neutral-800"
+					class="bg-neutral-800/90! text-white rounded-full! border-none! hover:bg-neutral-800 active:bg-neutral-800"
 					onclick={closeFortDetails}
 					variant=""
 				/>
 			</div>
 
 			<img
-				class="w-full object-contain"
+				class="min-h-0 w-full object-contain"
 				style="height: clamp(6rem, 100%, 31rem)"
 				src={fortDetails.fortUrl}
 				alt={fortDetails.alt}

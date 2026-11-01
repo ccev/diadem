@@ -23,7 +23,7 @@
 		oninput={(e) => {
 			query = (e.target as HTMLInputElement).value;
 		}}
-		class="pl-9 w-full"
+		class="pl-9 pr-11 w-full"
 	/>
 	{#if query}
 		<Button

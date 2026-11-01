@@ -9,10 +9,7 @@
 	import { hasLoadedFeature, LoadedFeature } from "@/lib/services/initialLoad.svelte";
 </script>
 
-<div
-	class="space-y-2 mb-0.5 overflow-x-hidden"
-	style="container-name: menu; container-type: inline-size"
->
+<div class="space-y-2 mb-0.5" style="container-name: menu; container-type: inline-size">
 	<SignInButton />
 	<FilterSection
 		requiredPermission={featureFamily[MapObjectType.POKEMON]}

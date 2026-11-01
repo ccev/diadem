@@ -60,10 +60,10 @@
 
 <Modal
 	{modalType}
-	class="h-[calc(100vh-8rem)] max-h-200 w-[calc(100%-1rem)] max-w-2xl! flex flex-col pb-4 pt-3"
+	class="h-[calc(100dvh-8rem)] max-h-200 w-[calc(100%-1rem)] max-w-2xl! flex flex-col pb-4 pt-3"
 >
 	{#snippet title()}
-		<p class="pb-2 font-semibold text-base px-4">
+		<p class="pb-2 font-semibold text-base pl-4 pr-12 wrap-anywhere">
 			<span>
 				{modalTitle}
 			</span>
@@ -76,8 +76,8 @@
 	{/snippet}
 
 	<div
-		class="h-full w-full grid *:col-start-1 *:row-start-1 *:px-4 *:min-w-0 overflow-y-auto overflow-x-hidden"
-		style:grid-template="1fr / 1fr"
+		class="min-h-0 flex-1 w-full grid items-start py-2 *:col-start-1 *:row-start-1 *:px-4 *:min-w-0 overflow-y-auto overflow-x-hidden"
+		style:grid-template="minmax(min-content, 1fr) / 1fr"
 	>
 		{#if getCurrentFiltersetPage() === "new"}
 			<PageNewFilterset {majorCategory} {subCategory} />
@@ -89,7 +89,7 @@
 			<PageAttribute />
 		{/if}
 	</div>
-	<div class="px-4">
+	<div class="px-4 shrink-0">
 		<div class="relative">
 			<FiltersetButtons {modalType} {mapObject} />
 		</div>

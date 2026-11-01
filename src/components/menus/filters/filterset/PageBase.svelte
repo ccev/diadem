@@ -31,7 +31,7 @@
 	<div class="flex gap-4 items-center px-2 mt-4">
 		{#if snapshot?.data}
 			<FiltersetIcon filterset={snapshot.data} size={8} />
-			<span class="text-lg font-semibold">
+			<span class="min-w-0 wrap-anywhere text-lg font-semibold">
 				{filterTitle(snapshot.data)}
 			</span>
 		{/if}
@@ -51,8 +51,6 @@
 	<Separator class="my-3" text={m.filter_attributes()} />
 
 	{#if filterset?.data}
-		<div class="overflow-y-auto">
-			{@render base()}
-		</div>
+		{@render base()}
 	{/if}
 </div>

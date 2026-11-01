@@ -20,5 +20,5 @@
 <div class="py-3 px-4 w-full flex justify-between items-center text-left rounded-md gap-2">
 	<MenuTitle {title} {description} />
 
-	<Input class="w-20 text-center" type="number" {value} {onchange} {...rest} />
+	<Input class="w-20 shrink-0 text-center" type="number" {value} {onchange} {...rest} />
 </div>

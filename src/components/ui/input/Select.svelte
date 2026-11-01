@@ -27,7 +27,7 @@
 	<Button
 		variant="ghost"
 		size=""
-		class="px-4 gap-2 py-4 w-full rounded-sm text-base justify-center ring-ring {optionValue ===
+		class="px-4 gap-2 py-4 w-full whitespace-normal! wrap-anywhere rounded-sm text-base justify-center ring-ring {optionValue ===
 		value
 			? 'ring-2'
 			: ''}"
@@ -59,7 +59,7 @@
 		<MenuTitle {title} {description} />
 
 		<span
-			class="border-border dark:group-hover:border-card dark:group-active:border-card ring-offset-background rounded-md border px-6 py-2 text-sm"
+			class="max-w-[60%] whitespace-normal wrap-anywhere border-border dark:group-hover:border-card dark:group-active:border-card ring-offset-background rounded-md border px-4 py-2 text-sm"
 		>
 			{options.find((o) => o.value === value)?.label}
 		</span>

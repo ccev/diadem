@@ -112,15 +112,17 @@
 
 <div class="mt-5" data-popup-initial-snap-point-end>
 	{#if onlyShowNavigationButton}
-		<PopupButton
-			class="mx-4 w-full"
-			variant="default"
-			Icon={Navigation}
-			label={m.popup_navigate()}
-			tag="a"
-			href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
-			target="_blank"
-		/>
+		<div class="px-4">
+			<PopupButton
+				class="w-full"
+				variant="default"
+				Icon={Navigation}
+				label={m.popup_navigate()}
+				tag="a"
+				href={getMapsUrl(coords, getShareTitle(getCurrentSelectedData()))}
+				target="_blank"
+			/>
+		</div>
 	{:else if data}
 		<PopupButtons lat={coords.lat} lon={coords.lon} {data} />
 	{/if}

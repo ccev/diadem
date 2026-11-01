@@ -15,7 +15,7 @@
 	} = $props();
 </script>
 
-<Card class="w-fit px-5 py-3 {class_}">
+<Card class="min-w-0 max-w-full w-fit px-5 py-3 {class_}">
 	<p class="text-sm">
 		{label}
 	</p>

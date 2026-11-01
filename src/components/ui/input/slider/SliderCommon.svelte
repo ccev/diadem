@@ -19,7 +19,7 @@
 {#each thumbItems as { index } (index)}
 	<Slider.Thumb
 		{index}
-		class="border-border-input bg-background focus-visible:ring-foreground dark:bg-foreground z-5 focus-visible:outline-hidden data-active:scale-90 transition-transform block size-6 cursor-pointer rounded-full border transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+		class="border-input bg-background focus-visible:ring-foreground dark:bg-foreground z-5 focus-visible:outline-hidden data-active:scale-90 transition-[transform,background-color,border-color,box-shadow] block size-6 cursor-pointer rounded-full border focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
 	/>
 {/each}
 

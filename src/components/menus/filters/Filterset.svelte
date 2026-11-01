@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowDown, ArrowUp, Eye, EyeClosed, Focus, Pencil, Share2, Trash } from "@lucide/svelte";
+	import { m } from "@/lib/paraglide/messages";
+
 	import type { AnyFilterset } from "@/lib/features/filters/filtersets";
 	import { type ModalType, openModal } from "@/lib/ui/modal.svelte";
 	import {
@@ -17,6 +19,7 @@
 	import { filterTitle } from "@/lib/features/filters/filtersetUtils.svelte";
 	import FiltersetIcon from "@/lib/features/filters/FiltersetIcon.svelte";
 	import type { FilterCategory } from "@/lib/features/filters/filters";
+
 	import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 	import { openQuickActions, type QuickAction } from "@/lib/ui/quickActions.svelte";
 	import { quickPress } from "@/lib/ui/actions/quickPress";
@@ -24,7 +27,6 @@
 	import { closeMenu } from "@/lib/ui/menus.svelte";
 	import { backupShareUrl } from "@/lib/utils/device";
 	import { getRootOrigin } from "@/lib/native/runtime";
-	import { m } from "@/lib/paraglide/messages";
 
 	let {
 		filter,
@@ -65,12 +67,7 @@
 				label: m.quick_action_focus(),
 				Icon: Focus,
 				onclick: () => {
-					setActiveSearch({
-						name: filterTitle(filter),
-						mapObject,
-						filter,
-						subCategory
-					});
+					setActiveSearch({ name: filterTitle(filter), mapObject, filter, subCategory });
 					closeMenu();
 				}
 			},
@@ -112,7 +109,7 @@
 
 <div
 	data-filterset={filter.id}
-	class="inline-flex items-center gap-1.5 pr-1 relative overflow-hidden rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground transition-colors group select-none cursor-grab active:cursor-grabbing"
+	class="flex min-w-0 items-center gap-1 rounded-md border border-input bg-background pr-1 transition-colors hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground select-none cursor-grab active:cursor-grabbing"
 	style="-webkit-touch-callout: none"
 	{@attach (node) =>
 		quickPress(node, (x, y) =>
@@ -129,6 +126,7 @@
 		class="pl-0! pr-0! h-fit! min-w-0 flex-1 cursor-inherit"
 		variant=""
 		size=""
+		title={filterTitle($state.snapshot(filter))}
 		aria-haspopup="menu"
 		onclick={() => edit()}
 	>
@@ -141,19 +139,18 @@
 			class="shrink-1 min-w-0 w-full flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-0 transition-opacity relative"
 			class:opacity-50={!filter.enabled}
 		>
-			<div
-				class="absolute right-0 h-full w-4 bg-linear-to-l from-background to-transparent group-hover:from-accent transition-colors"
-			></div>
 			<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
-			<span class="overflow-x-hidden">{filterTitle($state.snapshot(filter))}</span>
+			<span class="text-fade text-left flex-1">{filterTitle($state.snapshot(filter))}</span>
 		</div>
 	</Button>
 	<Button
 		data-no-drag
-		class="ml-auto my-0! shrink-0"
+		class="shrink-0"
 		variant="outline"
 		size="icon"
-		aria-label={filter.enabled ? m.quick_action_disable() : m.quick_action_enable()}
+		title={filter.enabled ? m.disable_filters() : m.enable_filters()}
+		aria-label={filterTitle($state.snapshot(filter))}
+		aria-pressed={filter.enabled}
 		onclick={() => toggleFilterset(filter, mapObject)}
 	>
 		{#if filter.enabled}
