@@ -203,14 +203,20 @@ export async function getUserSettingsFromServer() {
 	if (!dbUserSettings.error && Object.keys(dbUserSettings.result).length > 0) {
 		// TODO: only overwrite map position if current position is default
 		setUserSettings(dbUserSettings.result);
-		if (browser && window.localStorage) {
-			localStorage.setItem("userSettings", JSON.stringify(userSettings));
-		}
+		persistUserSettingsLocally();
 	}
 }
 
 export function setUserSettings(newUserSettings: LegacyUserSettings) {
-	const mergedUserSettings = deepMerge(getDefaultUserSettings(), newUserSettings);
+	const defaults = getDefaultUserSettings();
+	const mergedUserSettings = deepMerge(defaults, newUserSettings);
+	// Native instances share local preferences, but may offer different icon sets.
+	mergedUserSettings.uiconSet ??= defaults.uiconSet;
+	for (const type in defaults.uiconSet) {
+		if (!getConfig().uiconSets.some((set) => set.id === mergedUserSettings.uiconSet[type]?.id)) {
+			mergedUserSettings.uiconSet[type] = defaults.uiconSet[type as keyof UserSettings["uiconSet"]];
+		}
+	}
 	userSettings = migrateUserSettings(mergedUserSettings);
 }
 
@@ -232,7 +238,11 @@ let retrying = false;
 
 function persistUserSettingsLocally(): string {
 	const serialized = JSON.stringify(userSettings);
-	if (browser && window.localStorage) localStorage.setItem("userSettings", serialized);
+	try {
+		if (browser && window.localStorage) localStorage.setItem("userSettings", serialized);
+	} catch {
+		// Storage can be unavailable or full; retain settings in memory and sync normally.
+	}
 	return serialized;
 }
 

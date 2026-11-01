@@ -1,14 +1,16 @@
 import { getInstanceUrl, isNative } from "@/lib/native/runtime";
+import { Capacitor } from "@capacitor/core";
 
 const TOKEN_KEY = "diadem_bearer_token";
+type StoredToken = { instance: string; token: string };
 
 // In-memory copy of the bearer token so nativeFetch can read it synchronously
 // while building request headers. Persisted to Preferences across launches.
-let bearerToken: string | null = null;
+let storedToken: StoredToken | null = null;
 
 /** The current bearer session token, or null. Synchronous (for nativeFetch). */
 export function getBearerToken(): string | null {
-	return bearerToken;
+	return storedToken?.instance === getInstanceUrl() ? storedToken.token : null;
 }
 
 /** Load the persisted bearer token into memory. Call once at boot, before fetches. */
@@ -17,17 +19,37 @@ export async function loadStoredToken(): Promise<void> {
 	try {
 		const { Preferences } = await import("@capacitor/preferences");
 		const { value } = await Preferences.get({ key: TOKEN_KEY });
-		bearerToken = value ?? null;
+		let parsed: unknown = null;
+		if (value) {
+			try {
+				parsed = JSON.parse(value);
+			} catch {
+				// Older APKs stored the raw token for the selected instance. Bind it
+				// on upgrade so existing sessions survive the new storage format.
+				parsed = { instance: getInstanceUrl(), token: value };
+				await Preferences.set({ key: TOKEN_KEY, value: JSON.stringify(parsed) });
+			}
+		}
+		storedToken =
+			parsed &&
+			typeof parsed === "object" &&
+			"instance" in parsed &&
+			parsed.instance === getInstanceUrl() &&
+			"token" in parsed &&
+			typeof parsed.token === "string" &&
+			parsed.token
+				? (parsed as StoredToken)
+				: null;
 	} catch {
-		bearerToken = null;
+		storedToken = null;
 	}
 }
 
-async function persistToken(token: string | null): Promise<void> {
-	bearerToken = token;
+async function persistToken(token: string | null, instance = getInstanceUrl()): Promise<void> {
+	storedToken = token ? { instance, token } : null;
 	try {
 		const { Preferences } = await import("@capacitor/preferences");
-		if (token) await Preferences.set({ key: TOKEN_KEY, value: token });
+		if (storedToken) await Preferences.set({ key: TOKEN_KEY, value: JSON.stringify(storedToken) });
 		else await Preferences.remove({ key: TOKEN_KEY });
 	} catch {
 		/* best effort */
@@ -35,6 +57,9 @@ async function persistToken(token: string | null): Promise<void> {
 }
 
 const VERIFIER_KEY = "diadem_pkce_verifier";
+type LoginAttempt = { verifier: string; instance: string; createdAt: number };
+let pendingLogin: LoginAttempt | null = null;
+let exchangeInFlight: Promise<boolean> | null = null;
 
 function base64url(bytes: Uint8Array): string {
 	let binary = "";
@@ -55,21 +80,36 @@ async function createPkce(): Promise<{ verifier: string; challenge: string }> {
 
 // Persisted so the verifier survives if the app is evicted while the system
 // browser is in the foreground (cold-start deep link).
-async function storeVerifier(verifier: string): Promise<void> {
+async function storeVerifier(attempt: LoginAttempt | null): Promise<void> {
+	pendingLogin = attempt;
 	try {
 		const { Preferences } = await import("@capacitor/preferences");
-		await Preferences.set({ key: VERIFIER_KEY, value: verifier });
+		if (attempt) await Preferences.set({ key: VERIFIER_KEY, value: JSON.stringify(attempt) });
+		else await Preferences.remove({ key: VERIFIER_KEY });
 	} catch {
 		/* best effort */
 	}
 }
 
-async function takeVerifier(): Promise<string | null> {
+async function getLoginAttempt(): Promise<LoginAttempt | null> {
+	if (pendingLogin) return pendingLogin;
 	try {
 		const { Preferences } = await import("@capacitor/preferences");
 		const { value } = await Preferences.get({ key: VERIFIER_KEY });
-		await Preferences.remove({ key: VERIFIER_KEY });
-		return value ?? null;
+		const parsed: unknown = value ? JSON.parse(value) : null;
+		if (
+			parsed &&
+			typeof parsed === "object" &&
+			"verifier" in parsed &&
+			typeof parsed.verifier === "string" &&
+			"instance" in parsed &&
+			typeof parsed.instance === "string" &&
+			"createdAt" in parsed &&
+			typeof parsed.createdAt === "number"
+		) {
+			pendingLogin = parsed as LoginAttempt;
+		}
+		return pendingLogin;
 	} catch {
 		return null;
 	}
@@ -84,20 +124,29 @@ export async function startNativeLogin(provider = "discord", redir = "/"): Promi
 	const instance = getInstanceUrl();
 	if (!instance) return;
 	const { verifier, challenge } = await createPkce();
-	await storeVerifier(verifier);
+	await storeVerifier({ verifier, instance, createdAt: Date.now() });
 	const params = new URLSearchParams({ native: "1", redir, challenge });
 	// Pass the app id so the callback can return via an intent:// URL targeting this
 	// package directly — avoiding the browser's "open in app?" disambiguation prompt.
 	try {
-		const { App } = await import("@capacitor/app");
-		const id = (await App.getInfo()).id;
-		if (id) params.set("app", id);
+		if (Capacitor.getPlatform() === "android") {
+			const { App } = await import("@capacitor/app");
+			const id = (await App.getInfo()).id;
+			if (id) params.set("app", id);
+		}
 	} catch {
 		/* App.getInfo unavailable — fall back to the plain diadem:// scheme */
 	}
 	const url = `${instance}/login/${provider}?${params.toString()}`;
-	const { Browser } = await import("@capacitor/browser");
-	await Browser.open({ url });
+	try {
+		const { Browser } = await import("@capacitor/browser");
+		await Browser.open({ url });
+	} catch {
+		await storeVerifier(null);
+		const { openToast } = await import("@/lib/ui/toasts.svelte");
+		const { m } = await import("@/lib/paraglide/messages");
+		openToast(m.signin_toast_error(), 10000);
+	}
 }
 
 /**
@@ -107,45 +156,67 @@ export async function startNativeLogin(provider = "discord", redir = "/"): Promi
 export async function completeNativeLogin(code: string): Promise<boolean> {
 	const instance = getInstanceUrl();
 	if (!instance || !code) return false;
-	try {
-		const verifier = await takeVerifier();
-		if (!verifier) return false;
-		const res = await fetch(`${instance}/api/native/exchange`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ code, verifier })
-		});
-		const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
-		if (!res.ok || typeof data?.token !== "string" || !data.token) return false;
-		await persistToken(data.token);
-		return true;
-	} catch {
-		return false;
-	} finally {
+	if (exchangeInFlight) return exchangeInFlight;
+	exchangeInFlight = (async () => {
 		try {
-			const { Browser } = await import("@capacitor/browser");
-			await Browser.close();
+			const attempt = await getLoginAttempt();
+			if (
+				!attempt ||
+				attempt.instance !== instance ||
+				Date.now() - attempt.createdAt > 30 * 60 * 1000
+			)
+				return false;
+			const res = await fetch(`${instance}/api/native/exchange`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ code, verifier: attempt.verifier }),
+				signal: AbortSignal.timeout(15000)
+			});
+			const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
+			if (!res.ok || typeof data?.token !== "string" || !data.token) return false;
+			if (getInstanceUrl() !== instance || pendingLogin !== attempt) return false;
+			await persistToken(data.token, instance);
+			await storeVerifier(null);
+			return true;
 		} catch {
-			/* browser may already be closed */
+			return false;
+		} finally {
+			try {
+				const { Browser } = await import("@capacitor/browser");
+				await Browser.close();
+			} catch {
+				/* browser may already be closed */
+			}
 		}
+	})();
+	try {
+		return await exchangeInFlight;
+	} finally {
+		exchangeInFlight = null;
 	}
 }
 
 /** Clear only the locally stored bearer token (server sign-out handled elsewhere). */
 export async function clearStoredToken(): Promise<void> {
+	await storeVerifier(null);
 	await persistToken(null);
 }
 
 /** Clear the stored session and best-effort sign out on the server. */
 export async function nativeLogout(): Promise<void> {
 	const instance = getInstanceUrl();
-	const token = bearerToken;
-	await persistToken(null);
-	if (instance && token) {
+	const token = getBearerToken();
+	await clearStoredToken();
+	if (instance) {
 		try {
 			await fetch(`${instance}/api/auth/sign-out`, {
 				method: "POST",
-				headers: { Authorization: `Bearer ${token}` }
+				// Session refresh can also populate Capacitor's native cookie jar.
+				// Better Auth requires a trusted Origin when those cookies are sent.
+				headers: {
+					Origin: window.location.origin,
+					...(token ? { Authorization: `Bearer ${token}` } : {})
+				}
 			});
 		} catch {
 			/* best effort */

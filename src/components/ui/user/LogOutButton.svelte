@@ -17,8 +17,7 @@
 		isLoggingOut = true;
 		try {
 			if (isNative()) {
-				// Native has no cookies and can't reach the web /logout route; sign out
-				// via the bearer-authenticated API and clear the stored token.
+				// Revoke the native session and clear its persisted bearer token.
 				await nativeLogout();
 			} else {
 				const response = await fetch("/logout", { method: "POST" });

@@ -60,7 +60,7 @@
 
 <Modal
 	{modalType}
-	class="h-[calc(100dvh-8rem)] max-h-200 w-[calc(100%-1rem)] max-w-2xl! flex flex-col pb-4 pt-3"
+	class="h-[calc(var(--native-viewport-height,100dvh)-8rem)] max-h-200! w-[calc(100%-1rem)] max-w-2xl! flex flex-col pb-4 pt-3"
 >
 	{#snippet title()}
 		<p class="pb-2 font-semibold text-base pl-4 pr-12 wrap-anywhere">

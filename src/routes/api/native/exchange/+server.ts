@@ -21,8 +21,8 @@ export async function POST(event: RequestEvent): Promise<Response> {
 		return new Response(null, { status: 400 });
 	}
 
-	const token = consumeNativeCode(code, verifier);
+	const token = await consumeNativeCode(code, verifier);
 	if (!token) return new Response(null, { status: 400 });
 
-	return json({ token });
+	return json({ token }, { headers: { "Cache-Control": "no-store" } });
 }

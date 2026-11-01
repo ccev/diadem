@@ -51,9 +51,8 @@
 
 <style>
 	:global(.drawer-full) {
-		/* Only inset for the status bar when the drawer is expanded to the top;
-		   at the partial snap point it sits below the status bar already. */
-		padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
+		/* The viewport already excludes the status bar and display cutout. */
+		padding-top: 0.5rem;
 
 		& .content {
 			overflow-y: auto;

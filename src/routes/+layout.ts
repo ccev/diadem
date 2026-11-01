@@ -14,7 +14,9 @@ import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export const ssr = false;
 
-export const load: LayoutLoad = async ({ fetch, url }) => {
+export const load: LayoutLoad = async ({ fetch, url, route }) => {
+	// The browser handoff renders before any map configuration or client settings.
+	if (route.id === "/(auth)/login/discord/native") return { nativeAuthHandoff: true };
 	if (!browser) return;
 
 	// First run on native (no instance chosen yet): show the instance-gate screen.
@@ -33,14 +35,16 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 	}
 	setConfig(config);
 
-	let rawUserSettings: string | null = null;
-	if (browser && window.localStorage) {
-		rawUserSettings = localStorage.getItem("userSettings");
-	}
-
-	if (rawUserSettings) {
-		setUserSettings(JSON.parse(rawUserSettings));
-	} else {
+	try {
+		const rawUserSettings = window.localStorage?.getItem("userSettings");
+		const savedSettings: unknown = rawUserSettings ? JSON.parse(rawUserSettings) : null;
+		setUserSettings(
+			savedSettings && typeof savedSettings === "object" && !Array.isArray(savedSettings)
+				? savedSettings
+				: getDefaultUserSettings()
+		);
+	} catch {
+		// A corrupt saved value must not prevent the map from starting.
 		setUserSettings(getDefaultUserSettings());
 	}
 

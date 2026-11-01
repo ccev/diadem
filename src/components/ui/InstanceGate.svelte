@@ -3,7 +3,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowRight, CircleCheck, CircleX, LoaderCircle } from "@lucide/svelte";
 	import { fetchInstanceMapName, setInstanceUrl } from "@/lib/native/runtime";
-	import { clearStoredToken } from "@/lib/native/auth";
+	import { nativeLogout } from "@/lib/native/auth";
 	import { fly } from "svelte/transition";
 	import * as m from "@/lib/paraglide/messages";
 
@@ -46,18 +46,23 @@
 	}
 
 	async function connect() {
-		if (connecting) return;
+		if (connecting || checking || !value.trim()) return;
 		connecting = true;
 		failed = false;
-		const name = mapName ?? (await fetchInstanceMapName(value));
+		const target = value;
+		const name = mapName ?? (await fetchInstanceMapName(target));
+		if (target !== value) {
+			connecting = false;
+			return;
+		}
 		if (name === null) {
 			connecting = false;
 			failed = true;
 			return;
 		}
 		mapName = name;
-		await setInstanceUrl(value);
-		await clearStoredToken();
+		await nativeLogout();
+		await setInstanceUrl(target);
 		window.location.assign("/");
 	}
 
@@ -95,7 +100,9 @@
 </script>
 
 <div
-	class="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-linear-180 from-indigo-950 to-40% to-blue-900 text-center"
+	class="fixed inset-0 overflow-y-auto overflow-x-hidden bg-linear-180 from-indigo-950 to-40% to-blue-900 text-center"
+	style:top="var(--native-viewport-top, 0px)"
+	style:height="var(--native-viewport-height, 100%)"
 	style:padding-top="env(safe-area-inset-top)"
 	style:padding-bottom="env(safe-area-inset-bottom)"
 >
@@ -109,10 +116,8 @@
 		{/each}
 	</div>
 
-	<div
-		class="flex flex-col justify-center relative gap-6 h-full pt-safe-inset-top pb-safe-inset-bottom mb-8 mt-4 w-full px-6"
-	>
-		<div class="flex flex-col items-center justify-center text-sky-100 w-full h-full">
+	<div class="flex flex-col relative gap-8 min-h-full w-full px-6 py-8">
+		<div class="flex flex-1 flex-col items-center justify-center text-sky-100 w-full">
 			<h1 class="arched-title flex items-baseline text-6xl font-bold tracking-[0.15em] mb-4">
 				{#each title as t, i (i)}
 					<span style="transform: translateY({t.y}px) rotate({t.rot}deg)">{t.ch}</span>
@@ -131,6 +136,7 @@
 					oninput={resetConnectionState}
 					{onkeydown}
 					type="url"
+					aria-label={m.instance_gate_prompt()}
 					inputmode="url"
 					autocapitalize="none"
 					autocorrect="off"
@@ -138,10 +144,10 @@
 					placeholder="..."
 				/>
 			</div>
-			<div class="relative w-full">
+			<div class="relative w-full min-h-12" aria-live="polite">
 				{#if checking || mapName || failed}
 					<div
-						class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 fixed w-full justify-center right-0 left-0"
+						class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 w-full justify-center wrap-anywhere"
 						transition:fly={{ duration: 140, y: -10 }}
 					>
 						{#if checking}
@@ -159,15 +165,20 @@
 			</div>
 		</div>
 
-		<div class="w-full h-fit flex flex-col items-center gap-4">
+		<div class="w-full shrink-0 flex flex-col items-center gap-4">
 			<Button
 				variant=""
 				onclick={connect}
-				disabled={!mapName}
+				disabled={!value.trim() || checking || connecting}
 				class="disabled:opacity-50 bg-linear-0 from-sky-100/50 from-5% via-sky-50/75 to-95% to-white/90 w-full max-w-sm h-16 rounded-md outline-sky-100/75 outline-2 text-indigo-900/90 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"
 			>
-				{m.connect()}
-				<ArrowRight class="size-4 stroke-[2.5]" />
+				{#if connecting}
+					<LoaderCircle class="size-4 stroke-[2.5] animate-spin" />
+					{m.connecting()}
+				{:else}
+					{m.connect()}
+					<ArrowRight class="size-4 stroke-[2.5]" />
+				{/if}
 			</Button>
 			<!--			<Button-->
 			<!--				variant=""-->

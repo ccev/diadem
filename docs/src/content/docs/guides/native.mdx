@@ -61,10 +61,10 @@ pnpm run build:native:ios          ->  build client and sync ios/
 
 After syncing, build the native project with Gradle, Xcode, or Capacitor.
 
-:::caution
-Native and web builds use the normal `.svelte-kit/` working directory. Avoid
-running a native build while `pnpm run dev` or another build is active.
-:::
+Native builds use `.svelte-kit-native/`, so rebuilding an APK does not overwrite
+the generated files used by a running web development server. Both production
+web and native builds still write their final output to `build/`; run those
+builds one at a time.
 
 ## Development builds
 
@@ -96,11 +96,15 @@ Build a debug APK and run it on a connected device.
    ```bash
    cd android && ./gradlew assembleDebug
    adb install -r app/build/outputs/apk/debug/app-debug.apk
+   adb shell am start -n ee.malt.diadem.debug/ee.malt.diadem.MainActivity
    ```
 
 </Steps>
 
 After changing client code, re-run `pnpm run build:native:android` before rebuilding.
+
+Debug builds install as **Diadem Debug** (`ee.malt.diadem.debug`), so they can run
+alongside the release app without replacing its saved instance or session.
 
 ### iOS simulator builds
 
@@ -146,12 +150,51 @@ xcrun simctl openurl booted "diadem://pokemon/<id>"
 - Deep links use the `diadem://` scheme. Simulate one with:
 
   ```bash
-  adb shell am start -a android.intent.action.VIEW -d "diadem://pokemon/<id>"
+  adb shell am start -a android.intent.action.VIEW -d "diadem://pokemon/<id>" -p ee.malt.diadem.debug
   ```
 
 - Discord/OAuth login opens the system browser and returns to the app via
-  `diadem://auth`. This works against any Diadem instance, the required
-  `bearer` auth support is built into the Diadem server.
+  `diadem://auth`. The server offers a **Return to Diadem** button if the browser
+  blocks the automatic return. Bearer credentials stay bound to the selected
+  instance, including across restarts.
+
+Update the Diadem server alongside the app when rolling out native auth fixes.
+Login handoff codes use the existing internal `verification` table, so the
+browser callback and app exchange can reach different server workers. No new
+database migration is required for an existing Better Auth installation. Finish
+the rollout across all workers before testing; mixing old in-memory handoff
+workers with updated workers can still fail intermittently.
+
+### Testing mobile layouts and the keyboard
+
+Run these checks on a real device before publishing a release. Include portrait
+and landscape, the device's larger text setting, and both gesture and three-button
+navigation where available:
+
+- On the instance picker, open the keyboard, enter an instance URL, and verify
+  that the input, connection result, and **Connect** button remain reachable by
+  scrolling. Close the keyboard and confirm the screen returns to its full height.
+- Open search and a filter editor with the keyboard visible. The search field,
+  results, editor actions, and close buttons must remain reachable without scrolling
+  the map behind them.
+- Expand and collapse the Filters, Profile, and Tools drawers, then open a map
+  object's popup. Check that titles and close/share buttons fit, popup content
+  scrolls, and bottom actions stay above the navigation bar.
+- Rotate with a drawer or dialog open, then repeat after closing the keyboard.
+  Drawer snap points should adjust to the new height without leaving a blank gap
+  or placing controls outside the viewport.
+- Check an unreachable instance and a long instance name. Retry and disconnect
+  actions must remain visible and text must wrap within the screen.
+
+On Android 15 and newer, `MainActivity` keeps the WebView inside the system bars
+and display cutout, and passes keyboard insets through to the WebView. Earlier
+Android versions keep the status bar outside the WebView. iOS uses CSS safe-area
+insets. Avoid adding the same system-bar padding in both native code and CSS.
+Native overlays follow the visual viewport so the keyboard can reduce their
+available height without hiding controls.
+
+Also smoke-test the web build in a narrow mobile browser and on desktop after
+changing shared drawer or dialog components.
 
 ## Production builds
 

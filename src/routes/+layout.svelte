@@ -9,14 +9,22 @@
 	import { onMount } from "svelte";
 	import { getConfig } from "$lib/services/config/config";
 	import { getInstanceUrl } from "$lib/native/runtime";
+	import { markNativeNavigationReady } from "@/lib/native/deepLinks";
 
 	let { children, data } = $props();
 
 	// remove static loader
-	onMount(() => document.getElementById("initial-loader")?.remove());
+	onMount(() => {
+		document.getElementById("initial-loader")?.remove();
+		markNativeNavigationReady(
+			!data?.nativeAuthHandoff && !data?.needsInstanceGate && !data?.configError
+		);
+	});
 </script>
 
-{#if data?.needsInstanceGate}
+{#if data?.nativeAuthHandoff}
+	{@render children()}
+{:else if data?.needsInstanceGate}
 	<InstanceGate />
 {:else if data?.configError}
 	{#if data.offline}

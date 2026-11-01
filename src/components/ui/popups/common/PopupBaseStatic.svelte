@@ -52,7 +52,7 @@
 	}
 </script>
 
-<div class="flex gap-6 px-4">
+<div class="relative flex shrink-0 gap-6 px-4 pr-24">
 	{#if props && data}
 		{@render props.image(data)}
 		<div class="min-w-0">
@@ -101,7 +101,7 @@
 </div>
 
 {#if props && data && props.overview}
-	<div class="w-full">
+	<div class="w-full shrink-0">
 		<div class="overflow-x-auto flex *:shrink-0 gap-2 px-4 has-[*]:mt-4 touch-pan-x">
 			{#if props && data}
 				{@render props.overview(data)}
@@ -110,7 +110,7 @@
 	</div>
 {/if}
 
-<div class="mt-5" data-popup-initial-snap-point-end>
+<div class="mt-5 shrink-0" data-popup-initial-snap-point-end>
 	{#if onlyShowNavigationButton}
 		<div class="px-4">
 			<PopupButton
@@ -128,7 +128,7 @@
 	{/if}
 </div>
 
-<div class="px-4 pt-2 mt-2 pb-6 space-y-7 overflow-y-auto">
+<div class="min-h-0 px-4 pt-2 mt-2 pb-6 space-y-7 overflow-y-auto">
 	{#if props && data}
 		{@render props.main(data)}
 	{/if}
