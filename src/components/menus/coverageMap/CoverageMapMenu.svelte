@@ -14,7 +14,7 @@
 	import { m } from "@/lib/paraglide/messages";
 	import type * as icons from "@lucide/svelte";
 
-	let expandedAreas: Set<string> = new SvelteSet();
+	let expandedAreas: Set<number | string> = new SvelteSet();
 
 	function getAreaIcon(area: KojiSidebarEntry): keyof typeof icons {
 		return (area.properties.lucideIcon ?? "Globe") as keyof typeof icons;
@@ -38,7 +38,7 @@
 {/snippet}
 
 {#snippet areaEntry(area: KojiSidebarEntry)}
-	{@const isExpanded = expandedAreas.has(area.properties.name)}
+	{@const isExpanded = expandedAreas.has(area.properties.id)}
 	<div class="w-full flex py-2 items-center pl-2 pr-2 gap-3 text-sm font-medium">
 		{#if area.properties.children.length === 0}
 			{@render areaTitle(area)}
@@ -49,8 +49,8 @@
 				variant="ghost"
 				aria-expanded={isExpanded}
 				onclick={() => {
-					const existed = expandedAreas.delete(area.properties.name);
-					if (!existed) expandedAreas.add(area.properties.name);
+					const existed = expandedAreas.delete(area.properties.id);
+					if (!existed) expandedAreas.add(area.properties.id);
 				}}
 			>
 				{@render areaTitle(area)}
@@ -81,7 +81,7 @@
 
 <div class="overflow-hidden">
 	{#if hasLoadedFeature(LoadedFeature.KOJI)}
-		{#each getKojiSidebarEntries() as area (area.properties.name)}
+		{#each getKojiSidebarEntries() as area (area.properties.id)}
 			{@render areaEntry(area)}
 		{/each}
 	{/if}

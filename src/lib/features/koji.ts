@@ -18,7 +18,10 @@ type KojiProperties = {
 export type KojiFeature = Feature<Polygon, KojiProperties>;
 export type KojiFeatures = KojiFeature[];
 export type KojiSidebarEntry =
-	KojiFeature | { properties: Pick<KojiProperties, "name" | "lucideIcon" | "children"> };
+	| KojiFeature
+	| {
+			properties: Pick<KojiProperties, "name" | "lucideIcon" | "children"> & { id: string };
+	  };
 let geofences: KojiFeatures = [];
 
 export async function loadKojiGeofences() {
@@ -70,7 +73,9 @@ export function getKojiSidebarEntries(): KojiSidebarEntry[] {
 		} else if (!names.has(parent)) {
 			let group = groups.get(parent);
 			if (!group) {
-				group = { properties: { name: parent, children: [] } };
+				group = {
+					properties: { id: `virtual-parent:${parent}`, name: parent, children: [] }
+				};
 				groups.set(parent, group);
 				entries.push(group);
 			}
