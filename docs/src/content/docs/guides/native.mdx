@@ -28,10 +28,7 @@ MapLibre rendering is not used.)
 - Everything from the normal [installation](/guides/installation) (Node 24+, pnpm)
 - **JDK 21** and the **Android SDK** (Capacitor 7 builds against Java 21)
 - A connected Android device with USB debugging, or an emulator
-- **iOS only:** a Mac with Xcode 26+, CocoaPods, and an Apple Developer account for App Store/TestFlight uploads
-
-The iOS app requires iOS 16.4 or newer, matching the Safari/WebKit minimum required
-by [Tailwind CSS 4](https://tailwindcss.com/docs/compatibility#browser-support).
+- **iOS 16.4+ only:** a Mac with Xcode 26+, CocoaPods, and an Apple Developer account for App Store/TestFlight uploads
 
 On macOS, make sure the full Xcode install is selected, not only the Command
 Line Tools:
@@ -64,10 +61,11 @@ pnpm run build:native:ios          ->  build client and sync ios/
 
 After syncing, build the native project with Gradle, Xcode, or Capacitor.
 
-Native builds use `.svelte-kit-native/`, so rebuilding an APK does not overwrite
-the generated files used by a running web development server. Both production
-web and native builds still write their final output to `build/`; run those
-builds one at a time.
+The native build command first syncs the shared TypeScript configuration in
+`.svelte-kit/`, so it also works on a fresh checkout. Native compilation then uses
+`.svelte-kit-native/`, keeping its generated runtime files separate from a running
+web development server. Both production web and native builds still write their
+final output to `build/`; run those builds one at a time.
 
 ## Development builds
 
@@ -167,6 +165,16 @@ browser callback and app exchange can reach different server workers. No new
 database migration is required for an existing Better Auth installation. Finish
 the rollout across all workers before testing; mixing old in-memory handoff
 workers with updated workers can still fail intermittently.
+
+To test cross-worker handoff and concurrent single-use exchanges against MySQL:
+
+```bash
+NATIVE_HANDOFF_TEST_DATABASE_URL=mysql://root:password@127.0.0.1:3306 \
+  pnpm test src/lib/server/auth/nativeHandoff.mysql.test.ts
+```
+
+The suite creates and drops its own temporary database, so the account needs
+database creation privileges. Without this variable, the MySQL tests are skipped.
 
 ### Testing mobile layouts and the keyboard
 

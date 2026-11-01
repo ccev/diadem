@@ -6,12 +6,16 @@ const state = vi.hoisted(() => ({
 	setUserSettings: vi.fn(),
 	updateUserSettings: vi.fn(),
 	storage: vi.fn(),
+	native: false,
 	config: { general: { mapName: "Test map" } }
 }));
 vi.mock("$app/environment", () => ({ browser: true }));
 vi.mock("@/lib/services/config/config", () => ({ setConfig: vi.fn() }));
 vi.mock("@/lib/utils/getMapPath", () => ({ getMapPath: () => "/map" }));
-vi.mock("@/lib/native/runtime", () => ({ isNative: () => false, getInstanceUrl: () => "" }));
+vi.mock("@/lib/native/runtime", () => ({
+	isNative: () => state.native,
+	getInstanceUrl: () => "https://map.example"
+}));
 vi.mock("@/lib/services/userSettings.svelte", () => ({
 	getDefaultUserSettings: () => state.defaults,
 	setUserSettings: state.setUserSettings,
@@ -24,6 +28,7 @@ vi.mock("@/lib/utils/requests", () => ({
 
 beforeEach(() => {
 	vi.clearAllMocks();
+	state.native = false;
 	state.storage.mockReset();
 	state.setUserSettings.mockReset();
 	vi.stubGlobal("window", { localStorage: { getItem: state.storage } });
@@ -37,6 +42,7 @@ it.each(["{broken", "null", "true", "42", '"text"', "[]", ""])(
 		await expect(
 			load({
 				fetch: async () => Response.json(state.config),
+				untrack: (fn: () => unknown) => fn(),
 				route: { id: "/" },
 				url: new URL("https://localhost/")
 			} as any)
@@ -51,6 +57,7 @@ it("keeps valid saved settings", async () => {
 	state.storage.mockReturnValue(JSON.stringify(saved));
 	await load({
 		fetch: async () => Response.json(state.config),
+		untrack: (fn: () => unknown) => fn(),
 		route: { id: "/" },
 		url: new URL("https://localhost/")
 	} as any);
@@ -65,6 +72,7 @@ it("recovers when applying a saved settings object fails", async () => {
 	await expect(
 		load({
 			fetch: async () => Response.json(state.config),
+			untrack: (fn: () => unknown) => fn(),
 			route: { id: "/" },
 			url: new URL("https://localhost/")
 		} as any)
@@ -77,6 +85,7 @@ it("renders the native auth handoff without loading map config or user settings"
 	await expect(
 		load({
 			fetch,
+			untrack: (fn: () => unknown) => fn(),
 			route: { id: "/(auth)/login/discord/native" },
 			url: new URL("https://localhost/login/discord/native")
 		} as any)
@@ -84,4 +93,50 @@ it("renders the native auth handoff without loading map config or user settings"
 	expect(fetch).not.toHaveBeenCalled();
 	expect(state.storage).not.toHaveBeenCalled();
 	expect(state.setUserSettings).not.toHaveBeenCalled();
+});
+
+it.each([false, true])(
+	"does not track route or path changes during bootstrap (native=%s)",
+	async (native) => {
+		state.native = native;
+		let tracking = true;
+		const navigationDependency = vi.fn();
+		await load({
+			fetch: async () => Response.json(state.config),
+			url: {
+				get pathname() {
+					if (tracking) navigationDependency();
+					return "/map";
+				}
+			},
+			route: {
+				get id() {
+					if (tracking) navigationDependency();
+					return "/(main)/[[map=map]]";
+				}
+			},
+			untrack: (fn: () => unknown) => {
+				tracking = false;
+				try {
+					return fn();
+				} finally {
+					tracking = true;
+				}
+			}
+		} as any);
+		expect(state.setUserSettings).toHaveBeenCalledOnce();
+		expect(navigationDependency).not.toHaveBeenCalled();
+	}
+);
+
+it("still redirects the initial native landing page to the map", async () => {
+	state.native = true;
+	await expect(
+		load({
+			fetch: async () => Response.json(state.config),
+			untrack: (fn: () => unknown) => fn(),
+			route: { id: "/(main)/[[map=map]]" },
+			url: new URL("https://localhost/")
+		} as any)
+	).rejects.toMatchObject({ status: 307, location: "/map" });
 });

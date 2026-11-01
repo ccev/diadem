@@ -18,7 +18,7 @@
 		<Button
 			variant="secondary"
 			onclick={async () => {
-				await nativeLogout();
+				await nativeLogout({ waitForServer: false });
 				await setInstanceUrl("");
 				window.location.assign("/");
 			}}

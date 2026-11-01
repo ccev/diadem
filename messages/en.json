@@ -1014,6 +1014,6 @@
 	"biome_name_polar_hilly_waters": "Polar Hilly Waters",
 	"pokemon_picker_show_more": "Show more",
 	"native_auth_return": "Return to Diadem",
-	"native_auth_complete": "Sign-in is complete. Return to Diadem to continue.",
-	"native_auth_failed": "Sign-in failed. Return to Diadem and try again."
+	"native_auth_complete": "Successfully signed in",
+	"native_auth_failed": "Sign-in failed, please try again"
 }

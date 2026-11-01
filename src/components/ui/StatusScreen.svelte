@@ -25,7 +25,7 @@
 	let disconnecting = $state(false);
 	async function disconnect() {
 		disconnecting = true;
-		await nativeLogout();
+		await nativeLogout({ waitForServer: false });
 		await setInstanceUrl("");
 		window.location.assign("/");
 	}

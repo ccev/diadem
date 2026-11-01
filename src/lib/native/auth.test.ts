@@ -110,15 +110,25 @@ describe("native authentication", () => {
 		expect(await auth.completeNativeLogin("code")).toBe(true);
 	});
 
-	it("coalesces simultaneous launch and appUrlOpen callbacks", async () => {
+	it("exchanges a fresh login while an older handoff is still pending", async () => {
 		const auth = await import("./auth");
 		await auth.startNativeLogin();
-		const request = vi.fn().mockResolvedValue(Response.json({ token: "session-token" }));
+		let finishOld!: (response: Response) => void;
+		const request = vi
+			.fn()
+			.mockImplementationOnce(() => new Promise<Response>((resolve) => (finishOld = resolve)))
+			.mockResolvedValue(Response.json({ token: "new-session" }));
 		vi.stubGlobal("fetch", request);
-		expect(
-			await Promise.all([auth.completeNativeLogin("code"), auth.completeNativeLogin("code")])
-		).toEqual([true, true]);
-		expect(request).toHaveBeenCalledOnce();
+		const oldExchange = auth.completeNativeLogin("old-code");
+		await vi.waitFor(() => expect(request).toHaveBeenCalledOnce());
+		await auth.startNativeLogin();
+		expect(await auth.completeNativeLogin("new-code")).toBe(true);
+		finishOld(Response.json({ token: "old-session" }));
+		expect(await oldExchange).toBe(false);
+		expect(auth.getBearerToken()).toBe("new-session");
+		expect(request).toHaveBeenCalledTimes(2);
+		expect(JSON.parse(request.mock.calls[1][1].body).code).toBe("new-code");
+		expect(mocks.close).not.toHaveBeenCalled();
 	});
 
 	it("does not restore a session if the user cancels while the exchange is in flight", async () => {
@@ -225,5 +235,52 @@ describe("native authentication", () => {
 		expect(mocks.preferences.has("diadem_bearer_token")).toBe(false);
 		expect(mocks.clearCookies).toHaveBeenCalledOnce();
 		expect(mocks.clearCookies).toHaveBeenCalledWith({ url: mocks.instance });
+	});
+
+	it.each(["android", "ios"])(
+		"disconnects %s locally without waiting for an unreachable server",
+		async (platform) => {
+			mocks.platform = platform;
+			mocks.preferences.set("diadem_bearer_token", "session-token");
+			vi.stubGlobal("window", { location: { href: "https://localhost/" } });
+			let rejectRevocation!: (error: Error) => void;
+			const request = vi.fn(
+				() => new Promise<Response>((_, reject) => (rejectRevocation = reject))
+			);
+			vi.stubGlobal("fetch", request);
+			const auth = await import("./auth");
+			await auth.loadStoredToken();
+			await auth.startNativeLogin();
+			await auth.nativeLogout({ waitForServer: false });
+			expect(auth.getBearerToken()).toBeNull();
+			expect(mocks.preferences.size).toBe(0);
+			expect(mocks.clearCookies).toHaveBeenCalledWith({ url: mocks.instance });
+			expect(request).toHaveBeenCalledWith(`${mocks.instance}/api/auth/sign-out`, {
+				method: "POST",
+				headers: { Origin: "https://localhost", Authorization: "Bearer session-token" }
+			});
+			// Handle late revocation failures even after the selected instance changes.
+			mocks.instance = "https://other.example";
+			rejectRevocation(new Error("offline"));
+			await Promise.resolve();
+			expect(mocks.clearCookies).toHaveBeenCalledOnce();
+		}
+	);
+
+	it("waits for server revocation on explicit sign-out", async () => {
+		vi.stubGlobal("window", { location: { href: "https://localhost/" } });
+		let finishRevocation!: (response: Response) => void;
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(() => new Promise<Response>((resolve) => (finishRevocation = resolve)))
+		);
+		const auth = await import("./auth");
+		const finished = vi.fn();
+		const logout = auth.nativeLogout().then(finished);
+		await vi.waitFor(() => expect(mocks.clearCookies).toHaveBeenCalledOnce());
+		expect(finished).not.toHaveBeenCalled();
+		finishRevocation(new Response(null, { status: 200 }));
+		await logout;
+		expect(finished).toHaveBeenCalledOnce();
 	});
 });

@@ -40,6 +40,14 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 		} catch {
 			/* session storage may be unavailable */
 		}
+		// Dismiss the originating browser now, so a slow exchange cannot later
+		// close a browser opened for a newer login attempt.
+		try {
+			const { Browser } = await import("@capacitor/browser");
+			await Browser.close();
+		} catch {
+			/* browser may already be closed */
+		}
 		const code = url.searchParams.get("code");
 		if (code && (await completeNativeLogin(code))) {
 			try {
@@ -61,16 +69,6 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 				window.location.reload();
 			}
 		} else {
-			// An OAuth error has no handoff code, so completeNativeLogin did not
-			// dismiss iOS's browser. Close it before showing the error in the app.
-			if (!code) {
-				try {
-					const { Browser } = await import("@capacitor/browser");
-					await Browser.close();
-				} catch {
-					/* browser may already be closed */
-				}
-			}
 			const { openToast } = await import("@/lib/ui/toasts.svelte");
 			const { m } = await import("@/lib/paraglide/messages");
 			openToast(m.signin_toast_error(), 10000);

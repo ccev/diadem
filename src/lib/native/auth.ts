@@ -59,7 +59,6 @@ async function persistToken(token: string | null, instance = getInstanceUrl()): 
 const VERIFIER_KEY = "diadem_pkce_verifier";
 type LoginAttempt = { verifier: string; instance: string; createdAt: number };
 let pendingLogin: LoginAttempt | null = null;
-let exchangeInFlight: Promise<boolean> | null = null;
 
 function base64url(bytes: Uint8Array): string {
 	let binary = "";
@@ -156,81 +155,59 @@ export async function startNativeLogin(provider = "discord", redir = "/"): Promi
 export async function completeNativeLogin(code: string): Promise<boolean> {
 	const instance = getInstanceUrl();
 	if (!instance || !code) return false;
-	if (exchangeInFlight) return exchangeInFlight;
-	exchangeInFlight = (async () => {
-		try {
-			const attempt = await getLoginAttempt();
-			if (
-				!attempt ||
-				attempt.instance !== instance ||
-				Date.now() - attempt.createdAt > 30 * 60 * 1000
-			)
-				return false;
-			const res = await fetch(`${instance}/api/native/exchange`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ code, verifier: attempt.verifier }),
-				signal: AbortSignal.timeout(15000)
-			});
-			const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
-			if (!res.ok || typeof data?.token !== "string" || !data.token) return false;
-			if (getInstanceUrl() !== instance || pendingLogin !== attempt) return false;
-			await persistToken(data.token, instance);
-			await storeVerifier(null);
-			return true;
-		} catch {
-			return false;
-		} finally {
-			try {
-				const { Browser } = await import("@capacitor/browser");
-				await Browser.close();
-			} catch {
-				/* browser may already be closed */
-			}
-		}
-	})();
 	try {
-		return await exchangeInFlight;
-	} finally {
-		exchangeInFlight = null;
+		const attempt = await getLoginAttempt();
+		if (
+			!attempt ||
+			attempt.instance !== instance ||
+			Date.now() - attempt.createdAt > 30 * 60 * 1000
+		)
+			return false;
+		const res = await fetch(`${instance}/api/native/exchange`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ code, verifier: attempt.verifier })
+		});
+		const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
+		if (!res.ok || typeof data?.token !== "string" || !data.token) return false;
+		if (getInstanceUrl() !== instance || pendingLogin !== attempt) return false;
+		await persistToken(data.token, instance);
+		await storeVerifier(null);
+		return true;
+	} catch {
+		return false;
 	}
 }
 
-/** Clear only the locally stored bearer token (server sign-out handled elsewhere). */
+/** Clear the local session, including cookies retained by native networking. */
 export async function clearStoredToken(): Promise<void> {
+	const instance = getInstanceUrl();
 	await storeVerifier(null);
 	await persistToken(null);
-}
-
-/** Clear the stored session and best-effort sign out on the server. */
-export async function nativeLogout(): Promise<void> {
-	const instance = getInstanceUrl();
-	const token = getBearerToken();
-	await clearStoredToken();
 	if (instance) {
 		try {
-			const local = new URL(window.location.href);
-			await fetch(`${instance}/api/auth/sign-out`, {
+			await CapacitorCookies.clearCookies({ url: instance });
+		} catch {
+			/* best effort */
+		}
+	}
+}
+
+/** Disconnects need only local cleanup; explicit sign-out also awaits revocation. */
+export async function nativeLogout({ waitForServer = true } = {}): Promise<void> {
+	const instance = getInstanceUrl();
+	const token = getBearerToken();
+	const local = new URL(window.location.href);
+	// Start with the old instance, token, and cookies before clearing local state.
+	const revocation = instance
+		? fetch(`${instance}/api/auth/sign-out`, {
 				method: "POST",
-				// Session refresh can also populate Capacitor's native cookie jar.
-				// Better Auth requires a trusted Origin when those cookies are sent.
 				headers: {
 					Origin: `${local.protocol}//${local.host}`,
 					...(token ? { Authorization: `Bearer ${token}` } : {})
 				}
-			});
-		} catch {
-			/* best effort */
-		} finally {
-			// URLSession and WKWebView also retain session cookies on iOS. Remove
-			// them locally even when offline so signing out cannot restore a session.
-			if (Capacitor.getPlatform() === "ios") {
-				try {
-					await CapacitorCookies.clearCookies({ url: instance });
-				} catch {
-					/* best effort */
-				}
-			}
-		}
-	}
+			}).catch(() => {})
+		: undefined;
+	await clearStoredToken();
+	if (waitForServer) await revocation;
 }

@@ -138,4 +138,31 @@ describe("native deep links", () => {
 		expect(mocks.addListener).toHaveBeenCalledOnce();
 		expect(mocks.getLaunchUrl).toHaveBeenCalledOnce();
 	});
+
+	it("deduplicates a simultaneous launch URL and appUrlOpen while allowing a different callback", async () => {
+		const url = "diadem://auth?code=old-code";
+		mocks.getLaunchUrl.mockResolvedValue({ url });
+		let finishOld!: (success: boolean) => void;
+		mocks.completeLogin.mockImplementationOnce(
+			() => new Promise<boolean>((resolve) => (finishOld = resolve))
+		);
+		await (await import("./deepLinks")).installDeepLinks();
+		const onOpen = mocks.addListener.mock.calls[0][1];
+		onOpen({ url });
+		await vi.waitFor(() => expect(mocks.completeLogin).toHaveBeenCalledOnce());
+		expect(mocks.closeBrowser).toHaveBeenCalledOnce();
+		expect(mocks.closeBrowser.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.completeLogin.mock.invocationCallOrder[0]
+		);
+		onOpen({ url: "diadem://auth?code=new-code" });
+		await vi.waitFor(() => expect(mocks.reload).toHaveBeenCalledOnce());
+		expect(mocks.completeLogin).toHaveBeenCalledTimes(2);
+		expect(mocks.completeLogin).toHaveBeenLastCalledWith("new-code");
+		expect(mocks.closeBrowser).toHaveBeenCalledTimes(2);
+		finishOld(false);
+		await vi.waitFor(() => expect(mocks.toast).toHaveBeenCalledOnce());
+		// Finishing an older exchange must not dismiss a newer login browser.
+		expect(mocks.closeBrowser).toHaveBeenCalledTimes(2);
+		expect(mocks.reload).toHaveBeenCalledOnce();
+	});
 });

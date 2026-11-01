@@ -8,49 +8,20 @@
 	import * as m from "@/lib/paraglide/messages";
 
 	// makes sure this is loadable before anything else
-	let { initial = "", onCancel }: { initial?: string; onCancel?: () => void } = $props();
+	let { initial = "" }: { initial?: string } = $props();
 
 	let value = $state(untrack(() => initial));
 
-	let checking = $state(false);
 	let connecting = $state(false);
 	let mapName = $state<string | null>(null);
 	let failed = $state(false);
 
-	function resetConnectionState() {
-		mapName = null;
-		failed = false;
-	}
-
-	async function checkConnection() {
-		if (checking || connecting) return;
-		const target = value;
-		failed = false;
-		checking = true;
-
-		let name = null;
-		try {
-			name = await fetchInstanceMapName(target);
-		} catch {
-			name = null;
-		}
-
-		if (target !== value) {
-			checking = false;
-			return;
-		}
-
-		checking = false;
-		if (name === null) failed = true;
-		else mapName = name;
-	}
-
 	async function connect() {
-		if (connecting || checking || !value.trim()) return;
+		if (connecting || !value.trim()) return;
 		connecting = true;
 		failed = false;
 		const target = value;
-		const name = mapName ?? (await fetchInstanceMapName(target));
+		const name = await fetchInstanceMapName(target);
 		if (target !== value) {
 			connecting = false;
 			return;
@@ -61,13 +32,9 @@
 			return;
 		}
 		mapName = name;
-		await nativeLogout();
+		await nativeLogout({ waitForServer: false });
 		await setInstanceUrl(target);
 		window.location.assign("/");
-	}
-
-	function onkeydown(e: KeyboardEvent) {
-		if (e.key === "Enter") connect();
 	}
 
 	const stars = [
@@ -134,9 +101,13 @@
 				<input
 					class="w-full max-w-sm bg-sky-100 text-indigo-900 placeholder:text-blue-900/50 py-4 px-4 rounded-md outline-sky-300/50 outline-3 text-xl font-medium transition-all duration-150 ease-out focus:outline-sky-300/75 focus:outline-4"
 					bind:value
-					onchange={() => checkConnection()}
-					oninput={resetConnectionState}
-					{onkeydown}
+					oninput={() => {
+						mapName = null;
+						failed = false;
+					}}
+					onkeydown={(event) => {
+						if (event.key === "Enter") void connect();
+					}}
 					type="url"
 					aria-label={m.instance_gate_prompt()}
 					inputmode="url"
@@ -147,17 +118,17 @@
 				/>
 			</div>
 			<div class="relative w-full min-h-12" aria-live="polite">
-				{#if checking || mapName || failed}
+				{#if connecting || failed}
 					<div
 						class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 w-full justify-center wrap-anywhere"
 						transition:fly={{ duration: 140, y: -10 }}
 					>
-						{#if checking}
-							<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
-							{m.connection_checking()}
-						{:else if mapName}
+						{#if mapName}
 							<CircleCheck class="size-4 stroke-[2.5] mt-0.5" />
 							{m.connecting_to_name({ name: mapName })}
+						{:else if connecting}
+							<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
+							{m.connection_checking()}
 						{:else if failed}
 							<CircleX class="size-4 stroke-[2.5]" />
 							{m.connection_failed()}
@@ -171,7 +142,7 @@
 			<Button
 				variant=""
 				onclick={connect}
-				disabled={!value.trim() || checking || connecting}
+				disabled={!value.trim() || connecting}
 				class="disabled:opacity-50 bg-linear-0 from-sky-100/50 from-5% via-sky-50/75 to-95% to-white/90 w-full max-w-sm h-16 rounded-md outline-sky-100/75 outline-2 text-indigo-900/90 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"
 			>
 				{#if connecting}
@@ -182,26 +153,6 @@
 					<ArrowRight class="size-4 stroke-[2.5]" />
 				{/if}
 			</Button>
-			<!--			<Button-->
-			<!--				variant=""-->
-			<!--				onclick={checkConnection}-->
-			<!--				class="bg-linear-0 from-indigo-700/50 from-5%  via-indigo-600/75 to-95% to-indigo-600/90 w-full max-w-sm h-16 rounded-md outline-indigo-600/80 outline-2 text-sky-100/75 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"-->
-			<!--			>-->
-			<!--				&lt;!&ndash;			<Radio class="size-4 stroke-[2.5]" />&ndash;&gt;-->
-			<!--				{#if checking}-->
-			<!--					<LoaderCircle class="size-4 stroke-[2.5] animate-spin" />-->
-			<!--					Checking...-->
-			<!--				{:else if mapName}-->
-			<!--					<CircleCheck class="size-4 stroke-[2.5]" />-->
-			<!--					{mapName} works-->
-			<!--				{:else if failed}-->
-			<!--					<CircleX class="size-4 stroke-[2.5]" />-->
-			<!--					Connection failed-->
-			<!--				{:else}-->
-			<!--					Check connection-->
-			<!--				{/if}-->
-
-			<!--			</Button>-->
 		</div>
 	</div>
 </div>

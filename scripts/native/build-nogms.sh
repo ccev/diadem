@@ -10,7 +10,7 @@ restore() {
 }
 trap restore EXIT
 
-BUILD_TARGET=native VITE_NO_GMS=true pnpm exec vite build
+VITE_NO_GMS=true pnpm run build:native
 
 if [ -L "$GEO" ] || [ -e "$GEO" ]; then mv "$GEO" "$STASH"; fi
 pnpm exec cap sync android
