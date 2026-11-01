@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { status } from "@grpc/grpc-js";
+import { PokemonScanRequest } from "../grpc/golbat_api";
 import {
 	describeGrpcError,
 	fromFortScanResponse,
@@ -22,6 +23,7 @@ describe("toFortScanRequest", () => {
 		const req = toFortScanRequest({
 			...bounds,
 			limit: 501,
+			updated_after: 100,
 			filters: [
 				{
 					raid_level: [5],
@@ -36,6 +38,7 @@ describe("toFortScanRequest", () => {
 			min: { lat: 51.5, lon: -0.2 },
 			max: { lat: 51.6, lon: -0.1 },
 			limit: 501,
+			updated_after: 100,
 			filters: [
 				{
 					raid_level: [5],
@@ -52,6 +55,7 @@ describe("toFortScanRequest", () => {
 		const req = toFortScanRequest({ ...bounds, limit: 10 });
 		expect(req.filters).toEqual([]);
 		expect(req.with_incidents).toBe(false);
+		expect(req.updated_after).toBeUndefined();
 	});
 });
 
@@ -60,6 +64,7 @@ describe("toPokemonScanRequest", () => {
 		const req = toPokemonScanRequest({
 			...bounds,
 			limit: 3000,
+			updated_after: 100,
 			filters: [
 				{
 					pokemon: [{ id: 25 }, { id: 26, form: 3 }],
@@ -81,6 +86,10 @@ describe("toPokemonScanRequest", () => {
 			}
 		]);
 		expect(req.limit).toBe(3000);
+		expect(req.updated_after).toBe(100);
+		expect(PokemonScanRequest.decode(PokemonScanRequest.encode(req).finish()).updated_after).toBe(
+			100
+		);
 	});
 
 	it("keeps the empty-pokemon catch-all clause", () => {
@@ -304,6 +313,7 @@ describe("toFortCombinedScanRequest", () => {
 		const req = toFortCombinedScanRequest({
 			...bounds,
 			limit: 20003,
+			updated_after: 100,
 			with_incidents: true,
 			gyms: { filters: [{ raid_level: [5] }], limit: 10001 },
 			pokestops: { filters: [], limit: 10001 }
@@ -312,6 +322,7 @@ describe("toFortCombinedScanRequest", () => {
 			min: { lat: 51.5, lon: -0.2 },
 			max: { lat: 51.6, lon: -0.1 },
 			limit: 20003,
+			updated_after: 100,
 			with_incidents: true,
 			gyms: { filters: [{ raid_level: [5] }], limit: 10001 },
 			pokestops: { filters: [], limit: 10001 },

@@ -282,7 +282,7 @@ Available keys:
 
 ## `server.encounterIdObfuscation`
 
-Encrypts encounter IDs before sending them to clients, and decrypts incoming IDs on the server. 
+Encrypts encounter IDs before sending them to clients, and decrypts incoming IDs on the server.
 
 ```toml
 [server.encounterIdObfuscation]
@@ -296,6 +296,17 @@ secret = ""
   ```sh
   openssl rand -hex 32
   ```
+
+## `server.tuning`
+
+```toml
+[server.tuning]
+cpuWorkers = 1
+```
+
+- `cpuWorkers`: CPU worker threads per Node process for map permission geometry and encounter ID
+  encryption. Omitted or `0` runs work on the main thread.
+  Start with `1` and measure before increasing
 
 ## `server.db` and `server.internalDb`
 

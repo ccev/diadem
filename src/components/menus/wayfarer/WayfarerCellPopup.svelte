@@ -33,7 +33,6 @@
 	<WayfarerBasePopup
 		class="pb-2"
 		isExpanded={() => true}
-		buttons={undefined}
 		canShare={false}
 		onclose={() => setClickedL14Cell(undefined)}
 	>

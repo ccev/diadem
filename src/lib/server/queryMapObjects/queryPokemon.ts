@@ -5,7 +5,11 @@ import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectType
 import { getMultiplePokemon, getSinglePokemon } from "@/lib/server/api/golbat/http";
 import { grpcScanPokemon, scanViaGrpcOrHttp } from "@/lib/server/api/golbat/grpc";
 import { requestLimits } from "@/lib/server/api/rateLimit";
-import { decodeEncounterId, encodeEncounterId } from "@/lib/server/encounterIds";
+import {
+	decodeEncounterId,
+	encodeEncounterId,
+	encodeEncounterIds
+} from "@/lib/server/encounterIds";
 import {
 	MapObjectQuery,
 	type MapObjectResponse
@@ -34,7 +38,8 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		polygon: PermittedPolygon,
 		since?: number,
 		limit?: number,
-		context?: FeaturePermissionContext
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
 	): Promise<MapObjectResponse<MinMapObject<PokemonData>>> {
 		if (filter && !filter.enabled) return { data: [], examined: 0 };
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
@@ -67,16 +72,27 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 			data.push(pokemon);
 		}
 
+		// Encrypt only records that survived filtering, limits, and delta checks.
+		if (data.length === 0) return { data, examined: Math.max(0, examined) };
+		const ids = await encodeEncounterIds(
+			data.map((pokemon) => pokemon.id),
+			signal
+		);
+		for (let i = 0; i < data.length; i++) data[i].id = ids[i];
 		return { data, examined: Math.max(0, examined) };
 	}
 
-	async querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<PokemonData>[]> {
+	async querySingle(
+		id: string,
+		thisFetch?: typeof fetch,
+		signal?: AbortSignal
+	): Promise<MinMapObject<PokemonData>[]> {
 		const encounterId = decodeEncounterId(id);
-		let mon: PokemonData | undefined = undefined;
-		if (encounterId) {
-			mon = await getSinglePokemon(encounterId, thisFetch);
-		}
-		return mon ? [this.makePokemon(mon, undefined)] : [];
+		if (!encounterId) return [];
+		const mon = await getSinglePokemon(encounterId, thisFetch);
+		return mon
+			? [{ ...this.makePokemon(mon, undefined), id: await encodeEncounterId(mon.id, signal) }]
+			: [];
 	}
 
 	prepare(data: MinMapObject<PokemonData>, context?: FeaturePermissionContext): void {
@@ -109,7 +125,7 @@ export class PokemonQuery extends MapObjectQuery<PokemonData, FilterPokemon> {
 		const statsAllowed = ivAllowed || pvpAllowed;
 
 		const pokemon = {
-			id: encodeEncounterId(p.id),
+			id: p.id,
 			lat: round(p.lat, 6),
 			lon: round(p.lon, 6),
 			pokemon_id: p.pokemon_id,

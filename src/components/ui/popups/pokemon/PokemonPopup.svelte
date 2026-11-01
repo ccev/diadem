@@ -16,7 +16,10 @@
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import MainAccessMap from "@/components/ui/popups/common/MainAccessMap.svelte";
 	import { getIconItem, getIconPokemon } from "$lib/services/uicons.svelte";
-	import { getPokemonStats as getMasterPokemonStats, type PokemonStats } from "$lib/features/masterStats.svelte";
+	import {
+		getPokemonStats as getMasterPokemonStats,
+		type PokemonStats
+	} from "$lib/features/masterStats.svelte";
 	import type { PokemonData, PvpStats } from "$lib/types/mapObjectData/pokemon";
 	import { isPointInAllowedArea } from "$lib/services/user/checkPerm";
 	import { getUserDetails } from "$lib/services/user/userDetails.svelte";
@@ -66,8 +69,8 @@
 	import FiltersetIcon from "$lib/features/filters/FiltersetIcon.svelte";
 	import PokemonStatsCard from "@/components/ui/popups/common/PokemonStatsCard.svelte";
 	import BigCountdown from "@/components/ui/popups/common/BigCountdown.svelte";
-	import { mLeague } from "$lib/services/ingameLocale.ts";
-	import { getIconLeague, getIconPokestop } from "$lib/services/uicons.svelte.ts";
+	import { mLeague } from "$lib/services/ingameLocale";
+	import { getIconLeague, getIconPokestop } from "$lib/services/uicons.svelte";
 	import { getHeaders, parseResponse } from "$lib/utils/requests";
 	import { openMapObject } from "$lib/features/directLinks.svelte";
 	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
@@ -188,7 +191,7 @@
 				iv: [data?.atk_iv ?? 0, data?.def_iv ?? 0, data?.sta_iv ?? 0]
 			});
 		}
-		return data.cp
+		return data.cp;
 	}
 </script>
 
@@ -373,7 +376,6 @@
 						{m.encounter_cp()}: {data.cp}
 					</p>
 				</div>
-
 			</BasicMainCard>
 		{/if}
 
