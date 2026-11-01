@@ -68,7 +68,9 @@
 	<MaxBattleFilterset />
 
 	{#if isSearchViewActive()}
-		<div class="fixed z-50 top-safe-inset-top px-2 w-full pointer-events-none">
+		<div
+			class="fixed z-50 top-safe-inset-top pl-safe-inset-left pr-safe-inset-right w-full pointer-events-none"
+		>
 			<ActiveSearchView />
 		</div>
 	{/if}
@@ -100,8 +102,8 @@
 		{#snippet mobileTop()}
 			<div
 				class="fixed top-safe-inset-top z-10 flex flex-col gap-2"
-				class:right-2={!isUiLeft() || isMenuSidebar()}
-				class:left-2={isUiLeft() && !isMenuSidebar()}
+				class:right-safe-inset-right={!isUiLeft() || isMenuSidebar()}
+				class:left-safe-inset-left={isUiLeft() && !isMenuSidebar()}
 				class:items-end={!isUiLeft() || isMenuSidebar()}
 				class:items-start={isUiLeft() && !isMenuSidebar()}
 			>

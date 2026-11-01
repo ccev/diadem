@@ -12,6 +12,8 @@
 	/* Safe-area offsets for native (notch/status/nav bars), with the usual 0.5rem*/
 	--spacing-safe-inset-top: calc(0.5rem + env(safe-area-inset-top));
 	--spacing-safe-inset-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+	--spacing-safe-inset-left: calc(0.5rem + env(safe-area-inset-left));
+	--spacing-safe-inset-right: calc(0.5rem + env(safe-area-inset-right));
 }
 
 :root {

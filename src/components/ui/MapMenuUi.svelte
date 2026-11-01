@@ -20,7 +20,7 @@
 
 {#if isMenuSidebar()}
 	<div
-		class="fixed inset-0 z-10 flex items-end overflow-hidden pt-safe-inset-top pb-safe-inset-bottom pointer-events-none"
+		class="fixed inset-0 z-10 flex items-end overflow-hidden pt-safe-inset-top pb-safe-inset-bottom pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pointer-events-none"
 	>
 		<div
 			class="mr-auto flex h-full min-w-[17rem] max-w-104 flex-[1_1_26rem] flex-col items-start justify-end gap-2"
@@ -38,7 +38,7 @@
 	<MobileMenu />
 
 	<div
-		class="fixed z-20 bottom-safe-inset-bottom w-full flex flex-col pointer-events-none gap-2"
+		class="fixed z-20 bottom-safe-inset-bottom w-full pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] flex flex-col pointer-events-none gap-2"
 		class:items-end={!isUiLeft()}
 		class:items-start={isUiLeft()}
 	>

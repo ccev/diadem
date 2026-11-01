@@ -1,5 +1,5 @@
 import { getInstanceUrl, isNative } from "@/lib/native/runtime";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, CapacitorCookies } from "@capacitor/core";
 
 const TOKEN_KEY = "diadem_bearer_token";
 type StoredToken = { instance: string; token: string };
@@ -209,17 +209,28 @@ export async function nativeLogout(): Promise<void> {
 	await clearStoredToken();
 	if (instance) {
 		try {
+			const local = new URL(window.location.href);
 			await fetch(`${instance}/api/auth/sign-out`, {
 				method: "POST",
 				// Session refresh can also populate Capacitor's native cookie jar.
 				// Better Auth requires a trusted Origin when those cookies are sent.
 				headers: {
-					Origin: window.location.origin,
+					Origin: `${local.protocol}//${local.host}`,
 					...(token ? { Authorization: `Bearer ${token}` } : {})
 				}
 			});
 		} catch {
 			/* best effort */
+		} finally {
+			// URLSession and WKWebView also retain session cookies on iOS. Remove
+			// them locally even when offline so signing out cannot restore a session.
+			if (Capacitor.getPlatform() === "ios") {
+				try {
+					await CapacitorCookies.clearCookies({ url: instance });
+				} catch {
+					/* best effort */
+				}
+			}
 		}
 	}
 }

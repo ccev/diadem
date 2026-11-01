@@ -7,7 +7,8 @@ const mocks = vi.hoisted(() => ({
 	replace: vi.fn(),
 	reload: vi.fn(),
 	addListener: vi.fn(),
-	getLaunchUrl: vi.fn()
+	getLaunchUrl: vi.fn(),
+	closeBrowser: vi.fn()
 }));
 vi.mock("@/lib/native/runtime", () => ({ isNative: () => true }));
 vi.mock("@/lib/native/auth", () => ({ completeNativeLogin: mocks.completeLogin }));
@@ -17,6 +18,7 @@ vi.mock("$app/navigation", () => ({ goto: mocks.goto }));
 vi.mock("@capacitor/app", () => ({
 	App: { addListener: mocks.addListener, getLaunchUrl: mocks.getLaunchUrl }
 }));
+vi.mock("@capacitor/browser", () => ({ Browser: { close: mocks.closeBrowser } }));
 
 beforeEach(() => {
 	vi.resetModules();
@@ -24,13 +26,19 @@ beforeEach(() => {
 	mocks.completeLogin.mockResolvedValue(true);
 	mocks.getLaunchUrl.mockResolvedValue(undefined);
 	mocks.addListener.mockResolvedValue({ remove: vi.fn() });
+	mocks.closeBrowser.mockResolvedValue(undefined);
 	const session = new Map<string, string>();
 	vi.stubGlobal("sessionStorage", {
 		getItem: (key: string) => session.get(key) ?? null,
 		setItem: (key: string, value: string) => session.set(key, value)
 	});
 	vi.stubGlobal("window", {
-		location: { origin: "https://localhost", replace: mocks.replace, reload: mocks.reload }
+		location: {
+			origin: "https://localhost",
+			href: "https://localhost/",
+			replace: mocks.replace,
+			reload: mocks.reload
+		}
 	});
 });
 afterEach(() => vi.unstubAllGlobals());
@@ -52,6 +60,33 @@ describe("native deep links", () => {
 		expect(mocks.replace).not.toHaveBeenCalled();
 		expect(mocks.reload).toHaveBeenCalledOnce();
 	});
+	it("returns to the requested route on iOS even when its origin serializes as null", async () => {
+		vi.stubGlobal("window", {
+			location: {
+				origin: "null",
+				href: "capacitor://localhost/",
+				replace: mocks.replace,
+				reload: mocks.reload
+			}
+		});
+		await (await import("./deepLinks")).handleDeepLink("diadem://auth?code=code&redir=%2Fa");
+		expect(mocks.replace).toHaveBeenCalledWith("/a");
+	});
+	it("does not accept another host with the same opaque iOS origin", async () => {
+		vi.stubGlobal("window", {
+			location: {
+				origin: "null",
+				href: "capacitor://localhost/",
+				replace: mocks.replace,
+				reload: mocks.reload
+			}
+		});
+		await (
+			await import("./deepLinks")
+		).handleDeepLink("diadem://auth?code=code&redir=%2F%2Fother%2Fa");
+		expect(mocks.replace).not.toHaveBeenCalled();
+		expect(mocks.reload).toHaveBeenCalledOnce();
+	});
 
 	it("makes server and exchange failures visible", async () => {
 		const { handleDeepLink } = await import("./deepLinks");
@@ -61,6 +96,14 @@ describe("native deep links", () => {
 		expect(mocks.toast).toHaveBeenCalledTimes(2);
 		expect(mocks.toast).toHaveBeenCalledWith("Sign-in failed", 10000);
 		expect(mocks.reload).not.toHaveBeenCalled();
+	});
+	it("dismisses the iOS login browser before displaying an OAuth error without a code", async () => {
+		await (await import("./deepLinks")).handleDeepLink("diadem://auth?error=1");
+		expect(mocks.closeBrowser).toHaveBeenCalledOnce();
+		expect(mocks.completeLogin).not.toHaveBeenCalled();
+		expect(mocks.closeBrowser.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.toast.mock.invocationCallOrder[0]
+		);
 	});
 
 	it("preserves query and hash on content links", async () => {

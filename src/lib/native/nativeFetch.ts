@@ -18,20 +18,20 @@ const INSTANCE_PREFIXES = ["/api/", "/assets/"];
  *   like "/api/config" (SvelteKit's load fetch strips the origin for
  *   same-origin requests, so the wrapper sees relative paths here)
  * @param instanceUrl normalized instance origin ("" = none configured)
- * @param localOrigin the webview's own origin (requests to this origin are candidates)
+ * @param localUrl the webview's own URL (requests to its scheme and host are candidates)
  */
 export function rewriteInstanceUrl(
 	requestUrl: string,
 	instanceUrl: string,
-	localOrigin: string
+	localUrl: string
 ): string | null {
 	if (!instanceUrl) return null;
 
 	let parsed: URL;
+	let local: URL;
 	try {
-		// Resolve relative paths against the webview origin so "/api/config"
-		// becomes "<localOrigin>/api/config" rather than throwing.
-		parsed = new URL(requestUrl, localOrigin);
+		local = new URL(localUrl);
+		parsed = new URL(requestUrl, local);
 	} catch {
 		return null;
 	}
@@ -47,8 +47,9 @@ export function rewriteInstanceUrl(
 	}
 	if (parsed.origin === instanceOrigin) return parsed.href;
 
-	// Local-origin /api and /assets paths → rewrite to the instance.
-	if (parsed.origin !== localOrigin) return null;
+	// iOS uses capacitor://localhost, whose URL.origin may serialize as "null".
+	// Compare the actual scheme and host instead of opaque origin strings.
+	if (parsed.protocol !== local.protocol || parsed.host !== local.host) return null;
 
 	const matches = INSTANCE_PREFIXES.some(
 		(p) => parsed.pathname === p.slice(0, -1) || parsed.pathname.startsWith(p)
@@ -87,14 +88,14 @@ const NULL_BODY_STATUSES = new Set([204, 205, 304]);
 export function installNativeFetch(): void {
 	if (!isNative()) return;
 
-	const localOrigin = window.location.origin;
+	const localUrl = window.location.href;
 	const originalFetch = window.fetch.bind(window);
 
 	window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
 		const req = input instanceof Request ? input : undefined;
 		const url = req ? req.url : input instanceof URL ? input.href : String(input);
 
-		const target = rewriteInstanceUrl(url, getInstanceUrl(), localOrigin);
+		const target = rewriteInstanceUrl(url, getInstanceUrl(), localUrl);
 		if (!target) return originalFetch(input as RequestInfo, init);
 
 		const signal = init?.signal ?? req?.signal;

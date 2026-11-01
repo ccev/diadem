@@ -105,6 +105,8 @@
 	style:height="var(--native-viewport-height, 100%)"
 	style:padding-top="env(safe-area-inset-top)"
 	style:padding-bottom="env(safe-area-inset-bottom)"
+	style:padding-left="env(safe-area-inset-left)"
+	style:padding-right="env(safe-area-inset-right)"
 >
 	<!-- Twinkling star field, confined to the top 16% of the screen. -->
 	<div class="pointer-events-none absolute inset-x-0 top-0 h-[25%]" aria-hidden="true">

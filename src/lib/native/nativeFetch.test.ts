@@ -70,6 +70,18 @@ describe("rewriteInstanceUrl", () => {
 	it("still ignores absolute external URLs even when an instance is set", () => {
 		expect(rewriteInstanceUrl("https://tiles.example.com/1.pbf", INSTANCE, LOCAL)).toBeNull();
 	});
+	it("rewrites relative and absolute requests from the iOS custom scheme", () => {
+		for (const url of ["/api/config", "capacitor://localhost/api/config"]) {
+			expect(rewriteInstanceUrl(url, INSTANCE, "capacitor://localhost/")).toBe(
+				`${INSTANCE}/api/config`
+			);
+		}
+	});
+	it("does not treat other custom-scheme hosts as the local iOS app", () => {
+		expect(
+			rewriteInstanceUrl("capacitor://other/api/config", INSTANCE, "capacitor://localhost/")
+		).toBeNull();
+	});
 });
 
 describe("installNativeFetch", () => {
@@ -86,7 +98,10 @@ describe("installNativeFetch", () => {
 		originalFetch.mockReset().mockResolvedValue(new Response("local"));
 		state.instance = INSTANCE;
 		state.token = "session-token";
-		vi.stubGlobal("window", { location: { origin: LOCAL }, fetch: originalFetch });
+		vi.stubGlobal("window", {
+			location: { origin: LOCAL, href: `${LOCAL}/` },
+			fetch: originalFetch
+		});
 		installNativeFetch();
 	});
 	afterEach(() => {
@@ -150,6 +165,16 @@ describe("installNativeFetch", () => {
 			expect.objectContaining({ url: "https://other.example.com/api/config" })
 		);
 	});
+	it("routes iOS requests natively even when the WebView has an opaque origin", async () => {
+		vi.stubGlobal("window", {
+			location: { origin: "null", href: "capacitor://localhost/a" },
+			fetch: originalFetch
+		});
+		installNativeFetch();
+		expect(await (await window.fetch("/api/config")).json()).toEqual({ success: true });
+		expect(state.request).toHaveBeenCalledOnce();
+		expect(originalFetch).not.toHaveBeenCalled();
+	});
 
 	it("preserves MessagePack response bytes", async () => {
 		const bytes = Uint8Array.from([0x81, 0xa4, 0x74, 0x65, 0x73, 0x74, 0xc3]);
@@ -194,7 +219,7 @@ describe("installNativeFetch", () => {
 
 it("times out a stalled native bridge request even if platform retries never finish", async () => {
 	vi.useFakeTimers();
-	vi.stubGlobal("window", { location: { origin: LOCAL }, fetch: vi.fn() });
+	vi.stubGlobal("window", { location: { origin: LOCAL, href: `${LOCAL}/` }, fetch: vi.fn() });
 	state.request.mockReturnValue(new Promise(() => {}));
 	installNativeFetch();
 	const result = expect(window.fetch("/api/config")).rejects.toMatchObject({

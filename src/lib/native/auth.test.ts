@@ -7,13 +7,17 @@ const mocks = vi.hoisted(() => ({
 	preferences: new Map<string, string>(),
 	open: vi.fn(),
 	close: vi.fn(),
+	clearCookies: vi.fn(),
 	toast: vi.fn()
 }));
 vi.mock("@/lib/native/runtime", () => ({
 	getInstanceUrl: () => mocks.instance,
 	isNative: () => true
 }));
-vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => mocks.platform } }));
+vi.mock("@capacitor/core", () => ({
+	Capacitor: { getPlatform: () => mocks.platform },
+	CapacitorCookies: { clearCookies: mocks.clearCookies }
+}));
 vi.mock("@capacitor/app", () => ({ App: { getInfo: async () => ({ id: "ee.malt.diadem" }) } }));
 vi.mock("@capacitor/browser", () => ({ Browser: { open: mocks.open, close: mocks.close } }));
 vi.mock("@capacitor/preferences", () => ({
@@ -34,6 +38,7 @@ beforeEach(() => {
 	mocks.preferences.clear();
 	mocks.open.mockReset().mockResolvedValue(undefined);
 	mocks.close.mockReset().mockResolvedValue(undefined);
+	mocks.clearCookies.mockReset().mockResolvedValue(undefined);
 	mocks.toast.mockReset();
 });
 afterEach(() => vi.unstubAllGlobals());
@@ -162,7 +167,7 @@ describe("native authentication", () => {
 	});
 
 	it("signs out with a trusted Origin so native session cookies can be revoked", async () => {
-		vi.stubGlobal("window", { location: { origin: "https://localhost" } });
+		vi.stubGlobal("window", { location: { href: "https://localhost/" } });
 		mocks.preferences.set("diadem_bearer_token", "legacy-session-token");
 		const auth = await import("./auth");
 		await auth.loadStoredToken();
@@ -177,7 +182,7 @@ describe("native authentication", () => {
 	});
 
 	it("revokes a native cookie-only session even when no local bearer remains", async () => {
-		vi.stubGlobal("window", { location: { origin: "https://localhost" } });
+		vi.stubGlobal("window", { location: { href: "https://localhost/" } });
 		const auth = await import("./auth");
 		const request = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
 		vi.stubGlobal("fetch", request);
@@ -186,5 +191,39 @@ describe("native authentication", () => {
 			method: "POST",
 			headers: { Origin: "https://localhost" }
 		});
+	});
+
+	it("uses the trusted iOS custom-scheme Origin when signing out", async () => {
+		mocks.platform = "ios";
+		vi.stubGlobal("window", {
+			location: { href: "capacitor://localhost/a", origin: "null" }
+		});
+		const auth = await import("./auth");
+		const request = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
+		vi.stubGlobal("fetch", request);
+		await auth.nativeLogout();
+		expect(request).toHaveBeenCalledWith(`${mocks.instance}/api/auth/sign-out`, {
+			method: "POST",
+			headers: { Origin: "capacitor://localhost" }
+		});
+		expect(mocks.clearCookies).toHaveBeenCalledWith({ url: mocks.instance });
+	});
+
+	it("clears iOS session cookies for the selected instance when sign-out is offline", async () => {
+		mocks.platform = "ios";
+		mocks.preferences.set(
+			"diadem_bearer_token",
+			JSON.stringify({ instance: mocks.instance, token: "session-token" })
+		);
+		vi.stubGlobal("window", { location: { href: "capacitor://localhost/" } });
+		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+		const auth = await import("./auth");
+		await auth.loadStoredToken();
+		expect(auth.getBearerToken()).toBe("session-token");
+		await auth.nativeLogout();
+		expect(auth.getBearerToken()).toBeNull();
+		expect(mocks.preferences.has("diadem_bearer_token")).toBe(false);
+		expect(mocks.clearCookies).toHaveBeenCalledOnce();
+		expect(mocks.clearCookies).toHaveBeenCalledWith({ url: mocks.instance });
 	});
 });

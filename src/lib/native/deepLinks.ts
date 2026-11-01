@@ -49,13 +49,28 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 			}
 			// Reboot the SPA so every load()/fetch reruns with the bearer token.
 			const redir = url.searchParams.get("redir");
-			const target = new URL(redir || "/", window.location.origin);
-			if (redir?.startsWith("/") && target.origin === window.location.origin) {
+			const local = new URL(window.location.href);
+			const target = new URL(redir || "/", local);
+			if (
+				redir?.startsWith("/") &&
+				target.protocol === local.protocol &&
+				target.host === local.host
+			) {
 				window.location.replace(`${target.pathname}${target.search}${target.hash}`);
 			} else {
 				window.location.reload();
 			}
 		} else {
+			// An OAuth error has no handoff code, so completeNativeLogin did not
+			// dismiss iOS's browser. Close it before showing the error in the app.
+			if (!code) {
+				try {
+					const { Browser } = await import("@capacitor/browser");
+					await Browser.close();
+				} catch {
+					/* browser may already be closed */
+				}
+			}
 			const { openToast } = await import("@/lib/ui/toasts.svelte");
 			const { m } = await import("@/lib/paraglide/messages");
 			openToast(m.signin_toast_error(), 10000);
