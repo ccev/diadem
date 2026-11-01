@@ -1,4 +1,5 @@
 import type { GymData } from "@/lib/types/mapObjectData/gym";
+import type { BiomeData } from "@/lib/types/mapObjectData/biome";
 import type { NestData } from "@/lib/types/mapObjectData/nest";
 import type { PokemonData } from "@/lib/types/mapObjectData/pokemon";
 import type { PokestopData } from "@/lib/types/mapObjectData/pokestop";
@@ -16,6 +17,7 @@ export enum MapObjectType {
 	STATION = "station",
 	S2_CELL = "s2cell",
 	NEST = "nest",
+	BIOME = "biome",
 	SPAWNPOINT = "spawnpoint",
 	ROUTE = "route",
 	TAPPABLE = "tappable"
@@ -31,6 +33,7 @@ export type MapData =
 	| GymData
 	| StationData
 	| NestData
+	| BiomeData
 	| SpawnpointData
 	| RouteData
 	| TappableData

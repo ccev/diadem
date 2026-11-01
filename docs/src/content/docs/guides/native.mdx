@@ -194,6 +194,21 @@ Play requires a **signed App Bundle** (`.aab`).
 
 Upload the `.aab` to the Play Console.
 
+#### Retry Google Play only
+
+To retry a failed Play upload, open **Actions → Google Play → Run workflow** in
+GitHub. Select the branch containing the fix (typically `main`) and the desired
+`play_track` (`internal`, `alpha`, `beta`, or `production`).
+
+This workflow rebuilds and uploads the version already recorded in
+`android/app/build.gradle`, using its matching changelog from
+`fastlane/metadata/android/en-US/changelogs/`. It uses the same `ANDROID_*` signing
+secrets and `PLAY_SERVICE_ACCOUNT_JSON` as the full **Release** workflow.
+
+Use this for a version code whose Play upload failed. Google Play requires a new
+version code after a successful upload; use the full **Release** workflow for a
+new version.
+
 ### iOS (App Store)
 
 On a Mac:

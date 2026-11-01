@@ -13,11 +13,14 @@ import { resetSearchedLocation } from "@/lib/services/search.svelte";
 import { getUserSettings, updateMapPosition } from "@/lib/services/userSettings.svelte.js";
 import {
 	clearPressTimer,
+	resetMapPress,
 	longPressDuration,
 	onLocationContext,
 	pressTimer
 } from "@/lib/map/locationEvents";
+import { closeQuickActions } from "@/lib/ui/quickActions.svelte";
 import type * as maplibre from "maplibre-gl";
+import { tick } from "svelte";
 import type { MapMoveEvent } from "svelte-maplibre";
 
 export async function onMapMoveEnd() {
@@ -35,10 +38,13 @@ export async function onMapMoveEnd() {
 }
 
 export function onTouchStart(e: maplibre.MapTouchEvent) {
+	resetMapPress();
+	if (e.originalEvent.touches.length !== 1) return;
 	pressTimer.push(setTimeout(() => onLocationContext(e), longPressDuration));
 }
 
 export async function onMapMoveStart() {
+	closeQuickActions();
 	clearPressTimer();
 	clearUpdateMapObjectsInterval();
 	resetLoadMapObjects();
@@ -60,11 +66,12 @@ export function onMapMove(event: MapMoveEvent) {
 	setSkew(event.target.getPitch(), event.target.getBearing());
 }
 
-export function onMapStyleDataLoading() {
-	updateFeatures(getMapObjects());
-	getMap()?.once("styledata", onMapStyleLoad);
-}
-
-export function onMapStyleLoad() {
+export async function onMapStyleLoad(event: maplibre.MapStyleLoadEvent) {
+	const map = getMap();
+	if (!map || event.target !== map) return;
+	// svelte-maplibre recreates the source, then resets its data in a Svelte effect.
+	await tick();
+	if (getMap() !== map || map._removed) return;
 	addMapStyleVersion();
+	updateFeatures(getMapObjects());
 }

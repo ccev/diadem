@@ -44,6 +44,10 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 	protected getFilterWhere(filter: FilterStation | undefined): { sql: string; values: unknown[] } {
 		if (filter && !filter.stationPlain.enabled && filter.maxBattle.enabled) {
 			const filters = filter.maxBattle.filters.filter((f) => f.enabled);
+			const battleWhere = "battle_pokemon_id > 0 AND end_time > UNIX_TIMESTAMP()";
+			if (filters.some((f) => f.bosses === undefined && !f.isActive && !f.hasGmax)) {
+				return { sql: battleWhere, values: [] };
+			}
 			const clauses: string[] = [];
 			const values: unknown[] = [];
 
@@ -75,13 +79,13 @@ export class StationQuery extends DbMapObjectQuery<StationData, FilterStation> {
 
 			if (clauses.length) {
 				return {
-					sql: `is_inactive = false AND is_battle_available = true AND end_time > UNIX_TIMESTAMP() AND (${clauses.join(" OR ")})`,
+					sql: `${battleWhere} AND (${clauses.join(" OR ")})`,
 					values
 				};
 			}
 
 			return {
-				sql: "is_inactive = false AND is_battle_available = true AND end_time > UNIX_TIMESTAMP()",
+				sql: battleWhere,
 				values: []
 			};
 		}

@@ -2,8 +2,9 @@
 	import { MapLibre } from "svelte-maplibre";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte.js";
 	import { onDestroy, type Snippet } from "svelte";
+	import { on } from "svelte/events";
 	import { handleRotatePitchDisable } from "@/lib/map/map.svelte";
-	import { onMapMove, onMapStyleDataLoading } from "@/lib/map/events";
+	import { onMapMove, onMapStyleLoad } from "@/lib/map/events";
 	import type * as maplibre from "maplibre-gl";
 	import { isAnyModalOpen } from "@/lib/ui/modal.svelte.js";
 	import { getMapStyle, mapStyleFromId } from "@/lib/utils/mapStyle";
@@ -30,13 +31,17 @@
 		initialCenter: Coords;
 		initialZoom: number;
 		style?: string | maplibre.StyleSpecification;
-		showAttribution?: boolean
+		showAttribution?: boolean;
 	} = $props();
 
 	function onMapLoad(map: maplibre.Map) {
 		if (!map) return;
 
-		map.on("styledataloading", onMapStyleDataLoading);
+		// Firefox can natively drag a page selection containing the canvas instead of panning.
+		const stopNativeDrag = on(map.getCanvas(), "dragstart", (event) => event.preventDefault());
+		map.once("remove", stopNativeDrag);
+
+		map.on("style.load", onMapStyleLoad);
 		map.on("move", onMapMove); // needed for compass fab
 		handleRotatePitchDisable(map);
 

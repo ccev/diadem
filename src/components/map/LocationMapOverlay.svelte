@@ -4,7 +4,9 @@
 	import { getCurrentSelectedData } from "$lib/mapObjects/currentSelectedState.svelte";
 	import { ClientMapObjectType } from "$lib/mapObjects/mapObjectTypes";
 	import { MapSourceId } from "$lib/map/layers";
-	import { circle, featureCollection } from "@turf/turf";
+	import { featureCollection } from "@turf/turf";
+	import { RANGE_FORTS, RANGE_POKEMON } from "@/lib/constants";
+	import { rangeCircle } from "@/lib/utils/rangeGeometry";
 	import { Marker } from "svelte-maplibre";
 	import { scale, fly } from "svelte/transition";
 
@@ -26,13 +28,11 @@
 		if (!center) return featureCollection([]);
 		const centerPoint: [number, number] = [center.lon, center.lat];
 		return featureCollection([
-			circle(centerPoint, 0.08, {
-				units: "kilometers",
+			rangeCircle(centerPoint, RANGE_FORTS, {
 				steps: 64,
 				properties: { fillColor: "#3b82f6", strokeColor: "transparent" }
 			}),
-			circle(centerPoint, 0.04, {
-				units: "kilometers",
+			rangeCircle(centerPoint, RANGE_POKEMON, {
 				steps: 64,
 				properties: { fillColor: "#a855f7", strokeColor: "transparent" }
 			})

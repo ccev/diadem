@@ -11,15 +11,11 @@
 		getScoutGeojsons,
 		getScoutQueue,
 		resetCurrentScoutData,
-		type ScoutGeoProperties,
 		setCurrentScoutCoords,
 		setScoutGeojson,
 		startScout
 	} from "@/lib/features/scout.svelte.js";
 	import { closeMenu, getOpenedMenu, Menu } from "@/lib/ui/menus.svelte.js";
-	import { circle as makeCrircle } from "@turf/turf";
-	import { RADIUS_POKEMON, RADIUS_SCOUT_GMO } from "@/lib/constants";
-	import type { Feature, Polygon } from "geojson";
 	import { watch } from "runed";
 	import { openToast } from "@/lib/ui/toasts.svelte.js";
 

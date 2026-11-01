@@ -9,6 +9,9 @@ export type MapObjectResponse<T> = {
 	data: T[];
 	/** True when more objects matched than the request limit allows. No data is returned in that case. */
 	limitReached?: boolean;
+	/** Complete current result, including removals; replace even on an idle refresh. */
+	snapshot?: boolean;
+	revision?: string;
 };
 
 export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
@@ -21,10 +24,15 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		polygon: PermittedPolygon,
 		since?: number,
 		limit?: number,
-		context?: FeaturePermissionContext
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
 	): Promise<MapObjectResponse<MinMapObject<MapObject>>>;
 
-	abstract querySingle(id: string, thisFetch?: typeof fetch): Promise<MinMapObject<MapObject>[]>;
+	abstract querySingle(
+		id: string,
+		thisFetch?: typeof fetch,
+		signal?: AbortSignal
+	): Promise<MinMapObject<MapObject>[]>;
 
 	filter(
 		data: MinMapObject<MapObject>,
@@ -52,10 +60,11 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		polygon: PermittedPolygon,
 		since?: number,
 		limit?: number,
-		context?: FeaturePermissionContext
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
 	): Promise<MapObjectResponse<MapObject>> {
 		return this.finish(
-			await this.query(bounds, filter, polygon, since, limit, context),
+			await this.query(bounds, filter, polygon, since, limit, context, signal),
 			filter,
 			polygon,
 			context
@@ -70,11 +79,7 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 		context?: FeaturePermissionContext
 	): MapObjectResponse<MapObject> {
 		if (result.limitReached) {
-			return {
-				examined: result.examined,
-				data: [],
-				limitReached: true
-			};
+			return { ...result, data: [] };
 		}
 
 		for (const item of result.data) {
@@ -88,11 +93,16 @@ export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 			}
 		}
 
-		return { examined: result.examined, data };
+		return { ...result, data };
 	}
 
-	public async getSingle(id: string, thisFetch?: typeof fetch, context?: FeaturePermissionContext) {
-		const mapObjects = await this.querySingle(id, thisFetch);
+	public async getSingle(
+		id: string,
+		thisFetch?: typeof fetch,
+		context?: FeaturePermissionContext,
+		signal?: AbortSignal
+	) {
+		const mapObjects = await this.querySingle(id, thisFetch, signal);
 		if (!mapObjects.length || !mapObjects[0]) return;
 
 		const mapObject = mapObjects[0];

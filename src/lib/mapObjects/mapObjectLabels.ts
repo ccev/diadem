@@ -8,6 +8,7 @@ export const mapObjectLabels: Record<MapObjectType, () => string> = {
 	[MapObjectType.STATION]: m.pogo_stations,
 	[MapObjectType.S2_CELL]: m.s2_cells,
 	[MapObjectType.NEST]: m.nests,
+	[MapObjectType.BIOME]: m.biomes,
 	[MapObjectType.SPAWNPOINT]: m.spawnpoints,
 	[MapObjectType.ROUTE]: m.routes,
 	[MapObjectType.TAPPABLE]: m.tappables

@@ -34,7 +34,7 @@ export class Coords {
 		return { lat: this.lat, lon: this.lon };
 	}
 
-	geojson() {
+	geojson(): [number, number] {
 		return [this.lon, this.lat];
 	}
 }

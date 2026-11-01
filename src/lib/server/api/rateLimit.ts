@@ -19,6 +19,7 @@ const defaultRequestLimits: Record<MapObjectType, number> = {
 	[MapObjectType.GYM]: 10_000,
 	[MapObjectType.STATION]: 10_000,
 	[MapObjectType.NEST]: 10_000,
+	[MapObjectType.BIOME]: 20_000,
 	[MapObjectType.SPAWNPOINT]: 50_000,
 	[MapObjectType.ROUTE]: 10_000,
 	[MapObjectType.TAPPABLE]: 10_000,

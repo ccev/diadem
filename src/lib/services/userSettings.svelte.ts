@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
 import type {
+	FilterBiome,
 	FilterGym,
 	FilterNest,
 	FilterPokemon,
@@ -84,6 +85,7 @@ export type UserSettings = {
 		station: FilterStation;
 		s2cell: FilterS2Cell;
 		nest: FilterNest;
+		biome: FilterBiome;
 		spawnpoint: FilterSpawnpoint;
 		route: FilterRoute;
 		tappable: FilterTappable;
@@ -154,6 +156,7 @@ export function getDefaultUserSettings(): UserSettings {
 				wayfarerMode: false
 			},
 			nest: { category: "nest", ...defaultFilter() },
+			biome: { category: "biome", ...defaultFilter() },
 			spawnpoint: { category: "spawnpoint", ...defaultFilter() },
 			route: { category: "route", ...defaultFilter() },
 			tappable: { category: "tappable", ...defaultFilter() }
@@ -322,6 +325,7 @@ function deepMerge(defaultObj: { [key: string]: any }, newObj: { [key: string]: 
 }
 
 function migrateUserSettings(settings: LegacyUserSettings): UserSettings {
+	settings.recentSearches = settings.recentSearches?.slice(0, 20) ?? [];
 	if (settings.expandedMapObjects) {
 		for (const objectType of settings.expandedMapObjects) {
 			if (settings?.actions?.[objectType]) {

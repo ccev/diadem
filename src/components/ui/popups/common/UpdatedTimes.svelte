@@ -1,14 +1,8 @@
 <script lang="ts">
-	import { Clock, ClockAlert, ClockArrowUp, Gift, ScanEye, Search } from "@lucide/svelte";
-	import Countdown from "@/components/utils/Countdown.svelte";
-	import IconValue from "@/components/ui/popups/common/IconValue.svelte";
+	import { Clock, ClockArrowUp, Search } from "@lucide/svelte";
 	import * as m from "@/lib/paraglide/messages";
-
-	import { timestampToLocalTime } from "@/lib/utils/timestampToLocalTime";
-	import { isFortOutdated } from "@/lib/utils/gymUtils";
-	import { formatRatio } from "$lib/utils/numberFormat";
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
-	import { currentTimestamp } from "$lib/utils/currentTimestamp";
+	import UpdatedTimeCountdown from "@/components/ui/popups/common/UpdatedTimeCountdown.svelte";
 
 	let {
 		updated,
@@ -24,11 +18,7 @@
 {#if updated}
 	<StatsMainCardEntry Icon={Clock} name={m.last_seen()}>
 		{#snippet value()}
-			{#if currentTimestamp() - updated > 60 * 60 * 24}
-				{timestampToLocalTime(updated, { showDate: true, showSeconds: false, showTime: false })}
-			{:else}
-				<Countdown expireTime={updated} />
-			{/if}
+			<UpdatedTimeCountdown timestamp={updated} />
 		{/snippet}
 	</StatsMainCardEntry>
 {/if}
@@ -36,15 +26,7 @@
 {#if lastModified}
 	<StatsMainCardEntry Icon={ClockArrowUp} name={m.last_updated()}>
 		{#snippet value()}
-			{#if currentTimestamp() - lastModified > 60 * 60 * 24}
-				{timestampToLocalTime(lastModified, {
-					showDate: true,
-					showSeconds: false,
-					showTime: false
-				})}
-			{:else}
-				<Countdown expireTime={lastModified} />
-			{/if}
+			<UpdatedTimeCountdown timestamp={lastModified} />
 		{/snippet}
 	</StatsMainCardEntry>
 {/if}
@@ -52,11 +34,7 @@
 {#if firstSeen}
 	<StatsMainCardEntry Icon={Search} name={m.first_seen()}>
 		{#snippet value()}
-			{#if currentTimestamp() - firstSeen > 60 * 60 * 24}
-				{timestampToLocalTime(firstSeen, { showDate: true, showSeconds: false, showTime: false })}
-			{:else}
-				<Countdown expireTime={firstSeen} />
-			{/if}
+			<UpdatedTimeCountdown timestamp={firstSeen} />
 		{/snippet}
 	</StatsMainCardEntry>
 {/if}

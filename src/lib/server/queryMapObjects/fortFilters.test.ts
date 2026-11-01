@@ -1,12 +1,17 @@
 import { shouldDisplayContest } from "@/lib/features/filterLogic/pokestop";
 import { shouldDisplayStation } from "@/lib/features/filterLogic/station";
-import type { FilterPokestop } from "@/lib/features/filters/filters";
+import type { FilterPokestop, FilterStation } from "@/lib/features/filters/filters";
 import type { BaseFilterset } from "@/lib/features/filters/filtersets";
+import { queryJoined } from "@/lib/server/db/external/internalQuery";
 import { PokestopQuery } from "@/lib/server/queryMapObjects/queryPokestop";
+import { StationQuery } from "@/lib/server/queryMapObjects/queryStation";
+import { FeaturePermissionContext, type PermittedPolygon } from "@/lib/services/user/checkPerm";
+import type { MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import type { ContestFocusPokemon, PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import type { StationData } from "@/lib/types/mapObjectData/station";
 import { getDefaultPokestopFilter } from "@/lib/utils/pokestopUtils";
-import { getDefaultStationFilter } from "@/lib/utils/stationUtils";
+import { Features } from "@/lib/utils/features";
+import { getDefaultStationFilter, hasMaxBattle, isMaxBattleActive } from "@/lib/utils/stationUtils";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/features/activeSearch.svelte", () => ({}));
@@ -24,7 +29,9 @@ vi.mock("@/lib/services/masterfile", () => ({
 }));
 vi.mock("@/lib/utils/currentTimestamp", () => ({ currentTimestamp: () => 100 }));
 vi.mock("@/lib/server/api/rateLimit", () => ({ requestLimits: { pokestop: 100 } }));
-vi.mock("@/lib/server/db/external/internalQuery", () => ({}));
+vi.mock("@/lib/server/db/external/internalQuery", () => ({
+	queryJoined: vi.fn().mockResolvedValue([])
+}));
 vi.mock("$lib/features/masterStats.svelte", () => ({}));
 vi.mock("$lib/server/queryMapObjects/invasionRewards", () => ({}));
 
@@ -53,6 +60,53 @@ const station: Partial<StationData> = {
 
 class TestPokestopQuery extends PokestopQuery {
 	override getFilterWhere(filter: FilterPokestop | undefined) {
+		return super.getFilterWhere(filter);
+	}
+}
+
+describe("restricted pokestop SQL", () => {
+	it.each([undefined, 100])(
+		"preserves both spatial predicates and parameter order with since=%s",
+		async (since) => {
+			vi.mocked(queryJoined).mockClear();
+			const bounds = { minLat: 53, maxLat: 54, minLon: 10, maxLon: 11 };
+			const polygon: PermittedPolygon = {
+				type: "Feature",
+				properties: {},
+				geometry: {
+					type: "Polygon",
+					coordinates: [
+						[
+							[10, 53],
+							[11, 53],
+							[11, 54],
+							[10, 54],
+							[10, 53]
+						]
+					]
+				}
+			};
+
+			await new PokestopQuery().query(bounds, undefined, polygon, since, 25);
+
+			expect(queryJoined).toHaveBeenCalledOnce();
+			const [sql, values] = vi.mocked(queryJoined).mock.calls[0];
+			const whereSql =
+				" WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ? AND ST_Contains(ST_GeomFromGeoJSON(?), Point(pokestop.lon, pokestop.lat)) AND deleted = 0" +
+				(since === undefined ? "" : " AND pokestop.updated > ?");
+			const spatialValues = [53, 54, 10, 11, JSON.stringify(polygon.geometry)];
+			if (since !== undefined) spatialValues.push(since);
+
+			expect(sql).toContain("SELECT DISTINCT pokestop.id AS id");
+			expect(sql).toContain("LIMIT 26");
+			expect(sql.split(whereSql)).toHaveLength(3);
+			expect(values).toEqual([...spatialValues, ...spatialValues]);
+		}
+	);
+});
+
+class TestStationQuery extends StationQuery {
+	override getFilterWhere(filter: FilterStation | undefined) {
 		return super.getFilterWhere(filter);
 	}
 }
@@ -162,14 +216,105 @@ describe("station filters", () => {
 		expect(shouldDisplayStation({ ...station, start_time: 99 }, filter)).toBe(true);
 	});
 
-	it("still hides inactive, unavailable and expired battles without filtersets", () => {
+	it.each([
+		{ is_inactive: 1 },
+		{ is_battle_available: 0 },
+		{ is_inactive: 1, is_battle_available: 0 },
+		{ start_time: 150 }
+	])("shows unexpired inactive battles without marking them active (%j)", (overrides) => {
+		const filter = getDefaultStationFilter();
+		filter.enabled = true;
+		filter.maxBattle.enabled = true;
+		const inactive = { ...station, start_time: 99, ...overrides };
+
+		expect(shouldDisplayStation(inactive, filter)).toBe(true);
+		expect(hasMaxBattle(inactive)).toBe(true);
+		expect(isMaxBattleActive(inactive)).toBe(false);
+		filter.maxBattle.filters = [{ ...filterset, isActive: true }];
+		expect(shouldDisplayStation(inactive, filter)).toBe(false);
+	});
+
+	it("hides expired and missing battles without filtersets", () => {
 		const filter = getDefaultStationFilter();
 		filter.enabled = true;
 		filter.maxBattle.enabled = true;
 
 		expect(shouldDisplayStation(station, filter)).toBe(true);
-		expect(shouldDisplayStation({ ...station, is_inactive: 1 }, filter)).toBe(false);
-		expect(shouldDisplayStation({ ...station, is_battle_available: 0 }, filter)).toBe(false);
 		expect(shouldDisplayStation({ ...station, end_time: 100 }, filter)).toBe(false);
+		expect(shouldDisplayStation({ ...station, end_time: 99 }, filter)).toBe(false);
+		expect(shouldDisplayStation({ ...station, end_time: undefined }, filter)).toBe(false);
+		expect(shouldDisplayStation({ ...station, battle_pokemon_id: 0 }, filter)).toBe(false);
+		expect(shouldDisplayStation({ ...station, battle_pokemon_id: undefined }, filter)).toBe(false);
+	});
+
+	it("keeps toggle, boss and Gmax filters effective for inactive battles", () => {
+		const filter = getDefaultStationFilter();
+		filter.enabled = true;
+		filter.maxBattle.enabled = true;
+		const inactive = { ...station, is_inactive: 1, is_battle_available: 0 };
+		filter.maxBattle.filters = [
+			{ ...filterset, bosses: [{ pokemon_id: 809, form: 0, bread_mode: 2 }] }
+		];
+		expect(shouldDisplayStation(inactive, filter)).toBe(true);
+		expect(shouldDisplayStation({ ...inactive, battle_pokemon_id: 25 }, filter)).toBe(false);
+		filter.maxBattle.filters = [{ ...filterset, hasGmax: true }];
+		expect(shouldDisplayStation(inactive, filter)).toBe(false);
+		expect(shouldDisplayStation({ ...inactive, total_stationed_gmax: 1 }, filter)).toBe(true);
+		filter.maxBattle.enabled = false;
+		expect(shouldDisplayStation(inactive, filter)).toBe(false);
+		filter.stationPlain.enabled = true;
+		expect(shouldDisplayStation(inactive, filter)).toBe(true);
+		filter.enabled = false;
+		expect(shouldDisplayStation(inactive, filter)).toBe(false);
+	});
+
+	it("queries unexpired bosses without requiring activity or availability", () => {
+		const filter = getDefaultStationFilter();
+		filter.enabled = true;
+		filter.maxBattle.enabled = true;
+		const query = new TestStationQuery();
+		expect(query.getFilterWhere(filter)).toEqual({
+			sql: "battle_pokemon_id > 0 AND end_time > UNIX_TIMESTAMP()",
+			values: []
+		});
+		filter.maxBattle.filters = [
+			{ ...filterset, bosses: [{ pokemon_id: 809, form: 0, bread_mode: 2 }] }
+		];
+		const result = query.getFilterWhere(filter);
+		expect(result.sql).toContain("battle_pokemon_id > 0 AND end_time > UNIX_TIMESTAMP()");
+		expect(result.sql).not.toMatch(/is_inactive|is_battle_available/);
+		expect(result.values).toEqual([809, 2]);
+		filter.maxBattle.filters = [{ ...filterset, isActive: true }];
+		expect(query.getFilterWhere(filter).sql).toContain(
+			"is_inactive = false AND is_battle_available = true AND start_time < UNIX_TIMESTAMP()"
+		);
+		filter.maxBattle.filters.push({ ...filterset });
+		expect(query.getFilterWhere(filter)).toEqual({
+			sql: "battle_pokemon_id > 0 AND end_time > UNIX_TIMESTAMP()",
+			values: []
+		});
+	});
+
+	it("preserves permission stripping for inactive bosses", () => {
+		const filter = getDefaultStationFilter();
+		filter.enabled = true;
+		filter.maxBattle.enabled = true;
+		const context = new FeaturePermissionContext({ everywhere: [Features.STATION], areas: [] }, [
+			Features.STATION,
+			Features.MAX_BATTLE
+		]);
+		const data = {
+			...station,
+			id: "station-test",
+			lat: 1,
+			lon: 2,
+			is_inactive: 1
+		} as MinMapObject<StationData>;
+		const query = new StationQuery();
+		expect(query.filter({ ...data }, filter, null, context)).toBe(false);
+		filter.stationPlain.enabled = true;
+		expect(query.filter(data, filter, null, context)).toBe(true);
+		expect(data).not.toHaveProperty("battle_pokemon_id");
+		expect(hasMaxBattle(data)).toBe(false);
 	});
 });

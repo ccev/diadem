@@ -57,6 +57,7 @@ export const featureFamily: Record<MapObjectType, FeaturesKey[]> = {
 	[MapObjectType.GYM]: [Features.GYM, Features.RAID, Features.GYM_ALL],
 	[MapObjectType.STATION]: [Features.STATION, Features.MAX_BATTLE, Features.STATION_ALL],
 	[MapObjectType.NEST]: [Features.NEST],
+	[MapObjectType.BIOME]: [Features.BIOME],
 	[MapObjectType.TAPPABLE]: [Features.TAPPABLE],
 	[MapObjectType.S2_CELL]: [Features.S2_CELL],
 	[MapObjectType.SPAWNPOINT]: [Features.SPAWNPOINT],
@@ -78,6 +79,7 @@ export const featureWildcardChildren: Partial<Record<FeaturesKey, FeaturesKey[]>
 	[Features.STATION_ALL]: [Features.STATION, Features.MAX_BATTLE],
 	[Features.MINOR_MAP_OBJECT_ALL]: [
 		Features.NEST,
+		Features.BIOME,
 		Features.TAPPABLE,
 		Features.S2_CELL,
 		Features.SPAWNPOINT,

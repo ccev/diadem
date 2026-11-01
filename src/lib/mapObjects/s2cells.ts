@@ -4,8 +4,9 @@ import type { MapObjectPolygonProperties } from "@/lib/map/render/featureTypes";
 import type { Bounds } from "@/lib/mapObjects/mapBounds";
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 import type { S2CellData } from "@/lib/types/mapObjectData/s2cell";
+import { getS2CellsInBounds } from "@/lib/utils/s2";
 import type { Feature, Polygon } from "geojson";
-import { geojson, r1, s1, s2 } from "s2js";
+import { geojson, s2 } from "s2js";
 import type { CellID } from "s2js/dist/s2/cellid";
 
 const LIMIT_S2_CELLS = 5_000;
@@ -15,8 +16,6 @@ export type S2CellProperties = {
 } & MapObjectPolygonProperties;
 
 export type S2CellFeature = Feature<Polygon, S2CellProperties>;
-
-const DEGREE = Math.PI / 180;
 
 export function cellToPolygon(cellId: CellID): Polygon {
 	const cell = s2.Cell.fromCellID(cellId);
@@ -36,21 +35,6 @@ export function cellToPolygon(cellId: CellID): Polygon {
 			return result;
 		})
 	};
-}
-
-export function getCoveringS2Cells(bounds: Bounds, level: number): s2.CellUnion {
-	const regionCoverer = new s2.RegionCoverer({
-		minLevel: level,
-		maxLevel: level,
-		maxCells: LIMIT_S2_CELLS
-	});
-
-	const region = new s2.Rect(
-		new r1.Interval(bounds.minLat * DEGREE, bounds.maxLat * DEGREE),
-		s1.Interval.fromEndpoints(bounds.minLon * DEGREE, bounds.maxLon * DEGREE)
-	);
-
-	return regionCoverer.covering(region);
 }
 
 export function cellToFeature(
@@ -80,9 +64,8 @@ export function getS2CellMapObjects(bounds: Bounds, filter: FilterS2Cell) {
 	const map = getMap();
 	if (map && filter.level > map.getZoom() + 4) return [];
 
-	const cells = getCoveringS2Cells(bounds, filter.level);
-
-	if (cells.length > LIMIT_S2_CELLS) return [];
+	const cells = getS2CellsInBounds(bounds, filter.level, LIMIT_S2_CELLS);
+	if (!cells) return [];
 
 	return cells.map((cellId) => {
 		return {

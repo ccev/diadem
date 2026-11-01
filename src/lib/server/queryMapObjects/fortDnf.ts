@@ -152,24 +152,25 @@ export function buildPokestopDnfFilters(
 export function buildStationDnfFilters(filter: FilterStation | undefined): GolbatFortDnfFilter[] {
 	if (!filter || filter.stationPlain.enabled || !filter.maxBattle.enabled) return [];
 
-	const active: GolbatFortDnfFilter = { station_active: true, battle_available: true };
 	const clauses: GolbatFortDnfFilter[] = [];
 	for (const filterset of filter.maxBattle.filters.filter((f) => f.enabled)) {
+		// Golbat has no DNF predicate for an unexpired (possibly inactive) battle.
+		// An unrestricted filterset must therefore query all stations; finish() filters locally.
+		if (filterset.bosses === undefined && !filterset.isActive && !filterset.hasGmax) return [];
 		if (filterset.isActive) {
-			clauses.push({ ...active });
+			clauses.push({ station_active: true, battle_available: true });
 			continue;
 		}
 		if (filterset.hasGmax) {
-			clauses.push({ ...active, stationed_gmax: true });
+			clauses.push({ stationed_gmax: true });
 			continue;
 		}
 		if (filterset.bosses?.length) {
 			clauses.push({
-				...active,
 				battle_pokemon: filterset.bosses.map((boss) => ({ pokemon_id: boss.pokemon_id }))
 			});
 		}
 	}
 
-	return clauses.length ? clauses : [{ ...active }];
+	return clauses;
 }

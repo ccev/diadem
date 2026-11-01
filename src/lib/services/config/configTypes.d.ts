@@ -88,6 +88,10 @@ export type Log = {
 	file?: string;
 };
 
+export type ServerTuningConfig = {
+	cpuWorkers?: number;
+};
+
 export type MapStyle = {
 	id: string;
 	name: string;
@@ -139,6 +143,14 @@ export type ClientConfig = {
 };
 
 export type ServerConfig = {
+	encounterIdObfuscation?: {
+		enabled?: boolean;
+		secret?: string;
+	};
+	biomes?: {
+		url?: string;
+		secret?: string;
+	};
 	golbat: {
 		url: string;
 		auth?: string;
@@ -147,6 +159,7 @@ export type ServerConfig = {
 		grpc?: string;
 		fortApi?: boolean;
 	};
+	talonflame?: { url: string };
 	dragonite: {
 		// TODO: this should be optional and scout disabled
 		url: string;
@@ -175,6 +188,7 @@ export type ServerConfig = {
 		hasGeometries?: boolean;
 	};
 	log: Log;
+	tuning?: ServerTuningConfig;
 	internalDb: DbCreds;
 	auth: Auth;
 	permissions?: Permissions[];

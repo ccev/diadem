@@ -1,0 +1,8 @@
+- Add support for routes
+- Add support for biomes
+- Add long-press actions to filter list and map objects
+- Filters can now be reordered
+- Nightly max battles are now shown as active
+- Optimize data usage
+- Range circles are now precise
+- Various fixes across the app

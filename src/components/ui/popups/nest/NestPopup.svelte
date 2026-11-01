@@ -10,10 +10,13 @@
 	import StatsMainCardEntry from "@/components/ui/popups/common/StatsMainCardEntry.svelte";
 	import UpdatedTimes from "@/components/ui/popups/common/UpdatedTimes.svelte";
 	import { getIconPokemon } from "$lib/services/uicons.svelte";
+	import { getNestSource } from "$lib/services/supportedFeatures";
 	import { formatDecimal, formatNumber, formatPercentage } from "$lib/utils/numberFormat";
+	import { timestampToLocalTime } from "$lib/utils/timestampToLocalTime";
 	import {
 		CircleDot,
 		CircleSlash2,
+		Clock,
 		Info,
 		MapPinned,
 		RotateCcw,
@@ -54,11 +57,13 @@
 		<OverviewCard Icon={Trees} title={m.park_name()} value={data.name} />
 	{/if}
 
-	<OverviewCard
-		Icon={RotateCcw}
-		title={m.nest_avg()}
-		value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
-	/>
+	{#if getNestSource() === "fletch"}
+		<OverviewCard
+			Icon={RotateCcw}
+			title={m.nest_avg()}
+			value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
+		/>
+	{/if}
 	<OverviewCard Icon={MapPinned} title={m.spawnpoints()} value={formatNumber(data.spawnpoints)} />
 {/snippet}
 
@@ -72,27 +77,47 @@
 				name={m.park_name()}
 				value={data.name ? data.name : m.unknown()}
 			/>
-			<StatsMainCardEntry
-				Icon={RotateCcw}
-				name={m.nest_avg()}
-				value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
-			/>
+			{#if getNestSource() === "fletch"}
+				<StatsMainCardEntry
+					Icon={RotateCcw}
+					name={m.nest_avg()}
+					value={m.nest_avg_value({ avg: formatDecimal(data.pokemon_avg) })}
+				/>
+			{/if}
 			<StatsMainCardEntry
 				Icon={MapPinned}
 				name={m.nest_spawnpoint_count()}
 				value={formatNumber(data.spawnpoints)}
 			/>
-			<StatsMainCardEntry
-				Icon={CircleSlash2}
-				name={m.nest_ratio()}
-				value={formatPercentage((data.pokemon_ratio ?? 0) / 100)}
-			/>
+			{#if getNestSource() === "fletch"}
+				<StatsMainCardEntry Icon={CircleSlash2} name={m.nest_ratio()}>
+					{#snippet value()}
+						{#if data.pokemon_ratio != null}
+							{formatPercentage(data.pokemon_ratio / 100)}
+						{:else}
+							{formatPercentage(null)}
+						{/if}
+					{/snippet}
+				</StatsMainCardEntry>
+			{/if}
 			<StatsMainCardEntry
 				Icon={VectorSquare}
 				name={m.nest_size()}
 				value={m.square_m_value({ size: formatNumber(data.m2, { maximumFractionDigits: 0 }) })}
 			/>
-			<UpdatedTimes updated={data.updated ?? undefined} />
+			{#if getNestSource() === "talon"}
+				<StatsMainCardEntry Icon={Clock} name={m.last_changed()}>
+					{#snippet value()}
+						{#if data.last_changed != null}
+							{timestampToLocalTime(data.last_changed, { showDate: true, showSeconds: false })}
+						{:else}
+							{m.unknown()}
+						{/if}
+					{/snippet}
+				</StatsMainCardEntry>
+			{:else}
+				<UpdatedTimes updated={data.updated ?? undefined} />
+			{/if}
 			<QuickSearchButton
 				class="mt-0!"
 				label={m.find_wild_name({ name: mPokemon(data) })}

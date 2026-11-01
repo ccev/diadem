@@ -33,7 +33,7 @@ export async function GET({ params, fetch, url }) {
 	const iconUrl = iconSet.url + "/" + iconPath;
 
 	try {
-		const res = await fetch(iconUrl);
+		const res = await fetch(iconUrl, { signal: AbortSignal.timeout(30_000) });
 		if (!res.ok) {
 			error(500, "Fetching image failed");
 		}
@@ -52,17 +52,18 @@ export async function GET({ params, fetch, url }) {
 		} else if (format === "png") {
 			sharpImage = sharpImage.png();
 		}
+		const outBuf = await sharpImage.toBuffer();
 
 		log.info(
 			"[%s] Serving icon %s (width=%s) / fetch: %fms + optimizing: %fms",
 			iconSetId,
 			iconPath,
-			width ?? "oiginal",
+			width ?? "original",
 			(fetchDone - start).toFixed(),
 			(performance.now() - fetchDone).toFixed(1)
 		);
 
-		return new Response(await sharpImage.toBuffer(), {
+		return new Response(new Uint8Array(outBuf), {
 			headers: {
 				...cacheHttpHeaders(),
 				"Content-Type": "image/" + format

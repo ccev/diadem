@@ -1,12 +1,22 @@
 export type optionalFeatures =
-	"koji" | "geocoding" | "auth" | "authRequired" | "showFullscreenLogin" | "geometryLookup";
+	| "koji"
+	| "biomes"
+	| "geocoding"
+	| "auth"
+	| "authRequired"
+	| "showFullscreenLogin"
+	| "geometryLookup";
 
 export type SupportedFeatures = {
 	[key in optionalFeatures]: boolean;
+} & {
+	nestSource: "talon" | "fletch";
 };
 
 let supportedFeatures: SupportedFeatures = {
 	koji: false,
+	nestSource: "fletch",
+	biomes: false,
 	geocoding: false,
 	auth: false,
 	authRequired: false,
@@ -16,6 +26,10 @@ let supportedFeatures: SupportedFeatures = {
 
 export function isSupportedFeature(feature: optionalFeatures) {
 	return Boolean(supportedFeatures[feature]);
+}
+
+export function getNestSource() {
+	return supportedFeatures.nestSource;
 }
 
 export async function updateSupportedFeatures() {

@@ -79,6 +79,8 @@ export function formatRatio(
 type PercentageOptions = {
 	minDecimals?: number;
 	maxDecimals?: number;
+	minSignificantDecimals?: number;
+	maxSignificantDecimals?: number;
 };
 
 /**
@@ -96,7 +98,9 @@ export function formatPercentage(
 	return new Intl.NumberFormat(getLocale(), {
 		style: "percent",
 		minimumFractionDigits: options?.minDecimals ?? 1,
-		maximumFractionDigits: options?.maxDecimals ?? 1
+		maximumFractionDigits: options?.maxDecimals ?? 1,
+		maximumSignificantDigits: options?.maxSignificantDecimals ?? undefined,
+		minimumSignificantDigits: options?.minSignificantDecimals ?? undefined
 	}).format(value);
 }
 
