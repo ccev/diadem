@@ -1,5 +1,6 @@
 import { ExternalMapProvider, getUserSettings } from "@/lib/services/userSettings.svelte";
 import { isNative } from "@/lib/native/runtime";
+import { Capacitor } from "@capacitor/core";
 import type { Coords } from "@/lib/utils/coordinates";
 
 function getLinkGoogleMaps(coords: Coords) {
@@ -21,6 +22,7 @@ function getLinkAppleMaps(coords: Coords, name: string | undefined = undefined) 
 
 export function getMapsUrl(coords: Coords, name: string | undefined = undefined) {
 	if (isNative()) {
+		if (Capacitor.getPlatform() === "ios") return getLinkAppleMaps(coords, name);
 		return getLinkNative(coords, name);
 	}
 	if (getUserSettings().externalMapProvider === ExternalMapProvider.APPLE) {

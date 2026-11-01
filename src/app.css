@@ -12,6 +12,8 @@
 	/* Safe-area offsets for native (notch/status/nav bars), with the usual 0.5rem*/
 	--spacing-safe-inset-top: calc(0.5rem + env(safe-area-inset-top));
 	--spacing-safe-inset-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+	--spacing-safe-inset-left: calc(0.5rem + env(safe-area-inset-left));
+	--spacing-safe-inset-right: calc(0.5rem + env(safe-area-inset-right));
 }
 
 :root {
@@ -233,12 +235,19 @@ input[type="search"]::-webkit-search-cancel-button {
 .drawer-viewport {
 	position: fixed;
 	inset: 0;
+	top: calc(var(--native-viewport-top, 0px) + env(safe-area-inset-top, 0px));
+	right: env(safe-area-inset-right, 0px);
+	left: env(safe-area-inset-left, 0px);
+	bottom: auto;
+	height: calc(var(--native-viewport-height, 100%) - env(safe-area-inset-top, 0px));
 	z-index: 20;
 	pointer-events: none;
 }
 
 .drawer-popup {
 	pointer-events: auto;
+	min-width: 0;
+	max-height: 100%;
 	outline: none;
 	will-change: transform;
 	transform: translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)));
@@ -254,4 +263,19 @@ input[type="search"]::-webkit-search-cancel-button {
 .drawer-popup[data-ending-style] {
 	transform: translateY(100%) !important;
 	transition-duration: 120ms;
+}
+
+.modal-content {
+	top: calc(
+		var(--native-viewport-top, 0px) +
+			(
+				var(--native-viewport-height, 100dvh) + env(safe-area-inset-top, 0px) -
+					env(safe-area-inset-bottom, 0px)
+			) /
+			2
+	);
+	max-height: calc(
+		var(--native-viewport-height, 100dvh) - 1rem - env(safe-area-inset-top, 0px) -
+			env(safe-area-inset-bottom, 0px)
+	);
 }

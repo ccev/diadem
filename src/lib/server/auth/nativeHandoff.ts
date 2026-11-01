@@ -1,4 +1,7 @@
 import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
+import { and, eq, like, lte } from "drizzle-orm";
+import { db } from "@/lib/server/db/internal";
+import { verification } from "@/lib/server/db/internal/schema";
 
 /**
  * Short-lived, single-use handoff codes for native (Capacitor) login.
@@ -10,26 +13,33 @@ import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
  * privately — for the token over HTTPS. The code is useless without the
  * verifier, so intercepting the deep link alone grants nothing.
  *
- * In-memory by design: codes live for ~2 minutes between the browser redirect
- * and the app's exchange call, and the server is a single adapter-node process.
+ * The shared verification table makes codes available across cluster workers
+ * and server restarts. Consumption locks and deletes the row atomically, so a
+ * code can only be exchanged once even when requests reach different workers.
  */
-type Entry = { token: string; challenge: string; expiresAt: number };
-
-const codes = new Map<string, Entry>();
 const TTL_MS = 2 * 60 * 1000;
-
-function sweep(now: number): void {
-	for (const [code, entry] of codes) {
-		if (entry.expiresAt <= now) codes.delete(code);
-	}
-}
+const CODE_PREFIX = "native-handoff:";
 
 /** Issue a one-time code for `token`, bound to the PKCE `challenge`. */
-export function issueNativeCode(token: string, challenge: string): string {
+export async function issueNativeCode(token: string, challenge: string): Promise<string> {
 	const now = Date.now();
-	sweep(now);
 	const code = randomBytes(32).toString("base64url");
-	codes.set(code, { token, challenge, expiresAt: now + TTL_MS });
+	await db
+		.delete(verification)
+		.where(
+			and(
+				like(verification.identifier, `${CODE_PREFIX}%`),
+				lte(verification.expiresAt, new Date(now))
+			)
+		);
+	await db.insert(verification).values({
+		id: randomBytes(16).toString("hex"),
+		identifier: `${CODE_PREFIX}${code}`,
+		value: JSON.stringify({ token, challenge }),
+		expiresAt: new Date(now + TTL_MS),
+		createdAt: new Date(now),
+		updatedAt: new Date(now)
+	});
 	return code;
 }
 
@@ -38,24 +48,29 @@ export function issueNativeCode(token: string, challenge: string): string {
  * and `verifier` hashes to the bound challenge. The code is removed on any
  * attempt (single-use), so a failed/replayed exchange can't be retried.
  */
-export function consumeNativeCode(code: string, verifier: string): string | null {
-	const now = Date.now();
-	sweep(now);
+export async function consumeNativeCode(code: string, verifier: string): Promise<string | null> {
+	if (!/^[\w-]{43}$/.test(code) || !/^[\w.~-]{43,128}$/.test(verifier)) return null;
+	return db.transaction(async (tx) => {
+		const [row] = await tx
+			.select()
+			.from(verification)
+			.where(eq(verification.identifier, `${CODE_PREFIX}${code}`))
+			.limit(1)
+			.for("update");
+		if (!row) return null;
+		await tx.delete(verification).where(eq(verification.id, row.id));
+		if (row.expiresAt.getTime() <= Date.now()) return null;
 
-	const entry = codes.get(code);
-	if (!entry) return null;
-	codes.delete(code);
-	if (entry.expiresAt <= now) return null;
-
-	// challenge === base64url(sha256(verifier)), compared in constant time.
-	const expected = createHash("sha256").update(verifier).digest();
-	let provided: Buffer;
-	try {
-		provided = Buffer.from(entry.challenge, "base64url");
-	} catch {
-		return null;
-	}
-	if (expected.length !== provided.length || !timingSafeEqual(expected, provided)) return null;
-
-	return entry.token;
+		try {
+			const entry: { token?: unknown; challenge?: unknown } = JSON.parse(row.value);
+			if (typeof entry.token !== "string" || typeof entry.challenge !== "string") return null;
+			// challenge === base64url(sha256(verifier)), compared in constant time.
+			const expected = createHash("sha256").update(verifier).digest();
+			const provided = Buffer.from(entry.challenge, "base64url");
+			if (expected.length !== provided.length || !timingSafeEqual(expected, provided)) return null;
+			return entry.token || null;
+		} catch {
+			return null;
+		}
+	});
 }

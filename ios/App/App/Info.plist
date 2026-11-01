@@ -35,6 +35,15 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Diadem connects to your selected map instance when it is hosted on your local network.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Diadem uses your location to center the map and follow your position while the app is open.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Diadem uses your location to center the map and follow your position while the app is open.</string>
 	<key>UILaunchStoryboardName</key>

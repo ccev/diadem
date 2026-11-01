@@ -1,15 +1,25 @@
 import { Capacitor } from "@capacitor/core";
+import { decode } from "@msgpack/msgpack";
+import { requestNativeHttp } from "@/lib/native/httpRequest";
+import { capacitorResponseBytes } from "@/lib/native/httpResponse";
 
 export function isNative(): boolean {
 	return Capacitor.isNativePlatform();
 }
 
-/** Normalize an instance URL: trim, add https:// if no scheme, drop trailing slash. */
+/** Accept a hostname or pasted map URL and retain its HTTP(S) origin. */
 export function normalizeInstanceUrl(raw: string): string {
 	const trimmed = raw.trim();
 	if (!trimmed) return "";
-	const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-	return withScheme.replace(/\/+$/, "");
+	try {
+		const parsed = new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`);
+		if (!["https:", "http:"].includes(parsed.protocol) || parsed.username || parsed.password) {
+			return "";
+		}
+		return parsed.origin;
+	} catch {
+		return "";
+	}
 }
 
 const INSTANCE_KEY = "diadem_instance_url";
@@ -50,42 +60,34 @@ export async function loadInstanceUrl(): Promise<void> {
 	}
 }
 
-type InstanceConfig = { general?: { mapName?: string } };
-
 /**
- * Fetch a candidate instance's /api/config and return it if it looks like a
- * Diadem instance (has `general`), else null. Uses CapacitorHttp directly since
- * the instance isn't configured yet.
+ * Probe a candidate instance before configuring it. Decode the actual response
+ * type: instances and intermediary caches can return either JSON or MessagePack.
  */
-async function fetchInstanceConfig(url: string): Promise<InstanceConfig | null> {
+export async function fetchInstanceMapName(url: string): Promise<string | null> {
 	const normalized = normalizeInstanceUrl(url);
 	if (!normalized) return null;
 	try {
-		const { CapacitorHttp } = await import("@capacitor/core");
-		const res = await CapacitorHttp.request({
+		const res = await requestNativeHttp({
 			url: `${normalized}/api/config`,
 			method: "GET",
-			headers: { "Accept-Encoding": "identity" }
+			headers: { Accept: "application/json", "Accept-Encoding": "identity" },
+			responseType: "blob"
 		});
 		if (res.status !== 200) return null;
-		let config: unknown = res.data;
-		if (typeof config === "string") {
-			try {
-				config = JSON.parse(config);
-			} catch {
-				return null;
-			}
-		}
+		const contentType = new Headers(res.headers).get("content-type")?.split(";", 1)[0].trim();
+		const bytes = capacitorResponseBytes(res.data, contentType, res.status);
+		const config: unknown =
+			contentType?.toLowerCase() === "application/msgpack"
+				? decode(bytes)
+				: JSON.parse(new TextDecoder().decode(bytes));
 		if (!config || typeof config !== "object" || !("general" in config)) return null;
-		return config as InstanceConfig;
+		const general = config.general;
+		if (!general || typeof general !== "object" || !("mapName" in general)) return null;
+		return typeof general.mapName === "string" && general.mapName.trim() ? general.mapName : null;
 	} catch {
 		return null;
 	}
-}
-
-export async function fetchInstanceMapName(url: string): Promise<string | null> {
-	const config = await fetchInstanceConfig(url);
-	return config?.general?.mapName ?? null;
 }
 
 export async function setInstanceUrl(url: string): Promise<void> {

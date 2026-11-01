@@ -50,7 +50,7 @@
 	}}
 >
 	<Command.Root
-		class="flex flex-col rounded-lg bg-card text-card-foreground max-h-[calc(100dvh-1rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-hidden"
+		class="flex flex-col rounded-lg bg-card text-card-foreground max-h-[calc(var(--native-viewport-height,100dvh)-1rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-hidden"
 		shouldFilter={false}
 	>
 		<div class="flex shrink-0 items-center border-b pb-px pr-px pl-2">

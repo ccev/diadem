@@ -37,11 +37,11 @@
 >
 	<Drawer.Portal>
 		<Drawer.Viewport class="z-20 drawer-viewport">
-			<Drawer.Popup
-				class="drawer-popup {contentClass} flex flex-col w-full h-full pb-[env(safe-area-inset-bottom)]"
-			>
+			<Drawer.Popup class="drawer-popup {contentClass} flex flex-col w-full h-full">
 				<MobileTitle />
-				<Drawer.Content class="pb-20 content min-h-0 flex-1 px-2 bg-card/60 backdrop-blur-sm pt-3">
+				<Drawer.Content
+					class="pb-[calc(5rem+env(safe-area-inset-bottom))] content min-h-0 flex-1 px-2 bg-card/60 backdrop-blur-sm pt-3"
+				>
 					<MenuContainer />
 				</Drawer.Content>
 			</Drawer.Popup>
@@ -51,9 +51,8 @@
 
 <style>
 	:global(.drawer-full) {
-		/* Only inset for the status bar when the drawer is expanded to the top;
-		   at the partial snap point it sits below the status bar already. */
-		padding-top: calc(0.5rem + env(safe-area-inset-top)) !important;
+		/* The viewport already excludes the status bar and display cutout. */
+		padding-top: 0.5rem;
 
 		& .content {
 			overflow-y: auto;

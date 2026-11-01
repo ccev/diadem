@@ -47,7 +47,7 @@
 		/>
 
 		<Dialog.Content
-			class="{class_} bg-background rounded-md shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 outline-hidden fixed left-1/2 top-1/2 z-50 max-w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 border "
+			class="modal-content {class_} bg-background rounded-md shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 outline-hidden fixed left-1/2 z-50 max-w-[calc(100%-1rem-env(safe-area-inset-left)-env(safe-area-inset-right))] overflow-y-auto -translate-x-1/2 -translate-y-1/2 border "
 			trapFocus={false}
 		>
 			{#if title}

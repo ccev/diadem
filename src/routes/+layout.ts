@@ -14,7 +14,12 @@ import { getHeaders, parseResponse } from "@/lib/utils/requests";
 
 export const ssr = false;
 
-export const load: LayoutLoad = async ({ fetch, url }) => {
+export const load: LayoutLoad = async ({ fetch, url, route, untrack }) => {
+	// OAuth reaches this page by a full browser navigation. Don't make ordinary
+	// client-side route changes rerun the application bootstrap.
+	if (untrack(() => route.id === "/(auth)/login/discord/native")) {
+		return { nativeAuthHandoff: true };
+	}
 	if (!browser) return;
 
 	// First run on native (no instance chosen yet): show the instance-gate screen.
@@ -33,23 +38,25 @@ export const load: LayoutLoad = async ({ fetch, url }) => {
 	}
 	setConfig(config);
 
-	let rawUserSettings: string | null = null;
-	if (browser && window.localStorage) {
-		rawUserSettings = localStorage.getItem("userSettings");
-	}
-
-	if (rawUserSettings) {
-		setUserSettings(JSON.parse(rawUserSettings));
-	} else {
+	try {
+		const rawUserSettings = window.localStorage?.getItem("userSettings");
+		const savedSettings: unknown = rawUserSettings ? JSON.parse(rawUserSettings) : null;
+		setUserSettings(
+			savedSettings && typeof savedSettings === "object" && !Array.isArray(savedSettings)
+				? savedSettings
+				: getDefaultUserSettings()
+		);
+	} catch {
+		// A corrupt saved value must not prevent the map from starting.
 		setUserSettings(getDefaultUserSettings());
 	}
 
 	updateUserSettings();
 
-	// no Home on native, redirect to map
+	// Redirect the initial native landing page without tracking later navigation.
 	if (isNative()) {
 		const mapPath = getMapPath(config);
-		if (url.pathname === "/" && mapPath !== "/") {
+		if (untrack(() => url.pathname === "/") && mapPath !== "/") {
 			throw redirect(307, mapPath);
 		}
 	}

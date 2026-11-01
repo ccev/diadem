@@ -1,6 +1,16 @@
 import { isNative } from "@/lib/native/runtime";
 import { completeNativeLogin } from "@/lib/native/auth";
 
+let resolveNavigationReady: (hasConfig: boolean) => void;
+const navigationReady = new Promise<boolean>((resolve) => {
+	resolveNavigationReady = resolve;
+});
+
+/** Called by the root layout once the router and instance configuration exist. */
+export function markNativeNavigationReady(hasConfig: boolean): void {
+	resolveNavigationReady(hasConfig);
+}
+
 /**
  * Handle an incoming deep link URL (always the diadem:// scheme — that's the only
  * scheme the Android manifest registers). Two kinds:
@@ -23,20 +33,58 @@ export async function handleDeepLink(rawUrl: string): Promise<void> {
 	if (url.protocol !== "diadem:") return;
 
 	if (url.hostname === "auth") {
+		// Android keeps the original launch URL across a WebView reload. Do not
+		// exchange a consumed handoff again when the authenticated app boots.
+		try {
+			if (sessionStorage.getItem("diadem_last_auth_link") === rawUrl) return;
+		} catch {
+			/* session storage may be unavailable */
+		}
+		// Dismiss the originating browser now, so a slow exchange cannot later
+		// close a browser opened for a newer login attempt.
+		try {
+			const { Browser } = await import("@capacitor/browser");
+			await Browser.close();
+		} catch {
+			/* browser may already be closed */
+		}
 		const code = url.searchParams.get("code");
 		if (code && (await completeNativeLogin(code))) {
+			try {
+				sessionStorage.setItem("diadem_last_auth_link", rawUrl);
+			} catch {
+				/* best effort */
+			}
 			// Reboot the SPA so every load()/fetch reruns with the bearer token.
-			window.location.reload();
+			const redir = url.searchParams.get("redir");
+			const local = new URL(window.location.href);
+			const target = new URL(redir || "/", local);
+			if (
+				redir?.startsWith("/") &&
+				target.protocol === local.protocol &&
+				target.host === local.host
+			) {
+				window.location.replace(`${target.pathname}${target.search}${target.hash}`);
+			} else {
+				window.location.reload();
+			}
+		} else {
+			const { openToast } = await import("@/lib/ui/toasts.svelte");
+			const { m } = await import("@/lib/paraglide/messages");
+			openToast(m.signin_toast_error(), 10000);
 		}
 		return;
 	}
 
 	// diadem://pokemon/123  ->  /pokemon/123
-	await routeDeepLink(`/${url.hostname}${url.pathname}`);
+	await routeDeepLink(`/${url.hostname}${url.pathname}${url.search}${url.hash}`);
 }
 
 async function routeDeepLink(path: string): Promise<void> {
-	const segments = path.split("/").filter(Boolean);
+	// hooks.client installs the listener before the initial route/config load.
+	// Authentication can complete immediately, but content needs the mounted app.
+	if (!(await navigationReady)) return;
+	const segments = path.split(/[?#]/, 1)[0].split("/").filter(Boolean);
 	const { goto } = await import("$app/navigation");
 
 	// Direct map-object link (/pokemon/123, /gym/abc, …): the web route is SSR-only,
@@ -59,21 +107,32 @@ async function routeDeepLink(path: string): Promise<void> {
 	await goto(path);
 }
 
-let lastHandled = "";
+let installed = false;
+const inFlight = new Set<string>();
+
+async function dispatchDeepLink(url: string): Promise<void> {
+	if (inFlight.has(url)) return;
+	inFlight.add(url);
+	try {
+		await handleDeepLink(url);
+	} catch (error) {
+		console.error("Failed to open app link", error);
+	} finally {
+		inFlight.delete(url);
+	}
+}
 
 /** Register the OS deep-link listener + handle a cold-start launch URL. No-op off native. */
 export async function installDeepLinks(): Promise<void> {
-	if (!isNative()) return;
+	if (!isNative() || installed) return;
 	const { App } = await import("@capacitor/app");
 	await App.addListener("appUrlOpen", (event) => {
-		if (event.url === lastHandled) return;
-		lastHandled = event.url;
-		void handleDeepLink(event.url);
+		void dispatchDeepLink(event.url);
 	});
+	installed = true;
 	// Cold start: the app may have been launched by a deep link.
 	const launch = await App.getLaunchUrl();
-	if (launch?.url && launch.url !== lastHandled) {
-		lastHandled = launch.url;
-		void handleDeepLink(launch.url);
+	if (launch?.url) {
+		void dispatchDeepLink(launch.url);
 	}
 }

@@ -52,3 +52,13 @@ it("trims old saved search history while preserving most recent entries", () => 
 	setUserSettings({ recentSearches: history });
 	expect(getUserSettings().recentSearches).toEqual(history.slice(0, 20));
 });
+
+it("replaces icon selections missing from the current instance", () => {
+	setUserSettings({ uiconSet: { pokemon: { id: "previous-instance", url: "/old" } } } as any);
+	expect(getUserSettings().uiconSet.pokemon).toEqual({ id: "test", url: "/icons" });
+});
+
+it("keeps icon selections that are available on the current instance", () => {
+	setUserSettings({ uiconSet: { pokemon: { id: "test", url: "/icons" } } } as any);
+	expect(getUserSettings().uiconSet.pokemon).toEqual({ id: "test", url: "/icons" });
+});

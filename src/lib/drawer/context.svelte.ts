@@ -54,6 +54,7 @@ export class DrawerState {
 	activeOffset = $state(0);
 	openSwipeActive = $state(false);
 	private resizeObserver?: ResizeObserver;
+	private viewportResizeObserver?: ResizeObserver;
 	private layoutResolved = false;
 	private startingFrame?: number;
 
@@ -149,10 +150,18 @@ export class DrawerState {
 	}
 
 	setViewport(node?: HTMLDivElement) {
+		this.viewportResizeObserver?.disconnect();
 		this.viewport = node;
-		this.viewportHeight = node?.offsetHeight || document.documentElement.clientHeight;
-		this.resolveSnapPoints();
-		this.queueStartingEnd();
+		const measure = () => {
+			this.viewportHeight = node?.offsetHeight || document.documentElement.clientHeight;
+			this.resolveSnapPoints();
+			this.queueStartingEnd();
+		};
+		measure();
+		if (node && typeof ResizeObserver !== "undefined") {
+			this.viewportResizeObserver = new ResizeObserver(measure);
+			this.viewportResizeObserver.observe(node);
+		}
 	}
 
 	setNestedHeight(height: number) {
@@ -381,6 +390,7 @@ export class DrawerState {
 	destroy() {
 		this.cancelStartingEnd();
 		this.resizeObserver?.disconnect();
+		this.viewportResizeObserver?.disconnect();
 		if (this.open) this.parent?.setNestedOpen(false);
 	}
 }

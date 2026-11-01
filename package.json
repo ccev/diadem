@@ -22,7 +22,7 @@
 		"cap:sync": "cap sync",
 		"cap:sync:android": "cap sync android",
 		"cap:sync:ios": "cap sync ios",
-		"build:native": "BUILD_TARGET=native vite build",
+		"build:native": "BUILD_TARGET=web svelte-kit sync && BUILD_TARGET=native vite build",
 		"build:native:android": "pnpm run build:native && cap sync android",
 		"build:native:ios": "pnpm run build:native && cap sync ios",
 		"native:android:nogms": "bash scripts/native/build-nogms.sh"

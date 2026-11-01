@@ -2,7 +2,7 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { Server, Unplug, Wrench } from "@lucide/svelte";
 	import { getConfig } from "@/lib/services/config/config";
-	import { clearStoredToken } from "@/lib/native/auth";
+	import { nativeLogout } from "@/lib/native/auth";
 	import { setInstanceUrl } from "@/lib/native/runtime";
 	import * as m from "$lib/paraglide/messages";
 	import MenuCard from "@/components/menus/MenuCard.svelte";
@@ -18,7 +18,7 @@
 		<Button
 			variant="secondary"
 			onclick={async () => {
-				await clearStoredToken();
+				await nativeLogout({ waitForServer: false });
 				await setInstanceUrl("");
 				window.location.assign("/");
 			}}

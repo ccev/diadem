@@ -3,66 +3,38 @@
 	import Button from "@/components/ui/input/Button.svelte";
 	import { ArrowRight, CircleCheck, CircleX, LoaderCircle } from "@lucide/svelte";
 	import { fetchInstanceMapName, setInstanceUrl } from "@/lib/native/runtime";
-	import { clearStoredToken } from "@/lib/native/auth";
+	import { nativeLogout } from "@/lib/native/auth";
 	import { fly } from "svelte/transition";
 	import * as m from "@/lib/paraglide/messages";
 
 	// makes sure this is loadable before anything else
-	let { initial = "", onCancel }: { initial?: string; onCancel?: () => void } = $props();
+	let { initial = "" }: { initial?: string } = $props();
 
 	let value = $state(untrack(() => initial));
 
-	let checking = $state(false);
 	let connecting = $state(false);
 	let mapName = $state<string | null>(null);
 	let failed = $state(false);
 
-	function resetConnectionState() {
-		mapName = null;
-		failed = false;
-	}
-
-	async function checkConnection() {
-		if (checking || connecting) return;
-		const target = value;
-		failed = false;
-		checking = true;
-
-		let name = null;
-		try {
-			name = await fetchInstanceMapName(target);
-		} catch {
-			name = null;
-		}
-
-		if (target !== value) {
-			checking = false;
-			return;
-		}
-
-		checking = false;
-		if (name === null) failed = true;
-		else mapName = name;
-	}
-
 	async function connect() {
-		if (connecting) return;
+		if (connecting || !value.trim()) return;
 		connecting = true;
 		failed = false;
-		const name = mapName ?? (await fetchInstanceMapName(value));
+		const target = value;
+		const name = await fetchInstanceMapName(target);
+		if (target !== value) {
+			connecting = false;
+			return;
+		}
 		if (name === null) {
 			connecting = false;
 			failed = true;
 			return;
 		}
 		mapName = name;
-		await setInstanceUrl(value);
-		await clearStoredToken();
+		await nativeLogout({ waitForServer: false });
+		await setInstanceUrl(target);
 		window.location.assign("/");
-	}
-
-	function onkeydown(e: KeyboardEvent) {
-		if (e.key === "Enter") connect();
 	}
 
 	const stars = [
@@ -95,9 +67,13 @@
 </script>
 
 <div
-	class="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-linear-180 from-indigo-950 to-40% to-blue-900 text-center"
+	class="fixed inset-0 overflow-y-auto overflow-x-hidden bg-linear-180 from-indigo-950 to-40% to-blue-900 text-center"
+	style:top="var(--native-viewport-top, 0px)"
+	style:height="var(--native-viewport-height, 100%)"
 	style:padding-top="env(safe-area-inset-top)"
 	style:padding-bottom="env(safe-area-inset-bottom)"
+	style:padding-left="env(safe-area-inset-left)"
+	style:padding-right="env(safe-area-inset-right)"
 >
 	<!-- Twinkling star field, confined to the top 16% of the screen. -->
 	<div class="pointer-events-none absolute inset-x-0 top-0 h-[25%]" aria-hidden="true">
@@ -109,10 +85,8 @@
 		{/each}
 	</div>
 
-	<div
-		class="flex flex-col justify-center relative gap-6 h-full pt-safe-inset-top pb-safe-inset-bottom mb-8 mt-4 w-full px-6"
-	>
-		<div class="flex flex-col items-center justify-center text-sky-100 w-full h-full">
+	<div class="flex flex-col relative gap-8 min-h-full w-full px-6 py-8">
+		<div class="flex flex-1 flex-col items-center justify-center text-sky-100 w-full">
 			<h1 class="arched-title flex items-baseline text-6xl font-bold tracking-[0.15em] mb-4">
 				{#each title as t, i (i)}
 					<span style="transform: translateY({t.y}px) rotate({t.rot}deg)">{t.ch}</span>
@@ -127,10 +101,15 @@
 				<input
 					class="w-full max-w-sm bg-sky-100 text-indigo-900 placeholder:text-blue-900/50 py-4 px-4 rounded-md outline-sky-300/50 outline-3 text-xl font-medium transition-all duration-150 ease-out focus:outline-sky-300/75 focus:outline-4"
 					bind:value
-					onchange={() => checkConnection()}
-					oninput={resetConnectionState}
-					{onkeydown}
+					oninput={() => {
+						mapName = null;
+						failed = false;
+					}}
+					onkeydown={(event) => {
+						if (event.key === "Enter") void connect();
+					}}
 					type="url"
+					aria-label={m.instance_gate_prompt()}
 					inputmode="url"
 					autocapitalize="none"
 					autocorrect="off"
@@ -138,18 +117,18 @@
 					placeholder="..."
 				/>
 			</div>
-			<div class="relative w-full">
-				{#if checking || mapName || failed}
+			<div class="relative w-full min-h-12" aria-live="polite">
+				{#if connecting || failed}
 					<div
-						class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 fixed w-full justify-center right-0 left-0"
+						class="mt-2 text-base text-sky-100 font-semibold flex items-center gap-1.5 w-full justify-center wrap-anywhere"
 						transition:fly={{ duration: 140, y: -10 }}
 					>
-						{#if checking}
-							<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
-							{m.connection_checking()}
-						{:else if mapName}
+						{#if mapName}
 							<CircleCheck class="size-4 stroke-[2.5] mt-0.5" />
 							{m.connecting_to_name({ name: mapName })}
+						{:else if connecting}
+							<LoaderCircle class="size-4 stroke-[2.5] animate-spin mt-0.5" />
+							{m.connection_checking()}
 						{:else if failed}
 							<CircleX class="size-4 stroke-[2.5]" />
 							{m.connection_failed()}
@@ -159,36 +138,21 @@
 			</div>
 		</div>
 
-		<div class="w-full h-fit flex flex-col items-center gap-4">
+		<div class="w-full shrink-0 flex flex-col items-center gap-4">
 			<Button
 				variant=""
 				onclick={connect}
-				disabled={!mapName}
+				disabled={!value.trim() || connecting}
 				class="disabled:opacity-50 bg-linear-0 from-sky-100/50 from-5% via-sky-50/75 to-95% to-white/90 w-full max-w-sm h-16 rounded-md outline-sky-100/75 outline-2 text-indigo-900/90 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"
 			>
-				{m.connect()}
-				<ArrowRight class="size-4 stroke-[2.5]" />
+				{#if connecting}
+					<LoaderCircle class="size-4 stroke-[2.5] animate-spin" />
+					{m.connecting()}
+				{:else}
+					{m.connect()}
+					<ArrowRight class="size-4 stroke-[2.5]" />
+				{/if}
 			</Button>
-			<!--			<Button-->
-			<!--				variant=""-->
-			<!--				onclick={checkConnection}-->
-			<!--				class="bg-linear-0 from-indigo-700/50 from-5%  via-indigo-600/75 to-95% to-indigo-600/90 w-full max-w-sm h-16 rounded-md outline-indigo-600/80 outline-2 text-sky-100/75 text-lg! font-semibold transition-all! duration-150 ease-out active:outline-1 active:opacity-95"-->
-			<!--			>-->
-			<!--				&lt;!&ndash;			<Radio class="size-4 stroke-[2.5]" />&ndash;&gt;-->
-			<!--				{#if checking}-->
-			<!--					<LoaderCircle class="size-4 stroke-[2.5] animate-spin" />-->
-			<!--					Checking...-->
-			<!--				{:else if mapName}-->
-			<!--					<CircleCheck class="size-4 stroke-[2.5]" />-->
-			<!--					{mapName} works-->
-			<!--				{:else if failed}-->
-			<!--					<CircleX class="size-4 stroke-[2.5]" />-->
-			<!--					Connection failed-->
-			<!--				{:else}-->
-			<!--					Check connection-->
-			<!--				{/if}-->
-
-			<!--			</Button>-->
 		</div>
 	</div>
 </div>

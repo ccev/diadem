@@ -51,7 +51,8 @@
 			endElement.getBoundingClientRect().bottom - popupElement.getBoundingClientRect().top;
 		if (distance <= 0) return;
 
-		const popupHeight = Math.ceil(distance + 16);
+		const bottomInset = Number.parseFloat(getComputedStyle(popupElement).paddingBottom) || 0;
+		const popupHeight = Math.ceil(distance + 16 + bottomInset);
 		setPopupOcclusion({ height: popupHeight });
 		const nextSnapPoint = `${popupHeight}px`;
 		const wasAtInitialSnapPoint = snapPoint === initialSnapPoint;
@@ -127,7 +128,7 @@
 		<Drawer.Viewport class="drawer-viewport z-50!">
 			<Drawer.Popup
 				bind:ref={popupElement}
-				class="drawer-popup flex flex-col w-full h-full rounded-t-xl border border-t-border bg-card pb-[env(safe-area-inset-bottom)] mt-safe-inset-top"
+				class="drawer-popup flex flex-col w-full h-full rounded-t-xl border border-t-border bg-card pb-[env(safe-area-inset-bottom)]"
 			>
 				<Drawer.Handle class="my-1" />
 				<Drawer.Content class="flex min-h-0 flex-1 flex-col">

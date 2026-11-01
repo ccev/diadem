@@ -9,7 +9,7 @@
 		isNative,
 		setInstanceUrl
 	} from "@/lib/native/runtime";
-	import { clearStoredToken } from "@/lib/native/auth";
+	import { nativeLogout } from "@/lib/native/auth";
 	import { getConfig } from "$lib/services/config/config";
 
 	let { title, description }: { title: string; description?: string } = $props();
@@ -25,7 +25,7 @@
 	let disconnecting = $state(false);
 	async function disconnect() {
 		disconnecting = true;
-		await clearStoredToken();
+		await nativeLogout({ waitForServer: false });
 		await setInstanceUrl("");
 		window.location.assign("/");
 	}

@@ -19,13 +19,15 @@
 	} = $props();
 </script>
 
-<div class="w-full h-svh! h-screen flex items-center justify-center">
-	<div class="stars absolute w-full h-full">
+<div
+	class="relative w-full min-h-dvh flex items-center justify-center px-4 pt-safe-inset-top pb-safe-inset-bottom"
+>
+	<div class="stars pointer-events-none absolute inset-0">
 		<div class="absolute w-full h-full bg-radial from-transparent to-background to-60%"></div>
 	</div>
 
-	<Card class="bg-card max-w-xl relative px-8 pt-8 pb-6 mx-4">
-		<p class="text-xl font-semibold text-center mb-2">
+	<Card class="bg-card min-w-0 max-w-xl relative px-8 pt-8 pb-6">
+		<p class="text-xl font-semibold text-center mb-2 wrap-anywhere">
 			{error}
 		</p>
 
@@ -35,7 +37,9 @@
 			</p>
 		{/if}
 
-		<div class="mt-4 flex justify-center flex-wrap w-full gap-2 *:flex-1">
+		<div
+			class="mt-4 flex justify-center flex-wrap w-full gap-2 *:flex-1 *:min-w-0 *:whitespace-normal"
+		>
 			{#if href && linkLabel}
 				<Button variant={extraButtons ? "secondary" : "default"} tag="a" {href}>
 					{linkLabel}

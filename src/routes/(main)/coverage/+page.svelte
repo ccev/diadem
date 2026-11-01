@@ -83,7 +83,7 @@
 		{#snippet mobileTop()}
 			{#if showCoverageMapTitle()}
 				<div
-					class="fixed top-safe-inset-top z-20 w-full px-2"
+					class="fixed top-safe-inset-top z-20 w-full pl-safe-inset-left pr-safe-inset-right"
 					transition:fly={{ duration: 90, y: -14 }}
 				>
 					<CoverageMapTitle />
