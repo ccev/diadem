@@ -1,0 +1,3 @@
+- Major polishes across the app
+- Better support for nearby Pokemon and Ditto
+- Support modern nest analyzing
