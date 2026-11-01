@@ -34,7 +34,6 @@
 	);
 	const selectedValues = $derived(new Set(selected.map(getKey)));
 	const PAGE_SIZE = 60;
-	// Reset on search changes, without collapsing the list when a selection changes.
 	let visibleCount = $derived.by(() => {
 		query;
 		return PAGE_SIZE;

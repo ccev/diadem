@@ -13,7 +13,6 @@ export enum PopupAction {
 	FOCUS_ROUTE = "focusRoute"
 }
 
-// Route focus is transient map state, not a saved popup preference.
 type SavedPopupAction = PopupAction.DIMMED | PopupAction.RADIUS | PopupAction.TIMER;
 
 export type PopupActionDropdown = {
