@@ -123,24 +123,25 @@
 		)}
 >
 	<Button
-		class="min-w-0 flex-1 pl-0! pr-0! py-0! h-12! justify-start! cursor-inherit"
-		variant="ghost"
+		class="pl-0! pr-0! h-fit! min-w-0 flex-1 cursor-inherit"
+		variant=""
+		size=""
 		title={filterTitle($state.snapshot(filter))}
 		aria-haspopup="menu"
 		onclick={() => edit()}
 	>
-		<span
-			class="h-full w-0.5 rounded-l-md transition-colors shrink-0"
+		<div
+			class="h-12 w-0.5 mr-1.5 transition-colors shrink-0"
 			class:bg-green={filter.enabled}
 			class:bg-red={!filter.enabled}
-		></span>
-		<span
-			class="min-w-0 flex flex-1 gap-2 items-center transition-opacity"
+		></div>
+		<div
+			class="shrink-1 min-w-0 w-full flex gap-2 items-center justify-start rounded-md py-2 h-12 m-0! pr-0 transition-opacity relative"
 			class:opacity-50={!filter.enabled}
 		>
 			<FiltersetIcon filterset={$state.snapshot(filter)} size={5} />
 			<span class="text-fade text-left flex-1">{filterTitle($state.snapshot(filter))}</span>
-		</span>
+		</div>
 	</Button>
 	<Button
 		data-no-drag
