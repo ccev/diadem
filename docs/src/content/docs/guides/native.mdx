@@ -265,6 +265,46 @@ Use this for a version code whose Play upload failed. Google Play requires a new
 version code after a successful upload; use the full **Release** workflow for a
 new version.
 
+### iOS sideloading
+
+GitHub releases provide `diadem-<version>-unsigned.ipa` after the **ios-sideload**
+job succeeds. This is an **unsigned iPhone/iPad device build**, not a simulator
+build or a directly installable app. Download it from the release assets and use
+compatible sideloading tooling that can re-sign the app **and its embedded
+frameworks**, supply a provisioning profile, and install it on your device.
+Follow that tool's signing and device-trust instructions; simply opening the IPA
+on an iPhone will not install it.
+
+- Building this asset requires no Apple developer or App Store Connect credentials.
+  Installing it still requires valid signing/provisioning through your chosen tool.
+  Account type and tooling can impose device limits, expiration, and periodic
+  re-signing. Updates should use the same signing identity and bundle identifier
+  where possible to retain app data.
+- Entitlements must match the signing profile. In particular, re-signing does
+  **not** provide push notifications: APNs needs supported provisioning,
+  entitlements, and app/server integration. Do not assume notification parity
+  with a store-installed app or browser/PWA.
+- Diadem remains a web app in a Capacitor webview and connects to your chosen
+  instance. This artifact does not publish it to App Store/AltStore, imply Apple
+  approval, or guarantee App Store acceptance.
+
+The release job checks out the exact version tag, builds the native web client,
+syncs CocoaPods, and archives for `iphoneos` with code signing disabled. It packages
+`Payload/App.app` directly (no App Store export), preserving embedded frameworks,
+and checks the ZIP layout, version, executable permissions, and arm64 iOS-device
+binaries before uploading. If that job fails, the release may exist without the
+unsigned asset; inspect the job failure rather than treating another IPA as an
+unsigned substitute.
+
+The portable packaging fixture tests can be run with
+`python3 -m unittest discover -s scripts/release -p 'test_*.py'`. These do not
+replace building with Xcode and testing a re-signed IPA on a real device.
+
+When App Store Connect credentials are configured, the existing optional signed
+build still attaches `diadem-<version>.ipa` and uploads to TestFlight. That
+App Store Connect export is distinct from the unsigned sideload asset and is not
+a general-purpose sideload installer.
+
 ### iOS (App Store)
 
 On a Mac:
