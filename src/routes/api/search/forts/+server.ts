@@ -8,7 +8,7 @@ import type { RawFortSearchEntry } from "@/lib/services/search.svelte";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
-import { error } from "@sveltejs/kit";
+import { error, isHttpError } from "@sveltejs/kit";
 
 const log = getLogger("fortsearch");
 
@@ -57,6 +57,7 @@ export async function POST({ request, locals }) {
 
 		return respond(request, result);
 	} catch (e) {
+		if (isHttpError(e, 503)) throw e;
 		log.error("Error while querying fort search", e);
 		error(500);
 	}

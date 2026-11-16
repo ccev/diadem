@@ -6,7 +6,7 @@ import { query } from "@/lib/server/db/external/internalQuery";
 import { checkFeatureInBounds } from "@/lib/services/user/checkPerm";
 import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
-import { error } from "@sveltejs/kit";
+import { error, isHttpError } from "@sveltejs/kit";
 import { geojson, s2 } from "s2js";
 import type { Polygon } from "geojson";
 import type { FortData } from "@/lib/features/wayfarerMap.svelte";
@@ -133,6 +133,7 @@ export async function POST({ request, locals }) {
 
 		return respond(request, { pokestopCounts, gymCounts, forts } satisfies WayfarerFortsResponse);
 	} catch (e) {
+		if (isHttpError(e, 503)) throw e;
 		log.error("Error while querying wayfarer forts", e);
 		error(500);
 	}

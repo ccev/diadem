@@ -14,6 +14,13 @@ export type MapObjectResponse<T> = {
 	revision?: string;
 };
 
+export type SqlFilter = {
+	sql: string;
+	values: unknown[];
+	/** Explicit dependency metadata; undefined conservatively retains joins. */
+	requiresIncidentJoin?: boolean;
+};
+
 export abstract class MapObjectQuery<MapObject extends MapData, Filter> {
 	protected abstract readonly type: MapObjectType;
 	protected abstract readonly limit: number;
@@ -123,7 +130,7 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 	protected readonly extraWhere: string[] = [];
 	protected readonly joins: string = "";
 
-	protected getFilterWhere(_filter: Filter | undefined): { sql: string; values: unknown[] } {
+	protected getFilterWhere(_filter: Filter | undefined): SqlFilter {
 		return { sql: "", values: [] };
 	}
 
@@ -145,7 +152,8 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 	protected buildLimitedQuery(
 		whereSql: string,
 		values: unknown[],
-		actualLimit: number
+		actualLimit: number,
+		_filterWhere?: SqlFilter
 	): { sql: string; values: unknown[] } {
 		return {
 			sql: this.buildSelectFrom() + whereSql + ` LIMIT ${actualLimit + 1}`,
@@ -176,7 +184,7 @@ export abstract class DbMapObjectQuery<MapObject extends MapData, Filter> extend
 		const actualLimit = Math.min(limit ?? this.limit, this.limit);
 
 		const whereSql = " WHERE " + whereClauses.join(" AND ");
-		const limitedQuery = this.buildLimitedQuery(whereSql, values, actualLimit);
+		const limitedQuery = this.buildLimitedQuery(whereSql, values, actualLimit, filterWhere);
 		const result = await this.executeQuery<MinMapObject<MapObject>[]>(
 			limitedQuery.sql,
 			limitedQuery.values

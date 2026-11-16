@@ -18,7 +18,8 @@ type CountResult = {
 };
 
 export async function queryLivePokemonStats() {
-	// TODO: add count endpoint to golbat
+	// v3 scan's total describes the whole tree, independently of the bounding box.
+	// Never request a world-sized result list (or rely on a backend's meaning of limit=0).
 	const body = {
 		min: {
 			latitude: 0,
@@ -28,7 +29,7 @@ export async function queryLivePokemonStats() {
 			latitude: 0,
 			longitude: 0
 		},
-		limit: 0,
+		limit: 1,
 		filters: [
 			{
 				pokemon: []
@@ -36,18 +37,32 @@ export async function queryLivePokemonStats() {
 		]
 	};
 	const result = await getMultiplePokemon(body);
-
-	return result?.total ?? 0;
+	const total = result?.total;
+	if (typeof total !== "number" || !Number.isSafeInteger(total) || total < 0)
+		throw new Error("Golbat v3 scan did not supply a valid whole-tree total");
+	return total;
 }
 
 export async function queryLiveFortStats(): Promise<FortLiveStats> {
-	const [pokestopResult, gymResult] = await Promise.all([
-		query<CountResult[]>("SELECT COUNT(*) AS count FROM pokestop"),
-		query<CountResult[]>("SELECT COUNT(*) AS count FROM gym")
+	// Do not release a failed refresh lease while its sibling count is still running.
+	const [pokestops, gyms] = await Promise.allSettled([
+		query<CountResult[]>("SELECT COUNT(*) AS count FROM pokestop", undefined, 8000),
+		query<CountResult[]>("SELECT COUNT(*) AS count FROM gym", undefined, 8000)
 	]);
+	if (pokestops.status === "rejected") throw pokestops.reason;
+	if (gyms.status === "rejected") throw gyms.reason;
+	const pokestopResult = pokestops.value;
+	const gymResult = gyms.value;
+	if (
+		!Number.isSafeInteger(pokestopResult[0]?.count) ||
+		pokestopResult[0].count < 0 ||
+		!Number.isSafeInteger(gymResult[0]?.count) ||
+		gymResult[0].count < 0
+	)
+		throw new Error("Database did not supply valid fort totals");
 
 	return {
-		pokestops: pokestopResult[0]?.count ?? 0,
-		gyms: gymResult[0]?.count ?? 0
+		pokestops: pokestopResult[0].count,
+		gyms: gymResult[0].count
 	};
 }

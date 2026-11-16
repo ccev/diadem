@@ -1,6 +1,7 @@
 import { MapObjectType } from "@/lib/mapObjects/mapObjectTypes";
 
 import type { FeaturesKey } from "@/lib/utils/features";
+import type { LiveStatsConfig, ReadLoadConfig } from "./readLoadConfig";
 
 type UiconSetModifiers = {
 	default: boolean;
@@ -143,6 +144,8 @@ export type ClientConfig = {
 };
 
 export type ServerConfig = {
+	readLoad?: ReadLoadConfig;
+	liveStats?: LiveStatsConfig;
 	encounterIdObfuscation?: {
 		enabled?: boolean;
 		secret?: string;
