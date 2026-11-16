@@ -15,7 +15,9 @@ export async function initDiadem() {
 		masterfileProvider.refresh(),
 		uiconsIndexProvider.refresh(),
 		remoteLocaleProvider.refresh(),
-		masterstatsProvider.refresh(),
+		masterstatsProvider.refresh().catch((cause) => {
+			log.warning("Optional master statistics unavailable: %s", cause);
+		}),
 		startFortApiDetection()
 	]);
 	log.info("Finished initializing");

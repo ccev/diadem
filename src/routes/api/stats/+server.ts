@@ -13,11 +13,8 @@ export async function GET({ request }) {
 	} catch (e) {
 		return respond(
 			request,
-			{
-				pokemon: {},
-				generatedAt: 0
-			},
-			{ headers: cacheHttpHeaders(FORT_API_REFRESH_SECONDS) }
+			{ error: "Master statistics temporarily unavailable" },
+			{ status: 503, headers: { "Retry-After": "10" } }
 		);
 	}
 }

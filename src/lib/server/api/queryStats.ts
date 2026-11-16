@@ -274,6 +274,14 @@ function getInvasionCharacterId(name: string, type: string): number | null {
 export async function queryMasterStats(): Promise<MasterStats> {
 	// TODO: timeframe
 
+	// Keep this bootstrap batch from competing with itself for read admission.
+	let previousRead: Promise<unknown> = Promise.resolve();
+	const readStats = <T>(sql: string): Promise<T> => {
+		const result = previousRead.then(() => query<T>(sql));
+		previousRead = result;
+		return result;
+	};
+
 	const [
 		allShinyStats,
 		allSpawnStats,
@@ -286,13 +294,13 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		eggsData,
 		invasionLineupsData
 	] = await Promise.all([
-		query<AllShinyStatsRow[]>(
+		readStats<AllShinyStatsRow[]>(
 			"SELECT pokemon_id, form_id AS form, SUM(count) as shinies, SUM(total) as total, COUNT(*) as days " +
 				"FROM pokemon_shiny_stats " +
 				"WHERE fence = 'world' " +
 				"GROUP BY pokemon_id, form "
 		),
-		query<AllSpawnStatsRow[]>(
+		readStats<AllSpawnStatsRow[]>(
 			"SELECT pokemon_id, form_id AS form, SUM(count) as count, " +
 				"(SELECT SUM(count) FROM pokemon_stats WHERE fence = 'world') as total_spawns, " +
 				"COUNT(DISTINCT date) as days " +
@@ -301,7 +309,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"GROUP BY pokemon_id, form " +
 				"HAVING count > 0"
 		),
-		query<QuestStatsRow[]>(
+		readStats<QuestStatsRow[]>(
 			"SELECT q.quest_rewards, q.quest_title, q.quest_target, COUNT(*) AS count " +
 				"FROM ( " +
 				"SELECT quest_rewards, quest_title, quest_target " +
@@ -314,21 +322,21 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				") q " +
 				"GROUP BY q.quest_title, q.quest_rewards, q.quest_target"
 		),
-		query<RaidStatsRow[]>(
+		readStats<RaidStatsRow[]>(
 			"SELECT level, pokemon_id, form_id AS form, temp_evo_id AS temp_evolution_id, SUM(count) AS count " +
 				"FROM raid_stats " +
 				"WHERE date >= CURDATE() - INTERVAL 1 DAY AND area = 'world' " +
 				"GROUP BY 1, 2, 3, 4 " +
 				"ORDER BY level ASC"
 		),
-		query<InvasionStatsRow[]>(
+		readStats<InvasionStatsRow[]>(
 			"SELECT `character`, SUM(`count`) AS `count` " +
 				"FROM invasion_stats " +
 				"WHERE date >= CURDATE() - INTERVAL 1 DAY AND area = 'world' " +
 				"GROUP BY 1 " +
 				"ORDER BY `character` ASC"
 		),
-		query<ContestStatsRow[]>(
+		readStats<ContestStatsRow[]>(
 			"SELECT showcase_ranking_standard AS ranking_standard, showcase_focus AS focus, COUNT(*) as count " +
 				"FROM pokestop " +
 				"WHERE showcase_ranking_standard IS NOT NULL " +
@@ -336,7 +344,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 				"AND showcase_expiry > UNIX_TIMESTAMP() " +
 				"GROUP BY 1, 2"
 		),
-		query<MaxBattleStatsRow[]>(
+		readStats<MaxBattleStatsRow[]>(
 			"SELECT battle_level AS level, battle_pokemon_id AS pokemon_id, battle_pokemon_form AS form, battle_pokemon_bread_mode AS bread_mode, COUNT(*) as count " +
 				"FROM station " +
 				"WHERE battle_pokemon_id IS NOT NULL " +
@@ -345,7 +353,7 @@ export async function queryMasterStats(): Promise<MasterStats> {
 		),
 		getServerConfig().talonflame?.url
 			? fetchTalonflameStats()
-			: query<NestStatsRow[]>(
+			: readStats<NestStatsRow[]>(
 					"SELECT pokemon_id, pokemon_form AS form, COUNT(*) AS count " +
 						"FROM nests " +
 						"WHERE pokemon_id IS NOT NULL " +
