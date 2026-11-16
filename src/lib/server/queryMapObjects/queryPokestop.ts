@@ -7,7 +7,7 @@ import type { FilterPokestop } from "@/lib/features/filters/filters";
 import { MapObjectType, type MinMapObject } from "@/lib/mapObjects/mapObjectTypes";
 import { requestLimits } from "@/lib/server/api/rateLimit";
 import { queryJoined } from "@/lib/server/db/external/internalQuery";
-import { DbMapObjectQuery } from "@/lib/server/queryMapObjects/MapObjectQuery";
+import { DbMapObjectQuery, type SqlFilter } from "@/lib/server/queryMapObjects/MapObjectQuery";
 import type { FeaturePermissionContext, PermittedPolygon } from "@/lib/services/user/checkPerm";
 import type { ContestRankings, Incident, PokestopData } from "@/lib/types/mapObjectData/pokestop";
 import { currentTimestamp } from "@/lib/utils/currentTimestamp";
@@ -93,13 +93,17 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 	protected buildLimitedQuery(
 		whereSql: string,
 		values: unknown[],
-		actualLimit: number
+		actualLimit: number,
+		filterWhere?: SqlFilter
 	): { sql: string; values: unknown[] } {
 		// Limit distinct stops before rejoining incidents so child rows do not consume the object limit.
+		// Keep the original joined predicate for mixed OR filters; only a proven stop-only
+		// predicate may skip the incident join in the ID-selection stage.
+		const idJoins = filterWhere?.requiresIncidentJoin === false ? "" : this.joins;
 		const sql = `
 			WITH limited_ids AS (
 				SELECT DISTINCT ${this.idColumn} AS id
-				FROM ${this.table} ${this.joins}${whereSql}
+				FROM ${this.table} ${idJoins}${whereSql}
 				LIMIT ${actualLimit + 1}
 			)
 			SELECT ${this.fields.join(",")}
@@ -111,8 +115,9 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 		return { sql, values: [...values, ...values] };
 	}
 
-	protected getFilterWhere(filter: FilterPokestop | undefined): { sql: string; values: unknown[] } {
-		if (!filter?.enabled || filter.pokestopPlain.enabled) return { sql: "", values: [] };
+	protected getFilterWhere(filter: FilterPokestop | undefined): SqlFilter {
+		if (!filter?.enabled || filter.pokestopPlain.enabled)
+			return { sql: "", values: [], requiresIncidentJoin: false };
 
 		const clauses: string[] = [];
 		const values: unknown[] = [];
@@ -311,8 +316,16 @@ export class PokestopQuery extends DbMapObjectQuery<PokestopData, FilterPokestop
 			values.push(INCIDENT_DISPLAY_CONTEST, ...contestValues);
 		}
 
-		if (!clauses.length) return { sql: "1 = 0", values: [] };
-		return { sql: `(${clauses.join(" OR ")})`, values };
+		if (!clauses.length) return { sql: "1 = 0", values: [], requiresIncidentJoin: false };
+		return {
+			sql: `(${clauses.join(" OR ")})`,
+			values,
+			requiresIncidentJoin:
+				filter.invasion.enabled ||
+				filter.goldPokestop.enabled ||
+				filter.kecleon.enabled ||
+				filter.contest.enabled
+		};
 	}
 
 	protected async executeQuery<T>(sql: string, values: unknown[]): Promise<T> {

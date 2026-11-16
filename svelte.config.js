@@ -18,6 +18,10 @@ const config = {
 					async adapt(builder) {
 						await nodeAdapter.adapt(builder);
 						builder.copy(
+							"src/lib/server/coordination/statsCoordinator.mjs",
+							"build/server/coordination/statsCoordinator.mjs"
+						);
+						builder.copy(
 							"src/lib/server/workers/cpu.worker.mjs",
 							"build/server/workers/cpu.worker.mjs"
 						);

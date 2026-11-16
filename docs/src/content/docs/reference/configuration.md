@@ -54,6 +54,54 @@ If a gRPC call fails for any reason, Diadem falls back to the HTTP API for that 
 
 The gRPC connection is plaintext. Keep it on a private network, as with Golbat's HTTP port.
 
+## `server.readLoad`
+
+All external/scanner SQL reads, including counts, search, and fort API fallbacks, share a bounded **per-application-worker** budget. The internal user/session database and mutations are not affected. No map results or permissions are cached.
+
+```toml
+[server.readLoad]
+concurrency = 4
+queueLimit = 16
+queueTimeoutMs = 1000
+statementTimeoutMs = 8000
+deadline = "auto"
+```
+
+- `concurrency`: active reads, including connection acquisition and cleanup (integer 1–32).
+- `queueLimit`: maximum waiting reads (integer 0–256). Zero rejects immediately when busy.
+- `queueTimeoutMs`: maximum admission wait (integer 1–10000).
+- `statementTimeoutMs`: server statement deadline in milliseconds (integer 100–60000).
+- `deadline`: `auto`, `mysql`, or `mariadb`. Auto detects the server using `SELECT VERSION()`. Explicit values are for compatible servers/proxies whose version strings cannot be detected; they do **not** bypass deadline setup failures.
+
+Defaults are shown above. Invalid settings fail startup. Saturation, expired waits and statement timeouts return HTTP 503 (or per-type `status: 503` in `/api/forts`), never successful empty map results. No SQL retries are added. Existing API-to-SQL fallback reads use this same budget.
+
+MySQL 5.7.8+ reads the session's `max_execution_time`, installs the requested deadline (preserving any stricter inherited limit), and restores the original value before returning a connection to the dedicated external pool; failed cleanup destroys the connection. This covers SELECTs, CTEs and UNIONs without injecting optimizer hints. MariaDB 10.1.2+ uses `SET STATEMENT max_statement_time=… FOR …`, with seconds converted from milliseconds and no persistent session changes. Existing queries using CTEs still require the corresponding server's CTE support (MySQL 8+, MariaDB 10.2+). Stock server read deadlines are execution limits, not a guarantee of a precise wall-clock cancellation instant; do not use these helpers for writes or transactions.
+
+Unknown/unsupported servers fail closed before data reads. Setup failures also fail closed: reads are never retried without a deadline. A separate transport watchdog destroys stuck connections after the statement budget plus one second; it is **not** the server deadline. Connection setup has its own timeout of at most five seconds.
+
+Choose `DIADEM_WORKERS` and `concurrency` together: the process-group maximum is workers × concurrency, not a single cluster-wide SQL limit. Separate launchers/hosts have separate budgets. Keep the scanner database user read-only.
+
+## `server.liveStats`
+
+```toml
+[server.liveStats]
+pokemonRefreshSeconds = 180
+fortRefreshSeconds = 3600
+staleSeconds = 86400
+```
+
+- `pokemonRefreshSeconds`: global Pokémon count refresh interval (integer 120–86400 seconds).
+- `fortRefreshSeconds`: static gym/Pokéstop total refresh interval (integer 300–604800 seconds).
+- `staleSeconds`: additional last-known-good retention after each refresh interval (integer 3600–604800 seconds).
+
+The successful `/api/stats/live` response remains `{ pokemon, pokestops, gyms }`. Stale counters return immediately while one producer refreshes them. Failed refreshes preserve the last-known-good data and back off for ten seconds. Cold requests or requests beyond retention fail with 503 and `Retry-After: 10` if no valid counters can be obtained; no fabricated zero is cached.
+
+`node cluster.mjs` shares only these small global counters through its primary process. Entries are namespaced by a digest of backend/database configuration and cache policy. The coordinator is bounded to 32 entries and accepts only small counter payloads. Refresh leases expire after 45 seconds, late producers are fenced, and dead/disconnected workers release leases. Cold followers poll boundedly instead of accumulating primary-side waiters. IPC failure uses locally known stale counters or 503, **not** independent backend refreshes. Single-worker, direct adapter-node and development launches use an in-process coordinator and singleflight. No Redis or schema changes are needed. Separate primary processes/hosts do not share counters.
+
+Refresh work times out after 35 seconds. Fort count statements are additionally capped at eight seconds (or the shorter configured SQL deadline), keeping their admission, connection, execution and cleanup bounds below the refresh lease even with the largest allowed queue wait. The transport watchdog is only a recovery safeguard; server-side SQL deadlines still apply.
+
+Pokémon counts use the existing Golbat HTTP v3 scan's **whole-tree `total` metadata**, independent of its bounding box ([public API documentation](https://github.com/UnownHash/Golbat/blob/main/api.md)). A zero-area box and positive result limit of one avoid a world-wide materialized list and ambiguous `limit = 0` behavior. Returned rows, `examined` and `skipped` are not counts. Backends without valid v3 `total` metadata cannot provide this statistic: Diadem keeps stale data or returns 503, without SQL/world-scan fallbacks or requiring a new endpoint.
+
 ## `server.talonflame`
 
 Optional. Set `url = "http://127.0.0.1:9042"` under `[server.talonflame]` to use Talonflame's nest API instead of Fletchling SQL. The URL must be accessible to Diadem's server.

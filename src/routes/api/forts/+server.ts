@@ -87,6 +87,7 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 			const result = results[type];
 			if (!result) {
 				await rateLimitReward(rateLimitKey, limit, type);
+				response[type] = { status: 503 };
 				return `${type}: query failed (refunded ${limit})`;
 			}
 			const { charge, remainingPoints } = await settleTypeRequest(

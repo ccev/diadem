@@ -166,6 +166,21 @@ secret = "" # Required when enabled. Generate a private key with: openssl rand -
 [server.tuning]
 cpuWorkers = 1 # Shared CPU pool for permission geometry and encounter ID encryption, set to 0 to disable
 
+# Bounds for all external/scanner SQL reads, including fort API fallbacks.
+# Per application worker: multiply concurrency by DIADEM_WORKERS for the process-group maximum.
+[server.readLoad]
+concurrency = 4
+queueLimit = 16
+queueTimeoutMs = 1000
+statementTimeoutMs = 8000
+deadline = "auto" # Detect stock MySQL >=5.7.8 or MariaDB >=10.1.2; unsupported servers fail closed.
+
+# Global counters only; no map-result or authorization caching.
+[server.liveStats]
+pokemonRefreshSeconds = 180
+fortRefreshSeconds = 3600
+staleSeconds = 86400 # Additional last-known-good retention after the refresh interval.
+
 # Connection to your Golbat DB, user should have SELECT permissions
 [server.db]
 host = "127.0.0.1"

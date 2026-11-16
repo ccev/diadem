@@ -19,6 +19,7 @@ import { POST as postSingle } from "@/routes/api/[queryMapObject=mapObject]/+ser
 import { GET as getSingle } from "@/routes/api/[queryMapObject=mapObject]/[id]/+server";
 import { POST as postForts } from "@/routes/api/forts/+server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { error } from "@sveltejs/kit";
 
 vi.mock("@/lib/server/api/mapObjectRequest", () => ({
 	admitType: vi.fn(),
@@ -67,6 +68,21 @@ beforeEach(() => {
 });
 
 describe("single map object POST", () => {
+	it("refunds SQL admission failures and propagates 503 without successful empty results", async () => {
+		vi.mocked(resolveTypeRequest).mockResolvedValue({
+			status: 200,
+			filter: undefined,
+			permitted: { bounds, polygon: null },
+			context: new FeaturePermissionContext(locals.perms, [Features.GYM])
+		});
+		vi.mocked(queryMapObjects).mockImplementation(async () => error(503));
+		const event = requestEvent(MapObjectType.GYM, bounds);
+		await expect(postSingle(event as Parameters<typeof postSingle>[0])).rejects.toMatchObject({
+			status: 503
+		});
+		expect(rateLimitReward).toHaveBeenCalledExactlyOnceWith("u1", requestLimit, MapObjectType.GYM);
+		expect(settleTypeRequest).not.toHaveBeenCalled();
+	});
 	it.each(["busy", "too-large", "timeout", "aborted", "unavailable", "failed"] as const)(
 		"refunds encryption-stage %s failures and returns 503 without result data",
 		async (code) => {
@@ -179,6 +195,29 @@ it("refunds failed single-object encryption and returns 503 while forwarding can
 });
 
 describe("combined forts POST", () => {
+	it("marks failed SQL fallback types 503 and refunds them while retaining healthy results", async () => {
+		const data = { ...bounds, types: { gym: {}, pokestop: {} } };
+		vi.mocked(resolveTypeRequest).mockResolvedValue({
+			status: 200,
+			filter: undefined,
+			permitted: { bounds, polygon: null },
+			context: new FeaturePermissionContext(locals.perms, [Features.GYM])
+		});
+		const result = { examined: 1, data: [] };
+		vi.mocked(combinedForts).mockResolvedValue({ gym: result });
+		const event = requestEvent("forts", data);
+		const response = await postForts(event as unknown as Parameters<typeof postForts>[0]);
+		expect(await response.json()).toEqual({
+			gym: { status: 200, result },
+			pokestop: { status: 503 }
+		});
+		expect(rateLimitReward).toHaveBeenCalledExactlyOnceWith(
+			"u1",
+			requestLimit,
+			MapObjectType.POKESTOP
+		);
+		expect(settleTypeRequest).toHaveBeenCalledOnce();
+	});
 	it.each([401, 409] as const)(
 		"keeps 503 and %s per type and only queries and settles the healthy type",
 		async (status) => {

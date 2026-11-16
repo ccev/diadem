@@ -1,51 +1,26 @@
-import {
-	type FortLiveStats,
-	type LiveStats,
-	queryLiveFortStats,
-	queryLivePokemonStats
-} from "@/lib/server/api/queryLiveStats";
+import { getLiveStats } from "@/lib/server/api/liveStats";
 import { respond } from "@/lib/server/api/respond";
 import { getLogger } from "@/lib/utils/logger";
-import { TTLCache } from "@isaacs/ttlcache";
 
 const log = getLogger("livestats");
-
-const fortsCache: TTLCache<"forts", FortLiveStats> = new TTLCache({
-	max: 2,
-	ttl: 60 * 60 * 1000
-});
-const pokemonCache: TTLCache<"pokemon", number> = new TTLCache({
-	max: 2,
-	ttl: 60 * 1000
-});
 
 export async function GET({ request }) {
 	try {
 		const start = performance.now();
 
-		let fortStats = fortsCache.get("forts");
-		if (fortStats === undefined) {
-			fortStats = await queryLiveFortStats();
-			fortsCache.set("forts", fortStats);
-		}
-
-		let pokemonCount = pokemonCache.get("pokemon");
-		if (pokemonCount === undefined) {
-			pokemonCount = await queryLivePokemonStats();
-			pokemonCache.set("pokemon", pokemonCount);
-		}
+		const stats = await getLiveStats();
 
 		log.info("Serving live stats / time: %dms", (performance.now() - start).toFixed(1));
-		return respond(request, {
-			pokemon: pokemonCount,
-			pokestops: fortStats.pokestops,
-			gyms: fortStats.gyms
-		} as LiveStats);
+		return respond(request, stats);
 	} catch (e) {
 		log.error("Error fetching live stats: %s", e);
-		return respond(request, {
-			pokemon: {},
-			generatedAt: 0
-		});
+		return respond(
+			request,
+			{ pokemon: {}, generatedAt: 0 },
+			{
+				status: 503,
+				headers: { "Retry-After": "10" }
+			}
+		);
 	}
 }

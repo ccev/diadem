@@ -98,11 +98,97 @@ describe("restricted pokestop SQL", () => {
 			if (since !== undefined) spatialValues.push(since);
 
 			expect(sql).toContain("SELECT DISTINCT pokestop.id AS id");
+			expect(sql.split("SELECT pokestop.id,")[0]).not.toContain("JOIN incident");
+			expect(sql.match(/LEFT JOIN incident/g)).toHaveLength(1);
 			expect(sql).toContain("LIMIT 26");
 			expect(sql.split(whereSql)).toHaveLength(3);
 			expect(values).toEqual([...spatialValues, ...spatialValues]);
 		}
 	);
+
+	it.each(["lure", "quest"] as const)(
+		"skips the ID incident join for %s-only filters",
+		async (feature) => {
+			vi.mocked(queryJoined).mockClear();
+			const filter = getDefaultPokestopFilter();
+			filter.enabled = true;
+			filter[feature].enabled = true;
+			if (feature === "quest")
+				filter.quest.filters = [
+					{
+						...filterset,
+						tasks: [{ title: "Task", target: 3 }],
+						stardust: { min: 500, max: 1000 }
+					}
+				];
+			await new PokestopQuery().query(
+				{ minLat: 1, maxLat: 2, minLon: 3, maxLon: 4 },
+				filter,
+				null,
+				100,
+				2
+			);
+			const [sql, values] = vi.mocked(queryJoined).mock.calls[0];
+			expect(sql.split("SELECT pokestop.id,")[0]).not.toContain("JOIN incident");
+			expect(sql.match(/LEFT JOIN incident/g)).toHaveLength(1);
+			expect(sql).toContain("LIMIT 3");
+			expect(sql.trim()).toMatch(/ORDER BY pokestop.id$/);
+			const where = new TestPokestopQuery().getFilterWhere(filter);
+			const expected = [1, 2, 3, 4, ...where.values, 100];
+			expect(values).toEqual([...expected, ...expected]);
+			if (feature === "quest") {
+				expect(sql).toContain("pokestop.quest_title = ?");
+				expect(sql).toContain("pokestop.alternative_quest_title = ?");
+				expect(sql).toContain("pokestop.alternative_quest_reward_amount >= ?");
+			}
+		}
+	);
+
+	it.each(["invasion", "goldPokestop", "kecleon", "contest"] as const)(
+		"retains both joins and the complete mixed quest/lure/%s OR predicate",
+		async (feature) => {
+			vi.mocked(queryJoined).mockClear();
+			const filter = getDefaultPokestopFilter();
+			filter.enabled = true;
+			filter.lure.enabled = true;
+			filter.quest.enabled = true;
+			filter[feature].enabled = true;
+			await new PokestopQuery().query(
+				{ minLat: 1, maxLat: 2, minLon: 3, maxLon: 4 },
+				filter,
+				null,
+				undefined,
+				2
+			);
+			const [sql, values] = vi.mocked(queryJoined).mock.calls[0];
+			const predicate = new TestPokestopQuery().getFilterWhere(filter);
+			expect(predicate.requiresIncidentJoin).toBe(true);
+			expect(sql.match(/LEFT JOIN incident/g)).toHaveLength(2);
+			expect(sql.split(predicate.sql)).toHaveLength(3);
+			expect(predicate.sql).toContain(" OR ");
+			const expected = [1, 2, 3, 4, ...predicate.values];
+			expect(values).toEqual([...expected, ...expected]);
+			expect(sql).toContain("SELECT DISTINCT pokestop.id AS id");
+			expect(sql).toContain("LIMIT 3");
+		}
+	);
+
+	it("uses grouped object count, not incident count, for limit overflow", async () => {
+		const objects = [
+			{ id: "a", incident: [{ id: "1" }, { id: "2" }, { id: "3" }] },
+			{ id: "b", incident: [{ id: "4" }] }
+		];
+		const bounds = { minLat: 1, maxLat: 2, minLon: 3, maxLon: 4 };
+		vi.mocked(queryJoined).mockResolvedValueOnce(objects);
+		const within = await new PokestopQuery().query(bounds, undefined, null, undefined, 2);
+		expect(within).toEqual({ examined: 2, data: objects });
+		vi.mocked(queryJoined).mockResolvedValueOnce(objects);
+		expect(await new PokestopQuery().query(bounds, undefined, null, undefined, 1)).toEqual({
+			examined: 1,
+			data: [],
+			limitReached: true
+		});
+	});
 });
 
 class TestStationQuery extends StationQuery {

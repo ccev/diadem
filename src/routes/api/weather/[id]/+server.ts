@@ -3,7 +3,7 @@ import { respond } from "@/lib/server/api/respond";
 import { query } from "@/lib/server/db/external/internalQuery";
 import { Features } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
-import { error } from "@sveltejs/kit";
+import { error, isHttpError } from "@sveltejs/kit";
 
 const log = getLogger("mapobjects");
 
@@ -23,6 +23,7 @@ export async function GET({ params, locals, request }) {
 
 		return respond(request, result);
 	} catch (e) {
+		if (isHttpError(e, 503)) throw e;
 		log.error("[weather] query failed", e);
 		error(500);
 	}

@@ -52,7 +52,7 @@ export async function combinedForts(
 		try {
 			results[type] = await run();
 		} catch (err) {
-			log.error("Fort query for %s failed, serving no data for it: %s", type, err);
+			log.error("Fort query for %s failed: %s", type, err);
 		}
 	};
 	const viaQuery = (type: FortType, query: MapObjectQuery<any, any>) => {

@@ -8,7 +8,7 @@ import { FeaturePermissionContext } from "@/lib/services/user/checkPerm";
 import { featureFamily } from "@/lib/utils/features";
 import { getLogger } from "@/lib/utils/logger";
 import { getRouteCoordinates } from "@/lib/utils/routeUtils";
-import { error } from "@sveltejs/kit";
+import { error, isHttpError } from "@sveltejs/kit";
 import { lineString } from "@turf/turf";
 import { constants } from "http2";
 import type { RouteData } from "@/lib/types/mapObjectData/route";
@@ -49,6 +49,10 @@ export const GET: RequestHandler = async ({ params, locals, fetch, getClientAddr
 		permissionContext,
 		request.signal
 	).catch(async (cause) => {
+		if (isHttpError(cause, 503)) {
+			await rateLimitReward(rateLimitKey, 2, type);
+			throw cause;
+		}
 		if (!(cause instanceof CpuWorkerError)) throw cause;
 		await rateLimitReward(rateLimitKey, 2, type);
 		error(constants.HTTP_STATUS_SERVICE_UNAVAILABLE);
