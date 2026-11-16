@@ -114,6 +114,20 @@ it("propagates a server timeout as 503, resets the session and does not retry", 
 	expect(mocks.conn.release).toHaveBeenCalledOnce();
 });
 
+it.each(["query", "queryJoined"] as const)(
+	"maps errno-only MariaDB deadlines to 503 in %s",
+	async (method) => {
+		const api = await import("./internalQuery");
+		mocks.conn.query.mockImplementation(async (options) => {
+			if (typeof options === "string" && options.includes("VERSION"))
+				return [[{ version: "11.1.2-MariaDB" }], []];
+			throw { errno: 1969, sqlState: "70100" };
+		});
+		await expect(api[method]("SELECT 1")).rejects.toMatchObject({ status: 503 });
+		expect(mocks.conn.release).toHaveBeenCalledOnce();
+	}
+);
+
 it("fails closed before scanning data if server deadlines are unsupported", async () => {
 	const { query } = await import("./internalQuery");
 	mocks.conn.query.mockResolvedValue([[{ version: "5.6.51" }], []]);

@@ -58,6 +58,7 @@ function sqlError(cause: unknown): never {
 	const code = (cause as { code?: string })?.code;
 	if (
 		cause instanceof ReadUnavailable ||
+		(cause as { errno?: number })?.errno === 1969 ||
 		[
 			"ER_QUERY_TIMEOUT",
 			"ER_STATEMENT_TIMEOUT",
