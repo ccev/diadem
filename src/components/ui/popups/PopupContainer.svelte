@@ -18,9 +18,11 @@
 	} from "$lib/mapObjects/popupVisibility.svelte";
 
 	let {
-		alwaysExpanded = false
+		alwaysExpanded = false,
+		onDesktopWidthChange
 	}: {
 		alwaysExpanded?: boolean;
+		onDesktopWidthChange?: (width: number) => void;
 	} = $props();
 
 	let data = $derived(getCurrentSelectedData());
@@ -39,6 +41,7 @@
 
 	function updatePopupWidth(width: number | undefined) {
 		popupWidth = width ?? 0;
+		onDesktopWidthChange?.(popupWidth);
 		setPopupOcclusion(popupWidth ? { width: popupWidth } : undefined);
 		checkPopupVisibility();
 	}
@@ -74,6 +77,7 @@
 	{#if doesDataExist}
 		<div
 			bind:offsetWidth={null, updatePopupWidth}
+			{@attach () => () => onDesktopWidthChange?.(0)}
 			class="h-full min-w-80 max-w-110 basis-110 shrink grow-0"
 			transition:fly={{ duration: 130, x: 120 }}
 			class:pt-18={isSearchViewActive()}

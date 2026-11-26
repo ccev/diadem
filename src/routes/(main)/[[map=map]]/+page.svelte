@@ -33,6 +33,7 @@
 	import { watch } from "runed";
 
 	let map: maplibre.Map | undefined = $state(undefined);
+	let desktopPopupWidth = $state(0);
 
 	watch(
 		() => [getCurrentSelectedData(), isMenuSidebar()],
@@ -71,7 +72,7 @@
 		<div
 			class="fixed z-50 top-safe-inset-top pl-safe-inset-left pr-safe-inset-right w-full pointer-events-none"
 		>
-			<ActiveSearchView />
+			<ActiveSearchView desktopPopupWidth={isMenuSidebar() ? desktopPopupWidth : 0} />
 		</div>
 	{/if}
 
@@ -96,7 +97,10 @@
 			</div>
 		{/snippet}
 		{#snippet desktopRightSidebar()}
-			<PopupContainer alwaysExpanded={true} />
+			<PopupContainer
+				alwaysExpanded
+				onDesktopWidthChange={(width) => (desktopPopupWidth = width)}
+			/>
 		{/snippet}
 
 		{#snippet mobileTop()}
