@@ -7,18 +7,14 @@
 	let { desktopPopupWidth = 0 }: { desktopPopupWidth?: number } = $props();
 </script>
 
-<!-- Reserve the same space on both sides to keep the midpoint fixed. When there is too
-     little room, keep the controls usable above the popup, which is inset at the top. -->
 <button
-	class="w-full max-w-2xl! mx-auto flex items-center gap-4 pointer-events-auto rounded-lg border bg-card text-card-foreground shadow-md cursor-pointer text-left transition-colors hover:bg-accent active:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-	style:width={desktopPopupWidth
-		? `max(16rem, calc(100% - 2 * (${desktopPopupWidth}px + 0.5rem)))`
-		: undefined}
+	class="flex items-center gap-4 pointer-events-auto rounded-lg border bg-card text-card-foreground shadow-md cursor-pointer text-left transition-colors hover:bg-accent active:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+	style:--desktop-popup-width={`${desktopPopupWidth}px`}
 	title={m.close()}
 	onclick={() => closeOverlay({ kind: "active-search", id: "banner" })}
 >
 	<Search size="18" class="ml-4 shrink-0" />
-	<span class="min-w-0 wrap-anywhere my-4" class:truncate={desktopPopupWidth > 0}>
+	<span class={["min-w-0 wrap-anywhere my-4", { truncate: desktopPopupWidth > 0 }]}>
 		{m.searching_for()}
 		<b>{getActiveSearch()?.name}</b>
 	</span>
@@ -26,3 +22,16 @@
 		<X size="20" />
 	</span>
 </button>
+
+<style>
+	button {
+		--banner-max-width: var(--container-2xl, 42rem);
+		/* Keep the original centered layout's left edge, even when the right edge shrinks. */
+		--banner-left: max(0px, (100% - var(--banner-max-width)) / 2);
+		margin-left: var(--banner-left);
+		width: min(
+			var(--banner-max-width),
+			calc(100% - var(--banner-left) - var(--desktop-popup-width))
+		);
+	}
+</style>

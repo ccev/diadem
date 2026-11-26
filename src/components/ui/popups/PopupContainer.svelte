@@ -9,7 +9,6 @@
 	import { getPopupProps } from "@/lib/ui/popupProps";
 	import { isAllowedTwoSidebars } from "$lib/utils/device";
 	import { closeMenu } from "$lib/ui/menus.svelte";
-	import { isSearchViewActive } from "$lib/features/activeSearch.svelte";
 	import {
 		centerRequestedMapObjectIfPopupCovers,
 		getPopupVisibilityRequest,
@@ -80,7 +79,6 @@
 			{@attach () => () => onDesktopWidthChange?.(0)}
 			class="h-full min-w-80 max-w-110 basis-110 shrink grow-0"
 			transition:fly={{ duration: 130, x: 120 }}
-			class:pt-18={isSearchViewActive()}
 		>
 			<div
 				class="z-10 h-full relative overflow-y-auto rounded-l-xl border border-border bg-card pt-6 pointer-events-auto"
