@@ -24,9 +24,8 @@
 	} from "$lib/utils/device";
 	import Button from "@/components/ui/input/Button.svelte";
 	import { Copy, Navigation, Share2, X } from "@lucide/svelte";
-	import { getRootOrigin } from "$lib/native/runtime";
 	import { closePopup, getCurrentPath } from "$lib/mapObjects/interact";
-	import { getLocale } from "$lib/paraglide/runtime";
+	import { getShareUrl } from "$lib/utils/shareUrl";
 	import { getMapsUrl } from "$lib/utils/mapUrl";
 	import { Coords } from "$lib/utils/coordinates";
 	import { getShareTitle } from "$lib/features/shareTexts";
@@ -45,11 +44,6 @@
 	} = $props();
 
 	useMetadata(() => ({ title: props ? props.title : undefined }));
-
-	function getShareUrl() {
-		const path = getCurrentPath({ data });
-		return getRootOrigin() + path + (path.includes("?") ? "&" : "?") + "lang=" + getLocale();
-	}
 </script>
 
 <div class="relative flex shrink-0 gap-6 px-4 pr-24">
@@ -66,13 +60,13 @@
 	{/if}
 
 	<div class="absolute right-2 top-2 flex gap-3">
-		{#if canNativeShare({ url: getShareUrl() })}
+		{#if canNativeShare({ url: getShareUrl(getCurrentPath({ data })) })}
 			<Button
 				variant="ghost"
 				size=""
 				class="rounded-full p-2 size-9 bg-accent/50"
 				title={m.popup_share()}
-				onclick={() => backupShareUrl(getShareUrl())}
+				onclick={() => backupShareUrl(getShareUrl(getCurrentPath({ data })))}
 			>
 				<Share2 class="size-3.5" />
 			</Button>
@@ -82,7 +76,7 @@
 				size=""
 				class="rounded-full p-2 size-9 bg-accent/50"
 				title={m.copy_link()}
-				onclick={() => copyToClipboard(getShareUrl())}
+				onclick={() => copyToClipboard(getShareUrl(getCurrentPath({ data })))}
 			>
 				<Copy class="size-3.5" />
 			</Button>

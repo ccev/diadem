@@ -1,5 +1,5 @@
 import * as m from "@/lib/paraglide/messages";
-import { getLocale } from "@/lib/paraglide/runtime";
+import { baseLocale, getLocale } from "@/lib/paraglide/runtime";
 import { getMasterPokemon } from "@/lib/services/masterfile";
 import { RaidLevel } from "@/lib/utils/gymUtils";
 import { formatNumber } from "@/lib/utils/numberFormat";
@@ -34,7 +34,7 @@ export async function loadRemoteLocale(languageTag: string, thisFetch: typeof fe
 
 function getIngameLocale() {
 	const languageTag = getLocale();
-	return remoteLocales[languageTag] ?? Object.values(remoteLocales)[0] ?? {};
+	return remoteLocales[languageTag] ?? remoteLocales[baseLocale] ?? {};
 }
 
 function mIngame(key: string): string {

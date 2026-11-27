@@ -1,4 +1,4 @@
-import type { Handle, ServerInit } from "@sveltejs/kit";
+import { redirect, type Handle, type ServerInit } from "@sveltejs/kit";
 
 import { getUserByDiscordId } from "@/lib/server/auth/auth";
 import {
@@ -13,35 +13,53 @@ import { getEveryonePerms, updatePermissions } from "@/lib/server/auth/permissio
 import type { User } from "@/lib/server/db/internal/schema";
 import { PERMISSION_UPDATE_INTERVAL } from "@/lib/constants";
 import type { Perms } from "@/lib/utils/features";
-import { locales, serverAsyncLocalStorage } from "@/lib/paraglide/runtime";
+import { baseLocale, getServerAsyncLocalStorage, locales } from "@/lib/paraglide/runtime";
 import { paraglideMiddleware } from "@/lib/paraglide/server";
 import { sequence } from "@sveltejs/kit/hooks";
 import { setServerLoggerFactory } from "@/lib/utils/logger";
 import { getServerLogger } from "@/lib/server/logging";
 import { getClientConfig } from "@/lib/services/config/config.server";
 import { setConfig } from "@/lib/services/config/config";
-import { getDisallowedPaths } from "@/lib/utils/disallowedPaths";
+import { getDisallowedPaths, isDisallowedPath } from "@/lib/utils/disallowedPaths";
+import {
+	getLegacyShareRedirect,
+	getSeoOrigin,
+	localizePath,
+	splitLocalePath
+} from "@/lib/utils/localePaths";
 
 process.title = "Diadem";
 
-const paraglideHandle: Handle = ({ event, resolve }) =>
-	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-		event.request = localizedRequest;
+function isSeoRoute(routeId: string | null) {
+	return routeId?.startsWith("/(main)/") || routeId?.startsWith("/(share)/");
+}
 
-		// set locale for ssr metadata
-		const langParam = event.url.searchParams.get("lang");
-		const isValidLang = !!langParam && (locales as readonly string[]).includes(langParam);
-		if (isValidLang) {
-			const store = serverAsyncLocalStorage?.getStore();
-			if (store) store.locale = langParam as (typeof locales)[number];
+const handleLegacyShareLinks: Handle = ({ event, resolve }) => {
+	if (isSeoRoute(event.route.id) && !event.isRemoteRequest) {
+		const target = getLegacyShareRedirect(event.url);
+		if (target) redirect(308, target.href);
+	}
+	return resolve(event);
+};
+
+const handleLocale: Handle = ({ event, resolve }) =>
+	paraglideMiddleware(event.request, ({ locale }) => {
+		const seoLocale = isSeoRoute(event.route.id)
+			? (splitLocalePath(event.url.pathname).locale ?? baseLocale)
+			: undefined;
+		const render = () =>
+			resolve(event, {
+				transformPageChunk: ({ html }) => html.replace("%lang%", seoLocale ?? locale)
+			});
+
+		// Only the server-rendered share pages and thumbnails translate content using the URL.
+		// Use a nested request context, never set the UI preference or mutate the parent store.
+		const storage = getServerAsyncLocalStorage();
+		const context = storage?.getStore();
+		if (seoLocale && storage && context && event.route.id?.startsWith("/(share)/")) {
+			return storage.run({ ...context, locale: seoLocale }, render);
 		}
-		// Use the validated lang only — `effectiveLocale` is interpolated into
-		// `<html lang="%lang%">` so any unvalidated value is reflected XSS.
-		const effectiveLocale = isValidLang ? langParam! : locale;
-
-		return resolve(event, {
-			transformPageChunk: ({ html }) => html.replace("%lang%", effectiveLocale)
-		});
+		return render();
 	});
 
 const permissionCache: TTLCache<string, Perms> = new TTLCache({
@@ -51,7 +69,14 @@ const authLog = getServerLogger("auth");
 const permissionUpdateInFlight = new Map<string, Promise<Perms>>();
 
 const publicRoutePrefixes = ["/api/locale/", "/assets/"];
-const publicRoutes = new Set(["/api/config", "/api/pogodata", "/api/koji", "/api/stats"]);
+const publicRoutes = new Set([
+	"/api/config",
+	"/api/pogodata",
+	"/api/koji",
+	"/api/stats",
+	"/robots.txt",
+	"/sitemap.xml"
+]);
 
 function isPublicRoute(pathname: string) {
 	return (
@@ -157,17 +182,25 @@ export const init: ServerInit = async () => {
 };
 
 const handleSeo: Handle = async ({ event, resolve }) => {
-	const general = getClientConfig().general;
-
 	return resolve(event, {
 		transformPageChunk: ({ html }) => {
+			if (!html.includes("</head>")) return html;
+			const general = getClientConfig().general;
+			const isPublicPage = isSeoRoute(event.route.id);
+			const pathname = event.url.pathname;
+			const { path, locale: seoLocale } = splitLocalePath(pathname);
+			const canonicalPath = isPublicPage ? localizePath(path, seoLocale ?? baseLocale) : pathname;
+			const disallowedPaths = getDisallowedPaths(general.disallowedPaths);
+			const isNonindexPath =
+				isDisallowedPath(canonicalPath, disallowedPaths) ||
+				(canonicalPath !== pathname && isDisallowedPath(pathname, disallowedPaths));
+			const origin = getSeoOrigin(general.url, event.url.origin);
 			const metaTags: string[] = [];
 
 			const addMeta = (identifier: string, tag: string) => {
 				if (!html.includes(identifier)) metaTags.push(tag);
 			};
 
-			const isNonindexPath = getDisallowedPaths().some((p) => event.url.pathname.startsWith(p));
 			if (!general.allowCrawlers) {
 				addMeta('name="robots"', '<meta name="robots" content="noindex, nofollow">');
 			} else if (isNonindexPath) {
@@ -176,53 +209,48 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 				addMeta('name="robots"', '<meta name="robots" content="index, follow">');
 			}
 
-			if (general.description) {
-				addMeta('name="description"', `<meta name="description" content="${general.description}">`);
+			const description = escapeHtml(general.description ?? "");
+			if (description) {
+				addMeta('name="description"', `<meta name="description" content="${description}">`);
 				addMeta(
 					'property="og:description"',
-					`<meta property="og:description" content="${general.description}">`
+					`<meta property="og:description" content="${description}">`
 				);
-			}
-			if (general.image) {
-				addMeta('property="og:image"', `<meta property="og:image" content="${general.image}">`);
-				addMeta(
-					'name="twitter:image:src"',
-					`<meta name="twitter:image:src" content="${general.image}">`
-				);
-				addMeta('name="twitter:card"', '<meta name="twitter:card" content="summary_large_image">');
-			}
-			if (general.url) {
-				addMeta('rel="canonical"', `<link rel="canonical" href="${general.url}">`);
-				addMeta('property="og:url"', `<meta property="og:url" content="${general.url}">`);
-				if (!general.image) {
-					addMeta(
-						'property="og:image"',
-						`<meta property="og:image" content="${general.url}/thumbnail.png">`
-					);
-					addMeta(
-						'name="twitter:image:src"',
-						`<meta name="twitter:image:src" content="${general.url}/thumbnail.png">`
-					);
-					addMeta(
-						'name="twitter:card"',
-						'<meta name="twitter:card" content="summary_large_image">'
-					);
-				}
-			}
-
-			addMeta('property="og:title"', `<meta property="og:title" content="${general.mapName}">`);
-			addMeta('name="twitter:title"', `<meta name="twitter:title" content="${general.mapName}">`);
-			addMeta(
-				'property="og:site_name"',
-				`<meta property="og:site_name" content="${general.mapName}">`
-			);
-			addMeta('name="twitter:site"', `<meta name="twitter:site" content="${general.mapName}">`);
-			if (general.description) {
 				addMeta(
 					'name="twitter:description"',
-					`<meta name="twitter:description" content="${general.description}">`
+					`<meta name="twitter:description" content="${description}">`
 				);
 			}
+			if (isPublicPage) {
+				const canonical = escapeHtml(new URL(canonicalPath, origin).href);
+				addMeta('rel="canonical"', `<link rel="canonical" href="${canonical}">`);
+				addMeta('property="og:url"', `<meta property="og:url" content="${canonical}">`);
+
+				if (general.allowCrawlers && !isNonindexPath) {
+					for (const locale of locales) {
+						const alternatePath = localizePath(path, locale);
+						if (isDisallowedPath(alternatePath, disallowedPaths)) continue;
+						const href = escapeHtml(new URL(alternatePath, origin).href);
+						metaTags.push(`<link rel="alternate" hreflang="${locale}" href="${href}">`);
+						if (locale === baseLocale) {
+							metaTags.push(`<link rel="alternate" hreflang="x-default" href="${href}">`);
+						}
+					}
+				}
+			}
+			if (general.image || isPublicPage) {
+				const image = escapeHtml(general.image || new URL("/thumbnail.png", origin).href);
+				addMeta('property="og:image"', `<meta property="og:image" content="${image}">`);
+				addMeta('name="twitter:image:src"', `<meta name="twitter:image:src" content="${image}">`);
+				addMeta('name="twitter:card"', '<meta name="twitter:card" content="summary_large_image">');
+			}
+
+			const mapName = escapeHtml(general.mapName);
+			if (!/<title(?:\s|>)/.test(html)) metaTags.push(`<title>${mapName}</title>`);
+			addMeta('property="og:title"', `<meta property="og:title" content="${mapName}">`);
+			addMeta('name="twitter:title"', `<meta name="twitter:title" content="${mapName}">`);
+			addMeta('property="og:site_name"', `<meta property="og:site_name" content="${mapName}">`);
+			addMeta('name="twitter:site"', `<meta name="twitter:site" content="${mapName}">`);
 			addMeta('property="og:type"', '<meta property="og:type" content="website">');
 
 			if (metaTags.length === 0) return html;
@@ -231,4 +259,8 @@ const handleSeo: Handle = async ({ event, resolve }) => {
 	});
 };
 
-export const handle: Handle = sequence(paraglideHandle, handleAuth, handleSeo);
+function escapeHtml(value: string): string {
+	return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+}
+
+export const handle: Handle = sequence(handleLegacyShareLinks, handleAuth, handleLocale, handleSeo);

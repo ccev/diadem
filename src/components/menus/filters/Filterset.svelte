@@ -26,7 +26,7 @@
 	import { setActiveSearch } from "@/lib/features/activeSearch.svelte";
 	import { closeMenu } from "@/lib/ui/menus.svelte";
 	import { backupShareUrl } from "@/lib/utils/device";
-	import { getRootOrigin } from "@/lib/native/runtime";
+	import { getShareUrl } from "@/lib/utils/shareUrl";
 
 	let {
 		filter,
@@ -90,7 +90,7 @@
 					setCurrentSelectedFilterset(majorCategory, subCategory, filter, true);
 					const path = subCategory ? `${majorCategory}/${subCategory}` : majorCategory;
 					void backupShareUrl(
-						`${getRootOrigin()}/filter/${path}/${getCurrentSelectedFiltersetEncoded()}`
+						getShareUrl(`/filter/${path}/${getCurrentSelectedFiltersetEncoded()}`)
 					);
 				}
 			},

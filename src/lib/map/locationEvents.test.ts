@@ -44,7 +44,10 @@ vi.mock("@/lib/utils/device", () => ({
 	backupShareUrl: state.share
 }));
 vi.mock("@/lib/native/runtime", () => ({ getRootOrigin: () => state.origin }));
-vi.mock("@/lib/paraglide/runtime", () => ({ getLocale: () => state.locale }));
+vi.mock(import("@/lib/paraglide/runtime"), async (importOriginal) => ({
+	...(await importOriginal()),
+	getLocale: () => state.locale as "en" | "de"
+}));
 vi.mock("@/lib/paraglide/messages", () => ({
 	m: {
 		popup_share: () => "Share",
@@ -113,9 +116,7 @@ describe("map context actions", () => {
 		expect(actions.at(-1)?.Icon).toBe(Copy);
 		actions.at(-2)?.onclick?.();
 		expect(state.path).toHaveBeenCalledExactlyOnceWith({ data: marker });
-		expect(state.copy).toHaveBeenCalledExactlyOnceWith(
-			"https://map.example/pokemon/target?lang=en"
-		);
+		expect(state.copy).toHaveBeenCalledExactlyOnceWith("https://map.example/pokemon/target");
 		expect(state.share).not.toHaveBeenCalled();
 	});
 	it("prefers native sharing and keeps Copy coordinates last", () => {
@@ -129,9 +130,9 @@ describe("map context actions", () => {
 			"Copy coordinates"
 		]);
 		expect(actions.at(-1)?.Icon).toBe(Copy);
-		expect(state.canShare).toHaveBeenCalledWith({ url: "https://map.example/gym/target?lang=en" });
+		expect(state.canShare).toHaveBeenCalledWith({ url: "https://map.example/gym/target" });
 		actions.at(-2)?.onclick?.();
-		expect(state.share).toHaveBeenCalledExactlyOnceWith("https://map.example/gym/target?lang=en");
+		expect(state.share).toHaveBeenCalledExactlyOnceWith("https://map.example/gym/target");
 		expect(state.copy).not.toHaveBeenCalled();
 	});
 	it.each([
@@ -161,9 +162,7 @@ describe("map context actions", () => {
 		const actions: QuickAction[] = state.open.mock.calls[0][0].getActions();
 		actions.at(-2)?.onclick?.();
 		expect(state.path).toHaveBeenCalledExactlyOnceWith({ data: nest });
-		expect(state.copy).toHaveBeenCalledExactlyOnceWith(
-			"https://native-map.example/nest/target?lang=de"
-		);
+		expect(state.copy).toHaveBeenCalledExactlyOnceWith("https://native-map.example/de/nest/target");
 	});
 	it("does not offer unsupported clipboard actions", () => {
 		state.hit.mockReturnValue({ id: "target", type: MapObjectType.GYM, lat: 12, lon: 98 });

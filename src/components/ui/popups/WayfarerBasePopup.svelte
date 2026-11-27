@@ -15,8 +15,7 @@
 		copyToClipboard,
 		hasClipboardWrite
 	} from "@/lib/utils/device";
-	import { getRootOrigin } from "@/lib/native/runtime";
-	import { getLocale } from "@/lib/paraglide/runtime";
+	import { getShareUrl } from "@/lib/utils/shareUrl";
 	import * as m from "@/lib/paraglide/messages";
 
 	let {
@@ -46,23 +45,19 @@
 		onclose?: () => void;
 		class?: string;
 	} = $props();
-
-	function getShareUrl() {
-		return getRootOrigin() + getCurrentPath() + "?lang=" + getLocale();
-	}
 </script>
 
 <div class="w-full max-w-120 z-10" style="pointer-events: all" transition:slide={{ duration: 50 }}>
 	<Card class="h-full relative overflow-hidden pt-4 mx-2 {class_}">
 		<div class="absolute right-2 top-3 flex gap-1.5">
 			{#if canShare}
-				{#if canNativeShare({ url: getShareUrl() })}
+				{#if canNativeShare({ url: getShareUrl(getCurrentPath()) })}
 					<Button
 						variant="ghost"
 						size=""
 						class="rounded-full size-8 p-2"
 						title={m.popup_share()}
-						onclick={() => backupShareUrl(getShareUrl())}
+						onclick={() => backupShareUrl(getShareUrl(getCurrentPath()))}
 					>
 						<Share2 class="size-3.5" />
 					</Button>
@@ -72,7 +67,7 @@
 						size=""
 						class="rounded-full size-8 p-2"
 						title={m.copy_link()}
-						onclick={() => copyToClipboard(getShareUrl())}
+						onclick={() => copyToClipboard(getShareUrl(getCurrentPath()))}
 					>
 						<Copy class="size-3.5" />
 					</Button>

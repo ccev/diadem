@@ -350,11 +350,13 @@ msgpack = true
 ```
 
 - branding and defaults for map and metadata
+- `defaultLocale`: Fallback for geocoding API requests that omit a language. The map UI still follows the saved language preference, then the browser language, then English.
+- Shared pages use unprefixed URLs for English and prefixes such as `/de` for other supported languages. The prefix localizes link previews and SEO metadata, not the map UI. Old shared links with `?lang=` redirect to the new URLs.
 - `customHome`: When true, `/` renders custom home and map moves to `/map`
 - `defaultLat`, `defaultLon`, `defaultZoom`: The default map position for first-time users
 - `minZoom`, `maxZoom`: Locking users into a map zoom range
 - `url`, `image`, `description`: SEO/OpenGraph metadata
-- `allowCrawlers`, `disallowedPaths`: robots.txt config
+- `allowCrawlers`, `disallowedPaths`: Crawl settings for `robots.txt`, page metadata, and `/sitemap.xml`. When crawling is enabled, `robots.txt` advertises a sitemap of stable public pages and their crawlable language variants. Live map objects and one-off share links are not listed.
 - `msgpack`: Default `true`. The map client and API exchange MessagePack, which is about a fifth smaller than JSON but costs roughly three times the CPU to encode and decode on both ends. Set to `false` to use JSON instead, which is the better trade on a CPU-bound server or for clients on fast connections.
 
 ## `server.staticMap`
