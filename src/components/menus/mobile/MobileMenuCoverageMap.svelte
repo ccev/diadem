@@ -16,6 +16,7 @@
 	} from "@/lib/features/coverageMap.svelte";
 	import Fabs from "@/components/ui/fab/Fabs.svelte";
 	import { page } from "$app/state";
+	import { stripSeoLocale } from "@/lib/utils/localePaths";
 
 	let contentClass = $derived(
 		coverageMapActiveSnapPoint.value === coverageMapSnapPoints[coverageMapSnapPoints.length - 1]
@@ -26,7 +27,7 @@
 	onMount(() => resetJustChangedMenus());
 </script>
 
-{#if page.url.pathname.startsWith("/coverage")}
+{#if stripSeoLocale(page.url.pathname) === "/coverage"}
 	<Drawer.Root
 		open={getOpenedMenu() === Menu.COVERAGE_MAP}
 		onOpenChange={(open, details) => {

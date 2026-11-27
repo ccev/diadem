@@ -10,9 +10,8 @@ import {
 	copyToClipboard,
 	hasClipboardWrite
 } from "@/lib/utils/device";
-import { getRootOrigin } from "@/lib/native/runtime";
 import { m } from "@/lib/paraglide/messages";
-import { getLocale } from "@/lib/paraglide/runtime";
+import { getShareUrl } from "@/lib/utils/shareUrl";
 import { Copy, Link, Share2 } from "@lucide/svelte";
 import { openQuickActions } from "@/lib/ui/quickActions.svelte";
 import { getPrimaryPopupActions } from "@/lib/ui/primaryPopupActions";
@@ -66,10 +65,7 @@ export function onLocationContext(event: MapTouchEvent | MapMouseEvent) {
 			title: getPopupProps(data)?.title ?? "",
 			getActions: () => {
 				const actions = getPrimaryPopupActions(data, actionCoords.lat, actionCoords.lon);
-				const path = getCurrentPath({ data });
-				const url = new URL(getRootOrigin() + path);
-				url.searchParams.set("lang", getLocale());
-				const shareUrl = url.toString();
+				const shareUrl = getShareUrl(getCurrentPath({ data }));
 				if (canNativeShare({ url: shareUrl })) {
 					actions.push({
 						label: m.popup_share(),

@@ -22,7 +22,7 @@
 		canNativeShare,
 		hasClipboardWrite
 	} from "@/lib/utils/device";
-	import { getRootOrigin } from "@/lib/native/runtime";
+	import { getShareUrl } from "@/lib/utils/shareUrl";
 	import * as m from "@/lib/paraglide/messages";
 	import { isOpenModal, type ModalType } from "@/lib/ui/modal.svelte";
 	import { closeModal } from "@/lib/ui/modal.svelte.js";
@@ -50,14 +50,16 @@
 		closeModal(modalType);
 	}
 
-	function getShareUrl() {
+	function getFilterShareUrl() {
 		const filterset = getCurrentSelectedFilterset();
 		if (filterset) {
 			let subCat = "";
 			if (filterset.subCategory) subCat = `/${filterset.subCategory}`;
-			return `${getRootOrigin()}/filter/${filterset.majorCategory}${subCat}/${getCurrentSelectedFiltersetEncoded()}`;
+			return getShareUrl(
+				`/filter/${filterset.majorCategory}${subCat}/${getCurrentSelectedFiltersetEncoded()}`
+			);
 		} else {
-			return getRootOrigin();
+			return getShareUrl("/");
 		}
 	}
 </script>
@@ -77,11 +79,11 @@
 						</span>
 					</Button>
 
-					{#if canBackupShare({ url: getShareUrl() })}
+					{#if canBackupShare({ url: getFilterShareUrl() })}
 						<Button
 							class="flex-1 @sm:flex-none"
 							variant="secondary"
-							onclick={() => backupShareUrl(getShareUrl())}
+							onclick={() => backupShareUrl(getFilterShareUrl())}
 						>
 							<Share2 size="14" />
 							<span>

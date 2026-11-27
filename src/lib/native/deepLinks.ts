@@ -1,5 +1,6 @@
 import { isNative } from "@/lib/native/runtime";
 import { completeNativeLogin } from "@/lib/native/auth";
+import { stripSeoLocale } from "@/lib/utils/localePaths";
 
 let resolveNavigationReady: (hasConfig: boolean) => void;
 const navigationReady = new Promise<boolean>((resolve) => {
@@ -84,7 +85,7 @@ async function routeDeepLink(path: string): Promise<void> {
 	// hooks.client installs the listener before the initial route/config load.
 	// Authentication can complete immediately, but content needs the mounted app.
 	if (!(await navigationReady)) return;
-	const segments = path.split(/[?#]/, 1)[0].split("/").filter(Boolean);
+	const segments = stripSeoLocale(path.split(/[?#]/, 1)[0]).split("/").filter(Boolean);
 	const { goto } = await import("$app/navigation");
 
 	// Direct map-object link (/pokemon/123, /gym/abc, …): the web route is SSR-only,

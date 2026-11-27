@@ -1,5 +1,6 @@
 <script lang="ts">
 	import "../app.css";
+	import { browser } from "$app/environment";
 	import { getUserSettings } from "@/lib/services/userSettings.svelte";
 	import { ModeWatcher } from "mode-watcher";
 	import Metadata from "@/components/utils/Metadata.svelte";
@@ -38,7 +39,9 @@
 		/>
 	{/if}
 {:else}
-	<Metadata />
+	{#if browser}
+		<Metadata />
+	{/if}
 
 	<ModeWatcher defaultMode={getUserSettings().themeMode} track={false} />
 	{@render children()}
